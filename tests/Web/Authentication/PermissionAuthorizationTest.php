@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission as PermissionModel;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -22,7 +23,7 @@ class PermissionAuthorizationTest extends TestCase
     public function test_user_without_view_permission_cannot_access_data_routes(): void
     {
         // Permissions already exist from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
 
@@ -44,7 +45,7 @@ class PermissionAuthorizationTest extends TestCase
         $user->givePermissionTo($permission);
 
         // Clear permission cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get('/web/items');
 
@@ -62,7 +63,7 @@ class PermissionAuthorizationTest extends TestCase
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 
@@ -75,7 +76,7 @@ class PermissionAuthorizationTest extends TestCase
     public function test_user_without_manage_users_permission_cannot_access_admin(): void
     {
         // Permissions already exist from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create();
 
@@ -95,7 +96,7 @@ class PermissionAuthorizationTest extends TestCase
         $user = User::factory()->create();
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('settings.index'));
 
@@ -132,7 +133,7 @@ class PermissionAuthorizationTest extends TestCase
         $manageUser = User::factory()->create();
         $manageUser->givePermissionTo($managePermission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // View user can access data routes
         $response = $this->actingAs($viewUser)->get('/web/items');
@@ -163,7 +164,7 @@ class PermissionAuthorizationTest extends TestCase
         $user = User::factory()->create();
         $user->givePermissionTo([$viewPermission, $managePermission]);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Can access both data and admin routes
         $response = $this->actingAs($user)->get('/web/items');

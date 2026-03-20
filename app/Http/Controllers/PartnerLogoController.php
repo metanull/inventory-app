@@ -6,7 +6,9 @@ use App\Http\Requests\Api\IndexPartnerLogoRequest;
 use App\Http\Requests\Api\ShowPartnerLogoRequest;
 use App\Http\Requests\Api\StorePartnerLogoRequest;
 use App\Http\Requests\Api\UpdatePartnerLogoRequest;
+use App\Http\Resources\OperationSuccessResource;
 use App\Http\Resources\PartnerLogoResource;
+use App\Http\Responses\FileResponse;
 use App\Models\PartnerLogo;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
@@ -118,7 +120,7 @@ class PartnerLogoController extends Controller
     {
         $partnerLogo->tightenOrderingForPartner();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Logo ordering tightened successfully',
         ]);
@@ -136,7 +138,7 @@ class PartnerLogoController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerLogo->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -155,7 +157,7 @@ class PartnerLogoController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerLogo->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $partnerLogo->mime_type

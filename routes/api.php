@@ -35,6 +35,7 @@ use App\Http\Controllers\ProvinceTranslationController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\ThemeTranslationController;
+use App\Http\Controllers\UserPermissionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,7 +48,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/user/permissions', [\App\Http\Controllers\UserPermissionsController::class, 'index'])
+Route::get('/user/permissions', [UserPermissionsController::class, 'index'])
     ->name('user.permissions')
     ->middleware('auth:sanctum');
 

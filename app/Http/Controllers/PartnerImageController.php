@@ -7,7 +7,9 @@ use App\Http\Requests\Api\IndexPartnerImageRequest;
 use App\Http\Requests\Api\ShowPartnerImageRequest;
 use App\Http\Requests\Api\StorePartnerImageRequest;
 use App\Http\Requests\Api\UpdatePartnerImageRequest;
+use App\Http\Resources\OperationSuccessResource;
 use App\Http\Resources\PartnerImageResource;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
@@ -121,7 +123,7 @@ class PartnerImageController extends Controller
     {
         $partnerImage->tightenOrderingForPartner();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image ordering tightened successfully',
         ]);
@@ -154,7 +156,7 @@ class PartnerImageController extends Controller
     {
         $availableImage = $partnerImage->detachToAvailableImage();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image detached successfully',
             'available_image_id' => $availableImage->id,
@@ -173,7 +175,7 @@ class PartnerImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -192,7 +194,7 @@ class PartnerImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $partnerImage->mime_type

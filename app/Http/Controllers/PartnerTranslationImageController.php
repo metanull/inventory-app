@@ -7,7 +7,9 @@ use App\Http\Requests\Api\IndexPartnerTranslationImageRequest;
 use App\Http\Requests\Api\ShowPartnerTranslationImageRequest;
 use App\Http\Requests\Api\StorePartnerTranslationImageRequest;
 use App\Http\Requests\Api\UpdatePartnerTranslationImageRequest;
+use App\Http\Resources\OperationSuccessResource;
 use App\Http\Resources\PartnerTranslationImageResource;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
@@ -121,7 +123,7 @@ class PartnerTranslationImageController extends Controller
     {
         $partnerTranslationImage->tightenOrderingForPartnerTranslation();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image ordering tightened successfully',
         ]);
@@ -154,7 +156,7 @@ class PartnerTranslationImageController extends Controller
     {
         $availableImage = $partnerTranslationImage->detachToAvailableImage();
 
-        return new \App\Http\Resources\OperationSuccessResource([
+        return new OperationSuccessResource([
             'success' => true,
             'message' => 'Image detached successfully',
             'available_image_id' => $availableImage->id,
@@ -173,7 +175,7 @@ class PartnerTranslationImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -192,7 +194,7 @@ class PartnerTranslationImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $partnerTranslationImage->mime_type

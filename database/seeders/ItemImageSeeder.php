@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Item;
+use App\Models\ItemImage;
 use Illuminate\Database\Seeder;
 
 class ItemImageSeeder extends Seeder
@@ -11,7 +13,7 @@ class ItemImageSeeder extends Seeder
      */
     public function run(): void
     {
-        $items = \App\Models\Item::all();
+        $items = Item::all();
 
         if ($items->isEmpty()) {
             $this->command->warn('No items found. Please run ItemSeeder first.');
@@ -32,7 +34,7 @@ class ItemImageSeeder extends Seeder
             };
 
             for ($i = 1; $i <= $imageCount; $i++) {
-                $factory = \App\Models\ItemImage::factory()
+                $factory = ItemImage::factory()
                     ->forItem($item)
                     ->withOrder($i);
 
@@ -45,7 +47,7 @@ class ItemImageSeeder extends Seeder
             }
         }
 
-        $totalImages = \App\Models\ItemImage::count();
+        $totalImages = ItemImage::count();
         $this->command->info("Created {$totalImages} item images successfully.");
     }
 }

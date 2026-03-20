@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Collection;
+use App\Models\CollectionImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CollectionImage>
+ * @extends Factory<CollectionImage>
  */
 class CollectionImageFactory extends Factory
 {
@@ -22,7 +24,7 @@ class CollectionImageFactory extends Factory
         $path = 'images/collections/'.$filename;
 
         return [
-            'collection_id' => \App\Models\Collection::factory(),
+            'collection_id' => Collection::factory(),
             'path' => $path,
             'original_name' => fake()->word().'_'.fake()->randomNumber(4).'.jpg',
             'mime_type' => fake()->randomElement(['image/jpeg', 'image/png', 'image/webp']),
@@ -35,7 +37,7 @@ class CollectionImageFactory extends Factory
     /**
      * Indicate that the image should be for a specific collection.
      */
-    public function forCollection(\App\Models\Collection $collection): static
+    public function forCollection(Collection $collection): static
     {
         return $this->state(fn (array $attributes) => [
             'collection_id' => $collection->id,

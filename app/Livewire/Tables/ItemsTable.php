@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Item;
+use App\Models\Tag;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -147,7 +148,7 @@ class ItemsTable extends Component
 
     public function getAvailableTagsProperty()
     {
-        return \App\Models\Tag::orderBy('internal_name')->get();
+        return Tag::orderBy('internal_name')->get();
     }
 
     public function render()

@@ -5,7 +5,9 @@ namespace Tests\Web\Middleware;
 use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\Partner;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 use Tests\Web\Traits\TestsWebPermissions;
 
@@ -38,12 +40,12 @@ class PermissionsTest extends TestCase
             ['GET', 'admin.users.index', Permission::MANAGE_USERS, null],
             ['GET', 'admin.users.create', Permission::MANAGE_USERS, null],
             ['POST', 'admin.users.store', Permission::MANAGE_USERS, null],
-            ['PATCH', 'admin.users.update', Permission::MANAGE_USERS, \App\Models\User::class],
-            ['DELETE', 'admin.users.destroy', Permission::MANAGE_USERS, \App\Models\User::class],
+            ['PATCH', 'admin.users.update', Permission::MANAGE_USERS, User::class],
+            ['DELETE', 'admin.users.destroy', Permission::MANAGE_USERS, User::class],
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('routePermissionsProvider')]
+    #[DataProvider('routePermissionsProvider')]
     public function test_route_enforces_correct_permission(
         string $method,
         string $route,

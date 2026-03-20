@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission as PermissionModel;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -59,7 +60,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
     public function test_user_without_view_data_permission_cannot_access_items_page(): void
     {
         // Permissions already exist from TestCase::ensurePermissionsExist()
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $user = User::factory()->create(['email_verified_at' => now()]);
 
@@ -79,7 +80,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -108,7 +109,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
@@ -126,7 +127,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('web.welcome'));
 
@@ -157,7 +158,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission); // Give MANAGE_USERS but not VIEW_DATA
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('items.index'));
 
@@ -175,7 +176,7 @@ class NonVerifiedUserAuthorizationTest extends TestCase
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo($permission);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)->get(route('admin.users.index'));
 

@@ -8,6 +8,7 @@ use App\Http\Requests\Web\StoreCollectionRequest;
 use App\Http\Requests\Web\UpdateCollectionRequest;
 use App\Models\Collection;
 use App\Models\Context;
+use App\Models\Item;
 use App\Models\Language;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
@@ -91,14 +92,14 @@ class CollectionController extends Controller
             'item_id' => ['required', 'exists:items,id'],
         ]);
 
-        $item = \App\Models\Item::findOrFail($request->item_id);
+        $item = Item::findOrFail($request->item_id);
         $collection->attachItem($item);
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Item attached successfully');
     }
 
-    public function detachItem(Collection $collection, \App\Models\Item $item): RedirectResponse
+    public function detachItem(Collection $collection, Item $item): RedirectResponse
     {
         $collection->detachItem($item);
 

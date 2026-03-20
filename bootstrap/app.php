@@ -1,9 +1,15 @@
 <?php
 
+use App\Http\Middleware\CheckSelfRegistrationEnabled;
+use App\Http\Middleware\RequirePermission;
+use App\Http\Middleware\RequireRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -33,12 +39,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register authorization middleware
         $middleware->alias([
-            'permission' => \App\Http\Middleware\RequirePermission::class,
-            'role' => \App\Http\Middleware\RequireRole::class,
-            'role.spatie' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission.spatie' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'self_registration' => \App\Http\Middleware\CheckSelfRegistrationEnabled::class,
+            'permission' => RequirePermission::class,
+            'role' => RequireRole::class,
+            'role.spatie' => RoleMiddleware::class,
+            'permission.spatie' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'self_registration' => CheckSelfRegistrationEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

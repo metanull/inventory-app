@@ -2,6 +2,8 @@
 
 namespace Tests\Web\Traits;
 
+use Livewire\Livewire;
+
 /**
  * Trait for testing Livewire components
  */
@@ -11,7 +13,7 @@ trait TestsWebLivewire
 
     public function test_component_can_render(): void
     {
-        $component = \Livewire\Livewire::test($this->getComponentClass());
+        $component = Livewire::test($this->getComponentClass());
 
         $component->assertOk();
     }
@@ -21,7 +23,7 @@ trait TestsWebLivewire
         $modelClass = $this->getModelClass();
         $models = $modelClass::factory()->count(3)->create();
 
-        $component = \Livewire\Livewire::test($this->getComponentClass());
+        $component = Livewire::test($this->getComponentClass());
 
         foreach ($models as $model) {
             $component->assertSee($this->getIdentifier($model));
@@ -34,7 +36,7 @@ trait TestsWebLivewire
             $this->markTestSkipped('Component does not support sorting');
         }
 
-        $component = \Livewire\Livewire::test($this->getComponentClass());
+        $component = Livewire::test($this->getComponentClass());
 
         foreach ($this->getSortableFields() as $field) {
             $component->call('sortBy', $field)
@@ -48,7 +50,7 @@ trait TestsWebLivewire
             $this->markTestSkipped('Component does not support filtering');
         }
 
-        $component = \Livewire\Livewire::test($this->getComponentClass());
+        $component = Livewire::test($this->getComponentClass());
 
         foreach ($this->getFilterableFields() as $field => $value) {
             $component->set($field, $value)

@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreCollectionImageRequest;
 use App\Http\Requests\Web\UpdateCollectionImageRequest;
+use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
@@ -155,7 +156,7 @@ class CollectionImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$collectionImage->path;
 
-        return \App\Http\Responses\FileResponse::download(
+        return FileResponse::download(
             $disk,
             $storagePath,
             $filename,
@@ -179,7 +180,7 @@ class CollectionImageController extends Controller
         // Prepend directory to path
         $storagePath = $directory.'/'.$collectionImage->path;
 
-        return \App\Http\Responses\FileResponse::view(
+        return FileResponse::view(
             $disk,
             $storagePath,
             $collectionImage->mime_type

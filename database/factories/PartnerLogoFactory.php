@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Partner;
+use App\Models\PartnerLogo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PartnerLogo>
+ * @extends Factory<PartnerLogo>
  */
 class PartnerLogoFactory extends Factory
 {

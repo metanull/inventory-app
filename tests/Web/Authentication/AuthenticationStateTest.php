@@ -2,6 +2,7 @@
 
 namespace Tests\Web\Authentication;
 
+use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Web\Traits\CreatesTwoFactorUsers;
@@ -151,7 +152,7 @@ class AuthenticationStateTest extends TestCase
     public function test_navigation_adapts_to_authentication_state(): void
     {
         // Enable self-registration for this test
-        \App\Models\Setting::set('self_registration_enabled', true, 'boolean');
+        Setting::set('self_registration_enabled', true, 'boolean');
 
         // Test unauthenticated navigation
         $response = $this->get(route('web.welcome'));

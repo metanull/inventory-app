@@ -4,11 +4,12 @@ namespace Database\Factories;
 
 use App\Models\Country;
 use App\Models\Item;
+use App\Models\Partner;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Partner>
+ * @extends Factory<Partner>
  */
 class PartnerFactory extends Factory
 {

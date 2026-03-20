@@ -8,6 +8,7 @@ use App\Http\Requests\Api\ShowLanguageRequest;
 use App\Http\Requests\Api\StoreLanguageRequest;
 use App\Http\Requests\Api\UpdateLanguageRequest;
 use App\Http\Resources\LanguageResource;
+use App\Http\Resources\MessageResource;
 use App\Models\Language;
 
 class LanguageController extends Controller
@@ -102,7 +103,7 @@ class LanguageController extends Controller
     {
         Language::clearDefault();
 
-        return new \App\Http\Resources\MessageResource(['message' => 'Default language cleared']);
+        return new MessageResource(['message' => 'Default language cleared']);
     }
 
     /**
@@ -113,7 +114,7 @@ class LanguageController extends Controller
         $language = Language::default()->first();
         if (! $language) {
             return response()->json(
-                (new \App\Http\Resources\MessageResource(['message' => 'No default language found']))->toArray(request()),
+                (new MessageResource(['message' => 'No default language found']))->toArray(request()),
                 404
             );
         }
@@ -129,7 +130,7 @@ class LanguageController extends Controller
         $language = Language::english()->first();
         if (! $language) {
             return response()->json(
-                (new \App\Http\Resources\MessageResource(['message' => 'No English language found']))->toArray(request()),
+                (new MessageResource(['message' => 'No English language found']))->toArray(request()),
                 404
             );
         }

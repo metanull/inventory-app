@@ -12,6 +12,7 @@ use App\Http\Requests\Api\StoreCollectionRequest;
 use App\Http\Requests\Api\UpdateCollectionRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
+use App\Models\Item;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\Request;
@@ -140,7 +141,7 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $item = \App\Models\Item::findOrFail($validated['item_id']);
+        $item = Item::findOrFail($validated['item_id']);
         $collection->attachItem($item);
 
         $collection->refresh();
@@ -159,7 +160,7 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $item = \App\Models\Item::findOrFail($validated['item_id']);
+        $item = Item::findOrFail($validated['item_id']);
         $collection->detachItem($item);
 
         $collection->refresh();

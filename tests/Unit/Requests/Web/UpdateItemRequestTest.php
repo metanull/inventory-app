@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Requests\Web;
 
+use App\Enums\ItemType;
 use App\Http\Requests\Web\UpdateItemRequest;
 use App\Models\Item;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -82,7 +83,7 @@ class UpdateItemRequestTest extends TestCase
     {
         $parent = Item::factory()->create();
 
-        foreach (\App\Enums\ItemType::cases() as $type) {
+        foreach (ItemType::cases() as $type) {
             $item = Item::factory()->create();
 
             $this->assertValidationPasses($item, [

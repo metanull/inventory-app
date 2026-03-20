@@ -3,7 +3,10 @@
 namespace Tests\Unit\Models;
 
 use App\Enums\ItemType;
+use App\Models\Country;
+use App\Models\Item;
 use App\Models\Partner;
+use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,7 +52,7 @@ class PartnerFactoryTest extends TestCase
         $partner = Partner::factory()->withCountry()->create();
 
         $this->assertNotNull($partner->country_id);
-        $this->assertInstanceOf(\App\Models\Country::class, $partner->country);
+        $this->assertInstanceOf(Country::class, $partner->country);
     }
 
     public function test_factory_with_gps_sets_coordinates(): void
@@ -68,7 +71,7 @@ class PartnerFactoryTest extends TestCase
         $partner = Partner::factory()->withProject()->create();
 
         $this->assertNotNull($partner->project_id);
-        $this->assertInstanceOf(\App\Models\Project::class, $partner->project);
+        $this->assertInstanceOf(Project::class, $partner->project);
     }
 
     public function test_factory_with_monument_creates_monument_relationship(): void
@@ -76,7 +79,7 @@ class PartnerFactoryTest extends TestCase
         $partner = Partner::factory()->withMonument()->create();
 
         $this->assertNotNull($partner->monument_item_id);
-        $this->assertInstanceOf(\App\Models\Item::class, $partner->monumentItem);
+        $this->assertInstanceOf(Item::class, $partner->monumentItem);
         $this->assertEquals(ItemType::MONUMENT, $partner->monumentItem->type);
     }
 }

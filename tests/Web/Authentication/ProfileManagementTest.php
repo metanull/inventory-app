@@ -3,11 +3,13 @@
 namespace Tests\Web\Authentication;
 
 use App\Enums\Permission;
+use App\Livewire\Profile\UserRoleInformation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission as PermissionModel;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /**
@@ -31,7 +33,7 @@ class ProfileManagementTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $response = $this->actingAs($user)
             ->get(route('web.profile.show'));
@@ -68,10 +70,10 @@ class ProfileManagementTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole($role);
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Profile\UserRoleInformation::class)
+            ->test(UserRoleInformation::class)
             ->assertSee('Test Manager Role')
             ->assertSee(Permission::MANAGE_USERS->value)
             ->assertSee(Permission::ASSIGN_ROLES->value)
@@ -83,7 +85,7 @@ class ProfileManagementTest extends TestCase
         $user = User::factory()->create();
 
         Livewire::actingAs($user)
-            ->test(\App\Livewire\Profile\UserRoleInformation::class)
+            ->test(UserRoleInformation::class)
             ->assertSee('No Roles Assigned')
             ->assertSee('Please contact an administrator');
     }

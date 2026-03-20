@@ -3,6 +3,8 @@
 namespace App\Faker;
 
 use Faker\Provider\Base;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -75,8 +77,8 @@ class LoremPicsumImageProvider extends Base
      * @param  array  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
      * @return string The path where the image is stored (relative to the disk root)
      *
-     * @throws \Illuminate\Http\Client\RequestException If the HTTP request to fetch the image fails
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
+     * @throws RequestException If the HTTP request to fetch the image fails
+     * @throws FileNotFoundException If the paths cannot be resolved
      */
     public function image(int $width = 640, int $height = 480, string $disk = 'local', ?string $directory = null, ?int $id = null, ?string $seed = null, ?array $options = []): string
     {
@@ -202,7 +204,7 @@ class LoremPicsumImageProvider extends Base
      * @return string The normalized relative path of the stored image
      *
      * @throws \RuntimeException If the storage operation fails
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
+     * @throws FileNotFoundException If the paths cannot be resolved
      */
     protected function storeImageContent(string $imageContents, string $disk = 'local', ?string $directory = null, ?string $filename = null): string
     {
@@ -241,7 +243,7 @@ class LoremPicsumImageProvider extends Base
      * @param  string  $storage_path  The storage path of the image
      * @return string The normalized relative path
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the paths cannot be resolved
+     * @throws FileNotFoundException If the paths cannot be resolved
      */
     protected function normalizeRelativePath(string $disk, string $storage_path): string
     {
@@ -250,7 +252,7 @@ class LoremPicsumImageProvider extends Base
         $real_storage_path = realpath(Storage::disk($disk)->path($storage_path));
 
         if ($real_base_path === false || $real_storage_path === false) {
-            throw new \Illuminate\Contracts\Filesystem\FileNotFoundException('Failed to resolve paths');
+            throw new FileNotFoundException('Failed to resolve paths');
         }
 
         return $normalizer->normalizePath(substr($real_storage_path, strlen($real_base_path) + 1));
