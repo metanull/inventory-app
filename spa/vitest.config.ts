@@ -12,6 +12,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@metanull/inventory-app-api-client': fileURLToPath(new URL('./node_modules/@metanull/inventory-app-api-client', import.meta.url)),
     },
+    preserveSymlinks: true,
   },
   define: {
     global: 'globalThis',

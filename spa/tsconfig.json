@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@metanull/inventory-app-api-client": ["./node_modules/@metanull/inventory-app-api-client/index.d.ts"]
+      "@metanull/inventory-app-api-client": ["./node_modules/@metanull/inventory-app-api-client/index.ts"]
     },
     "types": [
       "vite/client",
@@ -32,6 +32,7 @@
     "noUnusedParameters": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "preserveSymlinks": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

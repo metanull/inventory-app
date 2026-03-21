@@ -1,9 +1,14 @@
 import { ref, onMounted } from 'vue'
-import {
-  Configuration,
-  InfoApi,
-  type InfoVersion200Response,
-} from '@metanull/inventory-app-api-client'
+import { Configuration, InfoApi } from '@metanull/inventory-app-api-client'
+
+interface VersionData {
+  repository?: string | null
+  build_timestamp?: Record<string, unknown> | null
+  repository_url?: string | null
+  api_client_version?: string | null
+  app_version?: string | null
+  commit_sha?: string | null
+}
 
 interface AppInfo {
   application: {
@@ -22,7 +27,7 @@ export function useApiStatus() {
   const isApiUp = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const versionData = ref<InfoVersion200Response | null>(null)
+  const versionData = ref<VersionData | null>(null)
   const appInfo = ref<AppInfo | null>(null)
 
   const checkApiStatus = async () => {
@@ -51,7 +56,7 @@ export function useApiStatus() {
         infoApi.infoIndex(),
       ])
 
-      versionData.value = versionResponse.data
+      versionData.value = versionResponse.data as VersionData
       // Parse the info response if it's a string, otherwise use as-is
       if (typeof infoResponse.data === 'string') {
         try {
