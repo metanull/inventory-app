@@ -22,6 +22,7 @@ Name | Type | Description | Notes
 **place_of_production** | **string** | The place of production of the item | [default to undefined]
 **method_for_datation** | **string** | The method for datation of the item | [default to undefined]
 **method_for_provenance** | **string** | The method for provenance of the item | [default to undefined]
+**provenance** | **string** | The ownership history of the item | [default to undefined]
 **obtention** | **string** | The obtention of the item | [default to undefined]
 **bibliography** | **string** | The bibliography for the item | [default to undefined]
 **author_id** | **string** | The author of the item (AuthorResource id) | [default to undefined]
@@ -29,7 +30,7 @@ Name | Type | Description | Notes
 **translator_id** | **string** | The translator of the item translation (AuthorResource id) | [default to undefined]
 **translation_copy_editor_id** | **string** | The copy-editor of the item translation (AuthorResource id) | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
-**extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
+**extra** | **string** | Extra data for translation (object, may be null) | [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 **item** | [**ItemResource**](ItemResource.md) | The item relationship (ItemResource) | [optional] [default to undefined]
@@ -63,6 +64,7 @@ const instance: ItemTranslationResource = {
     place_of_production,
     method_for_datation,
     method_for_provenance,
+    provenance,
     obtention,
     bibliography,
     author_id,

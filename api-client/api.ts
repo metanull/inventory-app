@@ -43,23 +43,23 @@ export interface ArtistResource {
     /**
      * The place of birth of the artist
      */
-    'place_of_birth': string | null;
+    'place_of_birth': string;
     /**
      * The place of death of the artist
      */
-    'place_of_death': string | null;
+    'place_of_death': string;
     /**
      * The date of birth of the artist
      */
-    'date_of_birth': string | null;
+    'date_of_birth': string;
     /**
      * The date of death of the artist
      */
-    'date_of_death': string | null;
+    'date_of_death': string;
     /**
      * The period of activity of the artist
      */
-    'period_of_activity': string | null;
+    'period_of_activity': string;
     /**
      * A name for this resource, for internal use only.
      */
@@ -67,15 +67,15 @@ export interface ArtistResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * Items associated with this artist (ItemResource[])
      */
@@ -156,19 +156,19 @@ export interface AuthorResource {
     /**
      * A name for this resource, for internal use only.
      */
-    'internal_name': string | null;
+    'internal_name': string;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface AvailableImageIndex200Response {
     'data': Array<AvailableImageResource>;
@@ -219,19 +219,19 @@ export interface AvailableImageResource {
     /**
      * The path to the picture file
      */
-    'path': string | null;
+    'path': string;
     /**
      * A user defined comment associated with the file
      */
-    'comment': string | null;
+    'comment': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface AvailableImageShow200Response {
     'data': AvailableImageResource;
@@ -263,15 +263,15 @@ export interface CollectionImageResource {
     /**
      * The file size in bytes
      */
-    'size': number;
+    'size': string;
     /**
      * Alternative text for accessibility
      */
-    'alt_text': string | null;
+    'alt_text': string;
     /**
      * Display order for sorting images
      */
-    'display_order': number;
+    'display_order': string;
     /**
      * The collection this image belongs to (CollectionResource)
      */
@@ -279,11 +279,11 @@ export interface CollectionImageResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface CollectionImageTightenOrdering200Response {
     'data': OperationSuccessResource;
@@ -323,19 +323,23 @@ export interface CollectionResource {
     /**
      * The parent collection ID (for hierarchical organization)
      */
-    'parent_id': string | null;
+    'parent_id': string;
+    /**
+     * The display order within sibling collections
+     */
+    'display_order': string;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * The language relationship (LanguageResource)
      */
@@ -411,25 +415,29 @@ export interface CollectionTranslationResource {
      */
     'description': string;
     /**
+     * The quote/introduction of the collection translation (optional)
+     */
+    'quote': string;
+    /**
      * The URL for the collection translation
      */
-    'url': string | null;
+    'url': string;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * Extra data for translation (object, may be null)
      */
-    'extra': object | null;
+    'extra': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * The collection relationship (CollectionResource)
      */
@@ -474,19 +482,19 @@ export interface ContextResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * Indicates if this context is the default one. There is one single default context for the entire database.
      */
-    'is_default': boolean;
+    'is_default': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface ConversionResource {
     'success': MarkdownPreview422ResponseSuccess;
@@ -512,15 +520,15 @@ export interface CountryResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface CountryShow200Response {
     'data': CountryResource;
@@ -543,13 +551,13 @@ export interface CountryTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string | null;
-    'extra': object | null;
+    'backward_compatibility': string;
+    'extra': string;
     /**
      * Timestamps
      */
-    'created_at': string | null;
-    'updated_at': string | null;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface CountryTranslationShow200Response {
     'data': CountryTranslationResource;
@@ -571,15 +579,15 @@ export interface GlossaryResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * Relationships (only included if loaded)
      */
@@ -615,11 +623,11 @@ export interface GlossarySpellingResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * Relationships (only included if loaded)
      */
@@ -655,11 +663,11 @@ export interface GlossaryTranslationResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * Relationships (only included if loaded)
      */
@@ -680,31 +688,31 @@ export interface ImageUploadResource {
     /**
      * The path to the picture file
      */
-    'path': string | null;
+    'path': string;
     /**
      * The original name of the uploaded file
      */
-    'name': string | null;
+    'name': string;
     /**
      * The file extension of the uploaded file
      */
-    'extension': string | null;
+    'extension': string;
     /**
      * The MIME type of the uploaded file
      */
-    'mime_type': string | null;
+    'mime_type': string;
     /**
      * The size of the uploaded file in bytes
      */
-    'size': number | null;
+    'size': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface ImageUploadShow200Response {
     'data': ImageUploadResource;
@@ -763,15 +771,15 @@ export interface ItemImageResource {
     /**
      * The file size in bytes
      */
-    'size': number;
+    'size': string;
     /**
      * Alternative text for accessibility
      */
-    'alt_text': string | null;
+    'alt_text': string;
     /**
      * Display order for sorting images
      */
-    'display_order': number;
+    'display_order': string;
     /**
      * The item this image belongs to (ItemResource)
      */
@@ -779,11 +787,11 @@ export interface ItemImageResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface ItemImagesIndex200Response {
     'data': Array<ItemImageResource>;
@@ -837,11 +845,11 @@ export interface ItemItemLinkResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface ItemItemLinkShow200Response {
     'data': ItemItemLinkResource;
@@ -867,23 +875,23 @@ export interface ItemItemLinkTranslationResource {
     /**
      * The description of the link (source → target direction)
      */
-    'description': string | null;
+    'description': string;
     /**
      * The reciprocal description of the link (target → source direction)
      */
-    'reciprocal_description': string | null;
+    'reciprocal_description': string;
     /**
      * The Id(s) of matching resource in the legacy system (if any)
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * The item-item link relationship (ItemItemLinkResource)
      */
@@ -908,23 +916,35 @@ export interface ItemResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The type of the item: \'object\', \'monument\', \'detail\', or \'picture\'.
      */
-    'type': ItemType;
+    'type': string;
     /**
      * The parent item ID (for hierarchical relationships), nullable
      */
-    'parent_id': string | null;
+    'parent_id': string;
+    /**
+     * Display order among siblings sharing the same parent, nullable
+     */
+    'display_order': string;
     /**
      * Owner\'s reference number for the item (external reference from owner)
      */
-    'owner_reference': string | null;
+    'owner_reference': string;
     /**
      * MWNF reference number for the item (reference from MWNF system)
      */
-    'mwnf_reference': string | null;
+    'mwnf_reference': string;
+    /**
+     * The start year for the item (for datation purposes)
+     */
+    'start_date': string;
+    /**
+     * The end year for the item (for datation purposes)
+     */
+    'end_date': string;
     /**
      * The parent item (for hierarchical relationships), nullable (ItemResource)
      */
@@ -972,14 +992,12 @@ export interface ItemResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
-
-
 export interface ItemShow200Response {
     'data': ItemResource;
 }
@@ -1012,91 +1030,95 @@ export interface ItemTranslationResource {
     /**
      * The alternate name of the item translation
      */
-    'alternate_name': string | null;
+    'alternate_name': string;
     /**
      * The description of the item translation
      */
-    'description': string | null;
+    'description': string;
     /**
      * The type of the item translation
      */
-    'type': string | null;
+    'type': string;
     /**
      * The holder of the item
      */
-    'holder': string | null;
+    'holder': string;
     /**
      * The owner of the item
      */
-    'owner': string | null;
+    'owner': string;
     /**
      * The initial owner of the item
      */
-    'initial_owner': string | null;
+    'initial_owner': string;
     /**
      * The dates associated with the item
      */
-    'dates': string | null;
+    'dates': string;
     /**
      * The location associated with the item
      */
-    'location': string | null;
+    'location': string;
     /**
      * The dimensions of the item
      */
-    'dimensions': string | null;
+    'dimensions': string;
     /**
      * The place of production of the item
      */
-    'place_of_production': string | null;
+    'place_of_production': string;
     /**
      * The method for datation of the item
      */
-    'method_for_datation': string | null;
+    'method_for_datation': string;
     /**
      * The method for provenance of the item
      */
-    'method_for_provenance': string | null;
+    'method_for_provenance': string;
+    /**
+     * The ownership history of the item
+     */
+    'provenance': string;
     /**
      * The obtention of the item
      */
-    'obtention': string | null;
+    'obtention': string;
     /**
      * The bibliography for the item
      */
-    'bibliography': string | null;
+    'bibliography': string;
     /**
      * The author of the item (AuthorResource id)
      */
-    'author_id': string | null;
+    'author_id': string;
     /**
      * The copy-editor of the item (AuthorResource id)
      */
-    'text_copy_editor_id': string | null;
+    'text_copy_editor_id': string;
     /**
      * The translator of the item translation (AuthorResource id)
      */
-    'translator_id': string | null;
+    'translator_id': string;
     /**
      * The copy-editor of the item translation (AuthorResource id)
      */
-    'translation_copy_editor_id': string | null;
+    'translation_copy_editor_id': string;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * Extra data for translation (object, may be null)
      */
-    'extra': object | null;
+    'extra': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * The item relationship (ItemResource)
      */
@@ -1129,17 +1151,6 @@ export interface ItemTranslationResource {
 export interface ItemTranslationShow200Response {
     'data': ItemTranslationResource;
 }
-
-export const ItemType = {
-    Object: 'object',
-    Monument: 'monument',
-    Detail: 'detail',
-    Picture: 'picture'
-} as const;
-
-export type ItemType = typeof ItemType[keyof typeof ItemType];
-
-
 export interface LanguageGetDefault200Response {
     'data': LanguageResource;
 }
@@ -1160,19 +1171,19 @@ export interface LanguageResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * Indicates if this language is the default one. There is one single default language for the entire database.
      */
-    'is_default': boolean;
+    'is_default': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface LanguageTranslationIndex200Response {
     'data': Array<LanguageTranslationResource>;
@@ -1192,86 +1203,16 @@ export interface LanguageTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string | null;
-    'extra': object | null;
+    'backward_compatibility': string;
+    'extra': string;
     /**
      * Timestamps
      */
-    'created_at': string | null;
-    'updated_at': string | null;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface LanguageTranslationShow200Response {
     'data': LanguageTranslationResource;
-}
-export interface LocationIndex200Response {
-    'data': Array<LocationResource>;
-    'links': AvailableImageIndex200ResponseLinks;
-    'meta': AvailableImageIndex200ResponseMeta;
-}
-export interface LocationResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     */
-    'internal_name': string;
-    /**
-     * The country this location belongs to (CountryResource id)
-     */
-    'country_id': string;
-    /**
-     * Translations for this location (LocationTranslationResource[])
-     */
-    'translations'?: Array<LocationTranslationResource>;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface LocationShow200Response {
-    'data': LocationResource;
-}
-export interface LocationTranslationIndex200Response {
-    'data': Array<LocationTranslationResource>;
-}
-export interface LocationTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * The location this translation belongs to (LocationResource id)
-     */
-    'location_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     */
-    'language_id': string;
-    /**
-     * The name of the location translation
-     */
-    'name': string;
-    /**
-     * The description of the location translation
-     */
-    'description': string | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface LocationTranslationShow200Response {
-    'data': LocationTranslationResource;
 }
 export interface MarkdownFromHtmlRequest {
     'html': string;
@@ -1320,9 +1261,9 @@ export interface PartnerImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': number;
-    'alt_text': string | null;
-    'display_order': number;
+    'size': string;
+    'alt_text': string;
+    'display_order': string;
     /**
      * Relationships
      */
@@ -1330,8 +1271,8 @@ export interface PartnerImageResource {
     /**
      * Timestamps
      */
-    'created_at': string | null;
-    'updated_at': string | null;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface PartnerImageShow200Response {
     'data': PartnerImageResource;
@@ -1340,6 +1281,43 @@ export interface PartnerIndex200Response {
     'data': Array<PartnerResource>;
     'links': AvailableImageIndex200ResponseLinks;
     'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface PartnerLogoIndex200Response {
+    'data': Array<PartnerLogoResource>;
+    'links': AvailableImageIndex200ResponseLinks;
+    'meta': AvailableImageIndex200ResponseMeta;
+}
+export interface PartnerLogoResource {
+    /**
+     * The unique identifier (GUID)
+     */
+    'id': string;
+    /**
+     * Foreign key
+     */
+    'partner_id': string;
+    /**
+     * Logo information
+     */
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': string;
+    'logo_type': string;
+    'alt_text': string;
+    'display_order': string;
+    /**
+     * Relationships
+     */
+    'partner'?: PartnerResource;
+    /**
+     * Timestamps
+     */
+    'created_at': string;
+    'updated_at': string;
+}
+export interface PartnerLogoShow200Response {
+    'data': PartnerLogoResource;
 }
 export interface PartnerResource {
     /**
@@ -1353,7 +1331,7 @@ export interface PartnerResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The type of the partner, either \'museum\', \'institution\' or \'individual\'.
      */
@@ -1365,9 +1343,9 @@ export interface PartnerResource {
     /**
      * GPS Location
      */
-    'latitude': string | null;
-    'longitude': string | null;
-    'map_zoom': number;
+    'latitude': string;
+    'longitude': string;
+    'map_zoom': string;
     /**
      * Relationships
      */
@@ -1379,15 +1357,15 @@ export interface PartnerResource {
     /**
      * Visibility
      */
-    'visible': boolean;
+    'visible': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface PartnerShow200Response {
     'data': PartnerResource;
@@ -1412,9 +1390,9 @@ export interface PartnerTranslationImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': number;
-    'alt_text': string | null;
-    'display_order': number;
+    'size': string;
+    'alt_text': string;
+    'display_order': string;
     /**
      * Relationships
      */
@@ -1422,8 +1400,8 @@ export interface PartnerTranslationImageResource {
     /**
      * Timestamps
      */
-    'created_at': string | null;
-    'updated_at': string | null;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface PartnerTranslationImageShow200Response {
     'data': PartnerTranslationImageResource;
@@ -1448,26 +1426,26 @@ export interface PartnerTranslationResource {
      * Core partner info
      */
     'name': string;
-    'description': string | null;
+    'description': string;
     /**
      * Address fields (embedded)
      */
-    'city_display': string | null;
-    'address_line_1': string | null;
-    'address_line_2': string | null;
-    'postal_code': string | null;
-    'address_notes': string | null;
+    'city_display': string;
+    'address_line_1': string;
+    'address_line_2': string;
+    'postal_code': string;
+    'address_notes': string;
     /**
      * Contact fields (semi-structured)
      */
-    'contact_name': string | null;
-    'contact_email_general': string | null;
-    'contact_email_press': string | null;
-    'contact_phone': string | null;
-    'contact_website': string | null;
-    'contact_notes': string | null;
-    'contact_emails': Array<any> | null;
-    'contact_phones': Array<any> | null;
+    'contact_name': string;
+    'contact_email_general': string;
+    'contact_email_press': string;
+    'contact_phone': string;
+    'contact_website': string;
+    'contact_notes': string;
+    'contact_emails': string;
+    'contact_phones': string;
     /**
      * Relationships
      */
@@ -1478,13 +1456,13 @@ export interface PartnerTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string | null;
-    'extra': object | null;
+    'backward_compatibility': string;
+    'extra': string;
     /**
      * Timestamps
      */
-    'created_at': string | null;
-    'updated_at': string | null;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface PartnerTranslationShow200Response {
     'data': PartnerTranslationResource;
@@ -1509,19 +1487,19 @@ export interface ProjectResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * Launch date of the project, nullable
      */
-    'launch_date': string | null;
+    'launch_date': string;
     /**
      * Indicates if the project has been launched already
      */
-    'is_launched': boolean;
+    'is_launched': string;
     /**
      * Indicates if the project is enabled (active)
      */
-    'is_enabled': boolean;
+    'is_enabled': string;
     /**
      * The default context used within the project (ContextResource)
      */
@@ -1533,84 +1511,14 @@ export interface ProjectResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface ProjectShow200Response {
     'data': ProjectResource;
-}
-export interface ProvinceIndex200Response {
-    'data': Array<ProvinceResource>;
-    'links': AvailableImageIndex200ResponseLinks;
-    'meta': AvailableImageIndex200ResponseMeta;
-}
-export interface ProvinceResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * A name for this resource, for internal use only.
-     */
-    'internal_name': string;
-    /**
-     * The country this province belongs to (CountryResource id)
-     */
-    'country_id': string;
-    /**
-     * Translations for this province (ProvinceTranslationResource[])
-     */
-    'translations'?: Array<ProvinceTranslationResource>;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface ProvinceShow200Response {
-    'data': ProvinceResource;
-}
-export interface ProvinceTranslationIndex200Response {
-    'data': Array<ProvinceTranslationResource>;
-}
-export interface ProvinceTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * The province this translation belongs to (ProvinceResource id)
-     */
-    'province_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     */
-    'language_id': string;
-    /**
-     * The name of the province translation
-     */
-    'name': string;
-    /**
-     * The description of the province translation
-     */
-    'description': string | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface ProvinceTranslationShow200Response {
-    'data': ProvinceTranslationResource;
 }
 export interface SetDefaultContextRequest {
     'is_default': boolean;
@@ -1638,6 +1546,7 @@ export interface StoreCollectionRequest {
     'language_id': string;
     'context_id': string;
     'parent_id'?: string | null;
+    'display_order'?: number | null;
     'backward_compatibility'?: string | null;
 }
 
@@ -1659,7 +1568,8 @@ export interface StoreCollectionTranslationRequest {
     'language_id': string;
     'context_id': string;
     'title': string;
-    'description': string;
+    'description'?: string | null;
+    'quote'?: string | null;
     'url'?: string | null;
     'backward_compatibility'?: string | null;
     'extra'?: string | null;
@@ -1731,12 +1641,15 @@ export interface StoreItemRequest {
     'backward_compatibility'?: string | null;
     'type': StoreItemRequestTypeEnum;
     'parent_id'?: string | null;
+    'display_order'?: number | null;
     'country_id'?: string | null;
     'partner_id'?: string | null;
     'project_id'?: string | null;
     'collection_id'?: string | null;
     'owner_reference'?: string | null;
     'mwnf_reference'?: string | null;
+    'start_date'?: number | null;
+    'end_date'?: number | null;
 }
 
 export const StoreItemRequestTypeEnum = {
@@ -1766,6 +1679,7 @@ export interface StoreItemTranslationRequest {
     'place_of_production'?: string | null;
     'method_for_datation'?: string | null;
     'method_for_provenance'?: string | null;
+    'provenance'?: string | null;
     'obtention'?: string | null;
     'bibliography'?: string | null;
     'author_id'?: string | null;
@@ -1789,22 +1703,6 @@ export interface StoreLanguageTranslationRequest {
     'backward_compatibility'?: string | null;
     'extra'?: Array<string> | null;
 }
-export interface StoreLocationRequest {
-    'internal_name': string;
-    'country_id': string;
-    'backward_compatibility'?: string | null;
-    'translations': Array<StoreLocationRequestTranslationsInner>;
-}
-export interface StoreLocationRequestTranslationsInner {
-    'language_id': string;
-    'name': string;
-}
-export interface StoreLocationTranslationRequest {
-    'location_id': string;
-    'language_id': string;
-    'name': string;
-    'description'?: string | null;
-}
 export interface StorePartnerImageRequest {
     'id'?: string;
     'partner_id': string;
@@ -1812,6 +1710,17 @@ export interface StorePartnerImageRequest {
     'original_name': string;
     'mime_type': string;
     'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
+export interface StorePartnerLogoRequest {
+    'id'?: string;
+    'partner_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'logo_type'?: string;
     'alt_text'?: string | null;
     'display_order': number;
 }
@@ -1898,18 +1807,6 @@ export interface StoreProjectRequest {
     'context_id'?: string | null;
     'language_id'?: string | null;
 }
-export interface StoreProvinceRequest {
-    'internal_name': string;
-    'country_id': string;
-    'backward_compatibility'?: string | null;
-    'translations': Array<StoreLocationRequestTranslationsInner>;
-}
-export interface StoreProvinceTranslationRequest {
-    'province_id': string;
-    'language_id': string;
-    'name': string;
-    'description'?: string | null;
-}
 export interface StoreTagRequest {
     'id'?: string;
     'internal_name': string;
@@ -1928,22 +1825,6 @@ export const StoreTagRequestCategoryEnum = {
 
 export type StoreTagRequestCategoryEnum = typeof StoreTagRequestCategoryEnum[keyof typeof StoreTagRequestCategoryEnum];
 
-export interface StoreThemeRequest {
-    'exhibition_id': string;
-    'parent_id'?: string | null;
-    'internal_name': string;
-    'backward_compatibility'?: string | null;
-}
-export interface StoreThemeTranslationRequest {
-    'theme_id': string;
-    'language_id': string;
-    'context_id': string;
-    'title': string;
-    'description': string;
-    'introduction': string;
-    'backward_compatibility'?: string | null;
-    'extra'?: string | null;
-}
 export interface TagForItem200Response {
     'data': Array<TagResource>;
     'links': AvailableImageIndex200ResponseLinks;
@@ -1961,15 +1842,15 @@ export interface TagResource {
     /**
      * The category of the tag (keyword, material, artist, dynasty), nullable
      */
-    'category': string | null;
+    'category': string;
     /**
      * The language of the tag (ISO 639-3 code), nullable
      */
-    'language_id': string | null;
+    'language_id': string;
     /**
      * The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The description of the tag
      */
@@ -1977,109 +1858,14 @@ export interface TagResource {
     /**
      * Date of creation
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * Date of last modification
      */
-    'updated_at': string | null;
+    'updated_at': string;
 }
 export interface TagShow200Response {
     'data': TagResource;
-}
-export interface ThemeIndex200Response {
-    'data': Array<ThemeResource>;
-    'links': AvailableImageIndex200ResponseLinks;
-    'meta': AvailableImageIndex200ResponseMeta;
-}
-export interface ThemeResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * The exhibition this theme belongs to (ExhibitionResource id)
-     */
-    'exhibition_id': string;
-    /**
-     * The parent theme of this theme (ThemeResource id)
-     */
-    'parent_id': string | null;
-    /**
-     * A name for this resource, for internal use only.
-     */
-    'internal_name': string;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Translations for this theme (ThemeTranslationResource[])
-     */
-    'translations'?: Array<ThemeTranslationResource>;
-    /**
-     * Subthemes of this theme (ThemeResource[])
-     */
-    'subthemes'?: Array<ThemeResource>;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface ThemeShow200Response {
-    'data': ThemeResource;
-}
-export interface ThemeTranslationResource {
-    /**
-     * The unique identifier (GUID)
-     */
-    'id': string;
-    /**
-     * The theme this translation belongs to (ThemeResource id)
-     */
-    'theme_id': string;
-    /**
-     * The language of this translation (LanguageResource id)
-     */
-    'language_id': string;
-    /**
-     * The context of this translation (ContextResource id)
-     */
-    'context_id': string;
-    /**
-     * The title of the theme translation
-     */
-    'title': string;
-    /**
-     * The description of the theme translation
-     */
-    'description': string;
-    /**
-     * The introduction of the theme translation
-     */
-    'introduction': string;
-    /**
-     * The Id(s) of matching resource in the legacy system (if any).
-     */
-    'backward_compatibility': string | null;
-    /**
-     * Extra data for translation (object, may be null)
-     */
-    'extra': object | null;
-    /**
-     * The date of creation of the resource (managed by the system)
-     */
-    'created_at': string | null;
-    /**
-     * The date of last modification of the resource (managed by the system)
-     */
-    'updated_at': string | null;
-}
-export interface ThemeTranslationShow200Response {
-    'data': ThemeTranslationResource;
 }
 export interface TokenAcquire201Response {
     'token': string | null;
@@ -2139,6 +1925,7 @@ export interface UpdateCollectionRequest {
     'language_id'?: string;
     'context_id'?: string;
     'parent_id'?: string | null;
+    'display_order'?: number | null;
     'backward_compatibility'?: string | null;
 }
 
@@ -2160,7 +1947,8 @@ export interface UpdateCollectionTranslationRequest {
     'language_id'?: string;
     'context_id'?: string;
     'title'?: string;
-    'description'?: string;
+    'description'?: string | null;
+    'quote'?: string | null;
     'url'?: string | null;
     'backward_compatibility'?: string | null;
     'extra'?: string | null;
@@ -2239,12 +2027,15 @@ export interface UpdateItemRequest {
     'backward_compatibility'?: string | null;
     'type'?: UpdateItemRequestTypeEnum;
     'parent_id'?: string | null;
+    'display_order'?: number | null;
     'country_id'?: string | null;
     'partner_id'?: string | null;
     'project_id'?: string | null;
     'collection_id'?: string | null;
     'owner_reference'?: string | null;
     'mwnf_reference'?: string | null;
+    'start_date'?: number | null;
+    'end_date'?: number | null;
 }
 
 export const UpdateItemRequestTypeEnum = {
@@ -2274,6 +2065,7 @@ export interface UpdateItemTranslationRequest {
     'place_of_production'?: string | null;
     'method_for_datation'?: string | null;
     'method_for_provenance'?: string | null;
+    'provenance'?: string | null;
     'obtention'?: string | null;
     'bibliography'?: string | null;
     'author_id'?: string | null;
@@ -2297,22 +2089,6 @@ export interface UpdateLanguageTranslationRequest {
     'backward_compatibility'?: string | null;
     'extra'?: Array<string> | null;
 }
-export interface UpdateLocationRequest {
-    'internal_name': string;
-    'country_id': string;
-    'backward_compatibility'?: string | null;
-    'translations'?: Array<UpdateLocationRequestTranslationsInner>;
-}
-export interface UpdateLocationRequestTranslationsInner {
-    'language_id'?: string;
-    'name'?: string;
-}
-export interface UpdateLocationTranslationRequest {
-    'location_id'?: string;
-    'language_id'?: string;
-    'name'?: string;
-    'description'?: string | null;
-}
 export interface UpdatePartnerImageRequest {
     'id'?: string;
     'partner_id': string;
@@ -2320,6 +2096,17 @@ export interface UpdatePartnerImageRequest {
     'original_name': string;
     'mime_type': string;
     'size': number;
+    'alt_text'?: string | null;
+    'display_order': number;
+}
+export interface UpdatePartnerLogoRequest {
+    'id'?: string;
+    'partner_id': string;
+    'path': string;
+    'original_name': string;
+    'mime_type': string;
+    'size': number;
+    'logo_type'?: string;
     'alt_text'?: string | null;
     'display_order': number;
 }
@@ -2406,18 +2193,6 @@ export interface UpdateProjectRequest {
     'context_id'?: string | null;
     'language_id'?: string | null;
 }
-export interface UpdateProvinceRequest {
-    'internal_name': string;
-    'country_id': string;
-    'backward_compatibility'?: string | null;
-    'translations'?: Array<UpdateLocationRequestTranslationsInner>;
-}
-export interface UpdateProvinceTranslationRequest {
-    'province_id'?: string;
-    'language_id'?: string;
-    'name'?: string;
-    'description'?: string | null;
-}
 export interface UpdateTagRequest {
     'id'?: string;
     'internal_name': string;
@@ -2440,30 +2215,7 @@ export interface UpdateTagsItemRequest {
     'attach'?: Array<string>;
     'detach'?: Array<string>;
 }
-export interface UpdateThemeRequest {
-    'internal_name'?: string;
-    'backward_compatibility'?: string | null;
-}
-export interface UpdateThemeTranslationRequest {
-    'theme_id'?: string;
-    'language_id'?: string;
-    'context_id'?: string;
-    'title'?: string;
-    'description'?: string;
-    'introduction'?: string;
-    'backward_compatibility'?: string | null;
-    'extra'?: string | null;
-}
 export interface User {
-    'id': number;
-    'name': string;
-    'email': string;
-    'email_verified_at': string | null;
-    'two_factor_confirmed_at': string | null;
-    'current_team_id': number | null;
-    'profile_photo_path': string | null;
-    'created_at': string | null;
-    'updated_at': string | null;
     'profile_photo_url': string;
 }
 export interface UserPermissions200Response {
@@ -2518,15 +2270,15 @@ export interface WorkshopResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string | null;
+    'backward_compatibility': string;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string | null;
+    'created_at': string;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string | null;
+    'updated_at': string;
     /**
      * Items associated with this workshop (ItemResource[])
      */
@@ -6847,11 +6599,11 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryDestroy: async (country: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryDestroy: async (country: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryDestroy', 'country', country)
             const localVarPath = `/country/{country}`
@@ -6934,12 +6686,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryShow: async (country: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryShow: async (country: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryShow', 'country', country)
             const localVarPath = `/country/{country}`
@@ -7017,12 +6769,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate: async (country: string, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryUpdate: async (country: number, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryUpdate', 'country', country)
             // verify required parameter 'updateCountryRequest' is not null or undefined
@@ -7061,12 +6813,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate2: async (country: string, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryUpdate2: async (country: number, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryUpdate2', 'country', country)
             // verify required parameter 'updateCountryRequest' is not null or undefined
@@ -7114,11 +6866,11 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryDestroy(country: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async countryDestroy(country: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryDestroy(country, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryDestroy']?.[localVarOperationServerIndex]?.url;
@@ -7142,12 +6894,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryShow(country: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryShow(country: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryShow(country, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryShow']?.[localVarOperationServerIndex]?.url;
@@ -7169,12 +6921,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryUpdate(country, updateCountryRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryUpdate']?.[localVarOperationServerIndex]?.url;
@@ -7183,12 +6935,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryUpdate2(country, updateCountryRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryUpdate2']?.[localVarOperationServerIndex]?.url;
@@ -7206,11 +6958,11 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryDestroy(country: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        countryDestroy(country: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.countryDestroy(country, options).then((request) => request(axios, basePath));
         },
         /**
@@ -7228,12 +6980,12 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryShow(country: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryShow(country: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryShow(country, include, options).then((request) => request(axios, basePath));
         },
         /**
@@ -7249,23 +7001,23 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryUpdate(country, updateCountryRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} country The country ID
+         * @param {number} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryUpdate2(country, updateCountryRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -7278,11 +7030,11 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Remove the specified resource from storage
-     * @param {string} country The country ID
+     * @param {number} country The country ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryDestroy(country: string, options?: RawAxiosRequestConfig) {
+    public countryDestroy(country: number, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryDestroy(country, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -7302,12 +7054,12 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Display the specified resource
-     * @param {string} country The country ID
+     * @param {number} country The country ID
      * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryShow(country: string, include?: string, options?: RawAxiosRequestConfig) {
+    public countryShow(country: number, include?: string, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryShow(country, include, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -7325,24 +7077,24 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {string} country The country ID
+     * @param {number} country The country ID
      * @param {UpdateCountryRequest} updateCountryRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
+    public countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryUpdate(country, updateCountryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {string} country The country ID
+     * @param {number} country The country ID
      * @param {UpdateCountryRequest} updateCountryRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
+    public countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryUpdate2(country, updateCountryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
@@ -15393,11 +15145,11 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageDestroy: async (language: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageDestroy: async (language: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageDestroy', 'language', language)
             const localVarPath = `/language/{language}`
@@ -15543,12 +15295,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageSetDefault: async (language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageSetDefault: async (language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageSetDefault', 'language', language)
             // verify required parameter 'setDefaultLanguageRequest' is not null or undefined
@@ -15587,11 +15339,11 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageShow: async (language: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageShow: async (language: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageShow', 'language', language)
             const localVarPath = `/language/{language}`
@@ -15665,12 +15417,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate: async (language: string, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageUpdate: async (language: number, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageUpdate', 'language', language)
             // verify required parameter 'updateLanguageRequest' is not null or undefined
@@ -15709,12 +15461,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate2: async (language: string, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageUpdate2: async (language: number, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageUpdate2', 'language', language)
             // verify required parameter 'updateLanguageRequest' is not null or undefined
@@ -15774,11 +15526,11 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageDestroy(language: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async languageDestroy(language: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageDestroy(language, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageDestroy']?.[localVarOperationServerIndex]?.url;
@@ -15825,12 +15577,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageSetDefault(language, setDefaultLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageSetDefault']?.[localVarOperationServerIndex]?.url;
@@ -15839,11 +15591,11 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageShow(language: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageShow(language: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageShow(language, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageShow']?.[localVarOperationServerIndex]?.url;
@@ -15865,12 +15617,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageUpdate(language, updateLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageUpdate']?.[localVarOperationServerIndex]?.url;
@@ -15879,12 +15631,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageUpdate2(language, updateLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageUpdate2']?.[localVarOperationServerIndex]?.url;
@@ -15911,11 +15663,11 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageDestroy(language: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        languageDestroy(language: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.languageDestroy(language, options).then((request) => request(axios, basePath));
         },
         /**
@@ -15950,22 +15702,22 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageSetDefault(language, setDefaultLanguageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified resource
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageShow(language: string, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageShow(language: number, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageShow(language, options).then((request) => request(axios, basePath));
         },
         /**
@@ -15981,23 +15733,23 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageUpdate(language, updateLanguageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {string} language The language ID
+         * @param {number} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageUpdate2(language, updateLanguageRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -16020,11 +15772,11 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Remove the specified resource from storage
-     * @param {string} language The language ID
+     * @param {number} language The language ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageDestroy(language: string, options?: RawAxiosRequestConfig) {
+    public languageDestroy(language: number, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageDestroy(language, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -16063,23 +15815,23 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Set or unset a Language as the default one
-     * @param {string} language The language ID
+     * @param {number} language The language ID
      * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageSetDefault(language, setDefaultLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified resource
-     * @param {string} language The language ID
+     * @param {number} language The language ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageShow(language: string, options?: RawAxiosRequestConfig) {
+    public languageShow(language: number, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageShow(language, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -16097,24 +15849,24 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {string} language The language ID
+     * @param {number} language The language ID
      * @param {UpdateLanguageRequest} updateLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageUpdate(language, updateLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {string} language The language ID
+     * @param {number} language The language ID
      * @param {UpdateLanguageRequest} updateLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageUpdate2(language, updateLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
@@ -16622,990 +16374,6 @@ export class LanguageTranslationApi extends BaseAPI {
      */
     public languageTranslationUpdate2(languageTranslation: string, updateLanguageTranslationRequest?: UpdateLanguageTranslationRequest, options?: RawAxiosRequestConfig) {
         return LanguageTranslationApiFp(this.configuration).languageTranslationUpdate2(languageTranslation, updateLanguageTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * LocationApi - axios parameter creator
- */
-export const LocationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified location
-         * @param {string} location The location ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationDestroy: async (location: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'location' is not null or undefined
-            assertParamExists('locationDestroy', 'location', location)
-            const localVarPath = `/location/{location}`
-                .replace(`{${"location"}}`, encodeURIComponent(String(location)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of locations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/location`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified location
-         * @param {string} location The location ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationShow: async (location: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'location' is not null or undefined
-            assertParamExists('locationShow', 'location', location)
-            const localVarPath = `/location/{location}`
-                .replace(`{${"location"}}`, encodeURIComponent(String(location)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created location
-         * @param {StoreLocationRequest} storeLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationStore: async (storeLocationRequest: StoreLocationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeLocationRequest' is not null or undefined
-            assertParamExists('locationStore', 'storeLocationRequest', storeLocationRequest)
-            const localVarPath = `/location`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeLocationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationUpdate: async (location: string, updateLocationRequest: UpdateLocationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'location' is not null or undefined
-            assertParamExists('locationUpdate', 'location', location)
-            // verify required parameter 'updateLocationRequest' is not null or undefined
-            assertParamExists('locationUpdate', 'updateLocationRequest', updateLocationRequest)
-            const localVarPath = `/location/{location}`
-                .replace(`{${"location"}}`, encodeURIComponent(String(location)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateLocationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationUpdate2: async (location: string, updateLocationRequest: UpdateLocationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'location' is not null or undefined
-            assertParamExists('locationUpdate2', 'location', location)
-            // verify required parameter 'updateLocationRequest' is not null or undefined
-            assertParamExists('locationUpdate2', 'updateLocationRequest', updateLocationRequest)
-            const localVarPath = `/location/{location}`
-                .replace(`{${"location"}}`, encodeURIComponent(String(location)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateLocationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * LocationApi - functional programming interface
- */
-export const LocationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = LocationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified location
-         * @param {string} location The location ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationDestroy(location: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationDestroy(location, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of locations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified location
-         * @param {string} location The location ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationShow(location: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationShow(location, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created location
-         * @param {StoreLocationRequest} storeLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationStore(storeLocationRequest: StoreLocationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationStore(storeLocationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationUpdate(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationUpdate(location, updateLocationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationUpdate2(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationUpdate2(location, updateLocationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationApi.locationUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * LocationApi - factory interface
- */
-export const LocationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = LocationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified location
-         * @param {string} location The location ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationDestroy(location: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.locationDestroy(location, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of locations
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationIndex200Response> {
-            return localVarFp.locationIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified location
-         * @param {string} location The location ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationShow(location: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationShow200Response> {
-            return localVarFp.locationShow(location, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created location
-         * @param {StoreLocationRequest} storeLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationStore(storeLocationRequest: StoreLocationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationShow200Response> {
-            return localVarFp.locationStore(storeLocationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationUpdate(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationShow200Response> {
-            return localVarFp.locationUpdate(location, updateLocationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified location
-         * @param {string} location The location ID
-         * @param {UpdateLocationRequest} updateLocationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationUpdate2(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationShow200Response> {
-            return localVarFp.locationUpdate2(location, updateLocationRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * LocationApi - object-oriented interface
- */
-export class LocationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified location
-     * @param {string} location The location ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationDestroy(location: string, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationDestroy(location, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of locations
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified location
-     * @param {string} location The location ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationShow(location: string, include?: string, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationShow(location, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created location
-     * @param {StoreLocationRequest} storeLocationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationStore(storeLocationRequest: StoreLocationRequest, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationStore(storeLocationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified location
-     * @param {string} location The location ID
-     * @param {UpdateLocationRequest} updateLocationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationUpdate(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationUpdate(location, updateLocationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified location
-     * @param {string} location The location ID
-     * @param {UpdateLocationRequest} updateLocationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationUpdate2(location: string, updateLocationRequest: UpdateLocationRequest, options?: RawAxiosRequestConfig) {
-        return LocationApiFp(this.configuration).locationUpdate2(location, updateLocationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * LocationTranslationApi - axios parameter creator
- */
-export const LocationTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationDestroy: async (locationTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'locationTranslation' is not null or undefined
-            assertParamExists('locationTranslationDestroy', 'locationTranslation', locationTranslation)
-            const localVarPath = `/location-translation/{locationTranslation}`
-                .replace(`{${"locationTranslation"}}`, encodeURIComponent(String(locationTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/location-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationShow: async (locationTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'locationTranslation' is not null or undefined
-            assertParamExists('locationTranslationShow', 'locationTranslation', locationTranslation)
-            const localVarPath = `/location-translation/{locationTranslation}`
-                .replace(`{${"locationTranslation"}}`, encodeURIComponent(String(locationTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreLocationTranslationRequest} storeLocationTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationStore: async (storeLocationTranslationRequest: StoreLocationTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeLocationTranslationRequest' is not null or undefined
-            assertParamExists('locationTranslationStore', 'storeLocationTranslationRequest', storeLocationTranslationRequest)
-            const localVarPath = `/location-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeLocationTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationUpdate: async (locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'locationTranslation' is not null or undefined
-            assertParamExists('locationTranslationUpdate', 'locationTranslation', locationTranslation)
-            const localVarPath = `/location-translation/{locationTranslation}`
-                .replace(`{${"locationTranslation"}}`, encodeURIComponent(String(locationTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateLocationTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationUpdate2: async (locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'locationTranslation' is not null or undefined
-            assertParamExists('locationTranslationUpdate2', 'locationTranslation', locationTranslation)
-            const localVarPath = `/location-translation/{locationTranslation}`
-                .replace(`{${"locationTranslation"}}`, encodeURIComponent(String(locationTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateLocationTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * LocationTranslationApi - functional programming interface
- */
-export const LocationTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = LocationTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationDestroy(locationTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationDestroy(locationTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationTranslationIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationIndex(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationShow(locationTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationShow(locationTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreLocationTranslationRequest} storeLocationTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationStore(storeLocationTranslationRequest: StoreLocationTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationStore(storeLocationTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationUpdate(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationUpdate(locationTranslation, updateLocationTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async locationTranslationUpdate2(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LocationTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.locationTranslationUpdate2(locationTranslation, updateLocationTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['LocationTranslationApi.locationTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * LocationTranslationApi - factory interface
- */
-export const LocationTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = LocationTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationDestroy(locationTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.locationTranslationDestroy(locationTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<LocationTranslationIndex200Response> {
-            return localVarFp.locationTranslationIndex(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} locationTranslation The location translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationShow(locationTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<LocationTranslationShow200Response> {
-            return localVarFp.locationTranslationShow(locationTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreLocationTranslationRequest} storeLocationTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationStore(storeLocationTranslationRequest: StoreLocationTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationTranslationShow200Response> {
-            return localVarFp.locationTranslationStore(storeLocationTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationUpdate(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationTranslationShow200Response> {
-            return localVarFp.locationTranslationUpdate(locationTranslation, updateLocationTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} locationTranslation The location translation ID
-         * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        locationTranslationUpdate2(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<LocationTranslationShow200Response> {
-            return localVarFp.locationTranslationUpdate2(locationTranslation, updateLocationTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * LocationTranslationApi - object-oriented interface
- */
-export class LocationTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified resource from storage
-     * @param {string} locationTranslation The location translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationDestroy(locationTranslation: string, options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationDestroy(locationTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationIndex(options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationIndex(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} locationTranslation The location translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationShow(locationTranslation: string, options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationShow(locationTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created resource in storage
-     * @param {StoreLocationTranslationRequest} storeLocationTranslationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationStore(storeLocationTranslationRequest: StoreLocationTranslationRequest, options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationStore(storeLocationTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} locationTranslation The location translation ID
-     * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationUpdate(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationUpdate(locationTranslation, updateLocationTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} locationTranslation The location translation ID
-     * @param {UpdateLocationTranslationRequest} [updateLocationTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public locationTranslationUpdate2(locationTranslation: string, updateLocationTranslationRequest?: UpdateLocationTranslationRequest, options?: RawAxiosRequestConfig) {
-        return LocationTranslationApiFp(this.configuration).locationTranslationUpdate2(locationTranslation, updateLocationTranslationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -18877,7 +17645,7 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -18925,7 +17693,7 @@ export const PartnerApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19119,7 +17887,7 @@ export const PartnerApiFp = function(configuration?: Configuration) {
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19133,7 +17901,7 @@ export const PartnerApiFp = function(configuration?: Configuration) {
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19208,7 +17976,7 @@ export const PartnerApiFactory = function (configuration?: Configuration, basePa
          * @summary Display a listing of the resource
          * @param {number} [page] 
          * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19219,7 +17987,7 @@ export const PartnerApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Display the specified resource
          * @param {string} partner The partner ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -19281,7 +18049,7 @@ export class PartnerApi extends BaseAPI {
      * @summary Display a listing of the resource
      * @param {number} [page] 
      * @param {number} [perPage] 
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -19293,7 +18061,7 @@ export class PartnerApi extends BaseAPI {
      * 
      * @summary Display the specified resource
      * @param {string} partner The partner ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;collections&#x60;.
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;country&#x60;, &#x60;items&#x60;, &#x60;pictures&#x60;, &#x60;project&#x60;, &#x60;monumentItem&#x60;, &#x60;translations&#x60;, &#x60;partnerImages&#x60;, &#x60;partnerLogos&#x60;, &#x60;collections&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -20357,6 +19125,876 @@ export class PartnerImageApi extends BaseAPI {
      */
     public partnerImageView(partnerImage: string, options?: RawAxiosRequestConfig) {
         return PartnerImageApiFp(this.configuration).partnerImageView(partnerImage, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * PartnerLogoApi - axios parameter creator
+ */
+export const PartnerLogoApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoDestroy: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoDestroy', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoDownload: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoDownload', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}/download`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoIndex: async (include?: string, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/partner-logo`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move partner logo down in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoMoveDown: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoMoveDown', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}/move-down`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Move partner logo up in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoMoveUp: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoMoveUp', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}/move-up`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerLogo The partner logo ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoShow: async (partnerLogo: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoShow', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (include !== undefined) {
+                localVarQueryParameter['include'] = include;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerLogoRequest} storePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoStore: async (storePartnerLogoRequest: StorePartnerLogoRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'storePartnerLogoRequest' is not null or undefined
+            assertParamExists('partnerLogoStore', 'storePartnerLogoRequest', storePartnerLogoRequest)
+            const localVarPath = `/partner-logo`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(storePartnerLogoRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all logos of the partner
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoTightenOrdering: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoTightenOrdering', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}/tighten-ordering`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoUpdate: async (partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoUpdate', 'partnerLogo', partnerLogo)
+            // verify required parameter 'updatePartnerLogoRequest' is not null or undefined
+            assertParamExists('partnerLogoUpdate', 'updatePartnerLogoRequest', updatePartnerLogoRequest)
+            const localVarPath = `/partner-logo/{partnerLogo}`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerLogoRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoUpdate2: async (partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoUpdate2', 'partnerLogo', partnerLogo)
+            // verify required parameter 'updatePartnerLogoRequest' is not null or undefined
+            assertParamExists('partnerLogoUpdate2', 'updatePartnerLogoRequest', updatePartnerLogoRequest)
+            const localVarPath = `/partner-logo/{partnerLogo}`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePartnerLogoRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Returns the logo file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoView: async (partnerLogo: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'partnerLogo' is not null or undefined
+            assertParamExists('partnerLogoView', 'partnerLogo', partnerLogo)
+            const localVarPath = `/partner-logo/{partnerLogo}/view`
+                .replace(`{${"partnerLogo"}}`, encodeURIComponent(String(partnerLogo)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication http required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * PartnerLogoApi - functional programming interface
+ */
+export const PartnerLogoApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = PartnerLogoApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoDestroy(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoDestroy(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoDestroy']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoDownload(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoDownload(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoDownload']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoIndex(include?: string, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoIndex200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoIndex(include, page, perPage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoIndex']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move partner logo down in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoMoveDown(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoMoveDown(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoMoveDown']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Move partner logo up in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoMoveUp(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoMoveUp(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoMoveUp']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerLogo The partner logo ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoShow(partnerLogo: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoShow(partnerLogo, include, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoShow']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerLogoRequest} storePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoStore(storePartnerLogoRequest: StorePartnerLogoRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoStore(storePartnerLogoRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoStore']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all logos of the partner
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoTightenOrdering(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CollectionImageTightenOrdering200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoTightenOrdering(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoTightenOrdering']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoUpdate(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoUpdate(partnerLogo, updatePartnerLogoRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoUpdate2(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PartnerLogoShow200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoUpdate2(partnerLogo, updatePartnerLogoRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoUpdate2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Returns the logo file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async partnerLogoView(partnerLogo: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.partnerLogoView(partnerLogo, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PartnerLogoApi.partnerLogoView']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * PartnerLogoApi - factory interface
+ */
+export const PartnerLogoApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = PartnerLogoApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Remove the specified resource from storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoDestroy(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.partnerLogoDestroy(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Returns the file to the caller
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoDownload(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.partnerLogoDownload(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display a listing of the resource
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoIndex(include?: string, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoIndex200Response> {
+            return localVarFp.partnerLogoIndex(include, page, perPage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move partner logo down in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoMoveDown(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoMoveDown(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Move partner logo up in display order
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoMoveUp(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoMoveUp(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Display the specified resource
+         * @param {string} partnerLogo The partner logo ID
+         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoShow(partnerLogo: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoShow(partnerLogo, include, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Store a newly created resource in storage
+         * @param {StorePartnerLogoRequest} storePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoStore(storePartnerLogoRequest: StorePartnerLogoRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoStore(storePartnerLogoRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Tighten ordering for all logos of the partner
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoTightenOrdering(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<CollectionImageTightenOrdering200Response> {
+            return localVarFp.partnerLogoTightenOrdering(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoUpdate(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoUpdate(partnerLogo, updatePartnerLogoRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update the specified resource in storage
+         * @param {string} partnerLogo The partner logo ID
+         * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoUpdate2(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig): AxiosPromise<PartnerLogoShow200Response> {
+            return localVarFp.partnerLogoUpdate2(partnerLogo, updatePartnerLogoRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Returns the logo file for direct viewing (e.g., for use in <img> src attribute)
+         * @param {string} partnerLogo The partner logo ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        partnerLogoView(partnerLogo: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+            return localVarFp.partnerLogoView(partnerLogo, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * PartnerLogoApi - object-oriented interface
+ */
+export class PartnerLogoApi extends BaseAPI {
+    /**
+     * 
+     * @summary Remove the specified resource from storage
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoDestroy(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoDestroy(partnerLogo, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Returns the file to the caller
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoDownload(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoDownload(partnerLogo, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display a listing of the resource
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoIndex(include?: string, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoIndex(include, page, perPage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move partner logo down in display order
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoMoveDown(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoMoveDown(partnerLogo, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Move partner logo up in display order
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoMoveUp(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoMoveUp(partnerLogo, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Display the specified resource
+     * @param {string} partnerLogo The partner logo ID
+     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;partner&#x60;.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoShow(partnerLogo: string, include?: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoShow(partnerLogo, include, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Store a newly created resource in storage
+     * @param {StorePartnerLogoRequest} storePartnerLogoRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoStore(storePartnerLogoRequest: StorePartnerLogoRequest, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoStore(storePartnerLogoRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Tighten ordering for all logos of the partner
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoTightenOrdering(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoTightenOrdering(partnerLogo, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerLogo The partner logo ID
+     * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoUpdate(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoUpdate(partnerLogo, updatePartnerLogoRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update the specified resource in storage
+     * @param {string} partnerLogo The partner logo ID
+     * @param {UpdatePartnerLogoRequest} updatePartnerLogoRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoUpdate2(partnerLogo: string, updatePartnerLogoRequest: UpdatePartnerLogoRequest, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoUpdate2(partnerLogo, updatePartnerLogoRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Returns the logo file for direct viewing (e.g., for use in <img> src attribute)
+     * @param {string} partnerLogo The partner logo ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public partnerLogoView(partnerLogo: string, options?: RawAxiosRequestConfig) {
+        return PartnerLogoApiFp(this.configuration).partnerLogoView(partnerLogo, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -22633,990 +22271,6 @@ export class ProjectApi extends BaseAPI {
 
 
 /**
- * ProvinceApi - axios parameter creator
- */
-export const ProvinceApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified province
-         * @param {string} province The province ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceDestroy: async (province: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'province' is not null or undefined
-            assertParamExists('provinceDestroy', 'province', province)
-            const localVarPath = `/province/{province}`
-                .replace(`{${"province"}}`, encodeURIComponent(String(province)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of provinces
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/province`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified province
-         * @param {string} province The province ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceShow: async (province: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'province' is not null or undefined
-            assertParamExists('provinceShow', 'province', province)
-            const localVarPath = `/province/{province}`
-                .replace(`{${"province"}}`, encodeURIComponent(String(province)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created province
-         * @param {StoreProvinceRequest} storeProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceStore: async (storeProvinceRequest: StoreProvinceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeProvinceRequest' is not null or undefined
-            assertParamExists('provinceStore', 'storeProvinceRequest', storeProvinceRequest)
-            const localVarPath = `/province`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeProvinceRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceUpdate: async (province: string, updateProvinceRequest: UpdateProvinceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'province' is not null or undefined
-            assertParamExists('provinceUpdate', 'province', province)
-            // verify required parameter 'updateProvinceRequest' is not null or undefined
-            assertParamExists('provinceUpdate', 'updateProvinceRequest', updateProvinceRequest)
-            const localVarPath = `/province/{province}`
-                .replace(`{${"province"}}`, encodeURIComponent(String(province)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateProvinceRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceUpdate2: async (province: string, updateProvinceRequest: UpdateProvinceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'province' is not null or undefined
-            assertParamExists('provinceUpdate2', 'province', province)
-            // verify required parameter 'updateProvinceRequest' is not null or undefined
-            assertParamExists('provinceUpdate2', 'updateProvinceRequest', updateProvinceRequest)
-            const localVarPath = `/province/{province}`
-                .replace(`{${"province"}}`, encodeURIComponent(String(province)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateProvinceRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ProvinceApi - functional programming interface
- */
-export const ProvinceApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ProvinceApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified province
-         * @param {string} province The province ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceDestroy(province: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceDestroy(province, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of provinces
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified province
-         * @param {string} province The province ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceShow(province, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created province
-         * @param {StoreProvinceRequest} storeProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceStore(storeProvinceRequest: StoreProvinceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceStore(storeProvinceRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceUpdate(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceUpdate(province, updateProvinceRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceUpdate2(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceUpdate2(province, updateProvinceRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceApi.provinceUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ProvinceApi - factory interface
- */
-export const ProvinceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ProvinceApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified province
-         * @param {string} province The province ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceDestroy(province: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.provinceDestroy(province, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of provinces
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceIndex200Response> {
-            return localVarFp.provinceIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified province
-         * @param {string} province The province ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceShow200Response> {
-            return localVarFp.provinceShow(province, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created province
-         * @param {StoreProvinceRequest} storeProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceStore(storeProvinceRequest: StoreProvinceRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceShow200Response> {
-            return localVarFp.provinceStore(storeProvinceRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceUpdate(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceShow200Response> {
-            return localVarFp.provinceUpdate(province, updateProvinceRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified province
-         * @param {string} province The province ID
-         * @param {UpdateProvinceRequest} updateProvinceRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceUpdate2(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceShow200Response> {
-            return localVarFp.provinceUpdate2(province, updateProvinceRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ProvinceApi - object-oriented interface
- */
-export class ProvinceApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified province
-     * @param {string} province The province ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceDestroy(province: string, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceDestroy(province, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of provinces
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified province
-     * @param {string} province The province ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceShow(province: string, include?: string, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceShow(province, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created province
-     * @param {StoreProvinceRequest} storeProvinceRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceStore(storeProvinceRequest: StoreProvinceRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceStore(storeProvinceRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified province
-     * @param {string} province The province ID
-     * @param {UpdateProvinceRequest} updateProvinceRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceUpdate(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceUpdate(province, updateProvinceRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified province
-     * @param {string} province The province ID
-     * @param {UpdateProvinceRequest} updateProvinceRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceUpdate2(province: string, updateProvinceRequest: UpdateProvinceRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceApiFp(this.configuration).provinceUpdate2(province, updateProvinceRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ProvinceTranslationApi - axios parameter creator
- */
-export const ProvinceTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationDestroy: async (provinceTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'provinceTranslation' is not null or undefined
-            assertParamExists('provinceTranslationDestroy', 'provinceTranslation', provinceTranslation)
-            const localVarPath = `/province-translation/{provinceTranslation}`
-                .replace(`{${"provinceTranslation"}}`, encodeURIComponent(String(provinceTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationIndex: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/province-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationShow: async (provinceTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'provinceTranslation' is not null or undefined
-            assertParamExists('provinceTranslationShow', 'provinceTranslation', provinceTranslation)
-            const localVarPath = `/province-translation/{provinceTranslation}`
-                .replace(`{${"provinceTranslation"}}`, encodeURIComponent(String(provinceTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreProvinceTranslationRequest} storeProvinceTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationStore: async (storeProvinceTranslationRequest: StoreProvinceTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeProvinceTranslationRequest' is not null or undefined
-            assertParamExists('provinceTranslationStore', 'storeProvinceTranslationRequest', storeProvinceTranslationRequest)
-            const localVarPath = `/province-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeProvinceTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationUpdate: async (provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'provinceTranslation' is not null or undefined
-            assertParamExists('provinceTranslationUpdate', 'provinceTranslation', provinceTranslation)
-            const localVarPath = `/province-translation/{provinceTranslation}`
-                .replace(`{${"provinceTranslation"}}`, encodeURIComponent(String(provinceTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateProvinceTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationUpdate2: async (provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'provinceTranslation' is not null or undefined
-            assertParamExists('provinceTranslationUpdate2', 'provinceTranslation', provinceTranslation)
-            const localVarPath = `/province-translation/{provinceTranslation}`
-                .replace(`{${"provinceTranslation"}}`, encodeURIComponent(String(provinceTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateProvinceTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ProvinceTranslationApi - functional programming interface
- */
-export const ProvinceTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ProvinceTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationDestroy(provinceTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationDestroy(provinceTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationIndex(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceTranslationIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationIndex(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationShow(provinceTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationShow(provinceTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreProvinceTranslationRequest} storeProvinceTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationStore(storeProvinceTranslationRequest: StoreProvinceTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationStore(storeProvinceTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationUpdate(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationUpdate(provinceTranslation, updateProvinceTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async provinceTranslationUpdate2(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProvinceTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.provinceTranslationUpdate2(provinceTranslation, updateProvinceTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProvinceTranslationApi.provinceTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ProvinceTranslationApi - factory interface
- */
-export const ProvinceTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ProvinceTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified resource from storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationDestroy(provinceTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.provinceTranslationDestroy(provinceTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationIndex(options?: RawAxiosRequestConfig): AxiosPromise<ProvinceTranslationIndex200Response> {
-            return localVarFp.provinceTranslationIndex(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} provinceTranslation The province translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationShow(provinceTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceTranslationShow200Response> {
-            return localVarFp.provinceTranslationShow(provinceTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created resource in storage
-         * @param {StoreProvinceTranslationRequest} storeProvinceTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationStore(storeProvinceTranslationRequest: StoreProvinceTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceTranslationShow200Response> {
-            return localVarFp.provinceTranslationStore(storeProvinceTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationUpdate(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceTranslationShow200Response> {
-            return localVarFp.provinceTranslationUpdate(provinceTranslation, updateProvinceTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified resource in storage
-         * @param {string} provinceTranslation The province translation ID
-         * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        provinceTranslationUpdate2(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProvinceTranslationShow200Response> {
-            return localVarFp.provinceTranslationUpdate2(provinceTranslation, updateProvinceTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ProvinceTranslationApi - object-oriented interface
- */
-export class ProvinceTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified resource from storage
-     * @param {string} provinceTranslation The province translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationDestroy(provinceTranslation: string, options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationDestroy(provinceTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationIndex(options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationIndex(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} provinceTranslation The province translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationShow(provinceTranslation: string, options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationShow(provinceTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created resource in storage
-     * @param {StoreProvinceTranslationRequest} storeProvinceTranslationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationStore(storeProvinceTranslationRequest: StoreProvinceTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationStore(storeProvinceTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} provinceTranslation The province translation ID
-     * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationUpdate(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationUpdate(provinceTranslation, updateProvinceTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified resource in storage
-     * @param {string} provinceTranslation The province translation ID
-     * @param {UpdateProvinceTranslationRequest} [updateProvinceTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public provinceTranslationUpdate2(provinceTranslation: string, updateProvinceTranslationRequest?: UpdateProvinceTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ProvinceTranslationApiFp(this.configuration).provinceTranslationUpdate2(provinceTranslation, updateProvinceTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
  * TagApi - axios parameter creator
  */
 export const TagApiAxiosParamCreator = function (configuration?: Configuration) {
@@ -24193,1540 +22847,6 @@ export class TagApi extends BaseAPI {
      */
     public tagUpdate2(tag: string, updateTagRequest: UpdateTagRequest, options?: RawAxiosRequestConfig) {
         return TagApiFp(this.configuration).tagUpdate2(tag, updateTagRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ThemeApi - axios parameter creator
- */
-export const ThemeApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme from storage
-         * @param {string} theme The theme ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeDestroy: async (theme: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'theme' is not null or undefined
-            assertParamExists('themeDestroy', 'theme', theme)
-            const localVarPath = `/theme/{theme}`
-                .replace(`{${"theme"}}`, encodeURIComponent(String(theme)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeIndex: async (page?: number, perPage?: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/theme`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (page !== undefined) {
-                localVarQueryParameter['page'] = page;
-            }
-
-            if (perPage !== undefined) {
-                localVarQueryParameter['per_page'] = perPage;
-            }
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} theme The theme ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeShow: async (theme: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'theme' is not null or undefined
-            assertParamExists('themeShow', 'theme', theme)
-            const localVarPath = `/theme/{theme}`
-                .replace(`{${"theme"}}`, encodeURIComponent(String(theme)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created theme in storage
-         * @param {StoreThemeRequest} storeThemeRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeStore: async (storeThemeRequest: StoreThemeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeThemeRequest' is not null or undefined
-            assertParamExists('themeStore', 'storeThemeRequest', storeThemeRequest)
-            const localVarPath = `/theme`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeThemeRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeUpdate: async (theme: string, updateThemeRequest?: UpdateThemeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'theme' is not null or undefined
-            assertParamExists('themeUpdate', 'theme', theme)
-            const localVarPath = `/theme/{theme}`
-                .replace(`{${"theme"}}`, encodeURIComponent(String(theme)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeUpdate2: async (theme: string, updateThemeRequest?: UpdateThemeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'theme' is not null or undefined
-            assertParamExists('themeUpdate2', 'theme', theme)
-            const localVarPath = `/theme/{theme}`
-                .replace(`{${"theme"}}`, encodeURIComponent(String(theme)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ThemeApi - functional programming interface
- */
-export const ThemeApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ThemeApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme from storage
-         * @param {string} theme The theme ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeDestroy(theme: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeDestroy(theme, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeIndex200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeIndex(page, perPage, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} theme The theme ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeShow(theme, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created theme in storage
-         * @param {StoreThemeRequest} storeThemeRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeStore(storeThemeRequest: StoreThemeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeStore(storeThemeRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeUpdate(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeUpdate(theme, updateThemeRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeUpdate2(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeUpdate2(theme, updateThemeRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeApi.themeUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ThemeApi - factory interface
- */
-export const ThemeApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ThemeApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme from storage
-         * @param {string} theme The theme ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeDestroy(theme: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.themeDestroy(theme, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of the resource
-         * @param {number} [page] 
-         * @param {number} [perPage] 
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeIndex200Response> {
-            return localVarFp.themeIndex(page, perPage, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified resource
-         * @param {string} theme The theme ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeShow200Response> {
-            return localVarFp.themeShow(theme, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created theme in storage
-         * @param {StoreThemeRequest} storeThemeRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeStore(storeThemeRequest: StoreThemeRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeShow200Response> {
-            return localVarFp.themeStore(storeThemeRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeUpdate(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeShow200Response> {
-            return localVarFp.themeUpdate(theme, updateThemeRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme in storage
-         * @param {string} theme The theme ID
-         * @param {UpdateThemeRequest} [updateThemeRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeUpdate2(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeShow200Response> {
-            return localVarFp.themeUpdate2(theme, updateThemeRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ThemeApi - object-oriented interface
- */
-export class ThemeApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified theme from storage
-     * @param {string} theme The theme ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeDestroy(theme: string, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeDestroy(theme, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of the resource
-     * @param {number} [page] 
-     * @param {number} [perPage] 
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeIndex(page?: number, perPage?: number, include?: string, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeIndex(page, perPage, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified resource
-     * @param {string} theme The theme ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;translations&#x60;, &#x60;subthemes&#x60;, &#x60;subthemes.translations&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeShow(theme: string, include?: string, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeShow(theme, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created theme in storage
-     * @param {StoreThemeRequest} storeThemeRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeStore(storeThemeRequest: StoreThemeRequest, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeStore(storeThemeRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme in storage
-     * @param {string} theme The theme ID
-     * @param {UpdateThemeRequest} [updateThemeRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeUpdate(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeUpdate(theme, updateThemeRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme in storage
-     * @param {string} theme The theme ID
-     * @param {UpdateThemeRequest} [updateThemeRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeUpdate2(theme: string, updateThemeRequest?: UpdateThemeRequest, options?: RawAxiosRequestConfig) {
-        return ThemeApiFp(this.configuration).themeUpdate2(theme, updateThemeRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ThemeTranslationApi - axios parameter creator
- */
-export const ThemeTranslationApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationDestroy: async (themeTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationDestroy', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationIndex: async (themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/theme-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (themeId !== undefined) {
-                localVarQueryParameter['theme_id'] = themeId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationShow: async (themeTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationShow', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationStore: async (storeThemeTranslationRequest: StoreThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeThemeTranslationRequest' is not null or undefined
-            assertParamExists('themeTranslationStore', 'storeThemeTranslationRequest', storeThemeTranslationRequest)
-            const localVarPath = `/theme-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate: async (themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationUpdate', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate2: async (themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationUpdate2', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ThemeTranslationApi - functional programming interface
- */
-export const ThemeTranslationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ThemeTranslationApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationDestroy(themeTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationStore(storeThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationApi.themeTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ThemeTranslationApi - factory interface
- */
-export const ThemeTranslationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ThemeTranslationApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.themeTranslationDestroy(themeTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
-            return localVarFp.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationShow(themeTranslation, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationStore(storeThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ThemeTranslationApi - object-oriented interface
- */
-export class ThemeTranslationApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationDestroy(themeTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of theme translations
-     * @param {string} [themeId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationShow(themeTranslation, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created theme translation
-     * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationStore(storeThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationApiFp(this.configuration).themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-}
-
-
-
-/**
- * ThemeTranslationsApi - axios parameter creator
- */
-export const ThemeTranslationsApiAxiosParamCreator = function (configuration?: Configuration) {
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationDestroy: async (themeTranslation: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationDestroy', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationIndex: async (themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/theme-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (themeId !== undefined) {
-                localVarQueryParameter['theme_id'] = themeId;
-            }
-
-            if (languageId !== undefined) {
-                localVarQueryParameter['language_id'] = languageId;
-            }
-
-            if (contextId !== undefined) {
-                localVarQueryParameter['context_id'] = contextId;
-            }
-
-            if (defaultContext !== undefined) {
-                localVarQueryParameter['default_context'] = defaultContext;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationShow: async (themeTranslation: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationShow', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (include !== undefined) {
-                localVarQueryParameter['include'] = include;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationStore: async (storeThemeTranslationRequest: StoreThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'storeThemeTranslationRequest' is not null or undefined
-            assertParamExists('themeTranslationStore', 'storeThemeTranslationRequest', storeThemeTranslationRequest)
-            const localVarPath = `/theme-translation`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(storeThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate: async (themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationUpdate', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate2: async (themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'themeTranslation' is not null or undefined
-            assertParamExists('themeTranslationUpdate2', 'themeTranslation', themeTranslation)
-            const localVarPath = `/theme-translation/{themeTranslation}`
-                .replace(`{${"themeTranslation"}}`, encodeURIComponent(String(themeTranslation)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication http required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateThemeTranslationRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-    }
-};
-
-/**
- * ThemeTranslationsApi - functional programming interface
- */
-export const ThemeTranslationsApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ThemeTranslationsApiAxiosParamCreator(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationDestroy(themeTranslation, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationDestroy']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ThemeTranslationResource>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationIndex']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationShow(themeTranslation, include, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationShow']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationStore(storeThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationStore']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationUpdate']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThemeTranslationShow200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ThemeTranslationsApi.themeTranslationUpdate2']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-    }
-};
-
-/**
- * ThemeTranslationsApi - factory interface
- */
-export const ThemeTranslationsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ThemeTranslationsApiFp(configuration)
-    return {
-        /**
-         * 
-         * @summary Remove the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig): AxiosPromise<number> {
-            return localVarFp.themeTranslationDestroy(themeTranslation, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display a listing of theme translations
-         * @param {string} [themeId] 
-         * @param {string} [languageId] 
-         * @param {string} [contextId] 
-         * @param {boolean} [defaultContext] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ThemeTranslationResource>> {
-            return localVarFp.themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Display the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationShow(themeTranslation, include, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Store a newly created theme translation
-         * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationStore(storeThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Update the specified theme translation
-         * @param {string} themeTranslation The theme translation ID
-         * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThemeTranslationShow200Response> {
-            return localVarFp.themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
- * ThemeTranslationsApi - object-oriented interface
- */
-export class ThemeTranslationsApi extends BaseAPI {
-    /**
-     * 
-     * @summary Remove the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationDestroy(themeTranslation: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationDestroy(themeTranslation, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display a listing of theme translations
-     * @param {string} [themeId] 
-     * @param {string} [languageId] 
-     * @param {string} [contextId] 
-     * @param {boolean} [defaultContext] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationIndex(themeId?: string, languageId?: string, contextId?: string, defaultContext?: boolean, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationIndex(themeId, languageId, contextId, defaultContext, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Display the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;theme&#x60;, &#x60;language&#x60;, &#x60;context&#x60;.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationShow(themeTranslation: string, include?: string, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationShow(themeTranslation, include, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Store a newly created theme translation
-     * @param {StoreThemeTranslationRequest} storeThemeTranslationRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationStore(storeThemeTranslationRequest: StoreThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationStore(storeThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationUpdate(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationUpdate(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Update the specified theme translation
-     * @param {string} themeTranslation The theme translation ID
-     * @param {UpdateThemeTranslationRequest} [updateThemeTranslationRequest] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public themeTranslationUpdate2(themeTranslation: string, updateThemeTranslationRequest?: UpdateThemeTranslationRequest, options?: RawAxiosRequestConfig) {
-        return ThemeTranslationsApiFp(this.configuration).themeTranslationUpdate2(themeTranslation, updateThemeTranslationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

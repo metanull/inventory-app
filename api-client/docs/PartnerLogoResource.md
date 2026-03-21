@@ -1,4 +1,4 @@
-# PartnerImageResource
+# PartnerLogoResource
 
 
 ## Properties
@@ -7,10 +7,11 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | The unique identifier (GUID) | [default to undefined]
 **partner_id** | **string** | Foreign key | [default to undefined]
-**path** | **string** | Image information | [default to undefined]
+**path** | **string** | Logo information | [default to undefined]
 **original_name** | **string** |  | [default to undefined]
 **mime_type** | **string** |  | [default to undefined]
 **size** | **string** |  | [default to undefined]
+**logo_type** | **string** |  | [default to undefined]
 **alt_text** | **string** |  | [default to undefined]
 **display_order** | **string** |  | [default to undefined]
 **partner** | [**PartnerResource**](PartnerResource.md) | Relationships | [optional] [default to undefined]
@@ -20,15 +21,16 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { PartnerImageResource } from './api';
+import { PartnerLogoResource } from './api';
 
-const instance: PartnerImageResource = {
+const instance: PartnerLogoResource = {
     id,
     partner_id,
     path,
     original_name,
     mime_type,
     size,
+    logo_type,
     alt_text,
     display_order,
     partner,

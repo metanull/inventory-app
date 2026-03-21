@@ -8,10 +8,13 @@ Name | Type | Description | Notes
 **id** | **string** | The unique identifier (GUID) | [default to undefined]
 **internal_name** | **string** | A name for this resource, for internal use only. | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
-**type** | [**ItemType**](ItemType.md) | The type of the item: \&#39;object\&#39;, \&#39;monument\&#39;, \&#39;detail\&#39;, or \&#39;picture\&#39;. | [default to undefined]
+**type** | **string** | The type of the item: \&#39;object\&#39;, \&#39;monument\&#39;, \&#39;detail\&#39;, or \&#39;picture\&#39;. | [default to undefined]
 **parent_id** | **string** | The parent item ID (for hierarchical relationships), nullable | [default to undefined]
+**display_order** | **string** | Display order among siblings sharing the same parent, nullable | [default to undefined]
 **owner_reference** | **string** | Owner\&#39;s reference number for the item (external reference from owner) | [default to undefined]
 **mwnf_reference** | **string** | MWNF reference number for the item (reference from MWNF system) | [default to undefined]
+**start_date** | **string** | The start year for the item (for datation purposes) | [default to undefined]
+**end_date** | **string** | The end year for the item (for datation purposes) | [default to undefined]
 **parent** | [**ItemResource**](ItemResource.md) | The parent item (for hierarchical relationships), nullable (ItemResource) | [optional] [default to undefined]
 **children** | [**Array&lt;ItemResource&gt;**](ItemResource.md) | The child items (for hierarchical relationships) (ItemResource[]) | [optional] [default to undefined]
 **partner** | [**PartnerResource**](PartnerResource.md) | The partner owning the item (PartnerResource) | [optional] [default to undefined]
@@ -37,8 +40,11 @@ const instance: ItemResource = {
     backward_compatibility,
     type,
     parent_id,
+    display_order,
     owner_reference,
     mwnf_reference,
+    start_date,
+    end_date,
     parent,
     children,
     partner,

@@ -10,12 +10,15 @@ Name | Type | Description | Notes
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 **type** | **string** |  | [default to undefined]
 **parent_id** | **string** |  | [optional] [default to undefined]
+**display_order** | **number** |  | [optional] [default to undefined]
 **country_id** | **string** |  | [optional] [default to undefined]
 **partner_id** | **string** |  | [optional] [default to undefined]
 **project_id** | **string** |  | [optional] [default to undefined]
 **collection_id** | **string** |  | [optional] [default to undefined]
 **owner_reference** | **string** |  | [optional] [default to undefined]
 **mwnf_reference** | **string** |  | [optional] [default to undefined]
+**start_date** | **number** |  | [optional] [default to undefined]
+**end_date** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -28,12 +31,15 @@ const instance: StoreItemRequest = {
     backward_compatibility,
     type,
     parent_id,
+    display_order,
     country_id,
     partner_id,
     project_id,
     collection_id,
     owner_reference,
     mwnf_reference,
+    start_date,
+    end_date,
 };
 ```
 
