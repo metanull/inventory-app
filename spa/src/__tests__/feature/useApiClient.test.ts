@@ -61,6 +61,7 @@ describe('useApiClient composable', () => {
     // Test that all factory methods are available
     expect(typeof apiClient.createAvailableImageApi).toBe('function')
     expect(typeof apiClient.createCollectionApi).toBe('function')
+    expect(typeof apiClient.createCollectionImageApi).toBe('function')
     expect(typeof apiClient.createContextApi).toBe('function')
     expect(typeof apiClient.createCountryApi).toBe('function')
     expect(typeof apiClient.createImageUploadApi).toBe('function')
@@ -77,6 +78,7 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createPartnerTranslationImageApi).toBe('function')
     expect(typeof apiClient.createProjectApi).toBe('function')
     expect(typeof apiClient.createTagApi).toBe('function')
+    expect(typeof apiClient.createUserPermissionsApi).toBe('function')
 
     // Test translation API methods
     expect(typeof apiClient.createItemTranslationApi).toBe('function')

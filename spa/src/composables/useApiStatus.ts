@@ -21,7 +21,7 @@ export function useApiStatus() {
   const isApiUp = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const versionData = ref<Record<string, unknown> | null>(null)
+  const versionData = ref<object | null>(null)
   const appInfo = ref<AppInfo | null>(null)
 
   const checkApiStatus = async () => {
