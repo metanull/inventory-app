@@ -17,18 +17,12 @@ use App\Models\Item;
 use App\Models\ItemImage;
 use App\Models\ItemTranslation;
 use App\Models\Language;
-use App\Models\Location;
-use App\Models\LocationTranslation;
 use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Models\Project;
-use App\Models\Province;
-use App\Models\ProvinceTranslation;
 use App\Models\Tag;
-use App\Models\Theme;
-use App\Models\ThemeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Api\Traits\TestsApiPermissions;
@@ -187,20 +181,6 @@ class PermissionsTest extends TestCase
             ['DELETE', 'language.destroy', Permission::DELETE_DATA, Language::class],
             ['PATCH', 'language.setDefault', Permission::UPDATE_DATA, Language::class],
 
-            // Location routes
-            ['GET', 'location.index', Permission::VIEW_DATA, null],
-            ['POST', 'location.store', Permission::CREATE_DATA, null],
-            ['GET', 'location.show', Permission::VIEW_DATA, Location::class],
-            ['PATCH', 'location.update', Permission::UPDATE_DATA, Location::class],
-            ['DELETE', 'location.destroy', Permission::DELETE_DATA, Location::class],
-
-            // LocationTranslation routes
-            ['GET', 'location-translation.index', Permission::VIEW_DATA, null],
-            ['POST', 'location-translation.store', Permission::CREATE_DATA, null],
-            ['GET', 'location-translation.show', Permission::VIEW_DATA, LocationTranslation::class],
-            ['PATCH', 'location-translation.update', Permission::UPDATE_DATA, LocationTranslation::class],
-            ['DELETE', 'location-translation.destroy', Permission::DELETE_DATA, LocationTranslation::class],
-
             // Partner routes
             ['GET', 'partner.index', Permission::VIEW_DATA, null],
             ['POST', 'partner.store', Permission::CREATE_DATA, null],
@@ -253,20 +233,6 @@ class PermissionsTest extends TestCase
             ['PATCH', 'project.setEnabled', Permission::UPDATE_DATA, Project::class],
             ['PATCH', 'project.setLaunched', Permission::UPDATE_DATA, Project::class],
 
-            // Province routes
-            ['GET', 'province.index', Permission::VIEW_DATA, null],
-            ['POST', 'province.store', Permission::CREATE_DATA, null],
-            ['GET', 'province.show', Permission::VIEW_DATA, Province::class],
-            ['PATCH', 'province.update', Permission::UPDATE_DATA, Province::class],
-            ['DELETE', 'province.destroy', Permission::DELETE_DATA, Province::class],
-
-            // ProvinceTranslation routes
-            ['GET', 'province-translation.index', Permission::VIEW_DATA, null],
-            ['POST', 'province-translation.store', Permission::CREATE_DATA, null],
-            ['GET', 'province-translation.show', Permission::VIEW_DATA, ProvinceTranslation::class],
-            ['PATCH', 'province-translation.update', Permission::UPDATE_DATA, ProvinceTranslation::class],
-            ['DELETE', 'province-translation.destroy', Permission::DELETE_DATA, ProvinceTranslation::class],
-
             // Tag routes
             ['GET', 'tag.index', Permission::VIEW_DATA, null],
             ['POST', 'tag.store', Permission::CREATE_DATA, null],
@@ -274,20 +240,6 @@ class PermissionsTest extends TestCase
             ['GET', 'tag.show', Permission::VIEW_DATA, Tag::class],
             ['PATCH', 'tag.update', Permission::UPDATE_DATA, Tag::class],
             ['DELETE', 'tag.destroy', Permission::DELETE_DATA, Tag::class],
-
-            // Theme routes
-            ['GET', 'theme.index', Permission::VIEW_DATA, null],
-            ['POST', 'theme.store', Permission::CREATE_DATA, null],
-            ['GET', 'theme.show', Permission::VIEW_DATA, Theme::class],
-            ['PATCH', 'theme.update', Permission::UPDATE_DATA, Theme::class],
-            ['DELETE', 'theme.destroy', Permission::DELETE_DATA, Theme::class],
-
-            // ThemeTranslation routes
-            ['GET', 'theme-translation.index', Permission::VIEW_DATA, null],
-            ['POST', 'theme-translation.store', Permission::CREATE_DATA, null],
-            ['GET', 'theme-translation.show', Permission::VIEW_DATA, ThemeTranslation::class],
-            ['PATCH', 'theme-translation.update', Permission::UPDATE_DATA, ThemeTranslation::class],
-            ['DELETE', 'theme-translation.destroy', Permission::DELETE_DATA, ThemeTranslation::class],
         ];
     }
 

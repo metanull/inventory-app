@@ -150,6 +150,7 @@ export class ThgThemeImporter extends BaseImporter {
             language_id: defaultLanguageId,
             parent_id: parentId,
             type: 'theme',
+            display_order: legacy.display_order,
           });
 
           this.registerEntity(collectionId, backwardCompat, 'collection');

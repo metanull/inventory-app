@@ -35,8 +35,6 @@ import type {
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
-  ThemeData,
-  ThemeTranslationData,
   ItemItemLinkData,
   ItemItemLinkTranslationData,
 } from './types.js';
@@ -262,21 +260,6 @@ export interface IWriteStrategy {
    * @returns The glossary spelling UUID
    */
   writeGlossarySpelling(data: GlossarySpellingData): Promise<string>;
-
-  // =========================================================================
-  // Themes (Thematic Gallery)
-  // =========================================================================
-
-  /**
-   * Write a theme record
-   * @returns The theme UUID
-   */
-  writeTheme(data: ThemeData): Promise<string>;
-
-  /**
-   * Write a theme translation record
-   */
-  writeThemeTranslation(data: ThemeTranslationData): Promise<void>;
 
   // =========================================================================
   // Item Links

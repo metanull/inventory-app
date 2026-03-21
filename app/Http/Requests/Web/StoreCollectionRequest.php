@@ -19,6 +19,7 @@ class StoreCollectionRequest extends FormRequest
             'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['required', 'uuid', 'exists:contexts,id'],
             'parent_id' => ['nullable', 'uuid', 'exists:collections,id'],
+            'display_order' => ['nullable', 'integer', 'min:0'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
         ];
     }

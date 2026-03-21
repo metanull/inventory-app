@@ -16,18 +16,12 @@ use App\Models\Item;
 use App\Models\ItemImage;
 use App\Models\ItemTranslation;
 use App\Models\Language;
-use App\Models\Location;
-use App\Models\LocationTranslation;
 use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Models\Project;
-use App\Models\Province;
-use App\Models\ProvinceTranslation;
 use App\Models\Tag;
-use App\Models\Theme;
-use App\Models\ThemeTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -184,20 +178,6 @@ class AuthenticationTest extends TestCase
             ['DELETE', 'language.destroy', Language::class],
             ['PATCH', 'language.setDefault', Language::class],
 
-            // Location routes
-            ['GET', 'location.index', null],
-            ['POST', 'location.store', null],
-            ['GET', 'location.show', Location::class],
-            ['PATCH', 'location.update', Location::class],
-            ['DELETE', 'location.destroy', Location::class],
-
-            // LocationTranslation routes
-            ['GET', 'location-translation.index', null],
-            ['POST', 'location-translation.store', null],
-            ['GET', 'location-translation.show', LocationTranslation::class],
-            ['PATCH', 'location-translation.update', LocationTranslation::class],
-            ['DELETE', 'location-translation.destroy', LocationTranslation::class],
-
             // Partner routes
             ['GET', 'partner.index', null],
             ['POST', 'partner.store', null],
@@ -250,20 +230,6 @@ class AuthenticationTest extends TestCase
             ['PATCH', 'project.setEnabled', Project::class],
             ['PATCH', 'project.setLaunched', Project::class],
 
-            // Province routes
-            ['GET', 'province.index', null],
-            ['POST', 'province.store', null],
-            ['GET', 'province.show', Province::class],
-            ['PATCH', 'province.update', Province::class],
-            ['DELETE', 'province.destroy', Province::class],
-
-            // ProvinceTranslation routes
-            ['GET', 'province-translation.index', null],
-            ['POST', 'province-translation.store', null],
-            ['GET', 'province-translation.show', ProvinceTranslation::class],
-            ['PATCH', 'province-translation.update', ProvinceTranslation::class],
-            ['DELETE', 'province-translation.destroy', ProvinceTranslation::class],
-
             // Tag routes
             ['GET', 'tag.index', null],
             ['POST', 'tag.store', null],
@@ -271,20 +237,6 @@ class AuthenticationTest extends TestCase
             ['GET', 'tag.show', Tag::class],
             ['PATCH', 'tag.update', Tag::class],
             ['DELETE', 'tag.destroy', Tag::class],
-
-            // Theme routes
-            ['GET', 'theme.index', null],
-            ['POST', 'theme.store', null],
-            ['GET', 'theme.show', Theme::class],
-            ['PATCH', 'theme.update', Theme::class],
-            ['DELETE', 'theme.destroy', Theme::class],
-
-            // ThemeTranslation routes
-            ['GET', 'theme-translation.index', null],
-            ['POST', 'theme-translation.store', null],
-            ['GET', 'theme-translation.show', ThemeTranslation::class],
-            ['PATCH', 'theme-translation.update', ThemeTranslation::class],
-            ['DELETE', 'theme-translation.destroy', ThemeTranslation::class],
         ];
     }
 

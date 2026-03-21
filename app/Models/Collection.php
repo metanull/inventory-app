@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PartnerLevel;
+use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Collection extends Model
 {
-    use HasFactory, HasUuids;
+    use HasDisplayOrder, HasFactory, HasUuids;
 
     // Type constants
     public const TYPE_COLLECTION = 'collection';
@@ -47,6 +48,7 @@ class Collection extends Model
         'language_id',
         'context_id',
         'parent_id',
+        'display_order',
         'backward_compatibility',
         // GPS Location
         'latitude',
@@ -62,6 +64,7 @@ class Collection extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'display_order' => 'integer',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'map_zoom' => 'integer',
@@ -75,6 +78,18 @@ class Collection extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    /**
+     * Get a query builder scoped to this collection's siblings (same parent_id).
+     *
+     * @return Builder<static>
+     */
+    protected function getSiblingsQuery(): Builder
+    {
+        return $this->parent_id
+            ? static::where('parent_id', $this->parent_id)
+            : static::whereNull('parent_id');
     }
 
     /**

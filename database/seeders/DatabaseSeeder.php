@@ -18,8 +18,6 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             LanguageSeeder::class,
             CountrySeeder::class,
-            ProvinceSeeder::class,
-            LocationSeeder::class,
             ContextSeeder::class,
             ProjectSeeder::class,
             TagSeeder::class,
@@ -32,7 +30,6 @@ class DatabaseSeeder extends Seeder
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
             AuthorSeeder::class,
-            ThemeSeeder::class,
         ]);
     }
 }
