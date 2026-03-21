@@ -150,11 +150,7 @@
 
 <script setup lang="ts">
   import { computed, ref, onMounted, watch } from 'vue'
-  import {
-    useRoute,
-    useRouter,
-    onBeforeRouteLeave,
-  } from 'vue-router'
+  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
   import DescriptionRow from '@/components/format/description/DescriptionRow.vue'

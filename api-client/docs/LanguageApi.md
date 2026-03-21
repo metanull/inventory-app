@@ -74,7 +74,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let language: number; //The language ID (default to undefined)
+let language: string; //The language ID (default to undefined)
 
 const { status, data } = await apiInstance.languageDestroy(
     language
@@ -85,7 +85,7 @@ const { status, data } = await apiInstance.languageDestroy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **language** | [**number**] | The language ID | defaults to undefined|
+| **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
@@ -273,7 +273,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let language: number; //The language ID (default to undefined)
+let language: string; //The language ID (default to undefined)
 let setDefaultLanguageRequest: SetDefaultLanguageRequest; //
 
 const { status, data } = await apiInstance.languageSetDefault(
@@ -287,7 +287,7 @@ const { status, data } = await apiInstance.languageSetDefault(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **setDefaultLanguageRequest** | **SetDefaultLanguageRequest**|  | |
-| **language** | [**number**] | The language ID | defaults to undefined|
+| **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
@@ -330,7 +330,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let language: number; //The language ID (default to undefined)
+let language: string; //The language ID (default to undefined)
 
 const { status, data } = await apiInstance.languageShow(
     language
@@ -341,7 +341,7 @@ const { status, data } = await apiInstance.languageShow(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **language** | [**number**] | The language ID | defaults to undefined|
+| **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
@@ -439,7 +439,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let language: number; //The language ID (default to undefined)
+let language: string; //The language ID (default to undefined)
 let updateLanguageRequest: UpdateLanguageRequest; //
 
 const { status, data } = await apiInstance.languageUpdate(
@@ -453,7 +453,7 @@ const { status, data } = await apiInstance.languageUpdate(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateLanguageRequest** | **UpdateLanguageRequest**|  | |
-| **language** | [**number**] | The language ID | defaults to undefined|
+| **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type
@@ -497,7 +497,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new LanguageApi(configuration);
 
-let language: number; //The language ID (default to undefined)
+let language: string; //The language ID (default to undefined)
 let updateLanguageRequest: UpdateLanguageRequest; //
 
 const { status, data } = await apiInstance.languageUpdate2(
@@ -511,7 +511,7 @@ const { status, data } = await apiInstance.languageUpdate2(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateLanguageRequest** | **UpdateLanguageRequest**|  | |
-| **language** | [**number**] | The language ID | defaults to undefined|
+| **language** | [**string**] | The language ID | defaults to undefined|
 
 
 ### Return type

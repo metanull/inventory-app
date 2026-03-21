@@ -599,10 +599,12 @@
   // Computed properties for permissions
   const canViewData = computed(() => permissionsStore.hasPermission('view data'))
   const canCreateData = computed(() => permissionsStore.hasPermission('create data'))
-  
+
   // Only show Tools menu when user is authenticated AND permissions have been loaded
   // This prevents 403 errors when clearing cache before permissions are fetched
-  const showTools = computed(() => authStore.isAuthenticated && permissionsStore.permissions.length > 0)
+  const showTools = computed(
+    () => authStore.isAuthenticated && permissionsStore.permissions.length > 0
+  )
 
   // Theme colors for header icons (proof-of-concept)
   const itemsColors = useThemeColors('items')

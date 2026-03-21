@@ -43,23 +43,23 @@ export interface ArtistResource {
     /**
      * The place of birth of the artist
      */
-    'place_of_birth': string;
+    'place_of_birth': string | null;
     /**
      * The place of death of the artist
      */
-    'place_of_death': string;
+    'place_of_death': string | null;
     /**
      * The date of birth of the artist
      */
-    'date_of_birth': string;
+    'date_of_birth': string | null;
     /**
      * The date of death of the artist
      */
-    'date_of_death': string;
+    'date_of_death': string | null;
     /**
      * The period of activity of the artist
      */
-    'period_of_activity': string;
+    'period_of_activity': string | null;
     /**
      * A name for this resource, for internal use only.
      */
@@ -67,15 +67,15 @@ export interface ArtistResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * Items associated with this artist (ItemResource[])
      */
@@ -156,19 +156,19 @@ export interface AuthorResource {
     /**
      * A name for this resource, for internal use only.
      */
-    'internal_name': string;
+    'internal_name': string | null;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface AvailableImageIndex200Response {
     'data': Array<AvailableImageResource>;
@@ -219,19 +219,19 @@ export interface AvailableImageResource {
     /**
      * The path to the picture file
      */
-    'path': string;
+    'path': string | null;
     /**
      * A user defined comment associated with the file
      */
-    'comment': string;
+    'comment': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface AvailableImageShow200Response {
     'data': AvailableImageResource;
@@ -263,15 +263,15 @@ export interface CollectionImageResource {
     /**
      * The file size in bytes
      */
-    'size': string;
+    'size': number;
     /**
      * Alternative text for accessibility
      */
-    'alt_text': string;
+    'alt_text': string | null;
     /**
      * Display order for sorting images
      */
-    'display_order': string;
+    'display_order': number;
     /**
      * The collection this image belongs to (CollectionResource)
      */
@@ -279,11 +279,11 @@ export interface CollectionImageResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface CollectionImageTightenOrdering200Response {
     'data': OperationSuccessResource;
@@ -323,7 +323,7 @@ export interface CollectionResource {
     /**
      * The parent collection ID (for hierarchical organization)
      */
-    'parent_id': string;
+    'parent_id': string | null;
     /**
      * The display order within sibling collections
      */
@@ -331,15 +331,15 @@ export interface CollectionResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * The language relationship (LanguageResource)
      */
@@ -413,31 +413,31 @@ export interface CollectionTranslationResource {
     /**
      * The description of the collection translation
      */
-    'description': string;
+    'description': string | null;
     /**
      * The quote/introduction of the collection translation (optional)
      */
-    'quote': string;
+    'quote': string | null;
     /**
      * The URL for the collection translation
      */
-    'url': string;
+    'url': string | null;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * Extra data for translation (object, may be null)
      */
-    'extra': string;
+    'extra': object | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * The collection relationship (CollectionResource)
      */
@@ -482,19 +482,19 @@ export interface ContextResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * Indicates if this context is the default one. There is one single default context for the entire database.
      */
-    'is_default': string;
+    'is_default': boolean;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface ConversionResource {
     'success': MarkdownPreview422ResponseSuccess;
@@ -520,15 +520,15 @@ export interface CountryResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface CountryShow200Response {
     'data': CountryResource;
@@ -551,13 +551,13 @@ export interface CountryTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string;
-    'extra': string;
+    'backward_compatibility': string | null;
+    'extra': object | null;
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface CountryTranslationShow200Response {
     'data': CountryTranslationResource;
@@ -579,15 +579,15 @@ export interface GlossaryResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * Relationships (only included if loaded)
      */
@@ -623,11 +623,11 @@ export interface GlossarySpellingResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * Relationships (only included if loaded)
      */
@@ -663,11 +663,11 @@ export interface GlossaryTranslationResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * Relationships (only included if loaded)
      */
@@ -688,31 +688,31 @@ export interface ImageUploadResource {
     /**
      * The path to the picture file
      */
-    'path': string;
+    'path': string | null;
     /**
      * The original name of the uploaded file
      */
-    'name': string;
+    'name': string | null;
     /**
      * The file extension of the uploaded file
      */
-    'extension': string;
+    'extension': string | null;
     /**
      * The MIME type of the uploaded file
      */
-    'mime_type': string;
+    'mime_type': string | null;
     /**
      * The size of the uploaded file in bytes
      */
-    'size': string;
+    'size': number | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface ImageUploadShow200Response {
     'data': ImageUploadResource;
@@ -771,15 +771,15 @@ export interface ItemImageResource {
     /**
      * The file size in bytes
      */
-    'size': string;
+    'size': number;
     /**
      * Alternative text for accessibility
      */
-    'alt_text': string;
+    'alt_text': string | null;
     /**
      * Display order for sorting images
      */
-    'display_order': string;
+    'display_order': number;
     /**
      * The item this image belongs to (ItemResource)
      */
@@ -787,11 +787,11 @@ export interface ItemImageResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface ItemImagesIndex200Response {
     'data': Array<ItemImageResource>;
@@ -845,11 +845,11 @@ export interface ItemItemLinkResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface ItemItemLinkShow200Response {
     'data': ItemItemLinkResource;
@@ -875,23 +875,23 @@ export interface ItemItemLinkTranslationResource {
     /**
      * The description of the link (source → target direction)
      */
-    'description': string;
+    'description': string | null;
     /**
      * The reciprocal description of the link (target → source direction)
      */
-    'reciprocal_description': string;
+    'reciprocal_description': string | null;
     /**
      * The Id(s) of matching resource in the legacy system (if any)
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * The item-item link relationship (ItemItemLinkResource)
      */
@@ -916,35 +916,35 @@ export interface ItemResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The type of the item: \'object\', \'monument\', \'detail\', or \'picture\'.
      */
-    'type': string;
+    'type': ItemType;
     /**
      * The parent item ID (for hierarchical relationships), nullable
      */
-    'parent_id': string;
+    'parent_id': string | null;
     /**
      * Display order among siblings sharing the same parent, nullable
      */
-    'display_order': string;
+    'display_order': number | null;
     /**
      * Owner\'s reference number for the item (external reference from owner)
      */
-    'owner_reference': string;
+    'owner_reference': string | null;
     /**
      * MWNF reference number for the item (reference from MWNF system)
      */
-    'mwnf_reference': string;
+    'mwnf_reference': string | null;
     /**
      * The start year for the item (for datation purposes)
      */
-    'start_date': string;
+    'start_date': number | null;
     /**
      * The end year for the item (for datation purposes)
      */
-    'end_date': string;
+    'end_date': number | null;
     /**
      * The parent item (for hierarchical relationships), nullable (ItemResource)
      */
@@ -992,12 +992,14 @@ export interface ItemResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
+
+
 export interface ItemShow200Response {
     'data': ItemResource;
 }
@@ -1030,95 +1032,95 @@ export interface ItemTranslationResource {
     /**
      * The alternate name of the item translation
      */
-    'alternate_name': string;
+    'alternate_name': string | null;
     /**
      * The description of the item translation
      */
-    'description': string;
+    'description': string | null;
     /**
      * The type of the item translation
      */
-    'type': string;
+    'type': string | null;
     /**
      * The holder of the item
      */
-    'holder': string;
+    'holder': string | null;
     /**
      * The owner of the item
      */
-    'owner': string;
+    'owner': string | null;
     /**
      * The initial owner of the item
      */
-    'initial_owner': string;
+    'initial_owner': string | null;
     /**
      * The dates associated with the item
      */
-    'dates': string;
+    'dates': string | null;
     /**
      * The location associated with the item
      */
-    'location': string;
+    'location': string | null;
     /**
      * The dimensions of the item
      */
-    'dimensions': string;
+    'dimensions': string | null;
     /**
      * The place of production of the item
      */
-    'place_of_production': string;
+    'place_of_production': string | null;
     /**
      * The method for datation of the item
      */
-    'method_for_datation': string;
+    'method_for_datation': string | null;
     /**
      * The method for provenance of the item
      */
-    'method_for_provenance': string;
+    'method_for_provenance': string | null;
     /**
      * The ownership history of the item
      */
-    'provenance': string;
+    'provenance': string | null;
     /**
      * The obtention of the item
      */
-    'obtention': string;
+    'obtention': string | null;
     /**
      * The bibliography for the item
      */
-    'bibliography': string;
+    'bibliography': string | null;
     /**
      * The author of the item (AuthorResource id)
      */
-    'author_id': string;
+    'author_id': string | null;
     /**
      * The copy-editor of the item (AuthorResource id)
      */
-    'text_copy_editor_id': string;
+    'text_copy_editor_id': string | null;
     /**
      * The translator of the item translation (AuthorResource id)
      */
-    'translator_id': string;
+    'translator_id': string | null;
     /**
      * The copy-editor of the item translation (AuthorResource id)
      */
-    'translation_copy_editor_id': string;
+    'translation_copy_editor_id': string | null;
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * Extra data for translation (object, may be null)
      */
-    'extra': string;
+    'extra': object | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * The item relationship (ItemResource)
      */
@@ -1151,6 +1153,17 @@ export interface ItemTranslationResource {
 export interface ItemTranslationShow200Response {
     'data': ItemTranslationResource;
 }
+
+export const ItemType = {
+    Object: 'object',
+    Monument: 'monument',
+    Detail: 'detail',
+    Picture: 'picture'
+} as const;
+
+export type ItemType = typeof ItemType[keyof typeof ItemType];
+
+
 export interface LanguageGetDefault200Response {
     'data': LanguageResource;
 }
@@ -1171,19 +1184,19 @@ export interface LanguageResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * Indicates if this language is the default one. There is one single default language for the entire database.
      */
-    'is_default': string;
+    'is_default': boolean;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface LanguageTranslationIndex200Response {
     'data': Array<LanguageTranslationResource>;
@@ -1203,13 +1216,13 @@ export interface LanguageTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string;
-    'extra': string;
+    'backward_compatibility': string | null;
+    'extra': object | null;
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface LanguageTranslationShow200Response {
     'data': LanguageTranslationResource;
@@ -1261,9 +1274,9 @@ export interface PartnerImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': string;
-    'alt_text': string;
-    'display_order': string;
+    'size': number;
+    'alt_text': string | null;
+    'display_order': number;
     /**
      * Relationships
      */
@@ -1271,8 +1284,8 @@ export interface PartnerImageResource {
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerImageShow200Response {
     'data': PartnerImageResource;
@@ -1302,10 +1315,10 @@ export interface PartnerLogoResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': string;
+    'size': number;
     'logo_type': string;
-    'alt_text': string;
-    'display_order': string;
+    'alt_text': string | null;
+    'display_order': number;
     /**
      * Relationships
      */
@@ -1313,8 +1326,8 @@ export interface PartnerLogoResource {
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerLogoShow200Response {
     'data': PartnerLogoResource;
@@ -1331,7 +1344,7 @@ export interface PartnerResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The type of the partner, either \'museum\', \'institution\' or \'individual\'.
      */
@@ -1343,9 +1356,9 @@ export interface PartnerResource {
     /**
      * GPS Location
      */
-    'latitude': string;
-    'longitude': string;
-    'map_zoom': string;
+    'latitude': string | null;
+    'longitude': string | null;
+    'map_zoom': number;
     /**
      * Relationships
      */
@@ -1357,15 +1370,15 @@ export interface PartnerResource {
     /**
      * Visibility
      */
-    'visible': string;
+    'visible': boolean;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface PartnerShow200Response {
     'data': PartnerResource;
@@ -1390,9 +1403,9 @@ export interface PartnerTranslationImageResource {
     'path': string;
     'original_name': string;
     'mime_type': string;
-    'size': string;
-    'alt_text': string;
-    'display_order': string;
+    'size': number;
+    'alt_text': string | null;
+    'display_order': number;
     /**
      * Relationships
      */
@@ -1400,8 +1413,8 @@ export interface PartnerTranslationImageResource {
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerTranslationImageShow200Response {
     'data': PartnerTranslationImageResource;
@@ -1426,26 +1439,26 @@ export interface PartnerTranslationResource {
      * Core partner info
      */
     'name': string;
-    'description': string;
+    'description': string | null;
     /**
      * Address fields (embedded)
      */
-    'city_display': string;
-    'address_line_1': string;
-    'address_line_2': string;
-    'postal_code': string;
-    'address_notes': string;
+    'city_display': string | null;
+    'address_line_1': string | null;
+    'address_line_2': string | null;
+    'postal_code': string | null;
+    'address_notes': string | null;
     /**
      * Contact fields (semi-structured)
      */
-    'contact_name': string;
-    'contact_email_general': string;
-    'contact_email_press': string;
-    'contact_phone': string;
-    'contact_website': string;
-    'contact_notes': string;
-    'contact_emails': string;
-    'contact_phones': string;
+    'contact_name': string | null;
+    'contact_email_general': string | null;
+    'contact_email_press': string | null;
+    'contact_phone': string | null;
+    'contact_website': string | null;
+    'contact_notes': string | null;
+    'contact_emails': Array<any> | null;
+    'contact_phones': Array<any> | null;
     /**
      * Relationships
      */
@@ -1456,13 +1469,13 @@ export interface PartnerTranslationResource {
     /**
      * Metadata
      */
-    'backward_compatibility': string;
-    'extra': string;
+    'backward_compatibility': string | null;
+    'extra': object | null;
     /**
      * Timestamps
      */
-    'created_at': string;
-    'updated_at': string;
+    'created_at': string | null;
+    'updated_at': string | null;
 }
 export interface PartnerTranslationShow200Response {
     'data': PartnerTranslationResource;
@@ -1487,19 +1500,19 @@ export interface ProjectResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * Launch date of the project, nullable
      */
-    'launch_date': string;
+    'launch_date': string | null;
     /**
      * Indicates if the project has been launched already
      */
-    'is_launched': string;
+    'is_launched': boolean;
     /**
      * Indicates if the project is enabled (active)
      */
-    'is_enabled': string;
+    'is_enabled': boolean;
     /**
      * The default context used within the project (ContextResource)
      */
@@ -1511,11 +1524,11 @@ export interface ProjectResource {
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface ProjectShow200Response {
     'data': ProjectResource;
@@ -1842,15 +1855,15 @@ export interface TagResource {
     /**
      * The category of the tag (keyword, material, artist, dynasty), nullable
      */
-    'category': string;
+    'category': string | null;
     /**
      * The language of the tag (ISO 639-3 code), nullable
      */
-    'language_id': string;
+    'language_id': string | null;
     /**
      * The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The description of the tag
      */
@@ -1858,11 +1871,11 @@ export interface TagResource {
     /**
      * Date of creation
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * Date of last modification
      */
-    'updated_at': string;
+    'updated_at': string | null;
 }
 export interface TagShow200Response {
     'data': TagResource;
@@ -2216,6 +2229,15 @@ export interface UpdateTagsItemRequest {
     'detach'?: Array<string>;
 }
 export interface User {
+    'id': number;
+    'name': string;
+    'email': string;
+    'email_verified_at': string | null;
+    'two_factor_confirmed_at': string | null;
+    'current_team_id': number | null;
+    'profile_photo_path': string | null;
+    'created_at': string | null;
+    'updated_at': string | null;
     'profile_photo_url': string;
 }
 export interface UserPermissions200Response {
@@ -2270,15 +2292,15 @@ export interface WorkshopResource {
     /**
      * The Id(s) of matching resource in the legacy system (if any).
      */
-    'backward_compatibility': string;
+    'backward_compatibility': string | null;
     /**
      * The date of creation of the resource (managed by the system)
      */
-    'created_at': string;
+    'created_at': string | null;
     /**
      * The date of last modification of the resource (managed by the system)
      */
-    'updated_at': string;
+    'updated_at': string | null;
     /**
      * Items associated with this workshop (ItemResource[])
      */
@@ -6599,11 +6621,11 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryDestroy: async (country: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryDestroy: async (country: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryDestroy', 'country', country)
             const localVarPath = `/country/{country}`
@@ -6686,12 +6708,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryShow: async (country: number, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryShow: async (country: string, include?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryShow', 'country', country)
             const localVarPath = `/country/{country}`
@@ -6769,12 +6791,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate: async (country: number, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryUpdate: async (country: string, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryUpdate', 'country', country)
             // verify required parameter 'updateCountryRequest' is not null or undefined
@@ -6813,12 +6835,12 @@ export const CountryApiAxiosParamCreator = function (configuration?: Configurati
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate2: async (country: number, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        countryUpdate2: async (country: string, updateCountryRequest: UpdateCountryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'country' is not null or undefined
             assertParamExists('countryUpdate2', 'country', country)
             // verify required parameter 'updateCountryRequest' is not null or undefined
@@ -6866,11 +6888,11 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryDestroy(country: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async countryDestroy(country: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryDestroy(country, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryDestroy']?.[localVarOperationServerIndex]?.url;
@@ -6894,12 +6916,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryShow(country: number, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryShow(country: string, include?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryShow(country, include, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryShow']?.[localVarOperationServerIndex]?.url;
@@ -6921,12 +6943,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryUpdate(country, updateCountryRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryUpdate']?.[localVarOperationServerIndex]?.url;
@@ -6935,12 +6957,12 @@ export const CountryApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
+        async countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CountryShow200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.countryUpdate2(country, updateCountryRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CountryApi.countryUpdate2']?.[localVarOperationServerIndex]?.url;
@@ -6958,11 +6980,11 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryDestroy(country: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        countryDestroy(country: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.countryDestroy(country, options).then((request) => request(axios, basePath));
         },
         /**
@@ -6980,12 +7002,12 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryShow(country: number, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryShow(country: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryShow(country, include, options).then((request) => request(axios, basePath));
         },
         /**
@@ -7001,23 +7023,23 @@ export const CountryApiFactory = function (configuration?: Configuration, basePa
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryUpdate(country, updateCountryRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} country The country ID
+         * @param {string} country The country ID
          * @param {UpdateCountryRequest} updateCountryRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
+        countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CountryShow200Response> {
             return localVarFp.countryUpdate2(country, updateCountryRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -7030,11 +7052,11 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Remove the specified resource from storage
-     * @param {number} country The country ID
+     * @param {string} country The country ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryDestroy(country: number, options?: RawAxiosRequestConfig) {
+    public countryDestroy(country: string, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryDestroy(country, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -7054,12 +7076,12 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Display the specified resource
-     * @param {number} country The country ID
+     * @param {string} country The country ID
      * @param {string} [include] Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryShow(country: number, include?: string, options?: RawAxiosRequestConfig) {
+    public countryShow(country: string, include?: string, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryShow(country, include, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -7077,24 +7099,24 @@ export class CountryApi extends BaseAPI {
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {number} country The country ID
+     * @param {string} country The country ID
      * @param {UpdateCountryRequest} updateCountryRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryUpdate(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
+    public countryUpdate(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryUpdate(country, updateCountryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {number} country The country ID
+     * @param {string} country The country ID
      * @param {UpdateCountryRequest} updateCountryRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public countryUpdate2(country: number, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
+    public countryUpdate2(country: string, updateCountryRequest: UpdateCountryRequest, options?: RawAxiosRequestConfig) {
         return CountryApiFp(this.configuration).countryUpdate2(country, updateCountryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
@@ -15145,11 +15167,11 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageDestroy: async (language: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageDestroy: async (language: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageDestroy', 'language', language)
             const localVarPath = `/language/{language}`
@@ -15295,12 +15317,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageSetDefault: async (language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageSetDefault: async (language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageSetDefault', 'language', language)
             // verify required parameter 'setDefaultLanguageRequest' is not null or undefined
@@ -15339,11 +15361,11 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageShow: async (language: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageShow: async (language: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageShow', 'language', language)
             const localVarPath = `/language/{language}`
@@ -15417,12 +15439,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate: async (language: number, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageUpdate: async (language: string, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageUpdate', 'language', language)
             // verify required parameter 'updateLanguageRequest' is not null or undefined
@@ -15461,12 +15483,12 @@ export const LanguageApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate2: async (language: number, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        languageUpdate2: async (language: string, updateLanguageRequest: UpdateLanguageRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'language' is not null or undefined
             assertParamExists('languageUpdate2', 'language', language)
             // verify required parameter 'updateLanguageRequest' is not null or undefined
@@ -15526,11 +15548,11 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageDestroy(language: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async languageDestroy(language: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageDestroy(language, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageDestroy']?.[localVarOperationServerIndex]?.url;
@@ -15577,12 +15599,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageSetDefault(language, setDefaultLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageSetDefault']?.[localVarOperationServerIndex]?.url;
@@ -15591,11 +15613,11 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageShow(language: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageShow(language: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageShow(language, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageShow']?.[localVarOperationServerIndex]?.url;
@@ -15617,12 +15639,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageUpdate(language, updateLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageUpdate']?.[localVarOperationServerIndex]?.url;
@@ -15631,12 +15653,12 @@ export const LanguageApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
+        async languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LanguageGetDefault200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.languageUpdate2(language, updateLanguageRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LanguageApi.languageUpdate2']?.[localVarOperationServerIndex]?.url;
@@ -15663,11 +15685,11 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Remove the specified resource from storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageDestroy(language: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        languageDestroy(language: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.languageDestroy(language, options).then((request) => request(axios, basePath));
         },
         /**
@@ -15702,22 +15724,22 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Set or unset a Language as the default one
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageSetDefault(language, setDefaultLanguageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Display the specified resource
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageShow(language: number, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageShow(language: string, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageShow(language, options).then((request) => request(axios, basePath));
         },
         /**
@@ -15733,23 +15755,23 @@ export const LanguageApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageUpdate(language, updateLanguageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary Update the specified resource in storage
-         * @param {number} language The language ID
+         * @param {string} language The language ID
          * @param {UpdateLanguageRequest} updateLanguageRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
+        languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig): AxiosPromise<LanguageGetDefault200Response> {
             return localVarFp.languageUpdate2(language, updateLanguageRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -15772,11 +15794,11 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Remove the specified resource from storage
-     * @param {number} language The language ID
+     * @param {string} language The language ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageDestroy(language: number, options?: RawAxiosRequestConfig) {
+    public languageDestroy(language: string, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageDestroy(language, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -15815,23 +15837,23 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Set or unset a Language as the default one
-     * @param {number} language The language ID
+     * @param {string} language The language ID
      * @param {SetDefaultLanguageRequest} setDefaultLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageSetDefault(language: number, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageSetDefault(language: string, setDefaultLanguageRequest: SetDefaultLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageSetDefault(language, setDefaultLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Display the specified resource
-     * @param {number} language The language ID
+     * @param {string} language The language ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageShow(language: number, options?: RawAxiosRequestConfig) {
+    public languageShow(language: string, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageShow(language, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -15849,24 +15871,24 @@ export class LanguageApi extends BaseAPI {
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {number} language The language ID
+     * @param {string} language The language ID
      * @param {UpdateLanguageRequest} updateLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageUpdate(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageUpdate(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageUpdate(language, updateLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary Update the specified resource in storage
-     * @param {number} language The language ID
+     * @param {string} language The language ID
      * @param {UpdateLanguageRequest} updateLanguageRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public languageUpdate2(language: number, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
+    public languageUpdate2(language: string, updateLanguageRequest: UpdateLanguageRequest, options?: RawAxiosRequestConfig) {
         return LanguageApiFp(this.configuration).languageUpdate2(language, updateLanguageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }

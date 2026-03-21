@@ -9,15 +9,17 @@ description: >-
 ---
 
 # Core Concepts
+
 {: .no_toc }
 
 This document explains the purpose and structure of the Inventory Management API from a conceptual point of view. It is intended for any stakeholder — business users, content managers, and developers alike — who needs to understand how the system works before using or extending it.
 
 ## Table of Contents
+
 {: .no_toc .text-delta }
 
 1. TOC
-{:toc}
+   {:toc}
 
 ---
 
@@ -40,12 +42,12 @@ The **Item** is the central entity of the system. It represents a single piece o
 
 #### Item types
 
-| Type | Description |
-|------|-------------|
-| `object` | A museum object or artifact (e.g., a vase, a statue) |
-| `monument` | An architectural monument or archaeological site |
-| `detail` | A close-up detail or specific part of another item |
-| `picture` | A photograph or image resource |
+| Type       | Description                                          |
+| ---------- | ---------------------------------------------------- |
+| `object`   | A museum object or artifact (e.g., a vase, a statue) |
+| `monument` | An architectural monument or archaeological site     |
+| `detail`   | A close-up detail or specific part of another item   |
+| `picture`  | A photograph or image resource                       |
 
 #### Item key attributes
 
@@ -77,11 +79,11 @@ A **Partner** is an institution, museum, or individual who contributes content t
 
 #### Partner types
 
-| Type | Description |
-|------|-------------|
-| `museum` | A museum or gallery |
+| Type          | Description                                   |
+| ------------- | --------------------------------------------- |
+| `museum`      | A museum or gallery                           |
 | `institution` | A non-museum cultural or academic institution |
-| `individual` | An individual contributor |
+| `individual`  | An individual contributor                     |
 
 #### Partner key attributes
 
@@ -103,15 +105,15 @@ A **Collection** is a virtual grouping of items. Collections are the primary mec
 
 #### Collection types
 
-| Type | Description |
-|------|-------------|
-| `collection` | A general-purpose grouping of items |
-| `exhibition` | A curated set of items presented as an exhibition |
-| `gallery` | A set of items presented as a gallery |
-| `theme` | A thematic grouping |
-| `exhibition trail` | A guided itinerary through an exhibition |
-| `itinerary` | A geographic or thematic tour |
-| `location` | A grouping based on a physical location |
+| Type               | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `collection`       | A general-purpose grouping of items               |
+| `exhibition`       | A curated set of items presented as an exhibition |
+| `gallery`          | A set of items presented as a gallery             |
+| `theme`            | A thematic grouping                               |
+| `exhibition trail` | A guided itinerary through an exhibition          |
+| `itinerary`        | A geographic or thematic tour                     |
+| `location`         | A grouping based on a physical location           |
 
 #### Collection hierarchy
 
@@ -122,7 +124,7 @@ Collections can have a parent collection, creating a tree structure of unlimited
 There are two distinct relationships between items and collections:
 
 1. **Primary membership** — An item has a `collection_id` foreign key pointing to its primary collection. This is a straightforward one-to-many relationship: one collection owns many items directly.
-2. **Secondary (attached) membership** — Items can additionally be *attached* to other collections through a pivot table (`collection_item`). This many-to-many relationship allows the same item to appear in multiple collections without duplicating data.
+2. **Secondary (attached) membership** — Items can additionally be _attached_ to other collections through a pivot table (`collection_item`). This many-to-many relationship allows the same item to appear in multiple collections without duplicating data.
 
 Both types of membership can coexist. An item may have a primary collection and also be attached to several other collections.
 
@@ -134,11 +136,11 @@ Each collection records a **default language** and a **default context**. These 
 
 Partners can be associated with a collection at one of three contribution levels:
 
-| Level | Description |
-|-------|-------------|
-| `partner` | Primary partner providing content directly to the collection |
-| `associated_partner` | Partner contributing indirectly or in a supporting role |
-| `minor_contributor` | Partner with a minor or peripheral contribution |
+| Level                | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `partner`            | Primary partner providing content directly to the collection |
+| `associated_partner` | Partner contributing indirectly or in a supporting role      |
+| `minor_contributor`  | Partner with a minor or peripheral contribution              |
 
 ---
 
@@ -159,6 +161,7 @@ This three-condition model allows content to be prepared in advance and released
 #### Project association
 
 Every project has:
+
 - A default **language** — the primary language in which its content is authored.
 - A default **context** — the primary audience context for which its content is intended.
 
@@ -180,7 +183,7 @@ A **Language** identifies a supported language in the system using its [ISO 639-
 
 One language is designated as the **default language** (`is_default = true` / `english()` scope). The default language participates in translation fallback logic.
 
-**Language names** are stored in a `LanguageTranslation` model which maps a language to its name *as displayed in another language* (e.g., "English" displayed as "Anglais" in French). This uses a `display_language_id` rather than a context — it is a simpler, context-free translation compared to entity translations.
+**Language names** are stored in a `LanguageTranslation` model which maps a language to its name _as displayed in another language_ (e.g., "English" displayed as "Anglais" in French). This uses a `display_language_id` rather than a context — it is a simpler, context-free translation compared to entity translations.
 
 ---
 
@@ -207,6 +210,7 @@ For every entity (Item, Partner, Collection, etc.), there is a corresponding tra
 - The **actual content** — name, description, and other fields specific to the entity type.
 
 A single entity can therefore have many translations: one per language-context combination. For example, an item might have:
+
 - A French translation for the general public context.
 - A French translation for the academic context.
 - An English translation for the general public context.
@@ -247,10 +251,12 @@ This means it is sufficient to create a single "default context" translation for
 A **Tag** is a free-form label that can be attached to any number of items. Tags allow flexible, ad-hoc categorisation of content that does not fit into the formal collection structure.
 
 Tags have:
+
 - An optional **category** grouping (e.g., "material", "period", "style").
 - An optional **language** association (a tag may be language-specific).
 
 The API supports querying items by tags in two modes:
+
 - **All tags (AND)** — Return only items that have every specified tag.
 - **Any tag (OR)** — Return items that have at least one of the specified tags.
 
@@ -258,7 +264,7 @@ The API supports querying items by tags in two modes:
 
 ## Artists and Workshops
 
-**Artists** and **Workshops** describe the *creation* of an item.
+**Artists** and **Workshops** describe the _creation_ of an item.
 
 - An **Artist** is a person who created or contributed to the creation of an item. An artist record stores biographical information (name, place and date of birth and death, period of activity).
 - A **Workshop** is a place or atelier where an item was created.
@@ -308,16 +314,16 @@ The API uses **Laravel Sanctum** for token-based authentication. All endpoints r
 
 Access to operations is controlled by the following permissions:
 
-| Permission | Scope |
-|------------|-------|
-| `view data` | Read any data |
-| `create data` | Create new records |
-| `update data` | Modify existing records |
-| `delete data` | Delete records |
-| `manage users` | Create, edit, and delete user accounts |
-| `assign roles` | Assign roles to users |
-| `manage roles` | Create and modify roles |
-| `manage settings` | Change system configuration |
+| Permission        | Scope                                  |
+| ----------------- | -------------------------------------- |
+| `view data`       | Read any data                          |
+| `create data`     | Create new records                     |
+| `update data`     | Modify existing records                |
+| `delete data`     | Delete records                         |
+| `manage users`    | Create, edit, and delete user accounts |
+| `assign roles`    | Assign roles to users                  |
+| `manage roles`    | Create and modify roles                |
+| `manage settings` | Change system configuration            |
 
 Permissions are assigned to users through roles (powered by Spatie Laravel Permission).
 
@@ -408,6 +414,7 @@ The importer has **already been migrated**. The four phase-10 importers that han
 - **`ThgThemeItemTranslationImporter`** creates `ItemTranslation` records with the gallery-specific context, storing contextual per-item descriptions that were held in `theme_item_i18n`.
 
 {: .note }
+
 > **Dead code to remove**: The `IWriteStrategy` interface still declares `writeTheme()` and `writeThemeTranslation()` methods, and `SqlStrategy` still implements them (writing to the old `themes` and `theme_translations` tables). The `ThemeData` and `ThemeTranslationData` types in `types.ts`, and the `'theme'` / `'theme_translation'` entries in the `EntityType` union, are all dead code — no importer ever calls these methods. They should be removed along with the database tables.
 
 #### Schema gap — `display_order`

@@ -70,11 +70,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, watch } from 'vue'
-  import {
-    useRoute,
-    useRouter,
-    onBeforeRouteLeave,
-  } from 'vue-router'
+  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
   import { useLanguageStore } from '@/stores/language'
   import { useLoadingOverlayStore } from '@/stores/loadingOverlay'
   import { useErrorDisplayStore } from '@/stores/errorDisplay'

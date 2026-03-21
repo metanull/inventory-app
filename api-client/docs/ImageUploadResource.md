@@ -10,7 +10,7 @@ Name | Type | Description | Notes
 **name** | **string** | The original name of the uploaded file | [default to undefined]
 **extension** | **string** | The file extension of the uploaded file | [default to undefined]
 **mime_type** | **string** | The MIME type of the uploaded file | [default to undefined]
-**size** | **string** | The size of the uploaded file in bytes | [default to undefined]
+**size** | **number** | The size of the uploaded file in bytes | [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 

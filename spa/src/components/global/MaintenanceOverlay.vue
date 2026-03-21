@@ -7,7 +7,9 @@
   >
     <div class="text-center p-8">
       <!-- Icon -->
-      <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
+      <div
+        class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4"
+      >
         <WrenchScrewdriverIcon class="h-10 w-10 text-orange-600" />
       </div>
 
@@ -42,9 +44,7 @@
   const { isUpdateAvailable, isInMaintenanceMode } = storeToRefs(versionStore)
 
   // Determine if overlay should be shown
-  const shouldShowOverlay = computed(
-    () => isUpdateAvailable.value || isInMaintenanceMode.value
-  )
+  const shouldShowOverlay = computed(() => isUpdateAvailable.value || isInMaintenanceMode.value)
 
   // Dynamic overlay classes
   const overlayClasses = computed(() => getThemeClass('loadingOverlay'))
