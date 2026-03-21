@@ -23,9 +23,16 @@
             <x-display.field label="Context">
                 <x-display.context-reference :context="$collection->context" />
             </x-display.field>
+            <x-display.field label="Parent Collection">
+                <x-display.collection-reference :collection="$collection->parent" />
+            </x-display.field>
+            <x-display.field label="Display Order" :value="$collection->display_order" />
         </x-display.description-list>
 
         <x-entity.images-section entity="collections" :model="$collection" />
+
+        <!-- Child Collections Section -->
+        <x-entity.children-section :model="$collection" />
 
         <!-- Items Section -->
         <x-entity.collection-items-section :model="$collection" />
