@@ -169,7 +169,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('collection-image/{collectionImage}/view', [CollectionImageController::class, 'view'])->name('collection-image.view');
         Route::get('collection-image/{collectionImage}', [CollectionImageController::class, 'show'])->name('collection-image.show');
 
-
     });
 
     // CREATE operations - require CREATE_DATA permission
