@@ -22,6 +22,7 @@ Name | Type | Description | Notes
 **place_of_production** | **string** | The place of production of the item | [default to undefined]
 **method_for_datation** | **string** | The method for datation of the item | [default to undefined]
 **method_for_provenance** | **string** | The method for provenance of the item | [default to undefined]
+**provenance** | **string** | The ownership history of the item | [default to undefined]
 **obtention** | **string** | The obtention of the item | [default to undefined]
 **bibliography** | **string** | The bibliography for the item | [default to undefined]
 **author_id** | **string** | The author of the item (AuthorResource id) | [default to undefined]
@@ -63,6 +64,7 @@ const instance: ItemTranslationResource = {
     place_of_production,
     method_for_datation,
     method_for_provenance,
+    provenance,
     obtention,
     bibliography,
     author_id,

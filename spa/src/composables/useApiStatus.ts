@@ -1,9 +1,5 @@
 import { ref, onMounted } from 'vue'
-import {
-  Configuration,
-  InfoApi,
-  type InfoVersion200Response,
-} from '@metanull/inventory-app-api-client'
+import { Configuration, InfoApi } from '@metanull/inventory-app-api-client'
 
 interface AppInfo {
   application: {
@@ -22,7 +18,7 @@ export function useApiStatus() {
   const isApiUp = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const versionData = ref<InfoVersion200Response | null>(null)
+  const versionData = ref<object | null>(null)
   const appInfo = ref<AppInfo | null>(null)
 
   const checkApiStatus = async () => {

@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **language_id** | **string** |  | [optional] [default to undefined]
 **context_id** | **string** |  | [optional] [default to undefined]
 **parent_id** | **string** |  | [optional] [default to undefined]
+**display_order** | **number** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -23,6 +24,7 @@ const instance: UpdateCollectionRequest = {
     language_id,
     context_id,
     parent_id,
+    display_order,
     backward_compatibility,
 };
 ```

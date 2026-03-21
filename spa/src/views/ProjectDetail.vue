@@ -112,11 +112,7 @@
 
 <script setup lang="ts">
   import { ref, computed, onMounted, watch } from 'vue'
-  import {
-    useRoute,
-    useRouter,
-    onBeforeRouteLeave,
-  } from 'vue-router'
+  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
   import { useProjectStore } from '@/stores/project'
   import { useContextStore } from '@/stores/context'
   import { useLanguageStore } from '@/stores/language'
@@ -522,9 +518,7 @@
     // Only check for unsaved changes if we're in edit or create mode
     if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
       const result = await cancelChangesStore.trigger(
-        mode.value === 'create'
-          ? 'New Project has unsaved changes'
-          : 'Project has unsaved changes',
+        mode.value === 'create' ? 'New Project has unsaved changes' : 'Project has unsaved changes',
         mode.value === 'create'
           ? 'There are unsaved changes to this new project. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
           : `There are unsaved changes to "${project.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`

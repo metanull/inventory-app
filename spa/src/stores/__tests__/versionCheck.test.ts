@@ -64,9 +64,7 @@ describe('VersionCheck Store', () => {
     })
 
     it('should handle network error gracefully', async () => {
-      ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('Network error')
-      )
+      ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'))
 
       const store = useVersionCheckStore()
       await store.loadInitialVersion()
@@ -109,7 +107,6 @@ describe('VersionCheck Store', () => {
     it('should detect version mismatch', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: false,
@@ -135,7 +132,6 @@ describe('VersionCheck Store', () => {
     it('should detect maintenance mode', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: true,
@@ -160,7 +156,6 @@ describe('VersionCheck Store', () => {
     it('should not detect maintenance mode when down.lock not found', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: false,
@@ -185,7 +180,6 @@ describe('VersionCheck Store', () => {
     it('should handle version check failure gracefully', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'))
 
       // Advance time past cooldown
@@ -199,7 +193,6 @@ describe('VersionCheck Store', () => {
     it('should respect cooldown period', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: false,
@@ -259,7 +252,6 @@ describe('VersionCheck Store', () => {
     it('should return false within cooldown period', async () => {
       const store = useVersionCheckStore()
       store.currentVersion = '1.0.0.42'
-
       ;(global.fetch as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({
           ok: false,
