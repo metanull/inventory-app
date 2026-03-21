@@ -24,7 +24,7 @@ class CollectionController extends Controller
         $this->middleware('auth');
         $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
-        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
@@ -40,6 +40,8 @@ class CollectionController extends Controller
         $collection->load([
             'context',
             'language',
+            'parent',
+            'children',
             'translations.context',
             'translations.language',
             'attachedItems.itemImages',
@@ -105,5 +107,28 @@ class CollectionController extends Controller
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Item detached successfully');
+    }
+
+    public function moveUp(Collection $collection): RedirectResponse
+    {
+        $collection->moveUp();
+
+        return $this->redirectAfterMove($collection, 'Collection moved up');
+    }
+
+    public function moveDown(Collection $collection): RedirectResponse
+    {
+        $collection->moveDown();
+
+        return $this->redirectAfterMove($collection, 'Collection moved down');
+    }
+
+    private function redirectAfterMove(Collection $collection, string $message): RedirectResponse
+    {
+        $redirect = $collection->parent_id
+            ? redirect()->route('collections.show', $collection->parent_id)
+            : redirect()->route('collections.index');
+
+        return $redirect->with('success', $message);
     }
 }

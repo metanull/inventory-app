@@ -35,6 +35,7 @@ class CollectionFactory extends Factory
             'language_id' => Language::factory(),
             'context_id' => Context::factory(),
             'parent_id' => null,
+            'display_order' => null,
             'backward_compatibility' => $this->faker->optional()->uuid(),
             // GPS Location (nullable by default)
             'latitude' => null,

@@ -60,8 +60,6 @@ export type EntityType =
   | 'glossary'
   | 'glossary_translation'
   | 'glossary_spelling'
-  | 'theme'
-  | 'theme_translation'
   | 'item_item_link'
   | 'item_item_link_translation';
 
@@ -147,6 +145,7 @@ export interface CollectionData extends BaseEntityData {
   language_id: string; // Required: ISO 639-3 code
   parent_id?: string | null;
   type?: string | null; // collection, exhibition, gallery, theme, exhibition trail, itinerary, location
+  display_order?: number | null;
   // GPS Location (optional)
   latitude?: number | null;
   longitude?: number | null;
@@ -388,34 +387,6 @@ export interface GlossarySpellingData {
   glossary_id: string;
   language_id: string;
   spelling: string;
-}
-
-// ============================================================================
-// Phase 05 Types - Thematic Gallery
-// ============================================================================
-
-/**
- * Theme data for write operations
- */
-export interface ThemeData {
-  collection_id: string;
-  parent_id?: string | null;
-  display_order: number;
-  internal_name: string;
-  backward_compatibility: string;
-}
-
-/**
- * Theme translation data for write operations
- */
-export interface ThemeTranslationData {
-  theme_id: string;
-  language_id: string;
-  context_id: string;
-  title: string;
-  description?: string | null;
-  introduction?: string | null;
-  backward_compatibility: string;
 }
 
 /**

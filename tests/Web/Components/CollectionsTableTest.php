@@ -29,4 +29,9 @@ class CollectionsTableTest extends TestCase
     {
         return $model->internal_name;
     }
+
+    protected function getSortableFields(): array
+    {
+        return ['internal_name', 'display_order', 'created_at'];
+    }
 }

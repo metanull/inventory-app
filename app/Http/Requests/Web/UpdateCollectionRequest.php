@@ -19,6 +19,7 @@ class UpdateCollectionRequest extends FormRequest
             'language_id' => ['sometimes', 'required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['sometimes', 'required', 'uuid', 'exists:contexts,id'],
             'parent_id' => ['nullable', 'uuid', 'exists:collections,id'],
+            'display_order' => ['nullable', 'integer', 'min:0'],
             'backward_compatibility' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }

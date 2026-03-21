@@ -33,6 +33,8 @@ class CollectionResource extends JsonResource
             'context_id' => $this->context_id,
             // The parent collection ID (for hierarchical organization)
             'parent_id' => $this->parent_id,
+            // The display order within sibling collections
+            'display_order' => $this->display_order,
             // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
             // The date of creation of the resource (managed by the system)

@@ -77,12 +77,6 @@ class AllowList
             'contact' => [
                 'translations',
             ],
-            'province' => [
-                'translations',
-            ],
-            'location' => [
-                'translations',
-            ],
             'address' => [
                 'country', 'translations',
             ],
@@ -97,12 +91,6 @@ class AllowList
             ],
             'glossary_spelling' => [
                 'glossary', 'language', 'itemTranslations',
-            ],
-            'theme' => [
-                'translations', 'subthemes', 'subthemes.translations',
-            ],
-            'theme_translation' => [
-                'theme', 'language', 'context',
             ],
             'available_image' => [
                 // AvailableImage model has no relationships

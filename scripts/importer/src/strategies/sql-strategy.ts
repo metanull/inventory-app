@@ -39,8 +39,6 @@ import type {
   GlossaryData,
   GlossaryTranslationData,
   GlossarySpellingData,
-  ThemeData,
-  ThemeTranslationData,
   ItemItemLinkData,
   ItemItemLinkTranslationData,
   CollectionItemData,
@@ -63,8 +61,6 @@ const tableEntityMap: Record<string, EntityType> = {
   glossaries: 'glossary',
   glossary_translations: 'glossary_translation',
   glossary_spellings: 'glossary_spelling',
-  themes: 'theme',
-  theme_translations: 'theme_translation',
   item_item_links: 'item_item_link',
   item_item_link_translations: 'item_item_link_translation',
 };
@@ -209,14 +205,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, language_id, parent_id, type, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collections (id, context_id, language_id, parent_id, type, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.context_id,
         sanitized.language_id,
         sanitized.parent_id ?? null,
         sanitized.type ?? 'collection',
+        data.display_order ?? null,
         sanitized.internal_name,
         sanitized.backward_compatibility,
         data.latitude ?? null,
@@ -777,53 +774,6 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [id, sanitized.glossary_id, sanitized.language_id, sanitized.spelling, this.now, this.now]
     );
     return id;
-  }
-
-  // =========================================================================
-  // Themes (Thematic Gallery)
-  // =========================================================================
-
-  async writeTheme(data: ThemeData): Promise<string> {
-    const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
-    await this.db.execute(
-      `INSERT INTO themes (id, collection_id, parent_id, display_order, internal_name, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.collection_id,
-        sanitized.parent_id ?? null,
-        sanitized.display_order,
-        sanitized.internal_name,
-        sanitized.backward_compatibility,
-        this.now,
-        this.now,
-      ]
-    );
-
-    this.tracker.set(sanitized.backward_compatibility, id, 'theme');
-    return id;
-  }
-
-  async writeThemeTranslation(data: ThemeTranslationData): Promise<void> {
-    const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
-    await this.db.execute(
-      `INSERT INTO theme_translations (id, theme_id, language_id, context_id, title, description, introduction, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.theme_id,
-        sanitized.language_id,
-        sanitized.context_id,
-        sanitized.title,
-        sanitized.description ?? null,
-        sanitized.introduction ?? null,
-        sanitized.backward_compatibility,
-        this.now,
-        this.now,
-      ]
-    );
   }
 
   // =========================================================================

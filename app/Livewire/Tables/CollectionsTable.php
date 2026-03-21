@@ -48,7 +48,7 @@ class CollectionsTable extends Component
 
     public function sortBy(string $field): void
     {
-        $validFields = ['internal_name', 'created_at'];
+        $validFields = ['internal_name', 'display_order', 'created_at'];
 
         if (! in_array($field, $validFields)) {
             return;
