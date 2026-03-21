@@ -1,8 +1,5 @@
 import { ref, onMounted } from 'vue'
-import {
-  Configuration,
-  InfoApi,
-} from '@metanull/inventory-app-api-client'
+import { Configuration, InfoApi } from '@metanull/inventory-app-api-client'
 
 interface AppInfo {
   application: {

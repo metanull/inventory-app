@@ -56,11 +56,7 @@
 
 <script setup lang="ts">
   import { computed, ref, onMounted, watch } from 'vue'
-  import {
-    useRoute,
-    useRouter,
-    onBeforeRouteLeave,
-  } from 'vue-router'
+  import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
   import DetailView from '@/components/layout/detail/DetailView.vue'
   import DescriptionList from '@/components/format/description/DescriptionList.vue'
   import DescriptionRow from '@/components/format/description/DescriptionRow.vue'
@@ -395,9 +391,7 @@
     // Only check for unsaved changes if we're in edit or create mode
     if ((mode.value === 'edit' || mode.value === 'create') && hasUnsavedChanges.value) {
       const result = await cancelChangesStore.trigger(
-        mode.value === 'create'
-          ? 'New Context has unsaved changes'
-          : 'Context has unsaved changes',
+        mode.value === 'create' ? 'New Context has unsaved changes' : 'Context has unsaved changes',
         mode.value === 'create'
           ? 'There are unsaved changes to this new context. If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.'
           : `There are unsaved changes to "${context.value?.internal_name}". If you navigate away, the changes will be lost. Are you sure you want to navigate away? This action cannot be undone.`

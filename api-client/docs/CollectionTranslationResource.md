@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **quote** | **string** | The quote/introduction of the collection translation (optional) | [default to undefined]
 **url** | **string** | The URL for the collection translation | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
-**extra** | **string** | Extra data for translation (object, may be null) | [default to undefined]
+**extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 **collection** | [**CollectionResource**](CollectionResource.md) | The collection relationship (CollectionResource) | [optional] [default to undefined]

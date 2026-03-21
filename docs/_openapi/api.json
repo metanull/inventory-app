@@ -3054,7 +3054,7 @@
                         "required": true,
                         "description": "The country ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -3113,7 +3113,7 @@
                         "required": true,
                         "description": "The country ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -3173,7 +3173,7 @@
                         "required": true,
                         "description": "The country ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -3233,7 +3233,7 @@
                         "required": true,
                         "description": "The country ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -9000,7 +9000,7 @@
                         "required": true,
                         "description": "The language ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -9050,7 +9050,7 @@
                         "required": true,
                         "description": "The language ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -9110,7 +9110,7 @@
                         "required": true,
                         "description": "The language ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -9170,7 +9170,7 @@
                         "required": true,
                         "description": "The language ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -9425,7 +9425,7 @@
                         "required": true,
                         "description": "The language ID",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -14865,23 +14865,38 @@
                         "description": "The name of the artist"
                     },
                     "place_of_birth": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The place of birth of the artist"
                     },
                     "place_of_death": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The place of death of the artist"
                     },
                     "date_of_birth": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The date of birth of the artist"
                     },
                     "date_of_death": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The date of death of the artist"
                     },
                     "period_of_activity": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The period of activity of the artist"
                     },
                     "internal_name": {
@@ -14889,15 +14904,26 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "items": {
@@ -15124,19 +15150,33 @@
                         "description": "The name of the author"
                     },
                     "internal_name": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15158,19 +15198,33 @@
                         "description": "The unique identifier (GUID)"
                     },
                     "path": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The path to the picture file"
                     },
                     "comment": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "A user defined comment associated with the file"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15207,15 +15261,18 @@
                         "description": "The MIME type of the image"
                     },
                     "size": {
-                        "type": "string",
+                        "type": "integer",
                         "description": "The file size in bytes"
                     },
                     "alt_text": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Alternative text for accessibility"
                     },
                     "display_order": {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Display order for sorting images"
                     },
                     "collection": {
@@ -15223,11 +15280,19 @@
                         "$ref": "#/components/schemas/CollectionResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15269,7 +15334,10 @@
                         "description": "The context this collection belongs to (ContextResource id)"
                     },
                     "parent_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The parent collection ID (for hierarchical organization)"
                     },
                     "display_order": {
@@ -15277,15 +15345,26 @@
                         "description": "The display order within sibling collections"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "language": {
@@ -15395,31 +15474,54 @@
                         "description": "The title of the collection translation"
                     },
                     "description": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The description of the collection translation"
                     },
                     "quote": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The quote/introduction of the collection translation (optional)"
                     },
                     "url": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The URL for the collection translation"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "extra": {
-                        "type": "string",
+                        "type": [
+                            "object",
+                            "null"
+                        ],
                         "description": "Extra data for translation (object, may be null)"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "collection": {
@@ -15463,19 +15565,30 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "is_default": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Indicates if this context is the default one. There is one single default context for the entire database."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15536,15 +15649,26 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15580,18 +15704,32 @@
                         "$ref": "#/components/schemas/LanguageResource"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Metadata"
                     },
                     "extra": {
-                        "type": "string"
+                        "type": [
+                            "object",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -15618,15 +15756,26 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "translations": {
@@ -15678,11 +15827,19 @@
                         "description": "The spelling variation"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "glossary": {
@@ -15729,11 +15886,19 @@
                         "description": "The definition/translation text"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "glossary": {
@@ -15762,31 +15927,54 @@
                         "description": "The unique identifier (GUID)"
                     },
                     "path": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The path to the picture file"
                     },
                     "name": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The original name of the uploaded file"
                     },
                     "extension": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The file extension of the uploaded file"
                     },
                     "mime_type": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The MIME type of the uploaded file"
                     },
                     "size": {
-                        "type": "string",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "description": "The size of the uploaded file in bytes"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15842,15 +16030,18 @@
                         "description": "The MIME type of the image"
                     },
                     "size": {
-                        "type": "string",
+                        "type": "integer",
                         "description": "The file size in bytes"
                     },
                     "alt_text": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Alternative text for accessibility"
                     },
                     "display_order": {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Display order for sorting images"
                     },
                     "item": {
@@ -15858,11 +16049,19 @@
                         "$ref": "#/components/schemas/ItemResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15919,11 +16118,19 @@
                         }
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -15953,23 +16160,40 @@
                         "description": "The language of this translation (LanguageResource id)"
                     },
                     "description": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The description of the link (source \u2192 target direction)"
                     },
                     "reciprocal_description": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The reciprocal description of the link (target \u2192 source direction)"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "item_item_link": {
@@ -16005,35 +16229,56 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "type": {
-                        "type": "string",
-                        "description": "The type of the item: 'object', 'monument', 'detail', or 'picture'."
+                        "description": "The type of the item: 'object', 'monument', 'detail', or 'picture'.",
+                        "$ref": "#/components/schemas/ItemType"
                     },
                     "parent_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The parent item ID (for hierarchical relationships), nullable"
                     },
                     "display_order": {
-                        "type": "string",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "description": "Display order among siblings sharing the same parent, nullable"
                     },
                     "owner_reference": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Owner's reference number for the item (external reference from owner)"
                     },
                     "mwnf_reference": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "MWNF reference number for the item (reference from MWNF system)"
                     },
                     "start_date": {
-                        "type": "string",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "description": "The start year for the item (for datation purposes)"
                     },
                     "end_date": {
-                        "type": "string",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "description": "The end year for the item (for datation purposes)"
                     },
                     "parent": {
@@ -16099,11 +16344,19 @@
                         }
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -16147,95 +16400,166 @@
                         "description": "The name of the item translation"
                     },
                     "alternate_name": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The alternate name of the item translation"
                     },
                     "description": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The description of the item translation"
                     },
                     "type": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The type of the item translation"
                     },
                     "holder": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The holder of the item"
                     },
                     "owner": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The owner of the item"
                     },
                     "initial_owner": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The initial owner of the item"
                     },
                     "dates": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The dates associated with the item"
                     },
                     "location": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The location associated with the item"
                     },
                     "dimensions": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The dimensions of the item"
                     },
                     "place_of_production": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The place of production of the item"
                     },
                     "method_for_datation": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The method for datation of the item"
                     },
                     "method_for_provenance": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The method for provenance of the item"
                     },
                     "provenance": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The ownership history of the item"
                     },
                     "obtention": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The obtention of the item"
                     },
                     "bibliography": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The bibliography for the item"
                     },
                     "author_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The author of the item (AuthorResource id)"
                     },
                     "text_copy_editor_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The copy-editor of the item (AuthorResource id)"
                     },
                     "translator_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The translator of the item translation (AuthorResource id)"
                     },
                     "translation_copy_editor_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The copy-editor of the item translation (AuthorResource id)"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "extra": {
-                        "type": "string",
+                        "type": [
+                            "object",
+                            "null"
+                        ],
                         "description": "Extra data for translation (object, may be null)"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "item": {
@@ -16299,6 +16623,16 @@
                 ],
                 "title": "ItemTranslationResource"
             },
+            "ItemType": {
+                "type": "string",
+                "enum": [
+                    "object",
+                    "monument",
+                    "detail",
+                    "picture"
+                ],
+                "title": "ItemType"
+            },
             "LanguageResource": {
                 "type": "object",
                 "properties": {
@@ -16311,19 +16645,30 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "is_default": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Indicates if this language is the default one. There is one single default language for the entire database."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -16360,18 +16705,32 @@
                         "$ref": "#/components/schemas/LanguageResource"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Metadata"
                     },
                     "extra": {
-                        "type": "string"
+                        "type": [
+                            "object",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16463,24 +16822,35 @@
                         "type": "string"
                     },
                     "size": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "alt_text": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "display_order": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "partner": {
                         "description": "Relationships",
                         "$ref": "#/components/schemas/PartnerResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16519,27 +16889,38 @@
                         "type": "string"
                     },
                     "size": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "logo_type": {
                         "type": "string"
                     },
                     "alt_text": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "display_order": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "partner": {
                         "description": "Relationships",
                         "$ref": "#/components/schemas/PartnerResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16569,7 +16950,10 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "type": {
@@ -16581,14 +16965,20 @@
                         "$ref": "#/components/schemas/CountryResource"
                     },
                     "latitude": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "GPS Location"
                     },
                     "longitude": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "map_zoom": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "project": {
                         "description": "Relationships",
@@ -16616,15 +17006,23 @@
                         }
                     },
                     "visible": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Visibility"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -16664,24 +17062,35 @@
                         "type": "string"
                     },
                     "size": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "alt_text": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "display_order": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "partner_translation": {
                         "description": "Relationships",
                         "$ref": "#/components/schemas/PartnerTranslationResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16720,48 +17129,92 @@
                         "description": "Core partner info"
                     },
                     "description": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "city_display": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Address fields (embedded)"
                     },
                     "address_line_1": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "address_line_2": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "postal_code": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "address_notes": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_name": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Contact fields (semi-structured)"
                     },
                     "contact_email_general": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_email_press": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_phone": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_website": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_notes": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "contact_emails": {
-                        "type": "string"
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
                     },
                     "contact_phones": {
-                        "type": "string"
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {}
                     },
                     "partner": {
                         "description": "Relationships",
@@ -16780,18 +17233,32 @@
                         }
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "Metadata"
                     },
                     "extra": {
-                        "type": "string"
+                        "type": [
+                            "object",
+                            "null"
+                        ]
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Timestamps"
                     },
                     "updated_at": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 },
                 "required": [
@@ -16833,19 +17300,26 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "launch_date": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date",
                         "description": "Launch date of the project, nullable"
                     },
                     "is_launched": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Indicates if the project has been launched already"
                     },
                     "is_enabled": {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Indicates if the project is enabled (active)"
                     },
                     "context": {
@@ -16857,11 +17331,19 @@
                         "$ref": "#/components/schemas/LanguageResource"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     }
                 },
@@ -18217,15 +18699,24 @@
                         "description": "The name of the tag, it shall only be used internally"
                     },
                     "category": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The category of the tag (keyword, material, artist, dynasty), nullable"
                     },
                     "language_id": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The language of the tag (ISO 639-3 code), nullable"
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The legacy Id when this tag corresponds to a legacy tag from the previous database, nullable"
                     },
                     "description": {
@@ -18233,11 +18724,19 @@
                         "description": "The description of the tag"
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Date of creation"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "Date of last modification"
                     }
                 },
@@ -19574,11 +20073,68 @@
             "User": {
                 "type": "object",
                 "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "two_factor_confirmed_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "current_team_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "profile_photo_path": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
                     "profile_photo_url": {
                         "type": "string"
                     }
                 },
                 "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "email_verified_at",
+                    "two_factor_confirmed_at",
+                    "current_team_id",
+                    "profile_photo_path",
+                    "created_at",
+                    "updated_at",
                     "profile_photo_url"
                 ],
                 "title": "User"
@@ -19704,15 +20260,26 @@
                         "description": "A name for this resource, for internal use only."
                     },
                     "backward_compatibility": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
                         "description": "The Id(s) of matching resource in the legacy system (if any)."
                     },
                     "created_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of creation of the resource (managed by the system)"
                     },
                     "updated_at": {
-                        "type": "string",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time",
                         "description": "The date of last modification of the resource (managed by the system)"
                     },
                     "items": {

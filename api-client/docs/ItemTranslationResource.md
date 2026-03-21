@@ -30,7 +30,7 @@ Name | Type | Description | Notes
 **translator_id** | **string** | The translator of the item translation (AuthorResource id) | [default to undefined]
 **translation_copy_editor_id** | **string** | The copy-editor of the item translation (AuthorResource id) | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
-**extra** | **string** | Extra data for translation (object, may be null) | [default to undefined]
+**extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
 **created_at** | **string** | The date of creation of the resource (managed by the system) | [default to undefined]
 **updated_at** | **string** | The date of last modification of the resource (managed by the system) | [default to undefined]
 **item** | [**ItemResource**](ItemResource.md) | The item relationship (ItemResource) | [optional] [default to undefined]

@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **country** | [**CountryResource**](CountryResource.md) | Relationships | [optional] [default to undefined]
 **language** | [**LanguageResource**](LanguageResource.md) |  | [optional] [default to undefined]
 **backward_compatibility** | **string** | Metadata | [default to undefined]
-**extra** | **string** |  | [default to undefined]
+**extra** | **object** |  | [default to undefined]
 **created_at** | **string** | Timestamps | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
