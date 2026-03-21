@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory, type Router } from 'vue-router'
 import { flushPromises } from '@vue/test-utils'
 import CollectionDetail from '../../CollectionDetail.vue'
@@ -57,21 +56,21 @@ vi.mock('@heroicons/vue/24/outline', () => ({
   ChevronDownIcon: { name: 'ChevronDownIcon', render: () => null },
 }))
 
-// Mock stores
-vi.mock('@/stores/collection')
-vi.mock('@/stores/language')
-vi.mock('@/stores/context')
-vi.mock('@/stores/loadingOverlay')
-vi.mock('@/stores/errorDisplay')
-vi.mock('@/stores/cancelChangesConfirmation')
-vi.mock('@/stores/deleteConfirmation')
+// Mock CollectionImageManager component to avoid deep store dependencies
+vi.mock('@/components/CollectionImageManager.vue', () => ({
+  default: {
+    name: 'CollectionImageManager',
+    template: '<div class="collection-image-manager-mock"></div>',
+    props: ['collectionId', 'color'],
+  },
+}))
 
+// Mock stores
 const mockCollectionStore = {
   currentCollection: null as CollectionResource | null,
-  collections: [],
+  collections: [] as CollectionResource[],
   loading: false,
   fetchCollection: vi.fn().mockImplementation(async (id: string) => {
-    // Simulate setting currentCollection when fetchCollection is called
     if (id === 'test-collection-id') {
       mockCollectionStore.currentCollection = {
         id: 'test-collection-id',
@@ -79,11 +78,15 @@ const mockCollectionStore = {
         backward_compatibility: null,
         language_id: 'eng',
         context_id: 'test-context-id',
+        type: 'collection',
         translations: [],
         created_at: '2024-01-01T00:00:00.000000Z',
         updated_at: '2024-01-01T00:00:00.000000Z',
       }
     }
+  }),
+  clearCurrentCollection: vi.fn().mockImplementation(() => {
+    mockCollectionStore.currentCollection = null
   }),
   createCollection: vi.fn(),
   updateCollection: vi.fn(),
@@ -138,20 +141,22 @@ const mockContextStore = {
 }
 
 const mockLoadingStore = {
-  visible: false,
-  disabled: false,
-  text: 'Loading...',
   show: vi.fn(),
   hide: vi.fn(),
-  disable: vi.fn(),
-  enable: vi.fn(),
 }
 
 const mockErrorStore = {
-  messages: [],
   addMessage: vi.fn(),
-  removeMessage: vi.fn(),
-  clearMessages: vi.fn(),
+}
+
+const mockDeleteConfirmationStore = {
+  trigger: vi.fn(),
+}
+
+const mockCancelChangesConfirmationStore = {
+  trigger: vi.fn(),
+  addChange: vi.fn(),
+  resetChanges: vi.fn(),
 }
 
 vi.mock('@/stores/collection', () => ({
@@ -174,53 +179,24 @@ vi.mock('@/stores/errorDisplay', () => ({
   useErrorDisplayStore: () => mockErrorStore,
 }))
 
-vi.mock('@/stores/successDisplay', () => ({
-  useSuccessDisplayStore: () => ({
-    showMessage: vi.fn(),
-  }),
+vi.mock('@/stores/deleteConfirmation', () => ({
+  useDeleteConfirmationStore: () => mockDeleteConfirmationStore,
 }))
 
-// Mock components
-vi.mock('@/components/format/detail/DetailView.vue', () => ({
-  default: {
-    name: 'DetailView',
-    template: '<div class="detail-view-mock"><slot /></div>',
-    props: ['loading', 'mode', 'title'],
-  },
-}))
-
-vi.mock('@/components/format/input/TextInput.vue', () => ({
-  default: {
-    name: 'TextInput',
-    template: '<input class="text-input-mock" />',
-    props: ['modelValue', 'label', 'required', 'error'],
-    emits: ['update:modelValue'],
-  },
-}))
-
-vi.mock('@/components/format/dropdown/GenericDropdown.vue', () => ({
-  default: {
-    name: 'GenericDropdown',
-    template: '<select class="generic-dropdown-mock"><slot /></select>',
-    props: ['modelValue', 'options', 'label', 'required'],
-    emits: ['update:modelValue'],
-  },
+vi.mock('@/stores/cancelChangesConfirmation', () => ({
+  useCancelChangesConfirmationStore: () => mockCancelChangesConfirmationStore,
 }))
 
 describe('CollectionDetail', () => {
   let router: Router
 
   beforeEach(() => {
-    // Setup Pinia
-    setActivePinia(createPinia())
+    // Reset all mocks
+    vi.clearAllMocks()
 
     // Reset store states
     mockCollectionStore.currentCollection = null
     mockCollectionStore.loading = false
-    mockLoadingStore.visible = false
-
-    // Reset all mocks
-    vi.clearAllMocks()
 
     // Create router
     router = createRouter({
