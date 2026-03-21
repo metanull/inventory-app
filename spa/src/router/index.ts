@@ -200,33 +200,32 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to) => {
-    const authStore = useAuthStore()
+router.beforeEach(async to => {
+  const authStore = useAuthStore()
 
-    if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-      const query: Record<string, string> = {}
-      if (to.name && typeof to.name === 'string') {
-        query.redirectName = to.name
-        const params = to.params && typeof to.params === 'object' ? to.params : undefined
-        if (params && Object.keys(params).length > 0) {
-          try {
-            query.redirectParams = encodeURIComponent(JSON.stringify(params))
-          } catch {
-            // swallow non-serializable params
-          }
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    const query: Record<string, string> = {}
+    if (to.name && typeof to.name === 'string') {
+      query.redirectName = to.name
+      const params = to.params && typeof to.params === 'object' ? to.params : undefined
+      if (params && Object.keys(params).length > 0) {
+        try {
+          query.redirectParams = encodeURIComponent(JSON.stringify(params))
+        } catch {
+          // swallow non-serializable params
         }
       }
-      return { name: 'login', query }
-    } else if (to.name === 'login' && authStore.isAuthenticated) {
-      const hasIntended = typeof to.query?.redirectName === 'string'
-      if (hasIntended) {
-        return true
-      } else {
-        return { name: 'home' }
-      }
     }
-    return true
+    return { name: 'login', query }
+  } else if (to.name === 'login' && authStore.isAuthenticated) {
+    const hasIntended = typeof to.query?.redirectName === 'string'
+    if (hasIntended) {
+      return true
+    } else {
+      return { name: 'home' }
+    }
   }
-)
+  return true
+})
 
 export default router

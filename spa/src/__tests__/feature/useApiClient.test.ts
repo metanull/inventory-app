@@ -18,36 +18,26 @@ vi.mock('@metanull/inventory-app-api-client', () => ({
       }
     }
   },
-  LanguageApi: vi.fn(),
+  AvailableImageApi: vi.fn(),
   CollectionApi: vi.fn(),
+  CollectionImageApi: vi.fn(),
   ContextApi: vi.fn(),
   CountryApi: vi.fn(),
-  DetailApi: vi.fn(),
-  ExhibitionApi: vi.fn(),
-  GalleryApi: vi.fn(),
   ImageUploadApi: vi.fn(),
   InfoApi: vi.fn(),
   ItemApi: vi.fn(),
-  LocationApi: vi.fn(),
+  ItemImageApi: vi.fn(),
+  ItemTranslationApi: vi.fn(),
+  LanguageApi: vi.fn(),
   MarkdownApi: vi.fn(),
   MobileAppAuthenticationApi: vi.fn(),
   PartnerApi: vi.fn(),
   PartnerImageApi: vi.fn(),
   PartnerTranslationApi: vi.fn(),
   PartnerTranslationImageApi: vi.fn(),
-  PictureApi: vi.fn(),
   ProjectApi: vi.fn(),
-  ProvinceApi: vi.fn(),
   TagApi: vi.fn(),
-  ThemeApi: vi.fn(),
-  DetailTranslationApi: vi.fn(),
-  ExhibitionTranslationApi: vi.fn(),
-  ItemTranslationApi: vi.fn(),
-  LocationTranslationApi: vi.fn(),
-  PictureTranslationApi: vi.fn(),
-  ProvinceTranslationApi: vi.fn(),
-  ThemeTranslationApi: vi.fn(),
-  AvailableImageApi: vi.fn(),
+  UserPermissionsApi: vi.fn(),
 }))
 
 // Mock the session-aware axios
@@ -71,6 +61,7 @@ describe('useApiClient composable', () => {
     // Test that all factory methods are available
     expect(typeof apiClient.createAvailableImageApi).toBe('function')
     expect(typeof apiClient.createCollectionApi).toBe('function')
+    expect(typeof apiClient.createCollectionImageApi).toBe('function')
     expect(typeof apiClient.createContextApi).toBe('function')
     expect(typeof apiClient.createCountryApi).toBe('function')
     expect(typeof apiClient.createImageUploadApi).toBe('function')
@@ -79,8 +70,6 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createItemImageApi).toBe('function')
     expect(typeof apiClient.createItemTranslationApi).toBe('function')
     expect(typeof apiClient.createLanguageApi).toBe('function')
-    expect(typeof apiClient.createLocationApi).toBe('function')
-    expect(typeof apiClient.createLocationTranslationApi).toBe('function')
     expect(typeof apiClient.createMarkdownApi).toBe('function')
     expect(typeof apiClient.createMobileAppAuthenticationApi).toBe('function')
     expect(typeof apiClient.createPartnerApi).toBe('function')
@@ -88,18 +77,12 @@ describe('useApiClient composable', () => {
     expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
     expect(typeof apiClient.createPartnerTranslationImageApi).toBe('function')
     expect(typeof apiClient.createProjectApi).toBe('function')
-    expect(typeof apiClient.createProvinceApi).toBe('function')
-    expect(typeof apiClient.createProvinceTranslationApi).toBe('function')
     expect(typeof apiClient.createTagApi).toBe('function')
-    expect(typeof apiClient.createThemeApi).toBe('function')
-    expect(typeof apiClient.createThemeTranslationApi).toBe('function')
+    expect(typeof apiClient.createUserPermissionsApi).toBe('function')
 
-    // Test translation API methods (only existing translation APIs)
+    // Test translation API methods
     expect(typeof apiClient.createItemTranslationApi).toBe('function')
-    expect(typeof apiClient.createLocationTranslationApi).toBe('function')
     expect(typeof apiClient.createPartnerTranslationApi).toBe('function')
-    expect(typeof apiClient.createProvinceTranslationApi).toBe('function')
-    expect(typeof apiClient.createThemeTranslationApi).toBe('function')
 
     // Test other APIs
     expect(typeof apiClient.createAvailableImageApi).toBe('function')

@@ -1,21 +1,19 @@
-# UpdateThemeRequest
+# PartnerLogoShow200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**internal_name** | **string** |  | [optional] [default to undefined]
-**backward_compatibility** | **string** |  | [optional] [default to undefined]
+**data** | [**PartnerLogoResource**](PartnerLogoResource.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { UpdateThemeRequest } from './api';
+import { PartnerLogoShow200Response } from './api';
 
-const instance: UpdateThemeRequest = {
-    internal_name,
-    backward_compatibility,
+const instance: PartnerLogoShow200Response = {
+    data,
 };
 ```
 

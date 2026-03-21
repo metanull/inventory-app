@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **context_id** | **string** | The context of this translation (ContextResource id) | [default to undefined]
 **title** | **string** | The title of the collection translation | [default to undefined]
 **description** | **string** | The description of the collection translation | [default to undefined]
+**quote** | **string** | The quote/introduction of the collection translation (optional) | [default to undefined]
 **url** | **string** | The URL for the collection translation | [default to undefined]
 **backward_compatibility** | **string** | The Id(s) of matching resource in the legacy system (if any). | [default to undefined]
 **extra** | **object** | Extra data for translation (object, may be null) | [default to undefined]
@@ -32,6 +33,7 @@ const instance: CollectionTranslationResource = {
     context_id,
     title,
     description,
+    quote,
     url,
     backward_compatibility,
     extra,
