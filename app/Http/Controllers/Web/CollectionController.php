@@ -113,21 +113,22 @@ class CollectionController extends Controller
     {
         $collection->moveUp();
 
-        $redirect = $collection->parent_id
-            ? redirect()->route('collections.show', $collection->parent_id)
-            : redirect()->route('collections.index');
-
-        return $redirect->with('success', 'Collection moved up');
+        return $this->redirectAfterMove($collection, 'Collection moved up');
     }
 
     public function moveDown(Collection $collection): RedirectResponse
     {
         $collection->moveDown();
 
+        return $this->redirectAfterMove($collection, 'Collection moved down');
+    }
+
+    private function redirectAfterMove(Collection $collection, string $message): RedirectResponse
+    {
         $redirect = $collection->parent_id
             ? redirect()->route('collections.show', $collection->parent_id)
             : redirect()->route('collections.index');
 
-        return $redirect->with('success', 'Collection moved down');
+        return $redirect->with('success', $message);
     }
 }

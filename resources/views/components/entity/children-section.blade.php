@@ -18,7 +18,7 @@
                                     @can(\App\Enums\Permission::UPDATE_DATA->value)
                                         <form method="POST" action="{{ route('collections.move-up', $child) }}" class="shrink-0">
                                             @csrf
-                                            <button type="submit" class="text-gray-400 hover:text-gray-600 transition-colors" title="Move up">
+                                            <button type="submit" class="transition-colors {{ $loop->first ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:text-gray-600' }}" title="Move up" {{ $loop->first ? 'disabled' : '' }}>
                                                 <x-heroicon-o-chevron-up class="w-4 h-4" />
                                             </button>
                                         </form>
@@ -28,7 +28,7 @@
                                     @can(\App\Enums\Permission::UPDATE_DATA->value)
                                         <form method="POST" action="{{ route('collections.move-down', $child) }}" class="shrink-0">
                                             @csrf
-                                            <button type="submit" class="text-gray-400 hover:text-gray-600 transition-colors" title="Move down">
+                                            <button type="submit" class="transition-colors {{ $loop->last ? 'text-gray-200 cursor-not-allowed' : 'text-gray-400 hover:text-gray-600' }}" title="Move down" {{ $loop->last ? 'disabled' : '' }}>
                                                 <x-heroicon-o-chevron-down class="w-4 h-4" />
                                             </button>
                                         </form>
