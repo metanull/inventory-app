@@ -381,6 +381,55 @@ To control version bumping, apply these labels to your pull requests:
 
 ---
 
+### Dependabot Configuration
+
+Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date for four ecosystems.
+
+**Ecosystems monitored**
+
+| Ecosystem | Directory | Schedule | Registry |
+| --- | --- | --- | --- |
+| `composer` | `/` | Weekly | packagist.org (public) |
+| `npm` | `/` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
+| `github-actions` | `/` | Weekly | github.com (public) |
+
+**GitHub Packages registry access**
+
+The `npm` ecosystems reference the GitHub Packages registry (`npm.pkg.github.com`), which requires authentication even for packages in the same organization. The registry token is configured as:
+
+```yaml
+registries:
+  npm-github:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{secrets.GITHUB_TOKEN}}
+```
+
+The `${{secrets.GITHUB_TOKEN}}` reference works **only when "Dependabot on Actions runners" is enabled** in the repository settings. This is the recommended approach because:
+
+- No manual token creation or rotation is needed
+- The `GITHUB_TOKEN` is automatically generated per run with appropriate `read:packages` scope
+- It is the same mechanism used by regular GitHub Actions workflows (e.g., `continuous-integration.yml`)
+
+> **Required repository setting**: Navigate to **Settings > Code security > Dependabot > "Dependabot on Actions runners"** and enable it. Without this setting, `${{secrets.GITHUB_TOKEN}}` is not available to Dependabot and version updates for npm packages hosted on GitHub Packages will fail.
+
+**Alternative approach (if "Dependabot on Actions" cannot be enabled)**
+
+Create a Personal Access Token (PAT) with `read:packages` scope, then store it as a **Dependabot secret** (not a regular Actions secret) named `DEPENDABOT_GITHUB_PACKAGES_TOKEN` under **Settings > Secrets and variables > Dependabot**. Then update `dependabot.yml` to reference `${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}`.
+
+> Note: Dependabot secrets (under the Dependabot tab) are separate from Actions secrets (under the Actions tab). A secret in the Actions tab is **not** accessible to Dependabot.
+
+**Links**
+
+| Reference | URL |
+| --- | --- |
+| Dependabot configuration options | [https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file) |
+| Dependabot on Actions runners | [https://docs.github.com/en/code-security/dependabot/working-with-dependabot/about-dependabot-on-github-actions-runners](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/about-dependabot-on-github-actions-runners) |
+| Configuring access to private registries | [https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries-for-dependabot) |
+
+---
+
 ### Merge Dependabot PR
 
 Automatically approves and enables auto-merge for Dependabot pull requests that are not major version updates.
