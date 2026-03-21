@@ -1,0 +1,62 @@
+name: Manual Publish API Client
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      force-publish:
+        description: 'Force publish even if no API changes are detected'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: manual-publish-api-client
+  cancel-in-progress: false
+
+jobs:
+
+  publish-api-client:
+    name: Generate & Publish API Client
+    runs-on: ubuntu-latest
+
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+
+    steps:
+      - name: "Setup > Checkout Repository"
+        uses: actions/checkout@v6
+
+      - name: "Check > Detect environment"
+        id: env
+        uses: ./.github/actions/detect-environment
+
+      - name: "Setup > Node.js"
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: "Setup > Java"
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: "Build > API Client > Generate"
+        id: generate-client
+        uses: ./.github/actions/generate-api-client
+        with:
+          openapi_spec_path: 'docs/_openapi/api.json'
+
+      - name: "Publish > API Client"
+        if: (steps.generate-client.outputs.has-changes == 'true' || inputs.force-publish) && steps.env.outputs.is_github == 'true'
+        uses: ./.github/actions/publish-npm-package
+        with:
+          package_directory: 'api-client'
+          registry: 'https://npm.pkg.github.com/'
+          token: ${{ secrets.GH_PACKAGE_TOKEN }}
