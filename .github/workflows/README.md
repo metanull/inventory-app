@@ -403,20 +403,17 @@ registries:
   npm-github:
     type: npm-registry
     url: https://npm.pkg.github.com
-    token: ${{secrets.GITHUB_TOKEN}}
+    token: ${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}
 ```
 
-The `${{secrets.GITHUB_TOKEN}}` reference works **only when "Dependabot on Actions runners" is enabled** in the repository settings. This is the recommended approach because:
+Dependabot version updates run on Dependabot's own infrastructure, **not** on GitHub Actions runners. This means the automatically provided `GITHUB_TOKEN` is **not** available as a secret in `dependabot.yml`. Instead, a Personal Access Token (PAT) must be stored as a **Dependabot secret**.
 
-- No manual token creation or rotation is needed
-- The `GITHUB_TOKEN` is automatically generated per run with appropriate `read:packages` scope
-- It is the same mechanism used by regular GitHub Actions workflows (e.g., `continuous-integration.yml`)
+> **Note**: The `${{secrets.GITHUB_TOKEN}}` approach only works when "Dependabot on Actions runners" is enabled in the repository settings (**Settings > Code security > Dependabot**). This feature is not available on all GitHub plans and is not always accessible for free public repositories.
 
-> **Required repository setting**: Navigate to **Settings > Code security > Dependabot > "Dependabot on Actions runners"** and enable it. Without this setting, `${{secrets.GITHUB_TOKEN}}` is not available to Dependabot and version updates for npm packages hosted on GitHub Packages will fail.
+**Setup instructions**
 
-**Alternative approach (if "Dependabot on Actions" cannot be enabled)**
-
-Create a Personal Access Token (PAT) with `read:packages` scope, then store it as a **Dependabot secret** (not a regular Actions secret) named `DEPENDABOT_GITHUB_PACKAGES_TOKEN` under **Settings > Secrets and variables > Dependabot**. Then update `dependabot.yml` to reference `${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}`.
+1. Create a Personal Access Token (classic) with `read:packages` scope
+2. Store it as a **Dependabot secret** (not a regular Actions secret) named `DEPENDABOT_GITHUB_PACKAGES_TOKEN` under **Settings > Secrets and variables > Dependabot**
 
 > Note: Dependabot secrets (under the Dependabot tab) are separate from Actions secrets (under the Actions tab). A secret in the Actions tab is **not** accessible to Dependabot.
 
