@@ -15,8 +15,6 @@ import {
   ItemImageApi,
   ItemTranslationApi,
   LanguageApi,
-  LocationApi,
-  LocationTranslationApi,
   MarkdownApi,
   MobileAppAuthenticationApi,
   PartnerApi,
@@ -24,11 +22,7 @@ import {
   PartnerTranslationApi,
   PartnerTranslationImageApi,
   ProjectApi,
-  ProvinceApi,
-  ProvinceTranslationApi,
   TagApi,
-  ThemeApi,
-  ThemeTranslationApi,
   UserPermissionsApi,
 } from '@metanull/inventory-app-api-client'
 
@@ -103,12 +97,6 @@ export const useApiClient = () => {
   const createLanguageApi = () =>
     new LanguageApi(configuration.value, configuration.value.basePath, sessionAxios)
 
-  const createLocationApi = () =>
-    new LocationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createLocationTranslationApi = () =>
-    new LocationTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
   const createMarkdownApi = () =>
     new MarkdownApi(configuration.value, configuration.value.basePath, sessionAxios)
 
@@ -130,20 +118,8 @@ export const useApiClient = () => {
   const createProjectApi = () =>
     new ProjectApi(configuration.value, configuration.value.basePath, sessionAxios)
 
-  const createProvinceApi = () =>
-    new ProvinceApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createProvinceTranslationApi = () =>
-    new ProvinceTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
-
   const createTagApi = () =>
     new TagApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createThemeApi = () =>
-    new ThemeApi(configuration.value, configuration.value.basePath, sessionAxios)
-
-  const createThemeTranslationApi = () =>
-    new ThemeTranslationApi(configuration.value, configuration.value.basePath, sessionAxios)
 
   const createUserPermissionsApi = () =>
     new UserPermissionsApi(configuration.value, configuration.value.basePath, sessionAxios)
@@ -168,8 +144,6 @@ export const useApiClient = () => {
     createItemImageApi,
     createItemTranslationApi,
     createLanguageApi,
-    createLocationApi,
-    createLocationTranslationApi,
     createMarkdownApi,
     createMobileAppAuthenticationApi,
     createPartnerApi,
@@ -177,11 +151,7 @@ export const useApiClient = () => {
     createPartnerTranslationApi,
     createPartnerTranslationImageApi,
     createProjectApi,
-    createProvinceApi,
-    createProvinceTranslationApi,
     createTagApi,
-    createThemeApi,
-    createThemeTranslationApi,
     createUserPermissionsApi,
   }
 }
