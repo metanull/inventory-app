@@ -10,7 +10,7 @@ permalink: /deployment/
 
 {: .no_toc }
 
-This guide covers comprehensive deployment instructions for the Inventory Management API, including production deployment, development setup, and local testing environments.
+This section covers how to set up the system for local development and how to deploy it to a production server.
 
 ## Table of Contents
 
@@ -23,91 +23,60 @@ This guide covers comprehensive deployment instructions for the Inventory Manage
 
 ## Overview
 
-The Inventory Management API can be deployed in several configurations:
+The system can be deployed in several configurations:
 
-- **Production Deployment** - Windows Server with Apache/Nginx and MariaDB
-- **Development Environment** - Local development with PHP artisan serve and Vite
-- **Testing Environment** - Local testing with SQLite database
+- **Development** — Local machine with SQLite and the built-in PHP server
+- **Production** — Windows Server with Apache and MariaDB
+- **Testing** — Same as development, using an isolated SQLite database
 
-## Quick Start
-
-### Development Environment
+## Quick Start (Development)
 
 ```powershell
-# Clone the repository
 git clone https://github.com/metanull/inventory-app.git
 cd inventory-app
-
-# Install dependencies
 composer install
 npm install
-
-# Setup environment
 cp .env.example .env
 php artisan key:generate
-
-# Start development servers
 composer dev
 ```
 
-### Production Deployment
-
-```powershell
-# Use the automated deployment script
-.\deployment\deploy-windows.ps1 -Domain "your-domain.com"
-```
+This starts the Laravel server, asset watcher, and queue worker. Access the web interface at `http://localhost:8000/web`.
 
 ## Architecture Overview
 
-The application follows a modern N-tier architecture:
-
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web Server    │    │  Laravel API    │    │    Database     │
-│  (Apache/Nginx) │◄──►│   Application   │◄──►│   (MariaDB)     │
+│   Web Server    │    │    Laravel      │    │    Database     │
+│  (Apache/Nginx) │◄──►│   Application   │◄──►│   (MariaDB)    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-    Static Assets          Business Logic          Data Storage
-    Vue.js Frontend        REST API Endpoints      Inventory Data
-    Image Files            Authentication          Audit Logs
+         │                       │
+         ▼                       ▼
+    Static Assets          Business Logic
+    CSS/JS                 Web Interface (Blade/Livewire)
+    Uploaded Images        REST API (/api routes)
+                           Authentication & Permissions
 ```
 
-## Technology Stack
+The **web interface** (Blade/Livewire, server-rendered) is the primary production UI. A Vue.js SPA demo also exists as a reference for external API consumers, but is not part of the core deployment.
 
-| Component           | Technology   | Version    | Purpose                 |
-| ------------------- | ------------ | ---------- | ----------------------- |
-| **Backend**         | PHP Laravel  | 12+        | REST API Framework      |
-| **Frontend**        | Vue.js       | 3+         | Single Page Application |
-| **Database**        | MariaDB      | 10.5+      | Production Database     |
-| **Web Server**      | Apache/Nginx | 2.4+/1.18+ | HTTP Server             |
-| **Build Tool**      | Vite         | 7+         | Asset Compilation       |
-| **Package Manager** | Composer/NPM | Latest     | Dependency Management   |
+## Security
 
-## Security Considerations
-
-- **Authentication** - Laravel Sanctum token-based authentication
-- **Authorization** - Role-based access control
-- **HTTPS** - SSL/TLS encryption for all communications
-- **CSRF Protection** - Cross-site request forgery protection
-- **Input Validation** - Comprehensive request validation
-- **SQL Injection Prevention** - Eloquent ORM with prepared statements
-- **Security Headers** - HSTS, CSP, and other security headers
-
-## Performance Optimization
-
-- **Caching** - Redis/File-based caching for API responses
-- **Asset Optimization** - Minified and compressed CSS/JS
-- **Database Indexing** - Optimized database queries
-- **Image Optimization** - Compressed images with Laravel Intervention
-- **CDN Ready** - Static assets can be served via CDN
+- Token-based API authentication (Laravel Sanctum)
+- Role-based access control (Spatie Permissions)
+- HTTPS, CSRF protection, and security headers
+- Input validation on all endpoints
+- SQL injection prevention via Eloquent ORM
 
 ---
 
 ## Next Steps
 
-- [Development Setup](development-setup) - Local development environment
-- [Configuration](configuration) - Environment and application configuration
-- [Server Configuration](server-configuration) - Web server setup guides
-- [Trusted Proxy Configuration](trusted-proxies) - Configure reverse proxy support
-- [Command Line User Management](command-line-user-management) - Manage users and roles via CLI
+- [Development Setup](development-setup) — Set up a local environment
+- [Production Deployment](production-deployment) — Deploy to a Windows Server
+- [Configuration](configuration) — Environment and application settings
+- [Server Configuration](server-configuration) — Apache/Nginx setup
+- [Trusted Proxy Configuration](trusted-proxies) — Reverse proxy support
+- [Command Line User Management](command-line-user-management) — Manage users via CLI
+- [CORS Configuration](cors-configuration) — Cross-origin request settings
+- [Testing Troubleshooting](testing-troubleshooting) — Common testing issues

@@ -6,118 +6,51 @@ has_children: true
 permalink: /frontend-blade/
 ---
 
-# Blade/Livewire Frontend Documentation
+# Web Interface
 
 {: .important }
 
-> This is the **MAIN** frontend that end users interact with. For the sample Vue.js API client demo, see [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}).
+> This is the **main production interface** used by content managers and administrators to manage inventory data.
 
-## Overview
+## What You Can Do
 
-The Blade/Livewire frontend is a server-rendered web application built with:
+The web interface is the primary tool for day-to-day work with the inventory. Through it, users can:
 
-- **Laravel Blade** - Templating engine for views
-- **Livewire 3** - Reactive components without JavaScript frameworks
-- **Alpine.js** - Lightweight JavaScript for UI interactions
-- **Tailwind CSS** - Utility-first CSS framework
-- **Heroicons** - Icon set
+- **Browse and search** items, partners, collections, projects, and all other entities
+- **Create and edit** inventory records with full validation and multi-language support
+- **Organise content** into collections, exhibitions, galleries, and thematic trails
+- **Upload and manage images** — attach photos to items, collections, and partners
+- **Manage users and permissions** — control who can view, create, edit, or delete records
 
-## Technology Stack
+Each entity type is colour-coded for visual clarity, making it easy to navigate between different areas of the system.
 
-| Technology    | Version | Purpose                  |
-| ------------- | ------- | ------------------------ |
-| Laravel Blade | 11+     | Server-side templating   |
-| Livewire      | 3.6+    | Reactive components      |
-| Alpine.js     | 3.x     | Client-side interactions |
-| Tailwind CSS  | 3.x     | Styling framework        |
-| Heroicons     | 2.x     | SVG icons                |
+## How It Works
 
-## Architecture
+The interface is server-rendered: pages are built on the server and delivered as complete HTML. Interactive elements (inline editing, toggling, image management) use Livewire and Alpine.js to update the page without full reloads.
 
-The frontend follows a component-based architecture:
+For development setup instructions, see the [Development Setup]({{ '/deployment/development-setup' | relative_url }}) guide.
 
-```
-resources/views/
-├── layouts/           # Base layouts (app.blade.php, guest.blade.php)
-├── components/        # Reusable Blade components
-├── livewire/          # Livewire components
-├── [entity]/          # Entity-specific views (items, partners, etc.)
-│   ├── index.blade.php
-│   ├── show.blade.php
-│   ├── create.blade.php
-│   ├── edit.blade.php
-│   └── _form.blade.php
-└── ...
-```
+## Developer Documentation
 
-## Key Features
+The sections below cover how the frontend is built — useful for developers extending or maintaining the interface.
 
-### Server-Side Rendering
-
-- Fast initial page loads
-- SEO-friendly
-- Progressive enhancement
-
-### Reactive Components
-
-- Real-time updates via Livewire
-- No full page refreshes
-- Minimal JavaScript required
-
-### Responsive Design
-
-- Mobile-first approach
-- Tailwind utility classes
-- Consistent UI across devices
-
-### Entity Color System
-
-- Color-coded entities for visual clarity
-- Consistent color usage throughout the app
-- Configurable via entity color service
-
-## Getting Started
-
-### Development Setup
-
-1. **Start the development server:**
-
-   ```bash
-   php artisan serve
-   ```
-
-2. **Watch for asset changes:**
-
-   ```bash
-   npm run dev
-   ```
-
-3. **Access the application:**
-   - Web frontend: `http://localhost:8000/web`
-   - API docs: `http://localhost:8000/api/docs`
-
-### Common Tasks
-
-- **Create a new view:** See [Components]({{ '/frontend-blade/components/' | relative_url }})
-- **Add Livewire component:** See [Livewire]({{ '/frontend-blade/livewire/' | relative_url }})
-- **Style with Tailwind:** See [Styling]({{ '/frontend-blade/styling/' | relative_url }})
-- **Add Alpine.js interactions:** See [Alpine.js]({{ '/frontend-blade/alpine/' | relative_url }})
-
-## Directory Structure
-
-- **[Components]({{ '/frontend-blade/components/' | relative_url }})** - Blade component library
-- **[Livewire]({{ '/frontend-blade/livewire/' | relative_url }})** - Livewire component patterns
-- **[Alpine.js]({{ '/frontend-blade/alpine/' | relative_url }})** - JavaScript interaction patterns
-- **[Styling]({{ '/frontend-blade/styling/' | relative_url }})** - Tailwind conventions and entity colors
+- **[Components]({{ '/frontend-blade/components/' | relative_url }})** — Reusable Blade components (forms, tables, cards, buttons, etc.)
+- **[Livewire]({{ '/frontend-blade/livewire/' | relative_url }})** — Reactive component patterns
+- **[Alpine.js]({{ '/frontend-blade/alpine/' | relative_url }})** — Client-side interaction patterns
+- **[Styling]({{ '/frontend-blade/styling/' | relative_url }})** — Tailwind CSS conventions and entity colour system
+- **[Views]({{ '/frontend-blade/views' | relative_url }})** — Page structure and entity views
+- **[Routing]({{ '/frontend-blade/routing' | relative_url }})** — Web route conventions
+- **[Guidelines]({{ '/frontend-blade/guidelines' | relative_url }})** — Frontend development standards
+- **[Testing]({{ '/frontend-blade/testing' | relative_url }})** — How to test frontend components
 
 ## Related Documentation
 
-- [API Documentation]({{ '/api/' | relative_url }})
-- [Database Models]({{ '/models/' | relative_url }})
-- [Backend Guidelines]({{ '/guidelines/' | relative_url }})
-- [Testing]({{ '/development/testing' | relative_url }})
+- [Core Concepts]({{ '/concepts' | relative_url }}) — Understand the business model
+- [Database Models]({{ '/models/' | relative_url }}) — Data structure reference
+- [API Documentation]({{ '/api/' | relative_url }}) — REST API for programmatic access
 
 ---
 
-{: .fs-6 .fw-300 }
-**Note:** This documentation covers the server-rendered Blade/Livewire frontend. For the Vue.js sample application, see [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}).
+{: .note }
+
+> For the Vue.js sample application (a reference for external API consumers), see [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}).
