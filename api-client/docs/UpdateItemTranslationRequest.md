@@ -22,6 +22,7 @@ Name | Type | Description | Notes
 **place_of_production** | **string** |  | [optional] [default to undefined]
 **method_for_datation** | **string** |  | [optional] [default to undefined]
 **method_for_provenance** | **string** |  | [optional] [default to undefined]
+**provenance** | **string** |  | [optional] [default to undefined]
 **obtention** | **string** |  | [optional] [default to undefined]
 **bibliography** | **string** |  | [optional] [default to undefined]
 **author_id** | **string** |  | [optional] [default to undefined]
@@ -54,6 +55,7 @@ const instance: UpdateItemTranslationRequest = {
     place_of_production,
     method_for_datation,
     method_for_provenance,
+    provenance,
     obtention,
     bibliography,
     author_id,

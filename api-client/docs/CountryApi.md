@@ -1,6 +1,6 @@
 # CountryApi
 
-All URIs are relative to *http://127.0.0.1:8000/api*
+All URIs are relative to *http://localhost/api*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
@@ -26,7 +26,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
-let country: string; //The country ID (default to undefined)
+let country: number; //The country ID (default to undefined)
 
 const { status, data } = await apiInstance.countryDestroy(
     country
@@ -37,7 +37,7 @@ const { status, data } = await apiInstance.countryDestroy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **country** | [**string**] | The country ID | defaults to undefined|
+| **country** | [**number**] | The country ID | defaults to undefined|
 
 
 ### Return type
@@ -137,7 +137,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
-let country: string; //The country ID (default to undefined)
+let country: number; //The country ID (default to undefined)
 let include: string; //Comma-separated list of related resources to include. Valid values: `items`, `partners`, `translations`. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.countryShow(
@@ -150,7 +150,7 @@ const { status, data } = await apiInstance.countryShow(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **country** | [**string**] | The country ID | defaults to undefined|
+| **country** | [**number**] | The country ID | defaults to undefined|
 | **include** | [**string**] | Comma-separated list of related resources to include. Valid values: &#x60;items&#x60;, &#x60;partners&#x60;, &#x60;translations&#x60;. | (optional) defaults to undefined|
 
 
@@ -249,7 +249,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
-let country: string; //The country ID (default to undefined)
+let country: number; //The country ID (default to undefined)
 let updateCountryRequest: UpdateCountryRequest; //
 
 const { status, data } = await apiInstance.countryUpdate(
@@ -263,7 +263,7 @@ const { status, data } = await apiInstance.countryUpdate(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateCountryRequest** | **UpdateCountryRequest**|  | |
-| **country** | [**string**] | The country ID | defaults to undefined|
+| **country** | [**number**] | The country ID | defaults to undefined|
 
 
 ### Return type
@@ -307,7 +307,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CountryApi(configuration);
 
-let country: string; //The country ID (default to undefined)
+let country: number; //The country ID (default to undefined)
 let updateCountryRequest: UpdateCountryRequest; //
 
 const { status, data } = await apiInstance.countryUpdate2(
@@ -321,7 +321,7 @@ const { status, data } = await apiInstance.countryUpdate2(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **updateCountryRequest** | **UpdateCountryRequest**|  | |
-| **country** | [**string**] | The country ID | defaults to undefined|
+| **country** | [**number**] | The country ID | defaults to undefined|
 
 
 ### Return type

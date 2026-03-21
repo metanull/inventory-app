@@ -10,7 +10,8 @@ Name | Type | Description | Notes
 **language_id** | **string** |  | [default to undefined]
 **context_id** | **string** |  | [default to undefined]
 **title** | **string** |  | [default to undefined]
-**description** | **string** |  | [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**quote** | **string** |  | [optional] [default to undefined]
 **url** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 **extra** | **string** |  | [optional] [default to undefined]
@@ -27,6 +28,7 @@ const instance: StoreCollectionTranslationRequest = {
     context_id,
     title,
     description,
+    quote,
     url,
     backward_compatibility,
     extra,

@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **context_id** | **string** |  | [optional] [default to undefined]
 **title** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
+**quote** | **string** |  | [optional] [default to undefined]
 **url** | **string** |  | [optional] [default to undefined]
 **backward_compatibility** | **string** |  | [optional] [default to undefined]
 **extra** | **string** |  | [optional] [default to undefined]
@@ -27,6 +28,7 @@ const instance: UpdateCollectionTranslationRequest = {
     context_id,
     title,
     description,
+    quote,
     url,
     backward_compatibility,
     extra,

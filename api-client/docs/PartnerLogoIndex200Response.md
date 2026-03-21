@@ -1,20 +1,20 @@
-# ThemeIndex200Response
+# PartnerLogoIndex200Response
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | [**Array&lt;ThemeResource&gt;**](ThemeResource.md) |  | [default to undefined]
+**data** | [**Array&lt;PartnerLogoResource&gt;**](PartnerLogoResource.md) |  | [default to undefined]
 **links** | [**AvailableImageIndex200ResponseLinks**](AvailableImageIndex200ResponseLinks.md) |  | [default to undefined]
 **meta** | [**AvailableImageIndex200ResponseMeta**](AvailableImageIndex200ResponseMeta.md) |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ThemeIndex200Response } from './api';
+import { PartnerLogoIndex200Response } from './api';
 
-const instance: ThemeIndex200Response = {
+const instance: PartnerLogoIndex200Response = {
     data,
     links,
     meta,
