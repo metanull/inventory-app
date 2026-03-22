@@ -40,7 +40,7 @@
                                 <!-- Content -->
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('items.show', $item) }}" 
+                                        <a href="{{ route('collections.items.show', [$model, $item]) }}" 
                                            class="text-blue-600 hover:text-blue-900 font-medium">
                                             {{ $item->internal_name }}
                                         </a>

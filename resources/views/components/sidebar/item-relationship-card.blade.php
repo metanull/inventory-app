@@ -25,6 +25,7 @@
     'canRemove' => true,
     'count' => null,
     'direction' => null,  // 'incoming' or 'outgoing' for links
+    'collection' => null,
 ])
 
 @php($tc = $entityColor('items'))
@@ -72,7 +73,7 @@
                                     <span class="text-green-600 font-bold text-sm shrink-0" title="Incoming link">«</span>
                                 @endif
                             @endif
-                            <a href="{{ route('items.show', isset($item->direction) ? $item->item : $item) }}" 
+                            <a href="{{ $collection ? route('collections.items.show', [$collection, isset($item->direction) ? $item->item : $item]) : route('items.show', isset($item->direction) ? $item->item : $item) }}" 
                                class="text-xs font-medium {{ $tc['accentLink'] }} hover:underline truncate block">
                                 {{ isset($item->direction) ? $item->item->internal_name : $item->internal_name }}
                             </a>

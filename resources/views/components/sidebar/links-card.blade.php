@@ -3,7 +3,7 @@
     Groups links by context for better organization
 --}}
 
-@props(['model'])
+@props(['model', 'collection' => null])
 
 @php
     $tc = $entityColor('item-item-links');
@@ -66,7 +66,7 @@
                             @else
                                 <span class="text-green-600 font-bold text-sm shrink-0" title="Incoming link">«</span>
                             @endif
-                            <a href="{{ route('items.show', $linkItem->item) }}" 
+                            <a href="{{ $collection ? route('collections.items.show', [$collection, $linkItem->item]) : route('items.show', $linkItem->item) }}" 
                                class="text-xs font-medium {{ $tc['accentLink'] }} hover:underline truncate block">
                                 {{ $linkItem->item->internal_name }}
                             </a>

@@ -3,7 +3,7 @@
     Uses unified item-relationship-card component
 --}}
 
-@props(['model'])
+@props(['model', 'collection' => null])
 
 <x-sidebar.item-relationship-card
     title="Children"
@@ -15,8 +15,8 @@
     :can-add="true"
     :can-remove="true"
     :count="$model->children->count()"
->
-    <x-form.entity-select 
+    :collection="$collection"
+>    <x-form.entity-select 
         name="child_id" 
         :value="null"
         :model-class="\App\Models\Item::class"

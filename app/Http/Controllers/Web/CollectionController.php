@@ -22,7 +22,7 @@ class CollectionController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show', 'showItem']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
         $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown', 'setParent', 'removeParent']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
@@ -89,6 +89,43 @@ class CollectionController extends Controller
         $collection->delete();
 
         return redirect()->route('collections.index')->with('success', 'Collection deleted successfully');
+    }
+
+    public function showItem(Collection $collection, Item $item): View
+    {
+        $item->load([
+            'translations.context',
+            'translations.language',
+            'outgoingLinks.target.itemImages',
+            'outgoingLinks.context',
+            'incomingLinks.source.itemImages',
+            'incomingLinks.context',
+            'parent.itemImages',
+            'children.itemImages',
+        ]);
+
+        $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
+        $breadcrumbs[] = [
+            'label' => $collection->internal_name,
+            'url' => route('collections.show', $collection),
+        ];
+
+        $itemAncestor = $item->parent;
+        $itemCrumbs = [];
+        while ($itemAncestor) {
+            array_unshift($itemCrumbs, [
+                'label' => $itemAncestor->internal_name,
+                'url' => route('collections.items.show', [$collection, $itemAncestor]),
+            ]);
+            $itemAncestor = $itemAncestor->parent;
+        }
+        $breadcrumbs = array_merge($breadcrumbs, $itemCrumbs);
+
+        return view('items.show', [
+            'item' => $item,
+            'collection' => $collection,
+            'breadcrumbs' => $breadcrumbs,
+        ]);
     }
 
     public function attachItem(Request $request, Collection $collection): RedirectResponse
