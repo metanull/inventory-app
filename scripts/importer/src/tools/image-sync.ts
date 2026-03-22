@@ -19,6 +19,7 @@ import {
   getFileSize,
   fileExists,
   ensureDirectory,
+  clearDirectory,
 } from '../utils/image-sync.js';
 
 interface ImageRecord {
@@ -34,6 +35,7 @@ export interface ImageSyncOptions {
   useSymlink: boolean;
   legacyImagesRoot: string;
   newImagesRoot: string;
+  clearDestination?: boolean;
   dryRun?: boolean;
 }
 
@@ -73,9 +75,21 @@ export class ImageSyncTool {
       this.logger.info(`Mode: ${this.options.useSymlink ? 'SYMLINK' : 'COPY'}`);
       this.logger.info(`Legacy images root: ${this.options.legacyImagesRoot}`);
       this.logger.info(`New images root: ${this.options.newImagesRoot}`);
+      this.logger.info(`Clear destination: ${this.options.clearDestination ? 'YES' : 'NO'}`);
 
       // Ensure new images directory exists
       await ensureDirectory(this.options.newImagesRoot);
+
+      if (this.options.clearDestination) {
+        if (this.options.dryRun) {
+          this.logger.info(
+            `[DRY-RUN] Would clear destination directory: ${this.options.newImagesRoot}`
+          );
+        } else {
+          this.logger.info(`Clearing destination directory: ${this.options.newImagesRoot}`);
+          await clearDirectory(this.options.newImagesRoot);
+        }
+      }
 
       // Sync ItemImages
       this.logger.info('\n=== Syncing ItemImages ===');

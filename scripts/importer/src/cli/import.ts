@@ -1288,13 +1288,15 @@ program
   .description(
     'Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)'
   )
-  .option('--symlink', 'Create symbolic links instead of copying files', false)
+  .option('--copy', 'Copy files instead of symbolic links', false)
+  .option('--clear-destination', 'Clear destination image folder before synchronization', false)
   .option('--dry-run', 'Simulate synchronization without making changes', false)
   .action(async (options) => {
     const logger = new FileLogger('ImageSync', 'logs');
 
     try {
-      const useSymlink = options.symlink === true;
+      const useSymlink = options.copy !== true;
+      const clearDestination = options.clearDestination === true;
       const dryRun = options.dryRun === true;
 
       console.log(chalk.bold('='.repeat(80)));
@@ -1303,10 +1305,13 @@ program
       console.log(chalk.gray(`Start time: ${new Date().toISOString()}`));
       console.log(chalk.gray(`Log file: ${logger.getLogFilePath()}`));
       console.log(chalk.gray(`Mode: ${useSymlink ? 'SYMLINK' : 'COPY'}`));
+      console.log(chalk.gray(`Clear destination: ${clearDestination ? 'YES' : 'NO'}`));
       console.log(chalk.gray(`Dry-run: ${dryRun ? 'YES' : 'NO'}`));
       console.log('');
 
-      logger.info(`Image sync started with options: symlink=${useSymlink}, dryRun=${dryRun}`);
+      logger.info(
+        `Image sync started with options: symlink=${useSymlink}, clearDestination=${clearDestination}, dryRun=${dryRun}`
+      );
 
       // Get configuration
       const legacyImagesRoot =
@@ -1340,6 +1345,7 @@ program
           useSymlink,
           legacyImagesRoot,
           newImagesRoot,
+          clearDestination,
           dryRun,
         },
         logger
