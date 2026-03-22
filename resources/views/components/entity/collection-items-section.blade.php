@@ -24,10 +24,9 @@
                         <li class="px-6 py-4 hover:bg-gray-50">
                             <div class="flex items-start space-x-4">
                                 <!-- Thumbnail -->
-                                                        <!-- Thumbnail -->
-                        <div class="shrink-0 w-12 h-12">
-                            @if($image = $item->itemImages->first())
-                                        <img src="{{ Storage::url($image->image_path) }}" 
+                                <div class="shrink-0 w-12 h-12">
+                                    @if($image = $item->itemImages->first())
+                                        <img src="{{ route('items.item-images.view', [$item, $image]) }}"
                                              alt="{{ $item->internal_name }}"
                                              class="w-12 h-12 rounded object-cover">
                                     @else

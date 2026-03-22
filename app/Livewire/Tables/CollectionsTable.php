@@ -18,11 +18,19 @@ class CollectionsTable extends Component
 
     public string $sortDirection = 'desc';
 
+    /** UUID of the currently-viewed parent, empty string means root level. */
+    public string $parentId = '';
+
+    /** When true, show only the current level; when false, show all collections flat. */
+    public bool $hierarchyMode = true;
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
+        'parentId' => ['except' => ''],
+        'hierarchyMode' => ['except' => true],
     ];
 
     public function mount(): void
@@ -84,13 +92,63 @@ class CollectionsTable extends Component
 
     public function getCollectionsProperty()
     {
-        $query = Collection::query()->with(['context', 'language']);
+        $query = Collection::query()->with(['context', 'language'])->withCount('children');
         $search = trim($this->q);
         if ($search !== '') {
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
+        if ($this->hierarchyMode) {
+            if ($this->parentId === '') {
+                $query->roots();
+            } else {
+                $query->childrenOf($this->parentId);
+            }
+        }
+
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
+    }
+
+    public function getBreadcrumbsProperty(): array
+    {
+        if ($this->parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Collection::find($this->parentId);
+
+        while ($current !== null) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent_id ? Collection::find($current->parent_id) : null;
+        }
+
+        return $breadcrumbs;
+    }
+
+    public function navigateToParent(string $id): void
+    {
+        $this->parentId = $id;
+        $this->resetPage();
+    }
+
+    public function navigateUp(): void
+    {
+        if ($this->parentId === '') {
+            return;
+        }
+
+        $breadcrumbs = $this->breadcrumbs;
+        $count = count($breadcrumbs);
+        $this->parentId = $count >= 2 ? $breadcrumbs[$count - 2]->id : '';
+        $this->resetPage();
+    }
+
+    public function toggleHierarchyMode(): void
+    {
+        $this->hierarchyMode = ! $this->hierarchyMode;
+        $this->parentId = '';
+        $this->resetPage();
     }
 
     public function render()
@@ -99,6 +157,7 @@ class CollectionsTable extends Component
 
         return view('livewire.tables.collections-table', [
             'collections' => $this->collections,
+            'breadcrumbs' => $this->breadcrumbs,
             'c' => $c,
         ]);
     }

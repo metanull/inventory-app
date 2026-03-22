@@ -26,6 +26,12 @@ class ItemsTable extends Component
 
     public string $typeFilter = '';
 
+    /** UUID of the currently-viewed parent, empty string means root level. */
+    public string $parentId = '';
+
+    /** When true, show only the current level; when false, show all items flat. */
+    public bool $hierarchyMode = true;
+
     protected $queryString = [
         'q' => ['except' => ''],
         // Keep in sync with config('interface.pagination.default_per_page')
@@ -34,6 +40,8 @@ class ItemsTable extends Component
         'sortDirection' => ['except' => 'desc'],
         'selectedTags' => ['except' => []],
         'typeFilter' => ['except' => ''],
+        'parentId' => ['except' => ''],
+        'hierarchyMode' => ['except' => true],
     ];
 
     public function mount(): void
@@ -64,6 +72,31 @@ class ItemsTable extends Component
 
     public function updatingTypeFilter(): void
     {
+        $this->resetPage();
+    }
+
+    public function navigateToParent(string $id): void
+    {
+        $this->parentId = $id;
+        $this->resetPage();
+    }
+
+    public function navigateUp(): void
+    {
+        if ($this->parentId === '') {
+            return;
+        }
+
+        $breadcrumbs = $this->breadcrumbs;
+        $count = count($breadcrumbs);
+        $this->parentId = $count >= 2 ? $breadcrumbs[$count - 2]->id : '';
+        $this->resetPage();
+    }
+
+    public function toggleHierarchyMode(): void
+    {
+        $this->hierarchyMode = ! $this->hierarchyMode;
+        $this->parentId = '';
         $this->resetPage();
     }
 
@@ -117,7 +150,7 @@ class ItemsTable extends Component
 
     public function getItemsProperty()
     {
-        $query = Item::query();
+        $query = Item::query()->withCount('children');
         $search = trim($this->q);
         if ($search !== '') {
             $query->where('internal_name', 'LIKE', "%{$search}%");
@@ -143,7 +176,32 @@ class ItemsTable extends Component
             };
         }
 
+        if ($this->hierarchyMode) {
+            if ($this->parentId === '') {
+                $query->parents();
+            } else {
+                $query->where('parent_id', $this->parentId);
+            }
+        }
+
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
+    }
+
+    public function getBreadcrumbsProperty(): array
+    {
+        if ($this->parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Item::find($this->parentId);
+
+        while ($current !== null) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent_id ? Item::find($current->parent_id) : null;
+        }
+
+        return $breadcrumbs;
     }
 
     public function getAvailableTagsProperty()
@@ -157,6 +215,7 @@ class ItemsTable extends Component
 
         return view('livewire.tables.items-table', [
             'items' => $this->items,
+            'breadcrumbs' => $this->breadcrumbs,
             'availableTags' => $this->availableTags,
             'c' => $c,
         ]);
