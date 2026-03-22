@@ -250,7 +250,7 @@ npx tsx src/cli/import.ts validate
 #### 3. Image Sync Command - Synchronize legacy images
 
 ```bash
-# Synchronize legacy images to new storage (default: symlink mode)
+# Synchronize legacy images to new storage
 npx tsx src/cli/import.ts image-sync
 ```
 
@@ -260,6 +260,9 @@ npx tsx src/cli/import.ts image-sync
 - `--copy` - Copy files instead of symlinking (symlink is the default)
 - `--clear-destination` - Clear destination image folder before synchronization starts
 - `--dry-run` - Dry run (simulate without making changes)
+
+> ⚠️ **Default mode changed:** `image-sync` now uses **symlinks by default**.
+> To preserve previous behavior, pass `--copy` explicitly.
 
 **Image Sync Details:**
 

@@ -419,8 +419,6 @@ export abstract class BaseImporter {
       glossary: 'glossaries',
       glossary_translation: 'glossary_translations',
       glossary_spelling: 'glossary_spellings',
-      theme: 'themes',
-      theme_translation: 'theme_translations',
       item_item_link: 'item_item_links',
       item_item_link_translation: 'item_item_link_translations',
     };
