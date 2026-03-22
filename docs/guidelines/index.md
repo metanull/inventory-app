@@ -8,22 +8,18 @@ permalink: /guidelines/
 
 # Backend Development Guidelines
 
-This section contains comprehensive guidelines for developing and maintaining the Inventory Management API application (backend).
+Conventions and standards for developers working on the Laravel backend. These are project-specific rules on top of standard Laravel practices — they do not aim to teach Laravel itself.
 
 ## Sections
 
 ### [Coding Guidelines]({{ '/guidelines/coding-guidelines' | relative_url }})
 
-Code style standards, best practices, and conventions for PHP, Laravel, and related technologies.
+Project-specific code style standards, naming conventions, and patterns used in the codebase.
 
 ### [Development Archive Documentation Generator]({{ '/guidelines/generate-commit-docs' | relative_url }})
 
-Automatically generate documentation for Git commits on the main branch.
+How the automated commit-history documentation is generated.
 
 ### [API Client Documentation Generator]({{ '/guidelines/generate-api-client-docs' | relative_url }})
 
-Automatically generate Jekyll-compatible documentation for the TypeScript API client.
-
----
-
-These guidelines ensure consistency, maintainability, and quality across the entire codebase.
+How the TypeScript API client documentation is generated from the OpenAPI specification.

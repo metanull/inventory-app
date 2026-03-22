@@ -287,7 +287,7 @@ class MarkdownEditor extends Component
 - Live preview with 300ms debounce
 - Built-in markdown syntax help
 - Server-side rendering using `MarkdownService`
-- Comprehensive test coverage (18 tests)
+- Comprehensive test coverage
 
 **Testing:**
 The component is fully testable without browser automation:
