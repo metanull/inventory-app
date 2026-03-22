@@ -39,36 +39,36 @@ Start with the [Core Concepts]({{ '/concepts' | relative_url }}) page — it exp
 
 ### Understanding the System
 
-| Section | Audience | Description |
-| ------- | -------- | ----------- |
-| [Core Concepts]({{ '/concepts' | relative_url }}) | Everyone | What the system does, how entities relate, and key business rules |
-| [Database Models]({{ '/models/' | relative_url }}) | Developers | Auto-generated reference for all data models, fields, and relationships |
+| Section                         | Audience         | Description |
+| ------------------------------- | ---------------- | ----------- | ----------------------------------------------------------------------- |
+| [Core Concepts]({{ '/concepts'  | relative_url }}) | Everyone    | What the system does, how entities relate, and key business rules       |
+| [Database Models]({{ '/models/' | relative_url }}) | Developers  | Auto-generated reference for all data models, fields, and relationships |
 
 ### Using the System
 
-| Section | Audience | Description |
-| ------- | -------- | ----------- |
-| [Web Interface]({{ '/frontend-blade/' | relative_url }}) | Content managers, Developers | The main production UI for managing inventory content |
-| [API Documentation]({{ '/api/' | relative_url }}) | Developers | Interactive API explorer (Swagger UI) and TypeScript client |
+| Section                               | Audience         | Description                  |
+| ------------------------------------- | ---------------- | ---------------------------- | ----------------------------------------------------------- |
+| [Web Interface]({{ '/frontend-blade/' | relative_url }}) | Content managers, Developers | The main production UI for managing inventory content       |
+| [API Documentation]({{ '/api/'        | relative_url }}) | Developers                   | Interactive API explorer (Swagger UI) and TypeScript client |
 
 ### Running and Deploying
 
-| Section | Audience | Description |
-| ------- | -------- | ----------- |
+| Section                              | Audience         | Description     |
+| ------------------------------------ | ---------------- | --------------- | ------------------------------------------------------------------ |
 | [Deployment Guide]({{ '/deployment/' | relative_url }}) | Developers, Ops | Development setup, production deployment, and server configuration |
 
 ### Contributing
 
-| Section | Audience | Description |
-| ------- | -------- | ----------- |
-| [Development]({{ '/development/' | relative_url }}) | Developers | Contributing guidelines, testing, CI/CD workflows, and project history |
-| [Backend Guidelines]({{ '/guidelines/' | relative_url }}) | Developers | Project-specific coding conventions and patterns |
+| Section                                | Audience         | Description |
+| -------------------------------------- | ---------------- | ----------- | ---------------------------------------------------------------------- |
+| [Development]({{ '/development/'       | relative_url }}) | Developers  | Contributing guidelines, testing, CI/CD workflows, and project history |
+| [Backend Guidelines]({{ '/guidelines/' | relative_url }}) | Developers  | Project-specific coding conventions and patterns                       |
 
 ### Reference Applications
 
-| Section | Audience | Description |
-| ------- | -------- | ----------- |
-| [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}) | Developers | A demo SPA showing how to consume the API with the TypeScript client |
+| Section                                        | Audience         | Description |
+| ---------------------------------------------- | ---------------- | ----------- | -------------------------------------------------------------------- |
+| [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}) | Developers  | A demo SPA showing how to consume the API with the TypeScript client |
 
 {: .note }
 

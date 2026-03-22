@@ -33,11 +33,11 @@ Before submitting a pull request, make sure:
 
 Labels on your pull request control the automatic version bump:
 
-| Label | Version bump | When to use |
-| ----- | ------------ | ----------- |
-| `bugfix` | Patch | Bug fixes, refactoring, doc improvements, test improvements |
-| `feature` | Minor | New endpoints, new entities, new UI features |
-| `breaking-change` | Major | Removed/changed endpoints, changed request/response formats, breaking schema changes |
+| Label             | Version bump | When to use                                                                          |
+| ----------------- | ------------ | ------------------------------------------------------------------------------------ |
+| `bugfix`          | Patch        | Bug fixes, refactoring, doc improvements, test improvements                          |
+| `feature`         | Minor        | New endpoints, new entities, new UI features                                         |
+| `breaking-change` | Major        | Removed/changed endpoints, changed request/response formats, breaking schema changes |
 
 - **Default** (no label): patch bump
 - **Priority**: `breaking-change` > `feature` > `bugfix`

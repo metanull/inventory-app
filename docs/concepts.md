@@ -389,4 +389,3 @@ Glossary ──► GlossaryTranslation (language × context)
          ──► GlossarySpelling ──► ItemTranslation (many-to-many)
          ──► Synonyms (self-referential, many-to-many)
 ```
-
