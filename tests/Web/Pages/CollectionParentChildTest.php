@@ -128,4 +128,39 @@ class CollectionParentChildTest extends TestCase
 
         $response->assertSessionHasErrors('parent_id');
     }
+
+    public function test_show_page_displays_ancestor_breadcrumbs(): void
+    {
+        $grandparent = Collection::factory()->create(['internal_name' => 'Grandparent Col']);
+        $parent = Collection::factory()->create([
+            'internal_name' => 'Parent Col',
+            'parent_id' => $grandparent->id,
+            'language_id' => $grandparent->language_id,
+            'context_id' => $grandparent->context_id,
+        ]);
+        $child = Collection::factory()->create([
+            'internal_name' => 'Child Col',
+            'parent_id' => $parent->id,
+            'language_id' => $grandparent->language_id,
+            'context_id' => $grandparent->context_id,
+        ]);
+
+        $response = $this->get(route('collections.show', $child));
+
+        $response->assertOk();
+        $response->assertSee('Grandparent Col');
+        $response->assertSee('Parent Col');
+        $response->assertSee(route('collections.show', $grandparent), false);
+        $response->assertSee(route('collections.show', $parent), false);
+    }
+
+    public function test_show_page_has_no_breadcrumbs_for_root_collection(): void
+    {
+        $root = Collection::factory()->create(['internal_name' => 'Root Col']);
+
+        $response = $this->get(route('collections.show', $root));
+
+        $response->assertOk();
+        $response->assertSee('Back to list');
+    }
 }

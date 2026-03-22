@@ -9,6 +9,7 @@
         :delete-route="route('items.destroy', $item)"
         delete-confirm="Are you sure you want to delete this item?"
         :backward-compatibility="$item->backward_compatibility"
+        :breadcrumbs="$breadcrumbs"
     >
         <!-- Main Content Area -->
         <x-display.description-list>

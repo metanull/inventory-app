@@ -7,6 +7,7 @@
     'deleteConfirm' => 'Are you sure you want to delete this record?',
     'backwardCompatibility' => null,
     'badges' => [],
+    'breadcrumbs' => [],
 ])
 
 @php($c = $entityColor($entity))
@@ -17,7 +18,13 @@
             <div class="flex items-center justify-between gap-4">
                 <div class="flex-1">
                     @if($backRoute)
-                        <a href="{{ $backRoute }}" class="text-sm {{ $c['accentLink'] }} mb-4 inline-block">&larr; Back to list</a>
+                        <nav class="text-sm mb-4 inline-flex items-center gap-1 flex-wrap" aria-label="Breadcrumb">
+                            <a href="{{ $backRoute }}" class="{{ $c['accentLink'] }}">&larr; Back to list</a>
+                            @foreach($breadcrumbs as $crumb)
+                                <span class="text-gray-400">/</span>
+                                <a href="{{ $crumb['url'] }}" class="{{ $c['accentLink'] }}">{{ $crumb['label'] }}</a>
+                            @endforeach
+                        </nav>
                     @endif
                     <x-entity.header :entity="$entity" :title="$title">
                         @if($editRoute)

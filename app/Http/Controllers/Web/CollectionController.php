@@ -47,7 +47,9 @@ class CollectionController extends Controller
             'attachedItems.itemImages',
         ]);
 
-        return view('collections.show', compact('collection'));
+        $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
+
+        return view('collections.show', compact('collection', 'breadcrumbs'));
     }
 
     public function create(Request $request): View
@@ -171,5 +173,20 @@ class CollectionController extends Controller
             : redirect()->route('collections.index');
 
         return $redirect->with('success', $message);
+    }
+
+    private function buildAncestorBreadcrumbs(Collection $collection): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $collection->parent;
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'label' => $ancestor->internal_name,
+                'url' => route('collections.show', $ancestor),
+            ]);
+            $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
     }
 }

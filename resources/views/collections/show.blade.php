@@ -9,6 +9,7 @@
         :delete-route="route('collections.destroy', $collection)"
         delete-confirm="Are you sure you want to delete this collection?"
         :backward-compatibility="$collection->backward_compatibility"
+        :breadcrumbs="$breadcrumbs"
     >
         <x-display.description-list>
             <x-display.field label="Internal Name" :value="$collection->internal_name" />

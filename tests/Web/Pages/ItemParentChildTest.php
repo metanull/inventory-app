@@ -128,4 +128,35 @@ class ItemParentChildTest extends TestCase
 
         $response->assertSessionHasErrors('parent_id');
     }
+
+    public function test_show_page_displays_ancestor_breadcrumbs(): void
+    {
+        $grandparent = Item::factory()->create(['internal_name' => 'Grandparent Item']);
+        $parent = Item::factory()->create([
+            'internal_name' => 'Parent Item',
+            'parent_id' => $grandparent->id,
+        ]);
+        $child = Item::factory()->create([
+            'internal_name' => 'Child Item',
+            'parent_id' => $parent->id,
+        ]);
+
+        $response = $this->get(route('items.show', $child));
+
+        $response->assertOk();
+        $response->assertSee('Grandparent Item');
+        $response->assertSee('Parent Item');
+        $response->assertSee(route('items.show', $grandparent), false);
+        $response->assertSee(route('items.show', $parent), false);
+    }
+
+    public function test_show_page_has_no_breadcrumbs_for_root_item(): void
+    {
+        $root = Item::factory()->create(['internal_name' => 'Root Item']);
+
+        $response = $this->get(route('items.show', $root));
+
+        $response->assertOk();
+        $response->assertSee('Back to list');
+    }
 }

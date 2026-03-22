@@ -47,7 +47,9 @@ class ItemController extends Controller
             'children.itemImages',
         ]);
 
-        return view('items.show', compact('item'));
+        $breadcrumbs = $this->buildAncestorBreadcrumbs($item);
+
+        return view('items.show', compact('item', 'breadcrumbs'));
     }
 
     public function create(Request $request): View
@@ -221,5 +223,20 @@ class ItemController extends Controller
 
         return redirect()->route('items.show', $item)
             ->with('success', 'Child relationship removed successfully');
+    }
+
+    private function buildAncestorBreadcrumbs(Item $item): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $item->parent;
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'label' => $ancestor->internal_name,
+                'url' => route('items.show', $ancestor),
+            ]);
+            $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
     }
 }
