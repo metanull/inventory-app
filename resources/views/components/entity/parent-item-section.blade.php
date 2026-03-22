@@ -22,7 +22,7 @@
             <!-- Thumbnail -->
             <div class="shrink-0 w-12 h-12">
                 @if($image = $model->parent->itemImages->first())
-                    <img src="{{ Storage::url($image->image_path) }}" 
+                    <img src="{{ route('items.item-images.view', [$model->parent, $image]) }}" 
                          alt="{{ $model->parent->internal_name }}"
                          class="w-12 h-12 rounded object-cover">
                 @else

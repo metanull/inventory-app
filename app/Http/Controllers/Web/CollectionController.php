@@ -24,7 +24,7 @@ class CollectionController extends Controller
         $this->middleware('auth');
         $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
-        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown', 'setParent', 'removeParent']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
@@ -50,12 +50,13 @@ class CollectionController extends Controller
         return view('collections.show', compact('collection'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
         $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
+        $parentId = $request->query('parent_id');
 
-        return view('collections.create', compact('contexts', 'languages'));
+        return view('collections.create', compact('contexts', 'languages', 'parentId'));
     }
 
     public function store(StoreCollectionRequest $request): RedirectResponse
@@ -107,6 +108,46 @@ class CollectionController extends Controller
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Item detached successfully');
+    }
+
+    public function setParent(Request $request, Collection $collection): RedirectResponse
+    {
+        $request->validate([
+            'parent_id' => ['required', 'exists:collections,id'],
+        ]);
+
+        if ($request->parent_id === $collection->id) {
+            return redirect()->back()
+                ->withErrors(['parent_id' => 'A collection cannot be its own parent'])
+                ->withInput();
+        }
+
+        $potentialParent = Collection::findOrFail($request->parent_id);
+        $ancestor = $potentialParent;
+        while ($ancestor->parent_id !== null) {
+            if ($ancestor->parent_id === $collection->id) {
+                return redirect()->back()
+                    ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                    ->withInput();
+            }
+            $ancestor = Collection::find($ancestor->parent_id);
+            if (! $ancestor) {
+                break;
+            }
+        }
+
+        $collection->update(['parent_id' => $request->parent_id]);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Parent collection set successfully');
+    }
+
+    public function removeParent(Collection $collection): RedirectResponse
+    {
+        $collection->update(['parent_id' => null]);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Parent relationship removed successfully');
     }
 
     public function moveUp(Collection $collection): RedirectResponse

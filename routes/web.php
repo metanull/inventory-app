@@ -162,6 +162,10 @@ Route::prefix('web')->group(function () {
         Route::post('collections/{collection}/items/attach', [WebCollectionController::class, 'attachItem'])->name('collections.attachItem');
         Route::delete('collections/{collection}/items/{item}/detach', [WebCollectionController::class, 'detachItem'])->name('collections.detachItem');
 
+        // Collection Parent - set/remove parent relationship
+        Route::post('collections/{collection}/parent', [WebCollectionController::class, 'setParent'])->name('collections.setParent');
+        Route::delete('collections/{collection}/parent', [WebCollectionController::class, 'removeParent'])->name('collections.removeParent');
+
         // Collection move-up/move-down
         Route::post('collections/{collection}/move-up', [WebCollectionController::class, 'moveUp'])->name('collections.move-up');
         Route::post('collections/{collection}/move-down', [WebCollectionController::class, 'moveDown'])->name('collections.move-down');
