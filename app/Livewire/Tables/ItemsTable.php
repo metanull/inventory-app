@@ -26,6 +26,10 @@ class ItemsTable extends Component
 
     public string $typeFilter = '';
 
+    public string $parentId = '';
+
+    public bool $hierarchyMode = true;
+
     protected $queryString = [
         'q' => ['except' => ''],
         // Keep in sync with config('interface.pagination.default_per_page')
@@ -34,6 +38,8 @@ class ItemsTable extends Component
         'sortDirection' => ['except' => 'desc'],
         'selectedTags' => ['except' => []],
         'typeFilter' => ['except' => ''],
+        'parentId' => ['except' => ''],
+        'hierarchyMode' => ['except' => true],
     ];
 
     public function mount(): void
@@ -63,6 +69,11 @@ class ItemsTable extends Component
     }
 
     public function updatingTypeFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingParentId(): void
     {
         $this->resetPage();
     }
@@ -97,6 +108,29 @@ class ItemsTable extends Component
         $this->resetPage();
     }
 
+    public function navigateToParent(string $id): void
+    {
+        $this->parentId = $id;
+        $this->resetPage();
+    }
+
+    public function navigateUp(): void
+    {
+        if ($this->parentId === '') {
+            return;
+        }
+        $parent = Item::find($this->parentId);
+        $this->parentId = $parent?->parent_id ?? '';
+        $this->resetPage();
+    }
+
+    public function toggleHierarchyMode(): void
+    {
+        $this->hierarchyMode = ! $this->hierarchyMode;
+        $this->parentId = '';
+        $this->resetPage();
+    }
+
     protected function normalizePerPage(): void
     {
         $options = array_map('intval', (array) config('interface.pagination.per_page_options'));
@@ -115,9 +149,25 @@ class ItemsTable extends Component
         }
     }
 
+    public function getBreadcrumbsProperty(): array
+    {
+        if ($this->parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Item::find($this->parentId);
+        while ($current) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
     public function getItemsProperty()
     {
-        $query = Item::query();
+        $query = Item::query()->withCount('children');
         $search = trim($this->q);
         if ($search !== '') {
             $query->where('internal_name', 'LIKE', "%{$search}%");
@@ -143,6 +193,14 @@ class ItemsTable extends Component
             };
         }
 
+        if ($this->hierarchyMode) {
+            if ($this->parentId !== '') {
+                $query->where('parent_id', $this->parentId);
+            } else {
+                $query->parents();
+            }
+        }
+
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
     }
 
@@ -157,6 +215,7 @@ class ItemsTable extends Component
 
         return view('livewire.tables.items-table', [
             'items' => $this->items,
+            'breadcrumbs' => $this->breadcrumbs,
             'availableTags' => $this->availableTags,
             'c' => $c,
         ]);

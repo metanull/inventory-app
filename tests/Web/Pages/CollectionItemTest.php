@@ -4,6 +4,7 @@ namespace Tests\Web\Pages;
 
 use App\Models\Collection;
 use App\Models\Item;
+use App\Models\ItemImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
@@ -103,5 +104,20 @@ class CollectionItemTest extends TestCase
         $response = $this->post(route('collections.attachItem', $collection), []);
 
         $response->assertSessionHasErrors('item_id');
+    }
+
+    public function test_collection_show_renders_item_thumbnails_with_route_based_urls(): void
+    {
+        $collection = Collection::factory()->create();
+        $item = Item::factory()->create();
+        $collection->attachItem($item);
+
+        $image = ItemImage::factory()->create(['item_id' => $item->id]);
+
+        $response = $this->get(route('collections.show', $collection));
+
+        $response->assertOk();
+        $expectedUrl = route('items.item-images.view', [$item, $image]);
+        $response->assertSee($expectedUrl, false);
     }
 }

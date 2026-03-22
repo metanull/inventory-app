@@ -18,11 +18,17 @@ class CollectionsTable extends Component
 
     public string $sortDirection = 'desc';
 
+    public string $parentId = '';
+
+    public bool $hierarchyMode = true;
+
     protected $queryString = [
         'q' => ['except' => ''],
         'perPage' => ['except' => 10],
         'sortBy' => ['except' => 'created_at'],
         'sortDirection' => ['except' => 'desc'],
+        'parentId' => ['except' => ''],
+        'hierarchyMode' => ['except' => true],
     ];
 
     public function mount(): void
@@ -46,6 +52,11 @@ class CollectionsTable extends Component
         $this->normalizePerPage();
     }
 
+    public function updatingParentId(): void
+    {
+        $this->resetPage();
+    }
+
     public function sortBy(string $field): void
     {
         $validFields = ['internal_name', 'display_order', 'created_at'];
@@ -61,6 +72,29 @@ class CollectionsTable extends Component
             $this->sortDirection = 'asc';
         }
 
+        $this->resetPage();
+    }
+
+    public function navigateToParent(string $id): void
+    {
+        $this->parentId = $id;
+        $this->resetPage();
+    }
+
+    public function navigateUp(): void
+    {
+        if ($this->parentId === '') {
+            return;
+        }
+        $parent = Collection::find($this->parentId);
+        $this->parentId = $parent?->parent_id ?? '';
+        $this->resetPage();
+    }
+
+    public function toggleHierarchyMode(): void
+    {
+        $this->hierarchyMode = ! $this->hierarchyMode;
+        $this->parentId = '';
         $this->resetPage();
     }
 
@@ -82,12 +116,36 @@ class CollectionsTable extends Component
         }
     }
 
+    public function getBreadcrumbsProperty(): array
+    {
+        if ($this->parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Collection::find($this->parentId);
+        while ($current) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
     public function getCollectionsProperty()
     {
-        $query = Collection::query()->with(['context', 'language']);
+        $query = Collection::query()->with(['context', 'language'])->withCount('children');
         $search = trim($this->q);
         if ($search !== '') {
             $query->where('internal_name', 'LIKE', "%{$search}%");
+        }
+
+        if ($this->hierarchyMode) {
+            if ($this->parentId !== '') {
+                $query->childrenOf($this->parentId);
+            } else {
+                $query->roots();
+            }
         }
 
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
@@ -99,6 +157,7 @@ class CollectionsTable extends Component
 
         return view('livewire.tables.collections-table', [
             'collections' => $this->collections,
+            'breadcrumbs' => $this->breadcrumbs,
             'c' => $c,
         ]);
     }
