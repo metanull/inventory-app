@@ -3,7 +3,7 @@
     Uses unified item-relationship-card component
 --}}
 
-@props(['model'])
+@props(['model', 'collection' => null])
 
 <x-sidebar.item-relationship-card
     title="Parent Item"
@@ -14,6 +14,7 @@
     :remove-route="route('items.removeParent', $model)"
     :can-add="true"
     :can-remove="true"
+    :collection="$collection"
 >
     <x-form.entity-select 
         name="parent_id" 

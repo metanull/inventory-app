@@ -27,7 +27,7 @@
                                                         <!-- Thumbnail -->
                         <div class="shrink-0 w-12 h-12">
                             @if($image = $item->itemImages->first())
-                                        <img src="{{ Storage::url($image->image_path) }}" 
+                                        <img src="{{ route('items.item-images.view', [$item, $image]) }}" 
                                              alt="{{ $item->internal_name }}"
                                              class="w-12 h-12 rounded object-cover">
                                     @else
@@ -40,7 +40,7 @@
                                 <!-- Content -->
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('items.show', $item) }}" 
+                                        <a href="{{ route('collections.items.show', [$model, $item]) }}" 
                                            class="text-blue-600 hover:text-blue-900 font-medium">
                                             {{ $item->internal_name }}
                                         </a>

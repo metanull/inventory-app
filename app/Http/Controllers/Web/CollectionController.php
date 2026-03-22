@@ -22,9 +22,9 @@ class CollectionController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show']);
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index', 'show', 'showItem']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
-        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown']);
+        $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown', 'setParent', 'removeParent']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
@@ -47,15 +47,18 @@ class CollectionController extends Controller
             'attachedItems.itemImages',
         ]);
 
-        return view('collections.show', compact('collection'));
+        $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
+
+        return view('collections.show', compact('collection', 'breadcrumbs'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
         $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
+        $parentId = $request->query('parent_id');
 
-        return view('collections.create', compact('contexts', 'languages'));
+        return view('collections.create', compact('contexts', 'languages', 'parentId'));
     }
 
     public function store(StoreCollectionRequest $request): RedirectResponse
@@ -88,6 +91,43 @@ class CollectionController extends Controller
         return redirect()->route('collections.index')->with('success', 'Collection deleted successfully');
     }
 
+    public function showItem(Collection $collection, Item $item): View
+    {
+        $item->load([
+            'translations.context',
+            'translations.language',
+            'outgoingLinks.target.itemImages',
+            'outgoingLinks.context',
+            'incomingLinks.source.itemImages',
+            'incomingLinks.context',
+            'parent.itemImages',
+            'children.itemImages',
+        ]);
+
+        $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
+        $breadcrumbs[] = [
+            'label' => $collection->internal_name,
+            'url' => route('collections.show', $collection),
+        ];
+
+        $itemAncestor = $item->parent;
+        $itemCrumbs = [];
+        while ($itemAncestor) {
+            array_unshift($itemCrumbs, [
+                'label' => $itemAncestor->internal_name,
+                'url' => route('collections.items.show', [$collection, $itemAncestor]),
+            ]);
+            $itemAncestor = $itemAncestor->parent;
+        }
+        $breadcrumbs = array_merge($breadcrumbs, $itemCrumbs);
+
+        return view('items.show', [
+            'item' => $item,
+            'collection' => $collection,
+            'breadcrumbs' => $breadcrumbs,
+        ]);
+    }
+
     public function attachItem(Request $request, Collection $collection): RedirectResponse
     {
         $request->validate([
@@ -107,6 +147,46 @@ class CollectionController extends Controller
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Item detached successfully');
+    }
+
+    public function setParent(Request $request, Collection $collection): RedirectResponse
+    {
+        $request->validate([
+            'parent_id' => ['required', 'exists:collections,id'],
+        ]);
+
+        if ($request->parent_id === $collection->id) {
+            return redirect()->back()
+                ->withErrors(['parent_id' => 'A collection cannot be its own parent'])
+                ->withInput();
+        }
+
+        $potentialParent = Collection::findOrFail($request->parent_id);
+        $ancestor = $potentialParent;
+        while ($ancestor->parent_id !== null) {
+            if ($ancestor->parent_id === $collection->id) {
+                return redirect()->back()
+                    ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
+                    ->withInput();
+            }
+            $ancestor = Collection::find($ancestor->parent_id);
+            if (! $ancestor) {
+                break;
+            }
+        }
+
+        $collection->update(['parent_id' => $request->parent_id]);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Parent collection set successfully');
+    }
+
+    public function removeParent(Collection $collection): RedirectResponse
+    {
+        $collection->update(['parent_id' => null]);
+
+        return redirect()->route('collections.show', $collection)
+            ->with('success', 'Parent relationship removed successfully');
     }
 
     public function moveUp(Collection $collection): RedirectResponse
@@ -130,5 +210,20 @@ class CollectionController extends Controller
             : redirect()->route('collections.index');
 
         return $redirect->with('success', $message);
+    }
+
+    private function buildAncestorBreadcrumbs(Collection $collection): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $collection->parent;
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'label' => $ancestor->internal_name,
+                'url' => route('collections.show', $ancestor),
+            ]);
+            $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
     }
 }

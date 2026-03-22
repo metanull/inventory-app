@@ -4,11 +4,12 @@
     <x-layout.show-page-v2
         entity="items"
         :title="$item->internal_name"
-        :back-route="route('items.index')"
+        :back-route="isset($collection) ? route('collections.index') : route('items.index')"
         :edit-route="route('items.edit', $item)"
         :delete-route="route('items.destroy', $item)"
         delete-confirm="Are you sure you want to delete this item?"
         :backward-compatibility="$item->backward_compatibility"
+        :breadcrumbs="$breadcrumbs"
     >
         <!-- Main Content Area -->
         <x-display.description-list>
@@ -34,16 +35,16 @@
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Parent Item Card -->
-            <x-sidebar.parent-item-card :model="$item" />
+            <x-sidebar.parent-item-card :model="$item" :collection="$collection ?? null" />
 
             <!-- Children Items Card -->
-            <x-sidebar.children-items-card :model="$item" />
+            <x-sidebar.children-items-card :model="$item" :collection="$collection ?? null" />
 
             <!-- Tags Card -->
             <x-sidebar.tags-card :model="$item" />
 
             <!-- Links Card -->
-            <x-sidebar.links-card :model="$item" />
+            <x-sidebar.links-card :model="$item" :collection="$collection ?? null" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card

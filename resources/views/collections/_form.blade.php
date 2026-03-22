@@ -61,7 +61,7 @@
 <x-form.field label="Parent Collection" name="parent_id" variant="gray">
     <x-form.entity-select 
         name="parent_id" 
-        :value="old('parent_id', $collection->parent_id ?? null)"
+        :value="old('parent_id', $collection->parent_id ?? $parentId ?? null)"
         :options="\App\Models\Collection::orderBy('internal_name')->get()"
         displayField="internal_name"
         placeholder="Select a parent collection (optional)..."

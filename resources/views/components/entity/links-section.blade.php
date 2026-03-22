@@ -33,7 +33,7 @@
                                         <!-- Thumbnail -->
                                         <div class="shrink-0 w-12 h-12">
                                             @if($image = $link->target->itemImages->first())
-                                                <img src="{{ Storage::url($image->image_path) }}" 
+                                                <img src="{{ route('items.item-images.view', [$link->target, $image]) }}" 
                                                      alt="{{ $link->target->internal_name }}"
                                                      class="w-12 h-12 rounded object-cover">
                                             @else
@@ -104,7 +104,7 @@
                                         <!-- Thumbnail -->
                                         <div class="shrink-0 w-12 h-12">
                                             @if($image = $link->source->itemImages->first())
-                                                <img src="{{ Storage::url($image->image_path) }}" 
+                                                <img src="{{ route('items.item-images.view', [$link->source, $image]) }}" 
                                                      alt="{{ $link->source->internal_name }}"
                                                      class="w-12 h-12 rounded object-cover">
                                             @else
