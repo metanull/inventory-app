@@ -101,3 +101,18 @@ export async function ensureDirectory(dirPath: string): Promise<void> {
     }
   }
 }
+
+/**
+ * Clear all contents of a directory while keeping the directory itself.
+ */
+export async function clearDirectory(dirPath: string): Promise<void> {
+  await ensureDirectory(dirPath);
+  const entries = await fs.readdir(dirPath);
+
+  await Promise.all(
+    entries.map(async (entry) => {
+      const entryPath = path.join(dirPath, entry);
+      await fs.rm(entryPath, { recursive: true, force: true });
+    })
+  );
+}

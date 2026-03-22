@@ -29,4 +29,5 @@ export {
   getFileSize,
   fileExists,
   ensureDirectory,
+  clearDirectory,
 } from './image-sync.js';
