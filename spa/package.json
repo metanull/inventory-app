@@ -1,6 +1,6 @@
 {
     "name": "inventory-app-spa",
-    "version": "6.0.7",
+    "version": "6.0.9",
     "private": true,
     "type": "module",
     "scripts": {
@@ -45,7 +45,7 @@
         "@vitest/coverage-v8": "^4.0.10",
         "@vitest/ui": "^4.0.10",
         "@vue/test-utils": "^2.4.6",
-        "@vue/tsconfig": "^0.8.1",
+        "@vue/tsconfig": "^0.9.1",
         "autoprefixer": "^10.4.19",
         "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.5",
@@ -55,8 +55,8 @@
         "postcss": "^8.4.38",
         "prettier": "^3.4.2",
         "tailwindcss": "^4.1.16",
-        "typescript": "^5.9.3",
-        "vite": "^7.1.12",
+        "typescript": "~5.9.3",
+        "vite": "^8.0.3",
         "vitest": "^4.0.10",
         "vue-tsc": "^3.1.2"
     },
