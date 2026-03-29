@@ -28,6 +28,15 @@ export type {
   LegacyDynastyText,
   LegacyObjectDynasty,
   LegacyMonumentDynasty,
+  LegacyAuthor,
+  LegacyAuthorCv,
+  LegacyShAuthorCv,
+  LegacyAllAuthorMapping,
+  LegacyAuthorObject,
+  LegacyAuthorMonument,
+  LegacyShAuthorObject,
+  LegacyShAuthorMonument,
+  LegacyAuthorDynasty,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types

@@ -99,7 +99,13 @@ class AllowList
                 'translations', 'items',
             ],
             'dynasty_translation' => [
-                'dynasty', 'language',
+                'dynasty', 'language', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',
+            ],
+            'author' => [
+                'translations',
+            ],
+            'author_translation' => [
+                'author', 'language', 'context',
             ],
             'itemImage' => [
                 'item',

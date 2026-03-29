@@ -104,6 +104,7 @@ import {
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
   ProjectCleanupImporter,
+  AuthorImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -202,6 +203,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import relationships between items (object-object, object-monument, monument-monument)',
     importerClass: ItemItemLinkImporter,
     dependencies: ['object', 'monument', 'default-context'],
+  },
+  {
+    key: 'author',
+    name: 'Authors',
+    description:
+      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
+    importerClass: AuthorImporter,
+    dependencies: ['project', 'object', 'monument', 'default-context', 'language'],
   },
   // Phase 2: Images
   {

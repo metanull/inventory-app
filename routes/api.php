@@ -2,6 +2,8 @@
 
 use App\Enums\Permission;
 use App\Http\Controllers\Api\MarkdownController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\AuthorTranslationController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
@@ -101,6 +103,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'show'])->name('dynasty-translation.show');
         Route::get('dynasty-translation', [DynastyTranslationController::class, 'index'])->name('dynasty-translation.index');
 
+        // Author routes (read)
+        Route::get('author/{author}', [AuthorController::class, 'show'])->name('author.show');
+        Route::get('author', [AuthorController::class, 'index'])->name('author.index');
+
+        // Author Translation routes (read)
+        Route::get('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'show'])->name('author-translation.show');
+        Route::get('author-translation', [AuthorTranslationController::class, 'index'])->name('author-translation.index');
+
         // Partner routes (read)
         Route::get('partner/{partner}', [PartnerController::class, 'show'])->name('partner.show');
         Route::get('partner', [PartnerController::class, 'index'])->name('partner.index');
@@ -195,6 +205,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('tag', [TagController::class, 'store'])->name('tag.store');
         Route::post('dynasty', [DynastyController::class, 'store'])->name('dynasty.store');
         Route::post('dynasty-translation', [DynastyTranslationController::class, 'store'])->name('dynasty-translation.store');
+        Route::post('author', [AuthorController::class, 'store'])->name('author.store');
+        Route::post('author-translation', [AuthorTranslationController::class, 'store'])->name('author-translation.store');
         Route::post('partner', [PartnerController::class, 'store'])->name('partner.store');
         Route::post('partner/{partner}/attach-image', [PartnerImageController::class, 'attachFromAvailable'])->name('partner.attachImage');
         Route::post('partner-translation', [PartnerTranslationController::class, 'store'])->name('partner-translation.store');
@@ -263,6 +275,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::patch('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'update'])->name('dynasty-translation.update');
         Route::put('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'update']);
+
+        Route::patch('author/{author}', [AuthorController::class, 'update'])->name('author.update');
+        Route::put('author/{author}', [AuthorController::class, 'update']);
+
+        Route::patch('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update'])->name('author-translation.update');
+        Route::put('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update']);
 
         Route::patch('partner/{partner}', [PartnerController::class, 'update'])->name('partner.update');
         Route::put('partner/{partner}', [PartnerController::class, 'update']);
@@ -334,6 +352,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('tag/{tag}', [TagController::class, 'destroy'])->name('tag.destroy');
         Route::delete('dynasty/{dynasty}', [DynastyController::class, 'destroy'])->name('dynasty.destroy');
         Route::delete('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'destroy'])->name('dynasty-translation.destroy');
+        Route::delete('author/{author}', [AuthorController::class, 'destroy'])->name('author.destroy');
+        Route::delete('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'destroy'])->name('author-translation.destroy');
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
         Route::delete('partner-translation/{partnerTranslation}', [PartnerTranslationController::class, 'destroy'])->name('partner-translation.destroy');
         Route::delete('partner-image/{partnerImage}', [PartnerImageController::class, 'destroy'])->name('partner-image.destroy');

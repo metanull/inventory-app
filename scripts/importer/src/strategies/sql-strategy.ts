@@ -31,6 +31,7 @@ import type {
   ItemTranslationData,
   TagData,
   AuthorData,
+  AuthorTranslationData,
   ArtistData,
   ItemImageData,
   PartnerImageData,
@@ -58,6 +59,7 @@ const tableEntityMap: Record<string, EntityType> = {
   items: 'item',
   tags: 'tag',
   authors: 'author',
+  author_translations: 'author_translation',
   artists: 'artist',
   language_translations: 'language_translation',
   country_translations: 'country_translation',
@@ -574,11 +576,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id = uuidv4();
     try {
       await this.db.execute(
-        `INSERT INTO authors (id, name, internal_name, backward_compatibility, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO authors (id, name, firstname, lastname, givenname, originalname, internal_name, backward_compatibility, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           sanitized.name,
+          sanitized.firstname ?? null,
+          sanitized.lastname ?? null,
+          sanitized.givenname ?? null,
+          sanitized.originalname ?? null,
           sanitized.internal_name,
           sanitized.backward_compatibility,
           this.now,
@@ -603,6 +609,26 @@ export class SqlWriteStrategy implements IWriteStrategy {
         `Failed to create or find author: ${sanitized.backward_compatibility}. Original error: ${message}`
       );
     }
+  }
+
+  async writeAuthorTranslation(data: AuthorTranslationData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO author_translations (id, author_id, language_id, context_id, curriculum, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.author_id,
+        sanitized.language_id,
+        sanitized.context_id,
+        sanitized.curriculum ?? null,
+        sanitized.backward_compatibility ?? null,
+        sanitized.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
   }
 
   async writeArtist(data: ArtistData): Promise<string> {
@@ -884,6 +910,38 @@ export class SqlWriteStrategy implements IWriteStrategy {
       `INSERT IGNORE INTO item_dynasty (item_id, dynasty_id, created_at, updated_at)
        VALUES (?, ?, ?, ?)`,
       [data.item_id, data.dynasty_id, this.now, this.now]
+    );
+  }
+
+  async updateItemTranslationAuthorFk(
+    itemId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void> {
+    const allowedColumns = ['author_id', 'text_copy_editor_id', 'translator_id', 'translation_copy_editor_id'];
+    if (!allowedColumns.includes(fkColumn)) {
+      throw new Error(`Invalid FK column: ${fkColumn}`);
+    }
+    await this.db.execute(
+      `UPDATE item_translations SET ${fkColumn} = ? WHERE item_id = ? AND language_id = ? AND ${fkColumn} IS NULL LIMIT 1`,
+      [authorId, itemId, languageId]
+    );
+  }
+
+  async updateDynastyTranslationAuthorFk(
+    dynastyId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void> {
+    const allowedColumns = ['author_id', 'text_copy_editor_id', 'translator_id', 'translation_copy_editor_id'];
+    if (!allowedColumns.includes(fkColumn)) {
+      throw new Error(`Invalid FK column: ${fkColumn}`);
+    }
+    await this.db.execute(
+      `UPDATE dynasty_translations SET ${fkColumn} = ? WHERE dynasty_id = ? AND language_id = ? AND ${fkColumn} IS NULL LIMIT 1`,
+      [authorId, dynastyId, languageId]
     );
   }
 

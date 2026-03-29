@@ -414,3 +414,86 @@ export interface LegacyMonumentDynasty {
   number: string;
   dynasty_id: number;
 }
+
+// ============================================================================
+// Author Types
+// ============================================================================
+
+export interface LegacyAuthor {
+  author_id: number;
+  lastname?: string | null;
+  givenname?: string | null;
+  firstname?: string | null;
+  originalname?: string | null;
+}
+
+export interface LegacyAuthorCv {
+  author_id: number;
+  project_id: string;
+  lang_id: string;
+  curriculum?: string | null;
+}
+
+export interface LegacyShAuthorCv {
+  author_id: number;
+  project_id: string;
+  lang: string;
+  curriculum?: string | null;
+}
+
+export interface LegacyAllAuthorMapping {
+  author_id: number;
+  all_author_id: number;
+}
+
+export interface LegacyAuthorObject {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyAuthorMonument {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyShAuthorObject {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyShAuthorMonument {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyAuthorDynasty {
+  dynasty_id: number;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}

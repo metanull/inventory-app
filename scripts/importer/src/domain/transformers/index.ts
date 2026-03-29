@@ -132,3 +132,11 @@ export {
   type TransformedDynasty,
   type TransformedDynastyTranslation,
 } from './dynasty-transformer.js';
+
+export {
+  transformAuthor,
+  transformAuthorCv,
+  transformShAuthorCv,
+  type TransformedAuthor,
+  type TransformedAuthorTranslation,
+} from './author-transformer.js';

@@ -56,6 +56,7 @@ export type EntityType =
   | 'image'
   | 'tag'
   | 'author'
+  | 'author_translation'
   | 'artist'
   | 'dynasty'
   | 'dynasty_translation'
@@ -297,6 +298,22 @@ export interface TagData extends BaseEntityData {
  */
 export interface AuthorData extends BaseEntityData {
   name: string;
+  firstname?: string | null;
+  lastname?: string | null;
+  givenname?: string | null;
+  originalname?: string | null;
+}
+
+/**
+ * Author translation data for write operations
+ */
+export interface AuthorTranslationData {
+  author_id: string;
+  language_id: string;
+  context_id: string;
+  curriculum?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
 }
 
 /**

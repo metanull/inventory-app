@@ -29,6 +29,10 @@ class UpdateDynastyTranslationRequest extends FormRequest
             'history' => ['nullable', 'string'],
             'date_description_ah' => ['nullable', 'string', 'max:255'],
             'date_description_ad' => ['nullable', 'string', 'max:255'],
+            'author_id' => ['nullable', 'uuid', 'exists:authors,id'],
+            'text_copy_editor_id' => ['nullable', 'uuid', 'exists:authors,id'],
+            'translator_id' => ['nullable', 'uuid', 'exists:authors,id'],
+            'translation_copy_editor_id' => ['nullable', 'uuid', 'exists:authors,id'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
             'extra' => ['nullable', 'array'],
         ];

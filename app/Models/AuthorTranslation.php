@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * DynastyTranslation Model
+ * AuthorTranslation Model
  *
- * Represents language-specific translations for Dynasties.
- * Contains translated dynasty names, areas, and historical descriptions.
+ * Represents language and context-specific translations for Authors.
+ * Contains translated author curriculum per context/language.
  */
-class DynastyTranslation extends Model
+class AuthorTranslation extends Model
 {
     use HasFactory, HasJsonFields, HasUuids;
 
@@ -25,7 +25,7 @@ class DynastyTranslation extends Model
      *
      * @var string
      */
-    protected $table = 'dynasty_translations';
+    protected $table = 'author_translations';
 
     /**
      * The attributes that are mass assignable.
@@ -33,18 +33,10 @@ class DynastyTranslation extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'dynasty_id',
-        'language_id',
-        'name',
-        'also_known_as',
-        'area',
-        'history',
-        'date_description_ah',
-        'date_description_ad',
         'author_id',
-        'text_copy_editor_id',
-        'translator_id',
-        'translation_copy_editor_id',
+        'language_id',
+        'context_id',
+        'curriculum',
         'backward_compatibility',
         'extra',
     ];
@@ -79,11 +71,11 @@ class DynastyTranslation extends Model
     }
 
     /**
-     * Get the dynasty that owns the translation.
+     * Get the author that owns the translation.
      */
-    public function dynasty(): BelongsTo
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(Dynasty::class);
+        return $this->belongsTo(Author::class);
     }
 
     /**
@@ -95,35 +87,24 @@ class DynastyTranslation extends Model
     }
 
     /**
-     * Get the author of the translation.
+     * Get the context of the translation.
      */
-    public function author(): BelongsTo
+    public function context(): BelongsTo
     {
-        return $this->belongsTo(Author::class, 'author_id');
+        return $this->belongsTo(Context::class);
     }
 
     /**
-     * Get the text copy editor.
+     * Scope a query to only include translations for the default context.
+     *
+     * @param  Builder  $query
+     * @return Builder
      */
-    public function textCopyEditor(): BelongsTo
+    public function scopeDefaultContext($query)
     {
-        return $this->belongsTo(Author::class, 'text_copy_editor_id');
-    }
-
-    /**
-     * Get the translator.
-     */
-    public function translator(): BelongsTo
-    {
-        return $this->belongsTo(Author::class, 'translator_id');
-    }
-
-    /**
-     * Get the translation copy editor.
-     */
-    public function translationCopyEditor(): BelongsTo
-    {
-        return $this->belongsTo(Author::class, 'translation_copy_editor_id');
+        return $query->whereHas('context', function ($query) {
+            $query->where('is_default', true);
+        });
     }
 
     /**
@@ -136,5 +117,17 @@ class DynastyTranslation extends Model
     public function scopeForLanguage($query, $languageId)
     {
         return $query->where('language_id', $languageId);
+    }
+
+    /**
+     * Scope a query to only include translations for a specific context.
+     *
+     * @param  Builder  $query
+     * @param  string  $contextId
+     * @return Builder
+     */
+    public function scopeForContext($query, $contextId)
+    {
+        return $query->where('context_id', $contextId);
     }
 }

@@ -27,6 +27,7 @@ import type {
   ItemTranslationData,
   TagData,
   AuthorData,
+  AuthorTranslationData,
   ArtistData,
   ItemImageData,
   PartnerImageData,
@@ -214,6 +215,11 @@ export interface IWriteStrategy {
   writeAuthor(data: AuthorData): Promise<string>;
 
   /**
+   * Write an author translation record
+   */
+  writeAuthorTranslation(data: AuthorTranslationData): Promise<void>;
+
+  /**
    * Write an artist record
    * @returns The artist UUID
    */
@@ -298,6 +304,38 @@ export interface IWriteStrategy {
    * Link an item to a dynasty (many-to-many relationship)
    */
   writeItemDynasty(data: ItemDynastyData): Promise<void>;
+
+  // =========================================================================
+  // Author Assignment Updates
+  // =========================================================================
+
+  /**
+   * Set an author FK on an item_translations row.
+   * @param itemId The item UUID
+   * @param languageId The language ID
+   * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
+   * @param authorId The author UUID to set
+   */
+  updateItemTranslationAuthorFk(
+    itemId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void>;
+
+  /**
+   * Set an author FK on a dynasty_translations row.
+   * @param dynastyId The dynasty UUID
+   * @param languageId The language ID
+   * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
+   * @param authorId The author UUID to set
+   */
+  updateDynastyTranslationAuthorFk(
+    dynastyId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void>;
 
   // =========================================================================
   // Lookup Methods
