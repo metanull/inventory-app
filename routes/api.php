@@ -33,6 +33,10 @@ use App\Http\Controllers\PartnerTranslationController;
 use App\Http\Controllers\PartnerTranslationImageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TimelineController;
+use App\Http\Controllers\TimelineEventController;
+use App\Http\Controllers\TimelineEventImageController;
+use App\Http\Controllers\TimelineEventTranslationController;
 use App\Http\Controllers\UserPermissionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -110,6 +114,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Author Translation routes (read)
         Route::get('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'show'])->name('author-translation.show');
         Route::get('author-translation', [AuthorTranslationController::class, 'index'])->name('author-translation.index');
+
+        // Timeline routes (read)
+        Route::get('timeline/{timeline}', [TimelineController::class, 'show'])->name('timeline.show');
+        Route::get('timeline', [TimelineController::class, 'index'])->name('timeline.index');
+
+        // Timeline Event routes (read)
+        Route::get('timeline-event/{timelineEvent}', [TimelineEventController::class, 'show'])->name('timeline-event.show');
+        Route::get('timeline-event', [TimelineEventController::class, 'index'])->name('timeline-event.index');
+
+        // Timeline Event Translation routes (read)
+        Route::get('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'show'])->name('timeline-event-translation.show');
+
+        // Timeline Event Image routes (read)
+        Route::get('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'show'])->name('timeline-event-image.show');
 
         // Partner routes (read)
         Route::get('partner/{partner}', [PartnerController::class, 'show'])->name('partner.show');
@@ -207,6 +225,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('dynasty-translation', [DynastyTranslationController::class, 'store'])->name('dynasty-translation.store');
         Route::post('author', [AuthorController::class, 'store'])->name('author.store');
         Route::post('author-translation', [AuthorTranslationController::class, 'store'])->name('author-translation.store');
+        Route::post('timeline', [TimelineController::class, 'store'])->name('timeline.store');
+        Route::post('timeline-event', [TimelineEventController::class, 'store'])->name('timeline-event.store');
+        Route::post('timeline-event-translation', [TimelineEventTranslationController::class, 'store'])->name('timeline-event-translation.store');
         Route::post('partner', [PartnerController::class, 'store'])->name('partner.store');
         Route::post('partner/{partner}/attach-image', [PartnerImageController::class, 'attachFromAvailable'])->name('partner.attachImage');
         Route::post('partner-translation', [PartnerTranslationController::class, 'store'])->name('partner-translation.store');
@@ -282,6 +303,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update'])->name('author-translation.update');
         Route::put('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update']);
 
+        Route::patch('timeline/{timeline}', [TimelineController::class, 'update'])->name('timeline.update');
+        Route::put('timeline/{timeline}', [TimelineController::class, 'update']);
+
+        Route::patch('timeline-event/{timelineEvent}', [TimelineEventController::class, 'update'])->name('timeline-event.update');
+        Route::put('timeline-event/{timelineEvent}', [TimelineEventController::class, 'update']);
+
+        Route::patch('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'update'])->name('timeline-event-translation.update');
+        Route::put('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'update']);
+
+        Route::patch('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'update'])->name('timeline-event-image.update');
+        Route::put('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'update']);
+        Route::patch('timeline-event-image/{timelineEventImage}/move-up', [TimelineEventImageController::class, 'moveUp'])->name('timeline-event-image.moveUp');
+        Route::patch('timeline-event-image/{timelineEventImage}/move-down', [TimelineEventImageController::class, 'moveDown'])->name('timeline-event-image.moveDown');
+
         Route::patch('partner/{partner}', [PartnerController::class, 'update'])->name('partner.update');
         Route::put('partner/{partner}', [PartnerController::class, 'update']);
 
@@ -354,6 +389,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'destroy'])->name('dynasty-translation.destroy');
         Route::delete('author/{author}', [AuthorController::class, 'destroy'])->name('author.destroy');
         Route::delete('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'destroy'])->name('author-translation.destroy');
+        Route::delete('timeline/{timeline}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
+        Route::delete('timeline-event/{timelineEvent}', [TimelineEventController::class, 'destroy'])->name('timeline-event.destroy');
+        Route::delete('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'destroy'])->name('timeline-event-translation.destroy');
+        Route::delete('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'destroy'])->name('timeline-event-image.destroy');
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
         Route::delete('partner-translation/{partnerTranslation}', [PartnerTranslationController::class, 'destroy'])->name('partner-translation.destroy');
         Route::delete('partner-image/{partnerImage}', [PartnerImageController::class, 'destroy'])->name('partner-image.destroy');

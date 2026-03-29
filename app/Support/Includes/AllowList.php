@@ -107,8 +107,17 @@ class AllowList
             'author_translation' => [
                 'author', 'language', 'context',
             ],
-            'itemImage' => [
-                'item',
+            'timeline' => [
+                'country', 'collection', 'events',
+            ],
+            'timeline_event' => [
+                'timeline', 'translations', 'images', 'items',
+            ],
+            'timeline_event_translation' => [
+                'timelineEvent', 'language',
+            ],
+            'timeline_event_image' => [
+                'timelineEvent',
             ],
             default => [],
         };
