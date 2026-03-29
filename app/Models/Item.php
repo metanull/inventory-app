@@ -231,6 +231,7 @@ class Item extends Model
     public function attachedToCollections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class, 'collection_item')
+            ->withPivot('display_order', 'extra')
             ->withTimestamps();
     }
 

@@ -37,6 +37,10 @@ class Collection extends Model
 
     public const TYPE_LOCATION = 'location';
 
+    public const TYPE_SUBTHEME = 'subtheme';
+
+    public const TYPE_REGION = 'region';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -154,6 +158,7 @@ class Collection extends Model
     public function attachedItems(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'collection_item')
+            ->withPivot('display_order', 'extra')
             ->withTimestamps();
     }
 

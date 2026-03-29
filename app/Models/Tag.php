@@ -31,6 +31,22 @@ class Tag extends Model
     }
 
     /**
+     * The collection images that belong to this tag.
+     */
+    public function collectionImages(): BelongsToMany
+    {
+        return $this->belongsToMany(CollectionImage::class, 'collection_image_tag')->withTimestamps();
+    }
+
+    /**
+     * The item images that belong to this tag.
+     */
+    public function itemImages(): BelongsToMany
+    {
+        return $this->belongsToMany(ItemImage::class, 'item_image_tag')->withTimestamps();
+    }
+
+    /**
      * Get the language this tag belongs to (optional).
      */
     public function language(): BelongsTo
