@@ -125,3 +125,10 @@ export {
   type TransformedShMonumentDetail,
   type TransformedShMonumentDetailTranslation,
 } from './sh-monument-detail-transformer.js';
+
+export {
+  transformDynasty,
+  transformDynastyTranslation,
+  type TransformedDynasty,
+  type TransformedDynastyTranslation,
+} from './dynasty-transformer.js';

@@ -37,6 +37,9 @@ import type {
   GlossarySpellingData,
   ItemItemLinkData,
   ItemItemLinkTranslationData,
+  DynastyData,
+  DynastyTranslationData,
+  ItemDynastyData,
 } from './types.js';
 
 /**
@@ -275,6 +278,26 @@ export interface IWriteStrategy {
    * Write an item-item link translation record
    */
   writeItemItemLinkTranslation(data: ItemItemLinkTranslationData): Promise<void>;
+
+  // =========================================================================
+  // Dynasties
+  // =========================================================================
+
+  /**
+   * Write a dynasty record
+   * @returns The dynasty UUID
+   */
+  writeDynasty(data: DynastyData): Promise<string>;
+
+  /**
+   * Write a dynasty translation record
+   */
+  writeDynastyTranslation(data: DynastyTranslationData): Promise<void>;
+
+  /**
+   * Link an item to a dynasty (many-to-many relationship)
+   */
+  writeItemDynasty(data: ItemDynastyData): Promise<void>;
 
   // =========================================================================
   // Lookup Methods

@@ -202,6 +202,14 @@ class Item extends Model
     }
 
     /**
+     * Dynasties associated with this item
+     */
+    public function dynasties(): BelongsToMany
+    {
+        return $this->belongsToMany(Dynasty::class, 'item_dynasty')->withTimestamps();
+    }
+
+    /**
      * Get all translations for this item.
      */
     public function translations(): HasMany

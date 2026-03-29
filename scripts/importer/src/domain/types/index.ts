@@ -24,6 +24,10 @@ export type {
   LegacyMonumentDetailPicture,
   LegacyMuseumPicture,
   LegacyInstitutionPicture,
+  LegacyDynasty,
+  LegacyDynastyText,
+  LegacyObjectDynasty,
+  LegacyMonumentDynasty,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types

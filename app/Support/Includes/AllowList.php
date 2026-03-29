@@ -19,7 +19,7 @@ class AllowList
             'item' => [
                 'partner', 'country', 'project', 'collection',
                 'parent', 'children', 'itemImages',
-                'artists', 'workshops', 'tags', 'translations',
+                'artists', 'workshops', 'tags', 'dynasties', 'translations',
                 'attachedToCollections', 'outgoingLinks', 'incomingLinks',
             ],
             'itemImage' => [
@@ -94,6 +94,12 @@ class AllowList
             ],
             'available_image' => [
                 // AvailableImage model has no relationships
+            ],
+            'dynasty' => [
+                'translations', 'items',
+            ],
+            'dynasty_translation' => [
+                'dynasty', 'language',
             ],
             'itemImage' => [
                 'item',

@@ -57,6 +57,8 @@ export type EntityType =
   | 'tag'
   | 'author'
   | 'artist'
+  | 'dynasty'
+  | 'dynasty_translation'
   | 'glossary'
   | 'glossary_translation'
   | 'glossary_spelling'
@@ -408,4 +410,43 @@ export interface ItemItemLinkTranslationData {
   description?: string | null;
   reciprocal_description?: string | null;
   backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Dynasty Types
+// ============================================================================
+
+/**
+ * Dynasty data for write operations
+ */
+export interface DynastyData {
+  backward_compatibility: string;
+  from_ah?: number | null;
+  to_ah?: number | null;
+  from_ad?: number | null;
+  to_ad?: number | null;
+}
+
+/**
+ * Dynasty translation data for write operations
+ */
+export interface DynastyTranslationData {
+  dynasty_id: string;
+  language_id: string;
+  name?: string | null;
+  also_known_as?: string | null;
+  area?: string | null;
+  history?: string | null;
+  date_description_ah?: string | null;
+  date_description_ad?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Item-Dynasty link data for pivot table (many-to-many)
+ */
+export interface ItemDynastyData {
+  item_id: string;
+  dynasty_id: string;
 }

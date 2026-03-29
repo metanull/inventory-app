@@ -14,6 +14,7 @@ export { ObjectImporter } from './phase-01/index.js';
 export { MonumentImporter } from './phase-01/index.js';
 export { MonumentDetailImporter } from './phase-01/index.js';
 export { ItemItemLinkImporter } from './phase-01/index.js';
+export { DynastyImporter } from './phase-01/index.js';
 
 // Phase 02: Images
 export { ObjectPictureImporter } from './phase-02/index.js';

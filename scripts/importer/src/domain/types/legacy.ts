@@ -375,3 +375,42 @@ export interface LegacyInstitutionPicture {
   photographer?: string;
   copyright?: string;
 }
+
+// ============================================================================
+// Dynasty Types
+// ============================================================================
+
+export interface LegacyDynasty {
+  dynasty_id: number;
+  from_ah?: number | null;
+  to_ah?: number | null;
+  from_ad?: number | null;
+  to_ad?: number | null;
+}
+
+export interface LegacyDynastyText {
+  dynasty_id: number;
+  lang: string;
+  name?: string | null;
+  also_known_as?: string | null;
+  area?: string | null;
+  history?: string | null;
+  date_description_ah?: string | null;
+  date_description_ad?: string | null;
+}
+
+export interface LegacyObjectDynasty {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  dynasty_id: number;
+}
+
+export interface LegacyMonumentDynasty {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  dynasty_id: number;
+}

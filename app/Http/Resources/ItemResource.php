@@ -53,6 +53,8 @@ class ItemResource extends JsonResource
             'workshops' => WorkshopResource::collection($this->whenLoaded('workshops')),
             // Tags associated with this item (TagResource[])
             'tags' => TagResource::collection($this->whenLoaded('tags')),
+            // Dynasties associated with this item (DynastyResource[])
+            'dynasties' => DynastyResource::collection($this->whenLoaded('dynasties')),
             // Translations for this item (internationalization and contextualization) (ItemTranslationResource[])
             'translations' => ItemTranslationResource::collection($this->whenLoaded('translations')),
             // Item images attached to this item with display ordering (ItemImageResource[])

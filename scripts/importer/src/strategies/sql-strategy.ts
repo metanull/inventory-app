@@ -42,6 +42,9 @@ import type {
   ItemItemLinkData,
   ItemItemLinkTranslationData,
   CollectionItemData,
+  DynastyData,
+  DynastyTranslationData,
+  ItemDynastyData,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -63,6 +66,8 @@ const tableEntityMap: Record<string, EntityType> = {
   glossary_spellings: 'glossary_spelling',
   item_item_links: 'item_item_link',
   item_item_link_translations: 'item_item_link_translation',
+  dynasties: 'dynasty',
+  dynasty_translations: 'dynasty_translation',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -821,6 +826,64 @@ export class SqlWriteStrategy implements IWriteStrategy {
         this.now,
         this.now,
       ]
+    );
+  }
+
+  // =========================================================================
+  // Dynasties
+  // =========================================================================
+
+  async writeDynasty(data: DynastyData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO dynasties (id, from_ah, to_ah, from_ad, to_ad, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.from_ah ?? null,
+        data.to_ah ?? null,
+        data.from_ad ?? null,
+        data.to_ad ?? null,
+        sanitized.backward_compatibility,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(sanitized.backward_compatibility, id, 'dynasty');
+    return id;
+  }
+
+  async writeDynastyTranslation(data: DynastyTranslationData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO dynasty_translations (id, dynasty_id, language_id, name, also_known_as, area, history, date_description_ah, date_description_ad, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.dynasty_id,
+        sanitized.language_id,
+        sanitized.name ?? null,
+        sanitized.also_known_as ?? null,
+        sanitized.area ?? null,
+        sanitized.history ?? null,
+        sanitized.date_description_ah ?? null,
+        sanitized.date_description_ad ?? null,
+        sanitized.backward_compatibility ?? null,
+        sanitized.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  async writeItemDynasty(data: ItemDynastyData): Promise<void> {
+    await this.db.execute(
+      `INSERT IGNORE INTO item_dynasty (item_id, dynasty_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?)`,
+      [data.item_id, data.dynasty_id, this.now, this.now]
     );
   }
 

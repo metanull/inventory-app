@@ -421,6 +421,8 @@ export abstract class BaseImporter {
       glossary_spelling: 'glossary_spellings',
       item_item_link: 'item_item_links',
       item_item_link_translation: 'item_item_link_translations',
+      dynasty: 'dynasties',
+      dynasty_translation: 'dynasty_translations',
     };
     return mapping[entityType];
   }
