@@ -484,8 +484,11 @@ export class TimelineImporter extends BaseImporter {
             const textsObj: Record<string, Record<string, string>> = {};
             for (const [legacyLang, txt] of imgTexts) {
               // Map 2-char to ISO-3 for JSON keys
-              const langId = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
-              const langKey = langId || legacyLang;
+              const langKey = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
+              if (!langKey) {
+                this.logWarning(`Unknown language code '${legacyLang}' for HCR image text ${img.hcr_img_id}, skipping text`);
+                continue;
+              }
               textsObj[langKey] = {
                 name: txt.name || '',
                 sname: txt.sname || '',
@@ -627,8 +630,11 @@ export class TimelineImporter extends BaseImporter {
 
           for (const [legacyLang, text] of texts) {
             // Map 2-char to ISO-3 for JSON keys
-            const langId = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
-            const langKey = langId || legacyLang;
+            const langKey = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
+            if (!langKey) {
+              this.logWarning(`Unknown language code '${legacyLang}' for bibliography biblio_id=${link.biblio_id}, skipping text`);
+              continue;
+            }
 
             const target = status === 'A' ? activeBiblio : disabledBiblio;
             if (!target[langKey]) {
