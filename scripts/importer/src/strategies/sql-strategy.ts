@@ -54,6 +54,9 @@ import type {
   ItemMediaData,
   CollectionMediaData,
   ItemDocumentData,
+  ContributorData,
+  ContributorTranslationData,
+  ContributorImageData,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -84,6 +87,8 @@ const tableEntityMap: Record<string, EntityType> = {
   item_media: 'item_media',
   collection_media: 'collection_media',
   item_documents: 'item_document',
+  contributors: 'contributor',
+  contributor_translations: 'contributor_translation',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -1216,5 +1221,80 @@ export class SqlWriteStrategy implements IWriteStrategy {
     }
 
     return null;
+  }
+
+  // =========================================================================
+  // Contributors
+  // =========================================================================
+
+  async writeContributor(data: ContributorData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO contributors (id, collection_id, category, display_order, visible, backward_compatibility, internal_name, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.collection_id,
+        sanitized.category,
+        data.display_order,
+        data.visible ? 1 : 0,
+        sanitized.backward_compatibility ?? null,
+        sanitized.internal_name,
+        this.now,
+        this.now,
+      ]
+    );
+    if (sanitized.backward_compatibility) {
+      this.tracker.set(sanitized.backward_compatibility, id, 'contributor');
+    }
+    return id;
+  }
+
+  async writeContributorTranslation(data: ContributorTranslationData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO contributor_translations (id, contributor_id, language_id, context_id, name, description, link, alt_text, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.contributor_id,
+        sanitized.language_id,
+        sanitized.context_id,
+        sanitized.name ?? null,
+        sanitized.description ?? null,
+        sanitized.link ?? null,
+        sanitized.alt_text ?? null,
+        sanitized.extra ?? null,
+        sanitized.backward_compatibility ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  async writeContributorImage(data: ContributorImageData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = sanitized.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO contributor_images (id, contributor_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.contributor_id,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        sanitized.size,
+        sanitized.alt_text,
+        sanitized.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    // Track using lowercase path as unique identifier
+    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    return id;
   }
 }

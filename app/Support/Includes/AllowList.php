@@ -37,7 +37,7 @@ class AllowList
             ],
             'collection' => [
                 'language', 'context', 'translations', 'partners', 'items', 'attachedItems', 'collectionImages',
-                'collectionMedia',
+                'collectionMedia', 'contributors',
             ],
             'collectionImage' => [
                 'collection',
@@ -129,6 +129,15 @@ class AllowList
             ],
             'item_document' => [
                 'item', 'language',
+            ],
+            'contributor' => [
+                'collection', 'translations', 'contributorImages',
+            ],
+            'contributor_translation' => [
+                'contributor', 'language', 'context',
+            ],
+            'contributor_image' => [
+                'contributor',
             ],
             default => [],
         };

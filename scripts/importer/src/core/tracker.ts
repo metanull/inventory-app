@@ -153,6 +153,8 @@ export class UnifiedTracker implements ITracker {
       item_media: 0,
       collection_media: 0,
       item_document: 0,
+      contributor: 0,
+      contributor_translation: 0,
     };
 
     for (const entity of this.entities.values()) {

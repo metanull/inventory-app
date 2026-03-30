@@ -16,6 +16,7 @@ export { MonumentDetailImporter } from './phase-01/index.js';
 export { ItemItemLinkImporter } from './phase-01/index.js';
 export { DynastyImporter } from './phase-01/index.js';
 export { AuthorImporter } from './phase-01/index.js';
+export { SchoolImporter } from './phase-01/index.js';
 
 // Phase 02: Images
 export { ObjectPictureImporter } from './phase-02/index.js';
@@ -37,12 +38,13 @@ export {
   ShMonumentDetailPictureImporter,
 } from './phase-03/index.js';
 
-// Phase 04: Glossary
+// Phase 04: Glossary & THG Contributors
 export {
   GlossaryImporter,
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
 } from './phase-04/index.js';
+export { ThgContributorImporter } from './phase-04/index.js';
 
 // Phase 10: Thematic Galleries (runs last, after all other legacy DBs are imported)
 export {

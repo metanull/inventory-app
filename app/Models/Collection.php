@@ -179,6 +179,14 @@ class Collection extends Model
     }
 
     /**
+     * Get all contributors belonging to this collection.
+     */
+    public function contributors(): HasMany
+    {
+        return $this->hasMany(Contributor::class)->orderBy('display_order');
+    }
+
+    /**
      * Scope to get only collection type collections.
      */
     public function scopeCollections(Builder $query): Builder

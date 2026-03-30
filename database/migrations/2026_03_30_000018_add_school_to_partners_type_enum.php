@@ -12,7 +12,7 @@ return new class extends Migration
     {
         // Only needed for MariaDB/MySQL - SQLite doesn't enforce enum constraints
         if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::statement("ALTER TABLE collections MODIFY COLUMN `type` ENUM('collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location', 'subtheme', 'region') NOT NULL DEFAULT 'collection'");
+            DB::statement("ALTER TABLE partners MODIFY COLUMN type ENUM('museum', 'institution', 'individual', 'school') NOT NULL");
         }
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         if (DB::connection()->getDriverName() !== 'sqlite') {
-            DB::statement("ALTER TABLE collections MODIFY COLUMN `type` ENUM('collection', 'exhibition', 'gallery') NOT NULL DEFAULT 'collection'");
+            DB::statement("ALTER TABLE partners MODIFY COLUMN type ENUM('museum', 'institution', 'individual') NOT NULL");
         }
     }
 };

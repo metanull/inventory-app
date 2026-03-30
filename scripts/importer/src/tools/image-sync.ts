@@ -112,6 +112,13 @@ export class ImageSyncTool {
       result.skipped += collectionImageResults.skipped;
       result.errors.push(...collectionImageResults.errors);
 
+      // Sync ContributorImages
+      this.logger.info('\n=== Syncing ContributorImages ===');
+      const contributorImageResults = await this.syncContributorImages();
+      result.imported += contributorImageResults.synced;
+      result.skipped += contributorImageResults.skipped;
+      result.errors.push(...contributorImageResults.errors);
+
       this.logger.info(
         `\nSummary: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`
       );
@@ -222,6 +229,41 @@ export class ImageSyncTool {
         const message = error instanceof Error ? error.message : String(error);
         errors.push(`CollectionImage ${image.id}: ${message}`);
         this.logger.error(`CollectionImage ${image.id}`, message);
+        process.stdout.write('✗');
+      }
+    }
+    process.stdout.write('\n');
+
+    return { synced, skipped, errors };
+  }
+
+  private async syncContributorImages(): Promise<{
+    synced: number;
+    skipped: number;
+    errors: string[];
+  }> {
+    const errors: string[] = [];
+    let synced = 0;
+    let skipped = 0;
+
+    // Query ContributorImages with size=1
+    const images = await this.queryImages('contributor_images');
+    this.logger.info(`Found ${images.length} ContributorImages to sync`);
+
+    for (const image of images) {
+      try {
+        const result = await this.syncImage(image, 'contributor_images');
+        if (result) {
+          synced++;
+          process.stdout.write('.');
+        } else {
+          skipped++;
+          process.stdout.write('⊘');
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        errors.push(`ContributorImage ${image.id}: ${message}`);
+        this.logger.error(`ContributorImage ${image.id}`, message);
         process.stdout.write('✗');
       }
     }

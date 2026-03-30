@@ -44,6 +44,14 @@ export type {
   ShLegacyObjectDocument,
   ThgLegacyExhibitionMedia,
   ThgLegacyThemeMedia,
+  LegacySchool,
+  LegacySchoolName,
+  LegacySchoolPicture,
+  ThgLegacyContributor,
+  ThgLegacyContributorCategory,
+  ThgLegacyContributorI18n,
+  ThgLegacyExhibitionPartner,
+  ThgLegacyExhibitionPartnerI18n,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types

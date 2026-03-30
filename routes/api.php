@@ -9,6 +9,9 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
 use App\Http\Controllers\CollectionMediaController;
 use App\Http\Controllers\CollectionTranslationController;
+use App\Http\Controllers\ContributorController;
+use App\Http\Controllers\ContributorImageController;
+use App\Http\Controllers\ContributorTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\CountryTranslationController;
@@ -158,6 +161,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'show'])->name('partner-translation-image.show');
         Route::get('partner-translation-image', [PartnerTranslationImageController::class, 'index'])->name('partner-translation-image.index');
 
+        // Contributor routes (read)
+        Route::get('contributor/{contributor}', [ContributorController::class, 'show'])->name('contributor.show');
+        Route::get('contributor', [ContributorController::class, 'index'])->name('contributor.index');
+
+        // Contributor Translation routes (read)
+        Route::get('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'show'])->name('contributor-translation.show');
+        Route::get('contributor-translation', [ContributorTranslationController::class, 'index'])->name('contributor-translation.index');
+
+        // Contributor Image routes (read)
+        Route::get('contributor-image/{contributorImage}/download', [ContributorImageController::class, 'download'])->name('contributor-image.download');
+        Route::get('contributor-image/{contributorImage}/view', [ContributorImageController::class, 'view'])->name('contributor-image.view');
+        Route::get('contributor-image/{contributorImage}', [ContributorImageController::class, 'show'])->name('contributor-image.show');
+        Route::get('contributor-image', [ContributorImageController::class, 'index'])->name('contributor-image.index');
+
         // Item routes (read)
         Route::get('item/for-tag/{tag}', [ItemController::class, 'forTag'])->name('item.forTag');
         Route::post('item/with-all-tags', [ItemController::class, 'withAllTags'])->name('item.withAllTags');
@@ -251,6 +268,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('partner-image', [PartnerImageController::class, 'store'])->name('partner-image.store');
         Route::post('partner-logo', [PartnerLogoController::class, 'store'])->name('partner-logo.store');
         Route::post('partner-translation-image', [PartnerTranslationImageController::class, 'store'])->name('partner-translation-image.store');
+        Route::post('contributor', [ContributorController::class, 'store'])->name('contributor.store');
+        Route::post('contributor/{contributor}/attach-image', [ContributorImageController::class, 'attachFromAvailable'])->name('contributor.attachImage');
+        Route::post('contributor-translation', [ContributorTranslationController::class, 'store'])->name('contributor-translation.store');
+        Route::post('contributor-image', [ContributorImageController::class, 'store'])->name('contributor-image.store');
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
         Route::post('item/{item}/images', [ItemImageController::class, 'store'])->name('item.images.store');
         Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])->name('item.attachImage');
@@ -397,6 +418,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('collection-media/{collectionMedia}/move-up', [CollectionMediaController::class, 'moveUp'])->name('collection-media.moveUp');
         Route::patch('collection-media/{collectionMedia}/move-down', [CollectionMediaController::class, 'moveDown'])->name('collection-media.moveDown');
 
+        Route::patch('contributor/{contributor}', [ContributorController::class, 'update'])->name('contributor.update');
+        Route::put('contributor/{contributor}', [ContributorController::class, 'update']);
+
+        Route::patch('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'update'])->name('contributor-translation.update');
+        Route::put('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'update']);
+
+        Route::patch('contributor-image/{contributorImage}', [ContributorImageController::class, 'update'])->name('contributor-image.update');
+        Route::put('contributor-image/{contributorImage}', [ContributorImageController::class, 'update']);
+        Route::patch('contributor-image/{contributorImage}/move-up', [ContributorImageController::class, 'moveUp'])->name('contributor-image.moveUp');
+        Route::patch('contributor-image/{contributorImage}/move-down', [ContributorImageController::class, 'moveDown'])->name('contributor-image.moveDown');
+        Route::patch('contributor-image/{contributorImage}/tighten-ordering', [ContributorImageController::class, 'tightenOrdering'])->name('contributor-image.tightenOrdering');
+
         Route::patch('item-translation/{item_translation}', [ItemTranslationController::class, 'update'])->name('item-translation.update');
         Route::put('item-translation/{item_translation}', [ItemTranslationController::class, 'update']);
 
@@ -456,6 +489,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('collection/{collection}', [CollectionController::class, 'destroy'])->name('collection.destroy');
         Route::delete('collection/{collection}/detach-item', [CollectionController::class, 'detachItem'])->name('collection.detachItem');
         Route::delete('collection/{collection}/detach-items', [CollectionController::class, 'detachItems'])->name('collection.detachItems');
+        Route::delete('contributor/{contributor}', [ContributorController::class, 'destroy'])->name('contributor.destroy');
+        Route::delete('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'destroy'])->name('contributor-translation.destroy');
+        Route::delete('contributor-image/{contributorImage}', [ContributorImageController::class, 'destroy'])->name('contributor-image.destroy');
+        Route::post('contributor-image/{contributorImage}/detach', [ContributorImageController::class, 'detachToAvailable'])->name('contributor-image.detach');
     });
 });
 

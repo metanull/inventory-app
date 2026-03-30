@@ -49,6 +49,9 @@ import type {
   ItemMediaData,
   CollectionMediaData,
   ItemDocumentData,
+  ContributorData,
+  ContributorTranslationData,
+  ContributorImageData,
 } from './types.js';
 
 /**
@@ -373,6 +376,27 @@ export interface IWriteStrategy {
    * @returns The item document UUID
    */
   writeItemDocument(data: ItemDocumentData): Promise<string>;
+
+  // =========================================================================
+  // Contributors
+  // =========================================================================
+
+  /**
+   * Write a contributor record
+   * @returns The contributor UUID
+   */
+  writeContributor(data: ContributorData): Promise<string>;
+
+  /**
+   * Write a contributor translation record
+   */
+  writeContributorTranslation(data: ContributorTranslationData): Promise<void>;
+
+  /**
+   * Write a contributor image record
+   * @returns The contributor image UUID
+   */
+  writeContributorImage(data: ContributorImageData): Promise<string>;
 
   // =========================================================================
   // Author Assignment Updates

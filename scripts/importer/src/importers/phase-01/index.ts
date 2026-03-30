@@ -10,3 +10,4 @@ export { MonumentDetailImporter } from './monument-detail-importer.js';
 export { ItemItemLinkImporter } from './item-item-link-importer.js';
 export { DynastyImporter } from './dynasty-importer.js';
 export { AuthorImporter } from './author-importer.js';
+export { SchoolImporter } from './school-importer.js';

@@ -407,6 +407,8 @@ export abstract class BaseImporter {
       item_media: 'item_media',
       collection_media: 'collection_media',
       item_document: 'item_documents',
+      contributor: 'contributors',
+      contributor_translation: 'contributor_translations',
     };
     return mapping[entityType];
   }

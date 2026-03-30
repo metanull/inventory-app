@@ -159,3 +159,14 @@ export {
   type TransformedCollectionMedia,
   type TransformedItemDocument,
 } from './media-transformer.js';
+
+export {
+  transformSchool,
+  transformSchoolTranslation,
+  groupSchoolsByKey,
+  type TransformedSchool,
+  type TransformedSchoolTranslation,
+  type SchoolGroup,
+  type SchoolExtraFields,
+  type ContactPerson as SchoolContactPerson,
+} from './school-transformer.js';

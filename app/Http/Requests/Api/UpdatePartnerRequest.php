@@ -26,7 +26,7 @@ class UpdatePartnerRequest extends FormRequest
             'id' => ['prohibited'],
             'internal_name' => ['required', 'string'],
             'backward_compatibility' => ['nullable', 'string'],
-            'type' => ['required', 'in:museum,institution,individual'],
+            'type' => ['required', 'in:museum,institution,individual,school'],
             'country_id' => ['nullable', 'string', 'size:3', 'exists:countries,id'],
             // GPS Location
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],

@@ -110,6 +110,8 @@ import {
   ItemMediaImporter,
   ItemDocumentImporter,
   CollectionMediaImporter,
+  SchoolImporter,
+  ThgContributorImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -177,6 +179,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Partners',
     description: 'Import museums and institutions',
     importerClass: PartnerImporter,
+    dependencies: ['default-context', 'project', 'language', 'country'],
+  },
+  {
+    key: 'school',
+    name: 'Schools',
+    description: 'Import schools as partners (type: school) with translations, logos, and pictures',
+    importerClass: SchoolImporter,
     dependencies: ['default-context', 'project', 'language', 'country'],
   },
   {
@@ -662,6 +671,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import audio/video URLs attached to THG theme collections',
     importerClass: CollectionMediaImporter,
     dependencies: ['thg-theme', 'language'],
+  },
+  // Phase 10: THG Contributors
+  {
+    key: 'thg-contributor',
+    name: 'THG Contributors',
+    description: 'Import THG contributors and exhibition partners as Contributor entities',
+    importerClass: ThgContributorImporter,
+    dependencies: ['default-context', 'language', 'thg-gallery', 'thg-theme'],
   },
   // Phase 11: Post-Import Linking
   {

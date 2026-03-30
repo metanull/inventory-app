@@ -173,6 +173,58 @@ export interface LegacyInstitutionName {
 }
 
 // ============================================================================
+// School Types
+// ============================================================================
+
+export interface LegacySchool {
+  school_id: string;
+  country: string;
+  name: string;
+  city?: string;
+  address?: string;
+  postal_address?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  url?: string;
+  // Contact person 1
+  cp1_name?: string;
+  cp1_title?: string;
+  cp1_phone?: string;
+  cp1_fax?: string;
+  cp1_email?: string;
+  // Contact person 2
+  cp2_name?: string;
+  cp2_title?: string;
+  cp2_phone?: string;
+  cp2_fax?: string;
+  cp2_email?: string;
+  // Other
+  project_id: string;
+  region_id?: string;
+  // Logo
+  logo?: string;
+}
+
+export interface LegacySchoolName {
+  school_id: string;
+  country: string;
+  lang: string;
+  name: string;
+  description?: string;
+}
+
+export interface LegacySchoolPicture {
+  school_id: string;
+  country: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+// ============================================================================
 // Object Types
 // ============================================================================
 
@@ -600,4 +652,76 @@ export interface ThgLegacyThemeMedia {
   theme_id: number;
   overview_page: 'Y' | 'N';
   sort_order: number;
+}
+
+// ============================================================================
+// THG Contributor Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * contributor (9 rows) — per-gallery/theme contributor records
+ * PK: contributor_id
+ */
+export interface ThgLegacyContributor {
+  contributor_id: number;
+  gallery_id: number;
+  theme_id: number;
+  category_id: number;
+  context: string; // display name
+  src: string; // logo image path
+  href: string; // link URL
+  alt: string; // alt text
+  sort_order: number;
+  active: number;
+}
+
+/**
+ * contributor_category (4 rows) — category labels
+ * PK: category_id
+ */
+export interface ThgLegacyContributorCategory {
+  category_id: number;
+  category: string; // e.g. 'cooperator', 'occasion', 'partner', 'sponsor'
+}
+
+/**
+ * contributor_i18n (8 rows) — translations of contributor display name
+ * PK: (contributor_id, lang)
+ */
+export interface ThgLegacyContributorI18n {
+  contributor_id: number;
+  lang: string; // 2-char
+  context: string; // translated display name
+}
+
+/**
+ * exhibition_partner (4 rows) — per-gallery partner acknowledgements
+ * PK: partner_id
+ */
+export interface ThgLegacyExhibitionPartner {
+  partner_id: number;
+  gallery_id: number;
+  category_id: number;
+  name: string;
+  location: string;
+  country: string; // 2-char
+  contact_title?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  contact_fax?: string;
+  logo: string; // logo image path
+  sort_order: number;
+  active: number;
+}
+
+/**
+ * exhibition_partner_i18n (4 rows) — translations
+ * PK: (partner_id, lang)
+ */
+export interface ThgLegacyExhibitionPartnerI18n {
+  partner_id: number;
+  lang: string; // 2-char
+  description: string;
+  further_reading: string;
 }

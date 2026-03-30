@@ -70,7 +70,9 @@ export type EntityType =
   | 'item_item_link_translation'
   | 'item_media'
   | 'collection_media'
-  | 'item_document';
+  | 'item_document'
+  | 'contributor'
+  | 'contributor_translation';
 
 /**
  * Imported entity record for tracking
@@ -202,7 +204,7 @@ export interface ProjectTranslationData {
  * Partner data for write operations
  */
 export interface PartnerData extends BaseEntityData {
-  type: 'museum' | 'institution';
+  type: 'museum' | 'institution' | 'school';
   latitude?: number | null;
   longitude?: number | null;
   map_zoom?: number | null;
@@ -598,4 +600,51 @@ export interface ItemDocumentData {
   display_order: number;
   extra?: string | null;
   backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Contributor Types
+// ============================================================================
+
+/**
+ * Contributor data for write operations
+ */
+export interface ContributorData {
+  id?: string;
+  collection_id: string;
+  category: string;
+  display_order: number;
+  visible: boolean;
+  backward_compatibility?: string | null;
+  internal_name: string;
+}
+
+/**
+ * Contributor translation data for write operations
+ */
+export interface ContributorTranslationData {
+  id?: string;
+  contributor_id: string;
+  language_id: string;
+  context_id: string;
+  name?: string | null;
+  description?: string | null;
+  link?: string | null;
+  alt_text?: string | null;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+/**
+ * Contributor image data for write operations
+ */
+export interface ContributorImageData {
+  id?: string;
+  contributor_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
 }
