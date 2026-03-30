@@ -104,6 +104,7 @@ import {
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
   ProjectCleanupImporter,
+  PartnerMonumentLinker,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -661,6 +662,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import audio/video URLs attached to THG theme collections',
     importerClass: CollectionMediaImporter,
     dependencies: ['thg-theme', 'language'],
+  },
+  // Phase 11: Post-Import Linking
+  {
+    key: 'partner-monument-link',
+    name: 'Partner Monument Link',
+    description: 'Link partners (museums) to their monument locations',
+    importerClass: PartnerMonumentLinker,
+    dependencies: ['partner', 'monument'],
   },
   {
     key: 'project-cleanup',
