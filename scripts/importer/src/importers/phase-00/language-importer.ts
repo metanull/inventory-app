@@ -164,9 +164,23 @@ export class LanguageTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // Validate FK references before write
+          const langExists = await this.entityExistsAsync(legacy.lang_id, 'language');
+          if (!langExists) {
+            this.logWarning(`Language '${legacy.lang_id}' not found, skipping translation`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+          const displayLangExists = await this.entityExistsAsync(legacy.lang, 'language');
+          if (!displayLangExists) {
+            this.logWarning(`Display language '${legacy.lang}' not found, skipping translation for '${legacy.lang_id}'`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Transform and write language translation
-          // The transformer will map legacy 2-char code to ISO 3-char code
-          // If the language doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformLanguageTranslation({
             code: legacy.lang_id,
             lang: legacy.lang,
@@ -178,15 +192,11 @@ export class LanguageTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          // Skip this translation if language or display language doesn't exist (foreign key violation)
-          if (message.includes('foreign key constraint fails')) {
-            result.skipped++;
-            this.showSkipped();
-          } else {
-            result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
-            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
-            this.showError();
-          }
+          
+          result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
+          this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
+          this.showError();
+          
         }
       }
 

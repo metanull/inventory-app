@@ -156,9 +156,23 @@ export class CountryTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // Validate FK references before write
+          const countryExists = await this.entityExistsAsync(legacy.country, 'country');
+          if (!countryExists) {
+            this.logWarning(`Country '${legacy.country}' not found, skipping translation`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+          const langExists = await this.entityExistsAsync(legacy.lang, 'language');
+          if (!langExists) {
+            this.logWarning(`Language '${legacy.lang}' not found, skipping translation for country '${legacy.country}'`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Transform and write country translation
-          // The transformer will map legacy 2-char code to ISO 3-char code
-          // If the country doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformCountryTranslation({
             code: legacy.country,
             lang: legacy.lang,
@@ -170,15 +184,11 @@ export class CountryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          // Skip this translation if country or language doesn't exist (foreign key violation)
-          if (message.includes('foreign key constraint fails')) {
-            result.skipped++;
-            this.showSkipped();
-          } else {
-            result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
-            this.logError(`Country translation ${legacy.country}:${legacy.lang}`, message);
-            this.showError();
-          }
+          
+          result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
+          this.logError(`Country translation ${legacy.country}:${legacy.lang}`, message);
+          this.showError();
+          
         }
       }
 
