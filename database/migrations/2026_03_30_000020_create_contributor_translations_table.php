@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('backward_compatibility')->nullable();
             $table->timestamps();
 
-            $table->unique(['contributor_id', 'language_id', 'context_id']);
+            $table->unique(['contributor_id', 'language_id', 'context_id'], 'contributor_translations_unique');
         });
     }
 
