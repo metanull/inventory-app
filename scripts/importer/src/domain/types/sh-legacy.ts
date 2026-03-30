@@ -362,3 +362,74 @@ export interface ShLegacyPartnerPicture {
   image_number: number;
   path: string;
 }
+
+// ============================================================================
+// SH HCR (Heritage Conservation Resources) Types
+// ============================================================================
+
+export interface ShLegacyHcr {
+  hcr_id: number;
+  country: string; // 2-char legacy country code
+  exhibition_id: number;
+  name: string;
+  date_from_year: string; // varchar(4) in DB
+  date_to_year: string;
+  date_from_month: number | null;
+  date_to_month: number | null;
+  date_from_date: number | null;
+  date_to_date: number | null;
+}
+
+export interface ShLegacyHcrEvent {
+  hcr_id: number;
+  lang: string; // 2-char legacy language code
+  name: string;
+  description: string;
+  date_from: string;
+  date_to: string;
+}
+
+export interface ShLegacyHcrImage {
+  hcr_img_id: number;
+  hcr_id: number;
+  ref_item: string; // 'PROJECT;COUNTRY;NUMBER' or '' for standalone
+  item_type: string; // 'obj' or 'mon'
+  picture: string;
+  sort_order: number;
+}
+
+export interface ShLegacyHcrImageText {
+  hcr_img_id: number;
+  lang: string;
+  name: string;
+  sname: string;
+  name_detail: string;
+  detail_justification: string;
+  date: string;
+  dynasty: string;
+  museum: string;
+  location: string;
+  artist: string;
+  material: string;
+}
+
+export interface ShLegacyBibliographyHcrCountry {
+  country: string;
+  exhibition_id: number;
+  biblio_id: number;
+  sort_status: string; // 'Y' or 'N'
+  sort_order: number;
+}
+
+export interface ShLegacyBibliography {
+  biblio_id: number;
+  original_title: string;
+  lang: string;
+  status: string; // 'A' = Active, 'H' = Hidden
+}
+
+export interface ShLegacyBibliographyLang {
+  biblio_id: number;
+  lang: string;
+  desc: string;
+}

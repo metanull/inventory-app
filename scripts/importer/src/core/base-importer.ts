@@ -415,6 +415,7 @@ export abstract class BaseImporter {
       image: 'item_images',
       tag: 'tags',
       author: 'authors',
+      author_translation: 'author_translations',
       artist: 'artists',
       glossary: 'glossaries',
       glossary_translation: 'glossary_translations',
@@ -423,6 +424,9 @@ export abstract class BaseImporter {
       item_item_link_translation: 'item_item_link_translations',
       dynasty: 'dynasties',
       dynasty_translation: 'dynasty_translations',
+      timeline: 'timelines',
+      timeline_event: 'timeline_events',
+      timeline_event_translation: 'timeline_event_translations',
     };
     return mapping[entityType];
   }

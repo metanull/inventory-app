@@ -37,6 +37,8 @@ export type {
   LegacyShAuthorObject,
   LegacyShAuthorMonument,
   LegacyAuthorDynasty,
+  LegacyHcr,
+  LegacyHcrEvent,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types
@@ -62,4 +64,11 @@ export type {
   ShLegacyMonumentDetailPicture,
   ShLegacyMonumentDetailPictureText,
   ShLegacyPartnerPicture,
+  ShLegacyHcr,
+  ShLegacyHcrEvent,
+  ShLegacyHcrImage,
+  ShLegacyHcrImageText,
+  ShLegacyBibliographyHcrCountry,
+  ShLegacyBibliography,
+  ShLegacyBibliographyLang,
 } from './sh-legacy.js';

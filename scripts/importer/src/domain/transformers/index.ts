@@ -140,3 +140,12 @@ export {
   type TransformedAuthor,
   type TransformedAuthorTranslation,
 } from './author-transformer.js';
+
+export {
+  transformHcrEvent,
+  transformHcrEventTranslation,
+  transformShHcrEvent,
+  transformShHcrEventTranslation,
+  type TransformedTimelineEvent,
+  type TransformedTimelineEventTranslation,
+} from './timeline-transformer.js';

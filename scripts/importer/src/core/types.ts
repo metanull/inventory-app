@@ -60,6 +60,9 @@ export type EntityType =
   | 'artist'
   | 'dynasty'
   | 'dynasty_translation'
+  | 'timeline'
+  | 'timeline_event'
+  | 'timeline_event_translation'
   | 'glossary'
   | 'glossary_translation'
   | 'glossary_spelling'
@@ -466,4 +469,76 @@ export interface DynastyTranslationData {
 export interface ItemDynastyData {
   item_id: string;
   dynasty_id: string;
+}
+
+// ============================================================================
+// Timeline Types
+// ============================================================================
+
+/**
+ * Timeline data for write operations
+ */
+export interface TimelineData {
+  internal_name: string;
+  country_id: string;
+  collection_id?: string | null;
+  backward_compatibility: string;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event data for write operations
+ */
+export interface TimelineEventData {
+  timeline_id: string;
+  internal_name: string;
+  year_from: number;
+  year_to: number;
+  year_from_ah?: number | null;
+  year_to_ah?: number | null;
+  date_from?: string | null;
+  date_to?: string | null;
+  display_order: number;
+  backward_compatibility: string;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event translation data for write operations
+ */
+export interface TimelineEventTranslationData {
+  timeline_event_id: string;
+  language_id: string;
+  name?: string | null;
+  description?: string | null;
+  date_from_description?: string | null;
+  date_to_description?: string | null;
+  date_from_ah_description?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event ↔ item pivot data
+ */
+export interface TimelineEventItemData {
+  timeline_event_id: string;
+  item_id: string;
+  display_order: number;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event image data for write operations
+ */
+export interface TimelineEventImageData {
+  id?: string;
+  timeline_event_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
 }

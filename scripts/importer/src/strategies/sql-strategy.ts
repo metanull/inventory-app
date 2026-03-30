@@ -46,6 +46,11 @@ import type {
   DynastyData,
   DynastyTranslationData,
   ItemDynastyData,
+  TimelineData,
+  TimelineEventData,
+  TimelineEventTranslationData,
+  TimelineEventItemData,
+  TimelineEventImageData,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -70,6 +75,9 @@ const tableEntityMap: Record<string, EntityType> = {
   item_item_link_translations: 'item_item_link_translation',
   dynasties: 'dynasty',
   dynasty_translations: 'dynasty_translation',
+  timelines: 'timeline',
+  timeline_events: 'timeline_event',
+  timeline_event_translations: 'timeline_event_translation',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -910,6 +918,127 @@ export class SqlWriteStrategy implements IWriteStrategy {
       `INSERT IGNORE INTO item_dynasty (item_id, dynasty_id, created_at, updated_at)
        VALUES (?, ?, ?, ?)`,
       [data.item_id, data.dynasty_id, this.now, this.now]
+    );
+  }
+
+  // =========================================================================
+  // Timelines
+  // =========================================================================
+
+  async writeTimeline(data: TimelineData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO timelines (id, internal_name, country_id, collection_id, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.internal_name,
+        sanitized.country_id,
+        sanitized.collection_id ?? null,
+        sanitized.backward_compatibility,
+        sanitized.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(sanitized.backward_compatibility, id, 'timeline');
+    return id;
+  }
+
+  async writeTimelineEvent(data: TimelineEventData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO timeline_events (id, timeline_id, internal_name, year_from, year_to, year_from_ah, year_to_ah, date_from, date_to, display_order, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.timeline_id,
+        sanitized.internal_name,
+        data.year_from,
+        data.year_to,
+        data.year_from_ah ?? null,
+        data.year_to_ah ?? null,
+        data.date_from ?? null,
+        data.date_to ?? null,
+        data.display_order,
+        sanitized.backward_compatibility,
+        sanitized.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+
+    this.tracker.set(sanitized.backward_compatibility, id, 'timeline_event');
+    return id;
+  }
+
+  async writeTimelineEventTranslation(data: TimelineEventTranslationData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO timeline_event_translations (id, timeline_event_id, language_id, name, description, date_from_description, date_to_description, date_from_ah_description, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.timeline_event_id,
+        sanitized.language_id,
+        sanitized.name ?? null,
+        sanitized.description ?? null,
+        sanitized.date_from_description ?? null,
+        sanitized.date_to_description ?? null,
+        sanitized.date_from_ah_description ?? null,
+        sanitized.backward_compatibility ?? null,
+        sanitized.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  async writeTimelineEventItem(data: TimelineEventItemData): Promise<void> {
+    await this.db.execute(
+      `INSERT IGNORE INTO timeline_event_item (timeline_event_id, item_id, display_order, backward_compatibility, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.timeline_event_id,
+        data.item_id,
+        data.display_order,
+        data.backward_compatibility ?? null,
+        data.extra ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+  }
+
+  async writeTimelineEventImage(data: TimelineEventImageData): Promise<string> {
+    const id = data.id || uuidv4();
+    await this.db.execute(
+      `INSERT INTO timeline_event_images (id, timeline_event_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        data.timeline_event_id,
+        data.path,
+        data.original_name,
+        data.mime_type,
+        data.size,
+        data.alt_text ?? null,
+        data.display_order,
+        this.now,
+        this.now,
+      ]
+    );
+    return id;
+  }
+
+  async updateTimelineExtra(timelineId: string, extra: string): Promise<void> {
+    await this.db.execute(
+      `UPDATE timelines SET extra = ?, updated_at = ? WHERE id = ?`,
+      [extra, this.now, timelineId]
     );
   }
 

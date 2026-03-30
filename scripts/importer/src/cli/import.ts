@@ -105,6 +105,7 @@ import {
   ThgGalleryExploreMonumentImporter,
   ProjectCleanupImporter,
   AuthorImporter,
+  TimelineImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -333,6 +334,15 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import glossary spelling variants',
     importerClass: GlossarySpellingImporter,
     dependencies: ['glossary', 'language'],
+  },
+  // Phase 05: Timelines (HCR)
+  {
+    key: 'timeline',
+    name: 'Timelines (HCR)',
+    description:
+      'Import Heritage Conservation Resources timelines, events, translations, item links, and bibliography from mwnf3 and Sharing History',
+    importerClass: TimelineImporter,
+    dependencies: ['country', 'language', 'object', 'monument', 'sh-object', 'sh-monument'],
   },
   // Phase 06: Explore
   {

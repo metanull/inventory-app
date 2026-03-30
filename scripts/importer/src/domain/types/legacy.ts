@@ -497,3 +497,26 @@ export interface LegacyAuthorDynasty {
   lang: string;
   priority?: number | null;
 }
+
+// ============================================================================
+// HCR (Heritage Conservation Resources) Types — mwnf3
+// ============================================================================
+
+export interface LegacyHcr {
+  hcr_id: number;
+  country_id: string; // 2-char legacy country code
+  name: string;
+  from_ad: number;
+  to_ad: number;
+  from_ah: number | null;
+  to_ah: number | null;
+}
+
+export interface LegacyHcrEvent {
+  hcr_id: number;
+  lang_id: string; // 2-char legacy language code
+  name: string;
+  description: string | null;
+  datedesc_ah: string | null;
+  datedesc_ad: string | null;
+}

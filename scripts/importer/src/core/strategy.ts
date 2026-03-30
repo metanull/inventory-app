@@ -41,6 +41,11 @@ import type {
   DynastyData,
   DynastyTranslationData,
   ItemDynastyData,
+  TimelineData,
+  TimelineEventData,
+  TimelineEventTranslationData,
+  TimelineEventItemData,
+  TimelineEventImageData,
 } from './types.js';
 
 /**
@@ -304,6 +309,45 @@ export interface IWriteStrategy {
    * Link an item to a dynasty (many-to-many relationship)
    */
   writeItemDynasty(data: ItemDynastyData): Promise<void>;
+
+  // =========================================================================
+  // Timelines
+  // =========================================================================
+
+  /**
+   * Write a timeline record
+   * @returns The timeline UUID
+   */
+  writeTimeline(data: TimelineData): Promise<string>;
+
+  /**
+   * Write a timeline event record
+   * @returns The timeline event UUID
+   */
+  writeTimelineEvent(data: TimelineEventData): Promise<string>;
+
+  /**
+   * Write a timeline event translation record
+   */
+  writeTimelineEventTranslation(data: TimelineEventTranslationData): Promise<void>;
+
+  /**
+   * Link a timeline event to an item (many-to-many relationship)
+   */
+  writeTimelineEventItem(data: TimelineEventItemData): Promise<void>;
+
+  /**
+   * Write a timeline event image record
+   * @returns The timeline event image UUID
+   */
+  writeTimelineEventImage(data: TimelineEventImageData): Promise<string>;
+
+  /**
+   * Update a timeline's extra JSON field (merge)
+   * @param timelineId The timeline UUID
+   * @param extra The JSON string to set as extra
+   */
+  updateTimelineExtra(timelineId: string, extra: string): Promise<void>;
 
   // =========================================================================
   // Author Assignment Updates
