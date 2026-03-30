@@ -246,7 +246,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const backwardCompat = this.getObjectObjectBackwardCompat(link);
 
     // Check if already imported
-    if (this.entityExists(backwardCompat, 'item_item_link')) {
+    if (await this.entityExistsAsync(backwardCompat, 'item_item_link')) {
       return false;
     }
 
@@ -303,7 +303,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const backwardCompat = this.getObjectMonumentBackwardCompat(link);
 
     // Check if already imported
-    if (this.entityExists(backwardCompat, 'item_item_link')) {
+    if (await this.entityExistsAsync(backwardCompat, 'item_item_link')) {
       return false;
     }
 
@@ -364,7 +364,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const backwardCompat = this.getMonumentMonumentBackwardCompat(link);
 
     // Check if already imported
-    if (this.entityExists(backwardCompat, 'item_item_link')) {
+    if (await this.entityExistsAsync(backwardCompat, 'item_item_link')) {
       return false;
     }
 

@@ -49,7 +49,7 @@ export class CountryImporter extends BaseImporter {
           const backwardCompat = country.backward_compatibility;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with languages)
-          if (this.entityExists(backwardCompat, 'country')) {
+          if (await this.entityExistsAsync(backwardCompat, 'country')) {
             result.skipped++;
             this.showSkipped();
             continue;

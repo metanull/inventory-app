@@ -54,7 +54,7 @@ export class ShMonumentImporter extends BaseImporter {
       );
 
       // Get default language ID
-      const defaultLanguageId = this.getDefaultLanguageId();
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       // Import each monument group
       for (const group of monumentGroups) {
@@ -105,7 +105,7 @@ export class ShMonumentImporter extends BaseImporter {
     }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
+    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
@@ -138,7 +138,7 @@ export class ShMonumentImporter extends BaseImporter {
 
     // Context (from SH project)
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
       throw new Error(
         `SH Project context not found: ${contextBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its project.`
@@ -146,7 +146,7 @@ export class ShMonumentImporter extends BaseImporter {
     }
 
     // Collection (same backward_compat as context)
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(
         `SH Collection not found: ${contextBackwardCompat}. Monument ${transformed.backwardCompatibility} cannot be imported without its collection.`
@@ -154,13 +154,13 @@ export class ShMonumentImporter extends BaseImporter {
     }
 
     // Project
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Partner (optional - use SH partner if available)
     let partnerId: string | null = null;
     if (group.partners_id) {
       const partnerBackwardCompat = formatShBackwardCompatibility('sh_partners', group.partners_id);
-      partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+      partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
       if (!partnerId) {
         this.logWarning(
           `SH Partner not found: ${partnerBackwardCompat} for monument ${transformed.backwardCompatibility}`

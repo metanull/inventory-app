@@ -51,7 +51,7 @@ export class GlossaryImporter extends BaseImporter {
           const backwardCompat = `mwnf3:glossary:${legacy.word_id}`;
 
           // Check if already exists
-          if (this.entityExists(backwardCompat, 'glossary')) {
+          if (await this.entityExistsAsync(backwardCompat, 'glossary')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -144,7 +144,7 @@ export class GlossaryTranslationImporter extends BaseImporter {
 
           // Find the glossary word by backward_compatibility using tracker
           const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
-          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
+          const glossaryId = await this.getEntityUuidAsync(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(`Glossary word not found for definition: word_id=${legacy.word_id}`);
@@ -261,7 +261,7 @@ export class GlossarySpellingImporter extends BaseImporter {
 
           // Find the glossary word by backward_compatibility using tracker
           const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
-          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
+          const glossaryId = await this.getEntityUuidAsync(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(

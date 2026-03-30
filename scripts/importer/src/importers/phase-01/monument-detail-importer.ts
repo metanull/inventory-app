@@ -51,7 +51,7 @@ export class MonumentDetailImporter extends BaseImporter {
       );
 
       // Get default context ID
-      const defaultContextId = this.getDefaultContextId();
+      const defaultContextId = await this.getDefaultContextIdAsync();
 
       // Import each detail group
       for (const group of detailGroups) {
@@ -89,7 +89,7 @@ export class MonumentDetailImporter extends BaseImporter {
     defaultContextId: string,
     result: ImportResult
   ): Promise<boolean> {
-    const defaultLanguageId = this.getDefaultLanguageId();
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
     const transformed = transformMonumentDetail(group, defaultLanguageId);
 
     // Log warning if translation in default language is missing
@@ -98,7 +98,7 @@ export class MonumentDetailImporter extends BaseImporter {
     }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
+    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
@@ -127,7 +127,7 @@ export class MonumentDetailImporter extends BaseImporter {
     }
 
     // Resolve parent monument
-    const parentItemId = this.getEntityUuid(transformed.parentBackwardCompatibility, 'item');
+    const parentItemId = await this.getEntityUuidAsync(transformed.parentBackwardCompatibility, 'item');
     if (!parentItemId) {
       throw new Error(
         `Parent monument not found: ${transformed.parentBackwardCompatibility}. Monument detail ${transformed.backwardCompatibility} cannot be imported without its parent monument.`
@@ -140,7 +140,7 @@ export class MonumentDetailImporter extends BaseImporter {
       table: 'projects',
       pkValues: [group.project_id],
     });
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
       throw new Error(
         `Project context not found: ${contextBackwardCompat}. Monument detail ${transformed.backwardCompatibility} cannot be imported without its project.`
@@ -149,7 +149,7 @@ export class MonumentDetailImporter extends BaseImporter {
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
-    const collectionId = this.getEntityUuid(collectionBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(
         `Collection not found: ${collectionBackwardCompat}. Monument detail ${transformed.backwardCompatibility} cannot be imported without its collection.`
@@ -161,7 +161,7 @@ export class MonumentDetailImporter extends BaseImporter {
       table: 'institutions',
       pkValues: [group.institution_id, group.country_id],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(
         `Institution partner not found: ${partnerBackwardCompat}. Monument detail ${transformed.backwardCompatibility} cannot be imported without its institution.`
@@ -170,7 +170,7 @@ export class MonumentDetailImporter extends BaseImporter {
 
     // Use same backward_compatibility as context
     const projectBackwardCompat = contextBackwardCompat;
-    const projectId = this.getEntityUuid(projectBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(projectBackwardCompat, 'project');
 
     // Create Item (detail with parent reference)
     const itemData = {

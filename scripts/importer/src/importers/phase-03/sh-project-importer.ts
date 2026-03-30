@@ -47,7 +47,7 @@ export class ShProjectImporter extends BaseImporter {
       this.logInfo(`Found ${projects.length} SH projects with ${projectNames.length} translations`);
 
       // Get default language ID from tracker
-      const defaultLanguageId = this.getDefaultLanguageId();
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       for (const legacy of projects) {
         try {
@@ -72,7 +72,7 @@ export class ShProjectImporter extends BaseImporter {
           const transformed = transformShProject(legacy, defaultLanguageId, projectTitle);
 
           // Check if already exists
-          if (this.entityExists(transformed.context.backwardCompatibility, 'context')) {
+          if (await this.entityExistsAsync(transformed.context.backwardCompatibility, 'context')) {
             result.skipped++;
             this.showSkipped();
             continue;

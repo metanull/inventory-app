@@ -107,7 +107,7 @@ export class PartnerPictureImporter extends BaseImporter {
 
     // Check if already imported using lowercase path as unique identifier
     const imageKey = picture.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -220,7 +220,7 @@ export class PartnerPictureImporter extends BaseImporter {
 
     // Check if already imported using lowercase path as unique identifier
     const imageKey = picture.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 

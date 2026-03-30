@@ -51,8 +51,8 @@ export class ShMonumentDetailImporter extends BaseImporter {
       );
 
       // Get default language ID and context
-      const defaultLanguageId = this.getDefaultLanguageId();
-      const defaultContextId = this.getDefaultContextId();
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+      const defaultContextId = await this.getDefaultContextIdAsync();
 
       // Import each detail group
       for (const group of detailGroups) {
@@ -110,12 +110,12 @@ export class ShMonumentDetailImporter extends BaseImporter {
     }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
+    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
     // Resolve parent monument
-    const parentId = this.getEntityUuid(transformed.parentBackwardCompatibility, 'item');
+    const parentId = await this.getEntityUuidAsync(transformed.parentBackwardCompatibility, 'item');
     if (!parentId) {
       throw new Error(
         `Parent monument not found: ${transformed.parentBackwardCompatibility}. Detail ${transformed.backwardCompatibility} cannot be imported without its parent.`
@@ -151,16 +151,16 @@ export class ShMonumentDetailImporter extends BaseImporter {
 
     // Context (from SH project) - for translations
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context') || defaultContextId;
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context') || defaultContextId;
 
     // Collection (same backward_compat as context)
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`SH Collection not found for project ${group.project_id}`);
     }
 
     // Project
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Create Item (monument detail)
     const itemData: ItemData = {

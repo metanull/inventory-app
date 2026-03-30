@@ -150,7 +150,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
 
     // Check if already imported
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -233,7 +233,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
 
     // Use default context if SH context not found
-    const defaultContextId = this.getDefaultContextId();
+    const defaultContextId = await this.getDefaultContextIdAsync();
     const effectiveContextId = contextId || defaultContextId;
 
     // Build internal name

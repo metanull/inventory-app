@@ -57,7 +57,7 @@ export class PartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = this.getDefaultContextId();
+      this.defaultContextId = await this.getDefaultContextIdAsync();
 
       // Import museums
       this.logInfo('Importing museums...');
@@ -113,7 +113,7 @@ export class PartnerImporter extends BaseImporter {
         const transformed = transformMuseum(group.museum);
 
         // Check if already exists
-        if (this.entityExists(transformed.backwardCompatibility, 'partner')) {
+        if (await this.entityExistsAsync(transformed.backwardCompatibility, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -223,7 +223,7 @@ export class PartnerImporter extends BaseImporter {
         const transformed = transformInstitution(group.institution);
 
         // Check if already exists
-        if (this.entityExists(transformed.backwardCompatibility, 'partner')) {
+        if (await this.entityExistsAsync(transformed.backwardCompatibility, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;

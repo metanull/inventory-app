@@ -92,7 +92,7 @@ export class ProjectImporter extends BaseImporter {
       this.logInfo(`Found ${projects.length} projects with ${projectNames.length} translations`);
 
       // Get default language ID from tracker
-      const defaultLanguageId = this.getDefaultLanguageId();
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       for (const legacy of projects) {
         try {
@@ -113,7 +113,7 @@ export class ProjectImporter extends BaseImporter {
           const transformed = transformProject(legacy, defaultLanguageId, projectName);
 
           // Check if already exists
-          if (this.entityExists(transformed.context.backwardCompatibility, 'context')) {
+          if (await this.entityExistsAsync(transformed.context.backwardCompatibility, 'context')) {
             result.skipped++;
             this.showSkipped();
             continue;

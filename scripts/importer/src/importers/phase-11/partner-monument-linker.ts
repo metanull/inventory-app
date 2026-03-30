@@ -126,7 +126,7 @@ export class PartnerMonumentLinker extends BaseImporter {
     });
 
     // Find the partner UUID
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       this.logWarning(
         `Partner not found for museum ${museum.museum_id}:${museum.country} (${partnerBackwardCompat})`
@@ -149,7 +149,7 @@ export class PartnerMonumentLinker extends BaseImporter {
     });
 
     // Find the monument Item UUID
-    const monumentItemId = this.getEntityUuid(monumentBackwardCompat, 'item');
+    const monumentItemId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
     if (!monumentItemId) {
       this.logWarning(
         `Monument not found for museum ${museum.museum_id}:${museum.country}: ${monumentBackwardCompat}`

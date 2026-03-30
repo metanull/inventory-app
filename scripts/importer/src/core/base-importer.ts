@@ -162,18 +162,6 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Get the default language ID from tracker
-   * @deprecated Use getDefaultLanguageIdAsync for proper database fallback when starting from later phases
-   */
-  protected getDefaultLanguageId(): string {
-    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
-    if (!defaultLangId) {
-      throw new Error('Default language ID not found in tracker. Language import must run first.');
-    }
-    return defaultLangId;
-  }
-
-  /**
    * Get the default language ID from tracker or database
    * First checks tracker metadata, then falls back to database lookup by is_default=true.
    * Returns the language ID (ISO-3 code, e.g., 'eng')
@@ -233,20 +221,6 @@ export abstract class BaseImporter {
     }
 
     return dbResult;
-  }
-
-  /**
-   * Get the default context ID from tracker
-   * @deprecated Use getDefaultContextIdAsync for proper database fallback when starting from later phases
-   */
-  protected getDefaultContextId(): string {
-    const defaultContextId = this.context.tracker.getMetadata('default_context_id');
-    if (!defaultContextId) {
-      throw new Error(
-        'Default context ID not found in tracker. Default context import must run first.'
-      );
-    }
-    return defaultContextId;
   }
 
   /**
@@ -435,14 +409,6 @@ export abstract class BaseImporter {
    * Check if entity already exists in tracker or database
    * First checks tracker (memory), then falls back to database for skipped phases.
    */
-  protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
-    return this.context.tracker.exists(backwardCompatibility, entityType);
-  }
-
-  /**
-   * Check if entity already exists (async version with database fallback)
-   * First checks tracker (memory), then falls back to database for skipped phases.
-   */
   protected async entityExistsAsync(
     backwardCompatibility: string,
     entityType: EntityType
@@ -455,14 +421,6 @@ export abstract class BaseImporter {
     // Fall back to database lookup for entities from skipped phases
     const table = this.entityTypeToTable(entityType);
     return this.context.strategy.exists(table, backwardCompatibility);
-  }
-
-  /**
-   * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
-   * @deprecated Use getEntityUuidAsync for proper database fallback when starting from later phases
-   */
-  protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
-    return this.context.tracker.getUuid(backwardCompatibility, entityType);
   }
 
   /**

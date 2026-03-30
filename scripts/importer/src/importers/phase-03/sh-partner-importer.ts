@@ -37,7 +37,7 @@ export class ShPartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = this.getDefaultContextId();
+      this.defaultContextId = await this.getDefaultContextIdAsync();
 
       // Load partner_sh_partners mapping
       this.logInfo('Loading partner_sh_partners mapping...');
@@ -97,7 +97,7 @@ export class ShPartnerImporter extends BaseImporter {
         const shBackwardCompat = transformed.backwardCompatibility;
 
         // Check if already exists (by SH backward compatibility)
-        if (this.entityExists(shBackwardCompat, 'partner')) {
+        if (await this.entityExistsAsync(shBackwardCompat, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -113,9 +113,9 @@ export class ShPartnerImporter extends BaseImporter {
           // The all_partners_id format is typically like "IT_01" which corresponds to museum/institution IDs
 
           // Try museum first (most common)
-          const museumBackwardCompat = this.findMwnf3PartnerBackwardCompat(allPartnersId);
+          const museumBackwardCompat = await this.findMwnf3PartnerBackwardCompat(allPartnersId);
           if (museumBackwardCompat) {
-            reusedPartnerId = this.getEntityUuid(museumBackwardCompat, 'partner');
+            reusedPartnerId = await this.getEntityUuidAsync(museumBackwardCompat, 'partner');
           }
         }
 
@@ -215,7 +215,7 @@ export class ShPartnerImporter extends BaseImporter {
    * Try to find an existing mwnf3 partner by all_partners_id
    * Returns the backward_compatibility string if found, null otherwise
    */
-  private findMwnf3PartnerBackwardCompat(allPartnersId: string): string | null {
+  private async findMwnf3PartnerBackwardCompat(allPartnersId: string): Promise<string | null> {
     // The all_partners_id format is typically like "IT_01" or "IT_01_A"
     // This maps to museum_id or institution_id + country
 
@@ -229,7 +229,7 @@ export class ShPartnerImporter extends BaseImporter {
       pkValues: [allPartnersId, countryCode],
     });
 
-    if (this.entityExists(museumBackwardCompat, 'partner')) {
+    if (await this.entityExistsAsync(museumBackwardCompat, 'partner')) {
       return museumBackwardCompat;
     }
 
@@ -240,7 +240,7 @@ export class ShPartnerImporter extends BaseImporter {
       pkValues: [allPartnersId, countryCode],
     });
 
-    if (this.entityExists(institutionBackwardCompat, 'partner')) {
+    if (await this.entityExistsAsync(institutionBackwardCompat, 'partner')) {
       return institutionBackwardCompat;
     }
 

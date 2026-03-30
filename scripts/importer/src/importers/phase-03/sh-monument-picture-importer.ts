@@ -146,7 +146,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
 
     // Check if already imported
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
