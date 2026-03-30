@@ -55,6 +55,9 @@ import {
   ShObjectPictureImporter,
   ShMonumentPictureImporter,
   ShMonumentDetailPictureImporter,
+  ShExhibitionImporter,
+  ShExhibitionTranslationImporter,
+  ShExhibitionItemImporter,
   // Phase 04: Glossary
   GlossaryImporter,
   GlossaryTranslationImporter,
@@ -324,6 +327,29 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import Sharing History monument detail pictures',
     importerClass: ShMonumentDetailPictureImporter,
     dependencies: ['sh-monument-detail', 'default-context', 'language'],
+  },
+  {
+    key: 'sh-exhibition',
+    name: 'SH Exhibitions',
+    description:
+      'Import SH exhibition hierarchy (exhibitions, themes, subthemes) as nested collections',
+    importerClass: ShExhibitionImporter,
+    dependencies: ['sh-project'],
+  },
+  {
+    key: 'sh-exhibition-translation',
+    name: 'SH Exhibition Translations',
+    description: 'Import translations for SH exhibitions, themes, and subthemes',
+    importerClass: ShExhibitionTranslationImporter,
+    dependencies: ['sh-exhibition', 'language'],
+  },
+  {
+    key: 'sh-exhibition-item',
+    name: 'SH Exhibition Items',
+    description:
+      'Import item assignments and image references for SH exhibitions, themes, and subthemes',
+    importerClass: ShExhibitionItemImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument'],
   },
   // Phase 4: Glossary
   {

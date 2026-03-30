@@ -259,6 +259,7 @@ export interface CollectionItemData {
   item_id: string;
   backward_compatibility?: string | null;
   display_order?: number | null;
+  extra?: Record<string, unknown> | null;
 }
 
 /**

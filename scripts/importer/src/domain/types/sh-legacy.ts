@@ -433,3 +433,182 @@ export interface ShLegacyBibliographyLang {
   lang: string;
   desc: string;
 }
+
+// ============================================================================
+// SH Exhibition Types
+// ============================================================================
+
+export interface ShLegacyExhibition {
+  exhibition_id: number;
+  project_id: string;
+  name: string;
+  sort: number | null;
+  show: 'y' | 'n';
+  geoCoordinates: string | null;
+  zoom: number | null;
+  exh_thumb: string | null;
+  logo1: string | null;
+  url1: string | null;
+  logo2: string | null;
+  url2: string | null;
+  logo3: string | null;
+  url3: string | null;
+  homeimage: string | null;
+  portal_image: string | null;
+}
+
+export interface ShLegacyExhibitionName {
+  exhibition_id: number;
+  lang: string;
+  subtitle: string;
+  title: string;
+  introduction: string | null;
+  see_also_links: string | null;
+  further_reading: string | null;
+  curated_by: string | null;
+  cover_images: string | null;
+}
+
+export interface ShLegacyExhibitionTheme {
+  theme_id: number;
+  exhibition_id: number;
+  name: string;
+  sort: number | null;
+  geoCoordinates: string | null;
+  zoom: number | null;
+}
+
+export interface ShLegacyExhibitionThemeName {
+  theme_id: number;
+  lang: string;
+  title: string;
+  introduction: string | null;
+  see_also_links: string | null;
+  further_reading: string | null;
+}
+
+export interface ShLegacyExhibitionSubtheme {
+  subtheme_id: number;
+  theme_id: number;
+  name: string;
+  sort: number | null;
+  geoCoordinates: string | null;
+  zoom: number | null;
+}
+
+export interface ShLegacyExhibitionSubthemeName {
+  subtheme_id: number;
+  lang: string;
+  title: string;
+  introduction: string | null;
+  quotation: string | null;
+  see_also_links: string | null;
+  further_reading: string | null;
+}
+
+// ============================================================================
+// SH Exhibition Relationship Types (item ↔ exhibition/theme/subtheme)
+// ============================================================================
+
+export interface ShLegacyRelObjectsExhibitions {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  exhibition_id: number;
+  curator_status: string | null;
+}
+
+export interface ShLegacyRelObjectsExhibitionsJustification {
+  relation_id: number;
+  lang: string;
+  justification_partner: string | null;
+  justification_curator: string | null;
+}
+
+export interface ShLegacyRelMonumentsExhibitions {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  exhibition_id: number;
+  curator_status: string | null;
+}
+
+export interface ShLegacyRelMonumentsExhibitionsJustification {
+  relation_id: number;
+  lang: string;
+  justification_partner: string | null;
+  justification_curator: string | null;
+}
+
+export interface ShLegacyRelObjectsThemes {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  theme_id: number;
+  curator_status: string | null;
+}
+
+export interface ShLegacyRelMonumentsThemes {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  theme_id: number;
+  curator_status: string | null;
+}
+
+export interface ShLegacyRelObjectsSubthemes {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  subtheme_id: number;
+  curator_status: string | null;
+  sort_order: number;
+  rel_sort_order: number;
+}
+
+export interface ShLegacyRelMonumentsSubthemes {
+  id: number;
+  project_id: string;
+  country: string;
+  number: number;
+  subtheme_id: number;
+  curator_status: string | null;
+  sort_order: number;
+  rel_sort_order: number;
+}
+
+// ============================================================================
+// SH Exhibition Image Types (item references used as slideshow images)
+// ============================================================================
+
+export interface ShLegacyExhibitionImage {
+  image_id: number;
+  exhibition_id: number;
+  image_item: string; // 'project_id;country;number'
+  item_type: string; // 'obj' or 'mon'
+  sort_order: number;
+}
+
+export interface ShLegacyExhibitionThemeImage {
+  image_id: number;
+  theme_id: number;
+  image_item: string; // 'project_id;country;number'
+  picture: string;
+  item_type: string; // 'obj' or 'mon'
+  sort_order: number;
+}
+
+export interface ShLegacyExhibitionSubthemeImage {
+  image_id: number;
+  subtheme_id: number;
+  image_item: string; // 'project_id;country;number'
+  picture: string;
+  item_type: string; // 'obj' or 'mon'
+  sort_order: number;
+  rel_sort_order: number;
+}

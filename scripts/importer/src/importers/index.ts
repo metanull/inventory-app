@@ -36,6 +36,9 @@ export {
   ShObjectPictureImporter,
   ShMonumentPictureImporter,
   ShMonumentDetailPictureImporter,
+  ShExhibitionImporter,
+  ShExhibitionTranslationImporter,
+  ShExhibitionItemImporter,
 } from './phase-03/index.js';
 
 // Phase 04: Glossary & THG Contributors

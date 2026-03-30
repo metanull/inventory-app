@@ -278,10 +278,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCollectionItem(data: CollectionItemData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
+    const displayOrder = data.display_order ?? null;
+    const extra = data.extra ? JSON.stringify(data.extra) : null;
     await this.db.execute(
-      `INSERT INTO collection_item (collection_id, item_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?)`,
-      [sanitized.collection_id, sanitized.item_id, this.now, this.now]
+      `INSERT INTO collection_item (collection_id, item_id, display_order, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [sanitized.collection_id, sanitized.item_id, displayOrder, extra, this.now, this.now]
     );
   }
 
