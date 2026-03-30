@@ -91,7 +91,7 @@ export class ObjectPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query object pictures: ${message}`);
@@ -219,7 +219,7 @@ export class ObjectPictureImporter extends BaseImporter {
   private async createPictureItem(
     group: PictureGroup,
     parentItemId: string,
-    _result: ImportResult
+    result: ImportResult
   ): Promise<string> {
     // Get parent item's collection and context
     const contextBackwardCompat = formatBackwardCompatibility({
@@ -299,6 +299,7 @@ export class ObjectPictureImporter extends BaseImporter {
           ],
         });
         this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings!.push(`Failed to create translation ${translationBC}: ${message}`);
       }
     }
 

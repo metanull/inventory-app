@@ -47,7 +47,7 @@ export class DynastyImporter extends BaseImporter {
       result.skipped += linkResult.skipped;
       result.errors.push(...linkResult.errors);
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import dynasties: ${message}`);
@@ -133,9 +133,9 @@ export class DynastyImporter extends BaseImporter {
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(
-              `Failed to create translation for dynasty ${legacy.dynasty_id}:${text.lang}: ${message}`
-            );
+            const warning = `Failed to create translation for dynasty ${legacy.dynasty_id}:${text.lang}: ${message}`;
+            this.logWarning(warning);
+            result.warnings!.push(warning);
           }
         }
 

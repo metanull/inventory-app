@@ -81,7 +81,7 @@ export class ShMonumentImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query SH monuments: ${message}`);
@@ -95,7 +95,7 @@ export class ShMonumentImporter extends BaseImporter {
   private async importMonument(
     group: ShMonumentGroup,
     defaultLanguageId: string,
-    _result: ImportResult
+    result: ImportResult
   ): Promise<boolean> {
     const transformed = transformShMonument(group, defaultLanguageId);
 
@@ -200,9 +200,9 @@ export class ShMonumentImporter extends BaseImporter {
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(
-          `Failed to create translation for SH monument ${transformed.backwardCompatibility}:${translation.lang}: ${message}`
-        );
+        const warning = `Failed to create translation for SH monument ${transformed.backwardCompatibility}:${translation.lang}: ${message}`;
+        this.logWarning(warning);
+        result.warnings!.push(warning);
       }
     }
 

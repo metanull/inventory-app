@@ -89,7 +89,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monument detail pictures: ${message}`);
@@ -300,6 +300,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
           ],
         });
         this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings!.push(`Failed to create translation ${translationBC}: ${message}`);
       }
     }
 

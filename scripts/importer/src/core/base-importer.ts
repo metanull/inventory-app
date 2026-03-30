@@ -78,7 +78,7 @@ export interface ILogger {
   showProgress(): void;
   showSkipped(): void;
   showError(): void;
-  showSummary(imported: number, skipped: number, errors: number): void;
+  showSummary(imported: number, skipped: number, errors: number, warnings?: number): void;
 }
 
 /**
@@ -122,10 +122,12 @@ export class ConsoleLogger implements ILogger {
     process.stdout.write('×');
   }
 
-  showSummary(imported: number, skipped: number, errors: number): void {
-    console.log(
-      `\n[${this.name}] Summary: ${imported} imported, ${skipped} skipped, ${errors} errors`
-    );
+  showSummary(imported: number, skipped: number, errors: number, warnings?: number): void {
+    const parts = [`${imported} imported`, `${skipped} skipped`, `${errors} errors`];
+    if (warnings) {
+      parts.push(`${warnings} warnings`);
+    }
+    console.log(`\n[${this.name}] Summary: ${parts.join(', ')}`);
   }
 }
 
@@ -327,8 +329,8 @@ export abstract class BaseImporter {
   /**
    * Show import summary
    */
-  protected showSummary(imported: number, skipped: number, errors: number): void {
-    this.logger.showSummary(imported, skipped, errors);
+  protected showSummary(imported: number, skipped: number, errors: number, warnings?: number): void {
+    this.logger.showSummary(imported, skipped, errors, warnings);
   }
 
   /**

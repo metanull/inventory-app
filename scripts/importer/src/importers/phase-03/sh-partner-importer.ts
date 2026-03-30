@@ -65,7 +65,7 @@ export class ShPartnerImporter extends BaseImporter {
         result.warnings.push(...partnerResult.warnings);
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import SH partners: ${message}`);
@@ -192,9 +192,9 @@ export class ShPartnerImporter extends BaseImporter {
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(
-              `Failed to create translation for SH partner ${group.partner.partners_id}:${translation.lang}: ${message}`
-            );
+            const warning = `Failed to create translation for SH partner ${group.partner.partners_id}:${translation.lang}: ${message}`;
+            this.logWarning(warning);
+            result.warnings!.push(warning);
           }
         }
 

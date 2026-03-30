@@ -73,7 +73,7 @@ export class MonumentDetailImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monument details: ${message}`);
@@ -224,9 +224,9 @@ export class MonumentDetailImporter extends BaseImporter {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(
-          `Failed to create translation for detail ${group.detail_id} lang ${detail.lang_id}: ${message}`
-        );
+        const warning = `Failed to create translation for detail ${group.detail_id} lang ${detail.lang_id}: ${message}`;
+        this.logWarning(warning);
+        result.warnings!.push(warning);
       }
     }
 

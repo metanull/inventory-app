@@ -83,7 +83,7 @@ export class MonumentImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monuments: ${message}`);
@@ -231,7 +231,9 @@ export class MonumentImporter extends BaseImporter {
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(`Failed to create translation: ${message}`);
+        const warning = `Failed to create translation: ${message}`;
+        this.logWarning(warning);
+        result.warnings!.push(warning);
       }
     }
 
