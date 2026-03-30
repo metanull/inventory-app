@@ -29,7 +29,7 @@ export class MonumentDetailImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helpers
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker);
+    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.logger);
 
     try {
       this.logInfo('Importing monument details...');
