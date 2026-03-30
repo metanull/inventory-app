@@ -1181,10 +1181,29 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // Lookup Methods
   // =========================================================================
 
+  /**
+   * Tables that do not have a backward_compatibility column.
+   * For these tables, DB fallback lookups are skipped — only the in-memory
+   * tracker is consulted.
+   */
+  private static readonly TABLES_WITHOUT_BC = new Set([
+    'item_images',
+    'partner_images',
+    'partner_logos',
+    'collection_images',
+    'contributor_images',
+    'timeline_event_images',
+  ]);
+
   async exists(table: string, backwardCompatibility: string): Promise<boolean> {
     const entityType = mapTableToEntityType(table);
     if (entityType && this.tracker.exists(backwardCompatibility, entityType)) {
       return true;
+    }
+
+    // Image tables lack backward_compatibility column — tracker-only lookup
+    if (SqlWriteStrategy.TABLES_WITHOUT_BC.has(table)) {
+      return false;
     }
 
     const [rows] = await this.db.execute<RowDataPacket[]>(
@@ -1205,6 +1224,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
       : this.tracker.getUuid(backwardCompatibility);
     if (cached) {
       return cached;
+    }
+
+    // Image tables lack backward_compatibility column — tracker-only lookup
+    if (SqlWriteStrategy.TABLES_WITHOUT_BC.has(table)) {
+      return null;
     }
 
     const [rows] = await this.db.execute<RowDataPacket[]>(
