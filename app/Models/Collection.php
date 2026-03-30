@@ -171,6 +171,14 @@ class Collection extends Model
     }
 
     /**
+     * Get all media (audio/video URLs) belonging to this collection.
+     */
+    public function collectionMedia(): HasMany
+    {
+        return $this->hasMany(CollectionMedia::class)->orderBy('type')->orderBy('display_order');
+    }
+
+    /**
      * Scope to get only collection type collections.
      */
     public function scopeCollections(Builder $query): Builder

@@ -46,6 +46,9 @@ import type {
   TimelineEventTranslationData,
   TimelineEventItemData,
   TimelineEventImageData,
+  ItemMediaData,
+  CollectionMediaData,
+  ItemDocumentData,
 } from './types.js';
 
 /**
@@ -348,6 +351,28 @@ export interface IWriteStrategy {
    * @param extra The JSON string to set as extra
    */
   updateTimelineExtra(timelineId: string, extra: string): Promise<void>;
+
+  // =========================================================================
+  // Media & Documents
+  // =========================================================================
+
+  /**
+   * Write an item media record (audio/video URL)
+   * @returns The item media UUID
+   */
+  writeItemMedia(data: ItemMediaData): Promise<string>;
+
+  /**
+   * Write a collection media record (audio/video URL)
+   * @returns The collection media UUID
+   */
+  writeCollectionMedia(data: CollectionMediaData): Promise<string>;
+
+  /**
+   * Write an item document record (uploaded file)
+   * @returns The item document UUID
+   */
+  writeItemDocument(data: ItemDocumentData): Promise<string>;
 
   // =========================================================================
   // Author Assignment Updates

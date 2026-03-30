@@ -149,3 +149,13 @@ export {
   type TransformedTimelineEvent,
   type TransformedTimelineEventTranslation,
 } from './timeline-transformer.js';
+
+export {
+  transformObjectVideo,
+  transformShObjectVideoAudio,
+  transformThgThemeMedia,
+  transformShObjectDocument,
+  type TransformedItemMedia,
+  type TransformedCollectionMedia,
+  type TransformedItemDocument,
+} from './media-transformer.js';

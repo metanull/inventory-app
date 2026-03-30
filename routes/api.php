@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthorTranslationController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
+use App\Http\Controllers\CollectionMediaController;
 use App\Http\Controllers\CollectionTranslationController;
 use App\Http\Controllers\ContextController;
 use App\Http\Controllers\CountryController;
@@ -19,9 +20,11 @@ use App\Http\Controllers\GlossaryTranslationController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemDocumentController;
 use App\Http\Controllers\ItemImageController;
 use App\Http\Controllers\ItemItemLinkController;
 use App\Http\Controllers\ItemItemLinkTranslationController;
+use App\Http\Controllers\ItemMediaController;
 use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LanguageTranslationController;
@@ -171,6 +174,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('item-image/{itemImage}/view', [ItemImageController::class, 'view'])->name('item-image.view');
         Route::get('item-image/{itemImage}', [ItemImageController::class, 'show'])->name('item-image.show');
 
+        // ItemMedia routes (read)
+        Route::get('item/{item}/media', [ItemMediaController::class, 'index'])->name('item.media.index');
+        Route::get('item-media/{itemMedia}', [ItemMediaController::class, 'show'])->name('item-media.show');
+
+        // ItemDocument routes (read)
+        Route::get('item/{item}/documents', [ItemDocumentController::class, 'index'])->name('item.documents.index');
+        Route::get('item-document/{itemDocument}/download', [ItemDocumentController::class, 'download'])->name('item-document.download');
+        Route::get('item-document/{itemDocument}', [ItemDocumentController::class, 'show'])->name('item-document.show');
+
         // ItemItemLink routes (read)
         Route::get('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'show'])->name('item-item-link.show');
         Route::get('item-item-link', [ItemItemLinkController::class, 'index'])->name('item-item-link.index');
@@ -207,6 +219,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('collection-image/{collectionImage}/view', [CollectionImageController::class, 'view'])->name('collection-image.view');
         Route::get('collection-image/{collectionImage}', [CollectionImageController::class, 'show'])->name('collection-image.show');
 
+        // CollectionMedia routes (read)
+        Route::get('collection/{collection}/media', [CollectionMediaController::class, 'index'])->name('collection.media.index');
+        Route::get('collection-media/{collectionMedia}', [CollectionMediaController::class, 'show'])->name('collection-media.show');
+
     });
 
     // CREATE operations - require CREATE_DATA permission
@@ -238,6 +254,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
         Route::post('item/{item}/images', [ItemImageController::class, 'store'])->name('item.images.store');
         Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])->name('item.attachImage');
+        Route::post('item/{item}/media', [ItemMediaController::class, 'store'])->name('item.media.store');
+        Route::post('item/{item}/documents', [ItemDocumentController::class, 'store'])->name('item.documents.store');
         Route::post('item/{item}/attach-tag', [ItemController::class, 'attachTag'])->name('item.attachTag');
         Route::post('item/{item}/attach-tags', [ItemController::class, 'attachTags'])->name('item.attachTags');
         Route::post('item-item-link', [ItemItemLinkController::class, 'store'])->name('item-item-link.store');
@@ -251,6 +269,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('collection/{collection}/attach-items', [CollectionController::class, 'attachItems'])->name('collection.attachItems');
         Route::post('collection/{collection}/images', [CollectionImageController::class, 'store'])->name('collection.images.store');
         Route::post('collection/{collection}/attach-image', [CollectionImageController::class, 'attachFromAvailable'])->name('collection.attachImage');
+        Route::post('collection/{collection}/media', [CollectionMediaController::class, 'store'])->name('collection.media.store');
     });
 
     // UPDATE operations - require UPDATE_DATA permission
@@ -351,6 +370,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('item-image/{itemImage}/move-down', [ItemImageController::class, 'moveDown'])->name('item-image.moveDown');
         Route::patch('item-image/{itemImage}/tighten-ordering', [ItemImageController::class, 'tightenOrdering'])->name('item-image.tightenOrdering');
 
+        Route::patch('item-media/{itemMedia}', [ItemMediaController::class, 'update'])->name('item-media.update');
+        Route::put('item-media/{itemMedia}', [ItemMediaController::class, 'update']);
+        Route::patch('item-media/{itemMedia}/move-up', [ItemMediaController::class, 'moveUp'])->name('item-media.moveUp');
+        Route::patch('item-media/{itemMedia}/move-down', [ItemMediaController::class, 'moveDown'])->name('item-media.moveDown');
+
+        Route::patch('item-document/{itemDocument}', [ItemDocumentController::class, 'update'])->name('item-document.update');
+        Route::put('item-document/{itemDocument}', [ItemDocumentController::class, 'update']);
+        Route::patch('item-document/{itemDocument}/move-up', [ItemDocumentController::class, 'moveUp'])->name('item-document.moveUp');
+        Route::patch('item-document/{itemDocument}/move-down', [ItemDocumentController::class, 'moveDown'])->name('item-document.moveDown');
+
         Route::patch('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update'])->name('item-item-link.update');
         Route::put('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update']);
 
@@ -362,6 +391,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('collection-image/{collectionImage}/move-up', [CollectionImageController::class, 'moveUp'])->name('collection-image.moveUp');
         Route::patch('collection-image/{collectionImage}/move-down', [CollectionImageController::class, 'moveDown'])->name('collection-image.moveDown');
         Route::patch('collection-image/{collectionImage}/tighten-ordering', [CollectionImageController::class, 'tightenOrdering'])->name('collection-image.tightenOrdering');
+
+        Route::patch('collection-media/{collectionMedia}', [CollectionMediaController::class, 'update'])->name('collection-media.update');
+        Route::put('collection-media/{collectionMedia}', [CollectionMediaController::class, 'update']);
+        Route::patch('collection-media/{collectionMedia}/move-up', [CollectionMediaController::class, 'moveUp'])->name('collection-media.moveUp');
+        Route::patch('collection-media/{collectionMedia}/move-down', [CollectionMediaController::class, 'moveDown'])->name('collection-media.moveDown');
 
         Route::patch('item-translation/{item_translation}', [ItemTranslationController::class, 'update'])->name('item-translation.update');
         Route::put('item-translation/{item_translation}', [ItemTranslationController::class, 'update']);
@@ -405,10 +439,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('item/{item}/detach-tags', [ItemController::class, 'detachTags'])->name('item.detachTags');
         Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])->name('item-image.destroy');
         Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])->name('item-image.detach');
+        Route::delete('item-media/{itemMedia}', [ItemMediaController::class, 'destroy'])->name('item-media.destroy');
+        Route::delete('item-document/{itemDocument}', [ItemDocumentController::class, 'destroy'])->name('item-document.destroy');
         Route::delete('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'destroy'])->name('item-item-link.destroy');
         Route::delete('item-item-link-translation/{itemItemLinkTranslation}', [ItemItemLinkTranslationController::class, 'destroy'])->name('item-item-link-translation.destroy');
         Route::delete('collection-image/{collectionImage}', [CollectionImageController::class, 'destroy'])->name('collection-image.destroy');
         Route::post('collection-image/{collectionImage}/detach', [CollectionImageController::class, 'detachToAvailable'])->name('collection-image.detach');
+        Route::delete('collection-media/{collectionMedia}', [CollectionMediaController::class, 'destroy'])->name('collection-media.destroy');
         Route::delete('project/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
         Route::delete('image-upload/{image_upload}', [ImageUploadController::class, 'destroy'])->name('image-upload.destroy');
         Route::delete('available-image/{available_image}', [AvailableImageController::class, 'destroy'])->name('available-image.destroy');

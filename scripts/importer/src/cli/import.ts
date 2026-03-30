@@ -106,6 +106,9 @@ import {
   ProjectCleanupImporter,
   AuthorImporter,
   TimelineImporter,
+  ItemMediaImporter,
+  ItemDocumentImporter,
+  CollectionMediaImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -342,6 +345,21 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import Heritage Conservation Resources timelines, events, translations, item links, and bibliography from mwnf3 and Sharing History',
     importerClass: TimelineImporter,
     dependencies: ['country', 'language', 'object', 'monument', 'sh-object', 'sh-monument'],
+  },
+  // Phase 08: Media & Documents
+  {
+    key: 'item-media',
+    name: 'Item Media',
+    description: 'Import audio/video URLs attached to items from mwnf3 and Sharing History',
+    importerClass: ItemMediaImporter,
+    dependencies: ['object', 'monument', 'sh-object', 'language'],
+  },
+  {
+    key: 'item-document',
+    name: 'Item Documents',
+    description: 'Import document files (PDFs) attached to SH items',
+    importerClass: ItemDocumentImporter,
+    dependencies: ['sh-object', 'language'],
   },
   // Phase 06: Explore
   {
@@ -635,6 +653,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link Explore monuments to THG gallery collections',
     importerClass: ThgGalleryExploreMonumentImporter,
     dependencies: ['thg-gallery', 'explore-monument'],
+  },
+  // Phase 11: Collection Media (needs THG theme collections)
+  {
+    key: 'collection-media',
+    name: 'Collection Media',
+    description: 'Import audio/video URLs attached to THG theme collections',
+    importerClass: CollectionMediaImporter,
+    dependencies: ['thg-theme', 'language'],
   },
   {
     key: 'project-cleanup',

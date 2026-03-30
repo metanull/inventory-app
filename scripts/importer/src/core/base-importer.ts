@@ -404,6 +404,9 @@ export abstract class BaseImporter {
       timeline: 'timelines',
       timeline_event: 'timeline_events',
       timeline_event_translation: 'timeline_event_translations',
+      item_media: 'item_media',
+      collection_media: 'collection_media',
+      item_document: 'item_documents',
     };
     return mapping[entityType];
   }

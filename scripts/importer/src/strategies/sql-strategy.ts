@@ -51,6 +51,9 @@ import type {
   TimelineEventTranslationData,
   TimelineEventItemData,
   TimelineEventImageData,
+  ItemMediaData,
+  CollectionMediaData,
+  ItemDocumentData,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -78,6 +81,9 @@ const tableEntityMap: Record<string, EntityType> = {
   timelines: 'timeline',
   timeline_events: 'timeline_event',
   timeline_event_translations: 'timeline_event_translation',
+  item_media: 'item_media',
+  collection_media: 'collection_media',
+  item_documents: 'item_document',
 };
 
 function mapTableToEntityType(table: string): EntityType | null {
@@ -1040,6 +1046,98 @@ export class SqlWriteStrategy implements IWriteStrategy {
       `UPDATE timelines SET extra = ?, updated_at = ? WHERE id = ?`,
       [extra, this.now, timelineId]
     );
+  }
+
+  // =========================================================================
+  // Media & Documents
+  // =========================================================================
+
+  async writeItemMedia(data: ItemMediaData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_media (id, item_id, language_id, type, title, description,
+                               url, display_order, extra, backward_compatibility,
+                               created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.item_id,
+        sanitized.language_id ?? null,
+        sanitized.type,
+        sanitized.title,
+        sanitized.description ?? null,
+        sanitized.url,
+        data.display_order,
+        sanitized.extra ?? null,
+        sanitized.backward_compatibility ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+    if (sanitized.backward_compatibility) {
+      this.tracker.set(sanitized.backward_compatibility, id, 'item_media');
+    }
+    return id;
+  }
+
+  async writeCollectionMedia(data: CollectionMediaData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO collection_media (id, collection_id, language_id, type, title, description,
+                                     url, display_order, extra, backward_compatibility,
+                                     created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.collection_id,
+        sanitized.language_id ?? null,
+        sanitized.type,
+        sanitized.title,
+        sanitized.description ?? null,
+        sanitized.url,
+        data.display_order,
+        sanitized.extra ?? null,
+        sanitized.backward_compatibility ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+    if (sanitized.backward_compatibility) {
+      this.tracker.set(sanitized.backward_compatibility, id, 'collection_media');
+    }
+    return id;
+  }
+
+  async writeItemDocument(data: ItemDocumentData): Promise<string> {
+    const sanitized = sanitizeAllStrings(data);
+    const id = uuidv4();
+    await this.db.execute(
+      `INSERT INTO item_documents (id, item_id, language_id, path, original_name,
+                                   mime_type, size, title, display_order, extra,
+                                   backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        id,
+        sanitized.item_id,
+        sanitized.language_id ?? null,
+        sanitized.path,
+        sanitized.original_name,
+        sanitized.mime_type,
+        data.size,
+        sanitized.title ?? null,
+        data.display_order,
+        sanitized.extra ?? null,
+        sanitized.backward_compatibility ?? null,
+        this.now,
+        this.now,
+      ]
+    );
+    if (sanitized.backward_compatibility) {
+      this.tracker.set(sanitized.backward_compatibility, id, 'item_document');
+    }
+    return id;
   }
 
   async updateItemTranslationAuthorFk(

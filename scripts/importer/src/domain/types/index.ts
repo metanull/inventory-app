@@ -39,6 +39,11 @@ export type {
   LegacyAuthorDynasty,
   LegacyHcr,
   LegacyHcrEvent,
+  LegacyObjectVideo,
+  ShLegacyObjectVideoAudio,
+  ShLegacyObjectDocument,
+  ThgLegacyExhibitionMedia,
+  ThgLegacyThemeMedia,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types

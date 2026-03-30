@@ -520,3 +520,84 @@ export interface LegacyHcrEvent {
   datedesc_ah: string | null;
   datedesc_ad: string | null;
 }
+
+// ============================================================================
+// Audio/Video Types — mwnf3
+// ============================================================================
+
+/**
+ * mwnf3.objects_video (21 rows) / mwnf3.monuments_video (1 row)
+ * PK: (lang, number, museum_id, country, project_id, video_id)
+ */
+export interface LegacyObjectVideo {
+  video_id: number;
+  project_id: string;
+  country: string; // 2-char
+  museum_id: string;
+  number: number;
+  lang: string; // 2-char
+  video_title: string;
+  video_description: string | null;
+  video_url: string;
+}
+
+/**
+ * mwnf3_sharing_history.sh_objects_video_audio (2 rows)
+ * PK: id (auto-increment)
+ */
+export interface ShLegacyObjectVideoAudio {
+  id: number;
+  project_id: string;
+  country: string; // 2-char
+  number: number;
+  type: 'video' | 'audio';
+  path: string; // YouTube video ID or full URL
+  title: string;
+}
+
+// ============================================================================
+// Document Types — Sharing History
+// ============================================================================
+
+/**
+ * mwnf3_sharing_history.sh_objects_document (23 rows)
+ * UNIQUE: (project_id, country, number, lang, img_count)
+ */
+export interface ShLegacyObjectDocument {
+  project_id: string;
+  country: string; // 2-char
+  number: number;
+  lang: string; // 2-char
+  path: string; // server-relative path to PDF
+  type: 'pdf';
+  img_count: number; // page/sequence counter
+}
+
+// ============================================================================
+// THG Audio/Video Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * exhibition_audio (5 rows) / exhibition_video (12 rows)
+ * PK: (audio_id/video_id, gallery_id, lang)
+ */
+export interface ThgLegacyExhibitionMedia {
+  media_id: number; // audio_id or video_id in the raw table
+  gallery_id: number;
+  lang: string; // 2-char
+  title: string;
+  description: string;
+  url: string;
+}
+
+/**
+ * theme_audio (2 rows) / theme_video (16 rows)
+ * Junction: assigns exhibition-level media to themes
+ */
+export interface ThgLegacyThemeMedia {
+  media_id: number; // audio_id or video_id
+  gallery_id: number;
+  theme_id: number;
+  overview_page: 'Y' | 'N';
+  sort_order: number;
+}

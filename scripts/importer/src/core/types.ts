@@ -67,7 +67,10 @@ export type EntityType =
   | 'glossary_translation'
   | 'glossary_spelling'
   | 'item_item_link'
-  | 'item_item_link_translation';
+  | 'item_item_link_translation'
+  | 'item_media'
+  | 'collection_media'
+  | 'item_document';
 
 /**
  * Imported entity record for tracking
@@ -541,4 +544,58 @@ export interface TimelineEventImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+}
+
+// ============================================================================
+// Media Types (Audio/Video — external URLs)
+// ============================================================================
+
+/**
+ * Item media data for write operations (audio/video URLs)
+ */
+export interface ItemMediaData {
+  item_id: string;
+  language_id?: string | null;
+  type: 'audio' | 'video';
+  title: string;
+  description?: string | null;
+  url: string;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+/**
+ * Collection media data for write operations (audio/video URLs)
+ */
+export interface CollectionMediaData {
+  collection_id: string;
+  language_id?: string | null;
+  type: 'audio' | 'video';
+  title: string;
+  description?: string | null;
+  url: string;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Document Types (uploaded files)
+// ============================================================================
+
+/**
+ * Item document data for write operations (uploaded files — PDFs, etc.)
+ */
+export interface ItemDocumentData {
+  item_id: string;
+  language_id?: string | null;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  title?: string | null;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
 }

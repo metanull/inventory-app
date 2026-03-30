@@ -21,6 +21,7 @@ class AllowList
                 'parent', 'children', 'itemImages',
                 'artists', 'workshops', 'tags', 'dynasties', 'translations',
                 'attachedToCollections', 'outgoingLinks', 'incomingLinks',
+                'itemMedia', 'itemDocuments',
             ],
             'itemImage' => [
                 'item',
@@ -36,6 +37,7 @@ class AllowList
             ],
             'collection' => [
                 'language', 'context', 'translations', 'partners', 'items', 'attachedItems', 'collectionImages',
+                'collectionMedia',
             ],
             'collectionImage' => [
                 'collection',
@@ -118,6 +120,15 @@ class AllowList
             ],
             'timeline_event_image' => [
                 'timelineEvent',
+            ],
+            'item_media' => [
+                'item', 'language',
+            ],
+            'collection_media' => [
+                'collection', 'language',
+            ],
+            'item_document' => [
+                'item', 'language',
             ],
             default => [],
         };

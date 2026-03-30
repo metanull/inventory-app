@@ -99,5 +99,11 @@ export {
   TravelsMonumentPictureImporter,
 } from './phase-07/index.js';
 
+// Phase 08: Media & Documents
+export {
+  ItemMediaImporter,
+  ItemDocumentImporter,
+} from './phase-08/index.js';
+
 // Phase 11: Post-Import Linking (runs after all data is imported)
-export { PartnerMonumentLinker, ProjectCleanupImporter } from './phase-11/index.js';
+export { PartnerMonumentLinker, ProjectCleanupImporter, CollectionMediaImporter } from './phase-11/index.js';
