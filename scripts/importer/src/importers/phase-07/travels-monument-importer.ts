@@ -166,6 +166,9 @@ export class TravelsMonumentImporter extends BaseImporter {
 
           // Get country ID
           const countryId = await this.getEntityUuidAsync(group.country, 'country');
+          if (!countryId) {
+            this.logWarning(`Country not found for code '${group.country}' in monument ${backwardCompat}, importing without country`);
+          }
 
           // Write Item
           const itemId = await this.context.strategy.writeItem({
@@ -175,7 +178,7 @@ export class TravelsMonumentImporter extends BaseImporter {
             partner_id: null, // Travel monuments don't have a specific partner
             collection_id: locationId, // Primary collection is the location
             parent_id: null,
-            country_id: countryId || null,
+            country_id: countryId,
             project_id: null, // No project association
             owner_reference: null,
             mwnf_reference: null,
