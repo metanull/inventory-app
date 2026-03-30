@@ -74,7 +74,7 @@ function parseGeoCoordinates(coords: string | null): [number | null, number | nu
 }
 
 export class ExploreThematicCycleImporter extends BaseImporter {
-  private exploreContextId: string | null = null;
+  private exploreContextId!: string;
   private exploreByThemeId: string | null = null;
   private defaultLanguageId: string = 'eng';
 
@@ -90,16 +90,17 @@ export class ExploreThematicCycleImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(
+      const exploreContextId = await this.getEntityUuidAsync(
         exploreContextBackwardCompat,
         'context'
       );
 
-      if (!this.exploreContextId) {
+      if (!exploreContextId) {
         throw new Error(
           `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
         );
       }
+      this.exploreContextId = exploreContextId;
 
       // Get the "Explore by Theme" root collection
       const exploreByThemeBackwardCompat = 'mwnf3_explore:root:explore_by_theme';
@@ -184,7 +185,7 @@ export class ExploreThematicCycleImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId!,
+            context_id: this.exploreContextId,
             backward_compatibility: translationBackwardCompat,
             title: legacy.cycleDescription || legacy.cycleLabel,
             description: legacy.cycleDescription || '',

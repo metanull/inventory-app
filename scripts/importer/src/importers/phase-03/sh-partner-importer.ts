@@ -25,7 +25,7 @@ import type {
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 export class ShPartnerImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
   private partnerMapping: Map<string, string> = new Map(); // sh_partners_id -> all_partners_id
 
   getName(): string {
@@ -37,7 +37,11 @@ export class ShPartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = await this.getDefaultContextIdAsync();
+      const defaultContextId = await this.getDefaultContextIdAsync();
+      if (!defaultContextId) {
+        throw new Error('Default context not found. Run DefaultContextImporter first.');
+      }
+      this.defaultContextId = defaultContextId;
 
       // Load partner_sh_partners mapping
       this.logInfo('Loading partner_sh_partners mapping...');
@@ -183,7 +187,7 @@ export class ShPartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
               backward_compatibility: shBackwardCompat,
             });
           } catch (error) {

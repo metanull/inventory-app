@@ -37,7 +37,7 @@ export interface DeferredMonumentLink {
 }
 
 export class PartnerImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
   /** Deferred monument links to be resolved after monuments are imported */
   private deferredMonumentLinks: DeferredMonumentLink[] = [];
 
@@ -57,7 +57,11 @@ export class PartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = await this.getDefaultContextIdAsync();
+      const defaultContextId = await this.getDefaultContextIdAsync();
+      if (!defaultContextId) {
+        throw new Error('Default context not found. Run DefaultContextImporter first.');
+      }
+      this.defaultContextId = defaultContextId;
 
       // Import museums
       this.logInfo('Importing museums...');
@@ -175,7 +179,7 @@ export class PartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
@@ -267,7 +271,7 @@ export class PartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);

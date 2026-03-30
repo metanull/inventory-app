@@ -41,7 +41,7 @@ interface LegacyTrailTranslation {
 }
 
 export class TravelsTrailTranslationImporter extends BaseImporter {
-  private travelsContextId: string | null = null;
+  private travelsContextId!: string;
 
   getName(): string {
     return 'TravelsTrailTranslationImporter';
@@ -55,16 +55,17 @@ export class TravelsTrailTranslationImporter extends BaseImporter {
 
       // Get the Travels context ID
       const travelsContextBackwardCompat = 'mwnf3_travels:context';
-      this.travelsContextId = await this.getEntityUuidAsync(
+      const travelsContextId = await this.getEntityUuidAsync(
         travelsContextBackwardCompat,
         'context'
       );
 
-      if (!this.travelsContextId) {
+      if (!travelsContextId) {
         throw new Error(
           `Travels context not found (${travelsContextBackwardCompat}). Run TravelsContextImporter first.`
         );
       }
+      this.travelsContextId = travelsContextId;
 
       this.logInfo('Importing trail translations...');
 
@@ -154,7 +155,7 @@ export class TravelsTrailTranslationImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: trailId,
             language_id: languageId,
-            context_id: this.travelsContextId!,
+            context_id: this.travelsContextId,
             backward_compatibility: translationBackwardCompat,
             title: legacy.title || '',
             description: fullDescription.trim() || null,

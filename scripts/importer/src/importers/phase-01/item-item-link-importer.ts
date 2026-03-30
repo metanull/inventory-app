@@ -67,7 +67,7 @@ interface LegacyMonumentMonument {
 }
 
 export class ItemItemLinkImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
 
   getName(): string {
     return 'ItemItemLinkImporter';
@@ -289,7 +289,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const linkData: ItemItemLinkData = {
       source_id: sourceId,
       target_id: targetId,
-      context_id: this.defaultContextId!,
+      context_id: this.defaultContextId,
       backward_compatibility: backwardCompat,
     };
 
@@ -350,7 +350,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const linkData: ItemItemLinkData = {
       source_id: sourceId,
       target_id: targetId,
-      context_id: this.defaultContextId!,
+      context_id: this.defaultContextId,
       backward_compatibility: backwardCompat,
     };
 
@@ -411,7 +411,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     const linkData: ItemItemLinkData = {
       source_id: sourceId,
       target_id: targetId,
-      context_id: this.defaultContextId!,
+      context_id: this.defaultContextId,
       backward_compatibility: backwardCompat,
     };
 
