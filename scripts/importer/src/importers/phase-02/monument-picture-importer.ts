@@ -49,7 +49,7 @@ export class MonumentPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.logger);
+    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
     try {
       this.logInfo('Importing monument pictures...');

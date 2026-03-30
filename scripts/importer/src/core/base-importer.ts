@@ -52,6 +52,7 @@ export interface ImportContext {
   legacyDb: ILegacyDatabase;
   strategy: IWriteStrategy;
   tracker: ITracker;
+  logger: ILogger;
   dryRun: boolean;
   sampleCollector?: ISampleCollector;
   sampleOnlyMode?: boolean;
@@ -139,9 +140,9 @@ export abstract class BaseImporter {
   protected context: ImportContext;
   protected logger: ILogger;
 
-  constructor(context: ImportContext, logger?: ILogger) {
+  constructor(context: ImportContext) {
     this.context = context;
-    this.logger = logger || new ConsoleLogger(this.getName());
+    this.logger = context.logger;
   }
 
   /**

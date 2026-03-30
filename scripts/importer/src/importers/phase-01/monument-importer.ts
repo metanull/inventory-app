@@ -32,8 +32,8 @@ export class MonumentImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helpers
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.logger);
-    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker, this.logger);
+    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
     try {
       this.logInfo('Importing monuments...');

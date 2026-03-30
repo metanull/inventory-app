@@ -38,9 +38,9 @@ export class ObjectImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helpers
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.logger);
-    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker, this.logger);
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.logger);
+    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
     try {
       this.logInfo('Importing objects...');

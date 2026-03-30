@@ -11,7 +11,7 @@ import {
   LanguageTranslationImporter,
 } from '../../src/importers/phase-00/language-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
-import type { ImportContext, ILegacyDatabase } from '../../src/core/base-importer.js';
+import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
 
 // Mock the file system module
@@ -30,6 +30,16 @@ describe('LanguageImporter', () => {
   let mockStrategy: IWriteStrategy;
   let tracker: UnifiedTracker;
   let context: ImportContext;
+  const mockLogger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
 
   beforeEach(() => {
     // Reset mocks
@@ -102,6 +112,7 @@ describe('LanguageImporter', () => {
       legacyDb: mockLegacyDb,
       strategy: mockStrategy,
       tracker,
+      logger: mockLogger,
       dryRun: false,
     };
   });
@@ -206,6 +217,16 @@ describe('LanguageTranslationImporter', () => {
   let tracker: UnifiedTracker;
   let context: ImportContext;
   let translationQueryMock: ReturnType<typeof vi.fn>;
+  const mockLogger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -275,6 +296,7 @@ describe('LanguageTranslationImporter', () => {
       legacyDb: mockLegacyDb,
       strategy: mockStrategy,
       tracker,
+      logger: mockLogger,
       dryRun: false,
     };
   });
