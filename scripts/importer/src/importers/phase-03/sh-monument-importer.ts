@@ -155,6 +155,9 @@ export class ShMonumentImporter extends BaseImporter {
 
     // Project
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(`Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+    }
 
     // Partner (optional - use SH partner if available)
     let partnerId: string | null = null;
@@ -173,7 +176,7 @@ export class ShMonumentImporter extends BaseImporter {
       ...transformed.data,
       collection_id: collectionId,
       partner_id: partnerId,
-      project_id: projectId || null,
+      project_id: projectId,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);

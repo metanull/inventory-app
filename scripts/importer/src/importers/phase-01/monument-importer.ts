@@ -174,13 +174,16 @@ export class MonumentImporter extends BaseImporter {
     // Use same backward_compatibility as context
     const projectBackwardCompat = contextBackwardCompat;
     const projectId = await this.getEntityUuidAsync(projectBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(`Project not found: ${projectBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+    }
 
     // Create Item
     const itemData = {
       ...transformed.data,
       collection_id: collectionId,
       partner_id: partnerId,
-      project_id: projectId || null,
+      project_id: projectId,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);

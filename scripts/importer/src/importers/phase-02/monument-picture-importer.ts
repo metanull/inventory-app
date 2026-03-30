@@ -248,6 +248,9 @@ export class MonumentPictureImporter extends BaseImporter {
 
     // Get project_id using same backward_compatibility as context
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(`Project not found: ${contextBackwardCompat} for picture ${group.project_id}:${group.institution_id}:${group.number}:${group.image_number}, importing without project`);
+    }
 
     // Map country code from legacy 2-char to ISO 3-char
     const countryId = mapCountryCode(group.country);
@@ -266,7 +269,7 @@ export class MonumentPictureImporter extends BaseImporter {
       partner_id: partnerId,
       parent_id: parentItemId,
       country_id: countryId,
-      project_id: projectId || null,
+      project_id: projectId,
       owner_reference: null,
       mwnf_reference: null,
       display_order: group.image_number,

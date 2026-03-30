@@ -307,6 +307,9 @@ export class TimelineImporter extends BaseImporter {
         // Try to resolve collection (SH exhibition → Collection)
         const collectionBC = `mwnf3_sharing_history:sh_exhibitions:${exhibitionIdStr}`;
         const collectionId = await this.getEntityUuidAsync(collectionBC, 'collection');
+        if (!collectionId) {
+          this.logWarning(`Collection not found: ${collectionBC} for SH timeline ${timelineBC}, importing without collection`);
+        }
 
         // Build internal_name
         const internalName = `${legacyCountryCode} — Exhibition ${exhibitionIdStr}`;
@@ -325,7 +328,7 @@ export class TimelineImporter extends BaseImporter {
         const timelineId = await this.context.strategy.writeTimeline({
           internal_name: internalName,
           country_id: countryId,
-          collection_id: collectionId ?? null,
+          collection_id: collectionId,
           backward_compatibility: timelineBC,
         });
         this.registerEntity(timelineId, timelineBC, 'timeline');

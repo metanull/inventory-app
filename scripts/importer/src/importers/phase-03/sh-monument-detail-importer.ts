@@ -151,7 +151,11 @@ export class ShMonumentDetailImporter extends BaseImporter {
 
     // Context (from SH project) - for translations
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context') || defaultContextId;
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    if (!contextId) {
+      this.logWarning(`SH context not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, using default context`);
+    }
+    const effectiveContextId = contextId || defaultContextId;
 
     // Collection (same backward_compat as context)
     const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
@@ -161,6 +165,9 @@ export class ShMonumentDetailImporter extends BaseImporter {
 
     // Project
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(`Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+    }
 
     // Create Item (monument detail)
     const itemData: ItemData = {
@@ -168,7 +175,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
       parent_id: parentId,
       collection_id: collectionId,
       partner_id: null, // Details inherit partner from parent
-      project_id: projectId || null,
+      project_id: projectId,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);
@@ -187,7 +194,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
         await this.context.strategy.writeItemTranslation({
           ...translationResult.data,
           item_id: itemId,
-          context_id: contextId,
+          context_id: effectiveContextId,
           backward_compatibility: transformed.backwardCompatibility,
         });
       } catch (error) {
