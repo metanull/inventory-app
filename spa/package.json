@@ -39,7 +39,7 @@
         "@pinia/testing": "^1.0.2",
         "@tailwindcss/postcss": "^4.1.16",
         "@types/node": "^25.3.3",
-        "@typescript-eslint/eslint-plugin": "^8.47.0",
+        "@typescript-eslint/eslint-plugin": "^8.58.0",
         "@typescript-eslint/parser": "^8.47.0",
         "@vitejs/plugin-vue": "^6.0.1",
         "@vitest/coverage-v8": "^4.0.10",
