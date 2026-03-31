@@ -57,7 +57,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
       // Pass 1: Import exhibitions as Collections (type='exhibition')
       // ========================================================================
       const exhibitions = await this.context.legacyDb.query<Mwnf3LegacyExhibition>(
-        `SELECT exhibition_id, project_id, name, n, show, portal_image, exh_link
+        `SELECT exhibition_id, project_id, name, n, \`show\`, portal_image, exh_link
          FROM ${MWNF3_SCHEMA}.exhibitions
          ORDER BY n, exhibition_id`
       );
