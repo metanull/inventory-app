@@ -83,12 +83,21 @@ export {
   ExploreRootCollectionsImporter,
   ExploreThematicCycleImporter,
   ExploreThematicCyclePictureImporter,
+  ExploreThematicCycleTranslationImporter,
   ExploreCountryImporter,
+  ExploreRegionImporter,
+  ExploreRegionLocationLinker,
   ExploreLocationImporter,
   ExploreLocationPictureImporter,
+  ExploreLocationTranslationImporter,
   ExploreMonumentImporter,
   ExploreMonumentPictureImporter,
+  ExploreMonumentTranslationImporter,
+  ExploreMonumentCrossRefImporter,
+  ExploreMonumentThemeLinkImporter,
   ExploreItineraryImporter,
+  ExploreItineraryContentImporter,
+  ExploreFilterImporter,
 } from './phase-06/index.js';
 
 // Phase 07: Travels

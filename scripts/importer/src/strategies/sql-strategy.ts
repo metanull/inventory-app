@@ -1432,4 +1432,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
     return rows.map((r) => r.language_id as string);
   }
+
+  // =========================================================================
+  // Update Methods (for post-processing / re-parenting)
+  // =========================================================================
+
+  async updateCollectionParentId(collectionId: string, parentId: string): Promise<void> {
+    await this.db.execute(
+      `UPDATE collections SET parent_id = ?, updated_at = ? WHERE id = ?`,
+      [parentId, this.now, collectionId]
+    );
+  }
 }

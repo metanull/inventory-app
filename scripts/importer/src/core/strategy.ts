@@ -518,4 +518,13 @@ export interface IWriteStrategy {
    * Get all language_ids that have translations for a given item.
    */
   getItemTranslationLanguages(itemId: string): Promise<string[]>;
+
+  // =========================================================================
+  // Update Methods (for post-processing / re-parenting)
+  // =========================================================================
+
+  /**
+   * Update a collection's parent_id (for re-parenting, e.g., locations under regions)
+   */
+  updateCollectionParentId(collectionId: string, parentId: string): Promise<void>;
 }
