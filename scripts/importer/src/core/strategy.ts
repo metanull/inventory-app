@@ -240,6 +240,13 @@ export interface IWriteStrategy {
   writeAuthor(data: AuthorData): Promise<string>;
 
   /**
+   * Find an author by exact name match.
+   * Used by AuthorHelper for free-text author references that have no legacy ID.
+   * @returns The author UUID or null if not found
+   */
+  findAuthorByName(name: string): Promise<string | null>;
+
+  /**
    * Write an author translation record
    */
   writeAuthorTranslation(data: AuthorTranslationData): Promise<void>;

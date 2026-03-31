@@ -684,8 +684,6 @@ export interface ShLegacyBibliographyObject {
   country: string;
   number: number;
   biblio_id: number;
-  sort_order: number;
-  sort_status: string;
 }
 
 export interface ShLegacyBibliographyMonument {
@@ -693,8 +691,6 @@ export interface ShLegacyBibliographyMonument {
   country: string;
   number: number;
   biblio_id: number;
-  sort_order: number;
-  sort_status: string;
 }
 
 export interface ShLegacyBibliographyHb {

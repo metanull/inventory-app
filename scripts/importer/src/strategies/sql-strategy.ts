@@ -621,6 +621,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeAuthor(data: AuthorData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
+    const bc = sanitized.backward_compatibility || null;
     try {
       await this.db.execute(
         `INSERT INTO authors (id, name, firstname, lastname, givenname, originalname, internal_name, backward_compatibility, created_at, updated_at)
@@ -633,50 +634,38 @@ export class SqlWriteStrategy implements IWriteStrategy {
           sanitized.givenname ?? null,
           sanitized.originalname ?? null,
           sanitized.internal_name,
-          sanitized.backward_compatibility,
+          bc,
           this.now,
           this.now,
         ]
       );
-      this.tracker.set(sanitized.backward_compatibility, id, 'author');
+      if (bc) {
+        this.tracker.set(bc, id, 'author');
+      }
       return id;
     } catch (error) {
-      // Duplicate entry - try to find existing record
+      // Duplicate entry - try to find existing record by BC
       // This is expected when the same author is imported multiple times
-      const existing = await this.findByBackwardCompatibility(
-        'authors',
-        sanitized.backward_compatibility
-      );
-      if (existing) {
-        return existing;
-      }
-      // Fallback: find by name (handles BC namespace mismatch, e.g., name-based
-      // BC from author-helper vs ID-based BC from AuthorImporter)
-      const [rows] = await this.db.execute<RowDataPacket[]>(
-        'SELECT id FROM authors WHERE name = ? LIMIT 1',
-        [sanitized.name]
-      );
-      if (rows.length > 0) {
-        const foundId = rows[0].id as string;
-        // Append the new BC so both references resolve
-        const [bcRows] = await this.db.execute<RowDataPacket[]>(
-          'SELECT backward_compatibility FROM authors WHERE id = ? LIMIT 1',
-          [foundId]
-        );
-        const existingBc = bcRows[0]?.backward_compatibility as string | null;
-        if (existingBc && !existingBc.includes(sanitized.backward_compatibility)) {
-          const mergedBc = `${existingBc};${sanitized.backward_compatibility}`;
-          await this.updateBackwardCompatibility('authors', foundId, mergedBc);
-          this.tracker.set(sanitized.backward_compatibility, foundId, 'author');
+      if (bc) {
+        const existing = await this.findByBackwardCompatibility('authors', bc);
+        if (existing) {
+          return existing;
         }
-        return foundId;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Failed to create or find author: ${sanitized.backward_compatibility}. Original error: ${message}`
+        `Failed to create or find author: ${bc || sanitized.name}. Original error: ${message}`
       );
     }
+  }
+
+  async findAuthorByName(name: string): Promise<string | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      'SELECT id FROM authors WHERE name = ? LIMIT 1',
+      [name]
+    );
+    return rows.length > 0 ? (rows[0].id as string) : null;
   }
 
   async writeAuthorTranslation(data: AuthorTranslationData): Promise<void> {

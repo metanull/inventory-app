@@ -279,9 +279,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
   private async injectObjectBibliography(result: ImportResult): Promise<void> {
     const links = await this.context.legacyDb.query<ShLegacyBibliographyObject>(
-      `SELECT project_id, country, number, biblio_id, sort_order, sort_status
+      `SELECT project_id, country, number, biblio_id
        FROM ${SH_SCHEMA}.rel_sh_bibliography_objects
-       ORDER BY project_id, country, number, sort_order`
+       ORDER BY project_id, country, number, biblio_id`
     );
 
     this.logInfo(`Found ${links.length} object bibliography links`);
@@ -310,7 +310,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
-        const resolved = this.resolveBibliography(itemLinks);
+        const resolved = this.resolveBibliography(
+          itemLinks.map((l) => ({ biblio_id: l.biblio_id, sort_order: 0, sort_status: 'N' }))
+        );
         if (resolved.active.size === 0 && resolved.disabled.size === 0) {
           result.skipped++;
           this.showSkipped();
@@ -351,9 +353,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
   private async injectMonumentBibliography(result: ImportResult): Promise<void> {
     const links = await this.context.legacyDb.query<ShLegacyBibliographyMonument>(
-      `SELECT project_id, country, number, biblio_id, sort_order, sort_status
+      `SELECT project_id, country, number, biblio_id
        FROM ${SH_SCHEMA}.rel_sh_bibliography_monuments
-       ORDER BY project_id, country, number, sort_order`
+       ORDER BY project_id, country, number, biblio_id`
     );
 
     this.logInfo(`Found ${links.length} monument bibliography links`);
@@ -382,7 +384,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
-        const resolved = this.resolveBibliography(itemLinks);
+        const resolved = this.resolveBibliography(
+          itemLinks.map((l) => ({ biblio_id: l.biblio_id, sort_order: 0, sort_status: 'N' }))
+        );
         if (resolved.active.size === 0 && resolved.disabled.size === 0) {
           result.skipped++;
           this.showSkipped();
