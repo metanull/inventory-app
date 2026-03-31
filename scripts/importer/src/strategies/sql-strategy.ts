@@ -645,11 +645,22 @@ export class SqlWriteStrategy implements IWriteStrategy {
       return id;
     } catch (error) {
       // Duplicate entry - try to find existing record by BC
-      // This is expected when the same author is imported multiple times
       if (bc) {
         const existing = await this.findByBackwardCompatibility('authors', bc);
         if (existing) {
           return existing;
+        }
+        // BC lookup failed — the existing record may have been created without BC
+        // (e.g., by AuthorHelper from free-text fields). Find by name and adopt.
+        const byName = await this.findAuthorByName(sanitized.name);
+        if (byName) {
+          // Update the existing record with the proper BC so future lookups work
+          await this.db.execute(
+            'UPDATE authors SET backward_compatibility = ? WHERE id = ?',
+            [bc, byName]
+          );
+          this.tracker.set(bc, byName, 'author');
+          return byName;
         }
       }
       // If we can't find it after the error, re-throw with context
