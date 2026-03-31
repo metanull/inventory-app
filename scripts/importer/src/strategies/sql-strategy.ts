@@ -650,6 +650,27 @@ export class SqlWriteStrategy implements IWriteStrategy {
       if (existing) {
         return existing;
       }
+      // Fallback: find by name (handles BC namespace mismatch, e.g., name-based
+      // BC from author-helper vs ID-based BC from AuthorImporter)
+      const [rows] = await this.db.execute<RowDataPacket[]>(
+        'SELECT id FROM authors WHERE name = ? LIMIT 1',
+        [sanitized.name]
+      );
+      if (rows.length > 0) {
+        const foundId = rows[0].id as string;
+        // Append the new BC so both references resolve
+        const [bcRows] = await this.db.execute<RowDataPacket[]>(
+          'SELECT backward_compatibility FROM authors WHERE id = ? LIMIT 1',
+          [foundId]
+        );
+        const existingBc = bcRows[0]?.backward_compatibility as string | null;
+        if (existingBc && !existingBc.includes(sanitized.backward_compatibility)) {
+          const mergedBc = `${existingBc};${sanitized.backward_compatibility}`;
+          await this.updateBackwardCompatibility('authors', foundId, mergedBc);
+          this.tracker.set(sanitized.backward_compatibility, foundId, 'author');
+        }
+        return foundId;
+      }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(

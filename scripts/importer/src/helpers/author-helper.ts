@@ -33,8 +33,8 @@ export class AuthorHelper {
     const trimmedName = name.trim();
     const backwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
-      table: 'authors',
-      pkValues: [trimmedName],
+      table: 'objects',
+      pkValues: ['author_ref', trimmedName],
     });
 
     // Check tracker first
