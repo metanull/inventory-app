@@ -59,6 +59,15 @@ export class ProjectImporter extends BaseImporter {
           FROM mwnf3_thematic_gallery.thg_gallery 
           INNER JOIN mwnf3_thematic_gallery.thg_projects ON thg_projects.project_id = thg_gallery.project_id
           WHERE thg_gallery.mwnf3_project_id IS NOT NULL
+          UNION ALL
+          SELECT thg_gallery_lang.lang AS language_id, thg_gallery.mwnf3_project_id AS project_id, CONCAT(thg_projects.name, ' - ', thg_gallery_lang.title) AS description
+          FROM mwnf3_thematic_gallery.thg_gallery
+          INNER JOIN mwnf3_thematic_gallery.thg_projects ON thg_projects.project_id = thg_gallery.project_id
+          INNER JOIN mwnf3_thematic_gallery.thg_gallery_lang ON thg_gallery_lang.gallery_id = thg_gallery.gallery_id
+          WHERE thg_gallery.mwnf3_project_id IS NOT NULL
+            AND thg_gallery_lang.lang != 'en'
+            AND thg_gallery_lang.title IS NOT NULL
+            AND thg_gallery_lang.title != ''
         ) project_description
         WHERE project_id NOT IN ('CAR', 'EXTEST', 'STI')
         ORDER BY project_id, language_id
