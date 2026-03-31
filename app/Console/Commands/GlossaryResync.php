@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SyncSpellingToCollectionTranslations;
 use App\Jobs\SyncSpellingToItemTranslations;
+use App\Jobs\SyncSpellingToTimelineEventTranslations;
 use App\Models\GlossarySpelling;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -19,14 +21,14 @@ class GlossaryResync extends Command
      *
      * @var string
      */
-    protected $signature = 'glossary:resync {--remove-existing : Remove existing item_translation_spelling relationships before queuing} {--chunk=100 : Words per chunk} {--queue= : Queue name to dispatch jobs to} {--force : Skip confirmation prompt}';
+    protected $signature = 'glossary:resync {--remove-existing : Remove existing spelling-translation relationships before queuing} {--chunk=100 : Words per chunk} {--queue= : Queue name to dispatch jobs to} {--force : Skip confirmation prompt}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Re-synchronise glossary spellings to item translations (removes existing links optionally and queues SyncSpellingToItemTranslations jobs in chunks). Refer to laravel artisan queue:work for more info how to run the queue.';
+    protected $description = 'Re-synchronise glossary spellings to item, collection, and timeline event translations (removes existing links optionally and queues sync jobs in chunks). Refer to laravel artisan queue:work for more info how to run the queue.';
 
     public function handle(): int
     {
@@ -36,14 +38,16 @@ class GlossaryResync extends Command
         $force = $this->option('force');
 
         if ($remove) {
-            if (! $force && ! $this->confirm('This will REMOVE ALL rows from item_translation_spelling. Continue?')) {
+            if (! $force && ! $this->confirm('This will REMOVE ALL rows from item_translation_spelling, collection_translation_spelling, and timeline_event_translation_spelling. Continue?')) {
                 $this->info('Aborted. No changes were made.');
 
                 return 1;
             }
 
             DB::table('item_translation_spelling')->delete();
-            $this->info('Removed existing item_translation_spelling relationships.');
+            DB::table('collection_translation_spelling')->delete();
+            DB::table('timeline_event_translation_spelling')->delete();
+            $this->info('Removed existing spelling-translation relationships.');
         }
 
         // Get distinct glossary IDs that have spellings
@@ -73,10 +77,19 @@ class GlossaryResync extends Command
                 $spellings = GlossarySpelling::where('glossary_id', $glossaryId)->get();
 
                 foreach ($spellings as $spelling) {
-                    $dispatch = SyncSpellingToItemTranslations::dispatch($spelling->id);
+                    $itemDispatch = SyncSpellingToItemTranslations::dispatch($spelling->id);
                     if ($queue) {
-                        // override queue if requested
-                        $dispatch->onQueue($queue);
+                        $itemDispatch->onQueue($queue);
+                    }
+
+                    $collectionDispatch = SyncSpellingToCollectionTranslations::dispatch($spelling->id);
+                    if ($queue) {
+                        $collectionDispatch->onQueue($queue);
+                    }
+
+                    $timelineDispatch = SyncSpellingToTimelineEventTranslations::dispatch($spelling->id);
+                    if ($queue) {
+                        $timelineDispatch->onQueue($queue);
                     }
                 }
 
