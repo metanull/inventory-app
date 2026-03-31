@@ -40,6 +40,7 @@ import {
   MonumentImporter,
   MonumentDetailImporter,
   ItemItemLinkImporter,
+  DynastyImporter,
   ObjectPictureImporter,
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
@@ -250,6 +251,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
     importerClass: AuthorImporter,
     dependencies: ['project', 'object', 'monument', 'default-context', 'language'],
+  },
+  {
+    key: 'dynasty',
+    name: 'Dynasties',
+    description:
+      'Import dynasties with translations and item-dynasty links from mwnf3',
+    importerClass: DynastyImporter,
+    dependencies: ['object', 'monument', 'language'],
   },
   // Phase 2: Images
   {
