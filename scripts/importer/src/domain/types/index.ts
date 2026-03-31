@@ -52,6 +52,11 @@ export type {
   ThgLegacyContributorI18n,
   ThgLegacyExhibitionPartner,
   ThgLegacyExhibitionPartnerI18n,
+  // THG Tag Types
+  ThgLegacyTagType,
+  ThgLegacyTag,
+  ThgLegacyObjectMwnf3Tag,
+  ThgLegacyObjectShTag,
   // mwnf3 Exhibition Types
   Mwnf3LegacyExhibition,
   Mwnf3LegacyExhibitionTheme,

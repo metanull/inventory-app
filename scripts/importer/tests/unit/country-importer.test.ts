@@ -117,6 +117,7 @@ describe('CountryImporter', () => {
       getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
       getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
       updateCollectionParentId: vi.fn().mockResolvedValue(undefined),
+      updateBackwardCompatibility: vi.fn().mockResolvedValue(undefined),
     };
 
     // Create tracker
@@ -316,6 +317,7 @@ describe('CountryTranslationImporter', () => {
       getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
       getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
       updateCollectionParentId: vi.fn().mockResolvedValue(undefined),
+      updateBackwardCompatibility: vi.fn().mockResolvedValue(undefined),
     };
 
     tracker = new UnifiedTracker();

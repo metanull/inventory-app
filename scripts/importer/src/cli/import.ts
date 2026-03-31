@@ -124,6 +124,7 @@ import {
   CollectionMediaImporter,
   SchoolImporter,
   ThgContributorImporter,
+  ThgTagImporter,
   PartnerHierarchyImporter,
   Mwnf3ExhibitionImporter,
   Mwnf3ExhibitionTranslationImporter,
@@ -831,6 +832,21 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import THG contributors and exhibition partners as Contributor entities',
     importerClass: ThgContributorImporter,
     dependencies: ['default-context', 'language', 'thg-gallery', 'thg-theme'],
+  },
+  // Phase 10: THG Tags (curated gallery tags + item-tag links)
+  {
+    key: 'thg-tag',
+    name: 'THG Tags',
+    description:
+      'Import 2,629 curated gallery tags with dedup, and 27,543 item-tag links across mwnf3 and SH objects',
+    importerClass: ThgTagImporter,
+    dependencies: [
+      'object',
+      'monument',
+      'sh-object',
+      'sh-monument',
+      'thg-gallery',
+    ],
   },
   // Phase 11: Post-Import Linking
   {

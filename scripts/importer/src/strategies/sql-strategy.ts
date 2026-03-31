@@ -1443,4 +1443,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [parentId, this.now, collectionId]
     );
   }
+
+  async updateBackwardCompatibility(
+    table: string,
+    id: string,
+    backwardCompatibility: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE ${table} SET backward_compatibility = ?, updated_at = ? WHERE id = ?`,
+      [backwardCompatibility, this.now, id]
+    );
+  }
 }

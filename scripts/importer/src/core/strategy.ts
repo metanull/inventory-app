@@ -527,4 +527,17 @@ export interface IWriteStrategy {
    * Update a collection's parent_id (for re-parenting, e.g., locations under regions)
    */
   updateCollectionParentId(collectionId: string, parentId: string): Promise<void>;
+
+  /**
+   * Update an entity's backward_compatibility value.
+   * Used for dedup scenarios where a second BC needs to be appended (semicolon-delimited).
+   * @param table The table name (e.g., 'tags')
+   * @param id The entity UUID
+   * @param backwardCompatibility The new backward_compatibility value
+   */
+  updateBackwardCompatibility(
+    table: string,
+    id: string,
+    backwardCompatibility: string
+  ): Promise<void>;
 }

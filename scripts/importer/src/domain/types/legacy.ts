@@ -730,6 +730,53 @@ export interface ThgLegacyExhibitionPartnerI18n {
 }
 
 // ============================================================================
+// THG Tag Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * thg_tag_types (category labels) — PK: type_id (varchar 20)
+ * Values: material, artist, dynasty, subject, type
+ */
+export interface ThgLegacyTagType {
+  type_id: string;
+  description: string | null;
+}
+
+/**
+ * thg_tags (2,629 rows) — curated gallery tags
+ * PK: tag_id (varchar 20 — the tag name itself)
+ * FK: type_id → thg_tag_types
+ */
+export interface ThgLegacyTag {
+  tag_id: string;
+  type_id: string;
+  description: string | null;
+}
+
+/**
+ * thg_objects_mwnf3_tags (20,406 rows) — links THG tags to mwnf3 objects
+ * PK: (tag_id, objects_project_id, objects_country, objects_museum_id, objects_number)
+ */
+export interface ThgLegacyObjectMwnf3Tag {
+  tag_id: string;
+  objects_project_id: string;
+  objects_country: string;
+  objects_museum_id: string;
+  objects_number: number;
+}
+
+/**
+ * thg_objects_sh_tags (7,137 rows) — links THG tags to SH objects
+ * PK: (tag_id, sh_objects_project_id, sh_objects_country, sh_objects_number)
+ */
+export interface ThgLegacyObjectShTag {
+  tag_id: string;
+  sh_objects_project_id: string;
+  sh_objects_country: string;
+  sh_objects_number: number;
+}
+
+// ============================================================================
 // mwnf3 Exhibition Types (Legacy Exhibition / Artintro System)
 // ============================================================================
 
