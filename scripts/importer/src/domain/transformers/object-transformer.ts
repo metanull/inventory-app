@@ -131,6 +131,14 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
   }
   const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
+  // Parse start_date/end_date from selected translation (year values stored as varchar)
+  const startDate = selectedTranslation!.start_date
+    ? parseInt(selectedTranslation!.start_date, 10) || null
+    : null;
+  const endDate = selectedTranslation!.end_date
+    ? parseInt(selectedTranslation!.end_date, 10) || null
+    : null;
+
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',
     internal_name: internalName,
@@ -138,6 +146,8 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
     mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
+    start_date: startDate,
+    end_date: endDate,
   };
 
   return {
@@ -230,6 +240,8 @@ export function transformObjectTranslation(
   if (obj.copyright) extraData.copyright = obj.copyright;
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
   if (obj.linkcatalogs) extraData.linkcatalogs = obj.linkcatalogs;
+  if (obj.catalogue_holding_link) extraData.catalogue_holding_link = obj.catalogue_holding_link;
+  if (obj.scriber) extraData.scriber = convertHtmlToMarkdown(obj.scriber);
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
   // backward_compatibility matches parent item

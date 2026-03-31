@@ -11,3 +11,4 @@ export { ItemItemLinkImporter } from './item-item-link-importer.js';
 export { DynastyImporter } from './dynasty-importer.js';
 export { AuthorImporter } from './author-importer.js';
 export { SchoolImporter } from './school-importer.js';
+export { PartnerHierarchyImporter } from './partner-hierarchy-importer.js';

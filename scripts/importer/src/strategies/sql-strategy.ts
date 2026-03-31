@@ -423,8 +423,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
     await this.db.execute(
-      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, display_order, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, start_date, end_date, display_order, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.partner_id,
@@ -436,6 +436,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.project_id,
         sanitized.owner_reference,
         sanitized.mwnf_reference,
+        data.start_date ?? null,
+        data.end_date ?? null,
         data.display_order ?? null,
         data.latitude ?? null,
         data.longitude ?? null,
@@ -546,6 +548,28 @@ export class SqlWriteStrategy implements IWriteStrategy {
         );
       } catch {
         // Ignore duplicates - this is expected when multiple items share the same partner
+      }
+    }
+  }
+
+  async attachPartnerToCollectionWithLevel(
+    collectionId: string,
+    partnerId: string,
+    collectionType: string,
+    level: string
+  ): Promise<void> {
+    try {
+      await this.db.execute(
+        `INSERT INTO collection_partner (collection_id, collection_type, partner_id, level, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE level = VALUES(level)`,
+        [collectionId, collectionType, partnerId, level, this.now, this.now]
+      );
+    } catch (error) {
+      // Log and rethrow non-duplicate errors
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes('Duplicate')) {
+        throw error;
       }
     }
   }
@@ -721,8 +745,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = sanitized.id || uuidv4();
     await this.db.execute(
-      `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, extra, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.partner_id,
@@ -732,6 +756,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.size,
         sanitized.alt_text,
         sanitized.display_order,
+        sanitized.extra ?? null,
         this.now,
         this.now,
       ]

@@ -209,6 +209,20 @@ export interface IWriteStrategy {
     collectionType?: string
   ): Promise<void>;
 
+  /**
+   * Attach a single partner to a collection with a specific level
+   * @param collectionId The collection UUID
+   * @param partnerId The partner UUID
+   * @param collectionType The collection type (default: 'project')
+   * @param level The partner level (e.g., 'partner', 'associated_partner', 'minor_contributor')
+   */
+  attachPartnerToCollectionWithLevel(
+    collectionId: string,
+    partnerId: string,
+    collectionType: string,
+    level: string
+  ): Promise<void>;
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================

@@ -115,6 +115,7 @@ import {
   CollectionMediaImporter,
   SchoolImporter,
   ThgContributorImporter,
+  PartnerHierarchyImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -192,6 +193,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['default-context', 'project', 'language', 'country'],
   },
   {
+    key: 'partner-hierarchy',
+    name: 'Partner Hierarchy',
+    description: 'Import partner hierarchy levels (partner/associated/minor) from partner_museums tables',
+    importerClass: PartnerHierarchyImporter,
+    dependencies: ['project', 'partner'],
+  },
+  {
     key: 'object',
     name: 'Objects',
     description: 'Import object items',
@@ -216,9 +224,9 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     key: 'item-item-link',
     name: 'Item-Item Links',
     description:
-      'Import relationships between items (object-object, object-monument, monument-monument)',
+      'Import relationships between items (object-object, object-monument, monument-monument, monument-object) with justification translations',
     importerClass: ItemItemLinkImporter,
-    dependencies: ['object', 'monument', 'default-context'],
+    dependencies: ['object', 'monument', 'default-context', 'language'],
   },
   {
     key: 'author',

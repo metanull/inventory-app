@@ -245,6 +245,8 @@ export interface ItemData extends BaseEntityData {
   owner_reference?: string | null;
   mwnf_reference?: string | null;
   display_order?: number | null;
+  start_date?: number | null;
+  end_date?: number | null;
   // GPS Location (optional, primarily for monuments)
   latitude?: number | null;
   longitude?: number | null;
@@ -363,6 +365,7 @@ export interface PartnerImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+  extra?: string | null;
 }
 
 /**

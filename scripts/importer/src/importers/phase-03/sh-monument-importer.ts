@@ -185,7 +185,7 @@ export class ShMonumentImporter extends BaseImporter {
     // Create translations
     for (const translation of group.translations) {
       try {
-        const translationResult = transformShMonumentTranslation(translation);
+        const translationResult = transformShMonumentTranslation(translation, group.pd_country);
         if (!translationResult) {
           this.logWarning(
             `Skipping translation for SH monument ${transformed.backwardCompatibility}:${translation.lang} - missing required fields`

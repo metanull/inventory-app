@@ -273,6 +273,8 @@ export interface LegacyObject {
   copyright?: string;
   binding_desc?: string;
   linkcatalogs?: string | null;
+  catalogue_holding_link?: string | null;
+  scriber?: string | null;
 }
 
 export interface ObjectGroup {
@@ -313,8 +315,9 @@ export interface LegacyMonument {
   translationby?: string;
   translationcopyeditedby?: string;
   linkcatalogs?: string | null;
-  external_sources?: string | null;
-  // Contact fields
+  external_sources?: string | null;  // Date fields
+  start_date?: string | null;
+  end_date?: string | null;  // Contact fields
   address?: string | null;
   phone?: string | null;
   fax?: string | null;

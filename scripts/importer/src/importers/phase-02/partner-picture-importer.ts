@@ -145,6 +145,16 @@ export class PartnerPictureImporter extends BaseImporter {
     const mimeType = this.getMimeType(picture.path);
     const originalName = path.basename(picture.path);
 
+    // Build extra JSON for photographer/copyright
+    const extra: Record<string, unknown> = {};
+    if (picture.photographer && picture.photographer.trim()) {
+      extra.photographer = picture.photographer.trim();
+    }
+    if (picture.copyright && picture.copyright.trim()) {
+      extra.copyright = picture.copyright.trim();
+    }
+    const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+
     // Create PartnerImage
     const imageData: PartnerImageData = {
       id: undefined,
@@ -155,6 +165,7 @@ export class PartnerPictureImporter extends BaseImporter {
       size: 1, // Fake size as required
       alt_text: altText || null,
       display_order: picture.image_number,
+      extra: extraField,
     };
 
     await this.context.strategy.writePartnerImage(imageData);
@@ -258,6 +269,16 @@ export class PartnerPictureImporter extends BaseImporter {
     const mimeType = this.getMimeType(picture.path);
     const originalName = path.basename(picture.path);
 
+    // Build extra JSON for photographer/copyright
+    const extra: Record<string, unknown> = {};
+    if (picture.photographer && picture.photographer.trim()) {
+      extra.photographer = picture.photographer.trim();
+    }
+    if (picture.copyright && picture.copyright.trim()) {
+      extra.copyright = picture.copyright.trim();
+    }
+    const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+
     // Create PartnerImage
     const imageData: PartnerImageData = {
       id: undefined,
@@ -268,6 +289,7 @@ export class PartnerPictureImporter extends BaseImporter {
       size: 1, // Fake size as required
       alt_text: altText || null,
       display_order: picture.image_number,
+      extra: extraField,
     };
 
     await this.context.strategy.writePartnerImage(imageData);

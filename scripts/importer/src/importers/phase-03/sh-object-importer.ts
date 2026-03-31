@@ -185,7 +185,7 @@ export class ShObjectImporter extends BaseImporter {
     // Create translations
     for (const translation of group.translations) {
       try {
-        const translationResult = transformShObjectTranslation(translation);
+        const translationResult = transformShObjectTranslation(translation, group.pd_country);
         if (!translationResult) {
           this.logWarning(
             `Skipping translation for SH object ${transformed.backwardCompatibility}:${translation.lang} - missing required fields`

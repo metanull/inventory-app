@@ -108,6 +108,8 @@ export function transformShObject(
     parent_id: null,
     owner_reference: group.inventory_id || null,
     mwnf_reference: group.working_number || null,
+    start_date: group.start_date ? parseInt(group.start_date, 10) || null : null,
+    end_date: group.end_date ? parseInt(group.end_date, 10) || null : null,
   };
 
   return {
@@ -123,7 +125,8 @@ export function transformShObject(
  * Description is built from description OR description2 (at least one must be present)
  */
 export function transformShObjectTranslation(
-  text: ShLegacyObjectText
+  text: ShLegacyObjectText,
+  pdCountry?: string | null
 ): TransformedShObjectTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
@@ -204,6 +207,7 @@ export function transformShObjectTranslation(
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
   if (text.copyright) extra.copyright = text.copyright;
   if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
+  if (pdCountry) extra.country_id_present_days = mapCountryCode(pdCountry);
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
