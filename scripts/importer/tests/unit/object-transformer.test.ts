@@ -188,7 +188,7 @@ describe('transformObjectTranslation', () => {
 });
 
 describe('extractObjectTags', () => {
-  it('should extract materials, dynasties, and keywords', () => {
+  it('should extract materials and keywords (dynasties handled by DynastyImporter)', () => {
     const obj: LegacyObject = {
       project_id: 'EPM',
       country: 'eg',
@@ -203,7 +203,6 @@ describe('extractObjectTags', () => {
     const result = extractObjectTags(obj);
 
     expect(result.materials).toEqual(['gold', 'silver']);
-    expect(result.dynasties).toEqual(['18th Dynasty']);
     expect(result.keywords).toEqual(['pharaoh', 'egypt']);
     expect(result.languageId).toBe('eng');
   });

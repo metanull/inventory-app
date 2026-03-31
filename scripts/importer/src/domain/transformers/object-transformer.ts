@@ -51,7 +51,6 @@ export interface TransformedObjectTranslation {
  */
 export interface ExtractedTags {
   materials: string[];
-  dynasties: string[];
   keywords: string[];
   languageId: string;
 }
@@ -299,7 +298,6 @@ export function extractObjectTags(obj: LegacyObject): ExtractedTags {
 
   return {
     materials: parseTagString(obj.materials),
-    dynasties: parseTagString(obj.dynasty),
     keywords: parseTagString(obj.keywords),
     languageId,
   };

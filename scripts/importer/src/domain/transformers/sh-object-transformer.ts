@@ -161,9 +161,7 @@ export function transformShObjectTranslation(
   if (text.date_description) {
     datesParts.push(convertHtmlToMarkdown(text.date_description));
   }
-  if (text.dynasty) {
-    datesParts.push(`Dynasty: ${convertHtmlToMarkdown(text.dynasty)}`);
-  }
+  // Dynasty no longer appended to dates — structured item_dynasty links are created by DynastyImporter
   const dates = datesParts.length > 0 ? datesParts.join('; ') : null;
 
   // Build owner info

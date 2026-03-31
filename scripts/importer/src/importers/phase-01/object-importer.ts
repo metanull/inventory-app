@@ -260,16 +260,8 @@ export class ObjectImporter extends BaseImporter {
         }
       }
 
-      if (extractedTags.dynasties.length > 0) {
-        for (const dynasty of extractedTags.dynasties) {
-          const tagId = await this.tagHelper.findOrCreate(
-            dynasty,
-            'dynasty',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
-      }
+      // Dynasty tags no longer extracted here — structured item_dynasty links
+      // are created by DynastyImporter from objects_dynasties/monuments_dynasties tables
 
       if (extractedTags.keywords.length > 0) {
         for (const keyword of extractedTags.keywords) {

@@ -238,7 +238,7 @@ export function transformMonumentTranslation(
   if (monument.patrons) extraData.patrons = convertHtmlToMarkdown(monument.patrons);
   if (monument.architects) extraData.architects = convertHtmlToMarkdown(monument.architects);
   if (monument.history) extraData.history = convertHtmlToMarkdown(monument.history);
-  if (monument.dynasty) extraData.dynasty = convertHtmlToMarkdown(monument.dynasty);
+  // Dynasty no longer stored in extra — structured item_dynasty links are created by DynastyImporter
 
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
