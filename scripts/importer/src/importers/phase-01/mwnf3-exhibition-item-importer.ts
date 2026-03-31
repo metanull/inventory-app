@@ -429,11 +429,11 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
 
   /**
    * Build a backward_compatibility key for an mwnf3 item from parsed ref_item.
-   * Objects: mwnf3:all_objects:{project}:{country}:{partner}:{number}
-   * Monuments: mwnf3:all_monuments:{project}:{country}:{partner}:{number}
+   * Objects: mwnf3:objects:{project}:{country}:{partner}:{number}
+   * Monuments: mwnf3:monuments:{project}:{country}:{partner}:{number}
    */
   private buildItemBackwardCompat(parsed: ParsedRefItem): string {
-    const table = parsed.type === 'monument' ? 'all_monuments' : 'all_objects';
+    const table = parsed.type === 'monument' ? 'monuments' : 'objects';
     return `${MWNF3_SCHEMA}:${table}:${parsed.projectId.toLowerCase()}:${parsed.country.toLowerCase()}:${parsed.partnerId}:${parsed.number}`;
   }
 
