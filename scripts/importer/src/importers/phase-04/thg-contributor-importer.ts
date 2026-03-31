@@ -91,7 +91,7 @@ export class ThgContributorImporter extends BaseImporter {
       'SELECT * FROM mwnf3_thematic_gallery.contributor_category'
     );
     for (const cat of categories) {
-      this.categoryMap.set(cat.category_id, cat.category.toLowerCase().replace(/\s+/g, '_'));
+      this.categoryMap.set(cat.category_id, cat.label.toLowerCase().replace(/\s+/g, '_'));
     }
     this.logInfo(`Loaded ${this.categoryMap.size} contributor categories`);
   }

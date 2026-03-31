@@ -684,7 +684,7 @@ export interface ThgLegacyContributor {
  */
 export interface ThgLegacyContributorCategory {
   category_id: number;
-  category: string; // e.g. 'cooperator', 'occasion', 'partner', 'sponsor'
+  label: string; // e.g. 'In cooperation with', 'On the occasion of', 'Main contributors', 'With the support of'
 }
 
 /**
