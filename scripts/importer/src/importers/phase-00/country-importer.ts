@@ -156,14 +156,7 @@ export class CountryTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Validate FK references before write
-          const countryExists = await this.entityExistsAsync(legacy.country, 'country');
-          if (!countryExists) {
-            this.logWarning(`Country '${legacy.country}' not found, skipping translation`);
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
+          // Validate language FK reference before write
           const langExists = await this.entityExistsAsync(legacy.lang, 'language');
           if (!langExists) {
             this.logWarning(`Language '${legacy.lang}' not found, skipping translation for country '${legacy.country}'`);
@@ -173,6 +166,8 @@ export class CountryTranslationImporter extends BaseImporter {
           }
 
           // Transform and write country translation
+          // Note: transformCountryTranslation calls mapCountryCode() which throws
+          // for unknown legacy codes — the per-record catch handles this cleanly.
           const transformed = transformCountryTranslation({
             code: legacy.country,
             lang: legacy.lang,
