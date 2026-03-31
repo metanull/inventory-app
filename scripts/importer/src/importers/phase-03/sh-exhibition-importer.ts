@@ -50,7 +50,7 @@ export class ShExhibitionImporter extends BaseImporter {
       // Pass 1: Import exhibitions as Collections (type='exhibition')
       // ========================================================================
       const exhibitions = await this.context.legacyDb.query<ShLegacyExhibition>(
-        `SELECT exhibition_id, project_id, name, sort, show, geoCoordinates, zoom,
+        `SELECT exhibition_id, project_id, name, sort, \`show\`, geoCoordinates, zoom,
                 exh_thumb, logo1, url1, logo2, url2, logo3, url3, homeimage, portal_image
          FROM ${SH_SCHEMA}.sh_exhibitions
          ORDER BY sort, exhibition_id`
