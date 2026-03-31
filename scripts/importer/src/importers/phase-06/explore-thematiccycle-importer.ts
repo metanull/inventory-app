@@ -119,15 +119,15 @@ export class ExploreThematicCycleImporter extends BaseImporter {
       this.logInfo(`Found Explore by Theme: ${this.exploreByThemeId}`);
       this.logInfo('Importing thematic cycles...');
 
-      // Query thematic cycles from legacy database (only enabled ones: status = 'e')
+      // Query thematic cycles from legacy database (all cycles with a label)
       const cycles = await this.context.legacyDb.query<LegacyThematicCycle>(
         `SELECT cycleId, cycleLabel, cycleDescription, status, geoCoordinates, zoom, path, \`order\`
          FROM mwnf3_explore.thematiccycle 
-         WHERE status = 'e' AND cycleLabel != ''
+         WHERE cycleLabel != ''
          ORDER BY \`order\`, cycleId`
       );
 
-      this.logInfo(`Found ${cycles.length} enabled thematic cycles to import`);
+      this.logInfo(`Found ${cycles.length} thematic cycles to import`);
 
       for (const legacy of cycles) {
         try {
@@ -189,6 +189,7 @@ export class ExploreThematicCycleImporter extends BaseImporter {
             backward_compatibility: translationBackwardCompat,
             title: legacy.cycleDescription || legacy.cycleLabel,
             description: legacy.cycleDescription || '',
+            extra: JSON.stringify({ legacy_status: legacy.status }),
           });
 
           result.imported++;
