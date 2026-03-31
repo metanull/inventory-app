@@ -481,7 +481,7 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     Map<number, Array<Record<string, unknown>>>
   > {
     const details = await this.context.legacyDb.query<Mwnf3LegacyExhibitionPageImageDetail>(
-      `SELECT detail_id, image_id, n, n2, ref_detail_item, picture_details
+      `SELECT image_detail_id AS detail_id, image_id, n, n2, ref_detail_item, picture_details
        FROM ${MWNF3_SCHEMA}.exhibition_page_image_details
        ORDER BY image_id, n, n2`
     );
@@ -490,11 +490,11 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     const detailEavRows = await this.context.legacyDb.query<
       Mwnf3LegacyEavField & { detail_id: number }
     >(
-      `SELECT detail_id AS entity_id, lang_id, field, value
+      `SELECT image_detail_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.exhibition_page_image_details_fields
        WHERE field IN ('detail_name', 'detail_justification')
          AND value IS NOT NULL AND value != ''
-       ORDER BY detail_id, lang_id, field`
+       ORDER BY image_detail_id, lang_id, field`
     );
 
     // Pivot detail EAV
