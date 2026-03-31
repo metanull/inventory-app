@@ -22,7 +22,7 @@
         "@tailwindcss/upgrade": "^4.1.16",
         "@types/node": "^25.3.3",
         "autoprefixer": "^10.4.19",
-        "baseline-browser-mapping": "^2.10.11",
+        "baseline-browser-mapping": "^2.10.12",
         "concurrently": "^9.2.0",
         "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.5",
