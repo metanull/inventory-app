@@ -46,9 +46,11 @@ class Glossary extends Model
 
         // Perform atomic deletion in a transaction
         return DB::transaction(function () {
-            // 1. For each spelling, detach all ItemTranslation links
+            // 1. For each spelling, detach all ItemTranslation, CollectionTranslation, and TimelineEventTranslation links
             foreach ($this->spellings as $spelling) {
                 $spelling->itemTranslations()->detach();
+                $spelling->collectionTranslations()->detach();
+                $spelling->timelineEventTranslations()->detach();
             }
 
             // 2. Delete all spellings

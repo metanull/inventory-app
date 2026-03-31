@@ -2,10 +2,16 @@
 
 namespace App\Providers;
 
+use App\Events\CollectionTranslationSaved;
 use App\Events\ItemTranslationSaved;
 use App\Events\SpellingSaved;
+use App\Events\TimelineEventTranslationSaved;
+use App\Listeners\DispatchSyncCollectionTranslationSpellings;
 use App\Listeners\DispatchSyncItemTranslationSpellings;
+use App\Listeners\DispatchSyncSpellingToCollectionTranslations;
 use App\Listeners\DispatchSyncSpellingToItemTranslations;
+use App\Listeners\DispatchSyncSpellingToTimelineEventTranslations;
+use App\Listeners\DispatchSyncTimelineEventTranslationSpellings;
 use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
@@ -32,7 +38,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register glossary link maintenance event listeners
         Event::listen(ItemTranslationSaved::class, DispatchSyncItemTranslationSpellings::class);
+        Event::listen(CollectionTranslationSaved::class, DispatchSyncCollectionTranslationSpellings::class);
+        Event::listen(TimelineEventTranslationSaved::class, DispatchSyncTimelineEventTranslationSpellings::class);
         Event::listen(SpellingSaved::class, DispatchSyncSpellingToItemTranslations::class);
+        Event::listen(SpellingSaved::class, DispatchSyncSpellingToCollectionTranslations::class);
+        Event::listen(SpellingSaved::class, DispatchSyncSpellingToTimelineEventTranslations::class);
 
         // Share entity color config helper across views
         View::share('entityColor', function (string $entity): array {

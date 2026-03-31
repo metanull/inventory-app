@@ -196,9 +196,28 @@ The importer is designed to run as part of a complete database initialization:
 
 1. **Wipe database** - Create or Empty the database schema (e.g. `artisan db:wipe; artisan migrate`)
 2. **Run the importer** - Import legacy data from mwnf3 database
-3. **Done** - Database is ready with both reference and legacy data
+3. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
+4. **Done** - Database is ready with both reference and legacy data
 
 All operations are logged to timestamped files in the `logs/` directory for later review.
+
+### Post-Import: Glossary Resync
+
+After the importer finishes, glossary-to-translation links must be rebuilt. The importer does **not** create these links — they are managed by the Laravel glossary sync system.
+
+```bash
+# From the inventory-app root directory:
+
+# 1. Queue glossary resync jobs (removes stale links first)
+php artisan glossary:resync --remove-existing --force
+
+# 2. Process the queued jobs
+php artisan queue:work --queue=glossary
+```
+
+The `glossary:resync` command scans all ItemTranslation, CollectionTranslation, and TimelineEventTranslation records for glossary spelling matches and creates pivot links. This is a **required post-import step** — without it, glossary terms will not be highlighted in translation content.
+
+> **Note:** The queue worker will process jobs until the queue is empty. For large imports, this may take several minutes. You can monitor progress in the Laravel log or run `queue:work --verbose`.
 
 ### Running the importer
 

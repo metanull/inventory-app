@@ -59,6 +59,12 @@ class GlossarySpelling extends Model
             // First, detach all item translation links
             $this->itemTranslations()->detach();
 
+            // Detach all collection translation links
+            $this->collectionTranslations()->detach();
+
+            // Detach all timeline event translation links
+            $this->timelineEventTranslations()->detach();
+
             // Then perform the actual deletion
             $this->performDeleteOnModel();
 
@@ -122,6 +128,24 @@ class GlossarySpelling extends Model
     public function itemTranslations(): BelongsToMany
     {
         return $this->belongsToMany(ItemTranslation::class, 'item_translation_spelling', 'spelling_id', 'item_translation_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the collection translations linked to this spelling.
+     */
+    public function collectionTranslations(): BelongsToMany
+    {
+        return $this->belongsToMany(CollectionTranslation::class, 'collection_translation_spelling', 'spelling_id', 'collection_translation_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the timeline event translations linked to this spelling.
+     */
+    public function timelineEventTranslations(): BelongsToMany
+    {
+        return $this->belongsToMany(TimelineEventTranslation::class, 'timeline_event_translation_spelling', 'spelling_id', 'timeline_event_translation_id')
             ->withTimestamps();
     }
 
