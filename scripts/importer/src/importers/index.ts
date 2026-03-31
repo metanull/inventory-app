@@ -18,6 +18,9 @@ export { DynastyImporter } from './phase-01/index.js';
 export { AuthorImporter } from './phase-01/index.js';
 export { SchoolImporter } from './phase-01/index.js';
 export { PartnerHierarchyImporter } from './phase-01/index.js';
+export { Mwnf3ExhibitionImporter } from './phase-01/index.js';
+export { Mwnf3ExhibitionTranslationImporter } from './phase-01/index.js';
+export { Mwnf3ExhibitionItemImporter } from './phase-01/index.js';
 
 // Phase 02: Images
 export { ObjectPictureImporter } from './phase-02/index.js';
@@ -40,6 +43,8 @@ export {
   ShExhibitionImporter,
   ShExhibitionTranslationImporter,
   ShExhibitionItemImporter,
+  ShNationalContextImporter,
+  ShBibliographyHbImporter,
 } from './phase-03/index.js';
 
 // Phase 04: Glossary & THG Contributors

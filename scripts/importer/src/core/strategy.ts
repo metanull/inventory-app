@@ -463,4 +463,59 @@ export interface IWriteStrategy {
    * @returns The entity ID or null
    */
   findByBackwardCompatibility(table: string, backwardCompatibility: string): Promise<string | null>;
+
+  // =========================================================================
+  // Extra JSON Read-Modify-Write (for bibliography injection, etc.)
+  // =========================================================================
+
+  /**
+   * Read the extra JSON from a collection_translations row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on a collection_translations row.
+   */
+  setCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string,
+    extra: string
+  ): Promise<void>;
+
+  /**
+   * Read the extra JSON from an item_translations row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getItemTranslationExtra(
+    itemId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on an item_translations row.
+   */
+  setItemTranslationExtra(
+    itemId: string,
+    languageId: string,
+    extra: string
+  ): Promise<void>;
+
+  /**
+   * Attach tags to a collection image via collection_image_tag pivot.
+   */
+  attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void>;
+
+  /**
+   * Get all language_ids that have translations for a given collection.
+   */
+  getCollectionTranslationLanguages(collectionId: string): Promise<string[]>;
+
+  /**
+   * Get all language_ids that have translations for a given item.
+   */
+  getItemTranslationLanguages(itemId: string): Promise<string[]>;
 }

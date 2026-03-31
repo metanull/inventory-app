@@ -258,17 +258,19 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCollectionTranslation(data: CollectionTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
+    const extra = data.extra ?? null;
     await this.db.execute(
-      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.collection_id,
         sanitized.language_id,
         sanitized.context_id,
         sanitized.title,
-        sanitized.description ?? null, // Ensure null instead of undefined
-        sanitized.quote ?? null, // Optional quote field
+        sanitized.description ?? null,
+        sanitized.quote ?? null,
+        extra,
         sanitized.backward_compatibility,
         this.now,
         this.now,
@@ -1347,5 +1349,87 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // Track using lowercase path as unique identifier
     this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
     return id;
+  }
+
+  // =========================================================================
+  // Extra JSON Read-Modify-Write
+  // =========================================================================
+
+  async getCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM collection_translations WHERE collection_id = ? AND language_id = ? LIMIT 1`,
+      [collectionId, languageId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string,
+    extra: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ?`,
+      [extra, this.now, collectionId, languageId]
+    );
+  }
+
+  async getItemTranslationExtra(
+    itemId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM item_translations WHERE item_id = ? AND language_id = ? LIMIT 1`,
+      [itemId, languageId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setItemTranslationExtra(
+    itemId: string,
+    languageId: string,
+    extra: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE item_translations SET extra = ?, updated_at = ? WHERE item_id = ? AND language_id = ?`,
+      [extra, this.now, itemId, languageId]
+    );
+  }
+
+  async attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void> {
+    for (const tagId of tagIds) {
+      try {
+        await this.db.execute(
+          `INSERT IGNORE INTO collection_image_tag (collection_image_id, tag_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?)`,
+          [collectionImageId, tagId, this.now, this.now]
+        );
+      } catch {
+        // Ignore duplicates
+      }
+    }
+  }
+
+  async getCollectionTranslationLanguages(collectionId: string): Promise<string[]> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT DISTINCT language_id FROM collection_translations WHERE collection_id = ?`,
+      [collectionId]
+    );
+    return rows.map((r) => r.language_id as string);
+  }
+
+  async getItemTranslationLanguages(itemId: string): Promise<string[]> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT DISTINCT language_id FROM item_translations WHERE item_id = ?`,
+      [itemId]
+    );
+    return rows.map((r) => r.language_id as string);
   }
 }

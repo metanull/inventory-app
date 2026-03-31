@@ -612,3 +612,162 @@ export interface ShLegacyExhibitionSubthemeImage {
   sort_order: number;
   rel_sort_order: number;
 }
+
+// ============================================================================
+// SH National Context Types
+// ============================================================================
+
+export interface ShLegacyNCExhibition {
+  country: string; // 2-char country code
+  exhibition_id: number;
+}
+
+export interface ShLegacyNCExhibitionText {
+  country: string;
+  exhibition_id: number;
+  lang: string; // 2-char
+  context: string;
+}
+
+export interface ShLegacyNCExhibitionImage {
+  image_id: number;
+  country: string;
+  exhibition_id: number;
+  image_item: string; // 'project_id;country;number'
+  item_type: string; // 'obj' or 'mon'
+  sort_order: number;
+}
+
+export interface ShLegacyRelObjectsNCExhibitions {
+  id: number;
+  nc_country: string;
+  nc_exhibition_id: number;
+  project_id: string;
+  country: string;
+  number: number;
+}
+
+export interface ShLegacyRelObjectsNCExhibitionJustification {
+  relation_id: number;
+  lang: string;
+  justification_text: string;
+}
+
+export interface ShLegacyRelMonumentsNCExhibitions {
+  id: number;
+  nc_country: string;
+  nc_exhibition_id: number;
+  project_id: string;
+  country: string;
+  number: number;
+}
+
+export interface ShLegacyRelMonumentsNCExhibitionJustification {
+  relation_id: number;
+  lang: string;
+  justification_text: string;
+}
+
+// ============================================================================
+// SH Bibliography Junction Types (non-HCR — HCR types already above)
+// ============================================================================
+
+export interface ShLegacyBibliographyExhibition {
+  biblio_id: number;
+  exhibition_id: number;
+  sort_order: number;
+  sort_status: string; // 'Y' or 'N'
+}
+
+export interface ShLegacyBibliographyObject {
+  project_id: string;
+  country: string;
+  number: number;
+  biblio_id: number;
+  sort_order: number;
+  sort_status: string;
+}
+
+export interface ShLegacyBibliographyMonument {
+  project_id: string;
+  country: string;
+  number: number;
+  biblio_id: number;
+  sort_order: number;
+  sort_status: string;
+}
+
+export interface ShLegacyBibliographyHb {
+  hb_id: number;
+  biblio_id: number;
+  sort_order: number;
+  sort_status: string;
+}
+
+// ============================================================================
+// SH Historical Background Types
+// ============================================================================
+
+export interface ShLegacyHistoricalBackground {
+  hb_id: number;
+  countryId: string; // 2-char country code (column name in legacy)
+  gn: string | null; // 'yes' for general, null for country
+  project_id: string;
+}
+
+export interface ShLegacyHistoricalBackgroundText {
+  hb_id: number;
+  lang: string; // 2-char
+  name: string;
+}
+
+export interface ShLegacyHistoricalBackgroundPage {
+  page_id: number;
+  hb_id: number;
+  sort_order: number;
+  remark: string | null;
+}
+
+export interface ShLegacyHistoricalBackgroundPageText {
+  page_id: number;
+  lang: string; // 2-char
+  subtitle: string | null;
+  text: string | null;
+}
+
+export interface ShLegacyHistoricalBackgroundImage {
+  hb_img_id: number;
+  page_id: number;
+  ref_item: string; // 'project_id;country;number' or empty for custom
+  item_type: string; // 'obj' or 'mon'
+  picture: string;
+  sort_order: number;
+}
+
+export interface ShLegacyHistoricalBackgroundImageText {
+  hb_img_id: number;
+  lang: string; // 2-char
+  name: string | null;
+  sname: string | null;
+  name_detail: string | null;
+  date: string | null;
+  dynasty: string | null;
+  museum: string | null;
+  location: string | null;
+  artist: string | null;
+  material: string | null;
+}
+
+export interface ShLegacyHistoricalBackgroundMap {
+  map_id: number;
+  hb_id: number;
+  map_path: string;
+  sort_order: number;
+}
+
+export interface ShLegacyHistoricalBackgroundMapText {
+  map_id: number;
+  hb_id: number;
+  lang: string; // 2-char
+  desc: string | null;
+}

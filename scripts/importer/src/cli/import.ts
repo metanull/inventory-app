@@ -116,6 +116,11 @@ import {
   SchoolImporter,
   ThgContributorImporter,
   PartnerHierarchyImporter,
+  Mwnf3ExhibitionImporter,
+  Mwnf3ExhibitionTranslationImporter,
+  Mwnf3ExhibitionItemImporter,
+  ShNationalContextImporter,
+  ShBibliographyHbImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -358,6 +363,47 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import item assignments and image references for SH exhibitions, themes, and subthemes',
     importerClass: ShExhibitionItemImporter,
     dependencies: ['sh-exhibition', 'sh-object', 'sh-monument'],
+  },
+  {
+    key: 'sh-national-context',
+    name: 'SH National Context',
+    description:
+      'Import SH National Context country-exhibition collections, images, and item assignments',
+    importerClass: ShNationalContextImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument', 'country'],
+  },
+  {
+    key: 'sh-bibliography-hb',
+    name: 'SH Bibliography & Historical Background',
+    description:
+      'Import SH structured bibliography into targets, and Historical Background collections with pages/images/maps',
+    importerClass: ShBibliographyHbImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument', 'sh-national-context'],
+  },
+  // Phase 1: mwnf3 Exhibition System
+  {
+    key: 'mwnf3-exhibition',
+    name: 'MWNF3 Exhibitions',
+    description:
+      'Import mwnf3 exhibition + artintro hierarchy as nested collections',
+    importerClass: Mwnf3ExhibitionImporter,
+    dependencies: ['project', 'language'],
+  },
+  {
+    key: 'mwnf3-exhibition-translation',
+    name: 'MWNF3 Exhibition Translations',
+    description:
+      'Import EAV-based translations for mwnf3 exhibitions, themes, pages, and artintros',
+    importerClass: Mwnf3ExhibitionTranslationImporter,
+    dependencies: ['mwnf3-exhibition', 'language'],
+  },
+  {
+    key: 'mwnf3-exhibition-item',
+    name: 'MWNF3 Exhibition Items',
+    description:
+      'Import mwnf3 exhibition page images (item refs + custom) and exhibition-level images',
+    importerClass: Mwnf3ExhibitionItemImporter,
+    dependencies: ['mwnf3-exhibition', 'object', 'monument'],
   },
   // Phase 4: Glossary
   {

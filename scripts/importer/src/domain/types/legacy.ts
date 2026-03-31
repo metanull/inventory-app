@@ -728,3 +728,129 @@ export interface ThgLegacyExhibitionPartnerI18n {
   description: string;
   further_reading: string;
 }
+
+// ============================================================================
+// mwnf3 Exhibition Types (Legacy Exhibition / Artintro System)
+// ============================================================================
+
+/**
+ * exhibitions (27 rows) — Root exhibition records
+ */
+export interface Mwnf3LegacyExhibition {
+  exhibition_id: number;
+  project_id: string;
+  name: string;
+  n: number | null;
+  show: 'y' | 'n';
+  portal_image: string | null;
+  exh_link: string | null;
+}
+
+/**
+ * exhibition_themes (~171 rows) — Themes within exhibitions
+ */
+export interface Mwnf3LegacyExhibitionTheme {
+  theme_id: number;
+  exhibition_id: number;
+  name: string;
+  n: number | null;
+}
+
+/**
+ * exhibition_pages (200+ rows) — Pages within themes
+ */
+export interface Mwnf3LegacyExhibitionPage {
+  page_id: number;
+  theme_id: number;
+  n: number | null;
+  remark: string | null;
+}
+
+/**
+ * EAV field row — shared pattern for exhibition_fields, exhibition_theme_fields,
+ * exhibition_page_fields, exhibition_page_images_fields, exhibition_page_image_details_fields,
+ * artintro_fields, artintro_theme_fields, artintro_page_fields
+ */
+export interface Mwnf3LegacyEavField {
+  entity_id: number;
+  lang_id: string; // 2-char
+  field: string;
+  value: string;
+}
+
+/**
+ * exhibition_page_images (2,394 rows) — Images on pages, may reference items
+ */
+export interface Mwnf3LegacyExhibitionPageImage {
+  image_id: number;
+  page_id: number;
+  n: number;
+  n2: number;
+  ref_item: string; // 'O;ISL;jo;1;8' or empty for custom images
+  picture: string;
+}
+
+/**
+ * exhibition_page_image_details (281 rows) — Detail annotations on page images
+ */
+export interface Mwnf3LegacyExhibitionPageImageDetail {
+  detail_id: number;
+  image_id: number;
+  n: number;
+  n2: number;
+  ref_detail_item: string; // same format as ref_item
+  picture_details: string;
+}
+
+/**
+ * exhibition_images (94 rows) — Exhibition-level images (banners)
+ */
+export interface Mwnf3LegacyExhibitionLevelImage {
+  image_id: number;
+  exhibition_id: number;
+  n: number;
+  n2: number;
+  ref_item: string;
+  picture: string;
+}
+
+/**
+ * artintros (1 row) — Art introduction root
+ */
+export interface Mwnf3LegacyArtintro {
+  artintro_id: number;
+  project_id: string;
+  name: string;
+}
+
+/**
+ * artintro_themes (10 rows) — Artintro themes
+ */
+export interface Mwnf3LegacyArtintroTheme {
+  theme_id: number;
+  artintro_id: number;
+  name: string;
+  n: number | null;
+}
+
+/**
+ * artintro_pages (19 rows) — Artintro pages
+ */
+export interface Mwnf3LegacyArtintroPage {
+  page_id: number;
+  theme_id: number;
+  n: number | null;
+  remark: string | null;
+}
+
+/**
+ * artintro_page_images (158 rows) — all item references (no custom)
+ */
+export interface Mwnf3LegacyArtintroPageImage {
+  image_id: number;
+  page_id: number;
+  n: number;
+  n2: number;
+  ref_item: string;
+  picture: string;
+}

@@ -25,3 +25,5 @@ export { ShMonumentDetailPictureImporter } from './sh-monument-detail-picture-im
 export { ShExhibitionImporter } from './sh-exhibition-importer.js';
 export { ShExhibitionTranslationImporter } from './sh-exhibition-translation-importer.js';
 export { ShExhibitionItemImporter } from './sh-exhibition-item-importer.js';
+export { ShNationalContextImporter } from './sh-national-context-importer.js';
+export { ShBibliographyHbImporter } from './sh-bibliography-hb-importer.js';

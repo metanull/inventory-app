@@ -176,6 +176,7 @@ export interface CollectionTranslationData {
   title: string;
   description?: string | null;
   quote?: string | null;
+  extra?: string | null;
 }
 
 /**

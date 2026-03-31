@@ -109,6 +109,13 @@ describe('CountryImporter', () => {
       deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      getCollectionTranslationExtra: vi.fn().mockResolvedValue(null),
+      setCollectionTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      getItemTranslationExtra: vi.fn().mockResolvedValue(null),
+      setItemTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      attachTagsToCollectionImage: vi.fn().mockResolvedValue(undefined),
+      getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
+      getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
     };
 
     // Create tracker
@@ -300,6 +307,13 @@ describe('CountryTranslationImporter', () => {
       deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      getCollectionTranslationExtra: vi.fn().mockResolvedValue(null),
+      setCollectionTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      getItemTranslationExtra: vi.fn().mockResolvedValue(null),
+      setItemTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      attachTagsToCollectionImage: vi.fn().mockResolvedValue(undefined),
+      getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
+      getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
     };
 
     tracker = new UnifiedTracker();

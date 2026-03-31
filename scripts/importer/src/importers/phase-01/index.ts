@@ -12,3 +12,6 @@ export { DynastyImporter } from './dynasty-importer.js';
 export { AuthorImporter } from './author-importer.js';
 export { SchoolImporter } from './school-importer.js';
 export { PartnerHierarchyImporter } from './partner-hierarchy-importer.js';
+export { Mwnf3ExhibitionImporter } from './mwnf3-exhibition-importer.js';
+export { Mwnf3ExhibitionTranslationImporter } from './mwnf3-exhibition-translation-importer.js';
+export { Mwnf3ExhibitionItemImporter } from './mwnf3-exhibition-item-importer.js';

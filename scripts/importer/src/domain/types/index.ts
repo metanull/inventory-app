@@ -52,6 +52,18 @@ export type {
   ThgLegacyContributorI18n,
   ThgLegacyExhibitionPartner,
   ThgLegacyExhibitionPartnerI18n,
+  // mwnf3 Exhibition Types
+  Mwnf3LegacyExhibition,
+  Mwnf3LegacyExhibitionTheme,
+  Mwnf3LegacyExhibitionPage,
+  Mwnf3LegacyEavField,
+  Mwnf3LegacyExhibitionPageImage,
+  Mwnf3LegacyExhibitionPageImageDetail,
+  Mwnf3LegacyExhibitionLevelImage,
+  Mwnf3LegacyArtintro,
+  Mwnf3LegacyArtintroTheme,
+  Mwnf3LegacyArtintroPage,
+  Mwnf3LegacyArtintroPageImage,
 } from './legacy.js';
 
 // Sharing History (SH) Legacy Types
@@ -101,4 +113,26 @@ export type {
   ShLegacyExhibitionImage,
   ShLegacyExhibitionThemeImage,
   ShLegacyExhibitionSubthemeImage,
+  // SH National Context Types
+  ShLegacyNCExhibition,
+  ShLegacyNCExhibitionText,
+  ShLegacyNCExhibitionImage,
+  ShLegacyRelObjectsNCExhibitions,
+  ShLegacyRelObjectsNCExhibitionJustification,
+  ShLegacyRelMonumentsNCExhibitions,
+  ShLegacyRelMonumentsNCExhibitionJustification,
+  // SH Bibliography Junction Types
+  ShLegacyBibliographyExhibition,
+  ShLegacyBibliographyObject,
+  ShLegacyBibliographyMonument,
+  ShLegacyBibliographyHb,
+  // SH Historical Background Types
+  ShLegacyHistoricalBackground,
+  ShLegacyHistoricalBackgroundText,
+  ShLegacyHistoricalBackgroundPage,
+  ShLegacyHistoricalBackgroundPageText,
+  ShLegacyHistoricalBackgroundImage,
+  ShLegacyHistoricalBackgroundImageText,
+  ShLegacyHistoricalBackgroundMap,
+  ShLegacyHistoricalBackgroundMapText,
 } from './sh-legacy.js';
