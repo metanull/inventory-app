@@ -328,25 +328,14 @@ export function extractObjectArtists(obj: LegacyObject): ExtractedArtist[] {
 }
 
 /**
- * Parse tag string - handles structured data and simple lists
- * IMPORTANT: Fields with colons are STRUCTURED DATA
- * - If colon found: treat as single structured tag (don't split)
- * - Otherwise: split by semicolon (;) primary, comma (,) fallback
+ * Parse tag string - split by semicolon (;) primary, comma (,) fallback
  */
 export function parseTagString(tagString: string | undefined | null): string[] {
   if (!tagString || tagString.trim() === '') {
     return [];
   }
 
-  // Check if this is structured data (contains colon)
-  const isStructured = tagString.includes(':');
-
-  if (isStructured) {
-    // Structured data - keep as single tag
-    return [tagString.trim()];
-  }
-
-  // Simple list - use semicolon as primary separator, comma as fallback
+  // Split by semicolon as primary separator, comma as fallback
   const separator = tagString.includes(';') ? ';' : ',';
   return tagString
     .split(separator)

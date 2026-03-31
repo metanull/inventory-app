@@ -271,9 +271,9 @@ describe('parseTagString', () => {
     expect(result).toEqual(['tag1', 'tag2', 'tag3']);
   });
 
-  it('should treat structured data as single tag', () => {
+  it('should split semicolon-separated data even with colons in values', () => {
     const result = parseTagString('Warp: wool; Weft: cotton');
-    expect(result).toEqual(['Warp: wool; Weft: cotton']);
+    expect(result).toEqual(['Warp: wool', 'Weft: cotton']);
   });
 
   it('should return empty array for empty string', () => {

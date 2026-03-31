@@ -36,15 +36,12 @@ export class TagHelper {
       return [];
     }
 
-    // Check if structured data (contains colon)
-    const isStructured = tagString.includes(':');
-    const separator = isStructured ? null : tagString.includes(';') ? ';' : ',';
-    const tagNames = separator
-      ? tagString
-          .split(separator)
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [tagString.trim()];
+    // Split by semicolon as primary separator, comma as fallback
+    const separator = tagString.includes(';') ? ';' : ',';
+    const tagNames = tagString
+      .split(separator)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const tagIds: string[] = [];
     for (const tagName of tagNames) {
