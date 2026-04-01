@@ -91,9 +91,13 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
       // Query all monument texts
       const texts = await this.context.legacyDb.query<LegacyMonumentText>(
         `SELECT monumentId, langId, name, description, related_bibliography, date, styles,
-                prepared_by, how_to_reach, info, contact, history, note, abstract,
-                further_reading, url_prog_pdf, pdf_text, url_prog_doc,
-                institution, address, phone, fax, email, website
+                prepared_by, how_to_reach, info, contact, history, note,
+                abstratc AS abstract,
+                furtherreading AS further_reading,
+                url_prog_pdf, pdf_text, url_prog_doc,
+                institution,
+                CONCAT_WS(', ', NULLIF(street, ''), CONCAT_WS(' ', NULLIF(zip, ''), NULLIF(city, ''))) AS address,
+                phone, fax, email, url AS website
          FROM mwnf3_explore.exploremonumentext
          ORDER BY monumentId, langId`
       );
