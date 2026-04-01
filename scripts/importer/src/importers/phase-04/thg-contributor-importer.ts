@@ -12,7 +12,12 @@
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
-import type { ImportResult, ContributorData, ContributorTranslationData, ContributorImageData } from '../../core/types.js';
+import type {
+  ImportResult,
+  ContributorData,
+  ContributorTranslationData,
+  ContributorImageData,
+} from '../../core/types.js';
 import type {
   ThgLegacyContributor,
   ThgLegacyContributorCategory,
@@ -155,7 +160,11 @@ export class ThgContributorImporter extends BaseImporter {
           this.logInfo(
             `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import contributor: ${backwardCompat}`
           );
-          this.registerEntity(`sample-contributor-${legacy.contributor_id}`, backwardCompat, 'contributor');
+          this.registerEntity(
+            `sample-contributor-${legacy.contributor_id}`,
+            backwardCompat,
+            'contributor'
+          );
           result.imported++;
           this.showProgress();
           continue;
@@ -189,7 +198,9 @@ export class ThgContributorImporter extends BaseImporter {
             await this.context.strategy.writeContributorImage(imageData);
           } catch (imgError) {
             const imgMsg = imgError instanceof Error ? imgError.message : String(imgError);
-            this.logWarning(`Contributor ${legacy.contributor_id}: failed to create image: ${imgMsg}`);
+            this.logWarning(
+              `Contributor ${legacy.contributor_id}: failed to create image: ${imgMsg}`
+            );
           }
         }
 
@@ -221,8 +232,13 @@ export class ThgContributorImporter extends BaseImporter {
             };
             await this.context.strategy.writeContributorTranslation(translationData);
           } catch (translationError) {
-            const msg = translationError instanceof Error ? translationError.message : String(translationError);
-            this.logWarning(`Contributor ${legacy.contributor_id}: translation (${i18n.lang}) failed: ${msg}`);
+            const msg =
+              translationError instanceof Error
+                ? translationError.message
+                : String(translationError);
+            this.logWarning(
+              `Contributor ${legacy.contributor_id}: translation (${i18n.lang}) failed: ${msg}`
+            );
           }
         }
 
@@ -335,7 +351,9 @@ export class ThgContributorImporter extends BaseImporter {
             await this.context.strategy.writeContributorImage(imageData);
           } catch (imgError) {
             const imgMsg = imgError instanceof Error ? imgError.message : String(imgError);
-            this.logWarning(`Exhibition partner ${legacy.partner_id}: failed to create image: ${imgMsg}`);
+            this.logWarning(
+              `Exhibition partner ${legacy.partner_id}: failed to create image: ${imgMsg}`
+            );
           }
         }
 
@@ -379,8 +397,13 @@ export class ThgContributorImporter extends BaseImporter {
             };
             await this.context.strategy.writeContributorTranslation(translationData);
           } catch (translationError) {
-            const msg = translationError instanceof Error ? translationError.message : String(translationError);
-            this.logWarning(`Exhibition partner ${legacy.partner_id}: translation (${i18n.lang}) failed: ${msg}`);
+            const msg =
+              translationError instanceof Error
+                ? translationError.message
+                : String(translationError);
+            this.logWarning(
+              `Exhibition partner ${legacy.partner_id}: translation (${i18n.lang}) failed: ${msg}`
+            );
           }
         }
 

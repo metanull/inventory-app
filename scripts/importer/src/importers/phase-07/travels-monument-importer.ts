@@ -167,7 +167,9 @@ export class TravelsMonumentImporter extends BaseImporter {
           // Get country ID
           const countryId = await this.getEntityUuidAsync(group.country, 'country');
           if (!countryId) {
-            this.logWarning(`Country not found for code '${group.country}' in monument ${backwardCompat}, importing without country`);
+            this.logWarning(
+              `Country not found for code '${group.country}' in monument ${backwardCompat}, importing without country`
+            );
           }
 
           // Write Item

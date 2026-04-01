@@ -60,7 +60,9 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
           }
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would link monument ${link.monumentId} to cycle ${link.cycleId}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would link monument ${link.monumentId} to cycle ${link.cycleId}`
+            );
             result.imported++;
             this.showProgress();
             continue;
@@ -82,7 +84,9 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
             result.skipped++;
             this.showSkipped();
           } else {
-            this.logWarning(`Failed monument-theme link ${link.cycleId}/${link.monumentId}: ${message}`);
+            this.logWarning(
+              `Failed monument-theme link ${link.cycleId}/${link.monumentId}: ${message}`
+            );
           }
         }
       }

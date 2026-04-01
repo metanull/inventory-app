@@ -108,33 +108,43 @@ export class ExploreRegionLocationLinker extends BaseImporter {
           const regionBC = `mwnf3_explore:region:${bestRegionId}`;
           const regionCollectionId = await this.getEntityUuidAsync(regionBC, 'collection');
           if (!regionCollectionId) {
-            this.logWarning(`Region collection not found: ${regionBC}, skipping location ${locationId}`);
+            this.logWarning(
+              `Region collection not found: ${regionBC}, skipping location ${locationId}`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would re-parent location ${locationId} under region ${bestRegionId}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would re-parent location ${locationId} under region ${bestRegionId}`
+            );
             result.imported++;
             this.showProgress();
             continue;
           }
 
           // Update parent_id
-          await this.context.strategy.updateCollectionParentId(locationCollectionId, regionCollectionId);
+          await this.context.strategy.updateCollectionParentId(
+            locationCollectionId,
+            regionCollectionId
+          );
 
           // Store additional regions in extra if any
           if (additionalRegionIds.length > 0) {
             // Read existing extra from collection translation (eng)
             const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
-              locationCollectionId, 'eng'
+              locationCollectionId,
+              'eng'
             );
             const extra = existingExtra ?? {};
             extra.additional_regions = additionalRegionIds;
 
             await this.context.strategy.setCollectionTranslationExtra(
-              locationCollectionId, 'eng', JSON.stringify(extra)
+              locationCollectionId,
+              'eng',
+              JSON.stringify(extra)
             );
           }
 

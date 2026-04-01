@@ -22,10 +22,7 @@ import {
   transformObjectVideo,
   transformShObjectVideoAudio,
 } from '../../domain/transformers/index.js';
-import type {
-  LegacyObjectVideo,
-  ShLegacyObjectVideoAudio,
-} from '../../domain/types/index.js';
+import type { LegacyObjectVideo, ShLegacyObjectVideoAudio } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 export class ItemMediaImporter extends BaseImporter {
@@ -104,7 +101,9 @@ export class ItemMediaImporter extends BaseImporter {
         // Resolve language
         const languageId = await this.getLanguageIdByLegacyCodeAsync(row.lang);
         if (!languageId) {
-          this.logWarning(`Skipping object video: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`);
+          this.logWarning(
+            `Skipping object video: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`
+          );
           result.skipped++;
           continue;
         }
@@ -161,7 +160,9 @@ export class ItemMediaImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(row.lang);
         if (!languageId) {
-          this.logWarning(`Skipping monument video: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`);
+          this.logWarning(
+            `Skipping monument video: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`
+          );
           result.skipped++;
           continue;
         }

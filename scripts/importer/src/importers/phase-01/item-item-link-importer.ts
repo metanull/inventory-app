@@ -637,9 +637,7 @@ export class ItemItemLinkImporter extends BaseImporter {
           this.logWarning(
             `Item-item link not found for ${linkBackwardCompat}, skipping justification`
           );
-          result.warnings!.push(
-            `Item-item link not found for ${linkBackwardCompat}`
-          );
+          result.warnings!.push(`Item-item link not found for ${linkBackwardCompat}`);
           continue;
         }
 
@@ -683,9 +681,7 @@ export class ItemItemLinkImporter extends BaseImporter {
     this.logInfo(`Imported ${justificationsImported} justifications from ${table}`);
   }
 
-  private async buildLinkBackwardCompatMap(
-    linkTable: string
-  ): Promise<Map<number, string>> {
+  private async buildLinkBackwardCompatMap(linkTable: string): Promise<Map<number, string>> {
     const map = new Map<number, string>();
 
     // Determine columns based on link table type

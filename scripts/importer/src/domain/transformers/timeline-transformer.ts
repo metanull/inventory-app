@@ -59,7 +59,9 @@ export function transformHcrEvent(legacy: LegacyHcr): TransformedTimelineEvent {
  * Transform a legacy mwnf3 hcr_events row into TimelineEventTranslation data.
  * The timeline_event_id and language_id (ISO-3) are resolved by the importer.
  */
-export function transformHcrEventTranslation(legacy: LegacyHcrEvent): TransformedTimelineEventTranslation {
+export function transformHcrEventTranslation(
+  legacy: LegacyHcrEvent
+): TransformedTimelineEventTranslation {
   const backwardCompatibility = `mwnf3:hcr_events:${legacy.hcr_id}:${legacy.lang_id}`;
 
   return {
@@ -123,7 +125,9 @@ export function transformShHcrEvent(legacy: ShLegacyHcr): TransformedTimelineEve
  * Transform a legacy SH sh_hcr_events row into TimelineEventTranslation data.
  * The timeline_event_id and language_id (ISO-3) are resolved by the importer.
  */
-export function transformShHcrEventTranslation(legacy: ShLegacyHcrEvent): TransformedTimelineEventTranslation {
+export function transformShHcrEventTranslation(
+  legacy: ShLegacyHcrEvent
+): TransformedTimelineEventTranslation {
   const backwardCompatibility = `mwnf3_sharing_history:sh_hcr_events:${legacy.hcr_id}:${legacy.lang}`;
 
   return {

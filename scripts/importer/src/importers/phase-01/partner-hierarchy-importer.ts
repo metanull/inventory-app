@@ -60,7 +60,12 @@ export class PartnerHierarchyImporter extends BaseImporter {
       // Import tier 3: further_associated_museums → level = 'minor_contributor'
       await this.importTier(result, 'minor_contributor');
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import partner hierarchy: ${message}`);
@@ -130,12 +135,8 @@ export class PartnerHierarchyImporter extends BaseImporter {
     for (const row of rows) {
       try {
         if (!row.project_id) {
-          this.logWarning(
-            `associated_museums id=${row.associated_id} has no project_id, skipping`
-          );
-          result.warnings!.push(
-            `associated_museums id=${row.associated_id} has no project_id`
-          );
+          this.logWarning(`associated_museums id=${row.associated_id} has no project_id, skipping`);
+          result.warnings!.push(`associated_museums id=${row.associated_id} has no project_id`);
           result.skipped++;
           this.showSkipped();
           continue;

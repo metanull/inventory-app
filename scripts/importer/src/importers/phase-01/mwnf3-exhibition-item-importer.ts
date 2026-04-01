@@ -115,10 +115,7 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     for (const img of images) {
       try {
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibition_pages:${img.page_id}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -231,10 +228,7 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     for (const img of images) {
       try {
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibitions:${img.exhibition_id}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -331,10 +325,7 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     for (const img of images) {
       try {
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:artintro_pages:${img.page_id}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -477,9 +468,7 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
    * Load exhibition_page_image_details + EAV fields.
    * Returns Map<parent_image_id, detail_annotation[]>.
    */
-  private async loadImageDetails(): Promise<
-    Map<number, Array<Record<string, unknown>>>
-  > {
+  private async loadImageDetails(): Promise<Map<number, Array<Record<string, unknown>>>> {
     const details = await this.context.legacyDb.query<Mwnf3LegacyExhibitionPageImageDetail>(
       `SELECT image_detail_id AS detail_id, image_id, n, n2, ref_detail_item, picture_details
        FROM ${MWNF3_SCHEMA}.exhibition_page_image_details
@@ -530,16 +519,13 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
       const eav = detailEav.get(d.detail_id);
       if (eav) {
         if (eav.detail_name) annotation.detail_name = eav.detail_name;
-        if (eav.detail_justification)
-          annotation.detail_justification = eav.detail_justification;
+        if (eav.detail_justification) annotation.detail_justification = eav.detail_justification;
       }
 
       map.get(d.image_id)!.push(annotation);
     }
 
-    this.logInfo(
-      `Loaded ${details.length} detail annotations across ${map.size} parent images`
-    );
+    this.logInfo(`Loaded ${details.length} detail annotations across ${map.size} parent images`);
     return map;
   }
 }

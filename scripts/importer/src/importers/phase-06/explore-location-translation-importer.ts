@@ -83,7 +83,9 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
 
           const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.langId);
           if (!languageId) {
-            this.logWarning(`Unknown language code '${trans.langId}' for location ${trans.locationId}, skipping`);
+            this.logWarning(
+              `Unknown language code '${trans.langId}' for location ${trans.locationId}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -114,7 +116,9 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
           const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location translation: location ${trans.locationId} / ${languageId}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location translation: location ${trans.locationId} / ${languageId}`
+            );
             result.imported++;
             this.showProgress();
             continue;
@@ -124,11 +128,16 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
           // If this is English, update the existing translation's extra instead of creating a new one.
           if (languageId === 'eng') {
             if (extraJson) {
-              const existingExtra = await this.context.strategy.getCollectionTranslationExtra(collectionId, 'eng');
+              const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
+                collectionId,
+                'eng'
+              );
               const merged = existingExtra ?? {};
               Object.assign(merged, extra);
               await this.context.strategy.setCollectionTranslationExtra(
-                collectionId, 'eng', JSON.stringify(merged)
+                collectionId,
+                'eng',
+                JSON.stringify(merged)
               );
             }
             result.imported++;
@@ -150,7 +159,9 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          this.logWarning(`Failed location translation ${trans.locationId}/${trans.langId}: ${message}`);
+          this.logWarning(
+            `Failed location translation ${trans.locationId}/${trans.langId}: ${message}`
+          );
         }
       }
 
@@ -168,12 +179,17 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) continue;
 
-          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(collectionId, 'eng');
+          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
+            collectionId,
+            'eng'
+          );
           const extra = existingExtra ?? {};
           extra.showOnMonument = loc.showOnMonument === 1;
 
           await this.context.strategy.setCollectionTranslationExtra(
-            collectionId, 'eng', JSON.stringify(extra)
+            collectionId,
+            'eng',
+            JSON.stringify(extra)
           );
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
@@ -195,7 +211,10 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) continue;
 
-          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(collectionId, 'eng');
+          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
+            collectionId,
+            'eng'
+          );
           const extra = existingExtra ?? {};
           const contactObj: Record<string, string> = {};
           if (c.name) contactObj.name = c.name;
@@ -209,7 +228,9 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
             const existing = extra.contacts as Array<Record<string, string>> | undefined;
             extra.contacts = existing ? [...existing, contactObj] : [contactObj];
             await this.context.strategy.setCollectionTranslationExtra(
-              collectionId, 'eng', JSON.stringify(extra)
+              collectionId,
+              'eng',
+              JSON.stringify(extra)
             );
           }
         } catch (error) {

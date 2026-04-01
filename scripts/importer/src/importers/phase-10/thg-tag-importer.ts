@@ -227,9 +227,7 @@ export class ThgTagImporter extends BaseImporter {
         // Resolve tag
         const tagId = await this.resolveTagId(link.tag_id);
         if (!tagId) {
-          this.logWarning(
-            `THG mwnf3 link: tag not found for '${link.tag_id}', skipping`
-          );
+          this.logWarning(`THG mwnf3 link: tag not found for '${link.tag_id}', skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
@@ -297,9 +295,7 @@ export class ThgTagImporter extends BaseImporter {
         // Resolve tag
         const tagId = await this.resolveTagId(link.tag_id);
         if (!tagId) {
-          this.logWarning(
-            `THG SH link: tag not found for '${link.tag_id}', skipping`
-          );
+          this.logWarning(`THG SH link: tag not found for '${link.tag_id}', skipping`);
           result.skipped++;
           this.showSkipped();
           continue;

@@ -20,10 +20,7 @@
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { transformThgThemeMedia } from '../../domain/transformers/index.js';
-import type {
-  ThgLegacyExhibitionMedia,
-  ThgLegacyThemeMedia,
-} from '../../domain/types/index.js';
+import type { ThgLegacyExhibitionMedia, ThgLegacyThemeMedia } from '../../domain/types/index.js';
 
 export class CollectionMediaImporter extends BaseImporter {
   getName(): string {
@@ -63,9 +60,7 @@ export class CollectionMediaImporter extends BaseImporter {
   // Import theme audio or video
   // ===========================================================================
 
-  private async importThemeMedia(
-    mediaType: 'audio' | 'video'
-  ): Promise<ImportResult> {
+  private async importThemeMedia(mediaType: 'audio' | 'video'): Promise<ImportResult> {
     const result = this.createResult();
 
     const idColumn = mediaType === 'audio' ? 'audio_id' : 'video_id';
@@ -73,9 +68,7 @@ export class CollectionMediaImporter extends BaseImporter {
     const themeTable = mediaType === 'audio' ? 'theme_audio' : 'theme_video';
 
     // Join exhibition-level media with theme assignments
-    const rows = await this.context.legacyDb.query<
-      ThgLegacyExhibitionMedia & ThgLegacyThemeMedia
-    >(
+    const rows = await this.context.legacyDb.query<ThgLegacyExhibitionMedia & ThgLegacyThemeMedia>(
       `SELECT e.${idColumn} AS media_id, e.gallery_id, e.lang, e.title,
               e.description, e.url,
               t.theme_id, t.overview_page, t.sort_order
@@ -109,7 +102,9 @@ export class CollectionMediaImporter extends BaseImporter {
         const themeBC = `mwnf3_thematic_gallery:thg_theme:${row.gallery_id}:${row.theme_id}`;
         const collectionId = await this.getEntityUuidAsync(themeBC, 'collection');
         if (!collectionId) {
-          this.logWarning(`Skipping theme ${mediaType}: theme collection not found for BC=${themeBC}`);
+          this.logWarning(
+            `Skipping theme ${mediaType}: theme collection not found for BC=${themeBC}`
+          );
           result.skipped++;
           continue;
         }
@@ -117,7 +112,9 @@ export class CollectionMediaImporter extends BaseImporter {
         // Resolve language
         const languageId = await this.getLanguageIdByLegacyCodeAsync(row.lang);
         if (!languageId) {
-          this.logWarning(`Skipping theme ${mediaType}: unknown language '${row.lang}' for theme=${themeBC}`);
+          this.logWarning(
+            `Skipping theme ${mediaType}: unknown language '${row.lang}' for theme=${themeBC}`
+          );
           result.skipped++;
           continue;
         }

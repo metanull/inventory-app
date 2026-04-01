@@ -163,7 +163,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.langId);
         if (!languageId) {
-          this.logWarning(`Unknown language code '${trans.langId}' for itinerary ${trans.itineraries_id}, skipping`);
+          this.logWarning(
+            `Unknown language code '${trans.langId}' for itinerary ${trans.itineraries_id}, skipping`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -207,7 +209,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(`Failed itinerary translation ${trans.itineraries_id}/${trans.langId}: ${message}`);
+        this.logWarning(
+          `Failed itinerary translation ${trans.itineraries_id}/${trans.langId}: ${message}`
+        );
       }
     }
   }
@@ -272,7 +276,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           result.skipped++;
           this.showSkipped();
         } else {
-          this.logWarning(`Failed itinerary-monument link ${link.itineraries_id}/${link.monumentId}: ${message}`);
+          this.logWarning(
+            `Failed itinerary-monument link ${link.itineraries_id}/${link.monumentId}: ${message}`
+          );
         }
       }
     }
@@ -314,7 +320,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       territoriesByItinerary.set(t.itineraries_id, list);
     }
 
-    this.logInfo(`Found ${locations.length} location + ${countries.length} country + ${territories.length} territory metadata rows`);
+    this.logInfo(
+      `Found ${locations.length} location + ${countries.length} country + ${territories.length} territory metadata rows`
+    );
 
     // Merge all into itinerary collection's English translation extra
     const allItineraryIds = new Set([
@@ -331,7 +339,10 @@ export class ExploreItineraryContentImporter extends BaseImporter {
 
         if (this.isDryRun || this.isSampleOnlyMode) continue;
 
-        const existingExtra = await this.context.strategy.getCollectionTranslationExtra(collectionId, 'eng');
+        const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
+          collectionId,
+          'eng'
+        );
         const extra = existingExtra ?? {};
 
         const locs = locationsByItinerary.get(itineraryId);
@@ -344,7 +355,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         if (terrs) extra.territory_ids = terrs;
 
         await this.context.strategy.setCollectionTranslationExtra(
-          collectionId, 'eng', JSON.stringify(extra)
+          collectionId,
+          'eng',
+          JSON.stringify(extra)
         );
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -423,7 +436,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         result.success = false;
         const errorMessage = error instanceof Error ? error.message : String(error);
         result.errors.push(`Old itinerary ${old.itinerary_id}: ${errorMessage}`);
-        this.logError('ExploreItineraryContentImporter', errorMessage, { itinerary_id: old.itinerary_id });
+        this.logError('ExploreItineraryContentImporter', errorMessage, {
+          itinerary_id: old.itinerary_id,
+        });
         this.showError();
       }
     }
@@ -480,7 +495,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           result.skipped++;
           this.showSkipped();
         } else {
-          this.logWarning(`Failed old itinerary-monument link ${link.itinerary_id}/${link.monumentId}: ${message}`);
+          this.logWarning(
+            `Failed old itinerary-monument link ${link.itinerary_id}/${link.monumentId}: ${message}`
+          );
         }
       }
     }
@@ -538,7 +555,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           result.skipped++;
           this.showSkipped();
         } else {
-          this.logWarning(`Failed cross-schema link ${link.country}:${link.monument_numero} → itinerary ${link.itineraryId}: ${message}`);
+          this.logWarning(
+            `Failed cross-schema link ${link.country}:${link.monument_numero} → itinerary ${link.itineraryId}: ${message}`
+          );
         }
       }
     }

@@ -65,7 +65,12 @@ export class ShPartnerImporter extends BaseImporter {
         result.warnings.push(...partnerResult.warnings);
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import SH partners: ${message}`);

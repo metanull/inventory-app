@@ -62,10 +62,16 @@ export class ExploreFilterImporter extends BaseImporter {
 
           const internalName = filter.name.toLowerCase().trim();
 
-          this.collectSample('explore_filter', filter as unknown as Record<string, unknown>, 'success');
+          this.collectSample(
+            'explore_filter',
+            filter as unknown as Record<string, unknown>,
+            'success'
+          );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create tag: ${internalName} (${backwardCompat})`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create tag: ${internalName} (${backwardCompat})`
+            );
             this.registerEntity('', backwardCompat, 'tag');
             result.imported++;
             this.showProgress();
@@ -106,7 +112,7 @@ export class ExploreFilterImporter extends BaseImporter {
           let tagId = filterTagMap.get(link.filterId);
           if (!tagId) {
             const filterBC = `mwnf3_explore:filter:${link.filterId}`;
-            tagId = await this.getEntityUuidAsync(filterBC, 'tag') ?? undefined;
+            tagId = (await this.getEntityUuidAsync(filterBC, 'tag')) ?? undefined;
             if (tagId) {
               filterTagMap.set(link.filterId, tagId);
             }
@@ -143,7 +149,9 @@ export class ExploreFilterImporter extends BaseImporter {
             result.skipped++;
             this.showSkipped();
           } else {
-            this.logWarning(`Failed filter-monument link ${link.filterId}/${link.monumentId}: ${message}`);
+            this.logWarning(
+              `Failed filter-monument link ${link.filterId}/${link.monumentId}: ${message}`
+            );
           }
         }
       }

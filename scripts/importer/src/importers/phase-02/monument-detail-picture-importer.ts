@@ -49,7 +49,11 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.artistHelper = new ArtistHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing monument detail pictures...');
@@ -89,7 +93,12 @@ export class MonumentDetailPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monument detail pictures: ${message}`);
@@ -254,7 +263,9 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     // Get project_id using same backward_compatibility as context
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for detail picture ${group.project_id}:${group.institution_id}:${group.monument_id}:${group.detail_id}:${group.picture_id}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for detail picture ${group.project_id}:${group.institution_id}:${group.monument_id}:${group.detail_id}:${group.picture_id}, importing without project`
+      );
     }
 
     // Map country code from legacy 2-char to ISO 3-char

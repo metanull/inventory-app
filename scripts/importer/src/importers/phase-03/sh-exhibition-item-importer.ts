@@ -132,7 +132,9 @@ export class ShExhibitionItemImporter extends BaseImporter {
     );
     const justMap = this.groupJustifications(justRows);
 
-    this.logInfo(`Found ${rows.length} object-exhibition assignments (${justRows.length} justifications)`);
+    this.logInfo(
+      `Found ${rows.length} object-exhibition assignments (${justRows.length} justifications)`
+    );
 
     for (const legacy of rows) {
       try {
@@ -563,10 +565,7 @@ export class ShExhibitionItemImporter extends BaseImporter {
    * Resolve an image_item reference (format: 'project_id;country;number') to a backward_compatibility key.
    * Returns null if the reference cannot be parsed.
    */
-  private resolveImageItemReference(
-    imageItem: string,
-    itemType: string
-  ): string | null {
+  private resolveImageItemReference(imageItem: string, itemType: string): string | null {
     if (!imageItem || !imageItem.trim()) return null;
 
     const parts = imageItem.split(';').map((s) => s.trim());
@@ -687,10 +686,8 @@ export class ShExhibitionItemImporter extends BaseImporter {
     const meaningful = justifications.filter((j) => j.partner || j.curator);
     if (meaningful.length === 0) return null;
 
-    const justificationsByLang: Record<
-      string,
-      { partner: string | null; curator: string | null }
-    > = {};
+    const justificationsByLang: Record<string, { partner: string | null; curator: string | null }> =
+      {};
     for (const j of meaningful) {
       justificationsByLang[j.lang] = {
         partner: j.partner || null,

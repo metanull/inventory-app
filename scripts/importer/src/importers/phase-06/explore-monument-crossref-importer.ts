@@ -229,7 +229,9 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
           const partnerBC = `mwnf3:museums:${ml.museum_country}:${ml.museum_id}`;
           const partnerId = await this.getEntityUuidAsync(partnerBC, 'partner');
           if (!partnerId) {
-            this.logWarning(`Museum partner not found: ${partnerBC}, skipping museum check for monument ${ml.monumentId}`);
+            this.logWarning(
+              `Museum partner not found: ${partnerBC}, skipping museum check for monument ${ml.monumentId}`
+            );
             continue;
           }
 
@@ -246,9 +248,15 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
               partners.push(partnerId);
             }
             extra.additional_explore_partners = partners;
-            await this.context.strategy.setItemTranslationExtra(itemId, 'eng', JSON.stringify(extra));
+            await this.context.strategy.setItemTranslationExtra(
+              itemId,
+              'eng',
+              JSON.stringify(extra)
+            );
           } else {
-            this.logWarning(`No English translation for monument ${ml.monumentId}, cannot store museum association`);
+            this.logWarning(
+              `No English translation for monument ${ml.monumentId}, cannot store museum association`
+            );
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);

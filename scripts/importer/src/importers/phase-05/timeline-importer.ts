@@ -147,7 +147,9 @@ export class TimelineImporter extends BaseImporter {
         try {
           countryId = mapCountryCode(legacyCountryCode);
         } catch {
-          this.logWarning(`Unknown country code '${legacyCountryCode}' for mwnf3 HCR timeline, skipping`);
+          this.logWarning(
+            `Unknown country code '${legacyCountryCode}' for mwnf3 HCR timeline, skipping`
+          );
           result.skipped += 1 + events.length;
           continue;
         }
@@ -155,10 +157,19 @@ export class TimelineImporter extends BaseImporter {
         // Build internal_name using the country code
         const internalName = `${legacyCountryCode} — Discover Islamic Art`;
 
-        this.collectSample('timeline', { country: legacyCountryCode, events: events.length } as unknown as Record<string, unknown>, 'success');
+        this.collectSample(
+          'timeline',
+          { country: legacyCountryCode, events: events.length } as unknown as Record<
+            string,
+            unknown
+          >,
+          'success'
+        );
 
         if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import mwnf3 timeline: ${internalName} (${events.length} events)`);
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import mwnf3 timeline: ${internalName} (${events.length} events)`
+          );
           this.registerEntity('sample-timeline-' + legacyCountryCode, timelineBC, 'timeline');
           result.imported += 1 + events.length;
           this.showProgress();
@@ -203,7 +214,9 @@ export class TimelineImporter extends BaseImporter {
               try {
                 const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.lang_id);
                 if (!languageId) {
-                  this.logWarning(`Unknown language code '${trans.lang_id}' for HCR event ${hcr.hcr_id}, skipping translation`);
+                  this.logWarning(
+                    `Unknown language code '${trans.lang_id}' for HCR event ${hcr.hcr_id}, skipping translation`
+                  );
                   continue;
                 }
 
@@ -216,7 +229,9 @@ export class TimelineImporter extends BaseImporter {
                 result.imported++;
               } catch (error) {
                 const message = error instanceof Error ? error.message : String(error);
-                this.logWarning(`Failed to create translation for HCR event ${hcr.hcr_id}:${trans.lang_id}: ${message}`);
+                this.logWarning(
+                  `Failed to create translation for HCR event ${hcr.hcr_id}:${trans.lang_id}: ${message}`
+                );
               }
             }
 
@@ -299,7 +314,9 @@ export class TimelineImporter extends BaseImporter {
         try {
           countryId = mapCountryCode(legacyCountryCode);
         } catch {
-          this.logWarning(`Unknown country code '${legacyCountryCode}' for SH HCR timeline, skipping`);
+          this.logWarning(
+            `Unknown country code '${legacyCountryCode}' for SH HCR timeline, skipping`
+          );
           result.skipped += 1 + events.length;
           continue;
         }
@@ -308,16 +325,28 @@ export class TimelineImporter extends BaseImporter {
         const collectionBC = `mwnf3_sharing_history:sh_exhibitions:${exhibitionIdStr}`;
         const collectionId = await this.getEntityUuidAsync(collectionBC, 'collection');
         if (!collectionId) {
-          this.logWarning(`Collection not found: ${collectionBC} for SH timeline ${timelineBC}, importing without collection`);
+          this.logWarning(
+            `Collection not found: ${collectionBC} for SH timeline ${timelineBC}, importing without collection`
+          );
         }
 
         // Build internal_name
         const internalName = `${legacyCountryCode} — Exhibition ${exhibitionIdStr}`;
 
-        this.collectSample('timeline', { country: legacyCountryCode, exhibition: exhibitionIdStr, events: events.length } as unknown as Record<string, unknown>, 'success');
+        this.collectSample(
+          'timeline',
+          {
+            country: legacyCountryCode,
+            exhibition: exhibitionIdStr,
+            events: events.length,
+          } as unknown as Record<string, unknown>,
+          'success'
+        );
 
         if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import SH timeline: ${internalName} (${events.length} events)`);
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import SH timeline: ${internalName} (${events.length} events)`
+          );
           this.registerEntity('sample-timeline-sh-' + key, timelineBC, 'timeline');
           result.imported += 1 + events.length;
           this.showProgress();
@@ -362,7 +391,9 @@ export class TimelineImporter extends BaseImporter {
               try {
                 const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.lang);
                 if (!languageId) {
-                  this.logWarning(`Unknown language code '${trans.lang}' for SH HCR event ${shHcr.hcr_id}, skipping translation`);
+                  this.logWarning(
+                    `Unknown language code '${trans.lang}' for SH HCR event ${shHcr.hcr_id}, skipping translation`
+                  );
                   continue;
                 }
 
@@ -375,7 +406,9 @@ export class TimelineImporter extends BaseImporter {
                 result.imported++;
               } catch (error) {
                 const message = error instanceof Error ? error.message : String(error);
-                this.logWarning(`Failed to create translation for SH HCR event ${shHcr.hcr_id}:${trans.lang}: ${message}`);
+                this.logWarning(
+                  `Failed to create translation for SH HCR event ${shHcr.hcr_id}:${trans.lang}: ${message}`
+                );
               }
             }
 
@@ -440,7 +473,9 @@ export class TimelineImporter extends BaseImporter {
         const eventBC = `mwnf3_sharing_history:sh_hcr:${img.hcr_id}`;
         const eventId = await this.getEntityUuidAsync(eventBC, 'timeline_event');
         if (!eventId) {
-          this.logWarning(`Timeline event not found for backward_compatibility: ${eventBC} (image ${img.hcr_img_id})`);
+          this.logWarning(
+            `Timeline event not found for backward_compatibility: ${eventBC} (image ${img.hcr_img_id})`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -453,7 +488,9 @@ export class TimelineImporter extends BaseImporter {
           // Parse ref_item: "PROJECT;COUNTRY;NUMBER"
           const parts = img.ref_item.split(';');
           if (parts.length < 3) {
-            this.logWarning(`Invalid ref_item format '${img.ref_item}' for sh_hcr_images ${img.hcr_img_id}`);
+            this.logWarning(
+              `Invalid ref_item format '${img.ref_item}' for sh_hcr_images ${img.hcr_img_id}`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -461,7 +498,9 @@ export class TimelineImporter extends BaseImporter {
 
           const [project, country, number] = parts;
           if (!project || !country || !number) {
-            this.logWarning(`Empty ref_item parts '${img.ref_item}' for sh_hcr_images ${img.hcr_img_id}`);
+            this.logWarning(
+              `Empty ref_item parts '${img.ref_item}' for sh_hcr_images ${img.hcr_img_id}`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -474,7 +513,9 @@ export class TimelineImporter extends BaseImporter {
           const itemId = await this.getEntityUuidAsync(itemBC, 'item');
 
           if (!itemId) {
-            this.logWarning(`Item not found for backward_compatibility: ${itemBC} (image ${img.hcr_img_id})`);
+            this.logWarning(
+              `Item not found for backward_compatibility: ${itemBC} (image ${img.hcr_img_id})`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -489,7 +530,9 @@ export class TimelineImporter extends BaseImporter {
               // Map 2-char to ISO-3 for JSON keys
               const langKey = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
               if (!langKey) {
-                this.logWarning(`Unknown language code '${legacyLang}' for HCR image text ${img.hcr_img_id}, skipping text`);
+                this.logWarning(
+                  `Unknown language code '${legacyLang}' for HCR image text ${img.hcr_img_id}, skipping text`
+                );
                 continue;
               }
               textsObj[langKey] = {
@@ -531,7 +574,9 @@ export class TimelineImporter extends BaseImporter {
           // For now, we skip physical file copy (requires presence of files)
           // and just create the TimelineEventImage record if the file info can be determined
 
-          this.logInfo(`Standalone image hcr_img_id=${img.hcr_img_id}, picture=${img.picture} — skipping (requires physical file import via AvailableImage pipeline)`);
+          this.logInfo(
+            `Standalone image hcr_img_id=${img.hcr_img_id}, picture=${img.picture} — skipping (requires physical file import via AvailableImage pipeline)`
+          );
           result.skipped++;
           this.showSkipped();
         }
@@ -571,7 +616,9 @@ export class TimelineImporter extends BaseImporter {
       'SELECT * FROM mwnf3_sharing_history.sh_bibliography_langs ORDER BY biblio_id, lang'
     );
 
-    this.logInfo(`Found ${biblioCountry.length} bibliography links, ${biblioEntries.length} entries, ${biblioLangs.length} language texts`);
+    this.logInfo(
+      `Found ${biblioCountry.length} bibliography links, ${biblioEntries.length} entries, ${biblioLangs.length} language texts`
+    );
 
     // Index bibliography status by biblio_id
     const biblioStatusMap = new Map<number, string>();
@@ -635,7 +682,9 @@ export class TimelineImporter extends BaseImporter {
             // Map 2-char to ISO-3 for JSON keys
             const langKey = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
             if (!langKey) {
-              this.logWarning(`Unknown language code '${legacyLang}' for bibliography biblio_id=${link.biblio_id}, skipping text`);
+              this.logWarning(
+                `Unknown language code '${legacyLang}' for bibliography biblio_id=${link.biblio_id}, skipping text`
+              );
               continue;
             }
 

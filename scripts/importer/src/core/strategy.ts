@@ -505,11 +505,7 @@ export interface IWriteStrategy {
   /**
    * Set the extra JSON on an item_translations row.
    */
-  setItemTranslationExtra(
-    itemId: string,
-    languageId: string,
-    extra: string
-  ): Promise<void>;
+  setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void>;
 
   /**
    * Attach tags to a collection image via collection_image_tag pivot.

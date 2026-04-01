@@ -73,7 +73,10 @@ export class ArtistHelper {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.warning(`Artist write failed for '${trimmedName}': ${message}, retrying lookup`);
-      const retryResult = await this.strategy.findByBackwardCompatibility('artists', backwardCompat);
+      const retryResult = await this.strategy.findByBackwardCompatibility(
+        'artists',
+        backwardCompat
+      );
       if (!retryResult) {
         this.logger.warning(`Artist retry lookup also failed for '${trimmedName}' — entity lost`);
       }

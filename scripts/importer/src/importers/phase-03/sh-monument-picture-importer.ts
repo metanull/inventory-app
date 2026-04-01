@@ -232,7 +232,9 @@ export class ShMonumentPictureImporter extends BaseImporter {
 
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for monument picture ${group.image_number}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for monument picture ${group.image_number}, importing without project`
+      );
     }
 
     // Build internal name

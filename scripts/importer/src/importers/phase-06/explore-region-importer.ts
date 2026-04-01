@@ -77,9 +77,14 @@ export class ExploreRegionImporter extends BaseImporter {
     try {
       // Resolve Explore context
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      const exploreContextId = await this.getEntityUuidAsync(exploreContextBackwardCompat, 'context');
+      const exploreContextId = await this.getEntityUuidAsync(
+        exploreContextBackwardCompat,
+        'context'
+      );
       if (!exploreContextId) {
-        throw new Error(`Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`);
+        throw new Error(
+          `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
+        );
       }
       this.exploreContextId = exploreContextId;
 
@@ -142,10 +147,16 @@ export class ExploreRegionImporter extends BaseImporter {
           }
           const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
-          this.collectSample('explore_region', legacy as unknown as Record<string, unknown>, 'success');
+          this.collectSample(
+            'explore_region',
+            legacy as unknown as Record<string, unknown>,
+            'success'
+          );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${internalName} (${backwardCompat})`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${internalName} (${backwardCompat})`
+            );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
             this.showProgress();
@@ -184,7 +195,9 @@ export class ExploreRegionImporter extends BaseImporter {
             try {
               const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.langId);
               if (!languageId) {
-                this.logWarning(`Unknown language code '${trans.langId}' for region ${legacy.regionId}, skipping translation`);
+                this.logWarning(
+                  `Unknown language code '${trans.langId}' for region ${legacy.regionId}, skipping translation`
+                );
                 continue;
               }
               // Skip English — already created from label above
@@ -202,7 +215,9 @@ export class ExploreRegionImporter extends BaseImporter {
               });
             } catch (error) {
               const message = error instanceof Error ? error.message : String(error);
-              this.logWarning(`Failed translation for region ${legacy.regionId} lang ${trans.langId}: ${message}`);
+              this.logWarning(
+                `Failed translation for region ${legacy.regionId} lang ${trans.langId}: ${message}`
+              );
             }
           }
 
@@ -235,7 +250,9 @@ export class ExploreRegionImporter extends BaseImporter {
     const collectionId = await this.getEntityUuidAsync(backwardCompat, 'collection');
     this.countryCollectionCache.set(countryId, collectionId);
     if (!collectionId) {
-      this.logWarning(`Country collection not found for '${countryId}', region will have no parent`);
+      this.logWarning(
+        `Country collection not found for '${countryId}', region will have no parent`
+      );
     }
     return collectionId;
   }

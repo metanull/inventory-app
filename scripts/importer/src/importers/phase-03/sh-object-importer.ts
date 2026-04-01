@@ -81,7 +81,12 @@ export class ShObjectImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query SH objects: ${message}`);
@@ -156,7 +161,9 @@ export class ShObjectImporter extends BaseImporter {
     // Project
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`
+      );
     }
 
     // Partner (optional - use SH partner if available)

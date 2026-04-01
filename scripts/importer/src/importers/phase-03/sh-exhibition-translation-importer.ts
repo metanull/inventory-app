@@ -161,10 +161,7 @@ export class ShExhibitionTranslationImporter extends BaseImporter {
           result.errors.push(
             `Exhibition translation ${legacy.exhibition_id}/${legacy.lang}: ${message}`
           );
-          this.logError(
-            `Exhibition translation ${legacy.exhibition_id}/${legacy.lang}`,
-            message
-          );
+          this.logError(`Exhibition translation ${legacy.exhibition_id}/${legacy.lang}`, message);
           this.showError();
         }
       }
@@ -367,9 +364,7 @@ export class ShExhibitionTranslationImporter extends BaseImporter {
           }
           const description = descriptionParts.join('\n\n') || null;
 
-          const quote = legacy.quotation
-            ? convertHtmlToMarkdown(legacy.quotation)
-            : null;
+          const quote = legacy.quotation ? convertHtmlToMarkdown(legacy.quotation) : null;
 
           this.collectSample(
             'sh_exhibition_subtheme_translation',
@@ -407,10 +402,7 @@ export class ShExhibitionTranslationImporter extends BaseImporter {
           result.errors.push(
             `Subtheme translation ${legacy.subtheme_id}/${legacy.lang}: ${message}`
           );
-          this.logError(
-            `Subtheme translation ${legacy.subtheme_id}/${legacy.lang}`,
-            message
-          );
+          this.logError(`Subtheme translation ${legacy.subtheme_id}/${legacy.lang}`, message);
           this.showError();
         }
       }

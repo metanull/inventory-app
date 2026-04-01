@@ -65,9 +65,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
       this.logInfo(`Found ${exhibitions.length} mwnf3 exhibitions`);
 
       // Build exhibition→project map for context resolution
-      this.exhibitionProjectMap = new Map(
-        exhibitions.map((e) => [e.exhibition_id, e.project_id])
-      );
+      this.exhibitionProjectMap = new Map(exhibitions.map((e) => [e.exhibition_id, e.project_id]));
 
       for (const legacy of exhibitions) {
         try {
@@ -202,9 +200,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
             result.warnings.push(
               `Theme ${legacy.theme_id}: Could not resolve context for exhibition ${legacy.exhibition_id}`
             );
-            this.logWarning(
-              `Theme ${legacy.theme_id}: Could not resolve context, skipping`
-            );
+            this.logWarning(`Theme ${legacy.theme_id}: Could not resolve context, skipping`);
             result.skipped++;
             this.showSkipped();
             continue;
@@ -242,17 +238,13 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
         }
       }
 
-      this.logInfo(
-        `Themes done: ${themesImported} imported, ${themesSkipped} skipped`
-      );
+      this.logInfo(`Themes done: ${themesImported} imported, ${themesSkipped} skipped`);
 
       // ========================================================================
       // Pass 3: Import exhibition pages as Collections (type='theme', nested)
       // ========================================================================
       // Build theme→exhibition map for context resolution
-      const themeExhibitionMap = new Map(
-        themes.map((t) => [t.theme_id, t.exhibition_id])
-      );
+      const themeExhibitionMap = new Map(themes.map((t) => [t.theme_id, t.exhibition_id]));
 
       const pages = await this.context.legacyDb.query<Mwnf3LegacyExhibitionPage>(
         `SELECT page_id, theme_id, n, remark
@@ -296,12 +288,8 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
             : null;
           if (!contextId) {
             result.warnings = result.warnings || [];
-            result.warnings.push(
-              `Page ${legacy.page_id}: Could not resolve context`
-            );
-            this.logWarning(
-              `Page ${legacy.page_id}: Could not resolve context, skipping`
-            );
+            result.warnings.push(`Page ${legacy.page_id}: Could not resolve context`);
+            this.logWarning(`Page ${legacy.page_id}: Could not resolve context, skipping`);
             result.skipped++;
             this.showSkipped();
             continue;
@@ -339,9 +327,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
         }
       }
 
-      this.logInfo(
-        `Pages done: ${pagesImported} imported, ${pagesSkipped} skipped`
-      );
+      this.logInfo(`Pages done: ${pagesImported} imported, ${pagesSkipped} skipped`);
 
       // ========================================================================
       // Pass 4: Import artintro hierarchy
@@ -400,9 +386,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
 
         const contextId = await this.getEntityUuidAsync(projectBackwardCompat, 'context');
         if (!contextId) {
-          result.errors.push(
-            `Artintro ${legacy.artintro_id}: Project context not found`
-          );
+          result.errors.push(`Artintro ${legacy.artintro_id}: Project context not found`);
           this.logError(`Artintro ${legacy.artintro_id}`, 'Project context not found');
           this.showError();
           continue;
@@ -464,19 +448,14 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
           result.warnings.push(
             `Artintro theme ${legacy.theme_id}: Artintro not found (${artintroBackwardCompat})`
           );
-          this.logWarning(
-            `Artintro theme ${legacy.theme_id}: Artintro not found, skipping`
-          );
+          this.logWarning(`Artintro theme ${legacy.theme_id}: Artintro not found, skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
         // Artintro is always ISL project
-        const contextId = await this.getEntityUuidAsync(
-          `${MWNF3_SCHEMA}:projects:ISL`,
-          'context'
-        );
+        const contextId = await this.getEntityUuidAsync(`${MWNF3_SCHEMA}:projects:ISL`, 'context');
         if (!contextId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro theme ${legacy.theme_id}: ISL context not found`);
@@ -542,18 +521,13 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
           result.warnings.push(
             `Artintro page ${legacy.page_id}: Theme not found (${themeBackwardCompat})`
           );
-          this.logWarning(
-            `Artintro page ${legacy.page_id}: Theme not found, skipping`
-          );
+          this.logWarning(`Artintro page ${legacy.page_id}: Theme not found, skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
-        const contextId = await this.getEntityUuidAsync(
-          `${MWNF3_SCHEMA}:projects:ISL`,
-          'context'
-        );
+        const contextId = await this.getEntityUuidAsync(`${MWNF3_SCHEMA}:projects:ISL`, 'context');
         if (!contextId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro page ${legacy.page_id}: ISL context not found`);

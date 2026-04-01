@@ -315,9 +315,9 @@ export interface LegacyMonument {
   translationby?: string;
   translationcopyeditedby?: string;
   linkcatalogs?: string | null;
-  external_sources?: string | null;  // Date fields
+  external_sources?: string | null; // Date fields
   start_date?: string | null;
-  end_date?: string | null;  // Contact fields
+  end_date?: string | null; // Contact fields
   address?: string | null;
   phone?: string | null;
   fax?: string | null;

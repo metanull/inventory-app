@@ -232,13 +232,17 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, importing without project`
+      );
     }
 
     // Use default context if SH context not found
     const defaultContextId = await this.getDefaultContextIdAsync();
     if (!contextId) {
-      this.logWarning(`SH context not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, using default context`);
+      this.logWarning(
+        `SH context not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, using default context`
+      );
     }
     const effectiveContextId = contextId || defaultContextId;
 

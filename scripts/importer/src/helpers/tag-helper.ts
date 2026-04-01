@@ -93,10 +93,14 @@ export class TagHelper {
       return await this.strategy.writeTag(tagData);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warning(`Tag write failed for '${cleanName}' (${category}/${languageId}): ${message}, retrying lookup`);
+      this.logger.warning(
+        `Tag write failed for '${cleanName}' (${category}/${languageId}): ${message}, retrying lookup`
+      );
       const retryResult = await this.strategy.findByBackwardCompatibility('tags', backwardCompat);
       if (!retryResult) {
-        this.logger.warning(`Tag retry lookup also failed for '${cleanName}' (${category}/${languageId}) — entity lost`);
+        this.logger.warning(
+          `Tag retry lookup also failed for '${cleanName}' (${category}/${languageId}) — entity lost`
+        );
       }
       return retryResult;
     }

@@ -236,7 +236,9 @@ export class ShObjectPictureImporter extends BaseImporter {
 
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for object picture ${group.image_number}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for object picture ${group.image_number}, importing without project`
+      );
     }
 
     // Try to find partner from the parent object

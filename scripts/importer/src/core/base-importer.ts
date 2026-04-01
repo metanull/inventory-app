@@ -329,7 +329,12 @@ export abstract class BaseImporter {
   /**
    * Show import summary
    */
-  protected showSummary(imported: number, skipped: number, errors: number, warnings?: number): void {
+  protected showSummary(
+    imported: number,
+    skipped: number,
+    errors: number,
+    warnings?: number
+  ): void {
     this.logger.showSummary(imported, skipped, errors, warnings);
   }
 

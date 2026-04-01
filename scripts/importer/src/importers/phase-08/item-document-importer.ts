@@ -52,7 +52,9 @@ export class ItemDocumentImporter extends BaseImporter {
           // Resolve language
           const languageId = await this.getLanguageIdByLegacyCodeAsync(row.lang);
           if (!languageId) {
-            this.logWarning(`Skipping SH document: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`);
+            this.logWarning(
+              `Skipping SH document: unknown language '${row.lang}' for BC=${transformed.data.backward_compatibility}`
+            );
             result.skipped++;
             continue;
           }

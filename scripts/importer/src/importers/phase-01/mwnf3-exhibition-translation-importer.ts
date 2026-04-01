@@ -103,9 +103,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
     );
 
     const pivoted = this.pivotEavRows(eavRows);
-    this.logInfo(
-      `Found ${eavRows.length} exhibition EAV rows → ${pivoted.size} translations`
-    );
+    this.logInfo(`Found ${eavRows.length} exhibition EAV rows → ${pivoted.size} translations`);
 
     for (const [key, fields] of pivoted.entries()) {
       try {
@@ -121,19 +119,14 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(legacyLang!);
         if (!languageId) {
-          this.logWarning(
-            `Exhibition ${entityId}: Unknown language '${legacyLang}', skipping`
-          );
+          this.logWarning(`Exhibition ${entityId}: Unknown language '${legacyLang}', skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibitions:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -210,9 +203,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
     );
 
     const pivoted = this.pivotEavRows(eavRows);
-    this.logInfo(
-      `Found ${eavRows.length} theme EAV rows → ${pivoted.size} translations`
-    );
+    this.logInfo(`Found ${eavRows.length} theme EAV rows → ${pivoted.size} translations`);
 
     for (const [key, fields] of pivoted.entries()) {
       try {
@@ -235,15 +226,10 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibition_themes:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
-          result.warnings.push(
-            `Theme translation ${entityId}/${legacyLang}: Collection not found`
-          );
+          result.warnings.push(`Theme translation ${entityId}/${legacyLang}: Collection not found`);
           this.logWarning(
             `Theme translation ${entityId}/${legacyLang}: Collection not found, skipping`
           );
@@ -255,9 +241,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         const contextId = await this.resolveContextForTheme(entityId);
         if (!contextId) {
           result.warnings = result.warnings || [];
-          result.warnings.push(
-            `Theme translation ${entityId}/${legacyLang}: Context not found`
-          );
+          result.warnings.push(`Theme translation ${entityId}/${legacyLang}: Context not found`);
           this.logWarning(
             `Theme translation ${entityId}/${legacyLang}: Context not found, skipping`
           );
@@ -311,9 +295,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
     );
 
     const pivoted = this.pivotEavRows(eavRows);
-    this.logInfo(
-      `Found ${eavRows.length} page EAV rows → ${pivoted.size} translations`
-    );
+    this.logInfo(`Found ${eavRows.length} page EAV rows → ${pivoted.size} translations`);
 
     for (const [key, fields] of pivoted.entries()) {
       try {
@@ -336,15 +318,10 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibition_pages:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
-          result.warnings.push(
-            `Page translation ${entityId}/${legacyLang}: Collection not found`
-          );
+          result.warnings.push(`Page translation ${entityId}/${legacyLang}: Collection not found`);
           this.logWarning(
             `Page translation ${entityId}/${legacyLang}: Collection not found, skipping`
           );
@@ -357,9 +334,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         const contextId = await this.resolveContextForPage(entityId);
         if (!contextId) {
           result.warnings = result.warnings || [];
-          result.warnings.push(
-            `Page translation ${entityId}/${legacyLang}: Context not found`
-          );
+          result.warnings.push(`Page translation ${entityId}/${legacyLang}: Context not found`);
           this.logWarning(
             `Page translation ${entityId}/${legacyLang}: Context not found, skipping`
           );
@@ -369,12 +344,8 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         }
 
         const title = fields['page_title'] || `Page ${entityId}`;
-        const description = fields['page_text']
-          ? convertHtmlToMarkdown(fields['page_text'])
-          : null;
-        const quote = fields['page_quote']
-          ? convertHtmlToMarkdown(fields['page_quote'])
-          : null;
+        const description = fields['page_text'] ? convertHtmlToMarkdown(fields['page_text']) : null;
+        const quote = fields['page_quote'] ? convertHtmlToMarkdown(fields['page_quote']) : null;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           result.imported++;
@@ -438,10 +409,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:artintros:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro translation ${key}: Collection not found`);
@@ -451,10 +419,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           continue;
         }
 
-        const contextId = await this.getEntityUuidAsync(
-          `${MWNF3_SCHEMA}:projects:ISL`,
-          'context'
-        );
+        const contextId = await this.getEntityUuidAsync(`${MWNF3_SCHEMA}:projects:ISL`, 'context');
         if (!contextId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro translation ${key}: ISL context not found`);
@@ -534,19 +499,14 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(legacyLang!);
         if (!languageId) {
-          this.logWarning(
-            `Artintro theme ${entityId}: Unknown language '${legacyLang}', skipping`
-          );
+          this.logWarning(`Artintro theme ${entityId}: Unknown language '${legacyLang}', skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:artintro_themes:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro theme translation ${key}: Collection not found`);
@@ -556,10 +516,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           continue;
         }
 
-        const contextId = await this.getEntityUuidAsync(
-          `${MWNF3_SCHEMA}:projects:ISL`,
-          'context'
-        );
+        const contextId = await this.getEntityUuidAsync(`${MWNF3_SCHEMA}:projects:ISL`, 'context');
         if (!contextId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro theme translation ${key}: ISL context not found`);
@@ -630,19 +587,14 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(legacyLang!);
         if (!languageId) {
-          this.logWarning(
-            `Artintro page ${entityId}: Unknown language '${legacyLang}', skipping`
-          );
+          this.logWarning(`Artintro page ${entityId}: Unknown language '${legacyLang}', skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:artintro_pages:${entityId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro page translation ${key}: Collection not found`);
@@ -652,10 +604,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           continue;
         }
 
-        const contextId = await this.getEntityUuidAsync(
-          `${MWNF3_SCHEMA}:projects:ISL`,
-          'context'
-        );
+        const contextId = await this.getEntityUuidAsync(`${MWNF3_SCHEMA}:projects:ISL`, 'context');
         if (!contextId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Artintro page translation ${key}: ISL context not found`);
@@ -666,12 +615,8 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
         }
 
         const title = fields['page_title'] || `Artintro Page ${entityId}`;
-        const description = fields['page_text']
-          ? convertHtmlToMarkdown(fields['page_text'])
-          : null;
-        const quote = fields['page_quote']
-          ? convertHtmlToMarkdown(fields['page_quote'])
-          : null;
+        const description = fields['page_text'] ? convertHtmlToMarkdown(fields['page_text']) : null;
+        const quote = fields['page_quote'] ? convertHtmlToMarkdown(fields['page_quote']) : null;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           result.imported++;
@@ -707,9 +652,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
   /**
    * Pivot EAV rows into grouped (entity_id:lang_id) → { field: value } map.
    */
-  private pivotEavRows(
-    rows: Mwnf3LegacyEavField[]
-  ): Map<string, PivotedFields> {
+  private pivotEavRows(rows: Mwnf3LegacyEavField[]): Map<string, PivotedFields> {
     const map = new Map<string, PivotedFields>();
     for (const row of rows) {
       const key = `${row.entity_id}:${row.lang_id}`;

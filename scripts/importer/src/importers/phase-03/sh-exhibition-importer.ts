@@ -247,9 +247,7 @@ export class ShExhibitionImporter extends BaseImporter {
         }
       }
 
-      this.logInfo(
-        `Themes done: ${themesImported} imported, ${themesSkipped} skipped`
-      );
+      this.logInfo(`Themes done: ${themesImported} imported, ${themesSkipped} skipped`);
 
       // ========================================================================
       // Pass 3: Import subthemes as Collections (type='subtheme')
@@ -351,9 +349,7 @@ export class ShExhibitionImporter extends BaseImporter {
         }
       }
 
-      this.logInfo(
-        `Subthemes done: ${subthemesImported} imported, ${subthemesSkipped} skipped`
-      );
+      this.logInfo(`Subthemes done: ${subthemesImported} imported, ${subthemesSkipped} skipped`);
 
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {

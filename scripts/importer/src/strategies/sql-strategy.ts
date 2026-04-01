@@ -655,10 +655,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
         const byName = await this.findAuthorByName(sanitized.name);
         if (byName) {
           // Update the existing record with the proper BC so future lookups work
-          await this.db.execute(
-            'UPDATE authors SET backward_compatibility = ? WHERE id = ?',
-            [bc, byName]
-          );
+          await this.db.execute('UPDATE authors SET backward_compatibility = ? WHERE id = ?', [
+            bc,
+            byName,
+          ]);
           this.tracker.set(bc, byName, 'author');
           return byName;
         }
@@ -1097,10 +1097,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
   }
 
   async updateTimelineExtra(timelineId: string, extra: string): Promise<void> {
-    await this.db.execute(
-      `UPDATE timelines SET extra = ?, updated_at = ? WHERE id = ?`,
-      [extra, this.now, timelineId]
-    );
+    await this.db.execute(`UPDATE timelines SET extra = ?, updated_at = ? WHERE id = ?`, [
+      extra,
+      this.now,
+      timelineId,
+    ]);
   }
 
   // =========================================================================
@@ -1201,7 +1202,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
     fkColumn: string,
     authorId: string
   ): Promise<void> {
-    const allowedColumns = ['author_id', 'text_copy_editor_id', 'translator_id', 'translation_copy_editor_id'];
+    const allowedColumns = [
+      'author_id',
+      'text_copy_editor_id',
+      'translator_id',
+      'translation_copy_editor_id',
+    ];
     if (!allowedColumns.includes(fkColumn)) {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
@@ -1217,7 +1223,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
     fkColumn: string,
     authorId: string
   ): Promise<void> {
-    const allowedColumns = ['author_id', 'text_copy_editor_id', 'translator_id', 'translation_copy_editor_id'];
+    const allowedColumns = [
+      'author_id',
+      'text_copy_editor_id',
+      'translator_id',
+      'translation_copy_editor_id',
+    ];
     if (!allowedColumns.includes(fkColumn)) {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
@@ -1413,11 +1424,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return typeof raw === 'string' ? JSON.parse(raw) : raw;
   }
 
-  async setItemTranslationExtra(
-    itemId: string,
-    languageId: string,
-    extra: string
-  ): Promise<void> {
+  async setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void> {
     await this.db.execute(
       `UPDATE item_translations SET extra = ?, updated_at = ? WHERE item_id = ? AND language_id = ?`,
       [extra, this.now, itemId, languageId]
@@ -1459,10 +1466,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // =========================================================================
 
   async updateCollectionParentId(collectionId: string, parentId: string): Promise<void> {
-    await this.db.execute(
-      `UPDATE collections SET parent_id = ?, updated_at = ? WHERE id = ?`,
-      [parentId, this.now, collectionId]
-    );
+    await this.db.execute(`UPDATE collections SET parent_id = ?, updated_at = ? WHERE id = ?`, [
+      parentId,
+      this.now,
+      collectionId,
+    ]);
   }
 
   async updateBackwardCompatibility(

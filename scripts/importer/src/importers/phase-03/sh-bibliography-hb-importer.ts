@@ -189,9 +189,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
   /**
    * Convert ResolvedBibliography to JSON-serializable object for extra field.
    */
-  private bibliographyToExtraFields(
-    resolved: ResolvedBibliography
-  ): Record<string, unknown> {
+  private bibliographyToExtraFields(resolved: ResolvedBibliography): Record<string, unknown> {
     const extra: Record<string, unknown> = {};
     if (resolved.active.size > 0) {
       extra.bibliography = Object.fromEntries(resolved.active);
@@ -227,10 +225,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
     for (const [exhibitionId, exhLinks] of grouped.entries()) {
       try {
         const collectionBackwardCompat = `${SH_SCHEMA}:sh_exhibitions:${exhibitionId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -333,12 +328,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
-        await this.mergeExtraIntoItemTranslations(
-          itemId,
-          bibFields,
-          result,
-          `Bib obj ${key}`
-        );
+        await this.mergeExtraIntoItemTranslations(itemId, bibFields, result, `Bib obj ${key}`);
 
         result.imported++;
         this.showProgress();
@@ -407,12 +397,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
-        await this.mergeExtraIntoItemTranslations(
-          itemId,
-          bibFields,
-          result,
-          `Bib mon ${key}`
-        );
+        await this.mergeExtraIntoItemTranslations(itemId, bibFields, result, `Bib mon ${key}`);
 
         result.imported++;
         this.showProgress();
@@ -446,10 +431,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
     for (const [hbId, hbLinks] of grouped.entries()) {
       try {
         const collectionBackwardCompat = `${SH_SCHEMA}:sh_countries_historicalbackground:${hbId}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(`Bib HB ${hbId}: Collection not found`);
@@ -554,9 +536,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
             const mapped = mapCountryCode(hb.countryId);
             countryId = await this.getEntityUuidAsync(`countries:${mapped}`, 'country');
           } catch {
-            this.logWarning(
-              `HB ${hb.hb_id}: Unknown country code '${hb.countryId}'`
-            );
+            this.logWarning(`HB ${hb.hb_id}: Unknown country code '${hb.countryId}'`);
           }
         }
 
@@ -671,7 +651,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
         const parentId = await this.getEntityUuidAsync(parentBackwardCompat, 'collection');
         if (!parentId) {
           result.warnings = result.warnings || [];
-          result.warnings.push(`HB page ${page.page_id}: Parent HB not found (${parentBackwardCompat})`);
+          result.warnings.push(
+            `HB page ${page.page_id}: Parent HB not found (${parentBackwardCompat})`
+          );
           this.logWarning(`HB page ${page.page_id}: Parent HB not found, skipping`);
           result.skipped++;
           this.showSkipped();
@@ -770,10 +752,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
         if (img.ref_item && img.ref_item.trim()) {
           // Item reference → collection_item pivot
-          const itemBackwardCompat = this.resolveImageItemReference(
-            img.ref_item,
-            img.item_type
-          );
+          const itemBackwardCompat = this.resolveImageItemReference(img.ref_item, img.item_type);
           if (!itemBackwardCompat) {
             result.warnings = result.warnings || [];
             result.warnings.push(
@@ -949,7 +928,8 @@ export class ShBibliographyHbImporter extends BaseImporter {
         const captionObj: Record<string, string> = {};
         if (caption.name) captionObj.name = convertHtmlToMarkdown(caption.name);
         if (caption.sname) captionObj.sname = convertHtmlToMarkdown(caption.sname);
-        if (caption.name_detail) captionObj.name_detail = convertHtmlToMarkdown(caption.name_detail);
+        if (caption.name_detail)
+          captionObj.name_detail = convertHtmlToMarkdown(caption.name_detail);
         if (caption.date) captionObj.date = caption.date;
         if (caption.dynasty) captionObj.dynasty = caption.dynasty;
         if (caption.museum) captionObj.museum = caption.museum;
@@ -1098,10 +1078,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
   /**
    * Resolve an image_item reference (SH format: 'project_id;country;number') to backward_compatibility.
    */
-  private resolveImageItemReference(
-    imageItem: string,
-    itemType: string
-  ): string | null {
+  private resolveImageItemReference(imageItem: string, itemType: string): string | null {
     if (!imageItem || !imageItem.trim()) return null;
 
     const parts = imageItem.split(';').map((s) => s.trim());
@@ -1173,11 +1150,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
       try {
         const existing = await this.context.strategy.getItemTranslationExtra(itemId, langId);
         const merged = { ...(existing || {}), ...fields };
-        await this.context.strategy.setItemTranslationExtra(
-          itemId,
-          langId,
-          JSON.stringify(merged)
-        );
+        await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(merged));
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.warnings = result.warnings || [];

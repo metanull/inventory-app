@@ -32,8 +32,16 @@ export class MonumentImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helpers
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
-    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.tagHelper = new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
+    this.authorHelper = new AuthorHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing monuments...');
@@ -83,7 +91,12 @@ export class MonumentImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monuments: ${message}`);
@@ -175,7 +188,9 @@ export class MonumentImporter extends BaseImporter {
     const projectBackwardCompat = contextBackwardCompat;
     const projectId = await this.getEntityUuidAsync(projectBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${projectBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+      this.logWarning(
+        `Project not found: ${projectBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`
+      );
     }
 
     // Create Item

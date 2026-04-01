@@ -128,7 +128,9 @@ export class TravelsTrailImporter extends BaseImporter {
           // Look up country ID from legacy 2-letter code
           const countryId = await this.getEntityUuidAsync(legacy.country, 'country');
           if (!countryId) {
-            this.logWarning(`Country not found for code '${legacy.country}' in trail ${backwardCompat}, importing without country`);
+            this.logWarning(
+              `Country not found for code '${legacy.country}' in trail ${backwardCompat}, importing without country`
+            );
           }
 
           // Create internal name from project_id, country, and title

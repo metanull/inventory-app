@@ -12,7 +12,11 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { transformAuthor, transformAuthorCv, transformShAuthorCv } from '../../domain/transformers/index.js';
+import {
+  transformAuthor,
+  transformAuthorCv,
+  transformShAuthorCv,
+} from '../../domain/transformers/index.js';
 import type {
   LegacyAuthor,
   LegacyAuthorCv,
@@ -308,7 +312,9 @@ export class AuthorImporter extends BaseImporter {
         // Resolve language
         const languageId = await this.getLanguageIdByLegacyCodeAsync(legacy.lang_id);
         if (!languageId) {
-          this.logWarning(`Unknown language code '${legacy.lang_id}' for author CV ${legacy.author_id}`);
+          this.logWarning(
+            `Unknown language code '${legacy.lang_id}' for author CV ${legacy.author_id}`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -321,7 +327,9 @@ export class AuthorImporter extends BaseImporter {
           // Fall back to default context
           const defaultContextId = await this.getDefaultContextIdAsync();
           if (!defaultContextId) {
-            this.logWarning(`No default context available for author CV ${legacy.author_id}:${legacy.project_id}`);
+            this.logWarning(
+              `No default context available for author CV ${legacy.author_id}:${legacy.project_id}`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -360,7 +368,9 @@ export class AuthorImporter extends BaseImporter {
         this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        result.errors.push(`mwnf3 author CV ${legacy.author_id}:${legacy.project_id}:${legacy.lang_id}: ${message}`);
+        result.errors.push(
+          `mwnf3 author CV ${legacy.author_id}:${legacy.project_id}:${legacy.lang_id}: ${message}`
+        );
         this.logError(`mwnf3 author CV ${legacy.author_id}`, message);
         this.showError();
       }
@@ -378,7 +388,7 @@ export class AuthorImporter extends BaseImporter {
 
         // Resolve author UUID (try SH backward_compatibility first, then via bridge)
         const shBackwardCompat = `mwnf3_sharing_history:sh_authors:${legacy.author_id}`;
-        let authorId = await this.getEntityUuidAsync(shBackwardCompat, 'author');
+        const authorId = await this.getEntityUuidAsync(shBackwardCompat, 'author');
         if (!authorId) {
           // May have been deduplicated to mwnf3 author
           this.logWarning(`SH Author not found for backward_compatibility: ${shBackwardCompat}`);
@@ -389,7 +399,9 @@ export class AuthorImporter extends BaseImporter {
 
         const languageId = await this.getLanguageIdByLegacyCodeAsync(legacy.lang);
         if (!languageId) {
-          this.logWarning(`Unknown language code '${legacy.lang}' for SH author CV ${legacy.author_id}`);
+          this.logWarning(
+            `Unknown language code '${legacy.lang}' for SH author CV ${legacy.author_id}`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -582,7 +594,9 @@ export class AuthorImporter extends BaseImporter {
       this.showProgress();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logWarning(`Failed to update item_translation ${fkColumn} for item ${itemId}: ${message}`);
+      this.logWarning(
+        `Failed to update item_translation ${fkColumn} for item ${itemId}: ${message}`
+      );
       result.skipped++;
       this.showSkipped();
     }
@@ -651,7 +665,9 @@ export class AuthorImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          this.logWarning(`Failed to update dynasty_translation ${fkColumn} for dynasty ${dynastyId}: ${message}`);
+          this.logWarning(
+            `Failed to update dynasty_translation ${fkColumn} for dynasty ${dynastyId}: ${message}`
+          );
           result.skipped++;
           this.showSkipped();
         }

@@ -49,7 +49,11 @@ export class ObjectPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.artistHelper = new ArtistHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing object pictures...');
@@ -91,7 +95,12 @@ export class ObjectPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query object pictures: ${message}`);
@@ -250,7 +259,9 @@ export class ObjectPictureImporter extends BaseImporter {
     // Get project_id using same backward_compatibility as context
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for picture ${group.project_id}:${group.museum_id}:${group.number}:${group.image_number}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for picture ${group.project_id}:${group.museum_id}:${group.number}:${group.image_number}, importing without project`
+      );
     }
 
     // Map country code from legacy 2-char to ISO 3-char

@@ -80,7 +80,9 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
 
           const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.langId);
           if (!languageId) {
-            this.logWarning(`Unknown language code '${trans.langId}' for cycle ${trans.cycleId}, skipping`);
+            this.logWarning(
+              `Unknown language code '${trans.langId}' for cycle ${trans.cycleId}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -102,7 +104,9 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
           }
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create cycle translation: cycle ${trans.cycleId} / ${languageId}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create cycle translation: cycle ${trans.cycleId} / ${languageId}`
+            );
             result.imported++;
             this.showProgress();
             continue;
@@ -144,7 +148,10 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
       );
       this.logInfo(`Found ${countryTexts.length} thematic cycle country texts`);
 
-      const textsByCycle = new Map<number, Array<{ countryId: string; langId: string; text: string }>>();
+      const textsByCycle = new Map<
+        number,
+        Array<{ countryId: string; langId: string; text: string }>
+      >();
       for (const t of countryTexts) {
         if (!t.text) continue;
         const list = textsByCycle.get(t.cycleId) ?? [];
@@ -162,7 +169,10 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) continue;
 
-          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(collectionId, 'eng');
+          const existingExtra = await this.context.strategy.getCollectionTranslationExtra(
+            collectionId,
+            'eng'
+          );
           const extra = existingExtra ?? {};
 
           const cycleCountries = countriesByCycle.get(cycleId);
@@ -176,7 +186,9 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
           }
 
           await this.context.strategy.setCollectionTranslationExtra(
-            collectionId, 'eng', JSON.stringify(extra)
+            collectionId,
+            'eng',
+            JSON.stringify(extra)
           );
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
@@ -212,7 +224,9 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
           });
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          this.logWarning(`Failed country picture for cycle ${pic.cycleId}/${pic.countryId}: ${message}`);
+          this.logWarning(
+            `Failed country picture for cycle ${pic.cycleId}/${pic.countryId}: ${message}`
+          );
         }
       }
     } catch (error) {

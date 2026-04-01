@@ -85,7 +85,12 @@ export class ShMonumentDetailImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query SH monument details: ${message}`);
@@ -153,7 +158,9 @@ export class ShMonumentDetailImporter extends BaseImporter {
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
     const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
-      this.logWarning(`SH context not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, using default context`);
+      this.logWarning(
+        `SH context not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, using default context`
+      );
     }
     const effectiveContextId = contextId || defaultContextId;
 
@@ -166,7 +173,9 @@ export class ShMonumentDetailImporter extends BaseImporter {
     // Project
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
     if (!projectId) {
-      this.logWarning(`Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`);
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`
+      );
     }
 
     // Create Item (monument detail)

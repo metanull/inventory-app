@@ -4,7 +4,11 @@ import path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Connection } from 'mysql2/promise';
 
-import { ImageSyncTool, type ImageSyncLogger, type ImageSyncOptions } from '../../src/tools/image-sync.js';
+import {
+  ImageSyncTool,
+  type ImageSyncLogger,
+  type ImageSyncOptions,
+} from '../../src/tools/image-sync.js';
 
 class FakeConnection {
   private readonly selectRows: Array<{

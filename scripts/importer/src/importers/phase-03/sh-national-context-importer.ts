@@ -130,10 +130,7 @@ export class ShNationalContextImporter extends BaseImporter {
         let countryId: string | null = null;
         try {
           const mapped = mapCountryCode(legacy.country);
-          countryId = await this.getEntityUuidAsync(
-            `countries:${mapped}`,
-            'country'
-          );
+          countryId = await this.getEntityUuidAsync(`countries:${mapped}`, 'country');
         } catch {
           this.logWarning(
             `NC ${legacy.country}/${legacy.exhibition_id}: Unknown country code '${legacy.country}'`
@@ -202,10 +199,7 @@ export class ShNationalContextImporter extends BaseImporter {
     for (const legacy of texts) {
       try {
         const collectionBackwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${legacy.country.toLowerCase()}:${legacy.exhibition_id}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
@@ -270,10 +264,7 @@ export class ShNationalContextImporter extends BaseImporter {
         result.errors.push(
           `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: ${message}`
         );
-        this.logError(
-          `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}`,
-          message
-        );
+        this.logError(`NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}`, message);
         this.showError();
       }
     }
@@ -294,18 +285,13 @@ export class ShNationalContextImporter extends BaseImporter {
     for (const legacy of images) {
       try {
         const collectionBackwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${legacy.country.toLowerCase()}:${legacy.exhibition_id}`;
-        const collectionId = await this.getEntityUuidAsync(
-          collectionBackwardCompat,
-          'collection'
-        );
+        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
             `NC image ${legacy.image_id}: Collection not found (${collectionBackwardCompat})`
           );
-          this.logWarning(
-            `NC image ${legacy.image_id}: Collection not found, skipping`
-          );
+          this.logWarning(`NC image ${legacy.image_id}: Collection not found, skipping`);
           result.skipped++;
           this.showSkipped();
           continue;
@@ -377,11 +363,12 @@ export class ShNationalContextImporter extends BaseImporter {
     );
 
     // Pre-load justifications for objects
-    const objJustifications = await this.context.legacyDb.query<ShLegacyRelObjectsNCExhibitionJustification>(
-      `SELECT relation_id, lang, justification_text
+    const objJustifications =
+      await this.context.legacyDb.query<ShLegacyRelObjectsNCExhibitionJustification>(
+        `SELECT relation_id, lang, justification_text
        FROM ${SH_SCHEMA}.rel_objects_nc_exhibition_justifications
        WHERE justification_text IS NOT NULL AND justification_text != ''`
-    );
+      );
     const objJustMap = this.buildJustificationMap(objJustifications);
 
     this.logInfo(
@@ -414,11 +401,12 @@ export class ShNationalContextImporter extends BaseImporter {
        ORDER BY nc_country, nc_exhibition_id, id`
     );
 
-    const monJustifications = await this.context.legacyDb.query<ShLegacyRelMonumentsNCExhibitionJustification>(
-      `SELECT relation_id, lang, justification_text
+    const monJustifications =
+      await this.context.legacyDb.query<ShLegacyRelMonumentsNCExhibitionJustification>(
+        `SELECT relation_id, lang, justification_text
        FROM ${SH_SCHEMA}.rel_monuments_nc_exhibition_justifications
        WHERE justification_text IS NOT NULL AND justification_text != ''`
-    );
+      );
     const monJustMap = this.buildJustificationMap(monJustifications);
 
     this.logInfo(
@@ -459,14 +447,13 @@ export class ShNationalContextImporter extends BaseImporter {
     context: string
   ): Promise<void> {
     const collectionBackwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${ncCountry.toLowerCase()}:${ncExhibitionId}`;
-    const collectionId = await this.getEntityUuidAsync(
-      collectionBackwardCompat,
-      'collection'
-    );
+    const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
     if (!collectionId) {
       result.warnings = result.warnings || [];
       result.warnings.push(`${context}: NC Collection not found (${collectionBackwardCompat})`);
-      this.logWarning(`${context}: NC Collection not found (${collectionBackwardCompat}), skipping`);
+      this.logWarning(
+        `${context}: NC Collection not found (${collectionBackwardCompat}), skipping`
+      );
       result.skipped++;
       this.showSkipped();
       return;
@@ -523,10 +510,7 @@ export class ShNationalContextImporter extends BaseImporter {
   /**
    * Resolve an image_item reference (SH format: 'project_id;country;number') to a backward_compatibility key.
    */
-  private resolveImageItemReference(
-    imageItem: string,
-    itemType: string
-  ): string | null {
+  private resolveImageItemReference(imageItem: string, itemType: string): string | null {
     if (!imageItem || !imageItem.trim()) return null;
 
     const parts = imageItem.split(';').map((s) => s.trim());

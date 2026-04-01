@@ -136,9 +136,7 @@ export function transformThgThemeMedia(
 // sh.sh_objects_document → ItemDocument
 // ============================================================================
 
-export function transformShObjectDocument(
-  legacy: ShLegacyObjectDocument
-): TransformedItemDocument {
+export function transformShObjectDocument(legacy: ShLegacyObjectDocument): TransformedItemDocument {
   const langId = mapLanguageCode(legacy.lang);
   const extra = JSON.stringify({ img_count: legacy.img_count });
   const originalName = legacy.path.split('/').pop() || legacy.path;

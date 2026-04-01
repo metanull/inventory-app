@@ -13,10 +13,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import {
-  transformDynasty,
-  transformDynastyTranslation,
-} from '../../domain/transformers/index.js';
+import { transformDynasty, transformDynastyTranslation } from '../../domain/transformers/index.js';
 import type {
   LegacyDynasty,
   LegacyDynastyText,
@@ -47,7 +44,12 @@ export class DynastyImporter extends BaseImporter {
       result.skipped += linkResult.skipped;
       result.errors.push(...linkResult.errors);
 
-      this.showSummary(result.imported, result.skipped, result.errors.length, result.warnings?.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import dynasties: ${message}`);

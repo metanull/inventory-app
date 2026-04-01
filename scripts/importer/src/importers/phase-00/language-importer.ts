@@ -174,7 +174,9 @@ export class LanguageTranslationImporter extends BaseImporter {
           }
           const displayLangExists = await this.entityExistsAsync(legacy.lang, 'language');
           if (!displayLangExists) {
-            this.logWarning(`Display language '${legacy.lang}' not found, skipping translation for '${legacy.lang_id}'`);
+            this.logWarning(
+              `Display language '${legacy.lang}' not found, skipping translation for '${legacy.lang_id}'`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -192,11 +194,10 @@ export class LanguageTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          
+
           result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
           this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
           this.showError();
-          
         }
       }
 

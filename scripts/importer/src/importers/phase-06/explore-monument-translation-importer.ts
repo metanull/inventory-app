@@ -81,7 +81,9 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
       this.exploreContextId = exploreContextId;
 
       this.authorHelper = new AuthorHelper(
-        this.context.strategy, this.context.tracker, this.logger
+        this.context.strategy,
+        this.context.tracker,
+        this.logger
       );
 
       this.logInfo('Importing Explore monument translations...');
@@ -134,7 +136,9 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
 
           const languageId = await this.getLanguageIdByLegacyCodeAsync(text.langId);
           if (!languageId) {
-            this.logWarning(`Unknown language code '${text.langId}' for monument ${text.monumentId}, skipping`);
+            this.logWarning(
+              `Unknown language code '${text.langId}' for monument ${text.monumentId}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -183,7 +187,7 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
           const frKey = `${text.monumentId}:${text.langId}`;
           const frEntries = frByKey.get(frKey);
           if (frEntries && frEntries.length > 0) {
-            extra.further_readings = frEntries.map(fr => {
+            extra.further_readings = frEntries.map((fr) => {
               const entry: Record<string, string> = {};
               if (fr.title) entry.title = fr.title;
               if (fr.author) entry.author = fr.author;
@@ -195,7 +199,9 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
           const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
           if (this.isDryRun || this.isSampleOnlyMode) {
-            this.logInfo(`[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create monument translation: monument ${text.monumentId} / ${languageId}`);
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create monument translation: monument ${text.monumentId} / ${languageId}`
+            );
             result.imported++;
             this.showProgress();
             continue;

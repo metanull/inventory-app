@@ -74,9 +74,7 @@ export function transformAuthorCv(
 /**
  * Transform a legacy SH author CV into AuthorTranslationData
  */
-export function transformShAuthorCv(
-  legacy: LegacyShAuthorCv
-): TransformedAuthorTranslation {
+export function transformShAuthorCv(legacy: LegacyShAuthorCv): TransformedAuthorTranslation {
   const backwardCompatibility = `mwnf3_sharing_history:sh_authors_cv:${legacy.author_id}:${legacy.project_id}:${legacy.lang}`;
 
   return {
