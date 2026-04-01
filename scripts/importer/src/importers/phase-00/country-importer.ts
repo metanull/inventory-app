@@ -10,6 +10,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { mapCountryCode } from '../../utils/code-mappings.js';
 
 // Get the directory of the current module for robust path resolution
 const __filename = fileURLToPath(import.meta.url);
@@ -156,7 +157,20 @@ export class CountryTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Validate language FK reference before write
+          // Validate FK references before write
+          const countryExists = await this.entityExistsAsync(legacy.country, 'country');
+          if (!countryExists) {
+            // Code might be a secondary/alias code (e.g., 'ix' for Italy/Sicily, 'px' for Palestine)
+            // Verify via code-mappings that it resolves to a known country
+            try {
+              mapCountryCode(legacy.country);
+            } catch {
+              this.logWarning(`Country '${legacy.country}' not found, skipping translation`);
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+          }
           const langExists = await this.entityExistsAsync(legacy.lang, 'language');
           if (!langExists) {
             this.logWarning(`Language '${legacy.lang}' not found, skipping translation for country '${legacy.country}'`);
@@ -166,8 +180,6 @@ export class CountryTranslationImporter extends BaseImporter {
           }
 
           // Transform and write country translation
-          // Note: transformCountryTranslation calls mapCountryCode() which throws
-          // for unknown legacy codes — the per-record catch handles this cleanly.
           const transformed = transformCountryTranslation({
             code: legacy.country,
             lang: legacy.lang,
