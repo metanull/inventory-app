@@ -420,12 +420,32 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
 
   /**
    * Build a backward_compatibility key for an mwnf3 item from parsed ref_item.
-   * Objects: mwnf3:objects:{project}:{country}:{partner}:{number}
-   * Monuments: mwnf3:monuments:{project}:{country}:{partner}:{number}
+   * Objects: mwnf3:objects:{project}:{country}:{museum_id}:{number}
+   * Monuments: mwnf3:monuments:{project}:{country}:{institution_id}:{number}
+   *
+   * ref_item stores raw partner IDs (e.g., '1', '1_H', '12') that must be
+   * converted to the museum/institution format used in the objects/monuments
+   * tables: Mus01, Mus01_H, Mus12, Mon01, etc.
    */
   private buildItemBackwardCompat(parsed: ParsedRefItem): string {
     const table = parsed.type === 'monument' ? 'monuments' : 'objects';
-    return `${MWNF3_SCHEMA}:${table}:${parsed.projectId.toLowerCase()}:${parsed.country.toLowerCase()}:${parsed.partnerId}:${parsed.number}`;
+    const prefix = parsed.type === 'monument' ? 'Mon' : 'Mus';
+    const formattedPartnerId = this.formatPartnerId(prefix, parsed.partnerId);
+    return `${MWNF3_SCHEMA}:${table}:${parsed.projectId.toLowerCase()}:${parsed.country.toLowerCase()}:${formattedPartnerId}:${parsed.number}`;
+  }
+
+  /**
+   * Convert a raw ref_item partner ID to the museum/institution format.
+   * Examples: '1' → 'Mus01', '1_H' → 'Mus01_H', '12' → 'Mus12'
+   */
+  private formatPartnerId(prefix: string, rawId: string): string {
+    const underscoreIdx = rawId.indexOf('_');
+    if (underscoreIdx !== -1) {
+      const numPart = rawId.substring(0, underscoreIdx);
+      const suffix = rawId.substring(underscoreIdx);
+      return `${prefix}${numPart.padStart(2, '0')}${suffix}`;
+    }
+    return `${prefix}${rawId.padStart(2, '0')}`;
   }
 
   /**
