@@ -134,10 +134,10 @@ export class ItemMediaImporter extends BaseImporter {
     const result = this.createResult();
 
     const rows = await this.context.legacyDb.query<LegacyObjectVideo>(
-      `SELECT video_id, project_id, country, museum_id, number, lang,
+      `SELECT video_id, project_id, country, institution_id AS museum_id, number, lang,
               video_title, video_description, video_url
        FROM mwnf3.monuments_video
-       ORDER BY project_id, country, museum_id, number, lang, video_id`
+       ORDER BY project_id, country, institution_id, number, lang, video_id`
     );
     this.logInfo(`  Found ${rows.length} monument video rows`);
 
