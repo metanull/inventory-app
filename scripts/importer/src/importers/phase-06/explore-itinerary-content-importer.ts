@@ -30,7 +30,6 @@ interface LegacyItineraryLang {
   introd_type: string | null;
   et_title: string | null;
   et_introduction: string | null;
-  et_duration: string | null;
 }
 
 interface LegacyItineraryMonument {
@@ -144,8 +143,8 @@ export class ExploreItineraryContentImporter extends BaseImporter {
   private async importTranslations(result: ImportResult): Promise<void> {
     this.logInfo('Importing itinerary translations...');
     const translations = await this.context.legacyDb.query<LegacyItineraryLang>(
-      `SELECT itineraries_id, langId, title, introduction, duration, local_team, author, introd_type,
-              et_title, et_introduction, et_duration
+      `SELECT itineraries_id, lang_id AS langId, title, introduction, duration, local_team, author, introd_type,
+              et_short_introduction AS et_title, et_long_introduction AS et_introduction
        FROM mwnf3_explore.explore_itineraries_langs`
     );
     this.logInfo(`Found ${translations.length} itinerary translations`);
@@ -186,7 +185,6 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         if (trans.introd_type) extra.introd_type = trans.introd_type;
         if (trans.et_title) extra.et_title = trans.et_title;
         if (trans.et_introduction) extra.et_introduction = trans.et_introduction;
-        if (trans.et_duration) extra.et_duration = trans.et_duration;
         const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
