@@ -1312,14 +1312,6 @@ program
               logger.logImporterError(config.name, err);
             });
           }
-
-          // Report warnings
-          if (result.warnings && result.warnings.length > 0) {
-            console.log(chalk.yellow(`   ⚠  ${result.warnings.length} warnings`));
-            result.warnings.forEach((warn) => {
-              logger.warning(`${config.name}: ${warn}`);
-            });
-          }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           const importerDuration = Date.now() - importerStart;
