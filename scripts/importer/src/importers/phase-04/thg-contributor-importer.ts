@@ -47,7 +47,7 @@ function mapExhibitionPartnerCategory(categoryId: number): string {
 
 export class ThgContributorImporter extends BaseImporter {
   private defaultContextId!: string;
-  private categoryMap = new Map<number, string>();
+  private categoryMap = new Map<string, string>();
 
   getName(): string {
     return 'ThgContributorImporter';
@@ -105,7 +105,7 @@ export class ThgContributorImporter extends BaseImporter {
     const result = this.createResult();
 
     const contributors = await this.context.legacyDb.query<ThgLegacyContributor>(
-      'SELECT * FROM mwnf3_thematic_gallery.contributor ORDER BY gallery_id, theme_id, sort_order'
+      'SELECT * FROM mwnf3_thematic_gallery.contributor ORDER BY gallery_id, theme_id, display_order'
     );
 
     const i18nRows = await this.context.legacyDb.query<ThgLegacyContributorI18n>(
@@ -174,8 +174,8 @@ export class ThgContributorImporter extends BaseImporter {
         const contributorData: ContributorData = {
           collection_id: collectionId,
           category,
-          display_order: legacy.sort_order,
-          visible: legacy.active === 1,
+          display_order: legacy.display_order,
+          visible: true,
           backward_compatibility: backwardCompat,
           internal_name: internalName,
         };
@@ -264,7 +264,7 @@ export class ThgContributorImporter extends BaseImporter {
     const result = this.createResult();
 
     const partners = await this.context.legacyDb.query<ThgLegacyExhibitionPartner>(
-      'SELECT * FROM mwnf3_thematic_gallery.exhibition_partner ORDER BY gallery_id, sort_order'
+      'SELECT * FROM mwnf3_thematic_gallery.exhibition_partner ORDER BY gallery_id, display_order'
     );
 
     const i18nRows = await this.context.legacyDb.query<ThgLegacyExhibitionPartnerI18n>(
@@ -309,8 +309,8 @@ export class ThgContributorImporter extends BaseImporter {
         }
 
         const category = mapExhibitionPartnerCategory(legacy.category_id);
-        const internalName = legacy.name
-          ? convertHtmlToMarkdown(legacy.name)
+        const internalName = legacy.entity_name
+          ? convertHtmlToMarkdown(legacy.entity_name)
           : `exhibition-partner-${legacy.partner_id}`;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
@@ -327,8 +327,8 @@ export class ThgContributorImporter extends BaseImporter {
         const contributorData: ContributorData = {
           collection_id: collectionId,
           category,
-          display_order: legacy.sort_order,
-          visible: legacy.active === 1,
+          display_order: legacy.display_order,
+          visible: legacy.visible === 'Y',
           backward_compatibility: backwardCompat,
           internal_name: internalName,
         };
@@ -377,14 +377,14 @@ export class ThgContributorImporter extends BaseImporter {
             if (legacy.contact_phone) extra.contact_phone = legacy.contact_phone;
             if (legacy.contact_fax) extra.contact_fax = legacy.contact_fax;
             if (i18n.further_reading) extra.further_reading = i18n.further_reading;
-            if (legacy.location) extra.location = legacy.location;
-            if (legacy.country) extra.country = legacy.country;
+            if (legacy.entity_location) extra.location = legacy.entity_location;
+            if (legacy.entity_country) extra.country = legacy.entity_country;
 
             const translationData: ContributorTranslationData = {
               contributor_id: contributorId,
               language_id: languageId,
               context_id: this.defaultContextId,
-              name: legacy.name ? convertHtmlToMarkdown(legacy.name) : null,
+              name: legacy.entity_name ? convertHtmlToMarkdown(legacy.entity_name) : null,
               description: i18n.description ? convertHtmlToMarkdown(i18n.description) : null,
               link: null,
               alt_text: null,

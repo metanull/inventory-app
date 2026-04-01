@@ -669,13 +669,12 @@ export interface ThgLegacyContributor {
   contributor_id: number;
   gallery_id: number;
   theme_id: number;
-  category_id: number;
+  category_id: string;
   context: string; // display name
   src: string; // logo image path
   href: string; // link URL
   alt: string; // alt text
-  sort_order: number;
-  active: number;
+  display_order: number;
 }
 
 /**
@@ -683,7 +682,7 @@ export interface ThgLegacyContributor {
  * PK: category_id
  */
 export interface ThgLegacyContributorCategory {
-  category_id: number;
+  category_id: string;
   label: string; // e.g. 'In cooperation with', 'On the occasion of', 'Main contributors', 'With the support of'
 }
 
@@ -705,17 +704,17 @@ export interface ThgLegacyExhibitionPartner {
   partner_id: number;
   gallery_id: number;
   category_id: number;
-  name: string;
-  location: string;
-  country: string; // 2-char
+  entity_name: string;
+  entity_location: string;
+  entity_country: string; // 2-char
   contact_title?: string;
   contact_name?: string;
   contact_email?: string;
   contact_phone?: string;
   contact_fax?: string;
   logo: string; // logo image path
-  sort_order: number;
-  active: number;
+  display_order: number;
+  visible: string; // enum 'Y'/'N'
 }
 
 /**
