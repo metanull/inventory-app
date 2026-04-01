@@ -339,7 +339,8 @@ export class GlossarySpellingImporter extends BaseImporter {
               `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
               message
             );
-          this.showError();
+            this.showError();
+          }
         }
       }
 

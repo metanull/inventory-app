@@ -126,7 +126,7 @@ export class CollectionMediaImporter extends BaseImporter {
         const languageId = await this.getLanguageIdByLegacyCodeAsync(row.lang);
         if (!languageId) {
           this.logWarning(
-            `Skipping theme ${mediaType}: unknown language '${row.lang}' for theme=${themeBC}`
+            `Skipping theme ${mediaType}: unknown language '${row.lang}' for gallery=${row.gallery_id} theme=${row.theme_id}`
           );
           result.skipped++;
           continue;
