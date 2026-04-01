@@ -40,17 +40,17 @@ export function transformDynasty(legacy: LegacyDynasty): TransformedDynasty {
 export function transformDynastyTranslation(
   legacy: LegacyDynastyText
 ): TransformedDynastyTranslation {
-  const backwardCompatibility = `mwnf3:dynasty_texts:${legacy.dynasty_id}:${legacy.lang}`;
+  const backwardCompatibility = `mwnf3:dynasty_texts:${legacy.dynasty_id}:${legacy.lang_id}`;
 
   return {
     data: {
       language_id: '', // Will be resolved by importer
       name: legacy.name ?? null,
-      also_known_as: legacy.also_known_as ?? null,
+      also_known_as: legacy.name2 ?? null,
       area: legacy.area ?? null,
       history: legacy.history ?? null,
-      date_description_ah: legacy.date_description_ah ?? null,
-      date_description_ad: legacy.date_description_ad ?? null,
+      date_description_ah: legacy.datedesc_ah ?? null,
+      date_description_ad: legacy.datedesc_ad ?? null,
       backward_compatibility: backwardCompatibility,
     },
   };

@@ -445,13 +445,13 @@ export interface LegacyDynasty {
 
 export interface LegacyDynastyText {
   dynasty_id: number;
-  lang: string;
+  lang_id: string;
   name?: string | null;
-  also_known_as?: string | null;
+  name2?: string | null;
   area?: string | null;
   history?: string | null;
-  date_description_ah?: string | null;
-  date_description_ad?: string | null;
+  datedesc_ah?: string | null;
+  datedesc_ad?: string | null;
 }
 
 export interface LegacyObjectDynasty {

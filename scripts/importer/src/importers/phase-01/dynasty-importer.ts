@@ -70,7 +70,7 @@ export class DynastyImporter extends BaseImporter {
 
     // Query legacy dynasty texts
     const dynastyTexts = await this.context.legacyDb.query<LegacyDynastyText>(
-      'SELECT * FROM mwnf3.dynasty_texts ORDER BY dynasty_id, lang'
+      'SELECT * FROM mwnf3.dynasty_texts ORDER BY dynasty_id, lang_id'
     );
 
     // Group texts by dynasty_id
@@ -119,10 +119,10 @@ export class DynastyImporter extends BaseImporter {
         const texts = textsByDynastyId.get(legacy.dynasty_id) || [];
         for (const text of texts) {
           try {
-            const languageId = await this.getLanguageIdByLegacyCodeAsync(text.lang);
+            const languageId = await this.getLanguageIdByLegacyCodeAsync(text.lang_id);
             if (!languageId) {
               this.logWarning(
-                `Unknown language code '${text.lang}' for dynasty ${legacy.dynasty_id}, skipping translation`
+                `Unknown language code '${text.lang_id}' for dynasty ${legacy.dynasty_id}, skipping translation`
               );
               continue;
             }
@@ -135,7 +135,7 @@ export class DynastyImporter extends BaseImporter {
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            const warning = `Failed to create translation for dynasty ${legacy.dynasty_id}:${text.lang}: ${message}`;
+            const warning = `Failed to create translation for dynasty ${legacy.dynasty_id}:${text.lang_id}: ${message}`;
             this.logWarning(warning);
             result.warnings!.push(warning);
           }
