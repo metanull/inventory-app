@@ -135,7 +135,7 @@ export class PartnerMonumentLinker extends BaseImporter {
     }
 
     // Build backward compatibility key for the monument
-    // Monument PK: (project_id, country, institution_id, number, lang)
+    // Monument BC uses 4 PK values (lang excluded per BC convention §10)
     const monumentBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
       table: 'monuments',
@@ -144,7 +144,6 @@ export class PartnerMonumentLinker extends BaseImporter {
         museum.mon_country_id,
         museum.mon_institution_id,
         String(museum.mon_monument_id),
-        museum.mon_lang_id,
       ],
     });
 
