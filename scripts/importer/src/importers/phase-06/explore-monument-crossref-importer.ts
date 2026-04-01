@@ -17,8 +17,10 @@ import type { ImportResult } from '../../core/types.js';
 
 interface LegacyMonumentVM {
   monumentId: number;
-  vm_monument_id: number;
-  vm_country: string;
+  REF_monuments_project_id: string;
+  REF_monuments_country: string;
+  REF_monuments_institution_id: string;
+  REF_monuments_number: number;
 }
 
 interface LegacyMonumentTR {
@@ -62,7 +64,9 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
       // 1. exploremonument_vm → mwnf3 monuments
       this.logInfo('Importing Explore → mwnf3 monument cross-references...');
       const vmLinks = await this.context.legacyDb.query<LegacyMonumentVM>(
-        `SELECT monumentId, vm_monument_id, vm_country FROM mwnf3_explore.exploremonument_vm`
+        `SELECT monumentId, REF_monuments_project_id, REF_monuments_country,
+                REF_monuments_institution_id, REF_monuments_number
+         FROM mwnf3_explore.exploremonument_vm`
       );
       this.logInfo(`Found ${vmLinks.length} VM cross-references`);
 
@@ -77,8 +81,8 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          // mwnf3 monument BC format: mwnf3:monuments:{country}:{monument_id}
-          const targetBC = `mwnf3:monuments:${vm.vm_country}:${vm.vm_monument_id}`;
+          // mwnf3 monument BC format: mwnf3:monuments:{project_id}:{country}:{institution_id}:{number}
+          const targetBC = `mwnf3:monuments:${vm.REF_monuments_project_id}:${vm.REF_monuments_country}:${vm.REF_monuments_institution_id}:${vm.REF_monuments_number}`;
           const targetId = await this.getEntityUuidAsync(targetBC, 'item');
           if (!targetId) {
             this.logWarning(`mwnf3 monument not found: ${targetBC}, skipping`);
@@ -93,7 +97,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          const linkBC = `mwnf3_explore:monument_vm:${vm.monumentId}:${vm.vm_country}:${vm.vm_monument_id}`;
+          const linkBC = `mwnf3_explore:monument_vm:${vm.monumentId}:${vm.REF_monuments_project_id}:${vm.REF_monuments_country}:${vm.REF_monuments_institution_id}:${vm.REF_monuments_number}`;
           await this.context.strategy.writeItemItemLink({
             source_id: sourceId,
             target_id: targetId,
