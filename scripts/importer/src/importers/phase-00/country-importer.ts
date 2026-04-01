@@ -22,7 +22,7 @@ const __dirname = dirname(__filename);
 interface CountryJsonData {
   id: string; // ISO 3166-1 alpha-3 code (e.g., 'usa', 'fra')
   internal_name: string;
-  backward_compatibility: string; // ISO 3166-1 alpha-2 code (e.g., 'us', 'fr')
+  backward_compatibility: string | null; // Legacy 2-char code, null for non-legacy countries
 }
 
 export class CountryImporter extends BaseImporter {
@@ -46,8 +46,8 @@ export class CountryImporter extends BaseImporter {
 
       for (const country of countries) {
         try {
-          // Use backward_compatibility as the tracking key (consistent with legacy importer)
-          const backwardCompat = country.backward_compatibility;
+          // Use backward_compatibility as the tracking key; fall back to id for non-legacy countries
+          const backwardCompat = country.backward_compatibility ?? country.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with languages)
           if (await this.entityExistsAsync(backwardCompat, 'country')) {

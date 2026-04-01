@@ -99,8 +99,9 @@ export interface BaseEntityData {
 /**
  * Language data for write operations
  */
-export interface LanguageData extends BaseEntityData {
+export interface LanguageData extends Omit<BaseEntityData, 'backward_compatibility'> {
   id: string; // ISO 639-3 code
+  backward_compatibility: string | null;
   is_default?: boolean;
 }
 
@@ -117,8 +118,9 @@ export interface LanguageTranslationData {
 /**
  * Country data for write operations
  */
-export interface CountryData extends BaseEntityData {
+export interface CountryData extends Omit<BaseEntityData, 'backward_compatibility'> {
   id: string; // ISO 3166-1 alpha-3 code
+  backward_compatibility: string | null;
 }
 
 /**

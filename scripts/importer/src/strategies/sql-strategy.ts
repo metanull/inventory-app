@@ -144,7 +144,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(sanitized.backward_compatibility, sanitized.id, 'language');
+    this.tracker.set(sanitized.backward_compatibility ?? sanitized.id, sanitized.id, 'language');
     return sanitized.id;
   }
 
@@ -176,7 +176,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [sanitized.id, sanitized.internal_name, sanitized.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(sanitized.backward_compatibility, sanitized.id, 'country');
+    this.tracker.set(sanitized.backward_compatibility ?? sanitized.id, sanitized.id, 'country');
     return sanitized.id;
   }
 

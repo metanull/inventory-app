@@ -21,7 +21,7 @@ const __dirname = dirname(__filename);
 interface LanguageJsonData {
   id: string; // ISO 639-3 code (e.g., 'eng', 'fra')
   internal_name: string;
-  backward_compatibility: string; // ISO 639-1 code (e.g., 'en', 'fr')
+  backward_compatibility: string | null; // Legacy 2-char code, null for non-legacy languages
   is_default: boolean;
 }
 
@@ -46,8 +46,8 @@ export class LanguageImporter extends BaseImporter {
 
       for (const language of languages) {
         try {
-          // Use backward_compatibility as the tracking key (consistent with legacy importer)
-          const backwardCompat = language.backward_compatibility;
+          // Use backward_compatibility as the tracking key; fall back to id for non-legacy languages
+          const backwardCompat = language.backward_compatibility ?? language.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with countries)
           if (await this.entityExistsAsync(backwardCompat, 'language')) {
