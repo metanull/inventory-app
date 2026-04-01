@@ -195,10 +195,17 @@ export class CountryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-
-          result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
-          this.logError(`Country translation ${legacy.country}:${legacy.lang}`, message);
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Country translation ${legacy.country}:${legacy.lang}: duplicate, skipping`
+            );
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`${legacy.country}:${legacy.lang}: ${message}`);
+            this.logError(`Country translation ${legacy.country}:${legacy.lang}`, message);
+            this.showError();
+          }
         }
       }
 

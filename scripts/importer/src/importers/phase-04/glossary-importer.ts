@@ -85,9 +85,15 @@ export class GlossaryImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`Word ${legacy.word_id}: ${message}`);
-          this.logError(`Glossary word ${legacy.word_id}`, message);
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(`Glossary word ${legacy.word_id}: duplicate, skipping`);
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`Word ${legacy.word_id}: ${message}`);
+            this.logError(`Glossary word ${legacy.word_id}`, message);
+            this.showError();
+          }
         }
       }
 
@@ -192,14 +198,22 @@ export class GlossaryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: ${message}`
-          );
-          this.logError(
-            `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}`,
-            message
-          );
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: duplicate, skipping`
+            );
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(
+              `Definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: ${message}`
+            );
+            this.logError(
+              `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}`,
+              message
+            );
+            this.showError();
+          }
         }
       }
 
@@ -311,13 +325,20 @@ export class GlossarySpellingImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: ${message}`
-          );
-          this.logError(
-            `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
-            message
-          );
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: duplicate, skipping`
+            );
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(
+              `Spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: ${message}`
+            );
+            this.logError(
+              `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
+              message
+            );
           this.showError();
         }
       }

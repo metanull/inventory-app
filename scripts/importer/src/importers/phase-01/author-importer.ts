@@ -368,11 +368,17 @@ export class AuthorImporter extends BaseImporter {
         this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        result.errors.push(
-          `mwnf3 author CV ${legacy.author_id}:${legacy.project_id}:${legacy.lang_id}: ${message}`
-        );
-        this.logError(`mwnf3 author CV ${legacy.author_id}`, message);
-        this.showError();
+        if (message.includes('Duplicate')) {
+          this.logSkip(`mwnf3 author CV ${legacy.author_id}: duplicate, skipping`);
+          result.skipped++;
+          this.showSkipped();
+        } else {
+          result.errors.push(
+            `mwnf3 author CV ${legacy.author_id}:${legacy.project_id}:${legacy.lang_id}: ${message}`
+          );
+          this.logError(`mwnf3 author CV ${legacy.author_id}`, message);
+          this.showError();
+        }
       }
     }
 
@@ -434,9 +440,15 @@ export class AuthorImporter extends BaseImporter {
         this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        result.errors.push(`SH author CV ${legacy.author_id}: ${message}`);
-        this.logError(`SH author CV ${legacy.author_id}`, message);
-        this.showError();
+        if (message.includes('Duplicate')) {
+          this.logSkip(`SH author CV ${legacy.author_id}: duplicate, skipping`);
+          result.skipped++;
+          this.showSkipped();
+        } else {
+          result.errors.push(`SH author CV ${legacy.author_id}: ${message}`);
+          this.logError(`SH author CV ${legacy.author_id}`, message);
+          this.showError();
+        }
       }
     }
 
