@@ -218,9 +218,8 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             const errMsg = writeError instanceof Error ? writeError.message : String(writeError);
             // Check for duplicate entry error (unique constraint violation)
             if (errMsg.includes('Duplicate entry') || errMsg.includes('unique')) {
-              // Already imported, skip silently
+              this.logSkip(`Duplicate theme item translation, skipping`);
               result.skipped++;
-              this.showSkipped();
             } else {
               // Re-throw other errors
               throw writeError;

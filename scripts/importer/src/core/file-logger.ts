@@ -98,6 +98,10 @@ export class FileLogger implements ILogger {
     this.writeToFile(`[WARN] [${this.name}] ${message}${detailsStr}`);
   }
 
+  skip(message: string): void {
+    this.writeToFile(`[SKIP] [${this.name}] ${message}`);
+  }
+
   /**
    * Log an error - for expected/handled errors (data issues, constraint violations)
    * No stack trace is written.

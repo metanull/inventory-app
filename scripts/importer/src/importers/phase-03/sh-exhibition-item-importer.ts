@@ -631,9 +631,8 @@ export class ShExhibitionItemImporter extends BaseImporter {
       // Duplicate pivots are expected when an item appears in both rel_* and image tables
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes('Duplicate') || message.includes('duplicate')) {
-        this.logWarning(`${context}: Duplicate pivot entry (item already linked), skipping`);
+        this.logSkip(`${context}: Duplicate pivot entry (item already linked), skipping`);
         result.skipped++;
-        this.showSkipped();
         return false;
       }
       throw error;

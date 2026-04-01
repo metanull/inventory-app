@@ -33,6 +33,7 @@ describe('CountryImporter', () => {
   const mockLogger: ILogger = {
     info: vi.fn(),
     warning: vi.fn(),
+    skip: vi.fn(),
     error: vi.fn(),
     exception: vi.fn(),
     showProgress: vi.fn(),
@@ -235,6 +236,7 @@ describe('CountryTranslationImporter', () => {
   const mockLogger: ILogger = {
     info: vi.fn(),
     warning: vi.fn(),
+    skip: vi.fn(),
     error: vi.fn(),
     exception: vi.fn(),
     showProgress: vi.fn(),

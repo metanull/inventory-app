@@ -264,8 +264,8 @@ export class ThgTagImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes('Duplicate')) {
+          this.logSkip(`Duplicate THG mwnf3 object-tag link tag=${link.tag_id}, skipping`);
           result.skipped++;
-          this.showSkipped();
         } else {
           const ctx = `mwnf3_tag_link:${link.tag_id}:${link.objects_project_id}:${link.objects_country}:${link.objects_museum_id}:${link.objects_number}`;
           this.logWarning(`Failed THG mwnf3 object-tag link ${ctx}: ${message}`);
@@ -323,8 +323,8 @@ export class ThgTagImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes('Duplicate')) {
+          this.logSkip(`Duplicate THG SH object-tag link tag=${link.tag_id}, skipping`);
           result.skipped++;
-          this.showSkipped();
         } else {
           const ctx = `sh_tag_link:${link.tag_id}:${link.sh_objects_project_id}:${link.sh_objects_country}:${link.sh_objects_number}`;
           this.logWarning(`Failed THG SH object-tag link ${ctx}: ${message}`);

@@ -81,8 +81,8 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
           const message = error instanceof Error ? error.message : String(error);
           // Duplicate pivot entries are expected — don't treat as errors
           if (message.includes('Duplicate')) {
+            this.logSkip(`Duplicate monument-theme link ${link.cycleId}/${link.monumentId}, skipping`);
             result.skipped++;
-            this.showSkipped();
           } else {
             this.logWarning(
               `Failed monument-theme link ${link.cycleId}/${link.monumentId}: ${message}`

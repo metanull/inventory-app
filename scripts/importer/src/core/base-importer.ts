@@ -66,6 +66,10 @@ export interface ILogger {
   info(message: string): void;
   warning(message: string, details?: unknown): void;
   /**
+   * Log a skip - for expected/handled deduplication (duplicate pivots, already-exists checks)
+   */
+  skip(message: string): void;
+  /**
    * Log an error - for expected/handled errors (data issues, constraint violations)
    * No stack trace is written.
    */
@@ -97,6 +101,10 @@ export class ConsoleLogger implements ILogger {
 
   warning(message: string, _details?: unknown): void {
     console.log(`[${this.name}] ⚠️  ${message}`);
+  }
+
+  skip(message: string): void {
+    console.log(`[${this.name}] ⏭  ${message}`);
   }
 
   error(context: string, message: string, _additionalContext?: Record<string, unknown>): void {
@@ -279,6 +287,15 @@ export abstract class BaseImporter {
    */
   protected logWarning(message: string, details?: unknown): void {
     this.logger.warning(message, details);
+  }
+
+  /**
+   * Log skip message - for expected deduplication (duplicate pivots, already-exists)
+   * Also writes the 's' progress indicator.
+   */
+  protected logSkip(message: string): void {
+    this.logger.skip(message);
+    this.logger.showSkipped();
   }
 
   /**

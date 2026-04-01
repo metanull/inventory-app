@@ -146,8 +146,8 @@ export class ExploreFilterImporter extends BaseImporter {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           if (message.includes('Duplicate')) {
+            this.logSkip(`Duplicate filter-monument link ${link.filterId}/${link.monumentId}, skipping`);
             result.skipped++;
-            this.showSkipped();
           } else {
             this.logWarning(
               `Failed filter-monument link ${link.filterId}/${link.monumentId}: ${message}`
