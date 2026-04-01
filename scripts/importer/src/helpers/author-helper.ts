@@ -20,12 +20,10 @@ import type { AuthorData } from '../core/types.js';
 
 export class AuthorHelper {
   private strategy: IWriteStrategy;
-  private tracker: ITracker;
   private logger: ILogger;
 
-  constructor(strategy: IWriteStrategy, tracker: ITracker, logger: ILogger) {
+  constructor(strategy: IWriteStrategy, _tracker: ITracker, logger: ILogger) {
     this.strategy = strategy;
-    this.tracker = tracker;
     this.logger = logger;
   }
 
@@ -60,7 +58,9 @@ export class AuthorHelper {
       return await this.strategy.writeAuthor(authorData);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warning(`Author write failed for '${trimmedName}': ${message}, retrying name lookup`);
+      this.logger.warning(
+        `Author write failed for '${trimmedName}': ${message}, retrying name lookup`
+      );
       // Retry: another thread/record may have created the same author concurrently
       const retryResult = await this.strategy.findAuthorByName(trimmedName);
       if (!retryResult) {

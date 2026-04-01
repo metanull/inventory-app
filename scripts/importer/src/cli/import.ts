@@ -143,9 +143,10 @@ interface ImporterConfig {
   key: string;
   name: string;
   description: string;
-  importerClass: new (
-    context: ImportContext
-  ) => { import(): Promise<ImportResult>; getName(): string };
+  importerClass: new (context: ImportContext) => {
+    import(): Promise<ImportResult>;
+    getName(): string;
+  };
   dependencies?: string[];
 }
 
@@ -211,7 +212,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'partner-hierarchy',
     name: 'Partner Hierarchy',
-    description: 'Import partner hierarchy levels (partner/associated/minor) from partner_museums tables',
+    description:
+      'Import partner hierarchy levels (partner/associated/minor) from partner_museums tables',
     importerClass: PartnerHierarchyImporter,
     dependencies: ['project', 'partner'],
   },
@@ -255,8 +257,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'dynasty',
     name: 'Dynasties',
-    description:
-      'Import dynasties with translations and item-dynasty links from mwnf3',
+    description: 'Import dynasties with translations and item-dynasty links from mwnf3',
     importerClass: DynastyImporter,
     dependencies: ['object', 'monument', 'language'],
   },
@@ -403,8 +404,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'mwnf3-exhibition',
     name: 'MWNF3 Exhibitions',
-    description:
-      'Import mwnf3 exhibition + artintro hierarchy as nested collections',
+    description: 'Import mwnf3 exhibition + artintro hierarchy as nested collections',
     importerClass: Mwnf3ExhibitionImporter,
     dependencies: ['project', 'language'],
   },
@@ -502,7 +502,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'explore-thematiccycle-translation',
     name: 'Explore Thematic Cycle Translations',
-    description: 'Import multilingual translations, country associations, and country pictures for thematic cycles',
+    description:
+      'Import multilingual translations, country associations, and country pictures for thematic cycles',
     importerClass: ExploreThematicCycleTranslationImporter,
     dependencies: ['explore-thematiccycle'],
   },
@@ -572,7 +573,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'explore-monument-crossref',
     name: 'Explore Monument Cross-References',
-    description: 'Import cross-schema item_item_links between Explore and mwnf3/travels/SH monuments',
+    description:
+      'Import cross-schema item_item_links between Explore and mwnf3/travels/SH monuments',
     importerClass: ExploreMonumentCrossRefImporter,
     dependencies: ['explore-monument', 'monument', 'sh-monument', 'travels-monument'],
   },
@@ -593,7 +595,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'explore-itinerary-content',
     name: 'Explore Itinerary Content',
-    description: 'Import itinerary translations, monument links, metadata, old itineraries, and cross-schema links',
+    description:
+      'Import itinerary translations, monument links, metadata, old itineraries, and cross-schema links',
     importerClass: ExploreItineraryContentImporter,
     dependencies: ['explore-itinerary', 'explore-monument', 'explore-location'],
   },
@@ -849,13 +852,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description:
       'Import 2,629 curated gallery tags with dedup, and 27,543 item-tag links across mwnf3 and SH objects',
     importerClass: ThgTagImporter,
-    dependencies: [
-      'object',
-      'monument',
-      'sh-object',
-      'sh-monument',
-      'thg-gallery',
-    ],
+    dependencies: ['object', 'monument', 'sh-object', 'sh-monument', 'thg-gallery'],
   },
   // Phase 11: Post-Import Linking
   {
@@ -955,7 +952,7 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         const [rows] = params
-          ? await this.connection.execute(sql, params)
+          ? await this.connection.execute(sql, params as (string | number | null)[])
           : await this.connection.execute(sql);
         return rows as T[];
       } catch (err) {
@@ -997,7 +994,7 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         if (params) {
-          await this.connection.execute(sql, params);
+          await this.connection.execute(sql, params as (string | number | null)[]);
         } else {
           await this.connection.execute(sql);
         }
@@ -1096,7 +1093,10 @@ class ResilientConnection {
           throw new Error('Failed to establish connection');
         }
 
-        return await this.connection.execute<T>(sql, values);
+        return await this.connection.execute<T>(
+          sql,
+          values as (string | number | null)[] | undefined
+        );
       } catch (err) {
         const error = err as Error & { code?: string };
         lastError = error;
