@@ -158,13 +158,19 @@ export class DynastyImporter extends BaseImporter {
     const result = this.createResult();
 
     // Query legacy object-dynasty links
+    // DDL columns: o1_project_id, o1_country_id, o1_museum_id, o1_number, d1_dynasty_id
     const objectDynasties = await this.context.legacyDb.query<LegacyObjectDynasty>(
-      'SELECT * FROM mwnf3.objects_dynasties ORDER BY dynasty_id'
+      `SELECT o1_project_id AS project_id, o1_country_id AS country,
+              o1_museum_id AS museum_id, o1_number AS number, d1_dynasty_id AS dynasty_id
+       FROM mwnf3.objects_dynasties ORDER BY d1_dynasty_id`
     );
 
     // Query legacy monument-dynasty links
+    // DDL columns: m1_project_id, m1_country_id, m1_institution_id, m1_number, d1_dynasty_id
     const monumentDynasties = await this.context.legacyDb.query<LegacyMonumentDynasty>(
-      'SELECT * FROM mwnf3.monuments_dynasties ORDER BY dynasty_id'
+      `SELECT m1_project_id AS project_id, m1_country_id AS country,
+              m1_institution_id AS institution_id, m1_number AS number, d1_dynasty_id AS dynasty_id
+       FROM mwnf3.monuments_dynasties ORDER BY d1_dynasty_id`
     );
 
     this.logInfo(
