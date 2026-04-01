@@ -199,7 +199,10 @@ export class ExploreLocationTranslationImporter extends BaseImporter {
 
       // 3. locations_contact → extra.contacts
       const contacts = await this.context.legacyDb.query<LegacyLocationContact>(
-        `SELECT locationId, name, address, phone, fax, email, website FROM mwnf3_explore.locations_contact`
+        `SELECT locationId, institution AS name,
+                CONCAT_WS(', ', NULLIF(street, ''), CONCAT_WS(' ', NULLIF(zip, ''), NULLIF(city, ''))) AS address,
+                phone, fax, email, url AS website
+         FROM mwnf3_explore.locations_contact`
       );
       this.logInfo(`Found ${contacts.length} location contacts`);
 
