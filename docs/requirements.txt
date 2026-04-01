@@ -1,0 +1,13 @@
+# Pinned Python dependencies for docs generation (updated for security fixes)
+# Jinja2 sandbox fixes
+Jinja2==3.1.6
+# Pygments DoS regex fix
+Pygments==2.20.0
+# Requests and urllib3 security fixes
+requests==2.33.0
+urllib3==2.6.3
+# Certifi root store fix
+certifi==2024.7.4
+# setuptools and wheel fixes used by many tools
+setuptools==78.1.1
+wheel==0.46.2

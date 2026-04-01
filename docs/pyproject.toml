@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "inventory-docs"
+version = "0.0.1"
+description = "Helper package for generating docs (commit & client docs)"
+authors = ["MetaNull <dev@metanull.org>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+Jinja2 = "3.1.6"
+Pygments = "2.20.0"
+requests = "2.33.0"
+urllib3 = "2.6.3"
+certifi = "2024.7.4"
+setuptools = "78.1.1"
+wheel = "0.46.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -45,6 +45,14 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install Python dependencies for docs (Poetry)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+          cd docs
+          poetry config virtualenvs.create false --local
+          poetry install --no-dev --no-interaction
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
