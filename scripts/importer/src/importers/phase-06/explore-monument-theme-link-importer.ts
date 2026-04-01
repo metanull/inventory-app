@@ -33,7 +33,7 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
       this.logInfo('Importing Explore monument-theme links...');
 
       const links = await this.context.legacyDb.query<LegacyMonumentTheme>(
-        `SELECT cycleId, monumentId, locationId FROM mwnf3_explore.exploremonumentsthemes ORDER BY cycleId, monumentId`
+        `SELECT themeId AS cycleId, monumentId, locationId FROM mwnf3_explore.exploremonumentsthemes ORDER BY themeId, monumentId`
       );
       this.logInfo(`Found ${links.length} monument-theme links`);
 
