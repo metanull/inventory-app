@@ -143,8 +143,11 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
       }
 
       // 3. Country texts → extra.country_texts
+      // DDL columns: cycleId, country_id, langId, description
       const countryTexts = await this.context.legacyDb.query<LegacyCycleCountryText>(
-        `SELECT cycleId, countryId, langId, text FROM mwnf3_explore.thematiccycle_country_texts WHERE text IS NOT NULL AND text != ''`
+        `SELECT cycleId, country_id AS countryId, langId, description AS text
+         FROM mwnf3_explore.thematiccycle_country_texts
+         WHERE description IS NOT NULL AND description != ''`
       );
       this.logInfo(`Found ${countryTexts.length} thematic cycle country texts`);
 
