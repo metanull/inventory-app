@@ -304,18 +304,43 @@ export function extractObjectTags(obj: LegacyObject): ExtractedTags {
 }
 
 /**
- * Extract artists from object data
+ * Extract artists from object data.
+ *
+ * Uses the same two-pass split as parseTagString:
+ * comma/Arabic comma first, then semicolon/Arabic semicolon for non-structured parts.
+ * HTML tags (e.g. <br/>) are stripped before splitting.
  */
 export function extractObjectArtists(obj: LegacyObject): ExtractedArtist[] {
   if (!obj.artist || obj.artist.trim() === '') {
     return [];
   }
 
-  // Split by semicolon to handle multiple artists
-  const artistNames = obj.artist
-    .split(';')
-    .map((name) => name.trim())
-    .filter((name) => name !== '');
+  // Strip HTML tags before splitting
+  const cleaned = obj.artist
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return [];
+
+  // Pass 1: split on comma (ASCII) and Arabic comma (U+060C)
+  const commaParts = cleaned
+    .split(/[,\u060C]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  // Pass 2: structured (colon) parts kept as-is; others sub-split on semicolons
+  const artistNames: string[] = [];
+  for (const part of commaParts) {
+    if (part.includes(':')) {
+      artistNames.push(part);
+    } else {
+      const semiParts = part
+        .split(/[;\u061B]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      artistNames.push(...semiParts);
+    }
+  }
 
   return artistNames.map((name) => ({
     name,
@@ -328,17 +353,18 @@ export function extractObjectArtists(obj: LegacyObject): ExtractedArtist[] {
 }
 
 /**
- * Parse tag string - split by semicolon (;) primary, comma (,) fallback
+ * Parse tag string — split on all common delimiters with Unicode support.
+ *
+ * Splits on comma (U+002C), Arabic comma (U+060C),
+ * semicolon (U+003B), and Arabic semicolon (U+061B).
  */
 export function parseTagString(tagString: string | undefined | null): string[] {
   if (!tagString || tagString.trim() === '') {
     return [];
   }
 
-  // Split by semicolon as primary separator, comma as fallback
-  const separator = tagString.includes(';') ? ';' : ',';
   return tagString
-    .split(separator)
+    .split(/[,;\u060C\u061B]/)
     .map((t) => t.trim())
     .filter((t) => t !== '');
 }

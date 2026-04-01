@@ -258,6 +258,58 @@ describe('extractObjectArtists', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('should strip HTML tags before splitting', () => {
+    const obj: LegacyObject = {
+      project_id: 'ISL',
+      country: 'tr',
+      museum_id: 'Mus01',
+      number: '1',
+      lang: 'en',
+      artist: 'Calligraphers: Kasim<br/>\nPainters: Osman',
+    };
+
+    const result = extractObjectArtists(obj);
+
+    // Comma-split first → one part (no commas) → colon detected → kept as-is
+    // The <br/>\n is stripped to space; result is a single structured record
+    expect(result.length).toBe(1);
+    expect(result[0]?.name).toBe('Calligraphers: Kasim Painters: Osman');
+  });
+
+  it('should keep structured (colon) comma-parts as-is', () => {
+    const obj: LegacyObject = {
+      project_id: 'ISL',
+      country: 'tr',
+      museum_id: 'Mus01',
+      number: '1',
+      lang: 'en',
+      artist: 'Architecture: Herkomer, Stuccowork: Asam',
+    };
+
+    const result = extractObjectArtists(obj);
+
+    expect(result.length).toBe(2);
+    expect(result[0]?.name).toBe('Architecture: Herkomer');
+    expect(result[1]?.name).toBe('Stuccowork: Asam');
+  });
+
+  it('should split on Arabic semicolon (U+061B)', () => {
+    const obj: LegacyObject = {
+      project_id: 'ISL',
+      country: 'tr',
+      museum_id: 'Mus01',
+      number: '1',
+      lang: 'ar',
+      artist: 'فنان أول\u061B فنان ثان',
+    };
+
+    const result = extractObjectArtists(obj);
+
+    expect(result.length).toBe(2);
+    expect(result[0]?.name).toBe('فنان أول');
+    expect(result[1]?.name).toBe('فنان ثان');
+  });
 });
 
 describe('parseTagString', () => {
@@ -274,6 +326,29 @@ describe('parseTagString', () => {
   it('should split semicolon-separated data even with colons in values', () => {
     const result = parseTagString('Warp: wool; Weft: cotton');
     expect(result).toEqual(['Warp: wool', 'Weft: cotton']);
+  });
+
+  it('should split mixed comma-and-semicolon tags', () => {
+    const result = parseTagString(
+      'Church, Jesuit order, Mathäus Nepauer; Johann Michael Hamon, Buda'
+    );
+    expect(result).toEqual([
+      'Church',
+      'Jesuit order',
+      'Mathäus Nepauer',
+      'Johann Michael Hamon',
+      'Buda',
+    ]);
+  });
+
+  it('should split Arabic comma (U+060C) separated tags', () => {
+    const result = parseTagString('زجاج\u060C زخرفة كتابية\u060C سنان');
+    expect(result).toEqual(['زجاج', 'زخرفة كتابية', 'سنان']);
+  });
+
+  it('should split Arabic semicolon (U+061B) separated tags', () => {
+    const result = parseTagString('gold\u061B silver\u061B bronze');
+    expect(result).toEqual(['gold', 'silver', 'bronze']);
   });
 
   it('should return empty array for empty string', () => {

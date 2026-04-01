@@ -262,42 +262,40 @@ export class ObjectImporter extends BaseImporter {
       }
     }
 
-    // Create tags (from first translation only to avoid duplicates)
-    const firstTranslation = group.translations[0];
-    if (firstTranslation) {
-      const extractedTags = extractObjectTags(firstTranslation);
-      const tagIds: string[] = [];
+    // Create tags from all translations (tags are language-scoped)
+    const allTagIds: string[] = [];
+    for (const translation of group.translations) {
+      const extractedTags = extractObjectTags(translation);
 
-      if (extractedTags.materials.length > 0) {
-        for (const material of extractedTags.materials) {
-          const tagId = await this.tagHelper.findOrCreate(
-            material,
-            'material',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
+      for (const material of extractedTags.materials) {
+        const tagId = await this.tagHelper.findOrCreate(
+          material,
+          'material',
+          extractedTags.languageId
+        );
+        if (tagId) allTagIds.push(tagId);
       }
 
       // Dynasty tags no longer extracted here — structured item_dynasty links
       // are created by DynastyImporter from objects_dynasties/monuments_dynasties tables
 
-      if (extractedTags.keywords.length > 0) {
-        for (const keyword of extractedTags.keywords) {
-          const tagId = await this.tagHelper.findOrCreate(
-            keyword,
-            'keyword',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
+      for (const keyword of extractedTags.keywords) {
+        const tagId = await this.tagHelper.findOrCreate(
+          keyword,
+          'keyword',
+          extractedTags.languageId
+        );
+        if (tagId) allTagIds.push(tagId);
       }
+    }
 
-      if (tagIds.length > 0) {
-        await this.tagHelper.attachToItem(itemId, tagIds);
-      }
+    if (allTagIds.length > 0) {
+      await this.tagHelper.attachToItem(itemId, allTagIds);
+    }
 
-      // Create artists
+    // Create artists (from first translation — artist entity is not language-scoped)
+    const firstTranslation = group.translations[0];
+    if (firstTranslation) {
       const extractedArtists = extractObjectArtists(firstTranslation);
       const artistIds: string[] = [];
 

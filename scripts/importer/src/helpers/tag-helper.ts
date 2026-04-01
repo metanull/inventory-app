@@ -25,7 +25,9 @@ export class TagHelper {
 
   /**
    * Find or create a list of tags from a tag string
-   * Handles structured data and simple lists
+   * Handles structured data and simple lists.
+   *
+   * Splits on comma, semicolon, and their Arabic Unicode equivalents.
    */
   async findOrCreateList(
     tagString: string,
@@ -36,10 +38,8 @@ export class TagHelper {
       return [];
     }
 
-    // Split by semicolon as primary separator, comma as fallback
-    const separator = tagString.includes(';') ? ';' : ',';
     const tagNames = tagString
-      .split(separator)
+      .split(/[,;\u060C\u061B]/)
       .map((t) => t.trim())
       .filter(Boolean);
 
