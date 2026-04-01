@@ -25,8 +25,12 @@ interface LegacyMonumentVM {
 
 interface LegacyMonumentTR {
   monumentId: number;
-  tr_monument_id: number;
-  tr_country: string;
+  REF_tr_monuments_project_id: string;
+  REF_tr_monuments_country: string;
+  REF_tr_monuments_itinerary_id: string;
+  REF_tr_monuments_location_id: string;
+  REF_tr_monuments_number: string;
+  REF_tr_monuments_trail_id: number;
 }
 
 interface LegacyMonumentSH {
@@ -114,9 +118,15 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
       }
 
       // 2. exploremonument_tr → Travels monuments
+      // DDL columns: monumentId, REF_tr_monuments_project_id, REF_tr_monuments_country,
+      //   REF_tr_monuments_itinerary_id, REF_tr_monuments_location_id,
+      //   REF_tr_monuments_number, REF_tr_monuments_lang, REF_tr_monuments_trail_id
       this.logInfo('Importing Explore → Travels monument cross-references...');
       const trLinks = await this.context.legacyDb.query<LegacyMonumentTR>(
-        `SELECT monumentId, tr_monument_id, tr_country FROM mwnf3_explore.exploremonument_tr`
+        `SELECT monumentId, REF_tr_monuments_project_id, REF_tr_monuments_country,
+                REF_tr_monuments_itinerary_id, REF_tr_monuments_location_id,
+                REF_tr_monuments_number, REF_tr_monuments_trail_id
+         FROM mwnf3_explore.exploremonument_tr`
       );
       this.logInfo(`Found ${trLinks.length} Travels cross-references`);
 
@@ -131,8 +141,8 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          // Travels monument BC: mwnf3_travels:monuments:{country}:{monument_id}
-          const targetBC = `mwnf3_travels:monuments:${tr.tr_country}:${tr.tr_monument_id}`;
+          // Travels monument BC: mwnf3_travels:monument:{project_id}:{country}:{trail_id}:{itinerary_id}:{location_id}:{number}
+          const targetBC = `mwnf3_travels:monument:${tr.REF_tr_monuments_project_id}:${tr.REF_tr_monuments_country}:${tr.REF_tr_monuments_trail_id}:${tr.REF_tr_monuments_itinerary_id}:${tr.REF_tr_monuments_location_id}:${tr.REF_tr_monuments_number}`;
           const targetId = await this.getEntityUuidAsync(targetBC, 'item');
           if (!targetId) {
             this.logWarning(`Travels monument not found: ${targetBC}, skipping`);
@@ -147,7 +157,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          const linkBC = `mwnf3_explore:monument_tr:${tr.monumentId}:${tr.tr_country}:${tr.tr_monument_id}`;
+          const linkBC = `mwnf3_explore:monument_tr:${tr.monumentId}:${tr.REF_tr_monuments_project_id}:${tr.REF_tr_monuments_country}:${tr.REF_tr_monuments_trail_id}:${tr.REF_tr_monuments_itinerary_id}:${tr.REF_tr_monuments_location_id}:${tr.REF_tr_monuments_number}`;
           await this.context.strategy.writeItemItemLink({
             source_id: sourceId,
             target_id: targetId,
