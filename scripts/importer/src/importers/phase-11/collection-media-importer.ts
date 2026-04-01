@@ -98,15 +98,28 @@ export class CollectionMediaImporter extends BaseImporter {
           mediaType
         );
 
-        // Resolve theme collection
-        const themeBC = `mwnf3_thematic_gallery:thg_theme:${row.gallery_id}:${row.theme_id}`;
-        const collectionId = await this.getEntityUuidAsync(themeBC, 'collection');
-        if (!collectionId) {
-          this.logWarning(
-            `Skipping theme ${mediaType}: theme collection not found for BC=${themeBC}`
-          );
-          result.skipped++;
-          continue;
+        // Resolve collection: theme_id=0 means gallery-level, otherwise theme-level
+        let collectionId: string | null;
+        if (row.theme_id === 0) {
+          const galleryBC = `mwnf3_thematic_gallery:thg_gallery:${row.gallery_id}`;
+          collectionId = await this.getEntityUuidAsync(galleryBC, 'collection');
+          if (!collectionId) {
+            this.logWarning(
+              `Skipping gallery-level ${mediaType}: gallery collection not found for BC=${galleryBC} (theme_id=0)`
+            );
+            result.skipped++;
+            continue;
+          }
+        } else {
+          const themeBC = `mwnf3_thematic_gallery:thg_theme:${row.gallery_id}:${row.theme_id}`;
+          collectionId = await this.getEntityUuidAsync(themeBC, 'collection');
+          if (!collectionId) {
+            this.logWarning(
+              `Skipping theme ${mediaType}: theme collection not found for BC=${themeBC}`
+            );
+            result.skipped++;
+            continue;
+          }
         }
 
         // Resolve language
