@@ -37,9 +37,9 @@ interface LegacyItineraryMonument {
   monumentId: number;
   mn_order: number | null;
   desc_types: string | null;
-  en_mn_desc: string | null;
-  fr_mn_desc: string | null;
-  ar_mn_desc: string | null;
+  explore_mn_desc: string | null;
+  tr_mn_desc: string | null;
+  vm_mn_desc: string | null;
 }
 
 interface LegacyItineraryLocation {
@@ -216,8 +216,11 @@ export class ExploreItineraryContentImporter extends BaseImporter {
 
   private async importMonumentLinks(result: ImportResult): Promise<void> {
     this.logInfo('Importing itinerary-monument links...');
+    // DDL columns: itineraries_id, country_id, territory_id, location_id, momument_id (typo in DDL),
+    //   mn_order, desc_types, explore_mn_desc, tr_mn_desc, vm_mn_desc
     const links = await this.context.legacyDb.query<LegacyItineraryMonument>(
-      `SELECT itineraries_id, monumentId, mn_order, desc_types, en_mn_desc, fr_mn_desc, ar_mn_desc
+      `SELECT itineraries_id, momument_id AS monumentId, mn_order, desc_types,
+              explore_mn_desc, tr_mn_desc, vm_mn_desc
        FROM mwnf3_explore.explore_itineraries_rel_monuments
        ORDER BY itineraries_id, mn_order`
     );
@@ -253,9 +256,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         const extra: Record<string, unknown> = {};
         if (link.mn_order !== null) extra.mn_order = link.mn_order;
         if (link.desc_types) extra.desc_types = link.desc_types;
-        if (link.en_mn_desc) extra.en_mn_desc = link.en_mn_desc;
-        if (link.fr_mn_desc) extra.fr_mn_desc = link.fr_mn_desc;
-        if (link.ar_mn_desc) extra.ar_mn_desc = link.ar_mn_desc;
+        if (link.explore_mn_desc) extra.explore_mn_desc = link.explore_mn_desc;
+        if (link.tr_mn_desc) extra.tr_mn_desc = link.tr_mn_desc;
+        if (link.vm_mn_desc) extra.vm_mn_desc = link.vm_mn_desc;
 
         const linkBC = `mwnf3_explore:itinerary_monument:${link.itineraries_id}:${link.monumentId}`;
         await this.context.strategy.writeCollectionItem({
@@ -298,9 +301,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       locationsByItinerary.set(l.itineraries_id, list);
     }
 
-    // Countries
+    // Countries — DDL table: explore_itineraries_rel_country (singular), column: country_id
     const countries = await this.context.legacyDb.query<LegacyItineraryCountry>(
-      `SELECT itineraries_id, countryId FROM mwnf3_explore.explore_itineraries_rel_countries`
+      `SELECT itineraries_id, country_id AS countryId FROM mwnf3_explore.explore_itineraries_rel_country`
     );
     const countriesByItinerary = new Map<number, string[]>();
     for (const c of countries) {
@@ -309,9 +312,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       countriesByItinerary.set(c.itineraries_id, list);
     }
 
-    // Territories
+    // Territories — DDL table: explore_itineraries_rel_territory (singular), column: territory_id
     const territories = await this.context.legacyDb.query<LegacyItineraryTerritory>(
-      `SELECT itineraries_id, regionId FROM mwnf3_explore.explore_itineraries_rel_territories`
+      `SELECT itineraries_id, territory_id AS regionId FROM mwnf3_explore.explore_itineraries_rel_territory`
     );
     const territoriesByItinerary = new Map<number, number[]>();
     for (const t of territories) {
