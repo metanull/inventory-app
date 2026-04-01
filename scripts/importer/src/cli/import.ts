@@ -1305,13 +1305,6 @@ program
             result.errors.length,
             importerDuration
           );
-
-          if (result.errors.length > 0) {
-            // Log errors to file
-            result.errors.forEach((err) => {
-              logger.logImporterError(config.name, err);
-            });
-          }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           const importerDuration = Date.now() - importerStart;
