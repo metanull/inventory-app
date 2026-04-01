@@ -271,7 +271,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes('Duplicate')) {
-          this.logSkip(`Duplicate itinerary-monument link ${link.itineraries_id}/${link.monumentId}, skipping`);
+          this.logSkip(
+            `Duplicate itinerary-monument link ${link.itineraries_id}/${link.monumentId}, skipping`
+          );
           result.skipped++;
         } else {
           this.logWarning(
@@ -490,7 +492,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes('Duplicate')) {
-          this.logSkip(`Duplicate old itinerary-monument link ${link.itinerary_id}/${link.monumentId}, skipping`);
+          this.logSkip(
+            `Duplicate old itinerary-monument link ${link.itinerary_id}/${link.monumentId}, skipping`
+          );
           result.skipped++;
         } else {
           this.logWarning(
@@ -550,7 +554,9 @@ export class ExploreItineraryContentImporter extends BaseImporter {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes('Duplicate')) {
-          this.logSkip(`Duplicate cross-schema link ${link.country}:${link.monument_numero} → itinerary ${link.itineraryId}, skipping`);
+          this.logSkip(
+            `Duplicate cross-schema link ${link.country}:${link.monument_numero} → itinerary ${link.itineraryId}, skipping`
+          );
           result.skipped++;
         } else {
           this.logWarning(

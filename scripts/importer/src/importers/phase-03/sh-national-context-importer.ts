@@ -343,7 +343,9 @@ export class ShNationalContextImporter extends BaseImporter {
         } catch (writeError) {
           const writeMsg = writeError instanceof Error ? writeError.message : String(writeError);
           if (writeMsg.includes('Duplicate') || writeMsg.includes('duplicate')) {
-            this.logSkip(`NC image ${legacy.image_id}: Duplicate pivot entry (item already linked), skipping`);
+            this.logSkip(
+              `NC image ${legacy.image_id}: Duplicate pivot entry (item already linked), skipping`
+            );
             result.skipped++;
             continue;
           }
