@@ -1273,117 +1273,13 @@ program
         dryRun,
       };
 
-      // Track results and phases
+      // Track results
       const results = new Map<string, ImportResult>();
-      const phases: PhaseSummary[] = [];
-      let currentPhase = 'Phase 0: Reference Data';
-      let phaseStart = Date.now();
-      let phaseImported = 0;
-      let phaseSkipped = 0;
-      let phaseErrors = 0;
-
-      // Helper to determine phase
-      const getPhase = (key: string): string => {
-        if (
-          [
-            'default-context',
-            'language',
-            'language-translation',
-            'country',
-            'country-translation',
-          ].includes(key)
-        ) {
-          return 'Phase 0: Reference Data';
-        } else if (['project', 'partner'].includes(key)) {
-          return 'Phase 1: Projects and Partners';
-        } else if (['object', 'monument', 'monument-detail'].includes(key)) {
-          return 'Phase 2: Items';
-        } else if (
-          [
-            'object-picture',
-            'monument-picture',
-            'monument-detail-picture',
-            'partner-picture',
-            'partner-logo',
-          ].includes(key)
-        ) {
-          return 'Phase 3: Images';
-        } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
-          return 'Phase 4: Glossary';
-        } else if (
-          [
-            'sh-project',
-            'sh-partner',
-            'sh-partner-logo',
-            'sh-object',
-            'sh-monument',
-            'sh-monument-detail',
-            'sh-object-picture',
-            'sh-monument-picture',
-            'sh-monument-detail-picture',
-          ].includes(key)
-        ) {
-          return 'Phase 3.5: Sharing History';
-        } else if (
-          [
-            'explore-context',
-            'explore-root-collections',
-            'explore-thematiccycle',
-            'explore-country',
-            'explore-location',
-            'explore-monument',
-            'explore-itinerary',
-          ].includes(key)
-        ) {
-          return 'Phase 6: Explore';
-        } else if (
-          [
-            'thg-gallery-context',
-            'thg-gallery',
-            'thg-gallery-translation',
-            'thg-theme',
-            'thg-theme-translation',
-            'thg-theme-item',
-            'thg-theme-item-translation',
-            'thg-item-related',
-            'thg-item-related-translation',
-            'thg-gallery-mwnf3-object',
-            'thg-gallery-mwnf3-monument',
-            'thg-gallery-sh-object',
-            'thg-gallery-sh-monument',
-          ].includes(key)
-        ) {
-          return 'Phase 10: Thematic Galleries';
-        } else {
-          return 'Phase Unknown';
-        }
-      };
+      const importerTimings = new Map<string, number>();
 
       // Execute importers
       for (const config of ALL_IMPORTERS) {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
-
-        // Check if phase changed
-        const newPhase = getPhase(config.key);
-        if (newPhase !== currentPhase && shouldRun) {
-          // Save current phase results
-          if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
-            phases.push({
-              phase: currentPhase,
-              duration: Date.now() - phaseStart,
-              imported: phaseImported,
-              skipped: phaseSkipped,
-              errors: phaseErrors,
-            });
-          }
-          // Start new phase
-          currentPhase = newPhase;
-          phaseStart = Date.now();
-          phaseImported = 0;
-          phaseSkipped = 0;
-          phaseErrors = 0;
-          logger.logPhaseStart(currentPhase);
-        }
 
         if (!shouldRun) {
           console.log(chalk.gray(`⏭  Skipping ${config.name}`));
@@ -1400,9 +1296,7 @@ program
           results.set(config.key, result);
 
           const importerDuration = Date.now() - importerStart;
-          phaseImported += result.imported;
-          phaseSkipped += result.skipped;
-          phaseErrors += result.errors.length;
+          importerTimings.set(config.key, importerDuration);
 
           logger.logImporterComplete(
             config.name,
@@ -1429,7 +1323,7 @@ program
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           const importerDuration = Date.now() - importerStart;
-          phaseErrors++;
+          importerTimings.set(config.key, importerDuration);
           logger.logImporterComplete(config.name, 0, 0, 1, importerDuration);
           logger.logImporterError(config.name, message);
           results.set(config.key, {
@@ -1441,15 +1335,21 @@ program
         }
       }
 
-      // Save final phase results
-      if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
-        phases.push({
-          phase: currentPhase,
-          duration: Date.now() - phaseStart,
-          imported: phaseImported,
-          skipped: phaseSkipped,
-          errors: phaseErrors,
-        });
+      // Build per-importer summaries for final report
+      const summaries: PhaseSummary[] = [];
+      for (const config of ALL_IMPORTERS) {
+        const result = results.get(config.key);
+        if (!result) continue; // was skipped
+        const duration = importerTimings.get(config.key) ?? 0;
+        if (result.imported > 0 || result.skipped > 0 || result.errors.length > 0) {
+          summaries.push({
+            phase: config.name,
+            duration,
+            imported: result.imported,
+            skipped: result.skipped,
+            errors: result.errors.length,
+          });
+        }
       }
 
       // Calculate totals
@@ -1464,7 +1364,7 @@ program
       );
 
       // Log final summary (handles both console and file output)
-      logger.logFinalSummary(phases);
+      logger.logFinalSummary(summaries);
 
       // Cleanup
       logger.info('Disconnecting from databases...');
