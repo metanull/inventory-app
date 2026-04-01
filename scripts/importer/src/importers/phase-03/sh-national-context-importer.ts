@@ -334,11 +334,21 @@ export class ShNationalContextImporter extends BaseImporter {
           continue;
         }
 
-        await this.context.strategy.writeCollectionItem({
-          collection_id: collectionId,
-          item_id: itemId,
-          display_order: legacy.sort_order,
-        });
+        try {
+          await this.context.strategy.writeCollectionItem({
+            collection_id: collectionId,
+            item_id: itemId,
+            display_order: legacy.sort_order,
+          });
+        } catch (writeError) {
+          const writeMsg = writeError instanceof Error ? writeError.message : String(writeError);
+          if (writeMsg.includes('Duplicate') || writeMsg.includes('duplicate')) {
+            this.logSkip(`NC image ${legacy.image_id}: Duplicate pivot entry (item already linked), skipping`);
+            result.skipped++;
+            continue;
+          }
+          throw writeError;
+        }
 
         result.imported++;
         this.showProgress();
@@ -481,11 +491,21 @@ export class ShNationalContextImporter extends BaseImporter {
       return;
     }
 
-    await this.context.strategy.writeCollectionItem({
-      collection_id: collectionId,
-      item_id: itemId,
-      extra: Object.keys(extra).length > 0 ? extra : null,
-    });
+    try {
+      await this.context.strategy.writeCollectionItem({
+        collection_id: collectionId,
+        item_id: itemId,
+        extra: Object.keys(extra).length > 0 ? extra : null,
+      });
+    } catch (writeError) {
+      const writeMsg = writeError instanceof Error ? writeError.message : String(writeError);
+      if (writeMsg.includes('Duplicate') || writeMsg.includes('duplicate')) {
+        this.logSkip(`${context}: Duplicate pivot entry (item already linked), skipping`);
+        result.skipped++;
+        return;
+      }
+      throw writeError;
+    }
 
     result.imported++;
     this.showProgress();
