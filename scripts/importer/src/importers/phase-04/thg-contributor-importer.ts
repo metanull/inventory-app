@@ -427,15 +427,15 @@ export class ThgContributorImporter extends BaseImporter {
 
   /**
    * Resolve collection_id from gallery_id + theme_id backward_compatibility.
-   * THG galleries use BC: mwnf3_thematic_gallery:galleries:{gallery_id}
-   * THG themes use BC: mwnf3_thematic_gallery:themes:{gallery_id}:{theme_id}
+   * THG galleries use BC: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
+   * THG themes use BC: mwnf3_thematic_gallery:thg_theme:{gallery_id}:{theme_id}
    */
   private async resolveCollectionId(galleryId: number, themeId: number): Promise<string | null> {
     // If theme_id > 0, try to find the theme collection first
     if (themeId > 0) {
       const themeBC = formatBackwardCompatibility({
         schema: 'mwnf3_thematic_gallery',
-        table: 'themes',
+        table: 'thg_theme',
         pkValues: [String(galleryId), String(themeId)],
       });
       const themeCollectionId = await this.getEntityUuidAsync(themeBC, 'collection');
@@ -447,7 +447,7 @@ export class ThgContributorImporter extends BaseImporter {
     // Fall back to gallery collection
     const galleryBC = formatBackwardCompatibility({
       schema: 'mwnf3_thematic_gallery',
-      table: 'galleries',
+      table: 'thg_gallery',
       pkValues: [String(galleryId)],
     });
     return this.getEntityUuidAsync(galleryBC, 'collection');
