@@ -36,7 +36,7 @@ interface LegacyCycleCountryText {
 
 interface LegacyCycleCountryPicture {
   cycleId: number;
-  countryId: string;
+  country_id: string;
   path: string;
 }
 
@@ -198,7 +198,7 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
 
       // 4. Country pictures → CollectionImage
       const pictures = await this.context.legacyDb.query<LegacyCycleCountryPicture>(
-        `SELECT cycleId, countryId, path FROM mwnf3_explore.thematiccycle_country_pictures WHERE path IS NOT NULL AND path != ''`
+        `SELECT cycleId, country_id, path FROM mwnf3_explore.thematiccycle_country_pictures WHERE path IS NOT NULL AND path != ''`
       );
       this.logInfo(`Found ${pictures.length} thematic cycle country pictures`);
 
@@ -219,13 +219,13 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
             original_name: pic.path.split('/').pop() ?? pic.path,
             mime_type: 'image/jpeg',
             size: 1, // placeholder
-            alt_text: `${pic.countryId} country picture`,
+            alt_text: `${pic.country_id} country picture`,
             display_order: 0,
           });
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           this.logWarning(
-            `Failed country picture for cycle ${pic.cycleId}/${pic.countryId}: ${message}`
+            `Failed country picture for cycle ${pic.cycleId}/${pic.country_id}: ${message}`
           );
         }
       }
