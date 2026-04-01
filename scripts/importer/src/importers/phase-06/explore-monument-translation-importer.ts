@@ -56,7 +56,8 @@ interface LegacyFurtherReading {
   monumentId: number;
   langId: string;
   title: string | null;
-  author: string | null;
+  abstract: string | null;
+  file_details: string | null;
   url: string | null;
 }
 
@@ -104,8 +105,9 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
       this.logInfo(`Found ${texts.length} monument text rows`);
 
       // Pre-fetch further_reading
+      // DDL columns: monumentId, langId, number, text, abstratc, file_details, url, lastupdate, type
       const furtherReadings = await this.context.legacyDb.query<LegacyFurtherReading>(
-        `SELECT monumentId, langId, title, author, url
+        `SELECT monumentId, langId, text AS title, abstratc AS abstract, file_details, url
          FROM mwnf3_explore.exploremonument_further_reading
          ORDER BY monumentId, langId`
       );
@@ -194,7 +196,8 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             extra.further_readings = frEntries.map((fr) => {
               const entry: Record<string, string> = {};
               if (fr.title) entry.title = fr.title;
-              if (fr.author) entry.author = fr.author;
+              if (fr.abstract) entry.abstract = fr.abstract;
+              if (fr.file_details) entry.file_details = fr.file_details;
               if (fr.url) entry.url = fr.url;
               return entry;
             });
