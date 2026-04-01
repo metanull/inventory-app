@@ -18,13 +18,13 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 
 interface LegacyFilter {
-  filterId: number;
+  filterId: string;
   name: string;
-  filtertype: number | null;
+  filtertype: string | null;
 }
 
 interface LegacyFilterMonument {
-  filterId: number;
+  filterId: string;
   monumentId: number;
 }
 
@@ -41,11 +41,11 @@ export class ExploreFilterImporter extends BaseImporter {
 
       // 1. Import filters → Tags
       const filters = await this.context.legacyDb.query<LegacyFilter>(
-        `SELECT filterId, name, filtertype FROM mwnf3_explore.filters ORDER BY filterId`
+        `SELECT filter_id AS filterId, filter_name AS name, type_id AS filtertype FROM mwnf3_explore.filters ORDER BY filter_id`
       );
       this.logInfo(`Found ${filters.length} filters to import`);
 
-      const filterTagMap = new Map<number, string>(); // filterId → tag UUID
+      const filterTagMap = new Map<string, string>(); // filterId → tag UUID
 
       for (const filter of filters) {
         try {
@@ -102,7 +102,7 @@ export class ExploreFilterImporter extends BaseImporter {
       // 2. Import filter-monument links → item_tag
       this.logInfo('Importing filter-monument links...');
       const links = await this.context.legacyDb.query<LegacyFilterMonument>(
-        `SELECT filterId, monumentId FROM mwnf3_explore.filters_explore_monuments ORDER BY filterId, monumentId`
+        `SELECT filter_id AS filterId, monumentId FROM mwnf3_explore.filters_explore_monuments ORDER BY filter_id, monumentId`
       );
       this.logInfo(`Found ${links.length} filter-monument links`);
 
