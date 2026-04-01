@@ -46,11 +46,15 @@ export class LanguageImporter extends BaseImporter {
 
       for (const language of languages) {
         try {
-          // Use backward_compatibility as the tracking key; fall back to id for non-legacy languages
-          const backwardCompat = language.backward_compatibility ?? language.id;
+          // Tracking key: BC for legacy languages (enables lookup by legacy code),
+          // id for non-legacy languages (enables dedup only — no legacy code exists)
+          const trackingKey: string =
+            language.backward_compatibility !== null
+              ? language.backward_compatibility
+              : language.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with countries)
-          if (await this.entityExistsAsync(backwardCompat, 'language')) {
+          if (await this.entityExistsAsync(trackingKey, 'language')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -68,7 +72,7 @@ export class LanguageImporter extends BaseImporter {
               `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language: ${language.id} (${language.internal_name})`
             );
             // Register for tracking even in dry-run
-            this.registerEntity(language.id, backwardCompat, 'language');
+            this.registerEntity(language.id, trackingKey, 'language');
             result.imported++;
             this.showProgress();
             continue;
@@ -80,11 +84,11 @@ export class LanguageImporter extends BaseImporter {
           await this.context.strategy.writeLanguage({
             id: language.id,
             internal_name: language.internal_name,
-            backward_compatibility: backwardCompat,
+            backward_compatibility: language.backward_compatibility,
             is_default: language.is_default,
           });
 
-          this.registerEntity(language.id, backwardCompat, 'language');
+          this.registerEntity(language.id, trackingKey, 'language');
 
           // Track default language ID for use by other importers
           if (language.is_default) {

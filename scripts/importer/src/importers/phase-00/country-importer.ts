@@ -46,11 +46,13 @@ export class CountryImporter extends BaseImporter {
 
       for (const country of countries) {
         try {
-          // Use backward_compatibility as the tracking key; fall back to id for non-legacy countries
-          const backwardCompat = country.backward_compatibility ?? country.id;
+          // Tracking key: BC for legacy countries (enables lookup by legacy code),
+          // id for non-legacy countries (enables dedup only — no legacy code exists)
+          const trackingKey: string =
+            country.backward_compatibility !== null ? country.backward_compatibility : country.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with languages)
-          if (await this.entityExistsAsync(backwardCompat, 'country')) {
+          if (await this.entityExistsAsync(trackingKey, 'country')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -68,7 +70,7 @@ export class CountryImporter extends BaseImporter {
               `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country: ${country.id} (${country.internal_name})`
             );
             // Register for tracking even in dry-run
-            this.registerEntity(country.id, backwardCompat, 'country');
+            this.registerEntity(country.id, trackingKey, 'country');
             result.imported++;
             this.showProgress();
             continue;
@@ -80,10 +82,10 @@ export class CountryImporter extends BaseImporter {
           await this.context.strategy.writeCountry({
             id: country.id,
             internal_name: country.internal_name,
-            backward_compatibility: backwardCompat,
+            backward_compatibility: country.backward_compatibility,
           });
 
-          this.registerEntity(country.id, backwardCompat, 'country');
+          this.registerEntity(country.id, trackingKey, 'country');
 
           result.imported++;
           this.showProgress();

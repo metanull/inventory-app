@@ -144,7 +144,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
       ]
     );
 
-    this.tracker.set(sanitized.backward_compatibility ?? sanitized.id, sanitized.id, 'language');
+    // Track by BC for legacy languages (enables lookup by legacy code),
+    // by id for non-legacy languages (dedup only)
+    const trackingKey =
+      sanitized.backward_compatibility !== null ? sanitized.backward_compatibility : sanitized.id;
+    this.tracker.set(trackingKey, sanitized.id, 'language');
     return sanitized.id;
   }
 
@@ -176,7 +180,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [sanitized.id, sanitized.internal_name, sanitized.backward_compatibility, this.now, this.now]
     );
 
-    this.tracker.set(sanitized.backward_compatibility ?? sanitized.id, sanitized.id, 'country');
+    // Track by BC for legacy countries (enables lookup by legacy code),
+    // by id for non-legacy countries (dedup only)
+    const trackingKey =
+      sanitized.backward_compatibility !== null ? sanitized.backward_compatibility : sanitized.id;
+    this.tracker.set(trackingKey, sanitized.id, 'country');
     return sanitized.id;
   }
 
