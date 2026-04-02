@@ -475,8 +475,6 @@ All legacy HTML content is converted to Markdown:
 
 **Note:** Sample collection for test fixtures is not currently implemented in this unified importer. The interface `ISampleCollector` exists in `core/base-importer.ts` but is not active.
 
-If you need to collect sample data for testing, use the legacy importer at `scripts/legacy-import/sql-import-v2.ts` which has full sample collection support via the `--collect-samples` flag.
-
 ## Extending with API Strategy
 
 To add API-based imports:

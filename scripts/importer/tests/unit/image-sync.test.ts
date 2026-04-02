@@ -6,9 +6,9 @@ import type { Connection } from 'mysql2/promise';
 
 import {
   ImageSyncTool,
-  type ImageSyncLogger,
   type ImageSyncOptions,
 } from '../../src/tools/image-sync.js';
+import type { ILogger } from '../../src/core/base-importer.js';
 
 class FakeConnection {
   private readonly selectRows: Array<{
@@ -47,16 +47,49 @@ class FakeConnection {
   }
 }
 
-class FakeLogger implements ImageSyncLogger {
+class FakeLogger implements ILogger {
   public messages: string[] = [];
   public errors: string[] = [];
+  public warnings: string[] = [];
+  public skips: string[] = [];
 
   info(message: string): void {
     this.messages.push(message);
   }
 
-  error(context: string, error: unknown): void {
-    this.errors.push(`${context}: ${String(error)}`);
+  warning(message: string, details?: unknown): void {
+    const detailsStr = details ? ` (${JSON.stringify(details)})` : '';
+    this.warnings.push(`${message}${detailsStr}`);
+  }
+
+  skip(message: string): void {
+    this.skips.push(message);
+  }
+
+  error(context: string, message: string, additionalContext?: Record<string, unknown>): void {
+    const contextStr = additionalContext ? ` (${JSON.stringify(additionalContext)})` : '';
+    this.errors.push(`${context}: ${message}${contextStr}`);
+  }
+
+  exception(context: string, error: Error, additionalContext?: Record<string, unknown>): void {
+    const contextStr = additionalContext ? ` (${JSON.stringify(additionalContext)})` : '';
+    this.errors.push(`EXCEPTION ${context}: ${error.message}${contextStr}`);
+  }
+
+  showProgress(): void {
+    // no-op in test
+  }
+
+  showSkipped(): void {
+    // no-op in test
+  }
+
+  showError(): void {
+    // no-op in test
+  }
+
+  showSummary(_imported: number, _skipped: number, _errors: number): void {
+    // no-op in test
   }
 }
 

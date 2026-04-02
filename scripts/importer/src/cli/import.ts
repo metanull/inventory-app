@@ -1419,7 +1419,7 @@ program
 program
   .command('image-sync')
   .description(
-    'Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)'
+    'Synchronize legacy images to new storage (images with size=1 placeholder across all image tables)'
   )
   .option('--copy', 'Copy files instead of symbolic links', false)
   .option('--clear-destination', 'Clear destination image folder before synchronization', false)
@@ -1505,10 +1505,18 @@ program
         console.log(chalk.yellow(`⊘ ${result.skipped} images skipped`));
         console.log(chalk.red(`✗ ${result.errors.length} errors`));
         console.log('');
+        // Log all errors to file, show first 10 on console
+        for (const err of result.errors) {
+          logger.error('ImageSync', err);
+        }
         console.log(chalk.red('Errors:'));
         result.errors.slice(0, 10).forEach((err) => console.log(chalk.red(`  - ${err}`)));
         if (result.errors.length > 10) {
-          console.log(chalk.red(`  ... and ${result.errors.length - 10} more errors`));
+          console.log(
+            chalk.red(
+              `  ... and ${result.errors.length - 10} more (see log file for full list)`
+            )
+          );
         }
       }
       console.log(chalk.bold('='.repeat(80)));
