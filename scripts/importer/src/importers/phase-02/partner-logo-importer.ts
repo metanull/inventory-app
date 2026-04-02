@@ -111,7 +111,7 @@ export class PartnerLogoImporter extends BaseImporter {
           });
 
           // Find Partner UUID
-          const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+          const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
           if (!partnerId) {
             this.logWarning(`Partner not found for museum ${museum.museum_id}:${museum.country}`);
             result.skipped++;
@@ -212,7 +212,7 @@ export class PartnerLogoImporter extends BaseImporter {
           });
 
           // Find Partner UUID
-          const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+          const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
           if (!partnerId) {
             this.logWarning(
               `Partner not found for institution ${institution.institution_id}:${institution.country}`
@@ -293,7 +293,7 @@ export class PartnerLogoImporter extends BaseImporter {
     const logoKey = `logo:${logoPath.toLowerCase()}`;
 
     // Check if already imported
-    if (this.entityExists(logoKey, 'image')) {
+    if (await this.entityExistsAsync(logoKey, 'image')) {
       return false;
     }
 

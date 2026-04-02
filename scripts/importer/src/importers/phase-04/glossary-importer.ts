@@ -51,7 +51,7 @@ export class GlossaryImporter extends BaseImporter {
           const backwardCompat = `mwnf3:glossary:${legacy.word_id}`;
 
           // Check if already exists
-          if (this.entityExists(backwardCompat, 'glossary')) {
+          if (await this.entityExistsAsync(backwardCompat, 'glossary')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -85,9 +85,15 @@ export class GlossaryImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(`Word ${legacy.word_id}: ${message}`);
-          this.logError(`Glossary word ${legacy.word_id}`, message);
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(`Glossary word ${legacy.word_id}: duplicate, skipping`);
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(`Word ${legacy.word_id}: ${message}`);
+            this.logError(`Glossary word ${legacy.word_id}`, message);
+            this.showError();
+          }
         }
       }
 
@@ -144,7 +150,7 @@ export class GlossaryTranslationImporter extends BaseImporter {
 
           // Find the glossary word by backward_compatibility using tracker
           const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
-          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
+          const glossaryId = await this.getEntityUuidAsync(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(`Glossary word not found for definition: word_id=${legacy.word_id}`);
@@ -192,14 +198,22 @@ export class GlossaryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: ${message}`
-          );
-          this.logError(
-            `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}`,
-            message
-          );
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: duplicate, skipping`
+            );
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(
+              `Definition word_id=${legacy.word_id}, lang=${legacy.lang_id}: ${message}`
+            );
+            this.logError(
+              `Glossary definition word_id=${legacy.word_id}, lang=${legacy.lang_id}`,
+              message
+            );
+            this.showError();
+          }
         }
       }
 
@@ -261,7 +275,7 @@ export class GlossarySpellingImporter extends BaseImporter {
 
           // Find the glossary word by backward_compatibility using tracker
           const wordBackwardCompat = `mwnf3:glossary:${legacy.word_id}`;
-          const glossaryId = this.getEntityUuid(wordBackwardCompat, 'glossary');
+          const glossaryId = await this.getEntityUuidAsync(wordBackwardCompat, 'glossary');
 
           if (!glossaryId) {
             result.errors.push(
@@ -311,14 +325,22 @@ export class GlossarySpellingImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: ${message}`
-          );
-          this.logError(
-            `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
-            message
-          );
-          this.showError();
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: duplicate, skipping`
+            );
+            result.skipped++;
+            this.showSkipped();
+          } else {
+            result.errors.push(
+              `Spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}: ${message}`
+            );
+            this.logError(
+              `Glossary spelling spelling_id=${legacy.spelling_id}, word_id=${legacy.word_id}`,
+              message
+            );
+            this.showError();
+          }
         }
       }
 

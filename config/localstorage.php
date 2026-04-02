@@ -124,4 +124,29 @@ return [
         */
         'directory' => env('PICTURES_DIRECTORY', 'pictures'),
     ],
+
+    'documents' => [
+        /*
+        |--------------------------------------------------------------------------
+        | The Disk for Item Documents
+        |--------------------------------------------------------------------------
+        |
+        | This disk is used to store documents (PDFs, etc.) attached to Items.
+        | The default disk is set to **public**, but you can change it to any
+        | other disk defined in your filesystem configuration.
+        |
+        */
+        'disk' => env('DOCUMENTS_DISK', 'public'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | The Directory for Item Documents
+        |--------------------------------------------------------------------------
+        |
+        | This directory is used to store documents attached to Items.
+        | It is relative to the _disk_ disk.
+        |
+        */
+        'directory' => env('DOCUMENTS_DIRECTORY', 'documents'),
+    ],
 ];

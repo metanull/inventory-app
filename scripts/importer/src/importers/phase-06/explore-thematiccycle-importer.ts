@@ -74,7 +74,7 @@ function parseGeoCoordinates(coords: string | null): [number | null, number | nu
 }
 
 export class ExploreThematicCycleImporter extends BaseImporter {
-  private exploreContextId: string | null = null;
+  private exploreContextId!: string;
   private exploreByThemeId: string | null = null;
   private defaultLanguageId: string = 'eng';
 
@@ -90,16 +90,17 @@ export class ExploreThematicCycleImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(
+      const exploreContextId = await this.getEntityUuidAsync(
         exploreContextBackwardCompat,
         'context'
       );
 
-      if (!this.exploreContextId) {
+      if (!exploreContextId) {
         throw new Error(
           `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
         );
       }
+      this.exploreContextId = exploreContextId;
 
       // Get the "Explore by Theme" root collection
       const exploreByThemeBackwardCompat = 'mwnf3_explore:root:explore_by_theme';
@@ -118,15 +119,15 @@ export class ExploreThematicCycleImporter extends BaseImporter {
       this.logInfo(`Found Explore by Theme: ${this.exploreByThemeId}`);
       this.logInfo('Importing thematic cycles...');
 
-      // Query thematic cycles from legacy database (only enabled ones: status = 'e')
+      // Query thematic cycles from legacy database (all cycles with a label)
       const cycles = await this.context.legacyDb.query<LegacyThematicCycle>(
         `SELECT cycleId, cycleLabel, cycleDescription, status, geoCoordinates, zoom, path, \`order\`
          FROM mwnf3_explore.thematiccycle 
-         WHERE status = 'e' AND cycleLabel != ''
+         WHERE cycleLabel != ''
          ORDER BY \`order\`, cycleId`
       );
 
-      this.logInfo(`Found ${cycles.length} enabled thematic cycles to import`);
+      this.logInfo(`Found ${cycles.length} thematic cycles to import`);
 
       for (const legacy of cycles) {
         try {
@@ -184,10 +185,11 @@ export class ExploreThematicCycleImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId!,
+            context_id: this.exploreContextId,
             backward_compatibility: translationBackwardCompat,
             title: legacy.cycleDescription || legacy.cycleLabel,
             description: legacy.cycleDescription || '',
+            extra: JSON.stringify({ legacy_status: legacy.status }),
           });
 
           result.imported++;

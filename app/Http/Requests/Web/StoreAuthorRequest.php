@@ -15,6 +15,10 @@ class StoreAuthorRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'firstname' => ['nullable', 'string', 'max:100'],
+            'lastname' => ['nullable', 'string', 'max:100'],
+            'givenname' => ['nullable', 'string', 'max:100'],
+            'originalname' => ['nullable', 'string', 'max:255'],
             'internal_name' => ['nullable', 'string', 'max:255'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
         ];

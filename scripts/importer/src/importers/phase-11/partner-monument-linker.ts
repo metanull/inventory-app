@@ -126,7 +126,7 @@ export class PartnerMonumentLinker extends BaseImporter {
     });
 
     // Find the partner UUID
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       this.logWarning(
         `Partner not found for museum ${museum.museum_id}:${museum.country} (${partnerBackwardCompat})`
@@ -135,7 +135,7 @@ export class PartnerMonumentLinker extends BaseImporter {
     }
 
     // Build backward compatibility key for the monument
-    // Monument PK: (project_id, country, institution_id, number, lang)
+    // Monument BC uses 4 PK values (lang excluded per BC convention §10)
     const monumentBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
       table: 'monuments',
@@ -144,12 +144,11 @@ export class PartnerMonumentLinker extends BaseImporter {
         museum.mon_country_id,
         museum.mon_institution_id,
         String(museum.mon_monument_id),
-        museum.mon_lang_id,
       ],
     });
 
     // Find the monument Item UUID
-    const monumentItemId = this.getEntityUuid(monumentBackwardCompat, 'item');
+    const monumentItemId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
     if (!monumentItemId) {
       this.logWarning(
         `Monument not found for museum ${museum.museum_id}:${museum.country}: ${monumentBackwardCompat}`

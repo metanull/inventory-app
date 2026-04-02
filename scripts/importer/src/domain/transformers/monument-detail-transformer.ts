@@ -227,9 +227,9 @@ export function extractMonumentDetailTags(
   // Parse artist field (similar to keywords but for artists)
   const artists: string[] = [];
   if (detail.artist && detail.artist.trim()) {
-    // Split by common delimiters
+    // Split by common delimiters including Arabic equivalents
     const rawArtists = detail.artist
-      .split(/[;,\n]/)
+      .split(/[;,\n\u060C\u061B]/)
       .map((a) => a.trim())
       .filter((a) => a.length > 0);
     artists.push(...rawArtists);

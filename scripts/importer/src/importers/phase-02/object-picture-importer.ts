@@ -49,7 +49,11 @@ export class ObjectPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker);
+    this.artistHelper = new ArtistHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing object pictures...');
@@ -91,7 +95,12 @@ export class ObjectPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query object pictures: ${message}`);
@@ -146,7 +155,7 @@ export class ObjectPictureImporter extends BaseImporter {
 
     // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -219,7 +228,7 @@ export class ObjectPictureImporter extends BaseImporter {
   private async createPictureItem(
     group: PictureGroup,
     parentItemId: string,
-    _result: ImportResult
+    result: ImportResult
   ): Promise<string> {
     // Get parent item's collection and context
     const contextBackwardCompat = formatBackwardCompatibility({
@@ -249,6 +258,11 @@ export class ObjectPictureImporter extends BaseImporter {
 
     // Get project_id using same backward_compatibility as context
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for picture ${group.project_id}:${group.museum_id}:${group.number}:${group.image_number}, importing without project`
+      );
+    }
 
     // Map country code from legacy 2-char to ISO 3-char
     const countryId = mapCountryCode(group.country);
@@ -267,7 +281,7 @@ export class ObjectPictureImporter extends BaseImporter {
       partner_id: partnerId,
       parent_id: parentItemId,
       country_id: countryId,
-      project_id: projectId || null,
+      project_id: projectId,
       owner_reference: null,
       mwnf_reference: null,
       display_order: group.image_number,
@@ -296,6 +310,7 @@ export class ObjectPictureImporter extends BaseImporter {
           ],
         });
         this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings!.push(`Failed to create translation ${translationBC}: ${message}`);
       }
     }
 

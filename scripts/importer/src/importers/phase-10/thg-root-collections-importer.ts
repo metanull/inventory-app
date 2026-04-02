@@ -29,7 +29,7 @@ interface RootCollectionConfig {
 }
 
 export class ThgRootCollectionsImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
   private defaultLanguageId: string = 'eng';
 
   getName(): string {
@@ -44,16 +44,17 @@ export class ThgRootCollectionsImporter extends BaseImporter {
 
       // Get the default context ID using the correct backward compatibility key
       const defaultContextBackwardCompat = '__default_context__';
-      this.defaultContextId = await this.getEntityUuidAsync(
+      const defaultContextId = await this.getEntityUuidAsync(
         defaultContextBackwardCompat,
         'context'
       );
 
-      if (!this.defaultContextId) {
+      if (!defaultContextId) {
         throw new Error(
           `Default context not found (${defaultContextBackwardCompat}). Run DefaultContextImporter first.`
         );
       }
+      this.defaultContextId = defaultContextId;
 
       // Get default language ID
       this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
@@ -137,7 +138,7 @@ export class ThgRootCollectionsImporter extends BaseImporter {
     const collectionId = await this.context.strategy.writeCollection({
       internal_name: config.internalName,
       backward_compatibility: config.backwardCompat,
-      context_id: this.defaultContextId!,
+      context_id: this.defaultContextId,
       language_id: this.defaultLanguageId,
       parent_id: null,
       type: config.type,
@@ -155,7 +156,7 @@ export class ThgRootCollectionsImporter extends BaseImporter {
     await this.context.strategy.writeCollectionTranslation({
       collection_id: collectionId,
       language_id: this.defaultLanguageId,
-      context_id: this.defaultContextId!,
+      context_id: this.defaultContextId,
       backward_compatibility: translationBackwardCompat,
       title: config.title,
       description: config.description,

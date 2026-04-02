@@ -77,7 +77,7 @@ interface LegacyCycleInfo {
 }
 
 export class ExploreItineraryImporter extends BaseImporter {
-  private exploreContextId: string | null = null;
+  private exploreContextId!: string;
   private exploreByItineraryId: string | null = null;
   private defaultLanguageId: string = 'eng';
   private parentCache: Map<number, string | null> = new Map();
@@ -95,16 +95,17 @@ export class ExploreItineraryImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(
+      const exploreContextId = await this.getEntityUuidAsync(
         exploreContextBackwardCompat,
         'context'
       );
 
-      if (!this.exploreContextId) {
+      if (!exploreContextId) {
         throw new Error(
           `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
         );
       }
+      this.exploreContextId = exploreContextId;
 
       // Get the "Explore by Itinerary" root collection
       const exploreByItineraryBackwardCompat = 'mwnf3_explore:root:explore_by_itinerary';
@@ -208,7 +209,7 @@ export class ExploreItineraryImporter extends BaseImporter {
       const collectionId = await this.context.strategy.writeCollection({
         internal_name: internalName,
         backward_compatibility: backwardCompat,
-        context_id: this.exploreContextId!,
+        context_id: this.exploreContextId,
         language_id: this.defaultLanguageId,
         parent_id: parentId,
         type: collectionType,
@@ -227,7 +228,7 @@ export class ExploreItineraryImporter extends BaseImporter {
       await this.context.strategy.writeCollectionTranslation({
         collection_id: collectionId,
         language_id: this.defaultLanguageId,
-        context_id: this.exploreContextId!,
+        context_id: this.exploreContextId,
         backward_compatibility: translationBackwardCompat,
         title,
         description: '',

@@ -51,7 +51,6 @@ export interface TransformedObjectTranslation {
  */
 export interface ExtractedTags {
   materials: string[];
-  dynasties: string[];
   keywords: string[];
   languageId: string;
 }
@@ -131,6 +130,14 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
   }
   const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
+  // Parse start_date/end_date from selected translation (year values stored as varchar)
+  const startDate = selectedTranslation!.start_date
+    ? parseInt(selectedTranslation!.start_date, 10) || null
+    : null;
+  const endDate = selectedTranslation!.end_date
+    ? parseInt(selectedTranslation!.end_date, 10) || null
+    : null;
+
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',
     internal_name: internalName,
@@ -138,6 +145,8 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
     mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
+    start_date: startDate,
+    end_date: endDate,
   };
 
   return {
@@ -230,6 +239,8 @@ export function transformObjectTranslation(
   if (obj.copyright) extraData.copyright = obj.copyright;
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
   if (obj.linkcatalogs) extraData.linkcatalogs = obj.linkcatalogs;
+  if (obj.catalogue_holding_link) extraData.catalogue_holding_link = obj.catalogue_holding_link;
+  if (obj.scriber) extraData.scriber = convertHtmlToMarkdown(obj.scriber);
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 
   // backward_compatibility matches parent item
@@ -287,25 +298,49 @@ export function extractObjectTags(obj: LegacyObject): ExtractedTags {
 
   return {
     materials: parseTagString(obj.materials),
-    dynasties: parseTagString(obj.dynasty),
     keywords: parseTagString(obj.keywords),
     languageId,
   };
 }
 
 /**
- * Extract artists from object data
+ * Extract artists from object data.
+ *
+ * Uses the same two-pass split as parseTagString:
+ * comma/Arabic comma first, then semicolon/Arabic semicolon for non-structured parts.
+ * HTML tags (e.g. <br/>) are stripped before splitting.
  */
 export function extractObjectArtists(obj: LegacyObject): ExtractedArtist[] {
   if (!obj.artist || obj.artist.trim() === '') {
     return [];
   }
 
-  // Split by semicolon to handle multiple artists
-  const artistNames = obj.artist
-    .split(';')
-    .map((name) => name.trim())
-    .filter((name) => name !== '');
+  // Strip HTML tags before splitting
+  const cleaned = obj.artist
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!cleaned) return [];
+
+  // Pass 1: split on comma (ASCII) and Arabic comma (U+060C)
+  const commaParts = cleaned
+    .split(/[,\u060C]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  // Pass 2: structured (colon) parts kept as-is; others sub-split on semicolons
+  const artistNames: string[] = [];
+  for (const part of commaParts) {
+    if (part.includes(':')) {
+      artistNames.push(part);
+    } else {
+      const semiParts = part
+        .split(/[;\u061B]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      artistNames.push(...semiParts);
+    }
+  }
 
   return artistNames.map((name) => ({
     name,
@@ -318,28 +353,18 @@ export function extractObjectArtists(obj: LegacyObject): ExtractedArtist[] {
 }
 
 /**
- * Parse tag string - handles structured data and simple lists
- * IMPORTANT: Fields with colons are STRUCTURED DATA
- * - If colon found: treat as single structured tag (don't split)
- * - Otherwise: split by semicolon (;) primary, comma (,) fallback
+ * Parse tag string — split on all common delimiters with Unicode support.
+ *
+ * Splits on comma (U+002C), Arabic comma (U+060C),
+ * semicolon (U+003B), and Arabic semicolon (U+061B).
  */
 export function parseTagString(tagString: string | undefined | null): string[] {
   if (!tagString || tagString.trim() === '') {
     return [];
   }
 
-  // Check if this is structured data (contains colon)
-  const isStructured = tagString.includes(':');
-
-  if (isStructured) {
-    // Structured data - keep as single tag
-    return [tagString.trim()];
-  }
-
-  // Simple list - use semicolon as primary separator, comma as fallback
-  const separator = tagString.includes(';') ? ';' : ',';
   return tagString
-    .split(separator)
+    .split(/[,;\u060C\u061B]/)
     .map((t) => t.trim())
     .filter((t) => t !== '');
 }

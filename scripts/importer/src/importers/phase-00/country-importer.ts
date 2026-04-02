@@ -10,6 +10,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { mapCountryCode } from '../../utils/code-mappings.js';
 
 // Get the directory of the current module for robust path resolution
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +22,7 @@ const __dirname = dirname(__filename);
 interface CountryJsonData {
   id: string; // ISO 3166-1 alpha-3 code (e.g., 'usa', 'fra')
   internal_name: string;
-  backward_compatibility: string; // ISO 3166-1 alpha-2 code (e.g., 'us', 'fr')
+  backward_compatibility: string | null; // Legacy 2-char code, null for non-legacy countries
 }
 
 export class CountryImporter extends BaseImporter {
@@ -45,11 +46,13 @@ export class CountryImporter extends BaseImporter {
 
       for (const country of countries) {
         try {
-          // Use backward_compatibility as the tracking key (consistent with legacy importer)
-          const backwardCompat = country.backward_compatibility;
+          // Tracking key: BC for legacy countries (enables lookup by legacy code),
+          // id for non-legacy countries (enables dedup only — no legacy code exists)
+          const trackingKey: string =
+            country.backward_compatibility !== null ? country.backward_compatibility : country.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with languages)
-          if (this.entityExists(backwardCompat, 'country')) {
+          if (await this.entityExistsAsync(trackingKey, 'country')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -67,7 +70,7 @@ export class CountryImporter extends BaseImporter {
               `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import country: ${country.id} (${country.internal_name})`
             );
             // Register for tracking even in dry-run
-            this.registerEntity(country.id, backwardCompat, 'country');
+            this.registerEntity(country.id, trackingKey, 'country');
             result.imported++;
             this.showProgress();
             continue;
@@ -79,10 +82,10 @@ export class CountryImporter extends BaseImporter {
           await this.context.strategy.writeCountry({
             id: country.id,
             internal_name: country.internal_name,
-            backward_compatibility: backwardCompat,
+            backward_compatibility: country.backward_compatibility,
           });
 
-          this.registerEntity(country.id, backwardCompat, 'country');
+          this.registerEntity(country.id, trackingKey, 'country');
 
           result.imported++;
           this.showProgress();
@@ -156,9 +159,31 @@ export class CountryTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // Validate FK references before write
+          const countryExists = await this.entityExistsAsync(legacy.country, 'country');
+          if (!countryExists) {
+            // Code might be a secondary/alias code (e.g., 'ix' for Italy/Sicily, 'px' for Palestine)
+            // Verify via code-mappings that it resolves to a known country
+            try {
+              mapCountryCode(legacy.country);
+            } catch {
+              this.logWarning(`Country '${legacy.country}' not found, skipping translation`);
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+          }
+          const langExists = await this.entityExistsAsync(legacy.lang, 'language');
+          if (!langExists) {
+            this.logWarning(
+              `Language '${legacy.lang}' not found, skipping translation for country '${legacy.country}'`
+            );
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Transform and write country translation
-          // The transformer will map legacy 2-char code to ISO 3-char code
-          // If the country doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformCountryTranslation({
             code: legacy.country,
             lang: legacy.lang,
@@ -170,8 +195,10 @@ export class CountryTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          // Skip this translation if country or language doesn't exist (foreign key violation)
-          if (message.includes('foreign key constraint fails')) {
+          if (message.includes('Duplicate')) {
+            this.logSkip(
+              `Country translation ${legacy.country}:${legacy.lang}: duplicate, skipping`
+            );
             result.skipped++;
             this.showSkipped();
           } else {

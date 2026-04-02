@@ -11,7 +11,7 @@ import {
   LanguageTranslationImporter,
 } from '../../src/importers/phase-00/language-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
-import type { ImportContext, ILegacyDatabase } from '../../src/core/base-importer.js';
+import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
 
 // Mock the file system module
@@ -30,6 +30,17 @@ describe('LanguageImporter', () => {
   let mockStrategy: IWriteStrategy;
   let tracker: UnifiedTracker;
   let context: ImportContext;
+  const mockLogger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    skip: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
 
   beforeEach(() => {
     // Reset mocks
@@ -65,6 +76,8 @@ describe('LanguageImporter', () => {
       attachArtistsToItem: vi.fn().mockResolvedValue(undefined),
       writeTag: vi.fn().mockResolvedValue('tag-uuid'),
       writeAuthor: vi.fn().mockResolvedValue('author-uuid'),
+      findAuthorByName: vi.fn().mockResolvedValue(null),
+      writeAuthorTranslation: vi.fn().mockResolvedValue(undefined),
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
       writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
       writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
@@ -75,11 +88,38 @@ describe('LanguageImporter', () => {
       writeGlossarySpelling: vi.fn().mockResolvedValue('glossary-spelling-uuid'),
       writeItemItemLink: vi.fn().mockResolvedValue('item-item-link-uuid'),
       writeItemItemLinkTranslation: vi.fn().mockResolvedValue(undefined),
+      writeDynasty: vi.fn().mockResolvedValue('dynasty-uuid'),
+      writeDynastyTranslation: vi.fn().mockResolvedValue(undefined),
+      writeItemDynasty: vi.fn().mockResolvedValue(undefined),
+      writeTimeline: vi.fn().mockResolvedValue('timeline-uuid'),
+      writeTimelineEvent: vi.fn().mockResolvedValue('timeline-event-uuid'),
+      writeTimelineEventTranslation: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventItem: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventImage: vi.fn().mockResolvedValue('timeline-event-image-uuid'),
+      updateTimelineExtra: vi.fn().mockResolvedValue(undefined),
+      updateItemTranslationAuthorFk: vi.fn().mockResolvedValue(undefined),
+      updateDynastyTranslationAuthorFk: vi.fn().mockResolvedValue(undefined),
+      writeItemMedia: vi.fn().mockResolvedValue('item-media-uuid'),
+      writeCollectionMedia: vi.fn().mockResolvedValue('collection-media-uuid'),
+      writeItemDocument: vi.fn().mockResolvedValue('item-document-uuid'),
+      writeContributor: vi.fn().mockResolvedValue('contributor-uuid'),
+      writeContributorTranslation: vi.fn().mockResolvedValue(undefined),
+      writeContributorImage: vi.fn().mockResolvedValue('contributor-image-uuid'),
       attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
       attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
+      attachPartnerToCollectionWithLevel: vi.fn().mockResolvedValue(undefined),
       deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      getCollectionTranslationExtra: vi.fn().mockResolvedValue(null),
+      setCollectionTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      getItemTranslationExtra: vi.fn().mockResolvedValue(null),
+      setItemTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      attachTagsToCollectionImage: vi.fn().mockResolvedValue(undefined),
+      getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
+      getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
+      updateCollectionParentId: vi.fn().mockResolvedValue(undefined),
+      updateBackwardCompatibility: vi.fn().mockResolvedValue(undefined),
     };
 
     // Create tracker
@@ -90,6 +130,7 @@ describe('LanguageImporter', () => {
       legacyDb: mockLegacyDb,
       strategy: mockStrategy,
       tracker,
+      logger: mockLogger,
       dryRun: false,
     };
   });
@@ -194,6 +235,17 @@ describe('LanguageTranslationImporter', () => {
   let tracker: UnifiedTracker;
   let context: ImportContext;
   let translationQueryMock: ReturnType<typeof vi.fn>;
+  const mockLogger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    skip: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -228,6 +280,8 @@ describe('LanguageTranslationImporter', () => {
       attachArtistsToItem: vi.fn().mockResolvedValue(undefined),
       writeTag: vi.fn().mockResolvedValue('tag-uuid'),
       writeAuthor: vi.fn().mockResolvedValue('author-uuid'),
+      findAuthorByName: vi.fn().mockResolvedValue(null),
+      writeAuthorTranslation: vi.fn().mockResolvedValue(undefined),
       writeArtist: vi.fn().mockResolvedValue('artist-uuid'),
       writeItemImage: vi.fn().mockResolvedValue('item-image-uuid'),
       writePartnerImage: vi.fn().mockResolvedValue('partner-image-uuid'),
@@ -238,11 +292,38 @@ describe('LanguageTranslationImporter', () => {
       writeGlossarySpelling: vi.fn().mockResolvedValue('glossary-spelling-uuid'),
       writeItemItemLink: vi.fn().mockResolvedValue('item-item-link-uuid'),
       writeItemItemLinkTranslation: vi.fn().mockResolvedValue(undefined),
+      writeDynasty: vi.fn().mockResolvedValue('dynasty-uuid'),
+      writeDynastyTranslation: vi.fn().mockResolvedValue(undefined),
+      writeItemDynasty: vi.fn().mockResolvedValue(undefined),
+      writeTimeline: vi.fn().mockResolvedValue('timeline-uuid'),
+      writeTimelineEvent: vi.fn().mockResolvedValue('timeline-event-uuid'),
+      writeTimelineEventTranslation: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventItem: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventImage: vi.fn().mockResolvedValue('timeline-event-image-uuid'),
+      updateTimelineExtra: vi.fn().mockResolvedValue(undefined),
+      updateItemTranslationAuthorFk: vi.fn().mockResolvedValue(undefined),
+      updateDynastyTranslationAuthorFk: vi.fn().mockResolvedValue(undefined),
+      writeItemMedia: vi.fn().mockResolvedValue('item-media-uuid'),
+      writeCollectionMedia: vi.fn().mockResolvedValue('collection-media-uuid'),
+      writeItemDocument: vi.fn().mockResolvedValue('item-document-uuid'),
+      writeContributor: vi.fn().mockResolvedValue('contributor-uuid'),
+      writeContributorTranslation: vi.fn().mockResolvedValue(undefined),
+      writeContributorImage: vi.fn().mockResolvedValue('contributor-image-uuid'),
       attachItemsToCollection: vi.fn().mockResolvedValue(undefined),
       attachPartnersToCollection: vi.fn().mockResolvedValue(undefined),
+      attachPartnerToCollectionWithLevel: vi.fn().mockResolvedValue(undefined),
       deleteProjectsWithoutItems: vi.fn().mockResolvedValue([]),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      getCollectionTranslationExtra: vi.fn().mockResolvedValue(null),
+      setCollectionTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      getItemTranslationExtra: vi.fn().mockResolvedValue(null),
+      setItemTranslationExtra: vi.fn().mockResolvedValue(undefined),
+      attachTagsToCollectionImage: vi.fn().mockResolvedValue(undefined),
+      getCollectionTranslationLanguages: vi.fn().mockResolvedValue([]),
+      getItemTranslationLanguages: vi.fn().mockResolvedValue([]),
+      updateCollectionParentId: vi.fn().mockResolvedValue(undefined),
+      updateBackwardCompatibility: vi.fn().mockResolvedValue(undefined),
     };
 
     tracker = new UnifiedTracker();
@@ -251,6 +332,7 @@ describe('LanguageTranslationImporter', () => {
       legacyDb: mockLegacyDb,
       strategy: mockStrategy,
       tracker,
+      logger: mockLogger,
       dryRun: false,
     };
   });

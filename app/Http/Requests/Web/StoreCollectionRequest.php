@@ -15,7 +15,7 @@ class StoreCollectionRequest extends FormRequest
     {
         return [
             'internal_name' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location'],
+            'type' => ['required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location,subtheme,region'],
             'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['required', 'uuid', 'exists:contexts,id'],
             'parent_id' => ['nullable', 'uuid', 'exists:collections,id'],

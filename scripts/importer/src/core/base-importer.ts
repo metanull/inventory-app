@@ -52,6 +52,7 @@ export interface ImportContext {
   legacyDb: ILegacyDatabase;
   strategy: IWriteStrategy;
   tracker: ITracker;
+  logger: ILogger;
   dryRun: boolean;
   sampleCollector?: ISampleCollector;
   sampleOnlyMode?: boolean;
@@ -65,6 +66,10 @@ export interface ILogger {
   info(message: string): void;
   warning(message: string, details?: unknown): void;
   /**
+   * Log a skip - for expected/handled deduplication (duplicate pivots, already-exists checks)
+   */
+  skip(message: string): void;
+  /**
    * Log an error - for expected/handled errors (data issues, constraint violations)
    * No stack trace is written.
    */
@@ -77,7 +82,7 @@ export interface ILogger {
   showProgress(): void;
   showSkipped(): void;
   showError(): void;
-  showSummary(imported: number, skipped: number, errors: number): void;
+  showSummary(imported: number, skipped: number, errors: number, warnings?: number): void;
 }
 
 /**
@@ -96,6 +101,10 @@ export class ConsoleLogger implements ILogger {
 
   warning(message: string, _details?: unknown): void {
     console.log(`[${this.name}] ⚠️  ${message}`);
+  }
+
+  skip(message: string): void {
+    console.log(`[${this.name}] ⏭  ${message}`);
   }
 
   error(context: string, message: string, _additionalContext?: Record<string, unknown>): void {
@@ -121,10 +130,12 @@ export class ConsoleLogger implements ILogger {
     process.stdout.write('×');
   }
 
-  showSummary(imported: number, skipped: number, errors: number): void {
-    console.log(
-      `\n[${this.name}] Summary: ${imported} imported, ${skipped} skipped, ${errors} errors`
-    );
+  showSummary(imported: number, skipped: number, errors: number, warnings?: number): void {
+    const parts = [`${imported} imported`, `${skipped} skipped`, `${errors} errors`];
+    if (warnings) {
+      parts.push(`${warnings} warnings`);
+    }
+    console.log(`\n[${this.name}] Summary: ${parts.join(', ')}`);
   }
 }
 
@@ -139,9 +150,9 @@ export abstract class BaseImporter {
   protected context: ImportContext;
   protected logger: ILogger;
 
-  constructor(context: ImportContext, logger?: ILogger) {
+  constructor(context: ImportContext) {
     this.context = context;
-    this.logger = logger || new ConsoleLogger(this.getName());
+    this.logger = context.logger;
   }
 
   /**
@@ -159,18 +170,6 @@ export abstract class BaseImporter {
    */
   protected createResult(): ImportResult {
     return createImportResult();
-  }
-
-  /**
-   * Get the default language ID from tracker
-   * @deprecated Use getDefaultLanguageIdAsync for proper database fallback when starting from later phases
-   */
-  protected getDefaultLanguageId(): string {
-    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
-    if (!defaultLangId) {
-      throw new Error('Default language ID not found in tracker. Language import must run first.');
-    }
-    return defaultLangId;
   }
 
   /**
@@ -236,20 +235,6 @@ export abstract class BaseImporter {
   }
 
   /**
-   * Get the default context ID from tracker
-   * @deprecated Use getDefaultContextIdAsync for proper database fallback when starting from later phases
-   */
-  protected getDefaultContextId(): string {
-    const defaultContextId = this.context.tracker.getMetadata('default_context_id');
-    if (!defaultContextId) {
-      throw new Error(
-        'Default context ID not found in tracker. Default context import must run first.'
-      );
-    }
-    return defaultContextId;
-  }
-
-  /**
    * Get the default context ID from tracker or database
    * First checks tracker (memory), then falls back to database for skipped phases.
    */
@@ -305,6 +290,15 @@ export abstract class BaseImporter {
   }
 
   /**
+   * Log skip message - for expected deduplication (duplicate pivots, already-exists)
+   * Also writes the 's' progress indicator.
+   */
+  protected logSkip(message: string): void {
+    this.logger.skip(message);
+    this.logger.showSkipped();
+  }
+
+  /**
    * Log error message - for expected/handled errors (data issues, constraint violations)
    * No stack trace is written.
    */
@@ -352,8 +346,13 @@ export abstract class BaseImporter {
   /**
    * Show import summary
    */
-  protected showSummary(imported: number, skipped: number, errors: number): void {
-    this.logger.showSummary(imported, skipped, errors);
+  protected showSummary(
+    imported: number,
+    skipped: number,
+    errors: number,
+    warnings?: number
+  ): void {
+    this.logger.showSummary(imported, skipped, errors, warnings);
   }
 
   /**
@@ -415,26 +414,29 @@ export abstract class BaseImporter {
       image: 'item_images',
       tag: 'tags',
       author: 'authors',
+      author_translation: 'author_translations',
       artist: 'artists',
       glossary: 'glossaries',
       glossary_translation: 'glossary_translations',
       glossary_spelling: 'glossary_spellings',
       item_item_link: 'item_item_links',
       item_item_link_translation: 'item_item_link_translations',
+      dynasty: 'dynasties',
+      dynasty_translation: 'dynasty_translations',
+      timeline: 'timelines',
+      timeline_event: 'timeline_events',
+      timeline_event_translation: 'timeline_event_translations',
+      item_media: 'item_media',
+      collection_media: 'collection_media',
+      item_document: 'item_documents',
+      contributor: 'contributors',
+      contributor_translation: 'contributor_translations',
     };
     return mapping[entityType];
   }
 
   /**
    * Check if entity already exists in tracker or database
-   * First checks tracker (memory), then falls back to database for skipped phases.
-   */
-  protected entityExists(backwardCompatibility: string, entityType: EntityType): boolean {
-    return this.context.tracker.exists(backwardCompatibility, entityType);
-  }
-
-  /**
-   * Check if entity already exists (async version with database fallback)
    * First checks tracker (memory), then falls back to database for skipped phases.
    */
   protected async entityExistsAsync(
@@ -449,14 +451,6 @@ export abstract class BaseImporter {
     // Fall back to database lookup for entities from skipped phases
     const table = this.entityTypeToTable(entityType);
     return this.context.strategy.exists(table, backwardCompatibility);
-  }
-
-  /**
-   * Get UUID from tracker by backward_compatibility (entityType is required to avoid collisions)
-   * @deprecated Use getEntityUuidAsync for proper database fallback when starting from later phases
-   */
-  protected getEntityUuid(backwardCompatibility: string, entityType: EntityType): string | null {
-    return this.context.tracker.getUuid(backwardCompatibility, entityType);
   }
 
   /**

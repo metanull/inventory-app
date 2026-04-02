@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -56,6 +57,38 @@ class ItemImage extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+
+    /**
+     * Get the tags associated with this item image.
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'item_image_tag')->withTimestamps();
+    }
+
+    /**
+     * Scope to get item images that have a specific tag.
+     *
+     * @param  string  $tagInternalName  The tag's internal_name
+     */
+    public function scopeWithTag(Builder $query, string $tagInternalName): Builder
+    {
+        return $query->whereHas('tags', function (Builder $query) use ($tagInternalName) {
+            $query->where('tags.internal_name', $tagInternalName);
+        });
+    }
+
+    /**
+     * Scope to get item images that do not have a specific tag.
+     *
+     * @param  string  $tagInternalName  The tag's internal_name
+     */
+    public function scopeWithoutTag(Builder $query, string $tagInternalName): Builder
+    {
+        return $query->whereDoesntHave('tags', function (Builder $query) use ($tagInternalName) {
+            $query->where('tags.internal_name', $tagInternalName);
+        });
     }
 
     /**

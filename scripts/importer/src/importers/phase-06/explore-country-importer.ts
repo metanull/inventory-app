@@ -34,7 +34,7 @@ interface LegacyExploreCountry {
 }
 
 export class ExploreCountryImporter extends BaseImporter {
-  private exploreContextId: string | null = null;
+  private exploreContextId!: string;
   private exploreByCountryId: string | null = null;
   private defaultLanguageId: string = 'eng';
 
@@ -50,16 +50,17 @@ export class ExploreCountryImporter extends BaseImporter {
 
       // Get the Explore context ID
       const exploreContextBackwardCompat = 'mwnf3_explore:context';
-      this.exploreContextId = await this.getEntityUuidAsync(
+      const exploreContextId = await this.getEntityUuidAsync(
         exploreContextBackwardCompat,
         'context'
       );
 
-      if (!this.exploreContextId) {
+      if (!exploreContextId) {
         throw new Error(
           `Explore context not found (${exploreContextBackwardCompat}). Run ExploreContextImporter first.`
         );
       }
+      this.exploreContextId = exploreContextId;
 
       // Get the "Explore by Country" root collection
       const exploreByCountryBackwardCompat = 'mwnf3_explore:root:explore_by_country';
@@ -141,7 +142,7 @@ export class ExploreCountryImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: collectionId,
             language_id: this.defaultLanguageId,
-            context_id: this.exploreContextId!,
+            context_id: this.exploreContextId,
             backward_compatibility: translationBackwardCompat,
             title: countryName || legacy.countryId.toUpperCase(),
             description: '',

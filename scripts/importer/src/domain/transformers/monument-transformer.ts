@@ -116,6 +116,14 @@ export function transformMonument(
   }
   const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
+  // Parse start_date/end_date from selected translation (year values stored as varchar)
+  const startDate = selectedTranslation!.start_date
+    ? parseInt(selectedTranslation!.start_date, 10) || null
+    : null;
+  const endDate = selectedTranslation!.end_date
+    ? parseInt(selectedTranslation!.end_date, 10) || null
+    : null;
+
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'monument',
     internal_name: internalName,
@@ -123,6 +131,8 @@ export function transformMonument(
     mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
+    start_date: startDate,
+    end_date: endDate,
   };
 
   return {
@@ -228,7 +238,7 @@ export function transformMonumentTranslation(
   if (monument.patrons) extraData.patrons = convertHtmlToMarkdown(monument.patrons);
   if (monument.architects) extraData.architects = convertHtmlToMarkdown(monument.architects);
   if (monument.history) extraData.history = convertHtmlToMarkdown(monument.history);
-  if (monument.dynasty) extraData.dynasty = convertHtmlToMarkdown(monument.dynasty);
+  // Dynasty no longer stored in extra — structured item_dynasty links are created by DynastyImporter
 
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;
 

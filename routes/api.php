@@ -2,22 +2,32 @@
 
 use App\Enums\Permission;
 use App\Http\Controllers\Api\MarkdownController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\AuthorTranslationController;
 use App\Http\Controllers\AvailableImageController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\CollectionImageController;
+use App\Http\Controllers\CollectionMediaController;
 use App\Http\Controllers\CollectionTranslationController;
 use App\Http\Controllers\ContextController;
+use App\Http\Controllers\ContributorController;
+use App\Http\Controllers\ContributorImageController;
+use App\Http\Controllers\ContributorTranslationController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\CountryTranslationController;
+use App\Http\Controllers\DynastyController;
+use App\Http\Controllers\DynastyTranslationController;
 use App\Http\Controllers\GlossaryController;
 use App\Http\Controllers\GlossarySpellingController;
 use App\Http\Controllers\GlossaryTranslationController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemDocumentController;
 use App\Http\Controllers\ItemImageController;
 use App\Http\Controllers\ItemItemLinkController;
 use App\Http\Controllers\ItemItemLinkTranslationController;
+use App\Http\Controllers\ItemMediaController;
 use App\Http\Controllers\ItemTranslationController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LanguageTranslationController;
@@ -29,6 +39,10 @@ use App\Http\Controllers\PartnerTranslationController;
 use App\Http\Controllers\PartnerTranslationImageController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\TimelineController;
+use App\Http\Controllers\TimelineEventController;
+use App\Http\Controllers\TimelineEventImageController;
+use App\Http\Controllers\TimelineEventTranslationController;
 use App\Http\Controllers\UserPermissionsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +105,36 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('tag/{tag}', [TagController::class, 'show'])->name('tag.show');
         Route::get('tag', [TagController::class, 'index'])->name('tag.index');
 
+        // Dynasty routes (read)
+        Route::get('dynasty/{dynasty}', [DynastyController::class, 'show'])->name('dynasty.show');
+        Route::get('dynasty', [DynastyController::class, 'index'])->name('dynasty.index');
+
+        // Dynasty Translation routes (read)
+        Route::get('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'show'])->name('dynasty-translation.show');
+        Route::get('dynasty-translation', [DynastyTranslationController::class, 'index'])->name('dynasty-translation.index');
+
+        // Author routes (read)
+        Route::get('author/{author}', [AuthorController::class, 'show'])->name('author.show');
+        Route::get('author', [AuthorController::class, 'index'])->name('author.index');
+
+        // Author Translation routes (read)
+        Route::get('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'show'])->name('author-translation.show');
+        Route::get('author-translation', [AuthorTranslationController::class, 'index'])->name('author-translation.index');
+
+        // Timeline routes (read)
+        Route::get('timeline/{timeline}', [TimelineController::class, 'show'])->name('timeline.show');
+        Route::get('timeline', [TimelineController::class, 'index'])->name('timeline.index');
+
+        // Timeline Event routes (read)
+        Route::get('timeline-event/{timelineEvent}', [TimelineEventController::class, 'show'])->name('timeline-event.show');
+        Route::get('timeline-event', [TimelineEventController::class, 'index'])->name('timeline-event.index');
+
+        // Timeline Event Translation routes (read)
+        Route::get('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'show'])->name('timeline-event-translation.show');
+
+        // Timeline Event Image routes (read)
+        Route::get('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'show'])->name('timeline-event-image.show');
+
         // Partner routes (read)
         Route::get('partner/{partner}', [PartnerController::class, 'show'])->name('partner.show');
         Route::get('partner', [PartnerController::class, 'index'])->name('partner.index');
@@ -117,6 +161,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('partner-translation-image/{partnerTranslationImage}', [PartnerTranslationImageController::class, 'show'])->name('partner-translation-image.show');
         Route::get('partner-translation-image', [PartnerTranslationImageController::class, 'index'])->name('partner-translation-image.index');
 
+        // Contributor routes (read)
+        Route::get('contributor/{contributor}', [ContributorController::class, 'show'])->name('contributor.show');
+        Route::get('contributor', [ContributorController::class, 'index'])->name('contributor.index');
+
+        // Contributor Translation routes (read)
+        Route::get('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'show'])->name('contributor-translation.show');
+        Route::get('contributor-translation', [ContributorTranslationController::class, 'index'])->name('contributor-translation.index');
+
+        // Contributor Image routes (read)
+        Route::get('contributor-image/{contributorImage}/download', [ContributorImageController::class, 'download'])->name('contributor-image.download');
+        Route::get('contributor-image/{contributorImage}/view', [ContributorImageController::class, 'view'])->name('contributor-image.view');
+        Route::get('contributor-image/{contributorImage}', [ContributorImageController::class, 'show'])->name('contributor-image.show');
+        Route::get('contributor-image', [ContributorImageController::class, 'index'])->name('contributor-image.index');
+
         // Item routes (read)
         Route::get('item/for-tag/{tag}', [ItemController::class, 'forTag'])->name('item.forTag');
         Route::post('item/with-all-tags', [ItemController::class, 'withAllTags'])->name('item.withAllTags');
@@ -132,6 +190,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('item-image/{itemImage}/download', [ItemImageController::class, 'download'])->name('item-image.download');
         Route::get('item-image/{itemImage}/view', [ItemImageController::class, 'view'])->name('item-image.view');
         Route::get('item-image/{itemImage}', [ItemImageController::class, 'show'])->name('item-image.show');
+
+        // ItemMedia routes (read)
+        Route::get('item/{item}/media', [ItemMediaController::class, 'index'])->name('item.media.index');
+        Route::get('item-media/{itemMedia}', [ItemMediaController::class, 'show'])->name('item-media.show');
+
+        // ItemDocument routes (read)
+        Route::get('item/{item}/documents', [ItemDocumentController::class, 'index'])->name('item.documents.index');
+        Route::get('item-document/{itemDocument}/download', [ItemDocumentController::class, 'download'])->name('item-document.download');
+        Route::get('item-document/{itemDocument}', [ItemDocumentController::class, 'show'])->name('item-document.show');
 
         // ItemItemLink routes (read)
         Route::get('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'show'])->name('item-item-link.show');
@@ -169,6 +236,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('collection-image/{collectionImage}/view', [CollectionImageController::class, 'view'])->name('collection-image.view');
         Route::get('collection-image/{collectionImage}', [CollectionImageController::class, 'show'])->name('collection-image.show');
 
+        // CollectionMedia routes (read)
+        Route::get('collection/{collection}/media', [CollectionMediaController::class, 'index'])->name('collection.media.index');
+        Route::get('collection-media/{collectionMedia}', [CollectionMediaController::class, 'show'])->name('collection-media.show');
+
     });
 
     // CREATE operations - require CREATE_DATA permission
@@ -183,6 +254,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('country', [CountryController::class, 'store'])->name('country.store');
         Route::post('country-translation', [CountryTranslationController::class, 'store'])->name('country-translation.store');
         Route::post('tag', [TagController::class, 'store'])->name('tag.store');
+        Route::post('dynasty', [DynastyController::class, 'store'])->name('dynasty.store');
+        Route::post('dynasty-translation', [DynastyTranslationController::class, 'store'])->name('dynasty-translation.store');
+        Route::post('author', [AuthorController::class, 'store'])->name('author.store');
+        Route::post('author-translation', [AuthorTranslationController::class, 'store'])->name('author-translation.store');
+        Route::post('timeline', [TimelineController::class, 'store'])->name('timeline.store');
+        Route::post('timeline-event', [TimelineEventController::class, 'store'])->name('timeline-event.store');
+        Route::post('timeline-event-translation', [TimelineEventTranslationController::class, 'store'])->name('timeline-event-translation.store');
         Route::post('partner', [PartnerController::class, 'store'])->name('partner.store');
         Route::post('partner/{partner}/attach-image', [PartnerImageController::class, 'attachFromAvailable'])->name('partner.attachImage');
         Route::post('partner-translation', [PartnerTranslationController::class, 'store'])->name('partner-translation.store');
@@ -190,9 +268,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('partner-image', [PartnerImageController::class, 'store'])->name('partner-image.store');
         Route::post('partner-logo', [PartnerLogoController::class, 'store'])->name('partner-logo.store');
         Route::post('partner-translation-image', [PartnerTranslationImageController::class, 'store'])->name('partner-translation-image.store');
+        Route::post('contributor', [ContributorController::class, 'store'])->name('contributor.store');
+        Route::post('contributor/{contributor}/attach-image', [ContributorImageController::class, 'attachFromAvailable'])->name('contributor.attachImage');
+        Route::post('contributor-translation', [ContributorTranslationController::class, 'store'])->name('contributor-translation.store');
+        Route::post('contributor-image', [ContributorImageController::class, 'store'])->name('contributor-image.store');
         Route::post('item', [ItemController::class, 'store'])->name('item.store');
         Route::post('item/{item}/images', [ItemImageController::class, 'store'])->name('item.images.store');
         Route::post('item/{item}/attach-image', [ItemImageController::class, 'attachFromAvailable'])->name('item.attachImage');
+        Route::post('item/{item}/media', [ItemMediaController::class, 'store'])->name('item.media.store');
+        Route::post('item/{item}/documents', [ItemDocumentController::class, 'store'])->name('item.documents.store');
         Route::post('item/{item}/attach-tag', [ItemController::class, 'attachTag'])->name('item.attachTag');
         Route::post('item/{item}/attach-tags', [ItemController::class, 'attachTags'])->name('item.attachTags');
         Route::post('item-item-link', [ItemItemLinkController::class, 'store'])->name('item-item-link.store');
@@ -206,6 +290,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('collection/{collection}/attach-items', [CollectionController::class, 'attachItems'])->name('collection.attachItems');
         Route::post('collection/{collection}/images', [CollectionImageController::class, 'store'])->name('collection.images.store');
         Route::post('collection/{collection}/attach-image', [CollectionImageController::class, 'attachFromAvailable'])->name('collection.attachImage');
+        Route::post('collection/{collection}/media', [CollectionMediaController::class, 'store'])->name('collection.media.store');
     });
 
     // UPDATE operations - require UPDATE_DATA permission
@@ -246,6 +331,32 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('tag/{tag}', [TagController::class, 'update'])->name('tag.update');
         Route::put('tag/{tag}', [TagController::class, 'update']);
 
+        Route::patch('dynasty/{dynasty}', [DynastyController::class, 'update'])->name('dynasty.update');
+        Route::put('dynasty/{dynasty}', [DynastyController::class, 'update']);
+
+        Route::patch('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'update'])->name('dynasty-translation.update');
+        Route::put('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'update']);
+
+        Route::patch('author/{author}', [AuthorController::class, 'update'])->name('author.update');
+        Route::put('author/{author}', [AuthorController::class, 'update']);
+
+        Route::patch('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update'])->name('author-translation.update');
+        Route::put('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'update']);
+
+        Route::patch('timeline/{timeline}', [TimelineController::class, 'update'])->name('timeline.update');
+        Route::put('timeline/{timeline}', [TimelineController::class, 'update']);
+
+        Route::patch('timeline-event/{timelineEvent}', [TimelineEventController::class, 'update'])->name('timeline-event.update');
+        Route::put('timeline-event/{timelineEvent}', [TimelineEventController::class, 'update']);
+
+        Route::patch('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'update'])->name('timeline-event-translation.update');
+        Route::put('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'update']);
+
+        Route::patch('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'update'])->name('timeline-event-image.update');
+        Route::put('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'update']);
+        Route::patch('timeline-event-image/{timelineEventImage}/move-up', [TimelineEventImageController::class, 'moveUp'])->name('timeline-event-image.moveUp');
+        Route::patch('timeline-event-image/{timelineEventImage}/move-down', [TimelineEventImageController::class, 'moveDown'])->name('timeline-event-image.moveDown');
+
         Route::patch('partner/{partner}', [PartnerController::class, 'update'])->name('partner.update');
         Route::put('partner/{partner}', [PartnerController::class, 'update']);
 
@@ -280,6 +391,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('item-image/{itemImage}/move-down', [ItemImageController::class, 'moveDown'])->name('item-image.moveDown');
         Route::patch('item-image/{itemImage}/tighten-ordering', [ItemImageController::class, 'tightenOrdering'])->name('item-image.tightenOrdering');
 
+        Route::patch('item-media/{itemMedia}', [ItemMediaController::class, 'update'])->name('item-media.update');
+        Route::put('item-media/{itemMedia}', [ItemMediaController::class, 'update']);
+        Route::patch('item-media/{itemMedia}/move-up', [ItemMediaController::class, 'moveUp'])->name('item-media.moveUp');
+        Route::patch('item-media/{itemMedia}/move-down', [ItemMediaController::class, 'moveDown'])->name('item-media.moveDown');
+
+        Route::patch('item-document/{itemDocument}', [ItemDocumentController::class, 'update'])->name('item-document.update');
+        Route::put('item-document/{itemDocument}', [ItemDocumentController::class, 'update']);
+        Route::patch('item-document/{itemDocument}/move-up', [ItemDocumentController::class, 'moveUp'])->name('item-document.moveUp');
+        Route::patch('item-document/{itemDocument}/move-down', [ItemDocumentController::class, 'moveDown'])->name('item-document.moveDown');
+
         Route::patch('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update'])->name('item-item-link.update');
         Route::put('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'update']);
 
@@ -291,6 +412,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::patch('collection-image/{collectionImage}/move-up', [CollectionImageController::class, 'moveUp'])->name('collection-image.moveUp');
         Route::patch('collection-image/{collectionImage}/move-down', [CollectionImageController::class, 'moveDown'])->name('collection-image.moveDown');
         Route::patch('collection-image/{collectionImage}/tighten-ordering', [CollectionImageController::class, 'tightenOrdering'])->name('collection-image.tightenOrdering');
+
+        Route::patch('collection-media/{collectionMedia}', [CollectionMediaController::class, 'update'])->name('collection-media.update');
+        Route::put('collection-media/{collectionMedia}', [CollectionMediaController::class, 'update']);
+        Route::patch('collection-media/{collectionMedia}/move-up', [CollectionMediaController::class, 'moveUp'])->name('collection-media.moveUp');
+        Route::patch('collection-media/{collectionMedia}/move-down', [CollectionMediaController::class, 'moveDown'])->name('collection-media.moveDown');
+
+        Route::patch('contributor/{contributor}', [ContributorController::class, 'update'])->name('contributor.update');
+        Route::put('contributor/{contributor}', [ContributorController::class, 'update']);
+
+        Route::patch('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'update'])->name('contributor-translation.update');
+        Route::put('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'update']);
+
+        Route::patch('contributor-image/{contributorImage}', [ContributorImageController::class, 'update'])->name('contributor-image.update');
+        Route::put('contributor-image/{contributorImage}', [ContributorImageController::class, 'update']);
+        Route::patch('contributor-image/{contributorImage}/move-up', [ContributorImageController::class, 'moveUp'])->name('contributor-image.moveUp');
+        Route::patch('contributor-image/{contributorImage}/move-down', [ContributorImageController::class, 'moveDown'])->name('contributor-image.moveDown');
+        Route::patch('contributor-image/{contributorImage}/tighten-ordering', [ContributorImageController::class, 'tightenOrdering'])->name('contributor-image.tightenOrdering');
 
         Route::patch('item-translation/{item_translation}', [ItemTranslationController::class, 'update'])->name('item-translation.update');
         Route::put('item-translation/{item_translation}', [ItemTranslationController::class, 'update']);
@@ -314,6 +452,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('country/{country}', [CountryController::class, 'destroy'])->name('country.destroy');
         Route::delete('country-translation/{countryTranslation}', [CountryTranslationController::class, 'destroy'])->name('country-translation.destroy');
         Route::delete('tag/{tag}', [TagController::class, 'destroy'])->name('tag.destroy');
+        Route::delete('dynasty/{dynasty}', [DynastyController::class, 'destroy'])->name('dynasty.destroy');
+        Route::delete('dynasty-translation/{dynastyTranslation}', [DynastyTranslationController::class, 'destroy'])->name('dynasty-translation.destroy');
+        Route::delete('author/{author}', [AuthorController::class, 'destroy'])->name('author.destroy');
+        Route::delete('author-translation/{authorTranslation}', [AuthorTranslationController::class, 'destroy'])->name('author-translation.destroy');
+        Route::delete('timeline/{timeline}', [TimelineController::class, 'destroy'])->name('timeline.destroy');
+        Route::delete('timeline-event/{timelineEvent}', [TimelineEventController::class, 'destroy'])->name('timeline-event.destroy');
+        Route::delete('timeline-event-translation/{timelineEventTranslation}', [TimelineEventTranslationController::class, 'destroy'])->name('timeline-event-translation.destroy');
+        Route::delete('timeline-event-image/{timelineEventImage}', [TimelineEventImageController::class, 'destroy'])->name('timeline-event-image.destroy');
         Route::delete('partner/{partner}', [PartnerController::class, 'destroy'])->name('partner.destroy');
         Route::delete('partner-translation/{partnerTranslation}', [PartnerTranslationController::class, 'destroy'])->name('partner-translation.destroy');
         Route::delete('partner-image/{partnerImage}', [PartnerImageController::class, 'destroy'])->name('partner-image.destroy');
@@ -326,10 +472,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('item/{item}/detach-tags', [ItemController::class, 'detachTags'])->name('item.detachTags');
         Route::delete('item-image/{itemImage}', [ItemImageController::class, 'destroy'])->name('item-image.destroy');
         Route::post('item-image/{itemImage}/detach', [ItemImageController::class, 'detachToAvailable'])->name('item-image.detach');
+        Route::delete('item-media/{itemMedia}', [ItemMediaController::class, 'destroy'])->name('item-media.destroy');
+        Route::delete('item-document/{itemDocument}', [ItemDocumentController::class, 'destroy'])->name('item-document.destroy');
         Route::delete('item-item-link/{itemItemLink}', [ItemItemLinkController::class, 'destroy'])->name('item-item-link.destroy');
         Route::delete('item-item-link-translation/{itemItemLinkTranslation}', [ItemItemLinkTranslationController::class, 'destroy'])->name('item-item-link-translation.destroy');
         Route::delete('collection-image/{collectionImage}', [CollectionImageController::class, 'destroy'])->name('collection-image.destroy');
         Route::post('collection-image/{collectionImage}/detach', [CollectionImageController::class, 'detachToAvailable'])->name('collection-image.detach');
+        Route::delete('collection-media/{collectionMedia}', [CollectionMediaController::class, 'destroy'])->name('collection-media.destroy');
         Route::delete('project/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
         Route::delete('image-upload/{image_upload}', [ImageUploadController::class, 'destroy'])->name('image-upload.destroy');
         Route::delete('available-image/{available_image}', [AvailableImageController::class, 'destroy'])->name('available-image.destroy');
@@ -340,6 +489,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('collection/{collection}', [CollectionController::class, 'destroy'])->name('collection.destroy');
         Route::delete('collection/{collection}/detach-item', [CollectionController::class, 'detachItem'])->name('collection.detachItem');
         Route::delete('collection/{collection}/detach-items', [CollectionController::class, 'detachItems'])->name('collection.detachItems');
+        Route::delete('contributor/{contributor}', [ContributorController::class, 'destroy'])->name('contributor.destroy');
+        Route::delete('contributor-translation/{contributorTranslation}', [ContributorTranslationController::class, 'destroy'])->name('contributor-translation.destroy');
+        Route::delete('contributor-image/{contributorImage}', [ContributorImageController::class, 'destroy'])->name('contributor-image.destroy');
+        Route::post('contributor-image/{contributorImage}/detach', [ContributorImageController::class, 'detachToAvailable'])->name('contributor-image.detach');
     });
 });
 

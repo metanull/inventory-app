@@ -19,10 +19,17 @@ class AuthorResource extends JsonResource
             'id' => $this->id,
             // The name of the author
             'name' => $this->name,
+            // Name parts
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'givenname' => $this->givenname,
+            'originalname' => $this->originalname,
             // A name for this resource, for internal use only.
             'internal_name' => $this->internal_name,
             // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
+            // Relationships
+            'translations' => AuthorTranslationResource::collection($this->whenLoaded('translations')),
             // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
             // The date of last modification of the resource (managed by the system)

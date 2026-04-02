@@ -1,5 +1,5 @@
 /**
- * Phase 04 Importers - Glossary Data
+ * Phase 04 Importers - Glossary Data & THG Contributors
  */
 
 export {
@@ -7,3 +7,5 @@ export {
   GlossaryTranslationImporter,
   GlossarySpellingImporter,
 } from './glossary-importer.js';
+
+export { ThgContributorImporter } from './thg-contributor-importer.js';

@@ -1,0 +1,133 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\HasJsonFields;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+/**
+ * AuthorTranslation Model
+ *
+ * Represents language and context-specific translations for Authors.
+ * Contains translated author curriculum per context/language.
+ */
+class AuthorTranslation extends Model
+{
+    use HasFactory, HasJsonFields, HasUuids;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'author_translations';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'author_id',
+        'language_id',
+        'context_id',
+        'curriculum',
+        'backward_compatibility',
+        'extra',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'extra' => 'object',
+    ];
+
+    /**
+     * Get the unique identifiers for the model.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['id'];
+    }
+
+    /**
+     * Get the extra field decoded as an associative array.
+     */
+    protected function extraDecoded(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->normalizedJson('extra')
+        );
+    }
+
+    /**
+     * Get the author that owns the translation.
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(Author::class);
+    }
+
+    /**
+     * Get the language of the translation.
+     */
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
+    }
+
+    /**
+     * Get the context of the translation.
+     */
+    public function context(): BelongsTo
+    {
+        return $this->belongsTo(Context::class);
+    }
+
+    /**
+     * Scope a query to only include translations for the default context.
+     *
+     * @param  Builder  $query
+     * @return Builder
+     */
+    public function scopeDefaultContext($query)
+    {
+        return $query->whereHas('context', function ($query) {
+            $query->where('is_default', true);
+        });
+    }
+
+    /**
+     * Scope a query to only include translations for a specific language.
+     *
+     * @param  Builder  $query
+     * @param  string  $languageId
+     * @return Builder
+     */
+    public function scopeForLanguage($query, $languageId)
+    {
+        return $query->where('language_id', $languageId);
+    }
+
+    /**
+     * Scope a query to only include translations for a specific context.
+     *
+     * @param  Builder  $query
+     * @param  string  $contextId
+     * @return Builder
+     */
+    public function scopeForContext($query, $contextId)
+    {
+        return $query->where('context_id', $contextId);
+    }
+}

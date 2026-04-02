@@ -8,6 +8,9 @@
  * - Objects, Monuments, Monument Details as Items
  * - Pictures for all item types
  * - Logos for partners
+ * - Exhibition hierarchy (exhibitions, themes, subthemes) as nested Collections
+ * - Exhibition translations
+ * - Exhibition item assignments (rel_* tables) and image references
  */
 
 export { ShProjectImporter } from './sh-project-importer.js';
@@ -19,3 +22,8 @@ export { ShMonumentDetailImporter } from './sh-monument-detail-importer.js';
 export { ShObjectPictureImporter } from './sh-object-picture-importer.js';
 export { ShMonumentPictureImporter } from './sh-monument-picture-importer.js';
 export { ShMonumentDetailPictureImporter } from './sh-monument-detail-picture-importer.js';
+export { ShExhibitionImporter } from './sh-exhibition-importer.js';
+export { ShExhibitionTranslationImporter } from './sh-exhibition-translation-importer.js';
+export { ShExhibitionItemImporter } from './sh-exhibition-item-importer.js';
+export { ShNationalContextImporter } from './sh-national-context-importer.js';
+export { ShBibliographyHbImporter } from './sh-bibliography-hb-importer.js';

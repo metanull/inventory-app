@@ -2,7 +2,8 @@
  * Image Synchronization Tool
  *
  * Synchronizes legacy images to new storage by:
- * 1. Finding ItemImage and PartnerImage records with size=1 (legacy placeholder)
+ * 1. Finding records with size=1 (legacy placeholder) in item_images,
+ *    partner_images, partner_logos, collection_images, contributor_images
  * 2. Copying or symlinking the actual image file from legacy storage
  * 3. Updating the database record with correct path, size, and metadata
  *
@@ -10,6 +11,7 @@
  */
 
 import type { Connection } from 'mysql2/promise';
+import type { ILogger } from '../core/base-importer.js';
 import {
   getFileExtension,
   getLegacyImagePath,
@@ -46,17 +48,12 @@ export interface ImageSyncResult {
   errors: string[];
 }
 
-export interface ImageSyncLogger {
-  info(message: string): void;
-  error(context: string, error: unknown): void;
-}
-
 export class ImageSyncTool {
   private db: Connection;
   private options: ImageSyncOptions;
-  private logger: ImageSyncLogger;
+  private logger: ILogger;
 
-  constructor(db: Connection, options: ImageSyncOptions, logger: ImageSyncLogger) {
+  constructor(db: Connection, options: ImageSyncOptions, logger: ILogger) {
     this.db = db;
     this.options = options;
     this.logger = logger;
@@ -76,6 +73,7 @@ export class ImageSyncTool {
       this.logger.info(`Legacy images root: ${this.options.legacyImagesRoot}`);
       this.logger.info(`New images root: ${this.options.newImagesRoot}`);
       this.logger.info(`Clear destination: ${this.options.clearDestination ? 'YES' : 'NO'}`);
+      this.logger.info(`Dry-run: ${this.options.dryRun ? 'YES' : 'NO'}`);
 
       // Ensure new images directory exists
       await ensureDirectory(this.options.newImagesRoot);
@@ -91,32 +89,30 @@ export class ImageSyncTool {
         }
       }
 
-      // Sync ItemImages
-      this.logger.info('\n=== Syncing ItemImages ===');
-      const itemImageResults = await this.syncItemImages();
-      result.imported += itemImageResults.synced;
-      result.skipped += itemImageResults.skipped;
-      result.errors.push(...itemImageResults.errors);
+      const tables = [
+        'item_images',
+        'partner_images',
+        'partner_logos',
+        'collection_images',
+        'contributor_images',
+      ];
 
-      // Sync PartnerImages
-      this.logger.info('\n=== Syncing PartnerImages ===');
-      const partnerImageResults = await this.syncPartnerImages();
-      result.imported += partnerImageResults.synced;
-      result.skipped += partnerImageResults.skipped;
-      result.errors.push(...partnerImageResults.errors);
+      for (const table of tables) {
+        this.logger.info(`\n=== Syncing ${table} ===`);
+        const tableResult = await this.syncTable(table);
+        result.imported += tableResult.synced;
+        result.skipped += tableResult.skipped;
+        result.errors.push(...tableResult.errors);
+      }
 
-      // Sync CollectionImages
-      this.logger.info('\n=== Syncing CollectionImages ===');
-      const collectionImageResults = await this.syncCollectionImages();
-      result.imported += collectionImageResults.synced;
-      result.skipped += collectionImageResults.skipped;
-      result.errors.push(...collectionImageResults.errors);
-
-      this.logger.info(
-        `\nSummary: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`
-      );
+      this.logger.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      if (error instanceof Error) {
+        this.logger.exception('ImageSync', error);
+      } else {
+        this.logger.error('ImageSync', message);
+      }
       result.errors.push(`Image sync failed: ${message}`);
       result.success = false;
     }
@@ -125,7 +121,7 @@ export class ImageSyncTool {
     return result;
   }
 
-  private async syncItemImages(): Promise<{
+  private async syncTable(tableName: string): Promise<{
     synced: number;
     skipped: number;
     errors: string[];
@@ -134,99 +130,36 @@ export class ImageSyncTool {
     let synced = 0;
     let skipped = 0;
 
-    // Query ItemImages with size=1
-    const images = await this.queryImages('item_images');
-    this.logger.info(`Found ${images.length} ItemImages to sync`);
+    const images = await this.queryImages(tableName);
+    this.logger.info(`Found ${images.length} ${tableName} records with size=1 to sync`);
+
+    if (images.length === 0) {
+      this.logger.warning(
+        `No images with size=1 found in ${tableName} — was image-sync already run?`
+      );
+      return { synced, skipped, errors };
+    }
 
     for (const image of images) {
       try {
-        const result = await this.syncImage(image, 'item_images');
+        const result = await this.syncImage(image, tableName);
         if (result) {
           synced++;
-          process.stdout.write('.');
+          this.logger.showProgress();
         } else {
           skipped++;
-          process.stdout.write('⊘');
+          this.logger.skip(`${tableName} ${image.id}: skipped (syncImage returned false)`);
+          this.logger.showSkipped();
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        errors.push(`ItemImage ${image.id}: ${message}`);
-        this.logger.error(`ItemImage ${image.id}`, message);
-        process.stdout.write('✗');
+        errors.push(`${tableName} ${image.id}: ${message}`);
+        this.logger.error(`${tableName} ${image.id}`, message);
+        this.logger.showError();
       }
     }
-    process.stdout.write('\n');
 
-    return { synced, skipped, errors };
-  }
-
-  private async syncPartnerImages(): Promise<{
-    synced: number;
-    skipped: number;
-    errors: string[];
-  }> {
-    const errors: string[] = [];
-    let synced = 0;
-    let skipped = 0;
-
-    // Query PartnerImages with size=1
-    const images = await this.queryImages('partner_images');
-    this.logger.info(`Found ${images.length} PartnerImages to sync`);
-
-    for (const image of images) {
-      try {
-        const result = await this.syncImage(image, 'partner_images');
-        if (result) {
-          synced++;
-          process.stdout.write('.');
-        } else {
-          skipped++;
-          process.stdout.write('⊘');
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        errors.push(`PartnerImage ${image.id}: ${message}`);
-        this.logger.error(`PartnerImage ${image.id}`, message);
-        process.stdout.write('✗');
-      }
-    }
-    process.stdout.write('\n');
-
-    return { synced, skipped, errors };
-  }
-
-  private async syncCollectionImages(): Promise<{
-    synced: number;
-    skipped: number;
-    errors: string[];
-  }> {
-    const errors: string[] = [];
-    let synced = 0;
-    let skipped = 0;
-
-    // Query CollectionImages with size=1
-    const images = await this.queryImages('collection_images');
-    this.logger.info(`Found ${images.length} CollectionImages to sync`);
-
-    for (const image of images) {
-      try {
-        const result = await this.syncImage(image, 'collection_images');
-        if (result) {
-          synced++;
-          process.stdout.write('.');
-        } else {
-          skipped++;
-          process.stdout.write('⊘');
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        errors.push(`CollectionImage ${image.id}: ${message}`);
-        this.logger.error(`CollectionImage ${image.id}`, message);
-        process.stdout.write('✗');
-      }
-    }
-    process.stdout.write('\n');
-
+    this.logger.showSummary(synced, skipped, errors.length);
     return { synced, skipped, errors };
   }
 

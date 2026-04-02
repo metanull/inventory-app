@@ -178,6 +178,22 @@ class Item extends Model
     }
 
     /**
+     * The media (audio/video URLs) attached to this item.
+     */
+    public function itemMedia(): HasMany
+    {
+        return $this->hasMany(ItemMedia::class)->orderBy('type')->orderBy('display_order');
+    }
+
+    /**
+     * The documents attached to this item.
+     */
+    public function itemDocuments(): HasMany
+    {
+        return $this->hasMany(ItemDocument::class)->orderBy('display_order');
+    }
+
+    /**
      * The tags that belong to this item.
      */
     public function tags(): BelongsToMany
@@ -199,6 +215,14 @@ class Item extends Model
     public function workshops(): BelongsToMany
     {
         return $this->belongsToMany(Workshop::class, 'item_workshop');
+    }
+
+    /**
+     * Dynasties associated with this item
+     */
+    public function dynasties(): BelongsToMany
+    {
+        return $this->belongsToMany(Dynasty::class, 'item_dynasty')->withTimestamps();
     }
 
     /**
@@ -231,6 +255,7 @@ class Item extends Model
     public function attachedToCollections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class, 'collection_item')
+            ->withPivot('display_order', 'extra')
             ->withTimestamps();
     }
 

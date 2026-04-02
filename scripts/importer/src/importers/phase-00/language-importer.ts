@@ -21,7 +21,7 @@ const __dirname = dirname(__filename);
 interface LanguageJsonData {
   id: string; // ISO 639-3 code (e.g., 'eng', 'fra')
   internal_name: string;
-  backward_compatibility: string; // ISO 639-1 code (e.g., 'en', 'fr')
+  backward_compatibility: string | null; // Legacy 2-char code, null for non-legacy languages
   is_default: boolean;
 }
 
@@ -46,11 +46,15 @@ export class LanguageImporter extends BaseImporter {
 
       for (const language of languages) {
         try {
-          // Use backward_compatibility as the tracking key (consistent with legacy importer)
-          const backwardCompat = language.backward_compatibility;
+          // Tracking key: BC for legacy languages (enables lookup by legacy code),
+          // id for non-legacy languages (enables dedup only — no legacy code exists)
+          const trackingKey: string =
+            language.backward_compatibility !== null
+              ? language.backward_compatibility
+              : language.id;
 
           // Check if already exists in tracker (pass entityType to avoid collisions with countries)
-          if (this.entityExists(backwardCompat, 'language')) {
+          if (await this.entityExistsAsync(trackingKey, 'language')) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -68,7 +72,7 @@ export class LanguageImporter extends BaseImporter {
               `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import language: ${language.id} (${language.internal_name})`
             );
             // Register for tracking even in dry-run
-            this.registerEntity(language.id, backwardCompat, 'language');
+            this.registerEntity(language.id, trackingKey, 'language');
             result.imported++;
             this.showProgress();
             continue;
@@ -80,11 +84,11 @@ export class LanguageImporter extends BaseImporter {
           await this.context.strategy.writeLanguage({
             id: language.id,
             internal_name: language.internal_name,
-            backward_compatibility: backwardCompat,
+            backward_compatibility: language.backward_compatibility,
             is_default: language.is_default,
           });
 
-          this.registerEntity(language.id, backwardCompat, 'language');
+          this.registerEntity(language.id, trackingKey, 'language');
 
           // Track default language ID for use by other importers
           if (language.is_default) {
@@ -164,9 +168,25 @@ export class LanguageTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // Validate FK references before write
+          const langExists = await this.entityExistsAsync(legacy.lang_id, 'language');
+          if (!langExists) {
+            this.logWarning(`Language '${legacy.lang_id}' not found, skipping translation`);
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+          const displayLangExists = await this.entityExistsAsync(legacy.lang, 'language');
+          if (!displayLangExists) {
+            this.logWarning(
+              `Display language '${legacy.lang}' not found, skipping translation for '${legacy.lang_id}'`
+            );
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Transform and write language translation
-          // The transformer will map legacy 2-char code to ISO 3-char code
-          // If the language doesn't exist, the database foreign key will reject it (handled in catch block)
           const transformed = transformLanguageTranslation({
             code: legacy.lang_id,
             lang: legacy.lang,
@@ -178,15 +198,10 @@ export class LanguageTranslationImporter extends BaseImporter {
           this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          // Skip this translation if language or display language doesn't exist (foreign key violation)
-          if (message.includes('foreign key constraint fails')) {
-            result.skipped++;
-            this.showSkipped();
-          } else {
-            result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
-            this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
-            this.showError();
-          }
+
+          result.errors.push(`${legacy.lang_id}:${legacy.lang}: ${message}`);
+          this.logError(`Language translation ${legacy.lang_id}:${legacy.lang}`, message);
+          this.showError();
         }
       }
 

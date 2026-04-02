@@ -24,7 +24,7 @@ import mysql from 'mysql2/promise';
 
 import { UnifiedTracker } from '../core/tracker.js';
 import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
-import type { ImportContext, ILegacyDatabase, ILogger } from '../core/base-importer.js';
+import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
 
@@ -40,6 +40,7 @@ import {
   MonumentImporter,
   MonumentDetailImporter,
   ItemItemLinkImporter,
+  DynastyImporter,
   ObjectPictureImporter,
   MonumentPictureImporter,
   MonumentDetailPictureImporter,
@@ -55,6 +56,9 @@ import {
   ShObjectPictureImporter,
   ShMonumentPictureImporter,
   ShMonumentDetailPictureImporter,
+  ShExhibitionImporter,
+  ShExhibitionTranslationImporter,
+  ShExhibitionItemImporter,
   // Phase 04: Glossary
   GlossaryImporter,
   GlossaryTranslationImporter,
@@ -64,12 +68,21 @@ import {
   ExploreRootCollectionsImporter,
   ExploreThematicCycleImporter,
   ExploreThematicCyclePictureImporter,
+  ExploreThematicCycleTranslationImporter,
   ExploreCountryImporter,
+  ExploreRegionImporter,
+  ExploreRegionLocationLinker,
   ExploreLocationImporter,
   ExploreLocationPictureImporter,
+  ExploreLocationTranslationImporter,
   ExploreMonumentImporter,
   ExploreMonumentPictureImporter,
+  ExploreMonumentTranslationImporter,
+  ExploreMonumentCrossRefImporter,
+  ExploreMonumentThemeLinkImporter,
   ExploreItineraryImporter,
+  ExploreItineraryContentImporter,
+  ExploreFilterImporter,
   // Phase 07: Travels
   TravelsContextImporter,
   TravelsRootCollectionImporter,
@@ -104,6 +117,21 @@ import {
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
   ProjectCleanupImporter,
+  PartnerMonumentLinker,
+  AuthorImporter,
+  TimelineImporter,
+  ItemMediaImporter,
+  ItemDocumentImporter,
+  CollectionMediaImporter,
+  SchoolImporter,
+  ThgContributorImporter,
+  ThgTagImporter,
+  PartnerHierarchyImporter,
+  Mwnf3ExhibitionImporter,
+  Mwnf3ExhibitionTranslationImporter,
+  Mwnf3ExhibitionItemImporter,
+  ShNationalContextImporter,
+  ShBibliographyHbImporter,
 } from '../importers/index.js';
 import { ImageSyncTool } from '../tools/image-sync.js';
 
@@ -115,10 +143,10 @@ interface ImporterConfig {
   key: string;
   name: string;
   description: string;
-  importerClass: new (
-    context: ImportContext,
-    logger?: ILogger
-  ) => { import(): Promise<ImportResult>; getName(): string };
+  importerClass: new (context: ImportContext) => {
+    import(): Promise<ImportResult>;
+    getName(): string;
+  };
   dependencies?: string[];
 }
 
@@ -175,6 +203,21 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['default-context', 'project', 'language', 'country'],
   },
   {
+    key: 'school',
+    name: 'Schools',
+    description: 'Import schools as partners (type: school) with translations, logos, and pictures',
+    importerClass: SchoolImporter,
+    dependencies: ['default-context', 'project', 'language', 'country'],
+  },
+  {
+    key: 'partner-hierarchy',
+    name: 'Partner Hierarchy',
+    description:
+      'Import partner hierarchy levels (partner/associated/minor) from partner_museums tables',
+    importerClass: PartnerHierarchyImporter,
+    dependencies: ['project', 'partner'],
+  },
+  {
     key: 'object',
     name: 'Objects',
     description: 'Import object items',
@@ -199,9 +242,24 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     key: 'item-item-link',
     name: 'Item-Item Links',
     description:
-      'Import relationships between items (object-object, object-monument, monument-monument)',
+      'Import relationships between items (object-object, object-monument, monument-monument, monument-object) with justification translations',
     importerClass: ItemItemLinkImporter,
-    dependencies: ['object', 'monument', 'default-context'],
+    dependencies: ['object', 'monument', 'default-context', 'language'],
+  },
+  {
+    key: 'author',
+    name: 'Authors',
+    description:
+      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
+    importerClass: AuthorImporter,
+    dependencies: ['project', 'object', 'monument', 'default-context', 'language'],
+  },
+  {
+    key: 'dynasty',
+    name: 'Dynasties',
+    description: 'Import dynasties with translations and item-dynasty links from mwnf3',
+    importerClass: DynastyImporter,
+    dependencies: ['object', 'monument', 'language'],
   },
   // Phase 2: Images
   {
@@ -303,6 +361,69 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: ShMonumentDetailPictureImporter,
     dependencies: ['sh-monument-detail', 'default-context', 'language'],
   },
+  {
+    key: 'sh-exhibition',
+    name: 'SH Exhibitions',
+    description:
+      'Import SH exhibition hierarchy (exhibitions, themes, subthemes) as nested collections',
+    importerClass: ShExhibitionImporter,
+    dependencies: ['sh-project'],
+  },
+  {
+    key: 'sh-exhibition-translation',
+    name: 'SH Exhibition Translations',
+    description: 'Import translations for SH exhibitions, themes, and subthemes',
+    importerClass: ShExhibitionTranslationImporter,
+    dependencies: ['sh-exhibition', 'language'],
+  },
+  {
+    key: 'sh-exhibition-item',
+    name: 'SH Exhibition Items',
+    description:
+      'Import item assignments and image references for SH exhibitions, themes, and subthemes',
+    importerClass: ShExhibitionItemImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument'],
+  },
+  {
+    key: 'sh-national-context',
+    name: 'SH National Context',
+    description:
+      'Import SH National Context country-exhibition collections, images, and item assignments',
+    importerClass: ShNationalContextImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument', 'country'],
+  },
+  {
+    key: 'sh-bibliography-hb',
+    name: 'SH Bibliography & Historical Background',
+    description:
+      'Import SH structured bibliography into targets, and Historical Background collections with pages/images/maps',
+    importerClass: ShBibliographyHbImporter,
+    dependencies: ['sh-exhibition', 'sh-object', 'sh-monument', 'sh-national-context'],
+  },
+  // Phase 1: mwnf3 Exhibition System
+  {
+    key: 'mwnf3-exhibition',
+    name: 'MWNF3 Exhibitions',
+    description: 'Import mwnf3 exhibition + artintro hierarchy as nested collections',
+    importerClass: Mwnf3ExhibitionImporter,
+    dependencies: ['project', 'language'],
+  },
+  {
+    key: 'mwnf3-exhibition-translation',
+    name: 'MWNF3 Exhibition Translations',
+    description:
+      'Import EAV-based translations for mwnf3 exhibitions, themes, pages, and artintros',
+    importerClass: Mwnf3ExhibitionTranslationImporter,
+    dependencies: ['mwnf3-exhibition', 'language'],
+  },
+  {
+    key: 'mwnf3-exhibition-item',
+    name: 'MWNF3 Exhibition Items',
+    description:
+      'Import mwnf3 exhibition page images (item refs + custom) and exhibition-level images',
+    importerClass: Mwnf3ExhibitionItemImporter,
+    dependencies: ['mwnf3-exhibition', 'object', 'monument'],
+  },
   // Phase 4: Glossary
   {
     key: 'glossary',
@@ -324,6 +445,30 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Import glossary spelling variants',
     importerClass: GlossarySpellingImporter,
     dependencies: ['glossary', 'language'],
+  },
+  // Phase 05: Timelines (HCR)
+  {
+    key: 'timeline',
+    name: 'Timelines (HCR)',
+    description:
+      'Import Heritage Conservation Resources timelines, events, translations, item links, and bibliography from mwnf3 and Sharing History',
+    importerClass: TimelineImporter,
+    dependencies: ['country', 'language', 'object', 'monument', 'sh-object', 'sh-monument'],
+  },
+  // Phase 08: Media & Documents
+  {
+    key: 'item-media',
+    name: 'Item Media',
+    description: 'Import audio/video URLs attached to items from mwnf3 and Sharing History',
+    importerClass: ItemMediaImporter,
+    dependencies: ['object', 'monument', 'sh-object', 'language'],
+  },
+  {
+    key: 'item-document',
+    name: 'Item Documents',
+    description: 'Import document files (PDFs) attached to SH items',
+    importerClass: ItemDocumentImporter,
+    dependencies: ['sh-object', 'language'],
   },
   // Phase 06: Explore
   {
@@ -355,11 +500,26 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-thematiccycle'],
   },
   {
+    key: 'explore-thematiccycle-translation',
+    name: 'Explore Thematic Cycle Translations',
+    description:
+      'Import multilingual translations, country associations, and country pictures for thematic cycles',
+    importerClass: ExploreThematicCycleTranslationImporter,
+    dependencies: ['explore-thematiccycle'],
+  },
+  {
     key: 'explore-country',
     name: 'Explore Countries',
     description: 'Import country collections from Explore locations',
     importerClass: ExploreCountryImporter,
     dependencies: ['explore-root-collections', 'country'],
+  },
+  {
+    key: 'explore-region',
+    name: 'Explore Regions',
+    description: 'Import region collections from Explore, parented under country collections',
+    importerClass: ExploreRegionImporter,
+    dependencies: ['explore-country'],
   },
   {
     key: 'explore-location',
@@ -369,10 +529,24 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-country'],
   },
   {
+    key: 'explore-region-location-linker',
+    name: 'Explore Region-Location Linker',
+    description: 'Re-parent location collections under their most specific region',
+    importerClass: ExploreRegionLocationLinker,
+    dependencies: ['explore-region', 'explore-location'],
+  },
+  {
     key: 'explore-location-picture',
     name: 'Explore Location Pictures',
     description: 'Import location pictures from Explore database',
     importerClass: ExploreLocationPictureImporter,
+    dependencies: ['explore-location'],
+  },
+  {
+    key: 'explore-location-translation',
+    name: 'Explore Location Translations',
+    description: 'Import multilingual translations, visibility flags, and contacts for locations',
+    importerClass: ExploreLocationTranslationImporter,
     dependencies: ['explore-location'],
   },
   {
@@ -390,11 +564,48 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['explore-monument'],
   },
   {
+    key: 'explore-monument-translation',
+    name: 'Explore Monument Translations',
+    description: 'Import multilingual translations and further readings for Explore monuments',
+    importerClass: ExploreMonumentTranslationImporter,
+    dependencies: ['explore-monument'],
+  },
+  {
+    key: 'explore-monument-crossref',
+    name: 'Explore Monument Cross-References',
+    description:
+      'Import cross-schema item_item_links between Explore and mwnf3/travels/SH monuments',
+    importerClass: ExploreMonumentCrossRefImporter,
+    dependencies: ['explore-monument', 'monument', 'sh-monument', 'travels-monument'],
+  },
+  {
+    key: 'explore-monument-theme-link',
+    name: 'Explore Monument-Theme Links',
+    description: 'Link Explore monuments to thematic cycle collections (collection_item pivot)',
+    importerClass: ExploreMonumentThemeLinkImporter,
+    dependencies: ['explore-monument', 'explore-thematiccycle'],
+  },
+  {
     key: 'explore-itinerary',
     name: 'Explore Itineraries',
     description: 'Import itineraries (curated routes) from Explore',
     importerClass: ExploreItineraryImporter,
     dependencies: ['explore-root-collections', 'explore-thematiccycle'],
+  },
+  {
+    key: 'explore-itinerary-content',
+    name: 'Explore Itinerary Content',
+    description:
+      'Import itinerary translations, monument links, metadata, old itineraries, and cross-schema links',
+    importerClass: ExploreItineraryContentImporter,
+    dependencies: ['explore-itinerary', 'explore-monument', 'explore-location'],
+  },
+  {
+    key: 'explore-filter',
+    name: 'Explore Filters',
+    description: 'Import Explore filter tags and filter-monument links',
+    importerClass: ExploreFilterImporter,
+    dependencies: ['explore-monument'],
   },
   // Phase 07: Travels (virtual visits and exhibition trails)
   {
@@ -618,6 +829,39 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: ThgGalleryExploreMonumentImporter,
     dependencies: ['thg-gallery', 'explore-monument'],
   },
+  // Phase 11: Collection Media (needs THG theme collections)
+  {
+    key: 'collection-media',
+    name: 'Collection Media',
+    description: 'Import audio/video URLs attached to THG theme collections',
+    importerClass: CollectionMediaImporter,
+    dependencies: ['thg-theme', 'language'],
+  },
+  // Phase 10: THG Contributors
+  {
+    key: 'thg-contributor',
+    name: 'THG Contributors',
+    description: 'Import THG contributors and exhibition partners as Contributor entities',
+    importerClass: ThgContributorImporter,
+    dependencies: ['default-context', 'language', 'thg-gallery', 'thg-theme'],
+  },
+  // Phase 10: THG Tags (curated gallery tags + item-tag links)
+  {
+    key: 'thg-tag',
+    name: 'THG Tags',
+    description:
+      'Import 2,629 curated gallery tags with dedup, and 27,543 item-tag links across mwnf3 and SH objects',
+    importerClass: ThgTagImporter,
+    dependencies: ['object', 'monument', 'sh-object', 'sh-monument', 'thg-gallery'],
+  },
+  // Phase 11: Post-Import Linking
+  {
+    key: 'partner-monument-link',
+    name: 'Partner Monument Link',
+    description: 'Link partners (museums) to their monument locations',
+    importerClass: PartnerMonumentLinker,
+    dependencies: ['partner', 'monument'],
+  },
   {
     key: 'project-cleanup',
     name: 'Project Cleanup',
@@ -708,7 +952,7 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         const [rows] = params
-          ? await this.connection.execute(sql, params)
+          ? await this.connection.execute(sql, params as (string | number | null)[])
           : await this.connection.execute(sql);
         return rows as T[];
       } catch (err) {
@@ -750,7 +994,7 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         if (params) {
-          await this.connection.execute(sql, params);
+          await this.connection.execute(sql, params as (string | number | null)[]);
         } else {
           await this.connection.execute(sql);
         }
@@ -849,7 +1093,10 @@ class ResilientConnection {
           throw new Error('Failed to establish connection');
         }
 
-        return await this.connection.execute<T>(sql, values);
+        return await this.connection.execute<T>(
+          sql,
+          values as (string | number | null)[] | undefined
+        );
       } catch (err) {
         const error = err as Error & { code?: string };
         lastError = error;
@@ -1022,120 +1269,17 @@ program
         legacyDb,
         strategy,
         tracker,
+        logger,
         dryRun,
       };
 
-      // Track results and phases
+      // Track results
       const results = new Map<string, ImportResult>();
-      const phases: PhaseSummary[] = [];
-      let currentPhase = 'Phase 0: Reference Data';
-      let phaseStart = Date.now();
-      let phaseImported = 0;
-      let phaseSkipped = 0;
-      let phaseErrors = 0;
-
-      // Helper to determine phase
-      const getPhase = (key: string): string => {
-        if (
-          [
-            'default-context',
-            'language',
-            'language-translation',
-            'country',
-            'country-translation',
-          ].includes(key)
-        ) {
-          return 'Phase 0: Reference Data';
-        } else if (['project', 'partner'].includes(key)) {
-          return 'Phase 1: Projects and Partners';
-        } else if (['object', 'monument', 'monument-detail'].includes(key)) {
-          return 'Phase 2: Items';
-        } else if (
-          [
-            'object-picture',
-            'monument-picture',
-            'monument-detail-picture',
-            'partner-picture',
-            'partner-logo',
-          ].includes(key)
-        ) {
-          return 'Phase 3: Images';
-        } else if (['glossary', 'glossary-translation', 'glossary-spelling'].includes(key)) {
-          return 'Phase 4: Glossary';
-        } else if (
-          [
-            'sh-project',
-            'sh-partner',
-            'sh-partner-logo',
-            'sh-object',
-            'sh-monument',
-            'sh-monument-detail',
-            'sh-object-picture',
-            'sh-monument-picture',
-            'sh-monument-detail-picture',
-          ].includes(key)
-        ) {
-          return 'Phase 3.5: Sharing History';
-        } else if (
-          [
-            'explore-context',
-            'explore-root-collections',
-            'explore-thematiccycle',
-            'explore-country',
-            'explore-location',
-            'explore-monument',
-            'explore-itinerary',
-          ].includes(key)
-        ) {
-          return 'Phase 6: Explore';
-        } else if (
-          [
-            'thg-gallery-context',
-            'thg-gallery',
-            'thg-gallery-translation',
-            'thg-theme',
-            'thg-theme-translation',
-            'thg-theme-item',
-            'thg-theme-item-translation',
-            'thg-item-related',
-            'thg-item-related-translation',
-            'thg-gallery-mwnf3-object',
-            'thg-gallery-mwnf3-monument',
-            'thg-gallery-sh-object',
-            'thg-gallery-sh-monument',
-          ].includes(key)
-        ) {
-          return 'Phase 10: Thematic Galleries';
-        } else {
-          return 'Phase Unknown';
-        }
-      };
+      const importerTimings = new Map<string, number>();
 
       // Execute importers
       for (const config of ALL_IMPORTERS) {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
-
-        // Check if phase changed
-        const newPhase = getPhase(config.key);
-        if (newPhase !== currentPhase && shouldRun) {
-          // Save current phase results
-          if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
-            phases.push({
-              phase: currentPhase,
-              duration: Date.now() - phaseStart,
-              imported: phaseImported,
-              skipped: phaseSkipped,
-              errors: phaseErrors,
-            });
-          }
-          // Start new phase
-          currentPhase = newPhase;
-          phaseStart = Date.now();
-          phaseImported = 0;
-          phaseSkipped = 0;
-          phaseErrors = 0;
-          logger.logPhaseStart(currentPhase);
-        }
 
         if (!shouldRun) {
           console.log(chalk.gray(`⏭  Skipping ${config.name}`));
@@ -1147,14 +1291,12 @@ program
         const importerStart = Date.now();
 
         try {
-          const importer = new config.importerClass(importContext, logger);
+          const importer = new config.importerClass(importContext);
           const result = await importer.import();
           results.set(config.key, result);
 
           const importerDuration = Date.now() - importerStart;
-          phaseImported += result.imported;
-          phaseSkipped += result.skipped;
-          phaseErrors += result.errors.length;
+          importerTimings.set(config.key, importerDuration);
 
           logger.logImporterComplete(
             config.name,
@@ -1163,25 +1305,10 @@ program
             result.errors.length,
             importerDuration
           );
-
-          if (result.errors.length > 0) {
-            // Log errors to file
-            result.errors.forEach((err) => {
-              logger.logImporterError(config.name, err);
-            });
-          }
-
-          // Report warnings
-          if (result.warnings && result.warnings.length > 0) {
-            console.log(chalk.yellow(`   ⚠  ${result.warnings.length} warnings`));
-            result.warnings.forEach((warn) => {
-              logger.warning(`${config.name}: ${warn}`);
-            });
-          }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           const importerDuration = Date.now() - importerStart;
-          phaseErrors++;
+          importerTimings.set(config.key, importerDuration);
           logger.logImporterComplete(config.name, 0, 0, 1, importerDuration);
           logger.logImporterError(config.name, message);
           results.set(config.key, {
@@ -1193,15 +1320,21 @@ program
         }
       }
 
-      // Save final phase results
-      if (phaseImported > 0 || phaseSkipped > 0 || phaseErrors > 0) {
-        phases.push({
-          phase: currentPhase,
-          duration: Date.now() - phaseStart,
-          imported: phaseImported,
-          skipped: phaseSkipped,
-          errors: phaseErrors,
-        });
+      // Build per-importer summaries for final report
+      const summaries: PhaseSummary[] = [];
+      for (const config of ALL_IMPORTERS) {
+        const result = results.get(config.key);
+        if (!result) continue; // was skipped
+        const duration = importerTimings.get(config.key) ?? 0;
+        if (result.imported > 0 || result.skipped > 0 || result.errors.length > 0) {
+          summaries.push({
+            phase: config.name,
+            duration,
+            imported: result.imported,
+            skipped: result.skipped,
+            errors: result.errors.length,
+          });
+        }
       }
 
       // Calculate totals
@@ -1216,7 +1349,7 @@ program
       );
 
       // Log final summary (handles both console and file output)
-      logger.logFinalSummary(phases);
+      logger.logFinalSummary(summaries);
 
       // Cleanup
       logger.info('Disconnecting from databases...');
@@ -1286,7 +1419,7 @@ program
 program
   .command('image-sync')
   .description(
-    'Synchronize legacy images to new storage (ItemImages and PartnerImages with size=1)'
+    'Synchronize legacy images to new storage (images with size=1 placeholder across all image tables)'
   )
   .option('--copy', 'Copy files instead of symbolic links', false)
   .option('--clear-destination', 'Clear destination image folder before synchronization', false)
@@ -1317,20 +1450,27 @@ program
       const legacyImagesRoot =
         process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
 
-      // Get new images root from Laravel artisan command
-      console.log(chalk.cyan('Getting image storage path from Laravel...'));
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const execAsync = promisify(exec);
+      // Get new images root: prefer env var, fall back to artisan command
+      let newImagesRoot = process.env['NEW_IMAGES_ROOT']?.trim();
+      if (newImagesRoot) {
+        console.log(chalk.green(`✓ Image storage path (from NEW_IMAGES_ROOT): ${newImagesRoot}`));
+        logger.info(`Image storage path (from NEW_IMAGES_ROOT env): ${newImagesRoot}`);
+      } else {
+        console.log(chalk.cyan('NEW_IMAGES_ROOT not set, getting image storage path from Laravel...'));
+        logger.info('NEW_IMAGES_ROOT not set, falling back to php artisan storage:image-path');
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
 
-      const laravelRoot = resolve(process.cwd(), '../..');
-      const { stdout } = await execAsync('php artisan storage:image-path pictures', {
-        cwd: laravelRoot,
-      });
-      const newImagesRoot = stdout.trim();
+        const laravelRoot = resolve(process.cwd(), '../..');
+        const { stdout } = await execAsync('php artisan storage:image-path pictures', {
+          cwd: laravelRoot,
+        });
+        newImagesRoot = stdout.trim();
 
-      console.log(chalk.green(`✓ Image storage path: ${newImagesRoot}`));
-      logger.info(`Image storage path: ${newImagesRoot}`);
+        console.log(chalk.green(`✓ Image storage path (from artisan): ${newImagesRoot}`));
+        logger.info(`Image storage path (from artisan): ${newImagesRoot}`);
+      }
 
       // Connect to database
       console.log(chalk.cyan('Connecting to database...'));
@@ -1372,10 +1512,18 @@ program
         console.log(chalk.yellow(`⊘ ${result.skipped} images skipped`));
         console.log(chalk.red(`✗ ${result.errors.length} errors`));
         console.log('');
+        // Log all errors to file, show first 10 on console
+        for (const err of result.errors) {
+          logger.error('ImageSync', err);
+        }
         console.log(chalk.red('Errors:'));
         result.errors.slice(0, 10).forEach((err) => console.log(chalk.red(`  - ${err}`)));
         if (result.errors.length > 10) {
-          console.log(chalk.red(`  ... and ${result.errors.length - 10} more errors`));
+          console.log(
+            chalk.red(
+              `  ... and ${result.errors.length - 10} more (see log file for full list)`
+            )
+          );
         }
       }
       console.log(chalk.bold('='.repeat(80)));

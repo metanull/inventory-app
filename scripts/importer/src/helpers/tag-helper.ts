@@ -7,6 +7,7 @@
 
 import type { IWriteStrategy } from '../core/strategy.js';
 import type { ITracker } from '../core/tracker.js';
+import type { ILogger } from '../core/base-importer.js';
 import type { TagData } from '../core/types.js';
 import { formatBackwardCompatibility } from '../utils/backward-compatibility.js';
 import { stripHtml } from '../utils/html-to-markdown.js';
@@ -14,15 +15,19 @@ import { stripHtml } from '../utils/html-to-markdown.js';
 export class TagHelper {
   private strategy: IWriteStrategy;
   private tracker: ITracker;
+  private logger: ILogger;
 
-  constructor(strategy: IWriteStrategy, tracker: ITracker) {
+  constructor(strategy: IWriteStrategy, tracker: ITracker, logger: ILogger) {
     this.strategy = strategy;
     this.tracker = tracker;
+    this.logger = logger;
   }
 
   /**
    * Find or create a list of tags from a tag string
-   * Handles structured data and simple lists
+   * Handles structured data and simple lists.
+   *
+   * Splits on comma, semicolon, and their Arabic Unicode equivalents.
    */
   async findOrCreateList(
     tagString: string,
@@ -33,15 +38,10 @@ export class TagHelper {
       return [];
     }
 
-    // Check if structured data (contains colon)
-    const isStructured = tagString.includes(':');
-    const separator = isStructured ? null : tagString.includes(';') ? ';' : ',';
-    const tagNames = separator
-      ? tagString
-          .split(separator)
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [tagString.trim()];
+    const tagNames = tagString
+      .split(/[,;\u060C\u061B]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const tagIds: string[] = [];
     for (const tagName of tagNames) {
@@ -91,9 +91,18 @@ export class TagHelper {
 
     try {
       return await this.strategy.writeTag(tagData);
-    } catch {
-      // If creation fails (duplicate), try to find again
-      return await this.strategy.findByBackwardCompatibility('tags', backwardCompat);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warning(
+        `Tag write failed for '${cleanName}' (${category}/${languageId}): ${message}, retrying lookup`
+      );
+      const retryResult = await this.strategy.findByBackwardCompatibility('tags', backwardCompat);
+      if (!retryResult) {
+        this.logger.warning(
+          `Tag retry lookup also failed for '${cleanName}' (${category}/${languageId}) — entity lost`
+        );
+      }
+      return retryResult;
     }
   }
 

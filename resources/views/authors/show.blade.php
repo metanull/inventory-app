@@ -16,6 +16,10 @@
 
         <x-display.description-list>
             <x-display.field label="Name" :value="$author->name" />
+            <x-display.field label="First Name" :value="$author->firstname" />
+            <x-display.field label="Last Name" :value="$author->lastname" />
+            <x-display.field label="Given Name" :value="$author->givenname" />
+            <x-display.field label="Original Name" :value="$author->originalname" />
             <x-display.field label="Internal Name" :value="$author->internal_name" />
         </x-display.description-list>
 

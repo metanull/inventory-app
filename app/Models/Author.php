@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Author Model
@@ -20,6 +21,10 @@ class Author extends Model
      */
     protected $fillable = [
         'name',
+        'firstname',
+        'lastname',
+        'givenname',
+        'originalname',
         'internal_name',
         'backward_compatibility',
     ];
@@ -70,5 +75,13 @@ class Author extends Model
     public function setBackwardCompatibilityAttribute($value): void
     {
         $this->attributes['backward_compatibility'] = $value === '' ? null : $value;
+    }
+
+    /**
+     * Get the translations for this author.
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(AuthorTranslation::class);
     }
 }
