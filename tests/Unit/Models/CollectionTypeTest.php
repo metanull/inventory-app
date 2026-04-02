@@ -93,9 +93,11 @@ class CollectionTypeTest extends TestCase
             Collection::TYPE_EXHIBITION_TRAIL,
             Collection::TYPE_ITINERARY,
             Collection::TYPE_LOCATION,
+            Collection::TYPE_SUBTHEME,
+            Collection::TYPE_REGION,
         ];
 
-        $expected = ['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location'];
+        $expected = ['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location', 'subtheme', 'region'];
 
         $this->assertEquals($expected, $types);
     }
