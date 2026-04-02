@@ -371,6 +371,10 @@ DB_DATABASE=inventory
 
 # Legacy Images Root - for image synchronization
 LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
+
+# New Images Root - override target storage path (optional)
+# If not set, resolved via: php artisan storage:image-path pictures
+NEW_IMAGES_ROOT=C:\path\to\inventory-app\storage\app\pictures
 ```
 
 ### Required Environment Variables
@@ -388,6 +392,7 @@ LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
 | `DB_PASSWORD`        | Target database password        | (empty)                          |
 | `DB_DATABASE`        | Target database name            | `inventory`                      |
 | `LEGACY_IMAGES_ROOT` | Root directory of legacy images | `C:\mwnf-server\pictures\images` |
+| `NEW_IMAGES_ROOT`    | Target image storage directory (overrides artisan) | *(resolved via `php artisan storage:image-path`)* |
 
 ### Validating Database Connections
 

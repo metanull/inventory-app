@@ -1450,20 +1450,27 @@ program
       const legacyImagesRoot =
         process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
 
-      // Get new images root from Laravel artisan command
-      console.log(chalk.cyan('Getting image storage path from Laravel...'));
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const execAsync = promisify(exec);
+      // Get new images root: prefer env var, fall back to artisan command
+      let newImagesRoot = process.env['NEW_IMAGES_ROOT']?.trim();
+      if (newImagesRoot) {
+        console.log(chalk.green(`✓ Image storage path (from NEW_IMAGES_ROOT): ${newImagesRoot}`));
+        logger.info(`Image storage path (from NEW_IMAGES_ROOT env): ${newImagesRoot}`);
+      } else {
+        console.log(chalk.cyan('NEW_IMAGES_ROOT not set, getting image storage path from Laravel...'));
+        logger.info('NEW_IMAGES_ROOT not set, falling back to php artisan storage:image-path');
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
 
-      const laravelRoot = resolve(process.cwd(), '../..');
-      const { stdout } = await execAsync('php artisan storage:image-path pictures', {
-        cwd: laravelRoot,
-      });
-      const newImagesRoot = stdout.trim();
+        const laravelRoot = resolve(process.cwd(), '../..');
+        const { stdout } = await execAsync('php artisan storage:image-path pictures', {
+          cwd: laravelRoot,
+        });
+        newImagesRoot = stdout.trim();
 
-      console.log(chalk.green(`✓ Image storage path: ${newImagesRoot}`));
-      logger.info(`Image storage path: ${newImagesRoot}`);
+        console.log(chalk.green(`✓ Image storage path (from artisan): ${newImagesRoot}`));
+        logger.info(`Image storage path (from artisan): ${newImagesRoot}`);
+      }
 
       // Connect to database
       console.log(chalk.cyan('Connecting to database...'));
