@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TimelineEventImageResource;
 use App\Models\TimelineEventImage;
+use Illuminate\Http\Request;
 
 class TimelineEventImageController extends Controller
 {
@@ -18,7 +19,7 @@ class TimelineEventImageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(\Illuminate\Http\Request $request, TimelineEventImage $timelineEventImage)
+    public function update(Request $request, TimelineEventImage $timelineEventImage)
     {
         $validated = $request->validate([
             'alt_text' => ['nullable', 'string', 'max:255'],
