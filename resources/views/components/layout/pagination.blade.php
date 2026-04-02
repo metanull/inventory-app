@@ -46,6 +46,13 @@
         $url = url()->current().'?'.http_build_query($qs);
         echo '<meta http-equiv="refresh" content="0;url='.e($url).'" />';
     }
+
+    // Livewire sets paginator path via request()->path() which lacks a leading
+    // slash, producing relative URLs that the browser resolves incorrectly.
+    $paginatorPath = $paginator->path();
+    if ($paginatorPath && ! str_starts_with($paginatorPath, '/') && ! str_starts_with($paginatorPath, 'http')) {
+        $paginator->setPath('/' . $paginatorPath);
+    }
 @endphp
 
 @if ($paginator instanceof \Illuminate\Contracts\Pagination\Paginator || $paginator instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
