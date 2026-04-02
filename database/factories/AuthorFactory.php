@@ -23,7 +23,7 @@ class AuthorFactory extends Factory
             'lastname' => $this->faker->optional(0.7)->lastName(),
             'givenname' => $this->faker->optional(0.3)->firstName(),
             'originalname' => $this->faker->optional(0.3)->name(),
-            'internal_name' => $this->faker->optional(0.7)->firstName().' '.$this->faker->lastName(),
+            'internal_name' => trim($this->faker->optional(0.7)->firstName().' '.$this->faker->lastName()),
             'backward_compatibility' => $this->faker->optional(0.3)->uuid(),
         ];
     }
