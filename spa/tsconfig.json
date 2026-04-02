@@ -17,7 +17,6 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@metanull/inventory-app-api-client": ["./node_modules/@metanull/inventory-app-api-client/index.d.ts"]

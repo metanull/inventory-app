@@ -55,7 +55,7 @@
         "postcss": "^8.4.38",
         "prettier": "^3.4.2",
         "tailwindcss": "^4.1.16",
-        "typescript": "~5.9.3",
+        "typescript": "~6.0.2",
         "vite": "^8.0.3",
         "vitest": "^4.0.10",
         "vue-tsc": "^3.1.2"
@@ -67,6 +67,12 @@
     },
     "overrides": {
         "glob": "^11.1.0",
-        "flatted": "^3.4.2"
+        "flatted": "^3.4.2",
+        "@typescript-eslint/eslint-plugin": {
+            "typescript": "$typescript"
+        },
+        "@typescript-eslint/parser": {
+            "typescript": "$typescript"
+        }
     }
 }
