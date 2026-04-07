@@ -1,78 +1,78 @@
 {
-    "name": "inventory-app-spa",
-    "version": "6.0.9",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "build": "vue-tsc --noEmit && vite build",
-        "dev": "vite --host 127.0.0.1",
-        "preview": "vite preview",
-        "test": "vitest run --exclude='**/*.integration.test.ts' --reporter=dot",
-        "test:unit": "vitest run --exclude='**/*.integration.test.ts' --reporter=dot",
-        "test:unit:watch": "vitest --exclude='**/*.integration.test.ts'",
-        "test:integration": "vitest run --config vitest.integration.config.ts --reporter=dot",
-        "test:integration:watch": "vitest --config vitest.integration.config.ts",
-        "test:all": "vitest run --reporter=dot",
-        "test:coverage": "vitest run --coverage --exclude='**/*.integration.test.ts' --reporter=dot",
-        "test:watch": "vitest --exclude='**/*.integration.test.ts'",
-        "test:ui": "vitest --ui --exclude='**/*.integration.test.ts'",
-        "lint": "eslint . --fix",
-        "lint:check": "eslint .",
-        "format": "prettier --write src/ --log-level warn",
-        "format:check": "prettier --check src/",
-        "type-check": "vue-tsc --noEmit",
-        "quality-check": "npm run type-check && npm run lint:check && npm run format:check && npm run test"
+  "name": "inventory-app-spa",
+  "version": "6.0.9",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vue-tsc --noEmit && vite build",
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite preview",
+    "test": "vitest run --exclude='**/*.integration.test.ts' --reporter=dot",
+    "test:unit": "vitest run --exclude='**/*.integration.test.ts' --reporter=dot",
+    "test:unit:watch": "vitest --exclude='**/*.integration.test.ts'",
+    "test:integration": "vitest run --config vitest.integration.config.ts --reporter=dot",
+    "test:integration:watch": "vitest --config vitest.integration.config.ts",
+    "test:all": "vitest run --reporter=dot",
+    "test:coverage": "vitest run --coverage --exclude='**/*.integration.test.ts' --reporter=dot",
+    "test:watch": "vitest --exclude='**/*.integration.test.ts'",
+    "test:ui": "vitest --ui --exclude='**/*.integration.test.ts'",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write src/ --log-level warn",
+    "format:check": "prettier --check src/",
+    "type-check": "vue-tsc --noEmit",
+    "quality-check": "npm run type-check && npm run lint:check && npm run format:check && npm run test"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "@heroicons/vue": "^2.2.0",
+    "@metanull/inventory-app-api-client": "1.0.1-dev.1210.2216",
+    "@vueuse/core": "^14.0.0",
+    "axios": "^1.14.0",
+    "pinia": "^3.0.3",
+    "uuid": "^13.0.0",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@pinia/testing": "^1.0.2",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^25.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.3",
+    "@vitest/ui": "^4.0.10",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.9.1",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-vue": "^10.5.0",
+    "jsdom": "^29.0.2",
+    "postcss": "^8.4.38",
+    "prettier": "^3.4.2",
+    "tailwindcss": "^4.1.16",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.0.10",
+    "vue-tsc": "^3.1.2"
+  },
+  "packageManager": "npm@11.6.2",
+  "engines": {
+    "node": ">=24.11.0",
+    "npm": ">=11.6.2"
+  },
+  "overrides": {
+    "glob": "^11.1.0",
+    "flatted": "^3.4.2",
+    "@typescript-eslint/eslint-plugin": {
+      "typescript": "$typescript"
     },
-    "dependencies": {
-        "@headlessui/vue": "^1.7.23",
-        "@heroicons/vue": "^2.2.0",
-        "@metanull/inventory-app-api-client": "1.0.1-dev.1210.2216",
-        "@vueuse/core": "^14.0.0",
-        "axios": "^1.14.0",
-        "pinia": "^3.0.3",
-        "uuid": "^13.0.0",
-        "vue": "^3.5.32",
-        "vue-router": "^5.0.3"
-    },
-    "devDependencies": {
-        "@eslint/js": "^10.0.1",
-        "@pinia/testing": "^1.0.2",
-        "@tailwindcss/postcss": "^4.1.16",
-        "@types/node": "^25.5.2",
-        "@typescript-eslint/eslint-plugin": "^8.58.0",
-        "@typescript-eslint/parser": "^8.47.0",
-        "@vitejs/plugin-vue": "^6.0.1",
-        "@vitest/coverage-v8": "^4.1.3",
-        "@vitest/ui": "^4.0.10",
-        "@vue/test-utils": "^2.4.6",
-        "@vue/tsconfig": "^0.9.1",
-        "autoprefixer": "^10.4.19",
-        "eslint": "^10.0.2",
-        "eslint-config-prettier": "^10.1.5",
-        "eslint-plugin-prettier": "^5.2.1",
-        "eslint-plugin-vue": "^10.5.0",
-        "jsdom": "^29.0.2",
-        "postcss": "^8.4.38",
-        "prettier": "^3.4.2",
-        "tailwindcss": "^4.1.16",
-        "typescript": "~6.0.2",
-        "vite": "^8.0.3",
-        "vitest": "^4.0.10",
-        "vue-tsc": "^3.1.2"
-    },
-    "packageManager": "npm@11.6.2",
-    "engines": {
-        "node": ">=24.11.0",
-        "npm": ">=11.6.2"
-    },
-    "overrides": {
-        "glob": "^11.1.0",
-        "flatted": "^3.4.2",
-        "@typescript-eslint/eslint-plugin": {
-            "typescript": "$typescript"
-        },
-        "@typescript-eslint/parser": {
-            "typescript": "$typescript"
-        }
+    "@typescript-eslint/parser": {
+      "typescript": "$typescript"
     }
+  }
 }
