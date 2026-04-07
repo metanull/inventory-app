@@ -107,6 +107,8 @@ export function transformShMonument(
     parent_id: null,
     owner_reference: null,
     mwnf_reference: group.working_number || null,
+    start_date: group.start_date ? parseInt(group.start_date, 10) || null : null,
+    end_date: group.end_date ? parseInt(group.end_date, 10) || null : null,
   };
 
   return {
@@ -122,7 +124,8 @@ export function transformShMonument(
  * Description is built from description, description2, and history (at least one should be present)
  */
 export function transformShMonumentTranslation(
-  text: ShLegacyMonumentText
+  text: ShLegacyMonumentText,
+  pdCountry?: string | null
 ): TransformedShMonumentTranslation | null {
   const languageId = mapLanguageCode(text.lang);
 
@@ -157,9 +160,7 @@ export function transformShMonumentTranslation(
   if (text.date_description) {
     datesParts.push(convertHtmlToMarkdown(text.date_description));
   }
-  if (text.dynasty) {
-    datesParts.push(`Dynasty: ${convertHtmlToMarkdown(text.dynasty)}`);
-  }
+  // Dynasty no longer appended to dates — structured item_dynasty links are created by DynastyImporter
   const dates = datesParts.length > 0 ? datesParts.join('; ') : null;
 
   // Build holder info from institution
@@ -211,6 +212,7 @@ export function transformShMonumentTranslation(
   if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
   if (text.copyright) extra.copyright = text.copyright;
+  if (pdCountry) extra.country_id_present_days = mapCountryCode(pdCountry);
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 

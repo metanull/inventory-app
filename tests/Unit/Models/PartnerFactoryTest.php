@@ -24,7 +24,7 @@ class PartnerFactoryTest extends TestCase
         $this->assertInstanceOf(Partner::class, $partner);
         $this->assertNotEmpty($partner->id);
         $this->assertNotEmpty($partner->internal_name);
-        $this->assertContains($partner->type, ['museum', 'institution', 'individual']);
+        $this->assertContains($partner->type, ['museum', 'institution', 'individual', 'school']);
     }
 
     public function test_factory_states_produce_correct_types(): void

@@ -196,9 +196,28 @@ The importer is designed to run as part of a complete database initialization:
 
 1. **Wipe database** - Create or Empty the database schema (e.g. `artisan db:wipe; artisan migrate`)
 2. **Run the importer** - Import legacy data from mwnf3 database
-3. **Done** - Database is ready with both reference and legacy data
+3. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
+4. **Done** - Database is ready with both reference and legacy data
 
 All operations are logged to timestamped files in the `logs/` directory for later review.
+
+### Post-Import: Glossary Resync
+
+After the importer finishes, glossary-to-translation links must be rebuilt. The importer does **not** create these links — they are managed by the Laravel glossary sync system.
+
+```bash
+# From the inventory-app root directory:
+
+# 1. Queue glossary resync jobs (removes stale links first)
+php artisan glossary:resync --remove-existing --force
+
+# 2. Process the queued jobs
+php artisan queue:work --queue=glossary
+```
+
+The `glossary:resync` command scans all ItemTranslation, CollectionTranslation, and TimelineEventTranslation records for glossary spelling matches and creates pivot links. This is a **required post-import step** — without it, glossary terms will not be highlighted in translation content.
+
+> **Note:** The queue worker will process jobs until the queue is empty. For large imports, this may take several minutes. You can monitor progress in the Laravel log or run `queue:work --verbose`.
 
 ### Running the importer
 
@@ -352,6 +371,10 @@ DB_DATABASE=inventory
 
 # Legacy Images Root - for image synchronization
 LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
+
+# New Images Root - override target storage path (optional)
+# If not set, resolved via: php artisan storage:image-path pictures
+NEW_IMAGES_ROOT=C:\path\to\inventory-app\storage\app\pictures
 ```
 
 ### Required Environment Variables
@@ -369,6 +392,7 @@ LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
 | `DB_PASSWORD`        | Target database password        | (empty)                          |
 | `DB_DATABASE`        | Target database name            | `inventory`                      |
 | `LEGACY_IMAGES_ROOT` | Root directory of legacy images | `C:\mwnf-server\pictures\images` |
+| `NEW_IMAGES_ROOT`    | Target image storage directory (overrides artisan) | *(resolved via `php artisan storage:image-path`)* |
 
 ### Validating Database Connections
 
@@ -455,8 +479,6 @@ All legacy HTML content is converted to Markdown:
 ## Sample Collection
 
 **Note:** Sample collection for test fixtures is not currently implemented in this unified importer. The interface `ISampleCollector` exists in `core/base-importer.ts` but is not active.
-
-If you need to collect sample data for testing, use the legacy importer at `scripts/legacy-import/sql-import-v2.ts` which has full sample collection support via the `--collect-samples` flag.
 
 ## Extending with API Strategy
 

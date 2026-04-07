@@ -31,7 +31,7 @@ class CollectionFactory extends Factory
     {
         return [
             'internal_name' => $this->faker->unique()->slug(2),
-            'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location']),
+            'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location', 'subtheme', 'region']),
             'language_id' => Language::factory(),
             'context_id' => Context::factory(),
             'parent_id' => null,
@@ -169,6 +169,26 @@ class CollectionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'location',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'subtheme'.
+     */
+    public function subtheme(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'subtheme',
+        ]);
+    }
+
+    /**
+     * Create a collection of type 'region'.
+     */
+    public function region(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'region',
         ]);
     }
 

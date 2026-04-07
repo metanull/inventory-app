@@ -33,7 +33,7 @@ interface LegacyLocationTranslation {
 }
 
 export class TravelsLocationTranslationImporter extends BaseImporter {
-  private travelsContextId: string | null = null;
+  private travelsContextId!: string;
 
   getName(): string {
     return 'TravelsLocationTranslationImporter';
@@ -47,16 +47,17 @@ export class TravelsLocationTranslationImporter extends BaseImporter {
 
       // Get the Travels context ID
       const travelsContextBackwardCompat = 'mwnf3_travels:context';
-      this.travelsContextId = await this.getEntityUuidAsync(
+      const travelsContextId = await this.getEntityUuidAsync(
         travelsContextBackwardCompat,
         'context'
       );
 
-      if (!this.travelsContextId) {
+      if (!travelsContextId) {
         throw new Error(
           `Travels context not found (${travelsContextBackwardCompat}). Run TravelsContextImporter first.`
         );
       }
+      this.travelsContextId = travelsContextId;
 
       this.logInfo('Importing location translations...');
 
@@ -128,7 +129,7 @@ export class TravelsLocationTranslationImporter extends BaseImporter {
           await this.context.strategy.writeCollectionTranslation({
             collection_id: locationId,
             language_id: languageId,
-            context_id: this.travelsContextId!,
+            context_id: this.travelsContextId,
             backward_compatibility: translationBackwardCompat,
             title: legacy.title || '',
             description: null,

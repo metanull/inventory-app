@@ -7,16 +7,19 @@
 
 import type { IWriteStrategy } from '../core/strategy.js';
 import type { ITracker } from '../core/tracker.js';
+import type { ILogger } from '../core/base-importer.js';
 import type { ArtistData } from '../core/types.js';
 import { formatBackwardCompatibility } from '../utils/backward-compatibility.js';
 
 export class ArtistHelper {
   private strategy: IWriteStrategy;
   private tracker: ITracker;
+  private logger: ILogger;
 
-  constructor(strategy: IWriteStrategy, tracker: ITracker) {
+  constructor(strategy: IWriteStrategy, tracker: ITracker, logger: ILogger) {
     this.strategy = strategy;
     this.tracker = tracker;
+    this.logger = logger;
   }
 
   /**
@@ -67,9 +70,17 @@ export class ArtistHelper {
 
     try {
       return await this.strategy.writeArtist(artistData);
-    } catch {
-      // If creation fails (duplicate), try to find again
-      return await this.strategy.findByBackwardCompatibility('artists', backwardCompat);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warning(`Artist write failed for '${trimmedName}': ${message}, retrying lookup`);
+      const retryResult = await this.strategy.findByBackwardCompatibility(
+        'artists',
+        backwardCompat
+      );
+      if (!retryResult) {
+        this.logger.warning(`Artist retry lookup also failed for '${trimmedName}' — entity lost`);
+      }
+      return retryResult;
     }
   }
 

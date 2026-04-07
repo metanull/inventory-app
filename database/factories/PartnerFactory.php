@@ -24,7 +24,7 @@ class PartnerFactory extends Factory
             'id' => $this->faker->unique()->uuid(),
             'internal_name' => $this->faker->unique()->words(3, true),
             'backward_compatibility' => $this->faker->bothify('???_##'),
-            'type' => $this->faker->randomElement(['museum', 'institution', 'individual']),
+            'type' => $this->faker->randomElement(['museum', 'institution', 'individual', 'school']),
             'country_id' => null, // This should be set to a valid country ID if needed
             // GPS Location
             'latitude' => $this->faker->optional(0.7)->latitude(),
@@ -56,6 +56,13 @@ class PartnerFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'individual',
+        ]);
+    }
+
+    public function School(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => 'school',
         ]);
     }
 

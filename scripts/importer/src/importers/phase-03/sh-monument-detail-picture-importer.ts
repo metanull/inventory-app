@@ -150,7 +150,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
 
     // Check if already imported
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -231,9 +231,19 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, importing without project`
+      );
+    }
 
     // Use default context if SH context not found
-    const defaultContextId = this.getDefaultContextId();
+    const defaultContextId = await this.getDefaultContextIdAsync();
+    if (!contextId) {
+      this.logWarning(
+        `SH context not found: ${contextBackwardCompat} for detail picture ${group.picture_id}, using default context`
+      );
+    }
     const effectiveContextId = contextId || defaultContextId;
 
     // Build internal name
@@ -254,7 +264,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
       parent_id: parentItemId,
       collection_id: collectionId,
       partner_id: null,
-      project_id: projectId || null,
+      project_id: projectId,
       owner_reference: null,
       mwnf_reference: null,
       display_order: group.picture_id,

@@ -27,7 +27,7 @@ class UpdateCollectionRequest extends FormRequest
 
         return [
             'internal_name' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('collections', 'internal_name')->ignore($collection?->id)],
-            'type' => ['sometimes', 'required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location'],
+            'type' => ['sometimes', 'required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location,subtheme,region'],
             'language_id' => ['sometimes', 'required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['sometimes', 'required', 'string', 'exists:contexts,id'],
             'parent_id' => ['nullable', 'string', 'exists:collections,id'],

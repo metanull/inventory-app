@@ -37,6 +37,10 @@ class Collection extends Model
 
     public const TYPE_LOCATION = 'location';
 
+    public const TYPE_SUBTHEME = 'subtheme';
+
+    public const TYPE_REGION = 'region';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -154,6 +158,7 @@ class Collection extends Model
     public function attachedItems(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'collection_item')
+            ->withPivot('display_order', 'extra')
             ->withTimestamps();
     }
 
@@ -163,6 +168,22 @@ class Collection extends Model
     public function collectionImages(): HasMany
     {
         return $this->hasMany(CollectionImage::class);
+    }
+
+    /**
+     * Get all media (audio/video URLs) belonging to this collection.
+     */
+    public function collectionMedia(): HasMany
+    {
+        return $this->hasMany(CollectionMedia::class)->orderBy('type')->orderBy('display_order');
+    }
+
+    /**
+     * Get all contributors belonging to this collection.
+     */
+    public function contributors(): HasMany
+    {
+        return $this->hasMany(Contributor::class)->orderBy('display_order');
     }
 
     /**

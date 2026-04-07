@@ -51,8 +51,8 @@ export class ShMonumentDetailImporter extends BaseImporter {
       );
 
       // Get default language ID and context
-      const defaultLanguageId = this.getDefaultLanguageId();
-      const defaultContextId = this.getDefaultContextId();
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+      const defaultContextId = await this.getDefaultContextIdAsync();
 
       // Import each detail group
       for (const group of detailGroups) {
@@ -85,7 +85,12 @@ export class ShMonumentDetailImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query SH monument details: ${message}`);
@@ -100,7 +105,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
     group: ShMonumentDetailGroup,
     defaultLanguageId: string,
     defaultContextId: string,
-    _result: ImportResult
+    result: ImportResult
   ): Promise<boolean> {
     const transformed = transformShMonumentDetail(group, defaultLanguageId);
 
@@ -110,12 +115,12 @@ export class ShMonumentDetailImporter extends BaseImporter {
     }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
+    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
     // Resolve parent monument
-    const parentId = this.getEntityUuid(transformed.parentBackwardCompatibility, 'item');
+    const parentId = await this.getEntityUuidAsync(transformed.parentBackwardCompatibility, 'item');
     if (!parentId) {
       throw new Error(
         `Parent monument not found: ${transformed.parentBackwardCompatibility}. Detail ${transformed.backwardCompatibility} cannot be imported without its parent.`
@@ -151,16 +156,27 @@ export class ShMonumentDetailImporter extends BaseImporter {
 
     // Context (from SH project) - for translations
     const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context') || defaultContextId;
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    if (!contextId) {
+      this.logWarning(
+        `SH context not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, using default context`
+      );
+    }
+    const effectiveContextId = contextId || defaultContextId;
 
     // Collection (same backward_compat as context)
-    const collectionId = this.getEntityUuid(contextBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(contextBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`SH Collection not found for project ${group.project_id}`);
     }
 
     // Project
-    const projectId = this.getEntityUuid(contextBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`
+      );
+    }
 
     // Create Item (monument detail)
     const itemData: ItemData = {
@@ -168,7 +184,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
       parent_id: parentId,
       collection_id: collectionId,
       partner_id: null, // Details inherit partner from parent
-      project_id: projectId || null,
+      project_id: projectId,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);
@@ -187,14 +203,14 @@ export class ShMonumentDetailImporter extends BaseImporter {
         await this.context.strategy.writeItemTranslation({
           ...translationResult.data,
           item_id: itemId,
-          context_id: contextId,
+          context_id: effectiveContextId,
           backward_compatibility: transformed.backwardCompatibility,
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(
-          `Failed to create translation for SH monument detail ${transformed.backwardCompatibility}:${translation.lang}: ${message}`
-        );
+        const warning = `Failed to create translation for SH monument detail ${transformed.backwardCompatibility}:${translation.lang}: ${message}`;
+        this.logWarning(warning);
+        result.warnings!.push(warning);
       }
     }
 

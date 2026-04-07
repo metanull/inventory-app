@@ -25,7 +25,7 @@ import type {
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 export class ShPartnerImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
   private partnerMapping: Map<string, string> = new Map(); // sh_partners_id -> all_partners_id
 
   getName(): string {
@@ -37,7 +37,11 @@ export class ShPartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = this.getDefaultContextId();
+      const defaultContextId = await this.getDefaultContextIdAsync();
+      if (!defaultContextId) {
+        throw new Error('Default context not found. Run DefaultContextImporter first.');
+      }
+      this.defaultContextId = defaultContextId;
 
       // Load partner_sh_partners mapping
       this.logInfo('Loading partner_sh_partners mapping...');
@@ -61,7 +65,12 @@ export class ShPartnerImporter extends BaseImporter {
         result.warnings.push(...partnerResult.warnings);
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import SH partners: ${message}`);
@@ -97,7 +106,7 @@ export class ShPartnerImporter extends BaseImporter {
         const shBackwardCompat = transformed.backwardCompatibility;
 
         // Check if already exists (by SH backward compatibility)
-        if (this.entityExists(shBackwardCompat, 'partner')) {
+        if (await this.entityExistsAsync(shBackwardCompat, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -113,9 +122,9 @@ export class ShPartnerImporter extends BaseImporter {
           // The all_partners_id format is typically like "IT_01" which corresponds to museum/institution IDs
 
           // Try museum first (most common)
-          const museumBackwardCompat = this.findMwnf3PartnerBackwardCompat(allPartnersId);
+          const museumBackwardCompat = await this.findMwnf3PartnerBackwardCompat(allPartnersId);
           if (museumBackwardCompat) {
-            reusedPartnerId = this.getEntityUuid(museumBackwardCompat, 'partner');
+            reusedPartnerId = await this.getEntityUuidAsync(museumBackwardCompat, 'partner');
           }
         }
 
@@ -183,14 +192,14 @@ export class ShPartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
               backward_compatibility: shBackwardCompat,
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(
-              `Failed to create translation for SH partner ${group.partner.partners_id}:${translation.lang}: ${message}`
-            );
+            const warning = `Failed to create translation for SH partner ${group.partner.partners_id}:${translation.lang}: ${message}`;
+            this.logWarning(warning);
+            result.warnings!.push(warning);
           }
         }
 
@@ -215,7 +224,7 @@ export class ShPartnerImporter extends BaseImporter {
    * Try to find an existing mwnf3 partner by all_partners_id
    * Returns the backward_compatibility string if found, null otherwise
    */
-  private findMwnf3PartnerBackwardCompat(allPartnersId: string): string | null {
+  private async findMwnf3PartnerBackwardCompat(allPartnersId: string): Promise<string | null> {
     // The all_partners_id format is typically like "IT_01" or "IT_01_A"
     // This maps to museum_id or institution_id + country
 
@@ -229,7 +238,7 @@ export class ShPartnerImporter extends BaseImporter {
       pkValues: [allPartnersId, countryCode],
     });
 
-    if (this.entityExists(museumBackwardCompat, 'partner')) {
+    if (await this.entityExistsAsync(museumBackwardCompat, 'partner')) {
       return museumBackwardCompat;
     }
 
@@ -240,7 +249,7 @@ export class ShPartnerImporter extends BaseImporter {
       pkValues: [allPartnersId, countryCode],
     });
 
-    if (this.entityExists(institutionBackwardCompat, 'partner')) {
+    if (await this.entityExistsAsync(institutionBackwardCompat, 'partner')) {
       return institutionBackwardCompat;
     }
 

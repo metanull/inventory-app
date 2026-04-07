@@ -38,9 +38,21 @@ export class ObjectImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helpers
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker);
-    this.authorHelper = new AuthorHelper(this.context.strategy, this.context.tracker);
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker);
+    this.tagHelper = new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
+    this.authorHelper = new AuthorHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
+    this.artistHelper = new ArtistHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing objects...');
@@ -65,7 +77,7 @@ export class ObjectImporter extends BaseImporter {
         table: 'projects',
         pkValues: ['EPM'],
       });
-      const epmContextId = this.getEntityUuid(epmContextBackwardCompat, 'context');
+      const epmContextId = await this.getEntityUuidAsync(epmContextBackwardCompat, 'context');
       const hasEpmContext = !!epmContextId;
 
       // Import each object group
@@ -88,7 +100,12 @@ export class ObjectImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query objects: ${message}`);
@@ -105,7 +122,7 @@ export class ObjectImporter extends BaseImporter {
     epmContextId: string | null,
     result: ImportResult
   ): Promise<boolean> {
-    const defaultLanguageId = this.getDefaultLanguageId();
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
     const transformed = transformObject(group, defaultLanguageId);
 
     // Log warning if translation in default language is missing
@@ -114,7 +131,7 @@ export class ObjectImporter extends BaseImporter {
     }
 
     // Check if already imported
-    if (this.entityExists(transformed.backwardCompatibility, 'item')) {
+    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
       return false;
     }
 
@@ -148,7 +165,7 @@ export class ObjectImporter extends BaseImporter {
       table: 'projects',
       pkValues: [group.project_id],
     });
-    const contextId = this.getEntityUuid(contextBackwardCompat, 'context');
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
     if (!contextId) {
       throw new Error(
         `Project context not found: ${contextBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its project.`
@@ -157,7 +174,7 @@ export class ObjectImporter extends BaseImporter {
 
     // Use same backward_compatibility as context - tracker composite key handles uniqueness
     const collectionBackwardCompat = contextBackwardCompat;
-    const collectionId = this.getEntityUuid(collectionBackwardCompat, 'collection');
+    const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(
         `Collection not found: ${collectionBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its collection.`
@@ -169,7 +186,7 @@ export class ObjectImporter extends BaseImporter {
       table: 'museums',
       pkValues: [group.museum_id, group.country],
     });
-    const partnerId = this.getEntityUuid(partnerBackwardCompat, 'partner');
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(
         `Museum partner not found: ${partnerBackwardCompat}. Object ${transformed.backwardCompatibility} cannot be imported without its museum.`
@@ -178,14 +195,19 @@ export class ObjectImporter extends BaseImporter {
 
     // Use same backward_compatibility as context
     const projectBackwardCompat = contextBackwardCompat;
-    const projectId = this.getEntityUuid(projectBackwardCompat, 'project');
+    const projectId = await this.getEntityUuidAsync(projectBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${projectBackwardCompat} for ${transformed.backwardCompatibility}, importing without project`
+      );
+    }
 
     // Create Item
     const itemData = {
       ...transformed.data,
       collection_id: collectionId,
       partner_id: partnerId,
-      project_id: projectId || null,
+      project_id: projectId,
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);
@@ -234,54 +256,46 @@ export class ObjectImporter extends BaseImporter {
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        this.logWarning(`Failed to create translation: ${message}`);
+        const warning = `Failed to create translation: ${message}`;
+        this.logWarning(warning);
+        result.warnings!.push(warning);
       }
     }
 
-    // Create tags (from first translation only to avoid duplicates)
+    // Create tags from all translations (tags are language-scoped)
+    const allTagIds: string[] = [];
+    for (const translation of group.translations) {
+      const extractedTags = extractObjectTags(translation);
+
+      for (const material of extractedTags.materials) {
+        const tagId = await this.tagHelper.findOrCreate(
+          material,
+          'material',
+          extractedTags.languageId
+        );
+        if (tagId) allTagIds.push(tagId);
+      }
+
+      // Dynasty tags no longer extracted here — structured item_dynasty links
+      // are created by DynastyImporter from objects_dynasties/monuments_dynasties tables
+
+      for (const keyword of extractedTags.keywords) {
+        const tagId = await this.tagHelper.findOrCreate(
+          keyword,
+          'keyword',
+          extractedTags.languageId
+        );
+        if (tagId) allTagIds.push(tagId);
+      }
+    }
+
+    if (allTagIds.length > 0) {
+      await this.tagHelper.attachToItem(itemId, allTagIds);
+    }
+
+    // Create artists (from first translation — artist entity is not language-scoped)
     const firstTranslation = group.translations[0];
     if (firstTranslation) {
-      const extractedTags = extractObjectTags(firstTranslation);
-      const tagIds: string[] = [];
-
-      if (extractedTags.materials.length > 0) {
-        for (const material of extractedTags.materials) {
-          const tagId = await this.tagHelper.findOrCreate(
-            material,
-            'material',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
-      }
-
-      if (extractedTags.dynasties.length > 0) {
-        for (const dynasty of extractedTags.dynasties) {
-          const tagId = await this.tagHelper.findOrCreate(
-            dynasty,
-            'dynasty',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
-      }
-
-      if (extractedTags.keywords.length > 0) {
-        for (const keyword of extractedTags.keywords) {
-          const tagId = await this.tagHelper.findOrCreate(
-            keyword,
-            'keyword',
-            extractedTags.languageId
-          );
-          if (tagId) tagIds.push(tagId);
-        }
-      }
-
-      if (tagIds.length > 0) {
-        await this.tagHelper.attachToItem(itemId, tagIds);
-      }
-
-      // Create artists
       const extractedArtists = extractObjectArtists(firstTranslation);
       const artistIds: string[] = [];
 

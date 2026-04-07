@@ -27,6 +27,7 @@ import type {
   ItemTranslationData,
   TagData,
   AuthorData,
+  AuthorTranslationData,
   ArtistData,
   ItemImageData,
   PartnerImageData,
@@ -37,6 +38,20 @@ import type {
   GlossarySpellingData,
   ItemItemLinkData,
   ItemItemLinkTranslationData,
+  DynastyData,
+  DynastyTranslationData,
+  ItemDynastyData,
+  TimelineData,
+  TimelineEventData,
+  TimelineEventTranslationData,
+  TimelineEventItemData,
+  TimelineEventImageData,
+  ItemMediaData,
+  CollectionMediaData,
+  ItemDocumentData,
+  ContributorData,
+  ContributorTranslationData,
+  ContributorImageData,
 } from './types.js';
 
 /**
@@ -194,6 +209,20 @@ export interface IWriteStrategy {
     collectionType?: string
   ): Promise<void>;
 
+  /**
+   * Attach a single partner to a collection with a specific level
+   * @param collectionId The collection UUID
+   * @param partnerId The partner UUID
+   * @param collectionType The collection type (default: 'project')
+   * @param level The partner level (e.g., 'partner', 'associated_partner', 'minor_contributor')
+   */
+  attachPartnerToCollectionWithLevel(
+    collectionId: string,
+    partnerId: string,
+    collectionType: string,
+    level: string
+  ): Promise<void>;
+
   // =========================================================================
   // Supporting Entities
   // =========================================================================
@@ -209,6 +238,18 @@ export interface IWriteStrategy {
    * @returns The author UUID
    */
   writeAuthor(data: AuthorData): Promise<string>;
+
+  /**
+   * Find an author by exact name match.
+   * Used by AuthorHelper for free-text author references that have no legacy ID.
+   * @returns The author UUID or null if not found
+   */
+  findAuthorByName(name: string): Promise<string | null>;
+
+  /**
+   * Write an author translation record
+   */
+  writeAuthorTranslation(data: AuthorTranslationData): Promise<void>;
 
   /**
    * Write an artist record
@@ -277,6 +318,140 @@ export interface IWriteStrategy {
   writeItemItemLinkTranslation(data: ItemItemLinkTranslationData): Promise<void>;
 
   // =========================================================================
+  // Dynasties
+  // =========================================================================
+
+  /**
+   * Write a dynasty record
+   * @returns The dynasty UUID
+   */
+  writeDynasty(data: DynastyData): Promise<string>;
+
+  /**
+   * Write a dynasty translation record
+   */
+  writeDynastyTranslation(data: DynastyTranslationData): Promise<void>;
+
+  /**
+   * Link an item to a dynasty (many-to-many relationship)
+   */
+  writeItemDynasty(data: ItemDynastyData): Promise<void>;
+
+  // =========================================================================
+  // Timelines
+  // =========================================================================
+
+  /**
+   * Write a timeline record
+   * @returns The timeline UUID
+   */
+  writeTimeline(data: TimelineData): Promise<string>;
+
+  /**
+   * Write a timeline event record
+   * @returns The timeline event UUID
+   */
+  writeTimelineEvent(data: TimelineEventData): Promise<string>;
+
+  /**
+   * Write a timeline event translation record
+   */
+  writeTimelineEventTranslation(data: TimelineEventTranslationData): Promise<void>;
+
+  /**
+   * Link a timeline event to an item (many-to-many relationship)
+   */
+  writeTimelineEventItem(data: TimelineEventItemData): Promise<void>;
+
+  /**
+   * Write a timeline event image record
+   * @returns The timeline event image UUID
+   */
+  writeTimelineEventImage(data: TimelineEventImageData): Promise<string>;
+
+  /**
+   * Update a timeline's extra JSON field (merge)
+   * @param timelineId The timeline UUID
+   * @param extra The JSON string to set as extra
+   */
+  updateTimelineExtra(timelineId: string, extra: string): Promise<void>;
+
+  // =========================================================================
+  // Media & Documents
+  // =========================================================================
+
+  /**
+   * Write an item media record (audio/video URL)
+   * @returns The item media UUID
+   */
+  writeItemMedia(data: ItemMediaData): Promise<string>;
+
+  /**
+   * Write a collection media record (audio/video URL)
+   * @returns The collection media UUID
+   */
+  writeCollectionMedia(data: CollectionMediaData): Promise<string>;
+
+  /**
+   * Write an item document record (uploaded file)
+   * @returns The item document UUID
+   */
+  writeItemDocument(data: ItemDocumentData): Promise<string>;
+
+  // =========================================================================
+  // Contributors
+  // =========================================================================
+
+  /**
+   * Write a contributor record
+   * @returns The contributor UUID
+   */
+  writeContributor(data: ContributorData): Promise<string>;
+
+  /**
+   * Write a contributor translation record
+   */
+  writeContributorTranslation(data: ContributorTranslationData): Promise<void>;
+
+  /**
+   * Write a contributor image record
+   * @returns The contributor image UUID
+   */
+  writeContributorImage(data: ContributorImageData): Promise<string>;
+
+  // =========================================================================
+  // Author Assignment Updates
+  // =========================================================================
+
+  /**
+   * Set an author FK on an item_translations row.
+   * @param itemId The item UUID
+   * @param languageId The language ID
+   * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
+   * @param authorId The author UUID to set
+   */
+  updateItemTranslationAuthorFk(
+    itemId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void>;
+
+  /**
+   * Set an author FK on a dynasty_translations row.
+   * @param dynastyId The dynasty UUID
+   * @param languageId The language ID
+   * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
+   * @param authorId The author UUID to set
+   */
+  updateDynastyTranslationAuthorFk(
+    dynastyId: string,
+    languageId: string,
+    fkColumn: string,
+    authorId: string
+  ): Promise<void>;
+
+  // =========================================================================
   // Lookup Methods
   // =========================================================================
 
@@ -295,4 +470,77 @@ export interface IWriteStrategy {
    * @returns The entity ID or null
    */
   findByBackwardCompatibility(table: string, backwardCompatibility: string): Promise<string | null>;
+
+  // =========================================================================
+  // Extra JSON Read-Modify-Write (for bibliography injection, etc.)
+  // =========================================================================
+
+  /**
+   * Read the extra JSON from a collection_translations row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on a collection_translations row.
+   */
+  setCollectionTranslationExtra(
+    collectionId: string,
+    languageId: string,
+    extra: string
+  ): Promise<void>;
+
+  /**
+   * Read the extra JSON from an item_translations row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getItemTranslationExtra(
+    itemId: string,
+    languageId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on an item_translations row.
+   */
+  setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void>;
+
+  /**
+   * Attach tags to a collection image via collection_image_tag pivot.
+   */
+  attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void>;
+
+  /**
+   * Get all language_ids that have translations for a given collection.
+   */
+  getCollectionTranslationLanguages(collectionId: string): Promise<string[]>;
+
+  /**
+   * Get all language_ids that have translations for a given item.
+   */
+  getItemTranslationLanguages(itemId: string): Promise<string[]>;
+
+  // =========================================================================
+  // Update Methods (for post-processing / re-parenting)
+  // =========================================================================
+
+  /**
+   * Update a collection's parent_id (for re-parenting, e.g., locations under regions)
+   */
+  updateCollectionParentId(collectionId: string, parentId: string): Promise<void>;
+
+  /**
+   * Update an entity's backward_compatibility value.
+   * Used for dedup scenarios where a second BC needs to be appended (semicolon-delimited).
+   * @param table The table name (e.g., 'tags')
+   * @param id The entity UUID
+   * @param backwardCompatibility The new backward_compatibility value
+   */
+  updateBackwardCompatibility(
+    table: string,
+    id: string,
+    backwardCompatibility: string
+  ): Promise<void>;
 }

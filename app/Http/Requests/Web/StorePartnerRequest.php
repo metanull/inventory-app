@@ -15,7 +15,7 @@ class StorePartnerRequest extends FormRequest
     {
         return [
             'internal_name' => ['required', 'string'],
-            'type' => ['required', 'in:museum,institution,individual'],
+            'type' => ['required', 'in:museum,institution,individual,school'],
             'backward_compatibility' => ['nullable', 'string'],
             'country_id' => ['nullable', 'string', 'size:3', 'exists:countries,id'],
             // GPS Location

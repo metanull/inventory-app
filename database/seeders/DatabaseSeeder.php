@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             ImageUploadSeeder::class,
             AvailableImageSeeder::class,
             AuthorSeeder::class,
+            MapTagSeeder::class,
         ]);
     }
 }

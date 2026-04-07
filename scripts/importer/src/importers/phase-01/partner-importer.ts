@@ -37,7 +37,7 @@ export interface DeferredMonumentLink {
 }
 
 export class PartnerImporter extends BaseImporter {
-  private defaultContextId: string | null = null;
+  private defaultContextId!: string;
   /** Deferred monument links to be resolved after monuments are imported */
   private deferredMonumentLinks: DeferredMonumentLink[] = [];
 
@@ -57,7 +57,11 @@ export class PartnerImporter extends BaseImporter {
 
     try {
       // Get default context ID for partner translations
-      this.defaultContextId = this.getDefaultContextId();
+      const defaultContextId = await this.getDefaultContextIdAsync();
+      if (!defaultContextId) {
+        throw new Error('Default context not found. Run DefaultContextImporter first.');
+      }
+      this.defaultContextId = defaultContextId;
 
       // Import museums
       this.logInfo('Importing museums...');
@@ -79,7 +83,12 @@ export class PartnerImporter extends BaseImporter {
         result.warnings?.push(...institutionResult.warnings);
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to import partners: ${message}`);
@@ -113,7 +122,7 @@ export class PartnerImporter extends BaseImporter {
         const transformed = transformMuseum(group.museum);
 
         // Check if already exists
-        if (this.entityExists(transformed.backwardCompatibility, 'partner')) {
+        if (await this.entityExistsAsync(transformed.backwardCompatibility, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -175,13 +184,13 @@ export class PartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(
-              `Failed to create translation for museum ${group.key}:${translation.lang}: ${message}`
-            );
+            const warning = `Failed to create translation for museum ${group.key}:${translation.lang}: ${message}`;
+            this.logWarning(warning);
+            result.warnings!.push(warning);
           }
         }
 
@@ -223,7 +232,7 @@ export class PartnerImporter extends BaseImporter {
         const transformed = transformInstitution(group.institution);
 
         // Check if already exists
-        if (this.entityExists(transformed.backwardCompatibility, 'partner')) {
+        if (await this.entityExistsAsync(transformed.backwardCompatibility, 'partner')) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -267,13 +276,13 @@ export class PartnerImporter extends BaseImporter {
             await this.context.strategy.writePartnerTranslation({
               ...translationData.data,
               partner_id: partnerId,
-              context_id: this.defaultContextId!,
+              context_id: this.defaultContextId,
             });
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
-            this.logWarning(
-              `Failed to create translation for institution ${group.key}:${translation.lang}: ${message}`
-            );
+            const warning = `Failed to create translation for institution ${group.key}:${translation.lang}: ${message}`;
+            this.logWarning(warning);
+            result.warnings!.push(warning);
           }
         }
 

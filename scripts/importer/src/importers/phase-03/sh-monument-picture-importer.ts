@@ -146,7 +146,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
 
     // Check if already imported
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -231,6 +231,11 @@ export class ShMonumentPictureImporter extends BaseImporter {
     }
 
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for monument picture ${group.image_number}, importing without project`
+      );
+    }
 
     // Build internal name
     const internalName = group.translations[0]?.caption
@@ -252,7 +257,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
       parent_id: parentItemId,
       collection_id: collectionId,
       partner_id: null,
-      project_id: projectId || null,
+      project_id: projectId,
       owner_reference: null,
       mwnf_reference: null,
       display_order: group.image_number,

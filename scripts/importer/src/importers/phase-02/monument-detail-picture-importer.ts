@@ -49,7 +49,11 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(this.context.strategy, this.context.tracker);
+    this.artistHelper = new ArtistHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing monument detail pictures...');
@@ -89,7 +93,12 @@ export class MonumentDetailPictureImporter extends BaseImporter {
         }
       }
 
-      this.showSummary(result.imported, result.skipped, result.errors.length);
+      this.showSummary(
+        result.imported,
+        result.skipped,
+        result.errors.length,
+        result.warnings?.length
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.errors.push(`Failed to query monument detail pictures: ${message}`);
@@ -145,7 +154,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
     // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 
@@ -253,6 +262,11 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
     // Get project_id using same backward_compatibility as context
     const projectId = await this.getEntityUuidAsync(contextBackwardCompat, 'project');
+    if (!projectId) {
+      this.logWarning(
+        `Project not found: ${contextBackwardCompat} for detail picture ${group.project_id}:${group.institution_id}:${group.monument_id}:${group.detail_id}:${group.picture_id}, importing without project`
+      );
+    }
 
     // Map country code from legacy 2-char to ISO 3-char
     const countryId = mapCountryCode(group.country_id);
@@ -268,7 +282,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       partner_id: partnerId,
       parent_id: parentItemId,
       country_id: countryId,
-      project_id: projectId || null,
+      project_id: projectId,
       owner_reference: null,
       mwnf_reference: null,
       display_order: group.picture_id,
@@ -297,6 +311,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
           ],
         });
         this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings!.push(`Failed to create translation ${translationBC}: ${message}`);
       }
     }
 

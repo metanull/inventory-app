@@ -28,6 +28,7 @@ class PartnerImage extends Model
         'size',
         'alt_text',
         'display_order',
+        'extra',
     ];
 
     /**
@@ -38,6 +39,7 @@ class PartnerImage extends Model
     protected $casts = [
         'size' => 'integer',
         'display_order' => 'integer',
+        'extra' => 'array',
     ];
 
     /**

@@ -173,6 +173,58 @@ export interface LegacyInstitutionName {
 }
 
 // ============================================================================
+// School Types
+// ============================================================================
+
+export interface LegacySchool {
+  school_id: string;
+  country: string;
+  name: string;
+  city?: string;
+  address?: string;
+  postal_address?: string;
+  phone?: string;
+  fax?: string;
+  email?: string;
+  url?: string;
+  // Contact person 1
+  cp1_name?: string;
+  cp1_title?: string;
+  cp1_phone?: string;
+  cp1_fax?: string;
+  cp1_email?: string;
+  // Contact person 2
+  cp2_name?: string;
+  cp2_title?: string;
+  cp2_phone?: string;
+  cp2_fax?: string;
+  cp2_email?: string;
+  // Other
+  project_id: string;
+  region_id?: string;
+  // Logo
+  logo?: string;
+}
+
+export interface LegacySchoolName {
+  school_id: string;
+  country: string;
+  lang: string;
+  name: string;
+  description?: string;
+}
+
+export interface LegacySchoolPicture {
+  school_id: string;
+  country: string;
+  image_number: number;
+  path: string;
+  caption?: string;
+  photographer?: string;
+  copyright?: string;
+}
+
+// ============================================================================
 // Object Types
 // ============================================================================
 
@@ -221,6 +273,8 @@ export interface LegacyObject {
   copyright?: string;
   binding_desc?: string;
   linkcatalogs?: string | null;
+  catalogue_holding_link?: string | null;
+  scriber?: string | null;
 }
 
 export interface ObjectGroup {
@@ -261,8 +315,9 @@ export interface LegacyMonument {
   translationby?: string;
   translationcopyeditedby?: string;
   linkcatalogs?: string | null;
-  external_sources?: string | null;
-  // Contact fields
+  external_sources?: string | null; // Date fields
+  start_date?: string | null;
+  end_date?: string | null; // Contact fields
   address?: string | null;
   phone?: string | null;
   fax?: string | null;
@@ -374,4 +429,474 @@ export interface LegacyInstitutionPicture {
   caption?: string;
   photographer?: string;
   copyright?: string;
+}
+
+// ============================================================================
+// Dynasty Types
+// ============================================================================
+
+export interface LegacyDynasty {
+  dynasty_id: number;
+  from_ah?: number | null;
+  to_ah?: number | null;
+  from_ad?: number | null;
+  to_ad?: number | null;
+}
+
+export interface LegacyDynastyText {
+  dynasty_id: number;
+  lang_id: string;
+  name?: string | null;
+  name2?: string | null;
+  area?: string | null;
+  history?: string | null;
+  datedesc_ah?: string | null;
+  datedesc_ad?: string | null;
+}
+
+export interface LegacyObjectDynasty {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  dynasty_id: number;
+}
+
+export interface LegacyMonumentDynasty {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  dynasty_id: number;
+}
+
+// ============================================================================
+// Author Types
+// ============================================================================
+
+export interface LegacyAuthor {
+  author_id: number;
+  lastname?: string | null;
+  givenname?: string | null;
+  firstname?: string | null;
+  originalname?: string | null;
+}
+
+export interface LegacyAuthorCv {
+  author_id: number;
+  project_id: string;
+  lang_id: string;
+  curriculum?: string | null;
+}
+
+export interface LegacyShAuthorCv {
+  author_id: number;
+  project_id: string;
+  lang: string;
+  curriculum?: string | null;
+}
+
+export interface LegacyAllAuthorMapping {
+  author_id: number;
+  all_author_id: number;
+}
+
+export interface LegacyAuthorObject {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyAuthorMonument {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyShAuthorObject {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyShAuthorMonument {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+export interface LegacyAuthorDynasty {
+  dynasty_id: number;
+  author_id: number;
+  type: string;
+  lang: string;
+  priority?: number | null;
+}
+
+// ============================================================================
+// HCR (Heritage Conservation Resources) Types — mwnf3
+// ============================================================================
+
+export interface LegacyHcr {
+  hcr_id: number;
+  country_id: string; // 2-char legacy country code
+  name: string;
+  from_ad: number;
+  to_ad: number;
+  from_ah: number | null;
+  to_ah: number | null;
+}
+
+export interface LegacyHcrEvent {
+  hcr_id: number;
+  lang_id: string; // 2-char legacy language code
+  name: string;
+  description: string | null;
+  datedesc_ah: string | null;
+  datedesc_ad: string | null;
+}
+
+// ============================================================================
+// Audio/Video Types — mwnf3
+// ============================================================================
+
+/**
+ * mwnf3.objects_video (21 rows) / mwnf3.monuments_video (1 row)
+ * PK: (lang, number, museum_id, country, project_id, video_id)
+ */
+export interface LegacyObjectVideo {
+  video_id: number;
+  project_id: string;
+  country: string; // 2-char
+  museum_id: string;
+  number: number;
+  lang: string; // 2-char
+  video_title: string;
+  video_description: string | null;
+  video_url: string;
+}
+
+/**
+ * mwnf3_sharing_history.sh_objects_video_audio (2 rows)
+ * PK: id (auto-increment)
+ */
+export interface ShLegacyObjectVideoAudio {
+  id: number;
+  project_id: string;
+  country: string; // 2-char
+  number: number;
+  type: 'video' | 'audio';
+  path: string; // YouTube video ID or full URL
+  title: string;
+}
+
+// ============================================================================
+// Document Types — Sharing History
+// ============================================================================
+
+/**
+ * mwnf3_sharing_history.sh_objects_document (23 rows)
+ * UNIQUE: (project_id, country, number, lang, img_count)
+ */
+export interface ShLegacyObjectDocument {
+  project_id: string;
+  country: string; // 2-char
+  number: number;
+  lang: string; // 2-char
+  path: string; // server-relative path to PDF
+  type: 'pdf';
+  img_count: number; // page/sequence counter
+}
+
+// ============================================================================
+// THG Audio/Video Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * exhibition_audio (5 rows) / exhibition_video (12 rows)
+ * PK: (audio_id/video_id, gallery_id, lang)
+ */
+export interface ThgLegacyExhibitionMedia {
+  media_id: number; // audio_id or video_id in the raw table
+  gallery_id: number;
+  lang: string; // 2-char
+  title: string;
+  description: string;
+  url: string;
+}
+
+/**
+ * theme_audio (2 rows) / theme_video (16 rows)
+ * Junction: assigns exhibition-level media to themes
+ */
+export interface ThgLegacyThemeMedia {
+  media_id: number; // audio_id or video_id
+  gallery_id: number;
+  theme_id: number;
+  overview_page: 'Y' | 'N';
+  sort_order: number;
+}
+
+// ============================================================================
+// THG Contributor Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * contributor (9 rows) — per-gallery/theme contributor records
+ * PK: contributor_id
+ */
+export interface ThgLegacyContributor {
+  contributor_id: number;
+  gallery_id: number;
+  theme_id: number;
+  category_id: string;
+  context: string; // display name
+  src: string; // logo image path
+  href: string; // link URL
+  alt: string; // alt text
+  display_order: number;
+}
+
+/**
+ * contributor_category (4 rows) — category labels
+ * PK: category_id
+ */
+export interface ThgLegacyContributorCategory {
+  category_id: string;
+  label: string; // e.g. 'In cooperation with', 'On the occasion of', 'Main contributors', 'With the support of'
+}
+
+/**
+ * contributor_i18n (8 rows) — translations of contributor display name
+ * PK: (contributor_id, lang)
+ */
+export interface ThgLegacyContributorI18n {
+  contributor_id: number;
+  lang: string; // 2-char
+  context: string; // translated display name
+}
+
+/**
+ * exhibition_partner (4 rows) — per-gallery partner acknowledgements
+ * PK: partner_id
+ */
+export interface ThgLegacyExhibitionPartner {
+  partner_id: number;
+  gallery_id: number;
+  category_id: number;
+  entity_name: string;
+  entity_location: string;
+  entity_country: string; // 2-char
+  contact_title?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  contact_fax?: string;
+  logo: string; // logo image path
+  display_order: number;
+  visible: string; // enum 'Y'/'N'
+}
+
+/**
+ * exhibition_partner_i18n (4 rows) — translations
+ * PK: (partner_id, lang)
+ */
+export interface ThgLegacyExhibitionPartnerI18n {
+  partner_id: number;
+  lang: string; // 2-char
+  description: string;
+  further_reading: string;
+}
+
+// ============================================================================
+// THG Tag Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * thg_tag_types (category labels) — PK: type_id (varchar 20)
+ * Values: material, artist, dynasty, subject, type
+ */
+export interface ThgLegacyTagType {
+  type_id: string;
+  description: string | null;
+}
+
+/**
+ * thg_tags (2,629 rows) — curated gallery tags
+ * PK: tag_id (varchar 20 — the tag name itself)
+ * FK: type_id → thg_tag_types
+ */
+export interface ThgLegacyTag {
+  tag_id: string;
+  type_id: string;
+  description: string | null;
+}
+
+/**
+ * thg_objects_mwnf3_tags (20,406 rows) — links THG tags to mwnf3 objects
+ * PK: (tag_id, objects_project_id, objects_country, objects_museum_id, objects_number)
+ */
+export interface ThgLegacyObjectMwnf3Tag {
+  tag_id: string;
+  objects_project_id: string;
+  objects_country: string;
+  objects_museum_id: string;
+  objects_number: number;
+}
+
+/**
+ * thg_objects_sh_tags (7,137 rows) — links THG tags to SH objects
+ * PK: (tag_id, sh_objects_project_id, sh_objects_country, sh_objects_number)
+ */
+export interface ThgLegacyObjectShTag {
+  tag_id: string;
+  sh_objects_project_id: string;
+  sh_objects_country: string;
+  sh_objects_number: number;
+}
+
+// ============================================================================
+// mwnf3 Exhibition Types (Legacy Exhibition / Artintro System)
+// ============================================================================
+
+/**
+ * exhibitions (27 rows) — Root exhibition records
+ */
+export interface Mwnf3LegacyExhibition {
+  exhibition_id: number;
+  project_id: string;
+  name: string;
+  n: number | null;
+  show: 'y' | 'n';
+  portal_image: string | null;
+  exh_link: string | null;
+}
+
+/**
+ * exhibition_themes (~171 rows) — Themes within exhibitions
+ */
+export interface Mwnf3LegacyExhibitionTheme {
+  theme_id: number;
+  exhibition_id: number;
+  name: string;
+  n: number | null;
+}
+
+/**
+ * exhibition_pages (200+ rows) — Pages within themes
+ */
+export interface Mwnf3LegacyExhibitionPage {
+  page_id: number;
+  theme_id: number;
+  n: number | null;
+  remark: string | null;
+}
+
+/**
+ * EAV field row — shared pattern for exhibition_fields, exhibition_theme_fields,
+ * exhibition_page_fields, exhibition_page_images_fields, exhibition_page_image_details_fields,
+ * artintro_fields, artintro_theme_fields, artintro_page_fields
+ */
+export interface Mwnf3LegacyEavField {
+  entity_id: number;
+  lang_id: string; // 2-char
+  field: string;
+  value: string;
+}
+
+/**
+ * exhibition_page_images (2,394 rows) — Images on pages, may reference items
+ */
+export interface Mwnf3LegacyExhibitionPageImage {
+  image_id: number;
+  page_id: number;
+  n: number;
+  n2: number;
+  ref_item: string; // 'O;ISL;jo;1;8' or empty for custom images
+  picture: string;
+}
+
+/**
+ * exhibition_page_image_details (281 rows) — Detail annotations on page images
+ */
+export interface Mwnf3LegacyExhibitionPageImageDetail {
+  detail_id: number;
+  image_id: number;
+  n: number;
+  n2: number;
+  ref_detail_item: string; // same format as ref_item
+  picture_details: string;
+}
+
+/**
+ * exhibition_images (94 rows) — Exhibition-level images (banners)
+ */
+export interface Mwnf3LegacyExhibitionLevelImage {
+  image_id: number;
+  exhibition_id: number;
+  n: number;
+  n2: number;
+  ref_item: string;
+  picture: string;
+}
+
+/**
+ * artintros (1 row) — Art introduction root
+ */
+export interface Mwnf3LegacyArtintro {
+  artintro_id: number;
+  project_id: string;
+  name: string;
+}
+
+/**
+ * artintro_themes (10 rows) — Artintro themes
+ */
+export interface Mwnf3LegacyArtintroTheme {
+  theme_id: number;
+  artintro_id: number;
+  name: string;
+  n: number | null;
+}
+
+/**
+ * artintro_pages (19 rows) — Artintro pages
+ */
+export interface Mwnf3LegacyArtintroPage {
+  page_id: number;
+  theme_id: number;
+  n: number | null;
+  remark: string | null;
+}
+
+/**
+ * artintro_page_images (158 rows) — all item references (no custom)
+ */
+export interface Mwnf3LegacyArtintroPageImage {
+  image_id: number;
+  page_id: number;
+  n: number;
+  n2: number;
+  ref_item: string;
+  picture: string;
 }

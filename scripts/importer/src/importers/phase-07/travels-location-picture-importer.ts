@@ -147,7 +147,7 @@ export class TravelsLocationPictureImporter extends BaseImporter {
 
     // Check if already imported using path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (this.entityExists(imageKey, 'image')) {
+    if (await this.entityExistsAsync(imageKey, 'image')) {
       return false;
     }
 

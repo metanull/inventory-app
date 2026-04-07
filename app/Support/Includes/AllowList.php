@@ -19,8 +19,9 @@ class AllowList
             'item' => [
                 'partner', 'country', 'project', 'collection',
                 'parent', 'children', 'itemImages',
-                'artists', 'workshops', 'tags', 'translations',
+                'artists', 'workshops', 'tags', 'dynasties', 'translations',
                 'attachedToCollections', 'outgoingLinks', 'incomingLinks',
+                'itemMedia', 'itemDocuments',
             ],
             'itemImage' => [
                 'item',
@@ -36,6 +37,7 @@ class AllowList
             ],
             'collection' => [
                 'language', 'context', 'translations', 'partners', 'items', 'attachedItems', 'collectionImages',
+                'collectionMedia', 'contributors',
             ],
             'collectionImage' => [
                 'collection',
@@ -95,8 +97,47 @@ class AllowList
             'available_image' => [
                 // AvailableImage model has no relationships
             ],
-            'itemImage' => [
-                'item',
+            'dynasty' => [
+                'translations', 'items',
+            ],
+            'dynasty_translation' => [
+                'dynasty', 'language', 'author', 'textCopyEditor', 'translator', 'translationCopyEditor',
+            ],
+            'author' => [
+                'translations',
+            ],
+            'author_translation' => [
+                'author', 'language', 'context',
+            ],
+            'timeline' => [
+                'country', 'collection', 'events',
+            ],
+            'timeline_event' => [
+                'timeline', 'translations', 'images', 'items',
+            ],
+            'timeline_event_translation' => [
+                'timelineEvent', 'language',
+            ],
+            'timeline_event_image' => [
+                'timelineEvent',
+            ],
+            'item_media' => [
+                'item', 'language',
+            ],
+            'collection_media' => [
+                'collection', 'language',
+            ],
+            'item_document' => [
+                'item', 'language',
+            ],
+            'contributor' => [
+                'collection', 'translations', 'contributorImages',
+            ],
+            'contributor_translation' => [
+                'contributor', 'language', 'context',
+            ],
+            'contributor_image' => [
+                'contributor',
             ],
             default => [],
         };

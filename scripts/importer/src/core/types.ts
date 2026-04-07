@@ -56,12 +56,23 @@ export type EntityType =
   | 'image'
   | 'tag'
   | 'author'
+  | 'author_translation'
   | 'artist'
+  | 'dynasty'
+  | 'dynasty_translation'
+  | 'timeline'
+  | 'timeline_event'
+  | 'timeline_event_translation'
   | 'glossary'
   | 'glossary_translation'
   | 'glossary_spelling'
   | 'item_item_link'
-  | 'item_item_link_translation';
+  | 'item_item_link_translation'
+  | 'item_media'
+  | 'collection_media'
+  | 'item_document'
+  | 'contributor'
+  | 'contributor_translation';
 
 /**
  * Imported entity record for tracking
@@ -88,8 +99,9 @@ export interface BaseEntityData {
 /**
  * Language data for write operations
  */
-export interface LanguageData extends BaseEntityData {
+export interface LanguageData extends Omit<BaseEntityData, 'backward_compatibility'> {
   id: string; // ISO 639-3 code
+  backward_compatibility: string | null;
   is_default?: boolean;
 }
 
@@ -106,8 +118,9 @@ export interface LanguageTranslationData {
 /**
  * Country data for write operations
  */
-export interface CountryData extends BaseEntityData {
+export interface CountryData extends Omit<BaseEntityData, 'backward_compatibility'> {
   id: string; // ISO 3166-1 alpha-3 code
+  backward_compatibility: string | null;
 }
 
 /**
@@ -165,6 +178,7 @@ export interface CollectionTranslationData {
   title: string;
   description?: string | null;
   quote?: string | null;
+  extra?: string | null;
 }
 
 /**
@@ -193,7 +207,7 @@ export interface ProjectTranslationData {
  * Partner data for write operations
  */
 export interface PartnerData extends BaseEntityData {
-  type: 'museum' | 'institution';
+  type: 'museum' | 'institution' | 'school';
   latitude?: number | null;
   longitude?: number | null;
   map_zoom?: number | null;
@@ -234,6 +248,8 @@ export interface ItemData extends BaseEntityData {
   owner_reference?: string | null;
   mwnf_reference?: string | null;
   display_order?: number | null;
+  start_date?: number | null;
+  end_date?: number | null;
   // GPS Location (optional, primarily for monuments)
   latitude?: number | null;
   longitude?: number | null;
@@ -248,6 +264,7 @@ export interface CollectionItemData {
   item_id: string;
   backward_compatibility?: string | null;
   display_order?: number | null;
+  extra?: Record<string, unknown> | null;
 }
 
 /**
@@ -295,6 +312,22 @@ export interface TagData extends BaseEntityData {
  */
 export interface AuthorData extends BaseEntityData {
   name: string;
+  firstname?: string | null;
+  lastname?: string | null;
+  givenname?: string | null;
+  originalname?: string | null;
+}
+
+/**
+ * Author translation data for write operations
+ */
+export interface AuthorTranslationData {
+  author_id: string;
+  language_id: string;
+  context_id: string;
+  curriculum?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
 }
 
 /**
@@ -335,6 +368,7 @@ export interface PartnerImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+  extra?: string | null;
 }
 
 /**
@@ -408,4 +442,216 @@ export interface ItemItemLinkTranslationData {
   description?: string | null;
   reciprocal_description?: string | null;
   backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Dynasty Types
+// ============================================================================
+
+/**
+ * Dynasty data for write operations
+ */
+export interface DynastyData {
+  backward_compatibility: string;
+  from_ah?: number | null;
+  to_ah?: number | null;
+  from_ad?: number | null;
+  to_ad?: number | null;
+}
+
+/**
+ * Dynasty translation data for write operations
+ */
+export interface DynastyTranslationData {
+  dynasty_id: string;
+  language_id: string;
+  name?: string | null;
+  also_known_as?: string | null;
+  area?: string | null;
+  history?: string | null;
+  date_description_ah?: string | null;
+  date_description_ad?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Item-Dynasty link data for pivot table (many-to-many)
+ */
+export interface ItemDynastyData {
+  item_id: string;
+  dynasty_id: string;
+}
+
+// ============================================================================
+// Timeline Types
+// ============================================================================
+
+/**
+ * Timeline data for write operations
+ */
+export interface TimelineData {
+  internal_name: string;
+  country_id: string;
+  collection_id?: string | null;
+  backward_compatibility: string;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event data for write operations
+ */
+export interface TimelineEventData {
+  timeline_id: string;
+  internal_name: string;
+  year_from: number;
+  year_to: number;
+  year_from_ah?: number | null;
+  year_to_ah?: number | null;
+  date_from?: string | null;
+  date_to?: string | null;
+  display_order: number;
+  backward_compatibility: string;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event translation data for write operations
+ */
+export interface TimelineEventTranslationData {
+  timeline_event_id: string;
+  language_id: string;
+  name?: string | null;
+  description?: string | null;
+  date_from_description?: string | null;
+  date_to_description?: string | null;
+  date_from_ah_description?: string | null;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event ↔ item pivot data
+ */
+export interface TimelineEventItemData {
+  timeline_event_id: string;
+  item_id: string;
+  display_order: number;
+  backward_compatibility?: string | null;
+  extra?: string | null;
+}
+
+/**
+ * Timeline event image data for write operations
+ */
+export interface TimelineEventImageData {
+  id?: string;
+  timeline_event_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
+}
+
+// ============================================================================
+// Media Types (Audio/Video — external URLs)
+// ============================================================================
+
+/**
+ * Item media data for write operations (audio/video URLs)
+ */
+export interface ItemMediaData {
+  item_id: string;
+  language_id?: string | null;
+  type: 'audio' | 'video';
+  title: string;
+  description?: string | null;
+  url: string;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+/**
+ * Collection media data for write operations (audio/video URLs)
+ */
+export interface CollectionMediaData {
+  collection_id: string;
+  language_id?: string | null;
+  type: 'audio' | 'video';
+  title: string;
+  description?: string | null;
+  url: string;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Document Types (uploaded files)
+// ============================================================================
+
+/**
+ * Item document data for write operations (uploaded files — PDFs, etc.)
+ */
+export interface ItemDocumentData {
+  item_id: string;
+  language_id?: string | null;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  title?: string | null;
+  display_order: number;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+// ============================================================================
+// Contributor Types
+// ============================================================================
+
+/**
+ * Contributor data for write operations
+ */
+export interface ContributorData {
+  id?: string;
+  collection_id: string;
+  category: string;
+  display_order: number;
+  visible: boolean;
+  backward_compatibility?: string | null;
+  internal_name: string;
+}
+
+/**
+ * Contributor translation data for write operations
+ */
+export interface ContributorTranslationData {
+  id?: string;
+  contributor_id: string;
+  language_id: string;
+  context_id: string;
+  name?: string | null;
+  description?: string | null;
+  link?: string | null;
+  alt_text?: string | null;
+  extra?: string | null;
+  backward_compatibility?: string | null;
+}
+
+/**
+ * Contributor image data for write operations
+ */
+export interface ContributorImageData {
+  id?: string;
+  contributor_id: string;
+  path: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  alt_text?: string | null;
+  display_order: number;
 }

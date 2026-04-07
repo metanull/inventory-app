@@ -98,6 +98,10 @@ export class FileLogger implements ILogger {
     this.writeToFile(`[WARN] [${this.name}] ${message}${detailsStr}`);
   }
 
+  skip(message: string): void {
+    this.writeToFile(`[SKIP] [${this.name}] ${message}`);
+  }
+
   /**
    * Log an error - for expected/handled errors (data issues, constraint violations)
    * No stack trace is written.
@@ -155,11 +159,16 @@ export class FileLogger implements ILogger {
   }
 
   /**
-   * Log start of an importer
+   * Log start of an importer with a visible section header
    */
   logImporterStart(importerName: string): void {
+    const line = `\n${'─'.repeat(80)}\n${importerName}\n${'─'.repeat(80)}`;
+    appendFile(this.logFilePath, line + '\n').catch((err) => {
+      console.error(`Failed to write importer header to log: ${err}`);
+    });
     const message = `Starting ${importerName}...`;
     this.writeToFile(message);
+    console.log(chalk.bold.cyan(`\n📦 ${importerName}`));
   }
 
   /**

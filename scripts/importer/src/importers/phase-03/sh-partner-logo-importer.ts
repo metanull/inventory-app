@@ -73,7 +73,7 @@ export class ShPartnerLogoImporter extends BaseImporter {
           );
 
           // Find Partner UUID
-          const partnerId = this.getEntityUuid(shBackwardCompat, 'partner');
+          const partnerId = await this.getEntityUuidAsync(shBackwardCompat, 'partner');
           if (!partnerId) {
             this.logWarning(`Partner not found for SH partner ${partner.partners_id}`);
             result.skipped++;
@@ -153,7 +153,7 @@ export class ShPartnerLogoImporter extends BaseImporter {
     const logoKey = `logo:${logoPath.toLowerCase()}`;
 
     // Check if already imported
-    if (this.entityExists(logoKey, 'image')) {
+    if (await this.entityExistsAsync(logoKey, 'image')) {
       return false;
     }
 
