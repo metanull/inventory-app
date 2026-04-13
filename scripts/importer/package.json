@@ -21,11 +21,11 @@
   "dependencies": {
     "@types/turndown": "^5.0.6",
     "axios": "^1.15.0",
-    "better-sqlite3": "^12.4.6",
+    "better-sqlite3": "^12.9.0",
     "chalk": "^5.4.1",
     "commander": "^14.0.2",
-    "dotenv": "^17.2.3",
-    "mysql2": "^3.11.6",
+    "dotenv": "^17.4.2",
+    "mysql2": "^3.22.0",
     "turndown": "^7.2.2",
     "uuid": "^13.0.0"
   },
