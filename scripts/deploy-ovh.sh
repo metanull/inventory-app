@@ -68,12 +68,21 @@ deploy_release() {
     info "Extracting release to ${RELEASE_DIR}..."
     tar xzf "$ARCHIVE" -C "$RELEASE_DIR"
 
+    if [[ ! -f "${RELEASE_DIR}/.env.example" ]]; then
+        error ".env.example was not found at release root. Build artifact format is invalid."
+    fi
+
     # Symlink shared storage into the release
     rm -rf "${RELEASE_DIR}/storage"
     ln -sfn "${APP_DIR}/shared/storage" "${RELEASE_DIR}/storage"
 
     # Ensure bootstrap/cache exists
     mkdir -p "${RELEASE_DIR}/bootstrap/cache"
+
+    # If provisioning created CURRENT as a real directory, replace it.
+    if [[ -d "${CURRENT}" && ! -L "${CURRENT}" ]]; then
+        rm -rf "${CURRENT}"
+    fi
 
     # Swap the current symlink atomically
     ln -sfn "$RELEASE_DIR" "${CURRENT}"

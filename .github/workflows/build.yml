@@ -250,7 +250,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload deployment artifact (OVH)
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v8
       with:
         name: release-${{ github.sha }}
         path: ${{ env.PACKAGE_TGZ }}
