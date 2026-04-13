@@ -1,0 +1,232 @@
+name: Build and Test
+
+permissions:
+  contents: read
+  packages: read
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
+
+concurrency:
+  group: ci-build-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  detect-changes:
+    name: Detect Changed Paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.detect.outputs.backend }}
+      root-frontend: ${{ steps.detect.outputs.root-frontend }}
+      spa: ${{ steps.detect.outputs.spa }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed paths
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+            echo "root-frontend=true" >> $GITHUB_OUTPUT
+            echo "spa=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          BASE="${{ github.event.pull_request.base.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" HEAD)
+
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -qE '^(app|routes|config|database|tests|bootstrap)/|^(composer\.json|composer\.lock|phpunit\.xml|artisan)$'; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=false" >> $GITHUB_OUTPUT
+          fi
+
+          if echo "$CHANGED" | grep -qE '^(resources/css|resources/js|resources/views)/|^(vite\.config\.js|tailwind\.config\.js|postcss\.config\.js|package\.json|package-lock\.json|tsconfig\.json|eslint\.config\.js)$'; then
+            echo "root-frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "root-frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+          if echo "$CHANGED" | grep -qE '^spa/'; then
+            echo "spa=true" >> $GITHUB_OUTPUT
+          else
+            echo "spa=false" >> $GITHUB_OUTPUT
+          fi
+
+  backend-lint:
+    name: Backend Linting and Validation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Setup > Image > Install php"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          tools: pint
+
+      - name: "Check > Composer > Check requirements"
+        run: |
+          composer check-platform-reqs
+
+      - name: "Setup > Composer > Install Dependencies"
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: "Setup > Laravel > Create .env file from example"
+        run: |
+          cp .env.local.example .env
+          rm -rf bootstrap/cache/*.php || true
+
+      - name: "Setup > Laravel > Generate application key"
+        run: |
+          php artisan key:generate
+
+      - name: "Setup > Laravel > Create database"
+        run: |
+          php artisan migrate --force
+
+      - name: "Check > Laravel > Linting"
+        run: |
+          ./vendor/bin/pint --bail
+
+  backend-tests:
+    name: Backend Tests (${{ matrix.suite }})
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+
+    env:
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+
+    strategy:
+      fail-fast: true
+      matrix:
+        suite:
+          - Unit
+          - Api
+          - Web
+          - Configuration
+          - Console
+          - Event
+          - Integration
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Setup > Image > Install php"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          coverage: xdebug
+          tools: phpunit, pest
+
+      - name: "Setup > Composer > Install Dependencies"
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: "Setup > Laravel > Create .env file from example"
+        run: |
+          cp .env.local.example .env
+          rm -rf bootstrap/cache/*.php || true
+
+      - name: "Setup > Laravel > Generate application key"
+        run: |
+          php artisan key:generate
+
+      - name: "Setup > Laravel > Create database"
+        run: |
+          php artisan migrate --force
+
+      - name: "Check > Laravel > Run ${{ matrix.suite }} Tests"
+        run: |
+          php artisan test --testsuite=${{ matrix.suite }} --coverage --parallel --no-ansi --stop-on-failure
+
+  backend-rendered-frontend-validation:
+    name: Backend Rendered Frontend Validation (Blade/Tailwind)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.root-frontend == 'true'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Setup > Image > Install Node.js"
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/Krypton"
+          registry-url: https://npm.pkg.github.com/
+
+      - name: "Setup > node > Enable Corepack"
+        run: |
+          corepack enable
+
+      - name: "Setup > npm > Install Dependencies"
+        run: |
+          npm ci --no-audit --no-fund
+
+      - name: "Check > npm > Build Backend Assets"
+        run: |
+          npm run build
+
+  spa-frontend-validation:
+    name: Frontend Validation - SPA (Vue 3)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.spa == 'true'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Setup > Image > Install Node.js"
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/Krypton"
+          registry-url: https://npm.pkg.github.com/
+
+      - name: "Setup > node > Enable Corepack"
+        run: |
+          corepack enable
+
+      - name: "Setup > npm > Install Dependencies (SPA)"
+        working-directory: spa
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci --no-audit --no-fund
+
+      - name: "Check > npm > Linting (SPA)"
+        working-directory: spa
+        run: |
+          npm run lint
+
+      - name: "Check > npm > Build (SPA)"
+        working-directory: spa
+        run: |
+          npm run build
+
+      - name: "Check > npm > Run Tests (SPA)"
+        working-directory: spa
+        run: |
+          npm run test:all

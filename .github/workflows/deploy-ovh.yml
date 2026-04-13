@@ -64,18 +64,18 @@ jobs:
       - name: Download deployment artifact
         uses: actions/download-artifact@v7
         with:
-          name: deployment-${{ steps.source.outputs.head_sha }}
+          name: release-${{ steps.source.outputs.head_sha }}
           run-id: ${{ steps.source.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify artifact
         run: |
-          if [[ ! -f inventory-app.zip ]]; then
-            echo "::error::inventory-app.zip not found in downloaded artifact"
+          if [[ ! -f release.tar.gz ]]; then
+            echo "::error::release.tar.gz not found in downloaded artifact"
             ls -la
             exit 1
           fi
-          echo "Artifact size: $(du -h inventory-app.zip | cut -f1)"
+          echo "Artifact size: $(du -h release.tar.gz | cut -f1)"
 
       - name: Setup SSH
         run: |
@@ -104,7 +104,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
           scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
-            inventory-app.zip "${VPS_USER}@${VPS_HOST}:/tmp/inventory-release.zip"
+            release.tar.gz "${VPS_USER}@${VPS_HOST}:/tmp/inventory-release.tar.gz"
 
       - name: Upload deploy script to VPS
         env:
@@ -120,7 +120,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
           ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 "${VPS_USER}@${VPS_HOST}" \
-            'bash /tmp/inventory-deploy-ovh.sh /tmp/inventory-release.zip'
+            'bash /tmp/inventory-deploy-ovh.sh /tmp/inventory-release.tar.gz'
 
       - name: Cleanup
         if: always()
@@ -130,4 +130,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
             "${VPS_USER}@${VPS_HOST}" \
-            'rm -f /tmp/inventory-release.zip /tmp/inventory-deploy-ovh.sh' || true
+            'rm -f /tmp/inventory-release.tar.gz /tmp/inventory-deploy-ovh.sh' || true

@@ -3,7 +3,7 @@
 # deploy-ovh.sh — Deploy a pre-built inventory-app release to the OVH VPS
 #
 # Usage (run as 'deploy' user):
-#   bash deploy-ovh.sh /tmp/inventory-release.zip
+#   bash deploy-ovh.sh /tmp/inventory-release.tar.gz
 #
 # The archive is built by CI (build.yml) and contains the full application
 # with production vendor/ and compiled public/build/ assets.
@@ -29,7 +29,7 @@ PHP_VERSION="8.4"
 
 # --- Arguments ---------------------------------------------------------------
 ARCHIVE="${1:-}"
-[[ -z "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Usage: deploy-ovh.sh <archive.zip>"; exit 1; }
+[[ -z "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Usage: deploy-ovh.sh <archive.tar.gz>"; exit 1; }
 [[ ! -f "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Archive not found: ${ARCHIVE}"; exit 1; }
 
 # --- Colors -------------------------------------------------------------------
@@ -50,8 +50,8 @@ preflight() {
     # Verify PHP is available
     command -v php &>/dev/null || error "PHP not found. Run provision-inventory.sh first (as root)."
 
-    # Verify unzip is available
-    command -v unzip &>/dev/null || error "unzip not found. Install with: apt install unzip"
+    # Verify tar is available
+    command -v tar &>/dev/null || error "tar not found."
 
     # Verify app directory is writable
     [[ -w "$APP_DIR" ]] || error "${APP_DIR} is not writable. Run provision-inventory.sh first."
@@ -66,7 +66,7 @@ deploy_release() {
     mkdir -p "$RELEASE_DIR"
 
     info "Extracting release to ${RELEASE_DIR}..."
-    unzip -q "$ARCHIVE" -d "$RELEASE_DIR"
+    tar xzf "$ARCHIVE" -C "$RELEASE_DIR"
 
     # Symlink shared storage into the release
     rm -rf "${RELEASE_DIR}/storage"

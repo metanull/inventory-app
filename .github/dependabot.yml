@@ -48,6 +48,19 @@ updates:
     registries:
       - npm-github
 
+  - package-ecosystem: "npm"
+    directory: "/scripts/importer"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      importer-dev-dependencies:
+        dependency-type: "development"
+      importer-prod-dependencies:
+        dependency-type: "production"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

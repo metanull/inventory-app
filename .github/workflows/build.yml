@@ -199,13 +199,18 @@ jobs:
         echo "  :white_check_mark: VERSION copied to public/version.json"
         echo "::endgroup::"
         
-        echo "::group::Creating deployment archive"
+        echo "::group::Creating deployment archives"
         archivePath="${{ runner.temp }}/inventory-app.zip"
         cd "$deployDir"
         zip -r "$archivePath" .
-        cd -
-        echo "  :white_check_mark: Archive created at $archivePath"
+        echo "  :white_check_mark: ZIP archive created at $archivePath"
         echo "PACKAGE_ZIP=$archivePath" >> $GITHUB_ENV
+
+        tarballPath="${{ runner.temp }}/release.tar.gz"
+        tar czf "$tarballPath" .
+        echo "  :white_check_mark: Tarball created at $tarballPath"
+        echo "PACKAGE_TGZ=$tarballPath" >> $GITHUB_ENV
+        cd -
         echo "::endgroup::"
       shell: bash
 
@@ -217,7 +222,7 @@ jobs:
       shell: bash
 
     - name: Create Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ env.RELEASE_TAG }}
         name: Release ${{ env.RELEASE_TAG }}
@@ -244,11 +249,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload deployment artifact
+    - name: Upload deployment artifact (OVH)
       uses: actions/upload-artifact@v7
       with:
-        name: deployment-${{ github.sha }}
-        path: ${{ env.PACKAGE_ZIP }}
+        name: release-${{ github.sha }}
+        path: ${{ env.PACKAGE_TGZ }}
         retention-days: 7
 
     - name: Done
