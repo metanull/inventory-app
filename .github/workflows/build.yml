@@ -244,6 +244,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Upload deployment artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: deployment-${{ github.sha }}
+        path: ${{ env.PACKAGE_ZIP }}
+        retention-days: 7
+
     - name: Done
       run: |
         echo ":white_check_mark: Release created: ${{ env.RELEASE_TAG }}"

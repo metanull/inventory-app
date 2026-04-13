@@ -1,0 +1,133 @@
+name: Deploy to OVH
+
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches: [main]
+
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Build workflow run ID to deploy (leave empty for latest)'
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-ovh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    name: Deploy to OVH VPS
+    runs-on: ubuntu-24.04
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: inventory.metanull.eu
+      url: https://inventory.metanull.eu
+
+    steps:
+      - name: Checkout code (for deploy script)
+        uses: actions/checkout@v6
+
+      - name: Determine artifact source
+        id: source
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ -n "${{ inputs.run_id }}" ]]; then
+              RUN_ID="${{ inputs.run_id }}"
+            else
+              # Find the latest successful Build run on main
+              RUN_ID=$(gh run list --workflow=build.yml --branch=main --status=success --limit=1 --json databaseId --jq '.[0].databaseId')
+              if [[ -z "$RUN_ID" ]]; then
+                echo "::error::No successful Build run found on main"
+                exit 1
+              fi
+            fi
+            echo "run_id=${RUN_ID}" >> "$GITHUB_OUTPUT"
+            # Get the head SHA from that run
+            HEAD_SHA=$(gh run view "${RUN_ID}" --json headSha --jq '.headSha')
+            echo "head_sha=${HEAD_SHA}" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_id=${{ github.event.workflow_run.id }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: deployment-${{ steps.source.outputs.head_sha }}
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify artifact
+        run: |
+          if [[ ! -f inventory-app.zip ]]; then
+            echo "::error::inventory-app.zip not found in downloaded artifact"
+            ls -la
+            exit 1
+          fi
+          echo "Artifact size: $(du -h inventory-app.zip | cut -f1)"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Check VPS connectivity
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          nc -z -w 10 "$VPS_HOST" 22 || { echo "::error::Cannot reach ${VPS_HOST}:22 — check VPS_HOST and firewall"; exit 1; }
+
+      - name: Verify SSH authentication
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" whoami || \
+            { echo "::error::SSH auth failed — check VPS_SSH_KEY and VPS_SSH_USER secrets"; exit 1; }
+
+      - name: Upload release to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
+            inventory-app.zip "${VPS_USER}@${VPS_HOST}:/tmp/inventory-release.zip"
+
+      - name: Upload deploy script to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
+            scripts/deploy-ovh.sh "${VPS_USER}@${VPS_HOST}:/tmp/inventory-deploy-ovh.sh"
+
+      - name: Run deploy script on VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 "${VPS_USER}@${VPS_HOST}" \
+            'bash /tmp/inventory-deploy-ovh.sh /tmp/inventory-release.zip'
+
+      - name: Cleanup
+        if: always()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
+            "${VPS_USER}@${VPS_HOST}" \
+            'rm -f /tmp/inventory-release.zip /tmp/inventory-deploy-ovh.sh' || true
