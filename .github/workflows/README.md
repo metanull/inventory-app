@@ -8,7 +8,8 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
   - [Table of contents](#table-of-contents)
   - [Notes](#notes)
   - [Continuous Integration and Testing](#continuous-integration-and-testing)
-    - [Continuous Integration](#continuous-integration)
+    - [Mandatory Checks](#mandatory-checks)
+    - [Build and Test](#build-and-test)
   - [Continuous Deployment](#continuous-deployment)
     - [Deploy Laravel Application](#deploy-laravel-application)
     - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
@@ -30,9 +31,9 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 
 ## Continuous Integration and Testing
 
-### Continuous Integration
+### Mandatory Checks
 
-Validates code quality, runs tests, and ensures the application builds correctly before merging changes.
+Runs mandatory dependency audits on every pull request. Provides the `CI Success` status check required by branch protection rules.
 
 **Workflow properties**
 
@@ -41,52 +42,115 @@ Validates code quality, runs tests, and ensures the application builds correctly
 | **Workflow** | `continuous-integration.yml` |
 | **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
 | **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `windows-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `ci-${{ github.ref }}`, cancel-in-progress: `true` |
+| **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| **Concurrency** | Group: `ci-mandatory-${{ github.ref }}`, cancel-in-progress: `true` |
 
 **Jobs**
 
-1. **backend-validation** - Validates PHP/Laravel backend
-   - Installs PHP 8.2+ with extensions (fileinfo, zip, sqlite3, pdo_sqlite, gd, exif)
-   - Validates `composer.json` and checks platform requirements
-   - Installs dependencies with `composer install`
-   - Audits dependencies for security vulnerabilities
-   - Creates `.env` file from `.env.local.example`
-   - Runs database migrations (up and rollback tests)
-   - Lints code with Laravel Pint
-   - Runs test suites: CI/CD, Unit, and Feature tests with coverage
+1. **audit-composer** - Audits PHP/Composer dependencies
+   - Installs PHP 8.4 with extensions
+   - Validates `composer.json` with strict checks
+   - Installs Composer dependencies
+   - Runs `composer audit --format=summary`
 
-2. **frontend-validation** - Validates Node.js/Vue frontend
-   - Installs Node.js lts\Krypton (24.x)
-   - Installs npm dependencies with `npm ci`
-   - Audits npm packages for vulnerabilities
-   - Builds frontend assets with `npm run build`
-   - Lints code with `npm run lint`
-   - Runs all tests with `npm run test:all`
+2. **audit-npm-root** - Audits root npm dependencies
+   - Installs Node.js lts/Krypton (24.x)
+   - Installs root npm dependencies
+   - Runs `npm audit --audit-level moderate`
 
-3. **ci-success** - Aggregates results
-   - Checks that both backend and frontend validation jobs succeeded
-   - Fails the workflow if either validation job failed
+3. **audit-npm-importer** - Audits `scripts/importer` npm dependencies
+   - Installs Node.js lts/Krypton (24.x)
+   - Installs importer npm dependencies from `scripts/importer/`
+   - Runs `npm audit --audit-level moderate`
+
+4. **audit-npm-spa** - Audits SPA npm dependencies
+   - Installs Node.js lts/Krypton (24.x)
+   - Installs SPA npm dependencies (authenticated with `GITHUB_TOKEN` for GitHub Packages)
+   - Runs `npm audit --audit-level moderate`
+
+5. **ci-success** - Aggregates audit results
+   - Requires all 4 audit jobs to succeed
+   - Fails the workflow if any audit job failed or was skipped
+   - This job name satisfies the `CI Success` branch protection required check
 
 **Permissions**
 
-- `contents: write` - For potential version bumps
-- `pull-requests: write` - For PR comments and labels
-- `packages: read` - For accessing GitHub Packages
+- `contents: read` - For reading repository contents
+- `packages: read` - For accessing GitHub Packages (SPA dependencies)
+
+**Branch protection**
+
+The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. All 4 audits must pass before a PR can be merged.
 
 **Usage**
 
-This workflow runs automatically on pull requests. For manual testing:
+This workflow runs automatically on pull requests. For manual triggering:
 
-```powershell
-# Trigger via GitHub UI: Actions > Continuous Integration > Run workflow
+```
+Actions > Mandatory Checks > Run workflow
 ```
 
-**Links**
+---
 
-| Reference | URL |
+### Build and Test
+
+Runs build and test jobs conditionally based on which paths changed in the pull request. Jobs are skipped when no relevant files were modified. This workflow does not provide a required status check.
+
+**Workflow properties**
+
+| Property | Value |
 | --- | --- |
-| GitHub Actions workflow_dispatch | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch) |
+| **Workflow** | `ci-build-test.yml` |
+| **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
+| **Manual trigger** | Yes (`workflow_dispatch`) — all jobs run when triggered manually |
+| **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| **Concurrency** | Group: `ci-build-test-${{ github.ref }}`, cancel-in-progress: `true` |
+
+**Path groups and triggered jobs**
+
+| Changed paths | Jobs triggered |
+| --- | --- |
+| `app/**`, `routes/**`, `config/**`, `database/**`, `tests/**`, `bootstrap/**`, `composer.json`, `composer.lock`, `phpunit.xml`, `artisan` | `backend-lint`, `backend-tests` |
+| `resources/css/**`, `resources/js/**`, `resources/views/**`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.js` | `backend-rendered-frontend-validation` |
+| `spa/**` | `spa-frontend-validation` |
+
+**Jobs**
+
+1. **detect-changes** - Classifies changed files using `git diff` against the PR base SHA
+   - Emits outputs: `backend`, `root-frontend`, `spa` (true/false)
+   - All outputs are `true` when triggered by `workflow_dispatch`
+
+2. **backend-lint** *(when `backend=true`)* - Laravel backend linting
+   - Installs PHP 8.4 with extensions and Pint
+   - Installs Composer dependencies
+   - Creates `.env` from `.env.local.example`, migrates database
+   - Runs `./vendor/bin/pint --bail`
+
+3. **backend-tests** *(when `backend=true`)* - Laravel test matrix
+   - Matrix: `Unit`, `Api`, `Web`, `Configuration`, `Console`, `Event`, `Integration`
+   - `fail-fast: true` — stops remaining suites on first failure
+   - Runs each suite with `--coverage --parallel --stop-on-failure`
+
+4. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* - Blade/Tailwind build
+   - Installs Node.js lts/Krypton and root npm dependencies
+   - Runs `npm run build`
+
+5. **spa-frontend-validation** *(when `spa=true`)* - SPA (Vue 3) validation
+   - Installs Node.js lts/Krypton and SPA npm dependencies
+   - Runs lint, build, and `npm run test:all`
+
+**Permissions**
+
+- `contents: read` - For reading repository contents
+- `packages: read` - For accessing GitHub Packages (SPA dependencies)
+
+**Usage**
+
+This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files. For manual triggering (all jobs run):
+
+```
+Actions > Build and Test > Run workflow
+```
 
 ---
 
@@ -477,11 +541,11 @@ Several workflows interact with scripts and other workflows:
 
 | Workflow | Depends On | Triggers |
 | --- | --- | --- |
-| `continuous-integration.yml` | - | `version-bump.yml` |
-| `continuous-deployment.yml` | - | - |
+| `continuous-integration.yml` | - | - |
+| `ci-build-test.yml` | - | - |
+| `build.yml` | - | `deploy-ovh.yml` |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
-| `publish-npm-github-package.yml` | API client generation | - |
-| `version-bump.yml` | `continuous-integration.yml` | - |
+| `publish-api-client.yml` | API client generation | - |
 | `merge-dependabot-pr.yml` | - | - |
 
 **Scripts used by workflows:**

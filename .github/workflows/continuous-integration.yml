@@ -1,9 +1,8 @@
-name: Checks and Tests
+name: Mandatory Checks
 
 permissions:
-  contents: write  # Need write permissions for version bump
-  pull-requests: write
-  packages: read   # Need read permissions for GitHub Packages
+  contents: read
+  packages: read
 
 on:
   pull_request:
@@ -11,21 +10,16 @@ on:
     types: [opened, synchronize, reopened]
 
   workflow_dispatch:
-    # Allow manual triggering
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-mandatory-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  
-  backend-lint:
-    name: Backend Linting and Validation
+
+  audit-composer:
+    name: Audit - Composer (PHP)
     runs-on: ubuntu-latest
-    
-    env:
-      DB_CONNECTION: sqlite
-      DB_DATABASE: ':memory:'
 
     steps:
       - uses: actions/checkout@v6
@@ -33,13 +27,8 @@ jobs:
       - name: "Setup > Image > Install php"
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'  # If not specified, setup-php will use the version defined in composer.lock
+          php-version: '8.4'
           extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-          tools: pint
-
-      - name: "Check > Composer > Check requirements"
-        run: |
-          composer check-platform-reqs
 
       - name: "Check > Composer > Validate composer.json"
         run: |
@@ -49,112 +38,12 @@ jobs:
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
-      - name: "Setup > Composer > Check Vulnerabilities"
+      - name: "Check > Composer > Audit Vulnerabilities"
         run: |
           composer audit --format=summary
 
-      - name: "Setup > Laravel > Create .env file from example"
-        run: |
-          if [ ! -f ".env.local.example" ]; then
-            echo "::error::No .env.local.example file found!"
-            exit 1
-          fi
-          if [ ! -f ".env" ]; then
-            echo "Creating .env file from .env.local.example"
-            cp .env.local.example .env
-          else
-            echo ".env file already exists, skipping creation"
-          fi
-          echo "Removing cached files"
-          rm -rf bootstrap/cache/*.php || true
-          
-          echo "::group::Debug Environment"
-          echo "=== DB_CONNECTION environment variable:"
-          echo "DB_CONNECTION=${DB_CONNECTION:-NOT SET}"
-          echo "=== All DB_* environment variables:"
-          env | grep "^DB_" || echo "No DB_* environment variables found"
-          echo "=== From .env file:"
-          grep "^DB_CONNECTION=" .env || echo "DB_CONNECTION not in .env"
-          echo "::endgroup::"
-
-      - name: "Setup > Laravel > Generate application key"
-        run: |
-          php artisan key:generate
-
-      - name: "Setup > Laravel > Create database"
-        run: |
-          echo "::group::Create the database and run migrations"
-          php artisan migrate --force
-          echo "::endgroup::"
-
-      - name: "Check > Laravel > Linting"
-        run: |
-          ./vendor/bin/pint --bail
-
-  backend-tests:
-    name: Backend Tests (${{ matrix.suite }})
-    runs-on: ubuntu-latest
-    
-    env:
-      DB_CONNECTION: sqlite
-      DB_DATABASE: ':memory:'
-    
-    strategy:
-      fail-fast: true  # Stop running other suites as soon as one fails
-      matrix:
-        suite:
-          - Unit
-          - Api
-          - Web
-          - Configuration
-          - Console
-          - Event
-          - Integration
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: "Setup > Image > Install php"
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'  # If not specified, setup-php will use the version defined in composer.lock
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-          coverage: xdebug
-          tools: phpunit, pest
-
-      - name: "Setup > Composer > Install Dependencies"
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Setup > Laravel > Create .env file from example"
-        run: |
-          if [ ! -f ".env.local.example" ]; then
-            echo "::error::No .env.local.example file found!"
-            exit 1
-          fi
-          if [ ! -f ".env" ]; then
-            echo "Creating .env file from .env.local.example"
-            cp .env.local.example .env
-          else
-            echo ".env file already exists, skipping creation"
-          fi
-          echo "Removing cached files"
-          rm -rf bootstrap/cache/*.php || true
-
-      - name: "Setup > Laravel > Generate application key"
-        run: |
-          php artisan key:generate
-
-      - name: "Setup > Laravel > Create database"
-        run: |
-          php artisan migrate --force
-
-      - name: "Check > Laravel > Run ${{ matrix.suite }} Tests"
-        run: |
-          php artisan test --testsuite=${{ matrix.suite }} --coverage --parallel --no-ansi --stop-on-failure
-
-  backend-rendered-frontend-validation:
-    name: Backend Rendered Frontend Validation (Blade/Tailwind)
+  audit-npm-root:
+    name: Audit - npm (Root)
     runs-on: ubuntu-latest
 
     steps:
@@ -164,7 +53,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "lts/Krypton"
-          registry-url: https://npm.pkg.github.com/
 
       - name: "Setup > node > Enable Corepack"
         run: |
@@ -174,16 +62,38 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
 
-      - name: "Check > npm > Check Vulnerabilities"
+      - name: "Check > npm > Audit Vulnerabilities"
         run: |
           npm audit --audit-level moderate
 
-      - name: "Check > npm > Build Backend Assets"
-        run: |
-          npm run build
+  audit-npm-importer:
+    name: Audit - npm (Importer)
+    runs-on: ubuntu-latest
 
-  spa-frontend-validation:
-    name: Frontend Validation - SPA (Vue 3)
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Setup > Image > Install Node.js"
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/Krypton"
+
+      - name: "Setup > node > Enable Corepack"
+        run: |
+          corepack enable
+
+      - name: "Setup > npm > Install Dependencies (Importer)"
+        working-directory: scripts/importer
+        run: |
+          npm ci --no-audit --no-fund
+
+      - name: "Check > npm > Audit Vulnerabilities (Importer)"
+        working-directory: scripts/importer
+        run: |
+          npm audit --audit-level moderate
+
+  audit-npm-spa:
+    name: Audit - npm (SPA)
     runs-on: ubuntu-latest
 
     steps:
@@ -200,51 +110,40 @@ jobs:
           corepack enable
 
       - name: "Setup > npm > Install Dependencies (SPA)"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         working-directory: spa
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npm ci --no-audit --no-fund
 
-      - name: "Check > npm > Check Vulnerabilities (SPA)"
+      - name: "Check > npm > Audit Vulnerabilities (SPA)"
         working-directory: spa
         run: |
           npm audit --audit-level moderate
 
-      - name: "Check > npm > Linting (SPA)"
-        working-directory: spa
-        run: |
-          npm run lint
-
-      - name: "Check > npm > Build (SPA)"
-        working-directory: spa
-        run: |
-          npm run build
-
-      - name: "Check > npm > Run Tests (SPA)"
-        working-directory: spa
-        run: |
-          npm run test:all
-
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [backend-lint, backend-tests, backend-rendered-frontend-validation, spa-frontend-validation]
+    needs: [audit-composer, audit-npm-root, audit-npm-importer, audit-npm-spa]
     if: always()
 
     steps:
-      - name: Check all jobs succeeded
+      - name: Check all mandatory checks passed
         run: |
-          backendLintResult="${{ needs.backend-lint.result }}"
-          backendTestsResult="${{ needs.backend-tests.result }}"
-          backendFrontendResult="${{ needs.backend-rendered-frontend-validation.result }}"
-          spaFrontendResult="${{ needs.spa-frontend-validation.result }}"
+          composerResult="${{ needs.audit-composer.result }}"
+          npmRootResult="${{ needs.audit-npm-root.result }}"
+          npmImporterResult="${{ needs.audit-npm-importer.result }}"
+          npmSpaResult="${{ needs.audit-npm-spa.result }}"
 
-          if [ "$backendLintResult" != "success" ] || [ "$backendTestsResult" != "success" ] || [ "$backendFrontendResult" != "success" ] || [ "$spaFrontendResult" != "success" ]; then
-            echo "One or more validation jobs failed"
-            echo "Backend Lint: $backendLintResult"
-            echo "Backend Tests: $backendTestsResult"
-            echo "Backend Frontend: $backendFrontendResult"
-            echo "SPA Frontend: $spaFrontendResult"
+          if [ "$composerResult" != "success" ] || \
+             [ "$npmRootResult" != "success" ] || \
+             [ "$npmImporterResult" != "success" ] || \
+             [ "$npmSpaResult" != "success" ]; then
+            echo "One or more mandatory checks failed"
+            echo "Composer Audit:       $composerResult"
+            echo "npm Audit (Root):     $npmRootResult"
+            echo "npm Audit (Importer): $npmImporterResult"
+            echo "npm Audit (SPA):      $npmSpaResult"
             exit 1
           fi
+          echo "All mandatory checks passed"
