@@ -92,11 +92,6 @@ mkdir -p "${APP_DIR}/shared/storage/framework/views"
 mkdir -p "${APP_DIR}/shared/storage/logs"
 mkdir -p "${APP_DIR}/backups"
 
-# Create initial 'current' placeholder (first deploy will replace with symlink)
-if [ ! -e "${APP_DIR}/current" ]; then
-    mkdir -p "${APP_DIR}/current/scripts"
-fi
-
 # Ownership: deploy owns everything, www-data group for PHP-FPM
 chown -R "${DEPLOY_USER}:www-data" "${APP_DIR}"
 chmod -R 775 "${APP_DIR}/shared/storage"
