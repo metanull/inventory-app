@@ -34,8 +34,8 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.6.0",
     "@types/uuid": "^11.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.58.1",
-    "@typescript-eslint/parser": "^8.58.1",
+    "@typescript-eslint/eslint-plugin": "^8.58.2",
+    "@typescript-eslint/parser": "^8.58.2",
     "@vitest/coverage-v8": "^4.1.4",
     "baseline-browser-mapping": "^2.10.18",
     "eslint": "^10.2.0",
@@ -44,7 +44,7 @@
     "prettier": "^3.8.2",
     "tsx": "^4.19.2",
     "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.1",
+    "typescript-eslint": "^8.58.2",
     "vitest": "^4.0.10"
   },
   "engines": {
