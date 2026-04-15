@@ -1424,6 +1424,7 @@ program
   .option('--copy', 'Copy files instead of symbolic links', false)
   .option('--clear-destination', 'Clear destination image folder before synchronization', false)
   .option('--dry-run', 'Simulate synchronization without making changes', false)
+  .option('--target-dir <path>', 'Target image directory (overrides NEW_IMAGES_ROOT env var and artisan fallback)')
   .action(async (options) => {
     const logger = new FileLogger('ImageSync', 'logs');
 
@@ -1450,12 +1451,18 @@ program
       const legacyImagesRoot =
         process.env['LEGACY_IMAGES_ROOT'] || 'C:\\mwnf-server\\pictures\\images';
 
-      // Get new images root: prefer env var, fall back to artisan command
-      let newImagesRoot = process.env['NEW_IMAGES_ROOT']?.trim();
+      // Get new images root: prefer CLI option, then env var, fall back to artisan command
+      let newImagesRoot = (options.targetDir as string | undefined)?.trim();
       if (newImagesRoot) {
+        console.log(chalk.green(`✓ Image storage path (from --target-dir): ${newImagesRoot}`));
+        logger.info(`Image storage path (from --target-dir CLI option): ${newImagesRoot}`);
+      } else {
+        newImagesRoot = process.env['NEW_IMAGES_ROOT']?.trim();
+      }
+      if (newImagesRoot && !options.targetDir) {
         console.log(chalk.green(`✓ Image storage path (from NEW_IMAGES_ROOT): ${newImagesRoot}`));
         logger.info(`Image storage path (from NEW_IMAGES_ROOT env): ${newImagesRoot}`);
-      } else {
+      } else if (!newImagesRoot) {
         console.log(chalk.cyan('NEW_IMAGES_ROOT not set, getting image storage path from Laravel...'));
         logger.info('NEW_IMAGES_ROOT not set, falling back to php artisan storage:image-path');
         const { exec } = await import('child_process');

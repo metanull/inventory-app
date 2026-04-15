@@ -278,6 +278,7 @@ npx tsx src/cli/import.ts image-sync
 - `--help` - Syntax help
 - `--copy` - Copy files instead of symlinking (symlink is the default)
 - `--clear-destination` - Clear destination image folder before synchronization starts
+- `--target-dir <path>` - Target image directory (overrides `NEW_IMAGES_ROOT` env var and artisan fallback)
 - `--dry-run` - Dry run (simulate without making changes)
 
 > ⚠️ **Default mode changed:** `image-sync` now uses **symlinks by default**.
