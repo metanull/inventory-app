@@ -168,6 +168,7 @@ git reset --hard origin/fix/importer-gap
 php artisan db:wipe
 php artisan migrate:refresh --quiet
 php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+php artisan permission:sync
 
 # 3. Run the importer
 cd E:\inventory\inventory-app\scripts\importer
@@ -211,6 +212,7 @@ Invoke-Command -Session $session {
     php artisan db:wipe
     php artisan migrate:refresh --quiet
     php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+    php artisan permission:sync
 }
 
 # 2. Run importer (via temp instance — has scripts/ directory)
