@@ -7,7 +7,7 @@
  *
  * Legacy schema:
  * - mwnf3_explore.regionlocations (regionId, locationId)
- * - mwnf3_explore.region (regionId, type) — type = territory_level
+ * - mwnf3_explore.regions (regionId, type) — type = territory_level
  *
  * Steps:
  * 1. Query regionlocations (204 rows)
@@ -52,7 +52,7 @@ export class ExploreRegionLocationLinker extends BaseImporter {
 
       // Fetch region territory levels
       const regionInfos = await this.context.legacyDb.query<LegacyRegionInfo>(
-        `SELECT regionId, type FROM mwnf3_explore.region`
+        `SELECT regionId, type FROM mwnf3_explore.regions`
       );
       const regionLevelMap = new Map<number, number>();
       for (const r of regionInfos) {

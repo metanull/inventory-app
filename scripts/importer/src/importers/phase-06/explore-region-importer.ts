@@ -6,7 +6,7 @@
  * parented under their respective country collections.
  *
  * Legacy schema:
- * - mwnf3_explore.region (regionId, countryId, label, geoCoordinates, zoom, type)
+ * - mwnf3_explore.regions (regionId, countryId, label, geoCoordinates, zoom, type)
  * - mwnf3_explore.regiontranslated (regionId, langId, spelling)
  * - mwnf3_explore.regionsthemes (regionId, cycleId)
  *
@@ -93,7 +93,7 @@ export class ExploreRegionImporter extends BaseImporter {
       // Query regions
       const regions = await this.context.legacyDb.query<LegacyRegion>(
         `SELECT regionId, countryId, label, geoCoordinates, zoom, type
-         FROM mwnf3_explore.region
+         FROM mwnf3_explore.regions
          WHERE label IS NOT NULL AND label != ''
          ORDER BY countryId, regionId`
       );
