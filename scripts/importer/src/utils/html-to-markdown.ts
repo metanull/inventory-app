@@ -79,11 +79,41 @@ const SKIP_SANITIZE_FIELDS = new Set(['extra']);
 const ZERO_DATE_PATTERN = /^0000-00-00/;
 
 /**
- * Returns true if the value is a MySQL zero-date string.
- * Matches '0000-00-00', '0000-00-00 00:00:00', and similar variants.
+ * Sanitize a date value from the legacy database.
+ *
+ * mysql2 returns DATETIME columns as Date objects by default.
+ * Legacy MySQL on Windows stored '0000-00-00 00:00:00' as a default,
+ * which mysql2 converts to an Invalid Date object.
+ *
+ * This function explicitly handles:
+ * - null / undefined → null
+ * - empty string → null
+ * - Date object that is Invalid Date → null
+ * - string matching '0000-00-00...' → null
+ * - valid Date object → ISO string (YYYY-MM-DD HH:mm:ss)
+ * - valid date string → returned as-is
  */
-export function isZeroDate(value: string): boolean {
-  return ZERO_DATE_PATTERN.test(value);
+export function sanitizeDateValue(value: Date | string | null | undefined): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) {
+      return null;
+    }
+    return value.toISOString().slice(0, 19).replace('T', ' ');
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '' || ZERO_DATE_PATTERN.test(trimmed)) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  return null;
 }
 
 /**
@@ -113,11 +143,7 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
       continue;
     }
     if (typeof value === 'string') {
-      if (isZeroDate(value)) {
-        (result as Record<string, unknown>)[key as string] = null;
-      } else {
-        (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
-      }
+      (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
     }
   }
 

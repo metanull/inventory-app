@@ -18,7 +18,7 @@
 export interface ShLegacyProject {
   project_id: string;
   name: string;
-  addeddate?: string | null;
+  addeddate?: Date | string | null;
   new_status?: 'Y' | 'N';
   show?: 'Y' | 'N';
   category?: 'SP' | 'PP'; // SP: SH Projects, PP: Portal Projects

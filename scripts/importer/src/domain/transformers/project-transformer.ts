@@ -17,7 +17,7 @@ import type {
 } from '../../core/types.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
-import { convertHtmlToMarkdown, isZeroDate } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, sanitizeDateValue } from '../../utils/html-to-markdown.js';
 
 /**
  * Transformed project bundle (context + collection + project)
@@ -92,7 +92,7 @@ export function transformProject(
     internal_name: projectName,
     backward_compatibility: projectBackwardCompat,
     language_id: defaultLanguageId,
-    launch_date: legacy.launchdate && !isZeroDate(legacy.launchdate) ? legacy.launchdate : null,
+    launch_date: sanitizeDateValue(legacy.launchdate),
     is_launched: legacy.active === 1 || legacy.active === true,
   };
 

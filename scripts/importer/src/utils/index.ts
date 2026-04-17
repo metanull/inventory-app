@@ -17,7 +17,7 @@ export {
   mapCountryCode,
 } from './code-mappings.js';
 
-export { convertHtmlToMarkdown, convertHtmlFieldsToMarkdown, isZeroDate } from './html-to-markdown.js';
+export { convertHtmlToMarkdown, convertHtmlFieldsToMarkdown, sanitizeDateValue } from './html-to-markdown.js';
 
 export {
   normalizePath,
