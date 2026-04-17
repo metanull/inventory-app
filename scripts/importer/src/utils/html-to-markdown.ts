@@ -73,6 +73,20 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
 const SKIP_SANITIZE_FIELDS = new Set(['extra']);
 
 /**
+ * MySQL zero-date patterns produced by legacy Windows MySQL.
+ * MySQL 8+ with STRICT_TRANS_TABLES + NO_ZERO_DATE rejects these on INSERT.
+ */
+const ZERO_DATE_PATTERN = /^0000-00-00/;
+
+/**
+ * Returns true if the value is a MySQL zero-date string.
+ * Matches '0000-00-00', '0000-00-00 00:00:00', and similar variants.
+ */
+export function isZeroDate(value: string): boolean {
+  return ZERO_DATE_PATTERN.test(value);
+}
+
+/**
  * Sanitize ALL string fields in an object by converting HTML to Markdown
  *
  * This function iterates over all properties of the object and converts
@@ -99,7 +113,11 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
       continue;
     }
     if (typeof value === 'string') {
-      (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
+      if (isZeroDate(value)) {
+        (result as Record<string, unknown>)[key as string] = null;
+      } else {
+        (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
+      }
     }
   }
 

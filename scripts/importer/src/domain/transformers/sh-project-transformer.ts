@@ -15,7 +15,7 @@ import type {
   ProjectTranslationData,
 } from '../../core/types.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { convertHtmlToMarkdown, isZeroDate } from '../../utils/html-to-markdown.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 const SH_PROJECTS_TABLE = 'sh_projects';
@@ -105,7 +105,7 @@ export function transformShProject(
     internal_name: internalName,
     backward_compatibility: backwardCompat,
     language_id: defaultLanguageId,
-    launch_date: legacy.addeddate || null,
+    launch_date: legacy.addeddate && !isZeroDate(legacy.addeddate) ? legacy.addeddate : null,
     is_launched: legacy.show === 'Y',
   };
 
