@@ -405,6 +405,9 @@ For detailed language and framework-specific guidelines, see:
 - `test-vuejs.instructions.md` - Frontend testing guidelines
 - `md.instructions.md` - Documentation writing standards
 - `ps1.instructions.md` - PowerShell scripting guidelines
+- `server-setup-windows.instructions.md` - Primary Windows server deployment (MWNF)
+- `server-setup-ovh.instructions.md` - Secondary OVH VPS deployment
+- `build-workflow.instructions.md` - Build pipeline, artifact packaging, release creation
 
 ## Common Pitfalls to Avoid
 
