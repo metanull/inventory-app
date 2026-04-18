@@ -8,7 +8,7 @@
  * Legacy schema:
  * - mwnf3_explore.regions (regionId, countryId, label, geoCoordinates, zoom, type)
  * - mwnf3_explore.regiontranslated (regionId, langId, spelling)
- * - mwnf3_explore.regionsthemes (regionId, cycleId)
+ * - mwnf3_explore.regionsthemes (regionId, themeId)
  *
  * New schema:
  * - collections (type='region', parent_id → country collection)
@@ -60,7 +60,7 @@ interface LegacyRegionTranslation {
 
 interface LegacyRegionTheme {
   regionId: number;
-  cycleId: number;
+  themeId: number;
 }
 
 export class ExploreRegionImporter extends BaseImporter {
@@ -111,12 +111,12 @@ export class ExploreRegionImporter extends BaseImporter {
       }
 
       const themes = await this.context.legacyDb.query<LegacyRegionTheme>(
-        `SELECT regionId, cycleId FROM mwnf3_explore.regionsthemes`
+        `SELECT regionId, themeId FROM mwnf3_explore.regionsthemes`
       );
       const themesByRegion = new Map<number, number[]>();
       for (const t of themes) {
         const list = themesByRegion.get(t.regionId) ?? [];
-        list.push(t.cycleId);
+        list.push(t.themeId);
         themesByRegion.set(t.regionId, list);
       }
 
