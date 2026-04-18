@@ -83,6 +83,12 @@ export class ThgItemRelatedTranslationImporter extends BaseImporter {
 
           const backwardCompat = `mwnf3_thematic_gallery:theme_item_related_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.item_id}:${legacy.related_item_id}:${legacy.language_id}`;
 
+          if (await this.entityExistsAsync(backwardCompat, 'item_item_link_translation')) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           // Collect sample
           this.collectSample(
             'thg_item_related_translation',
