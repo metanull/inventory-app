@@ -35,9 +35,9 @@ interface LegacyMonumentTR {
 
 interface LegacyMonumentSH {
   monumentId: number;
-  sh_monument_id: number;
-  sh_country: string;
-  sh_project: string;
+  project_id: string;
+  country: string;
+  number: number;
 }
 
 interface LegacyMonumentMuseum {
@@ -176,7 +176,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
       // 3. exploremonument_sh → SH monuments
       this.logInfo('Importing Explore → SH monument cross-references...');
       const shLinks = await this.context.legacyDb.query<LegacyMonumentSH>(
-        `SELECT monumentId, sh_monument_id, sh_country, sh_project FROM mwnf3_explore.exploremonument_sh`
+        `SELECT monumentId, project_id, country, number FROM mwnf3_explore.exploremonument_sh`
       );
       this.logInfo(`Found ${shLinks.length} SH cross-references`);
 
@@ -192,7 +192,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
           }
 
           // SH monument BC: mwnf3_sharing_history:sh_monuments:{project}:{country}:{monument_id}
-          const targetBC = `mwnf3_sharing_history:sh_monuments:${sh.sh_project}:${sh.sh_country}:${sh.sh_monument_id}`;
+          const targetBC = `mwnf3_sharing_history:sh_monuments:${sh.project_id.toLowerCase()}:${sh.country.toLowerCase()}:${sh.number}`;
           const targetId = await this.getEntityUuidAsync(targetBC, 'item');
           if (!targetId) {
             this.logWarning(`SH monument not found: ${targetBC}, skipping`);
@@ -207,7 +207,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          const linkBC = `mwnf3_explore:monument_sh:${sh.monumentId}:${sh.sh_project}:${sh.sh_country}:${sh.sh_monument_id}`;
+          const linkBC = `mwnf3_explore:monument_sh:${sh.monumentId}:${sh.project_id.toLowerCase()}:${sh.country.toLowerCase()}:${sh.number}`;
           await this.context.strategy.writeItemItemLink({
             source_id: sourceId,
             target_id: targetId,

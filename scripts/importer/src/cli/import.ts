@@ -27,6 +27,7 @@ import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
 import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
+import { orderConfigsByDependencies } from '../utils/importer-order.js';
 
 import {
   DefaultContextImporter,
@@ -1277,15 +1278,21 @@ program
       const results = new Map<string, ImportResult>();
       const importerTimings = new Map<string, number>();
 
-      // Execute importers
-      for (const config of ALL_IMPORTERS) {
+      const selectedImporters = ALL_IMPORTERS.filter((config) => {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
 
         if (!shouldRun) {
           console.log(chalk.gray(`⏭  Skipping ${config.name}`));
           logger.info(`Skipping ${config.name}`);
-          continue;
         }
+
+        return shouldRun;
+      });
+
+      const orderedImporters = orderConfigsByDependencies(selectedImporters);
+
+      // Execute importers
+      for (const config of orderedImporters) {
 
         logger.logImporterStart(config.name);
         const importerStart = Date.now();
@@ -1322,7 +1329,7 @@ program
 
       // Build per-importer summaries for final report
       const summaries: PhaseSummary[] = [];
-      for (const config of ALL_IMPORTERS) {
+      for (const config of orderedImporters) {
         const result = results.get(config.key);
         if (!result) continue; // was skipped
         const duration = importerTimings.get(config.key) ?? 0;

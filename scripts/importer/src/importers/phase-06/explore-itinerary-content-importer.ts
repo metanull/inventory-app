@@ -59,7 +59,7 @@ interface LegacyItineraryTerritory {
 
 interface LegacyOldItinerary {
   itinerary_id: number;
-  locationId: number;
+  locationId: number | null;
   label: string;
   geoCoordinates: string | null;
   zoom: number | null;
@@ -292,7 +292,7 @@ export class ExploreItineraryContentImporter extends BaseImporter {
 
     // Locations
     const locations = await this.context.legacyDb.query<LegacyItineraryLocation>(
-      `SELECT itineraries_id, locationId FROM mwnf3_explore.explore_itineraries_rel_locations`
+      `SELECT itineraries_id, location_id AS locationId FROM mwnf3_explore.explore_itineraries_rel_locations`
     );
     const locationsByItinerary = new Map<number, number[]>();
     for (const l of locations) {
@@ -372,10 +372,15 @@ export class ExploreItineraryContentImporter extends BaseImporter {
   private async importOldItineraries(result: ImportResult): Promise<void> {
     this.logInfo('Importing old itineraries...');
     const oldItineraries = await this.context.legacyDb.query<LegacyOldItinerary>(
-      `SELECT itinerary_id, locationId, label, geoCoordinates, zoom
+      `SELECT itineraries_id AS itinerary_id,
+              CAST(NULLIF(locationId, '') AS SIGNED) AS locationId,
+              title AS label,
+              NULL AS geoCoordinates,
+              NULL AS zoom
        FROM mwnf3_explore.itineraries
-       WHERE label IS NOT NULL AND label != ''
-       ORDER BY locationId, itinerary_id`
+       WHERE title IS NOT NULL AND title != ''
+       ORDER BY CAST(NULLIF(locationId, '') AS SIGNED), itineraries_id,
+                CASE WHEN lang_id IN ('en', 'eng') THEN 0 ELSE 1 END, lang_id`
     );
     this.logInfo(`Found ${oldItineraries.length} old itineraries`);
 
@@ -450,9 +455,10 @@ export class ExploreItineraryContentImporter extends BaseImporter {
   private async importOldItineraryMonumentLinks(result: ImportResult): Promise<void> {
     this.logInfo('Importing old itinerary monument links...');
     const links = await this.context.legacyDb.query<LegacyOldItineraryMonument>(
-      `SELECT itinerary_id, monumentId, itin_order
+      `SELECT itineraries_id AS itinerary_id, monumentId,
+              \`order\` AS itin_order
        FROM mwnf3_explore.itineraries_rel_mon
-       ORDER BY itinerary_id, itin_order`
+       ORDER BY itineraries_id, \`order\``
     );
     this.logInfo(`Found ${links.length} old itinerary-monument links`);
 
