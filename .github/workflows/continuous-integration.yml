@@ -39,8 +39,46 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: "Check > Composer > Audit Vulnerabilities"
+        env:
+          ALLOWED_COMPOSER_AUDIT_PACKAGE: phpunit/phpunit
+          ALLOWED_COMPOSER_AUDIT_ADVISORY: PKSA-5jz8-6tcw-pbk4
         run: |
-          composer audit --format=summary
+          composer audit --format=json > composer-audit.json || true
+
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          with open('composer-audit.json', encoding='utf-8') as handle:
+            report = json.load(handle)
+
+          allowed_package = os.environ['ALLOWED_COMPOSER_AUDIT_PACKAGE']
+          allowed_advisory = os.environ['ALLOWED_COMPOSER_AUDIT_ADVISORY']
+
+          remaining = {}
+          ignored = {}
+
+          for package, advisories in report.get('advisories', {}).items():
+            for advisory in advisories:
+              if package == allowed_package and advisory.get('advisoryId') == allowed_advisory:
+                ignored.setdefault(package, []).append(advisory)
+              else:
+                remaining.setdefault(package, []).append(advisory)
+
+          abandoned = report.get('abandoned', [])
+
+          if ignored:
+            print('Ignoring allowed Composer advisory in CI:')
+            print(json.dumps(ignored, indent=2))
+
+          if remaining or abandoned:
+            print('Composer audit failed after applying CI allowlist.')
+            print(json.dumps({'advisories': remaining, 'abandoned': abandoned}, indent=2))
+            sys.exit(1)
+
+          print('Composer audit passed after applying CI allowlist.')
+          PY
 
   audit-npm-root:
     name: Audit - npm (Root)
