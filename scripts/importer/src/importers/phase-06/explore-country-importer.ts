@@ -14,6 +14,7 @@
  * Mapping:
  * - countryId → backward_compatibility (mwnf3_explore:country:{countryId})
  * - countryId → country_id (FK to countries table)
+ * - country name → internal_name (human-readable title)
  * - type = 'collection'
  * - parent_id = explore_by_country root collection
  *
@@ -100,7 +101,16 @@ export class ExploreCountryImporter extends BaseImporter {
           // Map country ID (legacy uses 2-letter, our system uses 3-letter ISO codes)
           const countryId = this.mapCountryId(legacy.countryId);
 
-          const internalName = `country_${legacy.countryId}`;
+          const countryName = await this.getCountryName(legacy.countryId);
+          let internalName = '';
+          if (countryName && countryName.trim() !== '') {
+            internalName = countryName;
+          } else {
+            internalName = legacy.countryId.toUpperCase();
+            this.logWarning(
+              `Explore country ${backwardCompat} missing country name, using ${internalName} instead`
+            );
+          }
 
           // Collect sample
           this.collectSample(
@@ -136,7 +146,6 @@ export class ExploreCountryImporter extends BaseImporter {
           this.registerEntity(collectionId, backwardCompat, 'collection');
 
           // Create translation - use country name if available
-          const countryName = await this.getCountryName(legacy.countryId);
           const translationBackwardCompat = `${backwardCompat}:translation:${this.defaultLanguageId}`;
 
           await this.context.strategy.writeCollectionTranslation({

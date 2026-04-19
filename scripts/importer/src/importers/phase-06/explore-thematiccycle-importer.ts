@@ -12,7 +12,7 @@
  *
  * Mapping:
  * - cycleId → backward_compatibility (mwnf3_explore:thematiccycle:{cycleId})
- * - cycleLabel → internal_name (slugified)
+ * - cycleDescription/cycleLabel → internal_name (human-readable title)
  * - geoCoordinates → latitude, longitude (parsed from "lat,lon" format)
  * - zoom → map_zoom
  * - type = 'theme'
@@ -25,17 +25,6 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
 
 /**
  * Legacy thematiccycle structure
@@ -143,8 +132,19 @@ export class ExploreThematicCycleImporter extends BaseImporter {
           // Parse coordinates
           const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
 
-          // Create internal name from cycleLabel
-          const internalName = `theme_${slugify(legacy.cycleLabel)}`;
+          let internalName = '';
+          if (legacy.cycleDescription && legacy.cycleDescription.trim() !== '') {
+            internalName = legacy.cycleDescription;
+          } else if (legacy.cycleLabel && legacy.cycleLabel.trim() !== '') {
+            internalName = legacy.cycleLabel;
+            this.logWarning(
+              `Explore thematic cycle ${backwardCompat} missing cycleDescription, using cycleLabel instead`
+            );
+          } else {
+            throw new Error(
+              `Explore thematic cycle ${backwardCompat} missing required title data for internal_name`
+            );
+          }
 
           // Collect sample
           this.collectSample(

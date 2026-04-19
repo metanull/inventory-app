@@ -15,7 +15,7 @@
  *
  * Mapping:
  * - (project_id, country, trail_id, itinerary_id, number) → backward_compatibility
- * - title → used to create internal_name (slugified)
+ * - title → internal_name (default language first, then first named translation)
  * - type = 'location'
  * - parent_id = itinerary collection
  *
@@ -26,17 +26,8 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy location structure
@@ -83,17 +74,29 @@ export class TravelsLocationImporter extends BaseImporter {
 
       this.logInfo('Importing locations...');
 
-      // Query unique locations from legacy database (use English for names)
+      // Query all location rows and group by project/country/trail/itinerary/number
       const locations = await this.context.legacyDb.query<LegacyLocation>(
         `SELECT project_id, country, itinerary_id, number, lang, trail_id, title
         FROM mwnf3_travels.tr_locations 
-         WHERE lang = 'en'
-         ORDER BY project_id, country, trail_id, itinerary_id, number`
+         ORDER BY project_id, country, trail_id, itinerary_id, number, lang`
       );
 
-      this.logInfo(`Found ${locations.length} locations to import`);
+      const groupedLocations = new Map<string, LegacyLocation[]>();
+      for (const location of locations) {
+        const key = `${location.project_id}:${location.country}:${location.trail_id}:${location.itinerary_id}:${location.number}`;
+        const existingLocations = groupedLocations.get(key);
+        if (existingLocations) {
+          existingLocations.push(location);
+          continue;
+        }
 
-      for (const legacy of locations) {
+        groupedLocations.set(key, [location]);
+      }
+
+      this.logInfo(`Found ${groupedLocations.size} locations to import`);
+
+      for (const locationGroup of groupedLocations.values()) {
+        const legacy = locationGroup[0]!;
         try {
           const backwardCompat = `mwnf3_travels:location:${legacy.project_id}:${legacy.country}:${legacy.trail_id}:${legacy.itinerary_id}:${legacy.number}`;
 
@@ -117,8 +120,23 @@ export class TravelsLocationImporter extends BaseImporter {
             continue;
           }
 
-          // Create internal name
-          const internalName = `loc_${legacy.project_id}_${legacy.country}_${legacy.trail_id}_${legacy.itinerary_id}_${legacy.number}_${slugify(legacy.title || 'unnamed')}`;
+          const internalNameCandidates = [];
+          for (const translation of locationGroup) {
+            internalNameCandidates.push({
+              languageId: mapLanguageCode(translation.lang),
+              value: translation.title,
+            });
+          }
+
+          const selectedInternalName = selectItemInternalName(
+            internalNameCandidates,
+            this.defaultLanguageId,
+            'Travels location',
+            backwardCompat
+          );
+          if (selectedInternalName.warning) {
+            this.logWarning(selectedInternalName.warning);
+          }
 
           // Collect sample
           this.collectSample(
@@ -130,7 +148,7 @@ export class TravelsLocationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location: ${internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location: ${selectedInternalName.internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -140,7 +158,7 @@ export class TravelsLocationImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: internalName,
+            internal_name: selectedInternalName.internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,

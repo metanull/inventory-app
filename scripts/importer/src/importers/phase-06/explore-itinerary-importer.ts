@@ -12,6 +12,7 @@
  *
  * Mapping:
  * - itineraries_id → backward_compatibility (mwnf3_explore:itinerary:{itineraries_id})
+ * - derived title → internal_name (human-readable title)
  * - parent_itineraries_id → parent_id (for nested itineraries)
  * - cycle → link to thematic cycle collection
  * - type = 'itinerary' (or 'exhibition trail' for sub-itineraries)
@@ -180,7 +181,6 @@ export class ExploreItineraryImporter extends BaseImporter {
 
       // Build title from cycle info or country
       const title = await this.buildItineraryTitle(legacy);
-      const internalName = `itinerary_${legacy.itineraries_id}`;
 
       // Determine type - sub-itineraries get 'exhibition trail' type
       const collectionType = legacy.parent_itineraries_id ? 'exhibition trail' : 'itinerary';
@@ -197,7 +197,7 @@ export class ExploreItineraryImporter extends BaseImporter {
 
       if (this.isDryRun || this.isSampleOnlyMode) {
         this.logInfo(
-          `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${internalName} (${backwardCompat})`
+          `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${title} (${backwardCompat})`
         );
         this.registerEntity('', backwardCompat, 'collection');
         result.imported++;
@@ -207,7 +207,7 @@ export class ExploreItineraryImporter extends BaseImporter {
 
       // Write collection using strategy
       const collectionId = await this.context.strategy.writeCollection({
-        internal_name: internalName,
+        internal_name: title,
         backward_compatibility: backwardCompat,
         context_id: this.exploreContextId,
         language_id: this.defaultLanguageId,
