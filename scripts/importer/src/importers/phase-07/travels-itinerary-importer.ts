@@ -5,7 +5,7 @@
  * Itineraries are routes within a trail, like "Itinerary I - The Seat of the Sultanate".
  *
  * Legacy schema:
- * - mwnf3.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
+ * - mwnf3_travels.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
  *   - Composite key: (project_id, country, trail_id, number) identifies unique itinerary
  *   - Multiple rows per itinerary (one per language)
  *   - trail_id references trails.number
@@ -87,7 +87,7 @@ export class TravelsItineraryImporter extends BaseImporter {
       // Query unique itineraries from legacy database (use English for names)
       const itineraries = await this.context.legacyDb.query<LegacyItinerary>(
         `SELECT project_id, country, number, lang, trail_id, title, description, days
-         FROM mwnf3.tr_itineraries 
+        FROM mwnf3_travels.tr_itineraries 
          WHERE lang = 'en'
          ORDER BY project_id, country, trail_id, number`
       );

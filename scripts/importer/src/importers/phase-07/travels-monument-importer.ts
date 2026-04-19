@@ -6,7 +6,7 @@
  * entities from the main mwnf3.monuments table and have their own content.
  *
  * Legacy schema:
- * - mwnf3.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
+ * - mwnf3_travels.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
  *   - Composite key: (project_id, country, trail_id, itinerary_id, location_id, number)
  *   - Multiple rows per monument (one per language)
  *   - These are travel-specific monuments, separate from mwnf3.monuments
@@ -98,7 +98,7 @@ export class TravelsMonumentImporter extends BaseImporter {
       // Query all travel monuments from legacy database
       const monuments = await this.context.legacyDb.query<LegacyTravelMonument>(
         `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
-         FROM mwnf3.tr_monuments 
+        FROM mwnf3_travels.tr_monuments 
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, lang`
       );
 

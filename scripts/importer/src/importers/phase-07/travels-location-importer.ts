@@ -5,7 +5,7 @@
  * Locations are places within an itinerary, like "Cairo" or "Alexandria".
  *
  * Legacy schema:
- * - mwnf3.tr_locations (project_id, country, itinerary_id, number, lang, trail_id, title)
+ * - mwnf3_travels.tr_locations (project_id, country, itinerary_id, number, lang, trail_id, title)
  *   - Composite key: (project_id, country, trail_id, itinerary_id, number)
  *   - Multiple rows per location (one per language)
  *   - itinerary_id references tr_itineraries.number (Roman numerals like 'I', 'II')
@@ -86,7 +86,7 @@ export class TravelsLocationImporter extends BaseImporter {
       // Query unique locations from legacy database (use English for names)
       const locations = await this.context.legacyDb.query<LegacyLocation>(
         `SELECT project_id, country, itinerary_id, number, lang, trail_id, title
-         FROM mwnf3.tr_locations 
+        FROM mwnf3_travels.tr_locations 
          WHERE lang = 'en'
          ORDER BY project_id, country, trail_id, itinerary_id, number`
       );

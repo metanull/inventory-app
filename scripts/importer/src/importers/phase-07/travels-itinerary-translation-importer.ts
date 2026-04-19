@@ -4,7 +4,7 @@
  * Creates CollectionTranslation records for each itinerary in all available languages.
  *
  * Legacy schema:
- * - mwnf3.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
+ * - mwnf3_travels.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
  *   - One row per language
  *
  * New schema:
@@ -65,7 +65,7 @@ export class TravelsItineraryTranslationImporter extends BaseImporter {
       // Query all itinerary translations
       const translations = await this.context.legacyDb.query<LegacyItineraryTranslation>(
         `SELECT project_id, country, number, lang, trail_id, title, description, days
-         FROM mwnf3.tr_itineraries 
+        FROM mwnf3_travels.tr_itineraries 
          ORDER BY project_id, country, trail_id, number, lang`
       );
 
