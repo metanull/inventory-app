@@ -14,7 +14,7 @@
  *
  * Mapping:
  * - (project_id, country, number) → backward_compatibility (mwnf3_travels:trail:{project_id}:{country}:{number})
- * - title → used to create internal_name (slugified)
+ * - title → internal_name (default language first, then first named translation)
  * - type = 'exhibition trail'
  * - parent_id = travels root collection
  * - country_id = looked up from country code
@@ -27,17 +27,8 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy trail structure (one row per language)
@@ -102,19 +93,30 @@ export class TravelsTrailImporter extends BaseImporter {
       this.logInfo(`Found Travels root: ${this.travelsRootId}`);
       this.logInfo('Importing trails...');
 
-      // Query unique trails from legacy database (use English for names, or first available)
-      // Group by project_id, country, number to get unique trails
+      // Query all trail rows and group by project_id/country/number for translation-aware naming
       const trails = await this.context.legacyDb.query<LegacyTrail>(
         `SELECT project_id, country, lang, number, title, subtitle, description, 
                 curated_by, local_coordinator, photo_by, museum_id, region_territory
          FROM mwnf3_travels.trails 
-         WHERE lang = 'en'
-         ORDER BY project_id, country, number`
+         ORDER BY project_id, country, number, lang`
       );
 
-      this.logInfo(`Found ${trails.length} trails to import`);
+      const groupedTrails = new Map<string, LegacyTrail[]>();
+      for (const trail of trails) {
+        const key = `${trail.project_id}:${trail.country}:${trail.number}`;
+        const existingTrails = groupedTrails.get(key);
+        if (existingTrails) {
+          existingTrails.push(trail);
+          continue;
+        }
 
-      for (const legacy of trails) {
+        groupedTrails.set(key, [trail]);
+      }
+
+      this.logInfo(`Found ${groupedTrails.size} trails to import`);
+
+      for (const trailGroup of groupedTrails.values()) {
+        const legacy = trailGroup[0]!;
         try {
           const backwardCompat = `mwnf3_travels:trail:${legacy.project_id}:${legacy.country}:${legacy.number}`;
 
@@ -133,8 +135,23 @@ export class TravelsTrailImporter extends BaseImporter {
             );
           }
 
-          // Create internal name from project_id, country, and title
-          const internalName = `trail_${legacy.project_id}_${legacy.country}_${legacy.number}_${slugify(legacy.title || 'unnamed')}`;
+          const internalNameCandidates = [];
+          for (const translation of trailGroup) {
+            internalNameCandidates.push({
+              languageId: mapLanguageCode(translation.lang),
+              value: translation.title,
+            });
+          }
+
+          const selectedInternalName = selectItemInternalName(
+            internalNameCandidates,
+            this.defaultLanguageId,
+            'Travels trail',
+            backwardCompat
+          );
+          if (selectedInternalName.warning) {
+            this.logWarning(selectedInternalName.warning);
+          }
 
           // Collect sample
           this.collectSample(
@@ -146,7 +163,7 @@ export class TravelsTrailImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create trail: ${internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create trail: ${selectedInternalName.internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -156,7 +173,7 @@ export class TravelsTrailImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: internalName,
+            internal_name: selectedInternalName.internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,

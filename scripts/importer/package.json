@@ -1,6 +1,6 @@
 {
   "name": "importer",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "private": true,
   "type": "module",
   "description": "Unified legacy database import utility for Inventory Management System",

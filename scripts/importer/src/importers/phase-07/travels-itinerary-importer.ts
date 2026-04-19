@@ -5,7 +5,7 @@
  * Itineraries are routes within a trail, like "Itinerary I - The Seat of the Sultanate".
  *
  * Legacy schema:
- * - mwnf3.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
+ * - mwnf3_travels.tr_itineraries (project_id, country, number, lang, trail_id, title, description, days)
  *   - Composite key: (project_id, country, trail_id, number) identifies unique itinerary
  *   - Multiple rows per itinerary (one per language)
  *   - trail_id references trails.number
@@ -15,7 +15,7 @@
  *
  * Mapping:
  * - (project_id, country, trail_id, number) → backward_compatibility
- * - title → used to create internal_name (slugified)
+ * - title → internal_name (default language first, then first named translation)
  * - type = 'itinerary'
  * - parent_id = trail collection
  *
@@ -26,17 +26,8 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy itinerary structure
@@ -84,17 +75,29 @@ export class TravelsItineraryImporter extends BaseImporter {
 
       this.logInfo('Importing itineraries...');
 
-      // Query unique itineraries from legacy database (use English for names)
+      // Query all itinerary rows and group by project/country/trail/number
       const itineraries = await this.context.legacyDb.query<LegacyItinerary>(
         `SELECT project_id, country, number, lang, trail_id, title, description, days
-         FROM mwnf3.tr_itineraries 
-         WHERE lang = 'en'
-         ORDER BY project_id, country, trail_id, number`
+        FROM mwnf3_travels.tr_itineraries 
+         ORDER BY project_id, country, trail_id, number, lang`
       );
 
-      this.logInfo(`Found ${itineraries.length} itineraries to import`);
+      const groupedItineraries = new Map<string, LegacyItinerary[]>();
+      for (const itinerary of itineraries) {
+        const key = `${itinerary.project_id}:${itinerary.country}:${itinerary.trail_id}:${itinerary.number}`;
+        const existingItineraries = groupedItineraries.get(key);
+        if (existingItineraries) {
+          existingItineraries.push(itinerary);
+          continue;
+        }
 
-      for (const legacy of itineraries) {
+        groupedItineraries.set(key, [itinerary]);
+      }
+
+      this.logInfo(`Found ${groupedItineraries.size} itineraries to import`);
+
+      for (const itineraryGroup of groupedItineraries.values()) {
+        const legacy = itineraryGroup[0]!;
         try {
           const backwardCompat = `mwnf3_travels:itinerary:${legacy.project_id}:${legacy.country}:${legacy.trail_id}:${legacy.number}`;
 
@@ -118,8 +121,23 @@ export class TravelsItineraryImporter extends BaseImporter {
             continue;
           }
 
-          // Create internal name
-          const internalName = `itin_${legacy.project_id}_${legacy.country}_${legacy.trail_id}_${legacy.number}_${slugify(legacy.title || 'unnamed')}`;
+          const internalNameCandidates = [];
+          for (const translation of itineraryGroup) {
+            internalNameCandidates.push({
+              languageId: mapLanguageCode(translation.lang),
+              value: translation.title,
+            });
+          }
+
+          const selectedInternalName = selectItemInternalName(
+            internalNameCandidates,
+            this.defaultLanguageId,
+            'Travels itinerary',
+            backwardCompat
+          );
+          if (selectedInternalName.warning) {
+            this.logWarning(selectedInternalName.warning);
+          }
 
           // Collect sample
           this.collectSample(
@@ -131,7 +149,7 @@ export class TravelsItineraryImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create itinerary: ${internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create itinerary: ${selectedInternalName.internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -141,7 +159,7 @@ export class TravelsItineraryImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: internalName,
+            internal_name: selectedInternalName.internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,

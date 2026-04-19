@@ -12,7 +12,7 @@
  *
  * Mapping:
  * - locationId → backward_compatibility (mwnf3_explore:location:{locationId})
- * - label → internal_name (slugified), title (translation)
+ * - label/locationtranslated.spelling → internal_name (human-readable title)
  * - geoCoordinates → latitude, longitude
  * - zoom → map_zoom
  * - countryId → parent_id (via country collection lookup)
@@ -25,17 +25,8 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy location structure
@@ -51,6 +42,12 @@ interface LegacyLocation {
   info: string | null;
   contact: string | null;
   description: string | null;
+}
+
+interface LegacyLocationTranslation {
+  locationId: number;
+  langId: string;
+  spelling: string | null;
 }
 
 /**
@@ -104,6 +101,7 @@ export class ExploreLocationImporter extends BaseImporter {
 
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo('Importing Explore locations...');
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       // Query locations from legacy database
       const locations = await this.context.legacyDb.query<LegacyLocation>(
@@ -112,6 +110,23 @@ export class ExploreLocationImporter extends BaseImporter {
          WHERE label IS NOT NULL AND label != ''
          ORDER BY countryId, locationId`
       );
+
+      const locationTranslations = await this.context.legacyDb.query<LegacyLocationTranslation>(
+        `SELECT locationId, langId, spelling
+         FROM mwnf3_explore.locationtranslated
+         WHERE spelling IS NOT NULL AND spelling != ''`
+      );
+
+      const translationsByLocationId = new Map<number, LegacyLocationTranslation[]>();
+      for (const translation of locationTranslations) {
+        const existingTranslations = translationsByLocationId.get(translation.locationId);
+        if (existingTranslations) {
+          existingTranslations.push(translation);
+          continue;
+        }
+
+        translationsByLocationId.set(translation.locationId, [translation]);
+      }
 
       this.logInfo(`Found ${locations.length} locations to import`);
 
@@ -132,8 +147,30 @@ export class ExploreLocationImporter extends BaseImporter {
           // Parse coordinates
           const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
 
-          // Create internal name - include locationId for uniqueness
-          const internalName = `location_${legacy.locationId}_${legacy.countryId}_${slugify(legacy.label)}`;
+          const internalNameCandidates = [
+            {
+              languageId: this.defaultLanguageId,
+              value: legacy.label,
+            },
+          ];
+
+          const translatedNames = translationsByLocationId.get(legacy.locationId) ?? [];
+          for (const translation of translatedNames) {
+            internalNameCandidates.push({
+              languageId: mapLanguageCode(translation.langId),
+              value: translation.spelling,
+            });
+          }
+
+          const selectedInternalName = selectItemInternalName(
+            internalNameCandidates,
+            this.defaultLanguageId,
+            'Explore location',
+            backwardCompat
+          );
+          if (selectedInternalName.warning) {
+            this.logWarning(selectedInternalName.warning);
+          }
 
           // Collect sample
           this.collectSample(
@@ -144,7 +181,7 @@ export class ExploreLocationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${internalName} (${backwardCompat})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${selectedInternalName.internalName} (${backwardCompat})`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -154,7 +191,7 @@ export class ExploreLocationImporter extends BaseImporter {
 
           // Write collection using strategy
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: internalName,
+            internal_name: selectedInternalName.internalName,
             backward_compatibility: backwardCompat,
             context_id: this.exploreContextId,
             language_id: this.defaultLanguageId,

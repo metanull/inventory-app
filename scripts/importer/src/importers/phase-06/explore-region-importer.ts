@@ -23,14 +23,8 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 function parseGeoCoordinates(coords: string | null): [number | null, number | null] {
   if (!coords || !coords.trim()) return [null, null];
@@ -66,6 +60,7 @@ interface LegacyRegionTheme {
 export class ExploreRegionImporter extends BaseImporter {
   private exploreContextId!: string;
   private countryCollectionCache: Map<string, string | null> = new Map();
+  private defaultLanguageId: string = 'eng';
 
   getName(): string {
     return 'ExploreRegionImporter';
@@ -87,6 +82,7 @@ export class ExploreRegionImporter extends BaseImporter {
         );
       }
       this.exploreContextId = exploreContextId;
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       this.logInfo('Importing Explore regions...');
 
@@ -134,7 +130,31 @@ export class ExploreRegionImporter extends BaseImporter {
           const parentId = await this.getCountryCollectionId(legacy.countryId);
 
           const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
-          const internalName = `region_${legacy.regionId}_${slugify(legacy.label)}`;
+
+          const internalNameCandidates = [
+            {
+              languageId: this.defaultLanguageId,
+              value: legacy.label,
+            },
+          ];
+
+          const regionTranslations = translationsByRegion.get(legacy.regionId) ?? [];
+          for (const translation of regionTranslations) {
+            internalNameCandidates.push({
+              languageId: mapLanguageCode(translation.langId),
+              value: translation.spelling,
+            });
+          }
+
+          const selectedInternalName = selectItemInternalName(
+            internalNameCandidates,
+            this.defaultLanguageId,
+            'Explore region',
+            backwardCompat
+          );
+          if (selectedInternalName.warning) {
+            this.logWarning(selectedInternalName.warning);
+          }
 
           // Build extra with territory_level and theme_ids
           const extra: Record<string, unknown> = {};
@@ -155,7 +175,7 @@ export class ExploreRegionImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${internalName} (${backwardCompat})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create collection: ${selectedInternalName.internalName} (${backwardCompat})`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -165,7 +185,7 @@ export class ExploreRegionImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: internalName,
+            internal_name: selectedInternalName.internalName,
             backward_compatibility: backwardCompat,
             context_id: this.exploreContextId,
             language_id: 'eng',
