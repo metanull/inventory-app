@@ -183,4 +183,22 @@ describe('ImageSyncTool destination clearing', () => {
     await expect(fs.access(oldFile)).resolves.toBeUndefined();
     expect(logger.messages).toContain(`[DRY-RUN] Would clear destination directory: ${newRoot}`);
   });
+
+  it('includes timeline_event_images in the sync table list', async () => {
+    const db = new FakeConnection([]) as unknown as Connection;
+    const logger = new FakeLogger();
+
+    const tool = new ImageSyncTool(
+      db,
+      createOptions({
+        dryRun: true,
+      }),
+      logger
+    );
+
+    const result = await tool.run();
+
+    expect(result.success).toBe(true);
+    expect(logger.messages).toContain('\n=== Syncing timeline_event_images ===');
+  });
 });

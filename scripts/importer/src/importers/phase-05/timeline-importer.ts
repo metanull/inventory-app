@@ -45,6 +45,14 @@ import type {
 } from '../../domain/types/index.js';
 import { mapCountryCode } from '../../utils/code-mappings.js';
 
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+};
+
 export class TimelineImporter extends BaseImporter {
   getName(): string {
     return 'TimelineImporter';
@@ -568,17 +576,27 @@ export class TimelineImporter extends BaseImporter {
           result.imported++;
           this.showProgress();
         } else {
-          // Standalone image → TimelineEventImage
-          // These are files like custom/sharinghistory/*.jpg
-          // They need to go through AvailableImage pipeline
-          // For now, we skip physical file copy (requires presence of files)
-          // and just create the TimelineEventImage record if the file info can be determined
+          const imgTexts = textsByImgId.get(img.hcr_img_id);
+          const altText = await this.getStandaloneImageAltTextAsync(imgTexts);
 
-          this.logInfo(
-            `Standalone image hcr_img_id=${img.hcr_img_id}, picture=${img.picture} — skipping (requires physical file import via AvailableImage pipeline)`
-          );
-          result.skipped++;
-          this.showSkipped();
+          if (this.isDryRun || this.isSampleOnlyMode) {
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
+          await this.context.strategy.writeTimelineEventImage({
+            timeline_event_id: eventId,
+            path: img.picture,
+            original_name: this.getOriginalName(img.picture),
+            mime_type: this.getMimeType(img.picture),
+            size: 1,
+            alt_text: altText,
+            display_order: img.sort_order,
+          });
+
+          result.imported++;
+          this.showProgress();
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -589,6 +607,69 @@ export class TimelineImporter extends BaseImporter {
     }
 
     return result;
+  }
+
+  private getOriginalName(filePath: string): string {
+    const segments = filePath.split('/');
+    return segments.at(-1) || filePath;
+  }
+
+  private getMimeType(filePath: string): string {
+    const normalizedPath = filePath.toLowerCase();
+    const extension = Object.keys(IMAGE_MIME_TYPES).find((ext) => normalizedPath.endsWith(ext));
+
+    return extension ? IMAGE_MIME_TYPES[extension] : 'image/jpeg';
+  }
+
+  private async getStandaloneImageAltTextAsync(
+    imgTexts: Map<string, ShLegacyHcrImageText> | undefined
+  ): Promise<string | null> {
+    if (!imgTexts || imgTexts.size === 0) {
+      return null;
+    }
+
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+    let fallback: string | null = null;
+
+    for (const [legacyLang, txt] of imgTexts) {
+      const candidate = this.getStandaloneImageAltTextCandidate(txt);
+      if (!candidate) {
+        continue;
+      }
+
+      fallback ??= candidate;
+
+      const languageId = await this.getLanguageIdByLegacyCodeAsync(legacyLang);
+      if (languageId === defaultLanguageId) {
+        return candidate;
+      }
+    }
+
+    return fallback;
+  }
+
+  private getStandaloneImageAltTextCandidate(txt: ShLegacyHcrImageText): string | null {
+    const candidates = [
+      txt.name,
+      txt.sname,
+      txt.name_detail,
+      txt.detail_justification,
+      txt.museum,
+      txt.location,
+      txt.artist,
+      txt.material,
+      txt.date,
+      txt.dynasty,
+    ];
+
+    for (const candidate of candidates) {
+      const trimmed = candidate.trim();
+      if (trimmed !== '') {
+        return trimmed;
+      }
+    }
+
+    return null;
   }
 
   // ===========================================================================
