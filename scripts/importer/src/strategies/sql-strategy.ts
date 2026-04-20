@@ -1104,6 +1104,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         this.now,
       ]
     );
+    this.tracker.set(data.path.toLowerCase(), id, 'image');
     return id;
   }
 

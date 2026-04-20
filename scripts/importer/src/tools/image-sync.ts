@@ -3,7 +3,8 @@
  *
  * Synchronizes legacy images to new storage by:
  * 1. Finding records with size=1 (legacy placeholder) in item_images,
- *    partner_images, partner_logos, collection_images, contributor_images
+ *    partner_images, partner_logos, collection_images, contributor_images,
+ *    timeline_event_images
  * 2. Copying or symlinking the actual image file from legacy storage
  * 3. Updating the database record with correct path, size, and metadata
  *
@@ -95,6 +96,7 @@ export class ImageSyncTool {
         'partner_logos',
         'collection_images',
         'contributor_images',
+        'timeline_event_images',
       ];
 
       for (const table of tables) {
