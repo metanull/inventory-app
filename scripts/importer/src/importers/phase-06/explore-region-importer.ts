@@ -210,8 +210,7 @@ export class ExploreRegionImporter extends BaseImporter {
           });
 
           // Write multilingual translations from regiontranslated
-          const regionTranslations = translationsByRegion.get(legacy.regionId) ?? [];
-          for (const trans of regionTranslations) {
+          for (const trans of translationsByRegion.get(legacy.regionId) ?? []) {
             try {
               const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.langId);
               if (!languageId) {
