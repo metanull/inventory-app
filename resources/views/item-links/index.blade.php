@@ -6,7 +6,8 @@
         title="Links for {{ $item->internal_name }}"
         createRoute="{{ route('item-links.create', $item) }}"
         createButtonText="Add Link"
-        livewireTable="tables.item-item-links-table"
-    />
+    >
+        <livewire:dynamic-component :is="'tables.item-item-links-table'" />
+    </x-layout.index-page>
 @endsection
 

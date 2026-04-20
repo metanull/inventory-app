@@ -10,15 +10,12 @@ use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\Language;
-use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CollectionController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,11 +25,9 @@ class CollectionController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(): View
     {
-        [$collections, $search] = $this->searchAndPaginate(Collection::query()->with(['context', 'language']), $request);
-
-        return view('collections.index', compact('collections', 'search'));
+        return view('collections.index');
     }
 
     public function show(Collection $collection): View

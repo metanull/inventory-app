@@ -5,5 +5,7 @@
         entity="partner-translations" 
         title="Partner Translations"
         createButtonText="Add Translation"
-    />
+    >
+        <livewire:dynamic-component :is="'tables.partner-translations-table'" />
+    </x-layout.index-page>
 @endsection

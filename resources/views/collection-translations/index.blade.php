@@ -6,6 +6,7 @@
         title="Collection Translations"
         :create-route="route('collection-translations.create')"
         create-button-text="Add Translation"
-        livewire-table="tables.collection-translations-table"
-    />
+    >
+        <livewire:dynamic-component :is="'tables.collection-translations-table'" />
+    </x-layout.index-page>
 @endsection

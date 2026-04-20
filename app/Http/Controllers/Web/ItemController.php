@@ -8,15 +8,12 @@ use App\Http\Requests\Web\StoreItemRequest;
 use App\Http\Requests\Web\UpdateItemRequest;
 use App\Models\Item;
 use App\Models\Tag;
-use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,11 +23,9 @@ class ItemController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(): View
     {
-        [$items, $search] = $this->searchAndPaginate(Item::query(), $request);
-
-        return view('items.index', compact('items', 'search'));
+        return view('items.index');
     }
 
     public function show(Item $item): View

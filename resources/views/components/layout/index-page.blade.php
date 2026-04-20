@@ -3,14 +3,12 @@
     'title' => null,
     'createRoute' => null,
     'createButtonText' => null,
-    'livewireTable' => null,
 ])
 
 @php
     $title = $title ?? \Illuminate\Support\Str::title($entity);
     $createRoute = $createRoute ?? route($entity . '.create');
     $createButtonText = $createButtonText ?? 'Add ' . \Illuminate\Support\Str::singular(\Illuminate\Support\Str::title($entity));
-    $livewireTable = $livewireTable ?? 'tables.' . $entity . '-table';
 @endphp
 
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -30,5 +28,5 @@
         <x-ui.alert :message="session('status')" type="success" :entity="$entity" />
     @endif
 
-    <livewire:dynamic-component :is="$livewireTable" />
+    {{ $slot }}
 </div>

@@ -8,15 +8,12 @@ use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
 use App\Models\Country;
 use App\Models\Partner;
-use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,11 +23,9 @@ class PartnerController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(): View
     {
-        [$partners, $search] = $this->searchAndPaginate(Partner::query()->with('country'), $request);
-
-        return view('partners.index', compact('partners', 'search'));
+        return view('partners.index');
     }
 
     public function show(Partner $partner): View
