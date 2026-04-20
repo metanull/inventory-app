@@ -103,6 +103,11 @@ class PartnersTable extends Component
         $sortDirection = in_array(strtolower($this->sortDirection), ['asc', 'desc']) ? $this->sortDirection : 'desc';
 
         return $query->orderBy($sortField, $sortDirection)->paginate($this->perPage)->withQueryString();
+    }
+
+    public function render()
+    {
+        $c = config('app_entities.partners.colors', []);
 
         return view('livewire.tables.partners-table', [
             'partners' => $this->partners,
