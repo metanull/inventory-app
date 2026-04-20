@@ -1,0 +1,125 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ExploreCountryImporter } from '../../src/importers/phase-06/explore-country-importer.js';
+import { UnifiedTracker } from '../../src/core/tracker.js';
+import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
+import type { IWriteStrategy } from '../../src/core/strategy.js';
+
+describe('ExploreCountryImporter', () => {
+  let tracker: UnifiedTracker;
+  let legacyDb: ILegacyDatabase;
+  let strategy: IWriteStrategy;
+  let context: ImportContext;
+  let queryMock: ReturnType<typeof vi.fn>;
+  let writeCollectionMock: ReturnType<typeof vi.fn>;
+  let writeCollectionTranslationMock: ReturnType<typeof vi.fn>;
+
+  const logger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    skip: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    tracker = new UnifiedTracker();
+    tracker.set('mwnf3_explore:context', 'explore-context-uuid', 'context');
+    tracker.set('mwnf3_explore:root:explore_by_country', 'explore-country-root-uuid', 'collection');
+
+    queryMock = vi.fn(async (sql: string, values?: unknown) => {
+      if (sql.includes('SELECT DISTINCT countryId FROM mwnf3_explore.locations')) {
+        return [{ countryId: 'at' }];
+      }
+
+      if (sql.includes('SELECT name FROM mwnf3.countries WHERE country = ? LIMIT 1')) {
+        if (Array.isArray(values) && values[0] === 'at') {
+          return [{ name: 'Austria' }];
+        }
+      }
+
+      return [];
+    });
+
+    legacyDb = {
+      query: queryMock as ILegacyDatabase['query'],
+      execute: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    };
+
+    writeCollectionMock = vi.fn().mockResolvedValue('explore-country-uuid');
+    writeCollectionTranslationMock = vi.fn().mockResolvedValue(undefined);
+
+    strategy = {
+      exists: vi.fn().mockResolvedValue(false),
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      writeCollection: writeCollectionMock,
+      writeCollectionTranslation: writeCollectionTranslationMock,
+    } as unknown as IWriteStrategy;
+
+    context = {
+      legacyDb,
+      strategy,
+      tracker,
+      logger,
+      dryRun: false,
+    };
+  });
+
+  it('uses the resolved legacy country name and canonical country mapping', async () => {
+    const importer = new ExploreCountryImporter(context);
+    const result = await importer.import();
+
+    expect(writeCollectionMock).toHaveBeenCalledWith({
+      internal_name: 'Austria',
+      backward_compatibility: 'mwnf3_explore:country:at',
+      context_id: 'explore-context-uuid',
+      language_id: 'eng',
+      parent_id: 'explore-country-root-uuid',
+      type: 'collection',
+      latitude: null,
+      longitude: null,
+      map_zoom: null,
+      country_id: 'aut',
+    });
+    expect(writeCollectionTranslationMock).toHaveBeenCalledWith({
+      collection_id: 'explore-country-uuid',
+      language_id: 'eng',
+      context_id: 'explore-context-uuid',
+      backward_compatibility: 'mwnf3_explore:country:at:translation:eng',
+      title: 'Austria',
+      description: '',
+    });
+    expect(logger.warning).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
+    expect(result.imported).toBe(1);
+  });
+
+  it('fails explicitly when legacy country-name lookup errors instead of masking it as missing data', async () => {
+    queryMock.mockImplementationOnce(async (sql: string) => {
+      if (sql.includes('SELECT DISTINCT countryId FROM mwnf3_explore.locations')) {
+        return [{ countryId: 'at' }];
+      }
+
+      return [];
+    });
+    queryMock.mockImplementationOnce(async () => {
+      throw new Error('bad legacy query');
+    });
+
+    const importer = new ExploreCountryImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toContain(
+      'Error importing country at: Failed to resolve country name for Explore country at'
+    );
+  });
+});

@@ -17,6 +17,8 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
+const DEFAULT_ASSOCIATED_MUSEUM_PROJECT_ID = 'ISL';
+
 interface LegacyPartnerMuseum {
   partner_id: number;
   project_id: string;
@@ -134,16 +136,10 @@ export class PartnerHierarchyImporter extends BaseImporter {
 
     for (const row of rows) {
       try {
-        if (!row.project_id) {
-          this.logWarning(`associated_museums id=${row.associated_id} has no project_id, skipping`);
-          result.warnings!.push(`associated_museums id=${row.associated_id} has no project_id`);
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
+        const projectId = this.resolveAssociatedMuseumProjectId(row, result);
 
         const imported = await this.attachPartnerToProject(
-          row.project_id,
+          projectId,
           row.museum_id,
           row.country_id,
           'associated_partner'
@@ -163,6 +159,23 @@ export class PartnerHierarchyImporter extends BaseImporter {
         this.showError();
       }
     }
+  }
+
+  private resolveAssociatedMuseumProjectId(
+    row: LegacyAssociatedMuseum,
+    result: ImportResult
+  ): string {
+    if (row.project_id) {
+      return row.project_id;
+    }
+
+    const warning =
+      `associated_museums id=${row.associated_id} has no project_id, ` +
+      `assigning default legacy project ${DEFAULT_ASSOCIATED_MUSEUM_PROJECT_ID}`;
+    this.logWarning(warning);
+    result.warnings!.push(warning);
+
+    return DEFAULT_ASSOCIATED_MUSEUM_PROJECT_ID;
   }
 
   private async importFurtherAssociatedMuseums(result: ImportResult): Promise<void> {
