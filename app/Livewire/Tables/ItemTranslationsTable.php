@@ -114,9 +114,9 @@ class ItemTranslationsTable extends Component
 
         // Filter by context if specified
         if ($this->contextFilter === 'default') {
-            $defaultContext = Context::where('is_default', true)->first();
-            if ($defaultContext) {
-                $query->where('context_id', $defaultContext->id);
+            $defaultContextId = Context::where('is_default', true)->value('id');
+            if ($defaultContextId) {
+                $query->where('context_id', $defaultContextId);
             }
         } elseif ($this->contextFilter !== '' && $this->contextFilter !== 'all') {
             $query->where('context_id', $this->contextFilter);
@@ -124,9 +124,9 @@ class ItemTranslationsTable extends Component
 
         // Filter by language if specified
         if ($this->languageFilter === 'default') {
-            $defaultLanguage = Language::where('is_default', true)->first();
-            if ($defaultLanguage) {
-                $query->where('language_id', $defaultLanguage->id);
+            $defaultLanguageId = Language::where('is_default', true)->value('id');
+            if ($defaultLanguageId) {
+                $query->where('language_id', $defaultLanguageId);
             }
         } elseif ($this->languageFilter !== '' && $this->languageFilter !== 'all') {
             $query->where('language_id', $this->languageFilter);
@@ -145,8 +145,8 @@ class ItemTranslationsTable extends Component
     public function render()
     {
         $c = config('app_entities.item_translations.colors', []);
-        $contexts = Context::orderBy('internal_name')->get();
-        $languages = Language::orderBy('internal_name')->get();
+        $contexts = Context::select('id', 'internal_name')->orderBy('internal_name')->get();
+        $languages = Language::select('id', 'internal_name')->orderBy('internal_name')->get();
 
         return view('livewire.tables.item-translations-table', [
             'itemTranslations' => $this->itemTranslations,
