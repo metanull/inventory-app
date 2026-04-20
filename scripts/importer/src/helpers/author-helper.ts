@@ -17,6 +17,7 @@ import type { IWriteStrategy } from '../core/strategy.js';
 import type { ITracker } from '../core/tracker.js';
 import type { ILogger } from '../core/base-importer.js';
 import type { AuthorData } from '../core/types.js';
+import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
 export class AuthorHelper {
   private strategy: IWriteStrategy;
@@ -25,6 +26,10 @@ export class AuthorHelper {
   constructor(strategy: IWriteStrategy, _tracker: ITracker, logger: ILogger) {
     this.strategy = strategy;
     this.logger = logger;
+  }
+
+  private normalizeName(name: string): string {
+    return sanitizeAllStrings({ name }).name.trim();
   }
 
   /**
@@ -40,17 +45,21 @@ export class AuthorHelper {
     }
 
     const trimmedName = name.trim();
+    const normalizedName = this.normalizeName(trimmedName);
+    if (normalizedName === '') {
+      return null;
+    }
 
     // Look up by name — may find an author already created by AuthorImporter
-    const existing = await this.strategy.findAuthorByName(trimmedName);
+    const existing = await this.strategy.findAuthorByName(normalizedName);
     if (existing) {
       return existing;
     }
 
     // Create new author without backward_compatibility (no legacy ID available)
     const authorData: AuthorData = {
-      name: trimmedName,
-      internal_name: trimmedName,
+      name: normalizedName,
+      internal_name: normalizedName,
       backward_compatibility: '',
     };
 
@@ -62,7 +71,7 @@ export class AuthorHelper {
         `Author write failed for '${trimmedName}': ${message}, retrying name lookup`
       );
       // Retry: another thread/record may have created the same author concurrently
-      const retryResult = await this.strategy.findAuthorByName(trimmedName);
+      const retryResult = await this.strategy.findAuthorByName(normalizedName);
       if (!retryResult) {
         this.logger.warning(`Author retry lookup also failed for '${trimmedName}' — entity lost`);
       }
