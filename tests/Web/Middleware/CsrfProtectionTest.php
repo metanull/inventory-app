@@ -2,6 +2,7 @@
 
 namespace Tests\Web\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -23,21 +24,23 @@ class CsrfProtectionTest extends TestCase
 
     /**
      * Guest-facing GET routes that render a CSRF token and must not be cached.
+     *
+     * Each entry is [routeName, routeParams].
      */
     public static function guestAuthPageProvider(): array
     {
         return [
-            'login page' => ['login'],
-            'forgot password page' => ['password.request'],
+            'login page' => ['login', []],
+            'forgot password page' => ['password.request', []],
+            'password reset page' => ['password.reset', ['token' => 'test-token']],
         ];
     }
 
     #[DataProvider('guestAuthPageProvider')]
-    public function test_auth_page_response_has_no_store_cache_control(string $routeName): void
+    public function test_auth_page_response_has_no_store_cache_control(string $routeName, array $params): void
     {
-        $response = $this->get(route($routeName));
+        $response = $this->get(route($routeName, $params));
 
-        $response->assertOk();
         $this->assertStringContainsString(
             'no-store',
             $response->headers->get('Cache-Control', ''),
@@ -46,15 +49,43 @@ class CsrfProtectionTest extends TestCase
     }
 
     #[DataProvider('guestAuthPageProvider')]
-    public function test_auth_page_response_has_pragma_no_cache(string $routeName): void
+    public function test_auth_page_response_has_pragma_no_cache(string $routeName, array $params): void
     {
-        $response = $this->get(route($routeName));
+        $response = $this->get(route($routeName, $params));
 
-        $response->assertOk();
         $this->assertStringContainsString(
             'no-cache',
             $response->headers->get('Pragma', ''),
             "Route '{$routeName}' must include Pragma: no-cache for HTTP/1.0 cache compatibility."
+        );
+    }
+
+    public function test_registration_page_response_has_no_store_cache_control(): void
+    {
+        Setting::set('self_registration_enabled', true, 'boolean');
+
+        $response = $this->get(route('register'));
+
+        $response->assertOk();
+        $this->assertStringContainsString(
+            'no-store',
+            $response->headers->get('Cache-Control', ''),
+            'The registration page must include Cache-Control: no-store to prevent browsers from caching the CSRF token.'
+        );
+    }
+
+    public function test_post_request_to_auth_route_does_not_receive_no_store_cache_control(): void
+    {
+        // POST is not a cacheable method; the middleware must not touch its response headers.
+        $response = $this->post(route('login.store'), [
+            'email' => 'test@example.com',
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertStringNotContainsString(
+            'no-store',
+            $response->headers->get('Cache-Control', ''),
+            'POST responses must not have Cache-Control: no-store added by the NoCacheHeaders middleware.'
         );
     }
 }
