@@ -4,7 +4,7 @@
  * Creates ItemTranslation records for each travel monument in all available languages.
  *
  * Legacy schema:
- * - mwnf3.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
+ * - mwnf3_travels.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
  *   - One row per language
  *   - Note: Unlike explore locations, tr_monuments only has title (no description, how_to_reach, etc.)
  *
@@ -68,7 +68,7 @@ export class TravelsMonumentTranslationImporter extends BaseImporter {
       // Note: tr_monuments only has title column, no description or visitor info fields
       const translations = await this.context.legacyDb.query<LegacyTravelMonumentTranslation>(
         `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
-         FROM mwnf3.tr_monuments 
+        FROM mwnf3_travels.tr_monuments 
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, lang`
       );
 

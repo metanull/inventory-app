@@ -39,7 +39,8 @@ export function convertHtmlToMarkdown(html: string | null | undefined): string {
   } catch (error) {
     // Re-throw with more context instead of falling back to unsafe operations
     throw new Error(
-      `Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`
+      `Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error }
     );
   }
 }
@@ -71,6 +72,50 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
  * and should not be processed by the HTML-to-Markdown converter.
  */
 const SKIP_SANITIZE_FIELDS = new Set(['extra']);
+
+/**
+ * MySQL zero-date patterns produced by legacy Windows MySQL.
+ * MySQL 8+ with STRICT_TRANS_TABLES + NO_ZERO_DATE rejects these on INSERT.
+ */
+const ZERO_DATE_PATTERN = /^0000-00-00/;
+
+/**
+ * Sanitize a date value from the legacy database.
+ *
+ * mysql2 returns DATETIME columns as Date objects by default.
+ * Legacy MySQL on Windows stored '0000-00-00 00:00:00' as a default,
+ * which mysql2 converts to an Invalid Date object.
+ *
+ * This function explicitly handles:
+ * - null / undefined → null
+ * - empty string → null
+ * - Date object that is Invalid Date → null
+ * - string matching '0000-00-00...' → null
+ * - valid Date object → ISO string (YYYY-MM-DD HH:mm:ss)
+ * - valid date string → returned as-is
+ */
+export function sanitizeDateValue(value: Date | string | null | undefined): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) {
+      return null;
+    }
+    return value.toISOString().slice(0, 19).replace('T', ' ');
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '' || ZERO_DATE_PATTERN.test(trimmed)) {
+      return null;
+    }
+    return trimmed;
+  }
+
+  return null;
+}
 
 /**
  * Sanitize ALL string fields in an object by converting HTML to Markdown

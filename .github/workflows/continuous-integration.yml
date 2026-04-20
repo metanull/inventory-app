@@ -40,7 +40,7 @@ jobs:
 
       - name: "Check > Composer > Audit Vulnerabilities"
         run: |
-          composer audit --format=summary
+            composer audit --format=summary
 
   audit-npm-root:
     name: Audit - npm (Root)

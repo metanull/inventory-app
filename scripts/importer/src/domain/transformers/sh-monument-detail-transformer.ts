@@ -14,6 +14,7 @@ import type { ItemData, ItemTranslationData } from '../../core/types.js';
 import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { formatShBackwardCompatibility } from './sh-project-transformer.js';
+import { selectItemInternalName } from './item-internal-name-transformer.js';
 
 const SH_MONUMENT_DETAILS_TABLE = 'sh_monument_details';
 
@@ -89,24 +90,18 @@ export function transformShMonumentDetail(
     group.number
   );
 
-  // Find default language translation for internal_name
-  let internalName = `SH Monument Detail ${group.project_id}:${group.country}:${group.number}:${group.detail_id}`;
-  let warning: string | undefined;
-
-  const defaultTranslation = group.translations.find(
-    (t) => mapLanguageCode(t.lang) === defaultLanguageId
+  const selectedInternalName = selectItemInternalName(
+    group.translations.map((translation) => ({
+      languageId: mapLanguageCode(translation.lang),
+      value: translation.name === undefined ? null : translation.name,
+    })),
+    defaultLanguageId,
+    'SH Monument Detail',
+    backwardCompat
   );
 
-  if (defaultTranslation?.name) {
-    internalName = convertHtmlToMarkdown(defaultTranslation.name);
-  } else if (group.translations.length > 0 && group.translations[0].name) {
-    // Fallback to first available translation
-    internalName = convertHtmlToMarkdown(group.translations[0].name);
-    warning = `SH Monument Detail ${backwardCompat} missing translation in default language, using ${group.translations[0].lang}`;
-  }
-
   const data: Omit<ItemData, 'partner_id' | 'collection_id' | 'project_id' | 'parent_id'> = {
-    internal_name: internalName,
+    internal_name: selectedInternalName.internalName,
     type: 'detail',
     backward_compatibility: backwardCompat,
     country_id: mapCountryCode(group.country),
@@ -118,7 +113,7 @@ export function transformShMonumentDetail(
     data,
     backwardCompatibility: backwardCompat,
     parentBackwardCompatibility: parentBackwardCompat,
-    warning,
+    warning: selectedInternalName.warning ?? undefined,
   };
 }
 

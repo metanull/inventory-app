@@ -10,6 +10,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 // Get the directory of the current module for robust path resolution
 const __filename = fileURLToPath(import.meta.url);
@@ -135,9 +137,6 @@ export class LanguageTranslationImporter extends BaseImporter {
     try {
       this.logInfo('Importing language translations from legacy database...');
 
-      // Import the transformer
-      const { transformLanguageTranslation } = await import('../../domain/transformers/index.js');
-
       // Query language translations from legacy database
       interface LegacyLanguageName {
         lang_id: string;
@@ -186,13 +185,16 @@ export class LanguageTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Transform and write language translation
-          const transformed = transformLanguageTranslation({
-            code: legacy.lang_id,
-            lang: legacy.lang,
+          await this.context.strategy.writeLanguageTranslation({
+            language_id: mapLanguageCode(legacy.lang_id),
+            display_language_id: mapLanguageCode(legacy.lang),
             name: legacy.name,
+            backward_compatibility: formatBackwardCompatibility({
+              schema: 'mwnf3',
+              table: 'langnames',
+              pkValues: [legacy.lang_id, legacy.lang],
+            }),
           });
-          await this.context.strategy.writeLanguageTranslation(transformed.data);
 
           result.imported++;
           this.showProgress();

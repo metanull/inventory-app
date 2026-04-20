@@ -529,12 +529,11 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
-        // Resolve country
+        // Resolve country to canonical ISO-3 ID
         let countryId: string | null = null;
         if (hb.countryId && hb.gn !== 'yes') {
           try {
-            const mapped = mapCountryCode(hb.countryId);
-            countryId = await this.getEntityUuidAsync(`countries:${mapped}`, 'country');
+            countryId = mapCountryCode(hb.countryId);
           } catch {
             this.logWarning(`HB ${hb.hb_id}: Unknown country code '${hb.countryId}'`);
           }

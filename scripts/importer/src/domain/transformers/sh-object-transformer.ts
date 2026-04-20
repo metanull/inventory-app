@@ -13,6 +13,7 @@ import type { ItemData, ItemTranslationData } from '../../core/types.js';
 import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { formatShBackwardCompatibility } from './sh-project-transformer.js';
+import { selectItemInternalName } from './item-internal-name-transformer.js';
 
 const SH_OBJECTS_TABLE = 'sh_objects';
 
@@ -84,24 +85,18 @@ export function transformShObject(
     group.number
   );
 
-  // Find default language translation for internal_name
-  let internalName = `SH Object ${group.project_id}:${group.country}:${group.number}`;
-  let warning: string | undefined;
-
-  const defaultTranslation = group.translations.find(
-    (t) => mapLanguageCode(t.lang) === defaultLanguageId
+  const selectedInternalName = selectItemInternalName(
+    group.translations.map((translation) => ({
+      languageId: mapLanguageCode(translation.lang),
+      value: translation.name === undefined ? null : translation.name,
+    })),
+    defaultLanguageId,
+    'SH Object',
+    backwardCompat
   );
 
-  if (defaultTranslation?.name) {
-    internalName = convertHtmlToMarkdown(defaultTranslation.name);
-  } else if (group.translations.length > 0 && group.translations[0].name) {
-    // Fallback to first available translation
-    internalName = convertHtmlToMarkdown(group.translations[0].name);
-    warning = `SH Object ${backwardCompat} missing translation in default language, using ${group.translations[0].lang}`;
-  }
-
   const data: Omit<ItemData, 'partner_id' | 'collection_id' | 'project_id'> = {
-    internal_name: internalName,
+    internal_name: selectedInternalName.internalName,
     type: 'object',
     backward_compatibility: backwardCompat,
     country_id: mapCountryCode(group.country),
@@ -115,7 +110,7 @@ export function transformShObject(
   return {
     data,
     backwardCompatibility: backwardCompat,
-    warning,
+    warning: selectedInternalName.warning ?? undefined,
   };
 }
 

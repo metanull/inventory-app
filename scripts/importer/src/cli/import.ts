@@ -27,6 +27,7 @@ import { SqlWriteStrategy } from '../strategies/sql-strategy.js';
 import type { ImportContext, ILegacyDatabase } from '../core/base-importer.js';
 import type { ImportResult } from '../core/types.js';
 import { FileLogger, type PhaseSummary } from '../core/file-logger.js';
+import { orderConfigsByDependencies } from '../utils/importer-order.js';
 
 import {
   DefaultContextImporter,
@@ -1277,16 +1278,21 @@ program
       const results = new Map<string, ImportResult>();
       const importerTimings = new Map<string, number>();
 
-      // Execute importers
-      for (const config of ALL_IMPORTERS) {
+      const selectedImporters = ALL_IMPORTERS.filter((config) => {
         const shouldRun = shouldRunImporter(config, only, startAt, stopAt);
 
         if (!shouldRun) {
           console.log(chalk.gray(`⏭  Skipping ${config.name}`));
           logger.info(`Skipping ${config.name}`);
-          continue;
         }
 
+        return shouldRun;
+      });
+
+      const orderedImporters = orderConfigsByDependencies(selectedImporters);
+
+      // Execute importers
+      for (const config of orderedImporters) {
         logger.logImporterStart(config.name);
         const importerStart = Date.now();
 
@@ -1322,7 +1328,7 @@ program
 
       // Build per-importer summaries for final report
       const summaries: PhaseSummary[] = [];
-      for (const config of ALL_IMPORTERS) {
+      for (const config of orderedImporters) {
         const result = results.get(config.key);
         if (!result) continue; // was skipped
         const duration = importerTimings.get(config.key) ?? 0;
@@ -1424,7 +1430,10 @@ program
   .option('--copy', 'Copy files instead of symbolic links', false)
   .option('--clear-destination', 'Clear destination image folder before synchronization', false)
   .option('--dry-run', 'Simulate synchronization without making changes', false)
-  .option('--target-dir <path>', 'Target image directory (overrides NEW_IMAGES_ROOT env var and artisan fallback)')
+  .option(
+    '--target-dir <path>',
+    'Target image directory (overrides NEW_IMAGES_ROOT env var and artisan fallback)'
+  )
   .action(async (options) => {
     const logger = new FileLogger('ImageSync', 'logs');
 
@@ -1463,7 +1472,9 @@ program
         console.log(chalk.green(`✓ Image storage path (from NEW_IMAGES_ROOT): ${newImagesRoot}`));
         logger.info(`Image storage path (from NEW_IMAGES_ROOT env): ${newImagesRoot}`);
       } else if (!newImagesRoot) {
-        console.log(chalk.cyan('NEW_IMAGES_ROOT not set, getting image storage path from Laravel...'));
+        console.log(
+          chalk.cyan('NEW_IMAGES_ROOT not set, getting image storage path from Laravel...')
+        );
         logger.info('NEW_IMAGES_ROOT not set, falling back to php artisan storage:image-path');
         const { exec } = await import('child_process');
         const { promisify } = await import('util');
@@ -1527,9 +1538,7 @@ program
         result.errors.slice(0, 10).forEach((err) => console.log(chalk.red(`  - ${err}`)));
         if (result.errors.length > 10) {
           console.log(
-            chalk.red(
-              `  ... and ${result.errors.length - 10} more (see log file for full list)`
-            )
+            chalk.red(`  ... and ${result.errors.length - 10} more (see log file for full list)`)
           );
         }
       }

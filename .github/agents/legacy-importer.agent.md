@@ -1,5 +1,5 @@
 ---
-description: "Use when: running or troubleshooting the legacy data importer, populating the inventory-app database from legacy MWNF databases, managing .env configuration for importer environments, syncing legacy images, running import commands locally or on the production server via PSSession."
+description: "Use when: running or troubleshooting the legacy data importer, populating the inventory-app database from legacy MWNF databases, managing .env configuration for importer environments, syncing legacy images, running import commands locally or on the production server via PSSession, or importing data to the OVH VPS via SSH tunnel."
 tools: [read, search, execute]
 ---
 You are a specialist in using the `scripts/importer` tool to populate the inventory-app database with data from the legacy MWNF system. You know the importer architecture, its CLI commands, environment configuration for both local development and production, and can orchestrate full or partial import runs.
@@ -152,6 +152,65 @@ git reset --hard origin/main
 - Legacy images: `C:\mwnf-server\pictures\images`
 - Target images: resolved via `php artisan storage:image-path pictures` or set explicitly
 
+**OVH VPS** (run from developer machine via SSH tunnel):
+
+The OVH VPS (`inventory.metanull.eu`) has **no legacy database**, **no legacy images**, and **no Node.js runtime**. The `deploy` user has no sudo. The importer cannot run directly on the VPS.
+
+Instead, run the importer from the developer's local machine using an SSH tunnel to reach the OVH MySQL database (which is bound to `127.0.0.1` only). Images are synced via SCP after the import.
+
+**Prerequisites:**
+- VPN active (to reach the legacy DB on the MWNF Windows server)
+- SSH key: `~/.ssh/inventory_deploy` (for the `deploy` user on the OVH VPS)
+- The OVH VPS host IP or hostname (stored in GitHub Environment secret `VPS_HOST`)
+
+**SSH tunnel for OVH MySQL access:**
+```powershell
+# Open an SSH tunnel: local port 3307 → OVH localhost:3306
+ssh -L 3307:127.0.0.1:3306 deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy -N
+```
+Keep this tunnel open in a separate terminal while running the importer.
+
+**Importer `.env` configuration for OVH:**
+```env
+# Legacy Database source (via VPN — same as local dev)
+LEGACY_DB_HOST=192.168.255.157
+LEGACY_DB_PORT=3306
+LEGACY_DB_USER=<vpn_user>
+LEGACY_DB_PASSWORD=<vpn_password>
+LEGACY_DB_DATABASE=mwnf3
+
+# Target: OVH inventory database (via SSH tunnel on port 3307)
+DB_HOST=127.0.0.1
+DB_PORT=3307
+DB_USERNAME=inventory
+DB_PASSWORD=<ovh_db_password>
+DB_DATABASE=inventory
+```
+
+The OVH MySQL credentials are stored in `/home/deploy/.inventory-db-credentials` on the VPS (created by `provision-inventory.sh`). Retrieve them via SSH:
+```powershell
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cat ~/.inventory-db-credentials'
+```
+
+**Image sync for OVH:**
+
+Image-sync runs locally against the legacy images, writing to a local temporary folder. Then SCP the images to the VPS:
+```powershell
+# 1. Run image-sync to a local temp folder
+npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
+
+# 2. SCP images to VPS production storage
+scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
+```
+
+Note: The OVH target images path is `/opt/inventory/shared/storage/app/public/pictures/` (in the shared storage directory, which is symlinked into each release's `storage/app/public/pictures`).
+
+**Post-import artisan commands on OVH** (run via SSH, not PSSession):
+```powershell
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan glossary:resync --remove-existing --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan queue:work --queue=glossary --stop-when-empty'
+```
+
 ## Full Reset & Import Workflow
 
 The complete sequence to wipe and rebuild the target database from legacy data:
@@ -165,20 +224,30 @@ git fetch origin fix/importer-gap
 git reset --hard origin/fix/importer-gap
 
 # 2. Reset the database
-php artisan db:wipe
-php artisan migrate:refresh --quiet
-php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+php artisan db:wipe --force
+php artisan migrate --force
+php artisan db:seed --class=MinimalDatabaseSeeder --force
+php artisan permission:sync
 
-# 3. Run the importer
+# 3. Create admin and regular users
+php artisan user:create havelangep@hotmail.com havelangep@hotmail.com
+php artisan user:email-verification havelangep@hotmail.com verify
+php artisan user:assign-role havelangep@hotmail.com "Manager of Users"
+
+php artisan user:create havelangep@gmail.com havelangep@gmail.com
+php artisan user:email-verification havelangep@gmail.com verify
+php artisan user:assign-role havelangep@gmail.com "Regular User"
+
+# 4. Run the importer
 cd E:\inventory\inventory-app\scripts\importer
 npm install
 npm run build
 npx tsx src/cli/import.ts import
 
-# 4. Sync images
+# 5. Sync images
 npx tsx src/cli/import.ts image-sync
 
-# 5. Post-import glossary resync (from app root)
+# 6. Post-import glossary resync (from app root)
 cd E:\inventory\inventory-app
 php artisan glossary:resync --remove-existing --force
 php artisan queue:work --queue=glossary
@@ -208,18 +277,31 @@ Invoke-Command -Session $session {
 # 1. Reset database (artisan via production instance)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
-    php artisan db:wipe
-    php artisan migrate:refresh --quiet
-    php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+    php artisan db:wipe --force
+    php artisan migrate --force
+    php artisan db:seed --class=MinimalDatabaseSeeder --force
+    php artisan permission:sync
 }
 
-# 2. Run importer (via temp instance — has scripts/ directory)
+# 2. Create admin and regular users (artisan via production instance)
+Invoke-Command -Session $session {
+    Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
+    php artisan user:create havelangep@hotmail.com havelangep@hotmail.com
+	php artisan user:email-verification havelangep@hotmail.com verify
+	php artisan user:assign-role havelangep@hotmail.com "Manager of Users"
+
+	php artisan user:create havelangep@gmail.com havelangep@gmail.com
+	php artisan user:email-verification havelangep@gmail.com verify
+	php artisan user:assign-role havelangep@gmail.com "Regular User"
+}
+
+# 3. Run importer (via temp instance — has scripts/ directory)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\temp\inventory-app\scripts\importer'
     npx tsx src/cli/import.ts import
 }
 
-# 3. Sync images (via temp instance, but target production storage)
+# 4. Sync images (via temp instance, but target production storage)
 Invoke-Command -Session $session {
     # Resolve the production image storage path
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
@@ -230,7 +312,7 @@ Invoke-Command -Session $session {
     npx tsx src/cli/import.ts image-sync --target-dir $targetDir
 }
 
-# 4. Post-import glossary resync (artisan via production instance)
+# 5. Post-import glossary resync (artisan via production instance)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
     php artisan glossary:resync --remove-existing --force
@@ -254,6 +336,68 @@ Remove-PSSession $session
 | Laravel logs | `…\production\inventory-app\storage\logs\laravel.log` |
 | Importer logs | `…\temp\inventory-app\scripts\importer\logs\` |
 
+### OVH VPS (via SSH tunnel from developer machine)
+
+The OVH VPS has no Node.js, no legacy DB, and no legacy images. The importer runs locally with an SSH tunnel to the OVH MySQL.
+
+**In a separate terminal — keep the SSH tunnel open:**
+```powershell
+ssh -L 3307:127.0.0.1:3306 deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy -N
+```
+
+**Retrieve OVH DB credentials (one-time):**
+```powershell
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cat ~/.inventory-db-credentials'
+```
+
+**Configure `.env` for OVH** (in `scripts/importer/.env`):
+- Legacy DB: `192.168.255.157:3306` via VPN (same as local dev)
+- Target DB: `127.0.0.1:3307` (SSH tunnel to OVH)
+- Legacy images: `Z:\mwnf\images` or local copy
+- Target images: local temp folder (SCP'd to VPS after), preferably on Z: drive for space (Z:\mwnf\temp\ovh-images)
+
+```powershell
+# 1. Ensure VPN is active and SSH tunnel is open (see above)
+
+# 2. Reset the OVH database (via SSH)
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:wipe --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan migrate --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:seed --class=MinimalDatabaseSeeder --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan permission:sync'
+
+# 3. Create an admin user and a regular user (password is auto-generated and must be reset by the user via "Forgot password" flow)
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:create havelangep@hotmail.com havelangep@hotmail.com'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:email-verification havelangep@hotmail.com verify'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:assign-role havelangep@hotmail.com "Manager of Users"'
+
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:create havelangep@gmail.com havelangep@gmail.com'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:email-verification havelangep@gmail.com verify'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:assign-role havelangep@gmail.com "Regular User"'
+
+# 4. Run the importer locally (writes to OVH DB via tunnel)
+cd E:\inventory\inventory-app\scripts\importer
+npx tsx src/cli/import.ts import
+
+# 5. Sync images locally, then SCP to VPS
+npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
+scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
+
+# 6. Post-import glossary resync (via SSH)
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan glossary:resync --remove-existing --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan queue:work --queue=glossary --stop-when-empty'
+```
+
+**OVH paths:**
+
+| Item | Path |
+|------|------|
+| App root | `/opt/inventory/current` (symlink → `releases/<timestamp>`) |
+| Shared storage | `/opt/inventory/shared/storage/` |
+| Target images | `/opt/inventory/shared/storage/app/public/pictures/` |
+| `.env` (Laravel) | `/opt/inventory/shared/.env` |
+| DB credentials | `/home/deploy/.inventory-db-credentials` |
+| Laravel logs | `/opt/inventory/shared/storage/logs/laravel.log` |
+
 ## Architecture Quick Reference
 
 - **Importers** extend `BaseImporter` → implement `import(): Promise<ImportResult>`
@@ -270,8 +414,10 @@ Remove-PSSession $session
 - **NEVER run destructive database commands** (`db:wipe`, `migrate:refresh`) without explicit user confirmation
 - **NEVER run production commands** without explicit user confirmation — always confirm the target environment first
 - **Always validate connections** (`npx tsx src/cli/import.ts validate`) before a full import run
-- **Always confirm the active `.env` profile** (local vs production) before executing import commands
+- **Always confirm the active `.env` profile** (local vs production vs OVH) before executing import commands
 - When running on production via PSSession, follow the same read-only-by-default approach — only execute mutating commands when the user explicitly requests it
+- When targeting OVH, always ensure the SSH tunnel is open before running the importer
+- **NEVER expose OVH MySQL to the internet** — always use SSH tunnels for remote access
 
 ## Approach
 

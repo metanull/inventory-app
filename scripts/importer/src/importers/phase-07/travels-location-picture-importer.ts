@@ -1,10 +1,10 @@
 /**
  * Travels Location Picture Importer
  *
- * Imports pictures from mwnf3.tr_locations_pictures as CollectionImages.
+ * Imports pictures from mwnf3_travels.tr_locations_pictures as CollectionImages.
  *
  * Legacy schema:
- * - mwnf3.tr_locations_pictures (lang, country, project_id, itinerary_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
+ * - mwnf3_travels.tr_locations_pictures (lang, country, project_id, itinerary_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
  *   - PK: (lang, project_id, country, trail_id, itinerary_id, number, image_number, type)
  *   - Type: usually empty string
  *
@@ -69,7 +69,7 @@ export class TravelsLocationPictureImporter extends BaseImporter {
       // Query all location pictures
       const pictures = await this.context.legacyDb.query<LegacyLocationPicture>(
         `SELECT lang, country, project_id, itinerary_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type
-         FROM mwnf3.tr_locations_pictures
+        FROM mwnf3_travels.tr_locations_pictures
          ORDER BY project_id, country, trail_id, itinerary_id, number, type, image_number, lang`
       );
 

@@ -43,7 +43,7 @@ export interface LegacyCountryName {
 export interface LegacyProject {
   project_id: string;
   name?: string;
-  launchdate?: string | null;
+  launchdate?: Date | string | null;
   active?: number | boolean;
 }
 

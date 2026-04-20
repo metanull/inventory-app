@@ -190,6 +190,14 @@ The server uses symlinks extensively for upgradability. When inspecting:
 5. Flag anything unexpected (broken symlinks, missing directories, apps without vhost links, stale Git state)
 6. Close the session
 
+## Related Instructions
+
+For deployment pipeline and server configuration details beyond what this inspector covers:
+
+- **`server-setup-windows.instructions.md`** — MWNF Windows server topology, blue-green deployment pattern, GitHub Actions runner, MWNF-SVR environment config
+- **`server-setup-ovh.instructions.md`** — OVH VPS topology, deploy-ovh.sh, Nginx/PHP-FPM setup, Valkey isolation
+- **`build-workflow.instructions.md`** — Build pipeline, artifact packaging (ZIP for Windows, tarball for OVH), release creation, VERSION file
+
 ## Output Format
 
 Return structured findings with:

@@ -653,6 +653,16 @@ export class ItemItemLinkImporter extends BaseImporter {
           continue;
         }
 
+        const justificationBackwardCompat = `${linkBackwardCompat}:justification:${justification.lang_id}`;
+
+        if (
+          await this.entityExistsAsync(justificationBackwardCompat, 'item_item_link_translation')
+        ) {
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         if (this.isDryRun || this.isSampleOnlyMode) {
           justificationsImported++;
           continue;
@@ -663,7 +673,7 @@ export class ItemItemLinkImporter extends BaseImporter {
           language_id: languageId,
           description: justification.justification.trim(),
           reciprocal_description: null,
-          backward_compatibility: `${linkBackwardCompat}:justification:${justification.lang_id}`,
+          backward_compatibility: justificationBackwardCompat,
         });
 
         justificationsImported++;
