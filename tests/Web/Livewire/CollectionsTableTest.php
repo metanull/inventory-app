@@ -158,4 +158,31 @@ class CollectionsTableTest extends TestCase
             ->assertSee('Parent')
             ->assertSee('All Collections');
     }
+
+    public function test_invalid_sort_field_falls_back_to_default(): void
+    {
+        Collection::factory()->create(['internal_name' => 'Test Collection']);
+
+        Livewire::test(CollectionsTable::class)
+            ->set('sortBy', 'nonexistent_column')
+            ->call('toggleHierarchyMode')
+            ->assertOk();
+    }
+
+    public function test_sort_by_rejects_invalid_field(): void
+    {
+        Livewire::test(CollectionsTable::class)
+            ->call('sortBy', 'nonexistent_column')
+            ->assertSet('sortBy', 'created_at');
+    }
+
+    public function test_invalid_sort_direction_falls_back_to_desc(): void
+    {
+        Collection::factory()->create(['internal_name' => 'Test Collection']);
+
+        Livewire::test(CollectionsTable::class)
+            ->set('sortDirection', 'sideways')
+            ->call('toggleHierarchyMode')
+            ->assertOk();
+    }
 }

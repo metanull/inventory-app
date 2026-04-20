@@ -173,4 +173,45 @@ class ItemsTableTest extends TestCase
             ->assertSee('Parent')
             ->assertSee('All Items');
     }
+
+    public function test_invalid_sort_field_falls_back_to_default(): void
+    {
+        Item::factory()->create(['internal_name' => 'Test Item']);
+
+        Livewire::test(ItemsTable::class)
+            ->set('sortBy', 'nonexistent_column')
+            ->call('toggleHierarchyMode')
+            ->assertOk();
+    }
+
+    public function test_sort_by_rejects_invalid_field(): void
+    {
+        Livewire::test(ItemsTable::class)
+            ->call('sortBy', 'nonexistent_column')
+            ->assertSet('sortBy', 'created_at');
+    }
+
+    public function test_invalid_sort_direction_falls_back_to_desc(): void
+    {
+        Item::factory()->create(['internal_name' => 'Test Item']);
+
+        Livewire::test(ItemsTable::class)
+            ->set('sortDirection', 'sideways')
+            ->call('toggleHierarchyMode')
+            ->assertOk();
+    }
+
+    public function test_available_tags_only_contain_needed_fields(): void
+    {
+        Tag::factory()->create(['internal_name' => 'TestTag', 'description' => 'A tag']);
+
+        $component = Livewire::test(ItemsTable::class);
+        $tags = $component->get('availableTags');
+
+        $this->assertCount(1, $tags);
+        $tag = $tags->first();
+        $this->assertEquals('TestTag', $tag->internal_name);
+        $this->assertEquals('A tag', $tag->description);
+        $this->assertNotNull($tag->id);
+    }
 }

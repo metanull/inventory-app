@@ -79,6 +79,11 @@ class ItemItemLinksTable extends Component
 
     public function sortBy(string $field): void
     {
+        $validFields = ['created_at', 'updated_at'];
+        if (! in_array($field, $validFields)) {
+            return;
+        }
+
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
@@ -109,9 +114,13 @@ class ItemItemLinksTable extends Component
             $query->where('context_id', $this->contextFilter);
         }
 
-        $query->orderBy($this->sortBy, $this->sortDirection);
+        $validSortFields = ['created_at', 'updated_at'];
+        $sortField = in_array($this->sortBy, $validSortFields) ? $this->sortBy : 'created_at';
+        $sortDirection = in_array(strtolower($this->sortDirection), ['asc', 'desc']) ? $this->sortDirection : 'desc';
 
-        return $query->paginate($this->perPage);
+        $query->orderBy($sortField, $sortDirection);
+
+        return $query->paginate($this->perPage)->withQueryString();
     }
 
     public function deleteLink(ItemItemLink $link): void
@@ -123,7 +132,7 @@ class ItemItemLinksTable extends Component
     {
         return view('livewire.tables.item-item-links-table', [
             'links' => $this->getItemItemLinksProperty(),
-            'contexts' => Context::orderBy('internal_name')->get(),
+            'contexts' => Context::select('id', 'internal_name')->orderBy('internal_name')->get(),
         ]);
     }
 }

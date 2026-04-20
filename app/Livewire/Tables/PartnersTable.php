@@ -98,7 +98,11 @@ class PartnersTable extends Component
             $query->where('internal_name', 'LIKE', "%{$search}%");
         }
 
-        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage)->withQueryString();
+        $validSortFields = ['internal_name', 'created_at', 'updated_at'];
+        $sortField = in_array($this->sortBy, $validSortFields) ? $this->sortBy : 'created_at';
+        $sortDirection = in_array(strtolower($this->sortDirection), ['asc', 'desc']) ? $this->sortDirection : 'desc';
+
+        return $query->orderBy($sortField, $sortDirection)->paginate($this->perPage)->withQueryString();
     }
 
     public function render()
