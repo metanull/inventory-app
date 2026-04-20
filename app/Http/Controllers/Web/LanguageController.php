@@ -29,9 +29,15 @@ class LanguageController extends Controller
     public function index(Request $request): View
     {
         /** @var LengthAwarePaginator $languages */
-        [$languages, $search] = $this->searchAndPaginate(Language::query(), $request);
+        [$languages, $search, $sort, $dir] = $this->searchAndPaginate(
+            Language::query(),
+            $request,
+            ['internal_name'],
+            'internal_name',
+            'asc',
+        );
 
-        return view('languages.index', compact('languages', 'search'));
+        return view('languages.index', compact('languages', 'search', 'sort', 'dir'));
     }
 
     public function show(Language $language): View

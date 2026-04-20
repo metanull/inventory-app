@@ -27,9 +27,13 @@ class GlossaryController extends Controller
 
     public function index(Request $request): View
     {
-        [$glossaries, $search] = $this->searchAndPaginate(Glossary::query(), $request);
+        [$glossaries, $search, $sort, $dir] = $this->searchAndPaginate(
+            Glossary::query()->with(['translations', 'spellings']),
+            $request,
+            ['internal_name', 'created_at'],
+        );
 
-        return view('glossaries.index', compact('glossaries', 'search'));
+        return view('glossaries.index', compact('glossaries', 'search', 'sort', 'dir'));
     }
 
     public function show(Glossary $glossary): View

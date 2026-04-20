@@ -12,6 +12,7 @@ use App\Models\ItemItemLink;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class ItemItemLinkController extends Controller
 {
@@ -29,9 +30,40 @@ class ItemItemLinkController extends Controller
     /**
      * Display a listing of item-item links for an item.
      */
-    public function index(Item $item): View
+    public function index(Item $item, Request $request): View
     {
-        return view('item-links.index', compact('item'));
+        $search = trim((string) $request->query('q', ''));
+        $contextFilter = (string) $request->query('context', '');
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+
+        $allowedSortFields = ['created_at'];
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+
+        $query = ItemItemLink::with(['source', 'target', 'context'])
+            ->where('source_id', $item->id);
+
+        if ($search !== '') {
+            $query->whereHas('target', function ($q) use ($search) {
+                $q->where('internal_name', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%");
+            });
+        }
+
+        if ($contextFilter !== '') {
+            $query->where('context_id', $contextFilter);
+        }
+
+        $perPage = $this->resolvePerPage($request);
+        $links = $query->orderBy($sort, $dir)->paginate($perPage)->withQueryString();
+        $contexts = Context::orderBy('internal_name')->get();
+
+        return view('item-links.index', compact('item', 'links', 'search', 'sort', 'dir', 'contextFilter', 'contexts'));
     }
 
     /**

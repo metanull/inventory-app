@@ -27,9 +27,13 @@ class ContextController extends Controller
 
     public function index(Request $request): View
     {
-        [$contexts, $search] = $this->searchAndPaginate(Context::query(), $request);
+        [$contexts, $search, $sort, $dir] = $this->searchAndPaginate(
+            Context::query(),
+            $request,
+            ['internal_name', 'is_default', 'created_at', 'updated_at'],
+        );
 
-        return view('contexts.index', compact('contexts', 'search'));
+        return view('contexts.index', compact('contexts', 'search', 'sort', 'dir'));
     }
 
     public function show(Context $context): View

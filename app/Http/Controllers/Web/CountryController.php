@@ -29,9 +29,15 @@ class CountryController extends Controller
     public function index(Request $request): View
     {
         /** @var LengthAwarePaginator $countries */
-        [$countries, $search] = $this->searchAndPaginate(Country::query(), $request);
+        [$countries, $search, $sort, $dir] = $this->searchAndPaginate(
+            Country::query(),
+            $request,
+            ['internal_name'],
+            'internal_name',
+            'asc',
+        );
 
-        return view('countries.index', compact('countries', 'search'));
+        return view('countries.index', compact('countries', 'search', 'sort', 'dir'));
     }
 
     public function show(Country $country): View

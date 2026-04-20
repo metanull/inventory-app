@@ -27,9 +27,29 @@ class AuthorController extends Controller
 
     public function index(Request $request): View
     {
-        [$authors, $search] = $this->searchAndPaginate(Author::query(), $request);
+        $search = trim((string) $request->query('q', ''));
+        $query = Author::query();
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('internal_name', 'LIKE', "%{$search}%");
+            });
+        }
 
-        return view('authors.index', compact('authors', 'search'));
+        $allowedSortFields = ['name', 'created_at'];
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+
+        $perPage = $this->resolvePerPage($request);
+        $authors = $query->orderBy($sort, $dir)->paginate($perPage)->withQueryString();
+
+        return view('authors.index', compact('authors', 'search', 'sort', 'dir'));
     }
 
     public function show(Author $author): View

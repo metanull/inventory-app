@@ -28,9 +28,13 @@ class PartnerController extends Controller
 
     public function index(Request $request): View
     {
-        [$partners, $search] = $this->searchAndPaginate(Partner::query()->with('country'), $request);
+        [$partners, $search, $sort, $dir] = $this->searchAndPaginate(
+            Partner::query()->with('country'),
+            $request,
+            ['internal_name', 'created_at', 'updated_at'],
+        );
 
-        return view('partners.index', compact('partners', 'search'));
+        return view('partners.index', compact('partners', 'search', 'sort', 'dir'));
     }
 
     public function show(Partner $partner): View

@@ -2,10 +2,8 @@
 
 namespace Tests\Web\Components;
 
-use App\Livewire\Tables\ContextsTable;
 use App\Models\Context;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
 
@@ -18,9 +16,10 @@ class PaginationUrlTest extends TestCase
     {
         Context::factory()->count(15)->create();
 
-        $html = Livewire::test(ContextsTable::class)
-            ->assertOk()
-            ->html();
+        $response = $this->get(route('contexts.index', ['per_page' => 5]));
+        $response->assertOk();
+
+        $html = $response->getContent();
 
         preg_match_all('/href="([^"]*page=[^"]*)"/', $html, $matches);
 

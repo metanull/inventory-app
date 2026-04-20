@@ -28,9 +28,65 @@ class ItemController extends Controller
 
     public function index(Request $request): View
     {
-        [$items, $search] = $this->searchAndPaginate(Item::query(), $request);
+        $search = trim((string) $request->query('q', ''));
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+        $type = (string) $request->query('type', '');
+        $tagIds = array_values(array_filter((array) $request->query('tags', []), fn ($v) => is_string($v) && $v !== ''));
+        $parentId = (string) $request->query('parent_id', '');
+        $hierarchyMode = filter_var($request->query('hierarchy', '1'), FILTER_VALIDATE_BOOLEAN);
 
-        return view('items.index', compact('items', 'search'));
+        $allowedSortFields = ['internal_name', 'created_at', 'updated_at'];
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+        $allowedTypes = ['', 'object', 'monument', 'detail', 'picture'];
+        if (! in_array($type, $allowedTypes, true)) {
+            $type = '';
+        }
+
+        $query = Item::query()->withCount('children');
+
+        if ($search !== '') {
+            $query->where('internal_name', 'LIKE', "%{$search}%");
+        }
+
+        if ($type !== '') {
+            match ($type) {
+                'object' => $query->objects(),
+                'monument' => $query->monuments(),
+                'detail' => $query->details(),
+                'picture' => $query->pictures(),
+                default => null,
+            };
+        }
+
+        foreach ($tagIds as $tagId) {
+            $query->whereHas('tags', fn ($q) => $q->where('tags.id', $tagId));
+        }
+
+        if ($hierarchyMode) {
+            if ($parentId !== '') {
+                $query->where('parent_id', $parentId);
+            } else {
+                $query->parents();
+            }
+        }
+
+        $query->orderBy($sort, $dir);
+        $perPage = $this->resolvePerPage($request);
+        $items = $query->paginate($perPage)->withQueryString();
+
+        $availableTags = Tag::orderBy('internal_name')->get(['id', 'internal_name']);
+        $breadcrumbs = $this->buildIndexBreadcrumbs($parentId);
+
+        return view('items.index', compact(
+            'items', 'search', 'sort', 'dir', 'type', 'tagIds',
+            'parentId', 'hierarchyMode', 'availableTags', 'breadcrumbs',
+        ));
     }
 
     public function show(Item $item): View
@@ -235,6 +291,22 @@ class ItemController extends Controller
                 'url' => route('items.show', $ancestor),
             ]);
             $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
+    private function buildIndexBreadcrumbs(string $parentId): array
+    {
+        if ($parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Item::with('parent.parent.parent.parent')->find($parentId);
+        while ($current) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent;
         }
 
         return $breadcrumbs;
