@@ -17,13 +17,23 @@
     $chipText = "text-{$chipColor}-800";
     $chipHover = "hover:text-{$chipColor}-900";
     $chipHoverBg = "hover:bg-{$chipColor}-50";
+
+    // Project options to minimal arrays to avoid serializing full Eloquent models
+    $fields = array_filter(['id', $displayField, $descriptionField]);
+    $jsOptions = collect($options)->map(function ($opt) use ($fields) {
+        $row = [];
+        foreach ($fields as $f) {
+            $row[$f] = is_object($opt) ? ($opt->{$f} ?? '') : ($opt[$f] ?? '');
+        }
+        return $row;
+    })->values();
 @endphp
 
 <div 
     x-data="{ 
         open: false, 
         search: '', 
-        options: @js($options),
+        options: @js($jsOptions),
         selectedIds: @entangle($wireModel).live,
         get filteredOptions() {
             if (this.search === '') return this.options;

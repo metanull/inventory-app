@@ -7,9 +7,9 @@
         <input 
             type="text"
             wire:model.live.debounce.300ms="search"
-            wire:focus="$set('open', true)"
-            @click.away="$set('open', false); $set('search', '')"
-            @keydown.escape="$set('open', false); $set('search', '')"
+            @focus="$wire.set('open', true)"
+            @click.away="$wire.set('open', false); $wire.set('search', '')"
+            @keydown.escape="$wire.set('open', false); $wire.set('search', '')"
             placeholder="{{ $selectedOption ? $selectedOption->{$displayField} : $searchPlaceholder }}"
             class="block w-full rounded-md border-gray-300 shadow-sm {{ $focusClasses }} sm:text-sm pr-10"
             autocomplete="off"

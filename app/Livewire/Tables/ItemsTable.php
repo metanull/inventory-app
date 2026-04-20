@@ -206,7 +206,9 @@ class ItemsTable extends Component
 
     public function getAvailableTagsProperty()
     {
-        return Tag::orderBy('internal_name')->get();
+        return Tag::select('id', 'internal_name', 'description')
+            ->orderBy('internal_name')
+            ->get();
     }
 
     public function render()
