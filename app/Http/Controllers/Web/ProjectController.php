@@ -29,9 +29,13 @@ class ProjectController extends Controller
 
     public function index(Request $request): View
     {
-        [$projects, $search] = $this->searchAndPaginate(Project::query(), $request);
+        [$projects, $search, $sort, $dir] = $this->searchAndPaginate(
+            Project::query(),
+            $request,
+            ['internal_name', 'launch_date', 'is_launched', 'is_enabled', 'created_at', 'updated_at'],
+        );
 
-        return view('projects.index', compact('projects', 'search'));
+        return view('projects.index', compact('projects', 'search', 'sort', 'dir'));
     }
 
     public function show(Project $project): View

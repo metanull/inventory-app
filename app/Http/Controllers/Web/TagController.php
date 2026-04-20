@@ -27,9 +27,13 @@ class TagController extends Controller
 
     public function index(Request $request): View
     {
-        [$tags, $search] = $this->searchAndPaginate(Tag::query(), $request);
+        [$tags, $search, $sort, $dir] = $this->searchAndPaginate(
+            Tag::query(),
+            $request,
+            ['internal_name', 'created_at'],
+        );
 
-        return view('tags.index', compact('tags', 'search'));
+        return view('tags.index', compact('tags', 'search', 'sort', 'dir'));
     }
 
     public function show(Tag $tag): View

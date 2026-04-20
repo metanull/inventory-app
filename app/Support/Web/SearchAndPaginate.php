@@ -44,19 +44,75 @@ trait SearchAndPaginate
     }
 
     /**
+     * Apply validated sort parameters from the request to the query.
+     *
+     * Reads 'sort' and 'dir' from the request query string, validates them against
+     * the provided whitelist, and falls back to the provided defaults when invalid.
+     *
+     * @param  array<int, string>  $allowedFields  Whitelist of column names that may be sorted.
+     */
+    protected function applySort(
+        Builder $query,
+        Request $request,
+        array $allowedFields,
+        string $default = 'created_at',
+        string $defaultDir = 'desc',
+    ): Builder {
+        $sort = (string) $request->query('sort', $default);
+        if (! in_array($sort, $allowedFields, true)) {
+            $sort = $default;
+        }
+
+        $dir = strtolower((string) $request->query('dir', $defaultDir));
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = $defaultDir;
+        }
+
+        return $query->orderBy($sort, $dir);
+    }
+
+    /**
      * Convenience wrapper that applies internal_name search and paginates in one call.
-     * Returns array with: paginator instance and the sanitized search string.
+     * Returns array with: paginator instance, the sanitized search string,
+     * the resolved sort field, and the resolved sort direction.
+     *
+     * When $allowedSortFields is non-empty, applySort() is called and the current
+     * sort/dir values are returned. When empty, the legacy orderByDesc('created_at')
+     * behaviour is preserved so existing callers are unaffected.
      *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
-     * @return array{0: LengthAwarePaginator, 1: string}
+     * @param  array<int, string>  $allowedSortFields
+     * @return array{0: LengthAwarePaginator, 1: string, 2: string, 3: string}
      */
-    protected function searchAndPaginate(Builder $baseQuery, Request $request): array
-    {
+    protected function searchAndPaginate(
+        Builder $baseQuery,
+        Request $request,
+        array $allowedSortFields = [],
+        string $defaultSort = 'created_at',
+        string $defaultDir = 'desc',
+    ): array {
         $perPage = $this->resolvePerPage($request);
         [$query, $search] = $this->applyInternalNameSearch($baseQuery, $request);
-        $paginator = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
-        return [$paginator, $search];
+        if ($allowedSortFields !== []) {
+            $this->applySort($query, $request, $allowedSortFields, $defaultSort, $defaultDir);
+            $sort = (string) $request->query('sort', $defaultSort);
+            if (! in_array($sort, $allowedSortFields, true)) {
+                $sort = $defaultSort;
+            }
+            $dir = strtolower((string) $request->query('dir', $defaultDir));
+            if (! in_array($dir, ['asc', 'desc'], true)) {
+                $dir = $defaultDir;
+            }
+        } else {
+            $query->orderByDesc('created_at');
+            $sort = $defaultSort;
+            $dir = $defaultDir;
+        }
+
+        $paginator = $query->paginate($perPage)->withQueryString();
+
+        return [$paginator, $search, $sort, $dir];
     }
 }

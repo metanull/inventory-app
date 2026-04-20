@@ -30,9 +30,43 @@ class CollectionController extends Controller
 
     public function index(Request $request): View
     {
-        [$collections, $search] = $this->searchAndPaginate(Collection::query()->with(['context', 'language']), $request);
+        $search = trim((string) $request->query('q', ''));
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+        $parentId = (string) $request->query('parent_id', '');
+        $hierarchyMode = filter_var($request->query('hierarchy', '1'), FILTER_VALIDATE_BOOLEAN);
 
-        return view('collections.index', compact('collections', 'search'));
+        $allowedSortFields = ['internal_name', 'display_order', 'created_at'];
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+
+        $query = Collection::query()->with(['context', 'language'])->withCount('children');
+
+        if ($search !== '') {
+            $query->where('internal_name', 'LIKE', "%{$search}%");
+        }
+
+        if ($hierarchyMode) {
+            if ($parentId !== '') {
+                $query->childrenOf($parentId);
+            } else {
+                $query->roots();
+            }
+        }
+
+        $query->orderBy($sort, $dir);
+        $perPage = $this->resolvePerPage($request);
+        $collections = $query->paginate($perPage)->withQueryString();
+
+        $breadcrumbs = $this->buildIndexBreadcrumbs($parentId);
+
+        return view('collections.index', compact(
+            'collections', 'search', 'sort', 'dir', 'parentId', 'hierarchyMode', 'breadcrumbs',
+        ));
     }
 
     public function show(Collection $collection): View
@@ -222,6 +256,22 @@ class CollectionController extends Controller
                 'url' => route('collections.show', $ancestor),
             ]);
             $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
+    private function buildIndexBreadcrumbs(string $parentId): array
+    {
+        if ($parentId === '') {
+            return [];
+        }
+
+        $breadcrumbs = [];
+        $current = Collection::with('parent.parent.parent.parent')->find($parentId);
+        while ($current) {
+            array_unshift($breadcrumbs, $current);
+            $current = $current->parent;
         }
 
         return $breadcrumbs;
