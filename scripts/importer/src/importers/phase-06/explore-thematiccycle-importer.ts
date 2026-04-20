@@ -104,6 +104,8 @@ export class ExploreThematicCycleImporter extends BaseImporter {
         );
       }
 
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo(`Found Explore by Theme: ${this.exploreByThemeId}`);
       this.logInfo('Importing thematic cycles...');

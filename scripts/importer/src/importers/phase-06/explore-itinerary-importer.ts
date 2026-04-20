@@ -121,6 +121,8 @@ export class ExploreItineraryImporter extends BaseImporter {
         );
       }
 
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo(`Found Explore by Itinerary: ${this.exploreByItineraryId}`);
       this.logInfo('Importing itineraries...');
