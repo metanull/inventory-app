@@ -26,7 +26,10 @@
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
+import {
+  selectItemInternalName,
+  type ItemInternalNameCandidate,
+} from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy location structure
@@ -147,7 +150,7 @@ export class ExploreLocationImporter extends BaseImporter {
           // Parse coordinates
           const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
 
-          const internalNameCandidates = [
+          const internalNameCandidates: ItemInternalNameCandidate[] = [
             {
               languageId: this.defaultLanguageId,
               value: legacy.label,
@@ -158,7 +161,7 @@ export class ExploreLocationImporter extends BaseImporter {
           for (const translation of translatedNames) {
             internalNameCandidates.push({
               languageId: mapLanguageCode(translation.langId),
-              value: translation.spelling,
+              value: translation.spelling ?? null,
             });
           }
 

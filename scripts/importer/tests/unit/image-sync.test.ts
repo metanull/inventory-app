@@ -4,10 +4,7 @@ import path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Connection } from 'mysql2/promise';
 
-import {
-  ImageSyncTool,
-  type ImageSyncOptions,
-} from '../../src/tools/image-sync.js';
+import { ImageSyncTool, type ImageSyncOptions } from '../../src/tools/image-sync.js';
 import type { ILogger } from '../../src/core/base-importer.js';
 
 class FakeConnection {

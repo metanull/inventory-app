@@ -1,6 +1,9 @@
 import type { ItemData } from '../../core/types.js';
 import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
-import { selectItemInternalName, type ItemInternalNameCandidate } from './item-internal-name-transformer.js';
+import {
+  selectItemInternalName,
+  type ItemInternalNameCandidate,
+} from './item-internal-name-transformer.js';
 
 export interface TravelMonumentTranslationCandidate {
   project_id: string;

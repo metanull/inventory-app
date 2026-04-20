@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  ItemItemLinkImporter,
-} from '../../src/importers/phase-01/item-item-link-importer.js';
+import { ItemItemLinkImporter } from '../../src/importers/phase-01/item-item-link-importer.js';
 import { ThgItemRelatedTranslationImporter } from '../../src/importers/phase-10/thg-item-related-translation-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
@@ -34,7 +32,11 @@ describe('Item-item link translation idempotency', () => {
     tracker = new UnifiedTracker();
     tracker.setMetadata('default_context_id', 'default-context-id');
     tracker.set('fr', 'fra', 'language');
-    tracker.set('mwnf3:link:object_object:EPM:eg:cairo:1:EPM:eg:cairo:2', 'link-uuid', 'item_item_link');
+    tracker.set(
+      'mwnf3:link:object_object:EPM:eg:cairo:1:EPM:eg:cairo:2',
+      'link-uuid',
+      'item_item_link'
+    );
 
     queryMock = vi.fn(async (sql: string) => {
       if (sql.includes('FROM mwnf3.objects_objects_justification')) {
