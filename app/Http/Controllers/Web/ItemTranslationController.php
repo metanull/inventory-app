@@ -33,26 +33,61 @@ class ItemTranslationController extends Controller
      */
     public function index(Request $request): View
     {
+        $search = trim((string) $request->input('q', ''));
+        $contextFilter = (string) $request->query('context', '');
+        $languageFilter = (string) $request->query('language', '');
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+
+        $allowedSortFields = ['name', 'created_at'];
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+
         $query = ItemTranslation::with(['item', 'language', 'context']);
 
-        // Apply search if provided
-        $search = $request->input('q');
-        if ($search) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('alternate_name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('alternate_name', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%")
                     ->orWhereHas('item', function ($itemQuery) use ($search) {
-                        $itemQuery->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%");
+                        $itemQuery->where('internal_name', 'LIKE', "%{$search}%")
+                            ->orWhere('id', 'LIKE', "%{$search}%");
                     });
             });
         }
 
-        $perPage = $request->input('perPage', 15);
-        $itemTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+        if ($contextFilter === 'default') {
+            $defaultContext = Context::where('is_default', true)->first();
+            if ($defaultContext) {
+                $query->where('context_id', $defaultContext->id);
+            }
+        } elseif ($contextFilter !== '') {
+            $query->where('context_id', $contextFilter);
+        }
 
-        return view('item-translations.index', compact('itemTranslations', 'search'));
+        if ($languageFilter === 'default') {
+            $defaultLanguage = Language::where('is_default', true)->first();
+            if ($defaultLanguage) {
+                $query->where('language_id', $defaultLanguage->id);
+            }
+        } elseif ($languageFilter !== '') {
+            $query->where('language_id', $languageFilter);
+        }
+
+        $perPage = $this->resolvePerPage($request);
+        $itemTranslations = $query->orderBy($sort, $dir)->paginate($perPage)->withQueryString();
+
+        $contexts = Context::orderBy('internal_name')->get();
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('item-translations.index', compact(
+            'itemTranslations', 'search', 'sort', 'dir', 'contextFilter', 'languageFilter', 'contexts', 'languages',
+        ));
     }
 
     /**

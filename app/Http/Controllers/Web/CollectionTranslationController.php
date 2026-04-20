@@ -10,12 +10,15 @@ use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Language;
+use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CollectionTranslationController extends Controller
 {
+    use SearchAndPaginate;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -30,11 +33,23 @@ class CollectionTranslationController extends Controller
      */
     public function index(Request $request): View
     {
+        $search = trim((string) $request->input('q', ''));
+        $contextFilter = (string) $request->query('context', '');
+        $languageFilter = (string) $request->query('language', '');
+        $sort = (string) $request->query('sort', 'created_at');
+        $dir = strtolower((string) $request->query('dir', 'desc'));
+
+        $allowedSortFields = ['title', 'created_at'];
+        if (! in_array($sort, $allowedSortFields, true)) {
+            $sort = 'created_at';
+        }
+        if (! in_array($dir, ['asc', 'desc'], true)) {
+            $dir = 'desc';
+        }
+
         $query = CollectionTranslation::with(['collection', 'language', 'context']);
 
-        // Apply search if provided
-        $search = $request->input('q');
-        if ($search) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
@@ -45,10 +60,33 @@ class CollectionTranslationController extends Controller
             });
         }
 
-        $perPage = $request->input('perPage', 15);
-        $collectionTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
+        if ($contextFilter === 'default') {
+            $defaultContext = Context::where('is_default', true)->first();
+            if ($defaultContext) {
+                $query->where('context_id', $defaultContext->id);
+            }
+        } elseif ($contextFilter !== '') {
+            $query->where('context_id', $contextFilter);
+        }
 
-        return view('collection-translations.index', compact('collectionTranslations', 'search'));
+        if ($languageFilter === 'default') {
+            $defaultLanguage = Language::where('is_default', true)->first();
+            if ($defaultLanguage) {
+                $query->where('language_id', $defaultLanguage->id);
+            }
+        } elseif ($languageFilter !== '') {
+            $query->where('language_id', $languageFilter);
+        }
+
+        $perPage = $this->resolvePerPage($request);
+        $collectionTranslations = $query->orderBy($sort, $dir)->paginate($perPage)->withQueryString();
+
+        $contexts = Context::orderBy('internal_name')->get();
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('collection-translations.index', compact(
+            'collectionTranslations', 'search', 'sort', 'dir', 'contextFilter', 'languageFilter', 'contexts', 'languages',
+        ));
     }
 
     /**

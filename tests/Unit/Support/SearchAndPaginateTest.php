@@ -4,6 +4,7 @@ namespace Tests\Unit\Support;
 
 use App\Models\Context;
 use App\Support\Web\SearchAndPaginate;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -28,17 +29,17 @@ class SearchAndPaginateTest extends TestCase
             use SearchAndPaginate;
 
             public function callApplySort(
-                \Illuminate\Database\Eloquent\Builder $query,
+                Builder $query,
                 Request $request,
                 array $allowedFields,
                 string $default = 'created_at',
                 string $defaultDir = 'desc',
-            ): \Illuminate\Database\Eloquent\Builder {
+            ): Builder {
                 return $this->applySort($query, $request, $allowedFields, $default, $defaultDir);
             }
 
             public function callSearchAndPaginate(
-                \Illuminate\Database\Eloquent\Builder $query,
+                Builder $query,
                 Request $request,
                 array $allowedSortFields = [],
                 string $defaultSort = 'created_at',
