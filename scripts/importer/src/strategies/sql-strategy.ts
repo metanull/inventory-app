@@ -621,7 +621,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Failed to create or find tag: ${sanitized.backward_compatibility}. Original error: ${message}`
+        `Failed to create or find tag: ${sanitized.backward_compatibility}. Original error: ${message}`,
+        { cause: error }
       );
     }
   }
@@ -674,7 +675,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Failed to create or find author: ${bc || sanitized.name}. Original error: ${message}`
+        `Failed to create or find author: ${bc || sanitized.name}. Original error: ${message}`,
+        { cause: error }
       );
     }
   }
@@ -743,7 +745,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Failed to create or find artist: ${sanitized.backward_compatibility}. Original error: ${message}`
+        `Failed to create or find artist: ${sanitized.backward_compatibility}. Original error: ${message}`,
+        { cause: error }
       );
     }
   }

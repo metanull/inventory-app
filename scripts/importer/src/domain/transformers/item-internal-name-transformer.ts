@@ -60,5 +60,7 @@ export function selectItemInternalName(
     };
   }
 
-  throw new Error(`${entityLabel} ${backwardCompatibility} missing required name field in all translations`);
+  throw new Error(
+    `${entityLabel} ${backwardCompatibility} missing required name field in all translations`
+  );
 }

@@ -18,11 +18,7 @@ const phase07Files = [
 describe('Phase 07 Travels schema usage', () => {
   it('queries legacy travel tables from mwnf3_travels and not mwnf3', () => {
     for (const fileName of phase07Files) {
-      const filePath = path.resolve(
-        import.meta.dirname,
-        '../../src/importers/phase-07',
-        fileName
-      );
+      const filePath = path.resolve(import.meta.dirname, '../../src/importers/phase-07', fileName);
       const source = readFileSync(filePath, 'utf8');
 
       expect(source).not.toContain('FROM mwnf3.tr_');

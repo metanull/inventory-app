@@ -655,7 +655,9 @@ export class ItemItemLinkImporter extends BaseImporter {
 
         const justificationBackwardCompat = `${linkBackwardCompat}:justification:${justification.lang_id}`;
 
-        if (await this.entityExistsAsync(justificationBackwardCompat, 'item_item_link_translation')) {
+        if (
+          await this.entityExistsAsync(justificationBackwardCompat, 'item_item_link_translation')
+        ) {
           result.skipped++;
           this.showSkipped();
           continue;
