@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckSelfRegistrationEnabled;
+use App\Http\Middleware\NoCacheHeaders;
 use App\Http\Middleware\RequirePermission;
 use App\Http\Middleware\RequireRole;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register authorization middleware
         $middleware->alias([
+            'no-cache-headers' => NoCacheHeaders::class,
             'permission' => RequirePermission::class,
             'role' => RequireRole::class,
             'role.spatie' => RoleMiddleware::class,
