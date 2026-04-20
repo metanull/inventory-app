@@ -24,6 +24,7 @@
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
+import { parseExplorePreparedBy } from '../../helpers/explore-prepared-by-parser.js';
 
 interface LegacyMonumentText {
   monumentId: number;
@@ -158,14 +159,39 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve author
+          const parsedPreparedBy = parseExplorePreparedBy(text.prepared_by);
+          const authorName = parsedPreparedBy?.authorName ?? text.prepared_by?.trim() ?? null;
+
+          // Resolve author roles
           let authorId: string | null = null;
-          if (text.prepared_by && text.prepared_by.trim()) {
-            authorId = await this.authorHelper.findOrCreate(text.prepared_by.trim());
+          if (authorName) {
+            authorId = await this.authorHelper.findOrCreate(authorName);
+          }
+
+          let textCopyEditorId: string | null = null;
+          if (parsedPreparedBy?.textCopyEditorName) {
+            textCopyEditorId = await this.authorHelper.findOrCreate(
+              parsedPreparedBy.textCopyEditorName
+            );
+          }
+
+          let translatorId: string | null = null;
+          if (parsedPreparedBy?.translatorName) {
+            translatorId = await this.authorHelper.findOrCreate(parsedPreparedBy.translatorName);
+          }
+
+          let translationCopyEditorId: string | null = null;
+          if (parsedPreparedBy?.translationCopyEditorName) {
+            translationCopyEditorId = await this.authorHelper.findOrCreate(
+              parsedPreparedBy.translationCopyEditorName
+            );
           }
 
           // Build extra JSON
           const extra: Record<string, unknown> = {};
+          if (parsedPreparedBy?.preserveRawInExtra && text.prepared_by) {
+            extra.prepared_by = text.prepared_by;
+          }
           if (text.how_to_reach) extra.how_to_reach = text.how_to_reach;
           if (text.info) extra.info = text.info;
           if (text.contact) extra.contact = text.contact;
@@ -225,6 +251,9 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             dates: text.date ?? null,
             type: text.styles ?? null,
             author_id: authorId,
+            text_copy_editor_id: textCopyEditorId,
+            translator_id: translatorId,
+            translation_copy_editor_id: translationCopyEditorId,
             extra: extraJson,
           });
 
