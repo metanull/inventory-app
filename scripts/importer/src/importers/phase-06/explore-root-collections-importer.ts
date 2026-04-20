@@ -92,8 +92,8 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
 
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
 
-      // Default to 'eng' - we don't need to query legacy DB for language
-      // since our system uses 3-letter ISO codes
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
       this.logInfo(`Using default language: ${this.defaultLanguageId}`);
       this.logInfo('Creating root collections for Explore...');
 

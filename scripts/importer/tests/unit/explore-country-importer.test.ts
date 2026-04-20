@@ -32,6 +32,7 @@ describe('ExploreCountryImporter', () => {
     tracker = new UnifiedTracker();
     tracker.set('mwnf3_explore:context', 'explore-context-uuid', 'context');
     tracker.set('mwnf3_explore:root:explore_by_country', 'explore-country-root-uuid', 'collection');
+    tracker.setMetadata('default_language_id', 'eng');
 
     queryMock = vi.fn(async (sql: string, values?: unknown) => {
       if (sql.includes('SELECT DISTINCT countryId FROM mwnf3_explore.locations')) {
@@ -100,6 +101,25 @@ describe('ExploreCountryImporter', () => {
     expect(logger.warning).not.toHaveBeenCalled();
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
+  });
+
+  it('uses the resolved default language id instead of a hardcoded eng value', async () => {
+    tracker.setMetadata('default_language_id', 'fra');
+
+    const importer = new ExploreCountryImporter(context);
+    await importer.import();
+
+    expect(writeCollectionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language_id: 'fra',
+      })
+    );
+    expect(writeCollectionTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        language_id: 'fra',
+        backward_compatibility: 'mwnf3_explore:country:at:translation:fra',
+      })
+    );
   });
 
   it('fails explicitly when legacy country-name lookup errors instead of masking it as missing data', async () => {

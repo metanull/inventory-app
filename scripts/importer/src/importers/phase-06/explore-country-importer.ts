@@ -77,6 +77,8 @@ export class ExploreCountryImporter extends BaseImporter {
         );
       }
 
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo(`Found Explore by Country: ${this.exploreByCountryId}`);
       this.logInfo('Importing countries from Explore locations...');
@@ -190,10 +192,9 @@ export class ExploreCountryImporter extends BaseImporter {
       );
       return result.length > 0 ? result[0].name : null;
     } catch (error) {
-      throw new Error(
-        `Failed to resolve country name for Explore country ${countryId}`,
-        { cause: error }
-      );
+      throw new Error(`Failed to resolve country name for Explore country ${countryId}`, {
+        cause: error,
+      });
     }
   }
 }
