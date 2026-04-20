@@ -6,7 +6,7 @@
  * entities from the main mwnf3.monuments table and have their own content.
  *
  * Legacy schema:
- * - mwnf3.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
+ * - mwnf3_travels.tr_monuments (project_id, country, itinerary_id, location_id, number, lang, trail_id, title)
  *   - Composite key: (project_id, country, trail_id, itinerary_id, location_id, number)
  *   - Multiple rows per monument (one per language)
  *   - These are travel-specific monuments, separate from mwnf3.monuments
@@ -17,7 +17,7 @@
  *
  * Mapping:
  * - (project_id, country, trail_id, itinerary_id, location_id, number) → backward_compatibility
- * - title → used to create internal_name (slugified)
+ * - title → internal_name (default language first, then first named translation)
  * - type = 'monument'
  * - Linked to parent location collection via collection_item pivot
  *
@@ -28,17 +28,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
+import { transformTravelsMonument } from '../../domain/transformers/travels-monument-transformer.js';
 
 /**
  * Legacy travel monument structure
@@ -94,11 +84,12 @@ export class TravelsMonumentImporter extends BaseImporter {
       }
 
       this.logInfo('Importing travel monuments...');
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       // Query all travel monuments from legacy database
       const monuments = await this.context.legacyDb.query<LegacyTravelMonument>(
         `SELECT project_id, country, itinerary_id, location_id, number, lang, trail_id, title
-         FROM mwnf3.tr_monuments 
+        FROM mwnf3_travels.tr_monuments 
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, lang`
       );
 
@@ -132,19 +123,15 @@ export class TravelsMonumentImporter extends BaseImporter {
             continue;
           }
 
-          // Find English title for internal name (or first available)
-          const englishTranslation = group.translations.find((t) => t.lang === 'en');
-          const primaryTranslation = englishTranslation || group.translations[0];
-
-          if (!primaryTranslation) {
-            this.logWarning(`No translations found for monument: ${backwardCompat}`);
-            result.skipped++;
-            this.showSkipped();
-            continue;
+          const transformed = transformTravelsMonument(group, defaultLanguageId);
+          if (transformed.warning) {
+            this.logWarning(transformed.warning);
           }
 
-          // Create internal name
-          const internalName = `tr_mon_${group.project_id}_${group.country}_${group.trail_id}_${group.itinerary_id}_${group.location_id}_${group.number}_${slugify(primaryTranslation.title || 'unnamed')}`;
+          const primaryTranslation = group.translations[0];
+          if (!primaryTranslation) {
+            throw new Error(`Travels monument ${backwardCompat} has no translation rows`);
+          }
 
           // Collect sample
           this.collectSample(
@@ -156,7 +143,7 @@ export class TravelsMonumentImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create monument: ${internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create monument: ${transformed.data.internal_name}`
             );
             this.registerEntity('', backwardCompat, 'item');
             result.imported++;
@@ -164,29 +151,12 @@ export class TravelsMonumentImporter extends BaseImporter {
             continue;
           }
 
-          // Get country ID
-          const countryId = await this.getEntityUuidAsync(group.country, 'country');
-          if (!countryId) {
-            this.logWarning(
-              `Country not found for code '${group.country}' in monument ${backwardCompat}, importing without country`
-            );
-          }
-
           // Write Item
           const itemId = await this.context.strategy.writeItem({
-            internal_name: internalName,
-            backward_compatibility: backwardCompat,
-            type: 'monument',
+            ...transformed.data,
             partner_id: null, // Travel monuments don't have a specific partner
             collection_id: locationId, // Primary collection is the location
-            parent_id: null,
-            country_id: countryId,
             project_id: null, // No project association
-            owner_reference: null,
-            mwnf_reference: null,
-            latitude: null,
-            longitude: null,
-            map_zoom: null,
           });
 
           this.registerEntity(itemId, backwardCompat, 'item');

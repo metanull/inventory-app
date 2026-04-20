@@ -10,7 +10,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { mapCountryCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 // Get the directory of the current module for robust path resolution
 const __filename = fileURLToPath(import.meta.url);
@@ -126,9 +127,6 @@ export class CountryTranslationImporter extends BaseImporter {
     try {
       this.logInfo('Importing country translations from legacy database...');
 
-      // Import the transformer
-      const { transformCountryTranslation } = await import('../../domain/transformers/index.js');
-
       // Query country translations from legacy database
       interface LegacyCountryName {
         country: string;
@@ -183,13 +181,16 @@ export class CountryTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Transform and write country translation
-          const transformed = transformCountryTranslation({
-            code: legacy.country,
-            lang: legacy.lang,
+          await this.context.strategy.writeCountryTranslation({
+            country_id: mapCountryCode(legacy.country),
+            language_id: mapLanguageCode(legacy.lang),
             name: legacy.name,
+            backward_compatibility: formatBackwardCompatibility({
+              schema: 'mwnf3',
+              table: 'countrynames',
+              pkValues: [legacy.country, legacy.lang],
+            }),
           });
-          await this.context.strategy.writeCountryTranslation(transformed.data);
 
           result.imported++;
           this.showProgress();

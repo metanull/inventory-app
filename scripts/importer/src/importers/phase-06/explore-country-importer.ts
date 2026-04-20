@@ -14,6 +14,7 @@
  * Mapping:
  * - countryId → backward_compatibility (mwnf3_explore:country:{countryId})
  * - countryId → country_id (FK to countries table)
+ * - country name → internal_name (human-readable title)
  * - type = 'collection'
  * - parent_id = explore_by_country root collection
  *
@@ -25,6 +26,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { mapCountryCode } from '../../utils/code-mappings.js';
 
 /**
  * Country info from locations
@@ -75,6 +77,8 @@ export class ExploreCountryImporter extends BaseImporter {
         );
       }
 
+      this.defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo(`Found Explore by Country: ${this.exploreByCountryId}`);
       this.logInfo('Importing countries from Explore locations...');
@@ -98,9 +102,18 @@ export class ExploreCountryImporter extends BaseImporter {
           }
 
           // Map country ID (legacy uses 2-letter, our system uses 3-letter ISO codes)
-          const countryId = this.mapCountryId(legacy.countryId);
+          const countryId = mapCountryCode(legacy.countryId);
 
-          const internalName = `country_${legacy.countryId}`;
+          const countryName = await this.getCountryName(legacy.countryId);
+          let internalName = '';
+          if (countryName && countryName.trim() !== '') {
+            internalName = countryName;
+          } else {
+            internalName = legacy.countryId.toUpperCase();
+            this.logWarning(
+              `Explore country ${backwardCompat} missing country name, using ${internalName} instead`
+            );
+          }
 
           // Collect sample
           this.collectSample(
@@ -136,7 +149,6 @@ export class ExploreCountryImporter extends BaseImporter {
           this.registerEntity(collectionId, backwardCompat, 'collection');
 
           // Create translation - use country name if available
-          const countryName = await this.getCountryName(legacy.countryId);
           const translationBackwardCompat = `${backwardCompat}:translation:${this.defaultLanguageId}`;
 
           await this.context.strategy.writeCollectionTranslation({
@@ -170,60 +182,19 @@ export class ExploreCountryImporter extends BaseImporter {
   }
 
   /**
-   * Map 2-letter country code to 3-letter ISO code
-   */
-  private mapCountryId(twoLetterCode: string): string | null {
-    // Common mappings from 2-letter to 3-letter ISO codes
-    const mapping: Record<string, string> = {
-      at: 'aut', // Austria
-      cz: 'cze', // Czech Republic
-      de: 'deu', // Germany
-      dz: 'dza', // Algeria
-      eg: 'egy', // Egypt
-      es: 'esp', // Spain
-      gr: 'grc', // Greece
-      hr: 'hrv', // Croatia
-      hu: 'hun', // Hungary
-      il: 'isr', // Israel
-      in: 'ind', // India
-      it: 'ita', // Italy
-      jo: 'jor', // Jordan
-      lb: 'lbn', // Lebanon
-      ma: 'mar', // Morocco
-      mc: 'mco', // Monaco
-      pa: 'pse', // Palestine
-      pl: 'pol', // Poland
-      pt: 'prt', // Portugal
-      qt: 'qat', // Qatar
-      sa: 'sau', // Saudi Arabia
-      sk: 'svk', // Slovakia
-      sy: 'syr', // Syria
-      tn: 'tun', // Tunisia
-      tr: 'tur', // Turkey
-      ua: 'ukr', // Ukraine
-    };
-
-    const threeLetterCode = mapping[twoLetterCode.toLowerCase()];
-    if (!threeLetterCode) {
-      this.logInfo(`Unknown country code mapping: ${twoLetterCode}`);
-      return null;
-    }
-
-    return threeLetterCode;
-  }
-
-  /**
    * Get country name from legacy database
    */
   private async getCountryName(countryId: string): Promise<string | null> {
     try {
       const result = await this.context.legacyDb.query<{ name: string }>(
-        `SELECT name FROM mwnf3.countries WHERE id = ? LIMIT 1`,
+        `SELECT name FROM mwnf3.countries WHERE country = ? LIMIT 1`,
         [countryId]
       );
       return result.length > 0 ? result[0].name : null;
-    } catch {
-      return null;
+    } catch (error) {
+      throw new Error(`Failed to resolve country name for Explore country ${countryId}`, {
+        cause: error,
+      });
     }
   }
 }

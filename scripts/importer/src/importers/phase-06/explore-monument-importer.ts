@@ -13,7 +13,7 @@
  *
  * Mapping:
  * - monumentId → backward_compatibility (mwnf3_explore:monument:{monumentId})
- * - title → internal_name (slugified)
+ * - exploremonumentext.name → internal_name (default language first, then first named translation)
  * - geoCoordinates → latitude, longitude
  * - zoom → map_zoom
  * - locationId → collection link (via collection_item pivot)
@@ -25,50 +25,11 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-
-/**
- * Convert a string to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 100);
-}
-
-/**
- * Legacy monument structure
- */
-interface LegacyMonument {
-  monumentId: number;
-  locationId: number | null;
-  title: string;
-  geoCoordinates: string | null;
-  zoom: number | null;
-  special_monument: string | null;
-  related_monument: string | null;
-}
-
-/**
- * Parse legacy geoCoordinates format
- */
-function parseGeoCoordinates(coords: string | null): [number | null, number | null] {
-  if (!coords || !coords.trim()) {
-    return [null, null];
-  }
-  const cleaned = coords.replace(/\s+/g, '').trim();
-  const parts = cleaned.split(',');
-  if (parts.length !== 2) {
-    return [null, null];
-  }
-  const lat = parseFloat(parts[0]);
-  const lon = parseFloat(parts[1]);
-  if (isNaN(lat) || isNaN(lon)) {
-    return [null, null];
-  }
-  return [lat, lon];
-}
+import {
+  transformExploreMonument,
+  type ExploreLegacyMonument,
+  type ExploreMonumentNameTranslation,
+} from '../../domain/transformers/explore-monument-transformer.js';
 
 export class ExploreMonumentImporter extends BaseImporter {
   private exploreContextId: string | null = null;
@@ -99,14 +60,42 @@ export class ExploreMonumentImporter extends BaseImporter {
 
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo('Importing Explore monuments...');
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
       // Query monuments from legacy database
-      const monuments = await this.context.legacyDb.query<LegacyMonument>(
+      const monuments = await this.context.legacyDb.query<ExploreLegacyMonument>(
         `SELECT monumentId, locationId, title, geoCoordinates, zoom, special_monument, related_monument
          FROM mwnf3_explore.exploremonument 
-         WHERE title IS NOT NULL AND title != ''
          ORDER BY locationId, monumentId`
       );
+
+      const monumentTranslations = await this.context.legacyDb.query<
+        ExploreMonumentNameTranslation & { monumentId: number }
+      >(
+        `SELECT monumentId, langId, name
+         FROM mwnf3_explore.exploremonumentext
+         WHERE name IS NOT NULL AND name != ''
+         ORDER BY monumentId, langId`
+      );
+
+      const translationsByMonumentId = new Map<number, ExploreMonumentNameTranslation[]>();
+      for (const translation of monumentTranslations) {
+        const existingTranslations = translationsByMonumentId.get(translation.monumentId);
+        if (existingTranslations) {
+          existingTranslations.push({
+            langId: translation.langId,
+            name: translation.name,
+          });
+          continue;
+        }
+
+        translationsByMonumentId.set(translation.monumentId, [
+          {
+            langId: translation.langId,
+            name: translation.name,
+          },
+        ]);
+      }
 
       this.logInfo(`Found ${monuments.length} monuments to import`);
 
@@ -121,11 +110,17 @@ export class ExploreMonumentImporter extends BaseImporter {
             continue;
           }
 
-          // Parse coordinates
-          const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
+          const translations = translationsByMonumentId.get(legacy.monumentId);
+          if (!translations) {
+            throw new Error(
+              `Explore monument ${backwardCompat} missing translation rows required for internal_name selection`
+            );
+          }
 
-          // Create internal name (with location context if available)
-          const internalName = `explore_monument_${legacy.monumentId}_${slugify(legacy.title)}`;
+          const transformed = transformExploreMonument(legacy, translations, defaultLanguageId);
+          if (transformed.warning) {
+            this.logWarning(transformed.warning);
+          }
 
           // Collect sample
           this.collectSample(
@@ -136,7 +131,7 @@ export class ExploreMonumentImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create item: ${internalName} (${backwardCompat})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create item: ${transformed.data.internal_name} (${backwardCompat})`
             );
             this.registerEntity('', backwardCompat, 'item');
             result.imported++;
@@ -146,31 +141,22 @@ export class ExploreMonumentImporter extends BaseImporter {
 
           // Write item using strategy
           const itemId = await this.context.strategy.writeItem({
-            internal_name: internalName,
-            backward_compatibility: backwardCompat,
-            type: 'monument',
+            ...transformed.data,
             collection_id: null,
             partner_id: null,
-            country_id: null,
             project_id: null,
-            parent_id: null,
-            owner_reference: null,
-            mwnf_reference: null,
-            latitude,
-            longitude,
-            map_zoom: legacy.zoom ?? null,
           });
 
           this.registerEntity(itemId, backwardCompat, 'item');
 
           // Link item to location collection if available
-          if (legacy.locationId) {
-            const collectionId = await this.getLocationCollectionId(legacy.locationId);
+          if (transformed.locationId) {
+            const collectionId = await this.getLocationCollectionId(transformed.locationId);
             if (collectionId) {
               await this.context.strategy.writeCollectionItem({
                 collection_id: collectionId,
                 item_id: itemId,
-                backward_compatibility: `${backwardCompat}:collection_link:${legacy.locationId}`,
+                backward_compatibility: `${backwardCompat}:collection_link:${transformed.locationId}`,
                 display_order: null,
               });
             }

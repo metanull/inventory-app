@@ -1,11 +1,11 @@
 /**
  * Travels Monument Picture Importer
  *
- * Imports pictures from mwnf3.tr_monuments_pictures as ItemImages.
+ * Imports pictures from mwnf3_travels.tr_monuments_pictures as ItemImages.
  * This is the largest travel picture table (~7000 records).
  *
  * Legacy schema:
- * - mwnf3.tr_monuments_pictures (country, project_id, lang, itinerary_id, location_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
+ * - mwnf3_travels.tr_monuments_pictures (country, project_id, lang, itinerary_id, location_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
  *   - PK: (lang, project_id, country, trail_id, itinerary_id, location_id, number, image_number, type)
  *   - Type: usually empty string
  *
@@ -72,7 +72,7 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
       // Query all monument pictures
       const pictures = await this.context.legacyDb.query<LegacyMonumentPicture>(
         `SELECT country, project_id, lang, itinerary_id, location_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type
-         FROM mwnf3.tr_monuments_pictures
+        FROM mwnf3_travels.tr_monuments_pictures
          ORDER BY project_id, country, trail_id, itinerary_id, location_id, number, type, image_number, lang`
       );
 

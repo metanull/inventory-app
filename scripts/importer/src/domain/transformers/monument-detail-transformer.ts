@@ -10,6 +10,7 @@ import type { ItemData, ItemTranslationData } from '../../core/types.js';
 import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { selectItemInternalName } from './item-internal-name-transformer.js';
 
 /**
  * Transformed monument detail result
@@ -106,29 +107,19 @@ export function transformMonumentDetail(
 
   const countryId = mapCountryCode(group.country_id);
 
-  // Find translation in default language
-  const defaultTranslation = group.translations.find(
-    (t) => mapLanguageCode(t.lang_id) === defaultLanguageId
+  const selectedInternalName = selectItemInternalName(
+    group.translations.map((translation) => ({
+      languageId: mapLanguageCode(translation.lang_id),
+      value: translation.name === undefined ? null : translation.name,
+    })),
+    defaultLanguageId,
+    'Monument detail',
+    backwardCompatibility
   );
-
-  let selectedTranslation = defaultTranslation;
-  let warning: string | null = null;
-
-  if (!defaultTranslation) {
-    // Warn and use first available translation
-    selectedTranslation = group.translations[0];
-    warning = `Monument detail ${backwardCompatibility} has no translation in default language ${defaultLanguageId}, using ${mapLanguageCode(selectedTranslation!.lang_id)} instead`;
-  }
-
-  // internal_name must always be converted from selected translation name - no fallback
-  if (!selectedTranslation!.name) {
-    throw new Error(`Monument detail ${backwardCompatibility} missing required name field`);
-  }
-  const internalName = convertHtmlToMarkdown(selectedTranslation!.name);
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'detail',
-    internal_name: internalName,
+    internal_name: selectedInternalName.internalName,
     owner_reference: null,
     mwnf_reference: null,
     backward_compatibility: backwardCompatibility,
@@ -140,7 +131,7 @@ export function transformMonumentDetail(
     backwardCompatibility,
     countryId,
     parentBackwardCompatibility,
-    warning,
+    warning: selectedInternalName.warning,
   };
 }
 

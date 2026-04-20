@@ -380,20 +380,20 @@ NEW_IMAGES_ROOT=C:\path\to\inventory-app\storage\app\pictures
 
 ### Required Environment Variables
 
-| Variable             | Description                     | Default                          |
-| -------------------- | ------------------------------- | -------------------------------- |
-| `LEGACY_DB_HOST`     | Legacy database hostname        | `localhost`                      |
-| `LEGACY_DB_PORT`     | Legacy database port            | `3306`                           |
-| `LEGACY_DB_USER`     | Legacy database username        | `root`                           |
-| `LEGACY_DB_PASSWORD` | Legacy database password        | (empty)                          |
-| `LEGACY_DB_DATABASE` | Legacy database name            | `mwnf3`                          |
-| `DB_HOST`            | Target database hostname        | `localhost`                      |
-| `DB_PORT`            | Target database port            | `3306`                           |
-| `DB_USERNAME`        | Target database username        | `root`                           |
-| `DB_PASSWORD`        | Target database password        | (empty)                          |
-| `DB_DATABASE`        | Target database name            | `inventory`                      |
-| `LEGACY_IMAGES_ROOT` | Root directory of legacy images | `C:\mwnf-server\pictures\images` |
-| `NEW_IMAGES_ROOT`    | Target image storage directory (overrides artisan) | *(resolved via `php artisan storage:image-path`)* |
+| Variable             | Description                                        | Default                                           |
+| -------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| `LEGACY_DB_HOST`     | Legacy database hostname                           | `localhost`                                       |
+| `LEGACY_DB_PORT`     | Legacy database port                               | `3306`                                            |
+| `LEGACY_DB_USER`     | Legacy database username                           | `root`                                            |
+| `LEGACY_DB_PASSWORD` | Legacy database password                           | (empty)                                           |
+| `LEGACY_DB_DATABASE` | Legacy database name                               | `mwnf3`                                           |
+| `DB_HOST`            | Target database hostname                           | `localhost`                                       |
+| `DB_PORT`            | Target database port                               | `3306`                                            |
+| `DB_USERNAME`        | Target database username                           | `root`                                            |
+| `DB_PASSWORD`        | Target database password                           | (empty)                                           |
+| `DB_DATABASE`        | Target database name                               | `inventory`                                       |
+| `LEGACY_IMAGES_ROOT` | Root directory of legacy images                    | `C:\mwnf-server\pictures\images`                  |
+| `NEW_IMAGES_ROOT`    | Target image storage directory (overrides artisan) | _(resolved via `php artisan storage:image-path`)_ |
 
 ### Validating Database Connections
 

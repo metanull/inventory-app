@@ -1,10 +1,10 @@
 /**
  * Travels Itinerary Picture Importer
  *
- * Imports pictures from mwnf3.tr_itineraries_pictures as CollectionImages.
+ * Imports pictures from mwnf3_travels.tr_itineraries_pictures as CollectionImages.
  *
  * Legacy schema:
- * - mwnf3.tr_itineraries_pictures (lang, country, project_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
+ * - mwnf3_travels.tr_itineraries_pictures (lang, country, project_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
  *   - PK: (lang, project_id, country, trail_id, number, image_number, type)
  *   - Types: sketch, or empty
  *
@@ -67,7 +67,7 @@ export class TravelsItineraryPictureImporter extends BaseImporter {
       // Query all itinerary pictures
       const pictures = await this.context.legacyDb.query<LegacyItineraryPicture>(
         `SELECT lang, country, project_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type
-         FROM mwnf3.tr_itineraries_pictures
+        FROM mwnf3_travels.tr_itineraries_pictures
          ORDER BY project_id, country, trail_id, number, type, image_number, lang`
       );
 

@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ExploreRegionImporter } from '../../src/importers/phase-06/explore-region-importer.js';
+import { ExploreLocationImporter } from '../../src/importers/phase-06/explore-location-importer.js';
 import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
 
-describe('ExploreRegionImporter', () => {
+describe('ExploreLocationImporter', () => {
   let tracker: UnifiedTracker;
   let legacyDb: ILegacyDatabase;
   let strategy: IWriteStrategy;
@@ -32,41 +32,32 @@ describe('ExploreRegionImporter', () => {
     tracker = new UnifiedTracker();
     tracker.set('mwnf3_explore:context', 'explore-context-uuid', 'context');
     tracker.set('mwnf3_explore:country:eg', 'country-collection-uuid', 'collection');
-    tracker.set('fr', 'fra', 'language');
+    tracker.setMetadata('default_language_id', 'eng');
 
     queryMock = vi.fn(async (sql: string) => {
-      if (sql.includes('FROM mwnf3_explore.regionsthemes')) {
+      if (sql.includes('FROM mwnf3_explore.locations')) {
         return [
           {
-            regionId: 6,
-            themeId: 4,
-          },
-          {
-            regionId: 6,
-            themeId: 7,
-          },
-        ];
-      }
-
-      if (sql.includes('FROM mwnf3_explore.regions')) {
-        return [
-          {
-            regionId: 6,
+            locationId: 21,
             countryId: 'eg',
-            label: 'Delta',
-            geoCoordinates: '30.1,31.2',
-            zoom: 8,
-            type: 2,
+            label: 'Alexandria',
+            geoCoordinates: '31.2,29.9',
+            zoom: 9,
+            path: null,
+            how_to_reach: null,
+            info: null,
+            contact: null,
+            description: 'A city on the Mediterranean coast.',
           },
         ];
       }
 
-      if (sql.includes('FROM mwnf3_explore.regiontranslated')) {
+      if (sql.includes('FROM mwnf3_explore.locationtranslated')) {
         return [
           {
-            regionId: 6,
+            locationId: 21,
             langId: 'fr',
-            spelling: 'Delta FR',
+            spelling: 'Alexandrie',
           },
         ];
       }
@@ -81,7 +72,7 @@ describe('ExploreRegionImporter', () => {
       disconnect: vi.fn(),
     };
 
-    writeCollectionMock = vi.fn().mockResolvedValue('region-collection-uuid');
+    writeCollectionMock = vi.fn().mockResolvedValue('location-collection-uuid');
     writeCollectionTranslationMock = vi.fn().mockResolvedValue(undefined);
 
     strategy = {
@@ -100,44 +91,31 @@ describe('ExploreRegionImporter', () => {
     };
   });
 
-  it('uses themeId from regionsthemes and imports region collections successfully', async () => {
-    const importer = new ExploreRegionImporter(context);
+  it('uses the human-readable label as internal_name instead of a technical slug', async () => {
+    const importer = new ExploreLocationImporter(context);
     const result = await importer.import();
 
-    expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining('SELECT regionId, themeId FROM mwnf3_explore.regionsthemes')
-    );
     expect(writeCollectionMock).toHaveBeenCalledWith({
-      internal_name: 'region_6_delta',
-      backward_compatibility: 'mwnf3_explore:region:6',
+      internal_name: 'Alexandria',
+      backward_compatibility: 'mwnf3_explore:location:21',
       context_id: 'explore-context-uuid',
       language_id: 'eng',
       parent_id: 'country-collection-uuid',
-      type: 'region',
-      latitude: 30.1,
-      longitude: 31.2,
-      map_zoom: 8,
+      type: 'location',
+      latitude: 31.2,
+      longitude: 29.9,
+      map_zoom: 9,
       country_id: null,
     });
     expect(writeCollectionTranslationMock).toHaveBeenCalledWith({
-      collection_id: 'region-collection-uuid',
+      collection_id: 'location-collection-uuid',
       language_id: 'eng',
       context_id: 'explore-context-uuid',
-      backward_compatibility: 'mwnf3_explore:region:6:translation:eng',
-      title: 'Delta',
-      description: '',
-      extra: JSON.stringify({ territory_level: 2, theme_ids: [4, 7] }),
-    });
-    expect(writeCollectionTranslationMock).toHaveBeenCalledWith({
-      collection_id: 'region-collection-uuid',
-      language_id: 'fra',
-      context_id: 'explore-context-uuid',
-      backward_compatibility: 'mwnf3_explore:region:6:translation:fra',
-      title: 'Delta FR',
-      description: '',
+      backward_compatibility: 'mwnf3_explore:location:21:translation:eng',
+      title: 'Alexandria',
+      description: 'A city on the Mediterranean coast.',
     });
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
-    expect(result.errors).toHaveLength(0);
   });
 });

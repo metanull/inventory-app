@@ -200,10 +200,10 @@ Image-sync runs locally against the legacy images, writing to a local temporary 
 npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
 
 # 2. SCP images to VPS production storage
-scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/images/
+scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
 ```
 
-Note: The OVH target images path is `/opt/inventory/shared/storage/app/public/images/` (in the shared storage directory, which is symlinked into each release's `storage/app/public/images`).
+Note: The OVH target images path is `/opt/inventory/shared/storage/app/public/pictures/` (in the shared storage directory, which is symlinked into each release's `storage/app/public/pictures`).
 
 **Post-import artisan commands on OVH** (run via SSH, not PSSession):
 ```powershell
@@ -224,21 +224,30 @@ git fetch origin fix/importer-gap
 git reset --hard origin/fix/importer-gap
 
 # 2. Reset the database
-php artisan db:wipe
-php artisan migrate:refresh --quiet
-php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+php artisan db:wipe --force
+php artisan migrate --force
+php artisan db:seed --class=MinimalDatabaseSeeder --force
 php artisan permission:sync
 
-# 3. Run the importer
+# 3. Create admin and regular users
+php artisan user:create havelangep@hotmail.com havelangep@hotmail.com
+php artisan user:email-verification havelangep@hotmail.com verify
+php artisan user:assign-role havelangep@hotmail.com "Manager of Users"
+
+php artisan user:create havelangep@gmail.com havelangep@gmail.com
+php artisan user:email-verification havelangep@gmail.com verify
+php artisan user:assign-role havelangep@gmail.com "Regular User"
+
+# 4. Run the importer
 cd E:\inventory\inventory-app\scripts\importer
 npm install
 npm run build
 npx tsx src/cli/import.ts import
 
-# 4. Sync images
+# 5. Sync images
 npx tsx src/cli/import.ts image-sync
 
-# 5. Post-import glossary resync (from app root)
+# 6. Post-import glossary resync (from app root)
 cd E:\inventory\inventory-app
 php artisan glossary:resync --remove-existing --force
 php artisan queue:work --queue=glossary
@@ -268,19 +277,31 @@ Invoke-Command -Session $session {
 # 1. Reset database (artisan via production instance)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
-    php artisan db:wipe
-    php artisan migrate:refresh --quiet
-    php artisan db:seed --class=MinimalDatabaseSeeder --quiet
+    php artisan db:wipe --force
+    php artisan migrate --force
+    php artisan db:seed --class=MinimalDatabaseSeeder --force
     php artisan permission:sync
 }
 
-# 2. Run importer (via temp instance — has scripts/ directory)
+# 2. Create admin and regular users (artisan via production instance)
+Invoke-Command -Session $session {
+    Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
+    php artisan user:create havelangep@hotmail.com havelangep@hotmail.com
+	php artisan user:email-verification havelangep@hotmail.com verify
+	php artisan user:assign-role havelangep@hotmail.com "Manager of Users"
+
+	php artisan user:create havelangep@gmail.com havelangep@gmail.com
+	php artisan user:email-verification havelangep@gmail.com verify
+	php artisan user:assign-role havelangep@gmail.com "Regular User"
+}
+
+# 3. Run importer (via temp instance — has scripts/ directory)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\temp\inventory-app\scripts\importer'
     npx tsx src/cli/import.ts import
 }
 
-# 3. Sync images (via temp instance, but target production storage)
+# 4. Sync images (via temp instance, but target production storage)
 Invoke-Command -Session $session {
     # Resolve the production image storage path
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
@@ -291,7 +312,7 @@ Invoke-Command -Session $session {
     npx tsx src/cli/import.ts image-sync --target-dir $targetDir
 }
 
-# 4. Post-import glossary resync (artisan via production instance)
+# 5. Post-import glossary resync (artisan via production instance)
 Invoke-Command -Session $session {
     Set-Location 'C:\mwnf-server\github-apps\production\inventory-app'
     php artisan glossary:resync --remove-existing --force
@@ -339,20 +360,29 @@ ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cat ~/.inventory-db-credential
 # 1. Ensure VPN is active and SSH tunnel is open (see above)
 
 # 2. Reset the OVH database (via SSH)
-ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:wipe'
-ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan migrate:refresh --quiet'
-ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:seed --class=MinimalDatabaseSeeder --quiet'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:wipe --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan migrate --force'
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan db:seed --class=MinimalDatabaseSeeder --force'
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan permission:sync'
 
-# 3. Run the importer locally (writes to OVH DB via tunnel)
+# 3. Create an admin user and a regular user (password is auto-generated and must be reset by the user via "Forgot password" flow)
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:create havelangep@hotmail.com havelangep@hotmail.com'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:email-verification havelangep@hotmail.com verify'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:assign-role havelangep@hotmail.com "Manager of Users"'
+
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:create havelangep@gmail.com havelangep@gmail.com'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:email-verification havelangep@gmail.com verify'
+ssh deploy@51.75.246.163 -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan user:assign-role havelangep@gmail.com "Regular User"'
+
+# 4. Run the importer locally (writes to OVH DB via tunnel)
 cd E:\inventory\inventory-app\scripts\importer
 npx tsx src/cli/import.ts import
 
-# 4. Sync images locally, then SCP to VPS
+# 5. Sync images locally, then SCP to VPS
 npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
-scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/images/
+scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
 
-# 5. Post-import glossary resync (via SSH)
+# 6. Post-import glossary resync (via SSH)
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan glossary:resync --remove-existing --force'
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan queue:work --queue=glossary --stop-when-empty'
 ```
@@ -363,7 +393,7 @@ ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && p
 |------|------|
 | App root | `/opt/inventory/current` (symlink → `releases/<timestamp>`) |
 | Shared storage | `/opt/inventory/shared/storage/` |
-| Target images | `/opt/inventory/shared/storage/app/public/images/` |
+| Target images | `/opt/inventory/shared/storage/app/public/pictures/` |
 | `.env` (Laravel) | `/opt/inventory/shared/.env` |
 | DB credentials | `/home/deploy/.inventory-db-credentials` |
 | Laravel logs | `/opt/inventory/shared/storage/logs/laravel.log` |

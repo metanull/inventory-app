@@ -126,11 +126,10 @@ export class ShNationalContextImporter extends BaseImporter {
           continue;
         }
 
-        // Resolve country
+        // Resolve country to canonical ISO-3 ID
         let countryId: string | null = null;
         try {
-          const mapped = mapCountryCode(legacy.country);
-          countryId = await this.getEntityUuidAsync(`countries:${mapped}`, 'country');
+          countryId = mapCountryCode(legacy.country);
         } catch {
           this.logWarning(
             `NC ${legacy.country}/${legacy.exhibition_id}: Unknown country code '${legacy.country}'`
