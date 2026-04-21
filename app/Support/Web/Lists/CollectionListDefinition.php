@@ -2,20 +2,24 @@
 
 namespace App\Support\Web\Lists;
 
+use Illuminate\Validation\Rule;
+
 final class CollectionListDefinition extends ListDefinition
 {
+    public const MODE_HIERARCHY = 'hierarchy';
+
+    public const MODE_FLAT = 'flat';
+
     public function filterParameters(): array
     {
-        return ['context_id', 'language_id', 'parent_id', 'hierarchy'];
+        return ['parent_id', 'mode'];
     }
 
     public function filterRules(): array
     {
         return [
-            'context_id' => ['sometimes', 'nullable', 'uuid', 'exists:contexts,id'],
-            'language_id' => ['sometimes', 'nullable', 'string', 'size:3', 'exists:languages,id'],
             'parent_id' => ['sometimes', 'nullable', 'uuid', 'exists:collections,id'],
-            'hierarchy' => ['sometimes', 'boolean'],
+            'mode' => ['sometimes', 'string', Rule::in([self::MODE_HIERARCHY, self::MODE_FLAT])],
         ];
     }
 
@@ -37,10 +41,8 @@ final class CollectionListDefinition extends ListDefinition
     public function normalizeFilters(array $input): array
     {
         return array_filter([
-            'context_id' => $this->normalizeNullableString($input['context_id'] ?? null),
-            'language_id' => $this->normalizeNullableString($input['language_id'] ?? null),
             'parent_id' => $this->normalizeNullableString($input['parent_id'] ?? null),
-            'hierarchy' => $this->normalizeBoolean($input['hierarchy'] ?? null),
+            'mode' => $this->normalizeMode($input['mode'] ?? null),
         ], static fn (mixed $value): bool => $value !== null && $value !== []);
     }
 
@@ -55,16 +57,14 @@ final class CollectionListDefinition extends ListDefinition
         return $normalized === '' ? null : $normalized;
     }
 
-    private function normalizeBoolean(mixed $value): ?bool
+    private function normalizeMode(mixed $value): ?string
     {
-        if ($value === null || $value === '') {
+        if (! is_string($value)) {
             return null;
         }
 
-        if (is_bool($value)) {
-            return $value;
-        }
+        $normalized = strtolower(trim($value));
 
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        return in_array($normalized, [self::MODE_HIERARCHY, self::MODE_FLAT], true) ? $normalized : null;
     }
 }

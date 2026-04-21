@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexCollectionRequest;
 use App\Http\Requests\Web\StoreCollectionRequest;
 use App\Http\Requests\Web\UpdateCollectionRequest;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\Language;
+use App\Services\Web\CollectionIndexQuery;
+use App\Support\Web\Lists\CollectionListDefinition;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,9 +29,19 @@ class CollectionController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(): View
+    public function index(IndexCollectionRequest $request, CollectionIndexQuery $collectionIndexQuery): View
     {
-        return view('collections.index');
+        $listState = $request->listState();
+        $hierarchyMode = ($listState->filters['mode'] ?? CollectionListDefinition::MODE_HIERARCHY) === CollectionListDefinition::MODE_HIERARCHY;
+        $parentCollection = $hierarchyMode ? $this->resolveParentCollection($listState) : null;
+
+        return view('collections.index', [
+            'collections' => $collectionIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'hierarchyMode' => $hierarchyMode,
+            'parentCollection' => $parentCollection,
+            'breadcrumbs' => $hierarchyMode && $parentCollection ? $this->buildIndexBreadcrumbs($parentCollection) : [],
+        ]);
     }
 
     public function show(Collection $collection): View
@@ -217,6 +231,41 @@ class CollectionController extends Controller
                 'url' => route('collections.show', $ancestor),
             ]);
             $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
+    private function resolveParentCollection(ListState $listState): ?Collection
+    {
+        $parentId = $listState->filters['parent_id'] ?? null;
+
+        if (! is_string($parentId) || $parentId === '') {
+            return null;
+        }
+
+        return Collection::query()
+            ->select('id', 'parent_id', 'internal_name')
+            ->find($parentId);
+    }
+
+    /**
+     * @return array<int, array{id: string, label: string}>
+     */
+    private function buildIndexBreadcrumbs(Collection $collection): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $collection;
+
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'id' => $ancestor->id,
+                'label' => $ancestor->internal_name,
+            ]);
+
+            $ancestor = $ancestor->parent()
+                ->select('id', 'parent_id', 'internal_name')
+                ->first();
         }
 
         return $breadcrumbs;

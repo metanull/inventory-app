@@ -46,7 +46,7 @@ class IndexListRequestTest extends TestCase
         $this->assertSame([], $partnerDefinition->filterParameters());
         $this->assertSame(['country'], $partnerDefinition->eagerLoads());
 
-        $this->assertSame(['context_id', 'language_id', 'parent_id', 'hierarchy'], $collectionDefinition->filterParameters());
+        $this->assertSame(['parent_id', 'mode'], $collectionDefinition->filterParameters());
         $this->assertSame(['context', 'language'], $collectionDefinition->eagerLoads());
     }
 
@@ -78,6 +78,17 @@ class IndexListRequestTest extends TestCase
         $this->assertSame(ItemType::OBJECT->value, $normalized['type']);
         $this->assertTrue($normalized['hierarchy']);
         $this->assertSame(['first-tag', 'second-tag'], $normalized['tags']);
+    }
+
+    public function test_collection_specific_filters_are_normalized_before_validation(): void
+    {
+        $normalized = app(ListInputNormalizer::class)->normalize([
+            'parent_id' => ' collection-parent ',
+            'mode' => ' FLAT ',
+        ], new CollectionListDefinition);
+
+        $this->assertSame('collection-parent', $normalized['parent_id']);
+        $this->assertSame(CollectionListDefinition::MODE_FLAT, $normalized['mode']);
     }
 
     public function test_item_index_request_accepts_documented_filters_and_sort_keys(): void
@@ -113,11 +124,9 @@ class IndexListRequestTest extends TestCase
 
     public function test_partner_and_collection_index_requests_accept_documented_contracts(): void
     {
-        $context = Context::factory()->create();
-        $language = Language::factory()->create();
         $parentCollection = Collection::factory()->create([
-            'context_id' => $context->id,
-            'language_id' => $language->id,
+            'context_id' => Context::factory()->create()->id,
+            'language_id' => Language::factory()->create()->id,
         ]);
 
         $partnerRequest = new IndexPartnerRequest;
@@ -132,10 +141,8 @@ class IndexListRequestTest extends TestCase
 
         $collectionRequest = new IndexCollectionRequest;
         $collectionValidator = Validator::make([
-            'context_id' => $context->id,
-            'language_id' => $language->id,
             'parent_id' => $parentCollection->id,
-            'hierarchy' => true,
+            'mode' => CollectionListDefinition::MODE_HIERARCHY,
             'sort' => 'display_order',
             'direction' => 'asc',
             'per_page' => 50,
