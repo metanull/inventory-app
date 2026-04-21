@@ -43,7 +43,7 @@ class IndexListRequestTest extends TestCase
         $partnerDefinition = new PartnerListDefinition;
         $collectionDefinition = new CollectionListDefinition;
 
-        $this->assertSame(['country_id', 'project_id', 'type', 'visible'], $partnerDefinition->filterParameters());
+        $this->assertSame([], $partnerDefinition->filterParameters());
         $this->assertSame(['country'], $partnerDefinition->eagerLoads());
 
         $this->assertSame(['context_id', 'language_id', 'parent_id', 'hierarchy'], $collectionDefinition->filterParameters());
@@ -111,10 +111,8 @@ class IndexListRequestTest extends TestCase
         $this->assertFalse($validator->errors()->any());
     }
 
-    public function test_partner_and_collection_index_requests_accept_documented_filters(): void
+    public function test_partner_and_collection_index_requests_accept_documented_contracts(): void
     {
-        $country = Country::factory()->create();
-        $project = Project::factory()->create();
         $context = Context::factory()->create();
         $language = Language::factory()->create();
         $parentCollection = Collection::factory()->create([
@@ -124,12 +122,11 @@ class IndexListRequestTest extends TestCase
 
         $partnerRequest = new IndexPartnerRequest;
         $partnerValidator = Validator::make([
-            'country_id' => $country->id,
-            'project_id' => $project->id,
-            'type' => 'museum',
-            'visible' => false,
+            'q' => 'museum',
+            'page' => 2,
             'sort' => 'created_at',
             'direction' => 'desc',
+            'per_page' => 20,
         ], $partnerRequest->rules());
         $partnerValidator->validate();
 

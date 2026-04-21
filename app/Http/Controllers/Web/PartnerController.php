@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexPartnerRequest;
 use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
 use App\Models\Country;
 use App\Models\Partner;
+use App\Services\Web\PartnerIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,9 +25,14 @@ class PartnerController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(): View
+    public function index(IndexPartnerRequest $request, PartnerIndexQuery $partnerIndexQuery): View
     {
-        return view('partners.index');
+        $listState = $request->listState();
+
+        return view('partners.index', [
+            'partners' => $partnerIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Partner $partner): View
