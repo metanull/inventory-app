@@ -332,6 +332,194 @@
 			"detail": "php artisan test --parallel --compact"
 		},
 		{
+			"label": "phpunit:run:ci:Unit",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Unit",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Api",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Api",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Web",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Web",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Web --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Configuration",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Configuration",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Console",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Console",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Console --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Event",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Event",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Event --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:Integration",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"artisan",
+				"test",
+				"--testsuite=Integration",
+				"--coverage",
+				"--parallel",
+				"--no-ansi",
+				"--stop-on-failure"
+			],
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-on-failure"
+		},
+		{
+			"label": "phpunit:run:ci:matrix",
+			"dependsOn": [
+				"phpunit:run:ci:Unit",
+				"phpunit:run:ci:Api",
+				"phpunit:run:ci:Web",
+				"phpunit:run:ci:Configuration",
+				"phpunit:run:ci:Console",
+				"phpunit:run:ci:Event",
+				"phpunit:run:ci:Integration"
+			],
+			"dependsOrder": "sequence",
+			"group": "test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [],
+			"detail": "Run the backend CI suite matrix locally in CI order"
+		},
+		{
 			"label": "npm-test:run:spa",
 			"type": "npm",
 			"script": "test",
@@ -383,7 +571,7 @@
 			"args": [
 				"pull_request",
 				"-W",
-				".github/workflows/continuous-integration.yml",
+				".github/workflows/ci-build-test.yml",
 				"--action-offline-mode",
 				"--env-file",
 				".env.ci"
@@ -409,7 +597,7 @@
 			"args": [
 				"pull_request",
 				"-W",
-				".github/workflows/continuous-integration.yml",
+				".github/workflows/ci-build-test.yml",
 				"--action-offline-mode",
 				"--env-file",
 				".env.ci",
@@ -437,7 +625,7 @@
 			"args": [
 				"pull_request",
 				"-W",
-				".github/workflows/continuous-integration.yml",
+				".github/workflows/ci-build-test.yml",
 				"--action-offline-mode",
 				"--env-file",
 				".env.ci",
@@ -465,7 +653,7 @@
 			"args": [
 				"pull_request",
 				"-W",
-				".github/workflows/continuous-integration.yml",
+				".github/workflows/ci-build-test.yml",
 				"--action-offline-mode",
 				"--env-file",
 				".env.ci",

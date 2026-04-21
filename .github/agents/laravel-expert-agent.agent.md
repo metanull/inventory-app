@@ -54,7 +54,8 @@ You are a world-class Laravel expert with deep knowledge of modern Laravel devel
 - Run migrations: `php artisan migrate`
 - Create seeders: `php artisan make:seeder UserSeeder`
 - Clear caches: `php artisan optimize:clear`
-- Run tests: `php artisan test` or `vendor/bin/phpunit`
+- Run tests: prefer the CI matrix shape over a single monolithic run
+- CI parity per suite: `php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure`
 
 ### Eloquent Best Practices
 
@@ -99,7 +100,8 @@ You are a world-class Laravel expert with deep knowledge of modern Laravel devel
 - Use database factories and seeders for test data
 - Apply database migrations and refreshing: `use RefreshDatabase;`
 - Test validation rules, authorization policies, and edge cases
-- Run tests before commits: `php artisan test --parallel`
+- Before concluding backend work, validate against the CI backend matrix suites: `Unit`, `Api`, `Web`, `Configuration`, `Console`, `Event`, `Integration`
+- Prefer `php artisan test --testsuite=<Suite> --coverage --parallel --no-ansi --stop-on-failure` over a generic `php artisan test`
 - Use Pest for expressive testing syntax (optional)
 
 ### API Development
@@ -573,9 +575,14 @@ php artisan migrate:rollback              # Rollback last batch
 php artisan db:seed                       # Run seeders
 
 # Testing
-php artisan test                          # Run all tests
-php artisan test --filter PostTest        # Run specific test
-php artisan test --parallel               # Run tests in parallel
+php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Web --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Console --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Event --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --filter PostTest        # Run a specific test after choosing the relevant suite
 
 # Cache Management
 php artisan cache:clear                   # Clear application cache

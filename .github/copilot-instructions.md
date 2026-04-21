@@ -135,13 +135,28 @@ composer dev
 ```powershell
 composer ci-lint          # Run Pint + Prettier (auto-fix)
 composer ci-lint:test     # Lint check only (non-modifying)
-composer ci-test          # Run Unit, Api, Web test suites (parallel)
-composer ci-test:integration  # Run Integration suite (non-parallel)
-composer ci-test:all      # Run all test suites
+composer ci-test          # Run Unit, Api, and Web suites with Laravel parallel runner
+composer ci-test:integration  # Run Integration suite only
+composer ci-test:all      # Run the full test suite in one command
 composer ci-build         # Build frontend assets (npm run build)
 composer ci-audit         # Composer validate + audit + npm audit
 composer ci-reset         # Full reset: db + config + install + build + seed
 ```
+
+**Backend CI matrix parity**
+```powershell
+php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Web --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Console --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Event --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-on-failure
+```
+
+Use the CI matrix commands above, or equivalent VS Code tasks, when validating backend changes that must match GitHub Actions behavior. Do not treat a single plain `php artisan test` run as CI parity.
+
+VS Code task runs are terminal-based and do not feed results back into the Testing panel. For interactive PHP test discovery and per-test results inside VS Code, use the `PHPUnit & Pest Test Explorer` extension and run tests from the Testing view instead of from tasks.
 
 **SPA commands** (run from `/spa/` directory):
 ```powershell

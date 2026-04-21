@@ -1,5 +1,6 @@
 {
   "recommendations": [
+    "recca0120.vscode-phpunit",
     "vue.volar",
     "bradlc.vscode-tailwindcss",
     "esbenp.prettier-vscode",
