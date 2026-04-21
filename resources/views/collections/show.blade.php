@@ -23,31 +23,31 @@
             <x-display.field label="Display Order" :value="$collection->display_order" />
         </x-display.description-list>
 
-        <x-entity.images-section entity="collections" :model="$collection" :images="$collectionImages" />
+        <x-entity.images-section entity="collections" :model="$collection" :images="$sections['images']['images']" />
 
         <!-- Child Collections Section -->
-        <x-entity.children-section :model="$collection" :children="$childCollections" />
+        <x-entity.children-section :model="$collection" :children="$sections['children']['items']" />
 
         <!-- Items Section -->
-        <x-entity.collection-items-section :model="$collection" :items="$collection->attachedItems" :attachable-items="$attachableItems" />
+        <x-entity.collection-items-section :model="$collection" :items="$sections['items']['items']" :attachable-items="$sections['items']['attachableItems']" />
 
         <!-- Translations Section -->
-        <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" :translation-groups="$translationGroups" />
+        <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" :translation-groups="$sections['translations']['groups']" />
 
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Parent Collection Card -->
-            <x-sidebar.parent-collection-card :model="$collection" :parent-collection="$collection->parent" :parent-options="$parentOptions" />
+            <x-sidebar.parent-collection-card :model="$collection" :parent-collection="$sections['parent']['collection']" :parent-options="$sections['parent']['options']" />
 
             <!-- Children Collections Card -->
-            <x-sidebar.children-collections-card :model="$collection" :children="$childCollections" />
+            <x-sidebar.children-collections-card :model="$collection" :children="$sections['children']['items']" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card
-                :id="$collection->id"
-                :backward-compatibility-id="$collection->backward_compatibility"
-                :created-at="$collection->created_at"
-                :updated-at="$collection->updated_at"
+                :id="$sections['system']['id']"
+                :backward-compatibility-id="$sections['system']['backwardCompatibilityId']"
+                :created-at="$sections['system']['createdAt']"
+                :updated-at="$sections['system']['updatedAt']"
             />
         </x-slot>
     </x-layout.show-page-v2>

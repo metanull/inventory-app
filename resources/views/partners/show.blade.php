@@ -35,22 +35,22 @@
         </x-display.description-list>
 
         <!-- Images Section -->
-        <x-entity.images-section entity="partners" :model="$partner" :images="$partnerImages" />
+        <x-entity.images-section entity="partners" :model="$partner" :images="$sections['images']['images']" />
 
         <!-- Translations Section -->
-        <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" :translation-groups="$translationGroups" />
+        <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" :translation-groups="$sections['translations']['groups']" />
 
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Monument Item Card -->
-            <x-sidebar.monument-item-card :partner="$partner" :monument-item="$partner->monumentItem" :monument-options="$monumentOptions" />
+            <x-sidebar.monument-item-card :partner="$partner" :monument-item="$sections['monument']['item']" :monument-options="$sections['monument']['options']" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card
-                :id="$partner->id"
-                :backward-compatibility-id="$partner->backward_compatibility"
-                :created-at="$partner->created_at"
-                :updated-at="$partner->updated_at"
+                :id="$sections['system']['id']"
+                :backward-compatibility-id="$sections['system']['backwardCompatibilityId']"
+                :created-at="$sections['system']['createdAt']"
+                :updated-at="$sections['system']['updatedAt']"
             />
         </x-slot>
     </x-layout.show-page-v2>

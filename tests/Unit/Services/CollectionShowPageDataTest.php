@@ -49,12 +49,19 @@ class CollectionShowPageDataTest extends TestCase
         $collection->parent?->internal_name;
         $collection->children->first()?->internal_name;
         $collection->attachedItems->first()?->itemImages->first()?->alt_text;
-        $pageData['collectionImages']->first()?->alt_text;
-        $pageData['translationGroups']->first()['translations']->first()?->language?->internal_name;
-        $pageData['childCollections']->first()?->internal_name;
-        $pageData['attachableItems']->first()?->internal_name;
-        $pageData['parentOptions']->first()?->internal_name;
-        $pageData['childCollections']->first()?->display_order;
+        $this->assertArrayHasKey('sections', $pageData);
+        $this->assertSame(
+            ['images', 'children', 'items', 'translations', 'parent', 'system'],
+            array_keys($pageData['sections'])
+        );
+
+        $pageData['sections']['images']['images']->first()?->alt_text;
+        $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
+        $pageData['sections']['children']['items']->first()?->internal_name;
+        $pageData['sections']['items']['attachableItems']->first()?->internal_name;
+        $pageData['sections']['parent']['options']->first()?->internal_name;
+        $pageData['sections']['children']['items']->first()?->display_order;
+        $pageData['sections']['system']['id'];
 
         $this->assertCount($queryCountAfterBuild, DB::getQueryLog());
         $this->assertTrue($collection->relationLoaded('context'));

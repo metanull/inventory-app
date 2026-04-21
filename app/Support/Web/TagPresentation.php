@@ -13,6 +13,10 @@ class TagPresentation
             'material' => 'teal',
             'artist' => 'purple',
             'dynasty' => 'yellow',
+            'subject' => 'indigo',
+            'type' => 'gray',
+            'filter' => 'red',
+            'image-type' => 'green',
             default => 'gray',
         };
     }

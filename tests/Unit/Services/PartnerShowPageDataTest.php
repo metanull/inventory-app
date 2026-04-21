@@ -37,9 +37,16 @@ class PartnerShowPageDataTest extends TestCase
         $partner->country?->internal_name;
         $partner->project?->internal_name;
         $partner->monumentItem?->internal_name;
-        $pageData['partnerImages']->first()?->alt_text;
-        $pageData['translationGroups']->first()['translations']->first()?->language?->internal_name;
-        $pageData['monumentOptions']->first()?->internal_name;
+        $this->assertArrayHasKey('sections', $pageData);
+        $this->assertSame(
+            ['images', 'translations', 'monument', 'system'],
+            array_keys($pageData['sections'])
+        );
+
+        $pageData['sections']['images']['images']->first()?->alt_text;
+        $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
+        $pageData['sections']['monument']['options']->first()?->internal_name;
+        $pageData['sections']['system']['id'];
 
         $this->assertCount($queryCountAfterBuild, DB::getQueryLog());
         $this->assertTrue($partner->relationLoaded('country'));

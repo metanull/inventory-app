@@ -10,7 +10,7 @@ class PartnerShowPageData
     public function __construct(private readonly TranslationSectionData $translationSectionData) {}
 
     /**
-     * @return array<string, mixed>
+     * @return array{sections: array<string, array<string, mixed>>}
      */
     public function build(Partner $partner): array
     {
@@ -24,12 +24,27 @@ class PartnerShowPageData
         ]);
 
         return [
-            'partnerImages' => $partner->partnerImages->values(),
-            'translationGroups' => $this->translationSectionData->build($partner->translations),
-            'monumentOptions' => Item::query()
-                ->monuments()
-                ->orderBy('internal_name')
-                ->get(),
+            'sections' => [
+                'images' => [
+                    'images' => $partner->partnerImages->values(),
+                ],
+                'translations' => [
+                    'groups' => $this->translationSectionData->build($partner->translations),
+                ],
+                'monument' => [
+                    'item' => $partner->monumentItem,
+                    'options' => Item::query()
+                        ->monuments()
+                        ->orderBy('internal_name')
+                        ->get(),
+                ],
+                'system' => [
+                    'id' => $partner->id,
+                    'backwardCompatibilityId' => $partner->backward_compatibility,
+                    'createdAt' => $partner->created_at,
+                    'updatedAt' => $partner->updated_at,
+                ],
+            ],
         ];
     }
 }

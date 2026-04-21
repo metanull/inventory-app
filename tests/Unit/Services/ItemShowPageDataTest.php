@@ -41,9 +41,11 @@ class ItemShowPageDataTest extends TestCase
         $parent = Item::factory()->create();
         $item->update(['parent_id' => $parent->id]);
         $child = Item::factory()->Detail()->create(['parent_id' => $item->id]);
+        $pictureChild = Item::factory()->Picture()->create(['parent_id' => $item->id]);
         $tag = Tag::factory()->create();
         $item->tags()->attach($tag);
         ItemImage::factory()->create(['item_id' => $item->id]);
+        ItemImage::factory()->create(['item_id' => $pictureChild->id]);
         ItemTranslation::factory()->forItem($item->id)->forLanguage($defaultLanguage->id)->forContext($defaultContext->id)->create();
         $target = Item::factory()->create();
         ItemItemLink::factory()->between($item, $target)->create();
@@ -62,13 +64,21 @@ class ItemShowPageDataTest extends TestCase
         $item->children->first()?->internal_name;
         $item->tags->first()?->description;
 
-        $pageData['itemImages']->first()?->alt_text;
-        $pageData['translationGroups']->first()['translations']->first()?->language?->internal_name;
-        $pageData['formattedLinks']->first()?->item?->internal_name;
-        $pageData['contextOptions']->first()?->internal_name;
-        $pageData['linkTargetOptions']->first()?->internal_name;
-        $pageData['parentOptions']->first()?->internal_name;
-        $pageData['childOptions']->first()?->internal_name;
+        $this->assertArrayHasKey('sections', $pageData);
+        $this->assertSame(
+            ['images', 'pictureChildren', 'translations', 'parent', 'children', 'tags', 'links', 'system'],
+            array_keys($pageData['sections'])
+        );
+
+        $pageData['sections']['images']['images']->first()?->alt_text;
+        $pageData['sections']['pictureChildren']['items']->first()?->itemImages->first()?->alt_text;
+        $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
+        $pageData['sections']['links']['formatted']->first()?->item?->internal_name;
+        $pageData['sections']['links']['contextOptions']->first()?->internal_name;
+        $pageData['sections']['links']['targetOptions']->first()?->internal_name;
+        $pageData['sections']['parent']['options']->first()?->internal_name;
+        $pageData['sections']['children']['options']->first()?->internal_name;
+        $pageData['sections']['system']['id'];
 
         $this->assertCount($queryCountAfterBuild, DB::getQueryLog());
         $this->assertTrue($item->relationLoaded('country'));
@@ -77,6 +87,10 @@ class ItemShowPageDataTest extends TestCase
         $this->assertTrue($item->relationLoaded('parent'));
         $this->assertTrue($item->relationLoaded('children'));
         $this->assertTrue($item->relationLoaded('tags'));
+        $this->assertTrue($pageData['sections']['pictureChildren']['items']->first()->relationLoaded('itemImages'));
+        $this->assertTrue($pageData['sections']['pictureChildren']['items']->contains('id', $pictureChild->id));
+        $this->assertFalse($pageData['sections']['children']['items']->contains('id', $pictureChild->id));
+        $this->assertTrue($pageData['sections']['children']['items']->contains('id', $child->id));
 
         DB::disableQueryLog();
     }

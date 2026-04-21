@@ -59,7 +59,7 @@
                         name="tag_id" 
                         :value="null"
                         :options="$availableTags"
-                        displayField="internal_name"
+                        displayField="display_label"
                         placeholder="Select a tag..."
                         searchPlaceholder="Type to search..."
                         required

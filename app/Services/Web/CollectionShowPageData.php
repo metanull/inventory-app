@@ -10,7 +10,7 @@ class CollectionShowPageData
     public function __construct(private readonly TranslationSectionData $translationSectionData) {}
 
     /**
-     * @return array<string, mixed>
+     * @return array{sections: array<string, array<string, mixed>>}
      */
     public function build(Collection $collection): array
     {
@@ -26,17 +26,37 @@ class CollectionShowPageData
         ]);
 
         return [
-            'collectionImages' => $collection->collectionImages->values(),
-            'translationGroups' => $this->translationSectionData->build($collection->translations),
-            'childCollections' => $collection->children->values(),
-            'attachableItems' => Item::query()
-                ->whereNotIn('id', $collection->attachedItems->pluck('id'))
-                ->orderBy('internal_name')
-                ->get(),
-            'parentOptions' => Collection::query()
-                ->whereKeyNot($collection->id)
-                ->orderBy('internal_name')
-                ->get(),
+            'sections' => [
+                'images' => [
+                    'images' => $collection->collectionImages->values(),
+                ],
+                'children' => [
+                    'items' => $collection->children->values(),
+                ],
+                'items' => [
+                    'items' => $collection->attachedItems->values(),
+                    'attachableItems' => Item::query()
+                        ->whereNotIn('id', $collection->attachedItems->pluck('id'))
+                        ->orderBy('internal_name')
+                        ->get(),
+                ],
+                'translations' => [
+                    'groups' => $this->translationSectionData->build($collection->translations),
+                ],
+                'parent' => [
+                    'collection' => $collection->parent,
+                    'options' => Collection::query()
+                        ->whereKeyNot($collection->id)
+                        ->orderBy('internal_name')
+                        ->get(),
+                ],
+                'system' => [
+                    'id' => $collection->id,
+                    'backwardCompatibilityId' => $collection->backward_compatibility,
+                    'createdAt' => $collection->created_at,
+                    'updatedAt' => $collection->updated_at,
+                ],
+            ],
         ];
     }
 }
