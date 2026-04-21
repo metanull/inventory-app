@@ -426,6 +426,7 @@ For detailed language and framework-specific guidelines, see:
 
 ## Common Pitfalls to Avoid
 
+- ❌ Using `| Select-Object -Last {x}` on php or composer commands to trim the output, hiding output forces re-executing the task in case of errors
 - ❌ Editing files in `/api-client/` (auto-generated)
 - ❌ Using `fetch`, `axios`, or local `/api-client/` in SPA Demo (use published npm package)
 - ❌ Altering existing migrations (create new ones)
