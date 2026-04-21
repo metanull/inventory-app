@@ -18,8 +18,8 @@
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@tailwindcss/postcss": "^4.1.16",
-        "@tailwindcss/upgrade": "^4.1.16",
+        "@tailwindcss/postcss": "^4.2.4",
+        "@tailwindcss/upgrade": "^4.2.4",
         "@types/node": "^25.3.3",
         "autoprefixer": "^10.4.19",
         "baseline-browser-mapping": "^2.10.11",
@@ -34,7 +34,7 @@
         "stylelint": "^17.6.0",
         "stylelint-config-standard": "^40.0.0",
         "tailwindcss": "^4.1.16",
-        "vite": "^8.0.3"
+        "vite": "^8.0.9"
     },
     "packageManager": "npm@11.6.2",
     "engines": {
