@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexPartnerTranslationImageRequest;
 use App\Http\Requests\Web\StorePartnerTranslationImageRequest;
 use App\Http\Requests\Web\UpdatePartnerTranslationImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
+use App\Services\Web\PartnerTranslationImageIndexQuery;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class PartnerTranslationImageController extends Controller
@@ -17,9 +20,23 @@ class PartnerTranslationImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
         $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy', 'detach']);
+    }
+
+    public function index(PartnerTranslation $partnerTranslation, IndexPartnerTranslationImageRequest $request, PartnerTranslationImageIndexQuery $partnerTranslationImageIndexQuery): View
+    {
+        $partnerTranslation->load('partner');
+        $listState = $request->listState();
+
+        return view('partner-translation-images.index', [
+            'partnerTranslationImages' => $partnerTranslationImageIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'partnerTranslation' => $partnerTranslation,
+            'partner' => $partnerTranslation->partner,
+        ]);
     }
 
     /**

@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexPartnerImageRequest;
 use App\Http\Requests\Web\StorePartnerImageRequest;
 use App\Http\Requests\Web\UpdatePartnerImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
+use App\Services\Web\PartnerImageIndexQuery;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class PartnerImageController extends Controller
@@ -17,9 +20,21 @@ class PartnerImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
         $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'moveUp', 'moveDown']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy', 'detach']);
+    }
+
+    public function index(Partner $partner, IndexPartnerImageRequest $request, PartnerImageIndexQuery $partnerImageIndexQuery): View
+    {
+        $listState = $request->listState();
+
+        return view('partner-images.index', [
+            'partnerImages' => $partnerImageIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'partner' => $partner,
+        ]);
     }
 
     /**

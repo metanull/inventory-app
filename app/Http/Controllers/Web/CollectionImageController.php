@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexCollectionImageRequest;
 use App\Http\Requests\Web\StoreCollectionImageRequest;
 use App\Http\Requests\Web\UpdateCollectionImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
+use App\Services\Web\CollectionImageIndexQuery;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class CollectionImageController extends Controller
@@ -17,9 +20,21 @@ class CollectionImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
         $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'move_up', 'move_down']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy', 'detach']);
+    }
+
+    public function index(Collection $collection, IndexCollectionImageRequest $request, CollectionImageIndexQuery $collectionImageIndexQuery): View
+    {
+        $listState = $request->listState();
+
+        return view('collection-images.index', [
+            'collectionImages' => $collectionImageIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'collection' => $collection,
+        ]);
     }
 
     /**
