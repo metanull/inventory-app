@@ -4,21 +4,20 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexPartnerTranslationRequest;
 use App\Http\Requests\Web\StorePartnerTranslationRequest;
 use App\Http\Requests\Web\UpdatePartnerTranslationRequest;
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Partner;
 use App\Models\PartnerTranslation;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\PartnerTranslationIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PartnerTranslationController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,31 +27,18 @@ class PartnerTranslationController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    /**
-     * Display a listing of partner translations.
-     */
-    public function index(Request $request): View
+    public function index(IndexPartnerTranslationRequest $request, PartnerTranslationIndexQuery $partnerTranslationIndexQuery): View
     {
-        $query = PartnerTranslation::with(['partner', 'language', 'context']);
+        $listState = $request->listState();
+        $partner = Partner::findOrFail($listState->filters['partner_id']);
 
-        // Apply search if provided
-        $search = $request->input('q');
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhere('city_display', 'like', "%{$search}%")
-                    ->orWhereHas('partner', function ($partnerQuery) use ($search) {
-                        $partnerQuery->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $perPage = $request->input('perPage', 15);
-        $partnerTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
-
-        return view('partner-translations.index', compact('partnerTranslations', 'search'));
+        return view('partner-translations.index', [
+            'partnerTranslations' => $partnerTranslationIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'partner' => $partner,
+            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+        ]);
     }
 
     /**

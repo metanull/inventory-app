@@ -2,6 +2,7 @@
 
 namespace Tests\Web\Pages;
 
+use App\Models\Partner;
 use App\Models\PartnerTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -42,5 +43,16 @@ class PartnerTranslationTest extends TestCase
     protected function getDatabaseAssertions(array $data): array
     {
         return array_diff_key($data, array_flip(['extra', 'contact_phones', 'contact_emails', '_token', '_method']));
+    }
+
+    public function test_index_page_displays(): void
+    {
+        $partner = Partner::factory()->create();
+        PartnerTranslation::factory()->count(3)->forPartner($partner->id)->create();
+
+        $response = $this->get(route($this->getRouteName().'.index', ['partner_id' => $partner->id]));
+
+        $response->assertOk()
+            ->assertViewIs($this->getIndexView());
     }
 }

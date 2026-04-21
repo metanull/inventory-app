@@ -2,6 +2,7 @@
 
 namespace Tests\Web\Pages;
 
+use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -35,6 +36,17 @@ class CollectionTranslationTest extends TestCase
     protected function getDatabaseAssertions(array $data): array
     {
         return array_diff_key($data, array_flip(['extra', '_token', '_method']));
+    }
+
+    public function test_index_page_displays(): void
+    {
+        $collection = Collection::factory()->create();
+        CollectionTranslation::factory()->count(3)->forCollection($collection->id)->create();
+
+        $response = $this->get(route($this->getRouteName().'.index', ['collection_id' => $collection->id]));
+
+        $response->assertOk()
+            ->assertViewIs($this->getIndexView());
     }
 
     /**
