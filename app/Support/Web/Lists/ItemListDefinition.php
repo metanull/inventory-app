@@ -36,6 +36,11 @@ final class ItemListDefinition extends ListDefinition
         ];
     }
 
+    public function eagerLoads(): array
+    {
+        return ['partner', 'collection', 'country'];
+    }
+
     public function normalizeFilters(array $input): array
     {
         return array_filter([

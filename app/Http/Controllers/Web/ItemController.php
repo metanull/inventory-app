@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexItemRequest;
 use App\Http\Requests\Web\StoreItemRequest;
 use App\Http\Requests\Web\UpdateItemRequest;
+use App\Models\Collection;
+use App\Models\Country;
 use App\Models\Item;
+use App\Models\Partner;
+use App\Models\Project;
 use App\Models\Tag;
+use App\Services\Web\ItemIndexQuery;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,9 +31,25 @@ class ItemController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(): View
+    public function index(IndexItemRequest $request, ItemIndexQuery $itemIndexQuery): View
     {
-        return view('items.index');
+        $listState = $request->listState();
+        $hierarchyMode = (bool) ($listState->filters['hierarchy'] ?? true);
+        $parentItem = $this->resolveParentItem($listState);
+
+        return view('items.index', [
+            'items' => $itemIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'hierarchyMode' => $hierarchyMode,
+            'parentItem' => $parentItem,
+            'breadcrumbs' => $hierarchyMode && $parentItem ? $this->buildIndexBreadcrumbs($parentItem) : [],
+            'availableTags' => Tag::query()->select('id', 'internal_name', 'description', 'category')->orderBy('internal_name')->get(),
+            'selectedTags' => $this->resolveSelectedTags($listState),
+            'partners' => Partner::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'collections' => Collection::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'projects' => Project::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'countries' => Country::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+        ]);
     }
 
     public function show(Item $item): View
@@ -233,5 +257,55 @@ class ItemController extends Controller
         }
 
         return $breadcrumbs;
+    }
+
+    private function resolveParentItem(ListState $listState): ?Item
+    {
+        $parentId = $listState->filters['parent_id'] ?? null;
+
+        if (! is_string($parentId) || $parentId === '') {
+            return null;
+        }
+
+        return Item::query()
+            ->select('id', 'parent_id', 'internal_name')
+            ->find($parentId);
+    }
+
+    /**
+     * @return array<int, array{id: string, label: string}>
+     */
+    private function buildIndexBreadcrumbs(Item $item): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $item;
+
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'id' => $ancestor->id,
+                'label' => $ancestor->internal_name,
+            ]);
+
+            $ancestor = $ancestor->parent()
+                ->select('id', 'parent_id', 'internal_name')
+                ->first();
+        }
+
+        return $breadcrumbs;
+    }
+
+    private function resolveSelectedTags(ListState $listState): EloquentCollection
+    {
+        $selectedTagIds = $listState->filters['tags'] ?? [];
+
+        if (! is_array($selectedTagIds) || $selectedTagIds === []) {
+            return new EloquentCollection;
+        }
+
+        return Tag::query()
+            ->select('id', 'internal_name', 'description', 'category')
+            ->whereIn('id', $selectedTagIds)
+            ->orderBy('internal_name')
+            ->get();
     }
 }
