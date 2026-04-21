@@ -1,6 +1,12 @@
 ---
 applyTo: "tests/**/*Test.php"
 ---
+
+> **CRITICAL — Never pipe test command output through any filter.**
+> Always run `php artisan test` and `composer ci-*` commands **unpiped**. Piping through `Select-Object`, `head`, `tail`, or any other trimming command hides failure details and forces the full test run to be repeated just to see the error.
+> - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
+> - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`
+
 - Organize tests in a logical and consistent directory structure.
 - Keep tests simple and focused on a single behavior.
 - Keep tests isolated and independent from each other.

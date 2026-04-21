@@ -102,6 +102,9 @@ You are a world-class Laravel expert with deep knowledge of modern Laravel devel
 - Test validation rules, authorization policies, and edge cases
 - Before concluding backend work, validate against the CI backend matrix suites: `Unit`, `Api`, `Web`, `Configuration`, `Console`, `Event`, `Integration`
 - Prefer `php artisan test --testsuite=<Suite> --coverage --parallel --no-ansi --stop-on-failure` over a generic `php artisan test`
+- **CRITICAL**: NEVER pipe `php artisan test` or any `composer ci-*` command through `Select-Object`, `head`, `tail`, or any output filter. Run these commands unpiped so the full output is visible. Piping hides failure details and forces the entire run to be repeated.
+  - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
+  - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`
 - Use Pest for expressive testing syntax (optional)
 
 ### API Development

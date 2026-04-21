@@ -426,7 +426,9 @@ For detailed language and framework-specific guidelines, see:
 
 ## Common Pitfalls to Avoid
 
-- ❌ Using `| Select-Object -Last {x}` on php or composer commands to trim the output, hiding output forces re-executing the task in case of errors
+- ❌ **NEVER pipe test or build commands through any output filter.** Running `php artisan test`, `composer test`, `composer ci-*`, or any test/lint/build command through `Select-Object`, `head`, `tail`, `Out-String`, `grep`, or any other trimming filter hides failure details and forces the entire run to be repeated. Always run these commands unpiped so the full output — including failure messages, stack traces, and error context — is visible.
+  - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
+  - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`
 - ❌ Editing files in `/api-client/` (auto-generated)
 - ❌ Using `fetch`, `axios`, or local `/api-client/` in SPA Demo (use published npm package)
 - ❌ Altering existing migrations (create new ones)
