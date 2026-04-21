@@ -21,19 +21,19 @@ tests/
 │       ├── AuthenticationTest.php   # Sanctum token validation, unauthenticated rejection
 │       └── PermissionsTest.php      # Permission-based authorization (VIEW_DATA, CREATE_DATA, etc.)
 │
-├── Web/                              # Blade/Livewire Frontend Tests
+├── Web/                              # Blade frontend and remaining Livewire component tests
 │   ├── Pages/                        # Page rendering & form submission tests
 │   │   ├── ItemTest.php             # All Item web pages (index, show, create, edit, store, update, destroy)
 │   │   ├── PartnerTest.php          # All Partner web pages
 │   │   └── ...                      # One test file per web resource
-│   ├── Components/                   # Livewire component tests
-│   │   ├── ItemsTableTest.php       # Livewire Items table component
-│   │   ├── PartnersTableTest.php    # Livewire Partners table component
-│   │   └── ...                      # One test file per Livewire component
+│   ├── Components/                   # Reusable Livewire component tests
+│   │   ├── TagsTableTest.php        # Livewire Tags table component
+│   │   ├── ProjectsTableTest.php    # Livewire Projects table component
+│   │   └── ...                      # One test file per remaining Livewire component
 │   ├── Traits/                       # Reusable test traits
 │   │   ├── AuthenticatesWebRequests.php  # Web authentication setup
 │   │   ├── TestsWebCrud.php         # Standard CRUD operations
-│   │   └── TestsWebLivewire.php     # Livewire component testing
+│   │   └── TestsWebLivewire.php     # Reusable Livewire component testing
 │   ├── Middleware/                   # Web middleware & security tests
 │   │   ├── AuthenticationTest.php   # Session-based auth, guest redirection
 │   │   └── PermissionsTest.php      # Permission-based authorization (same permissions as API)
@@ -78,7 +78,7 @@ tests/
 
 ### 2. Clear API/Web Separation
 - `Api/` - REST API backend (JSON responses, authentication tokens)
-- `Web/` - Blade/Livewire frontend (HTML, sessions, redirects)
+- `Web/` - Blade frontend plus remaining reusable Livewire components (HTML, sessions, redirects)
 - Never mixed - these are independent applications
 
 ### 3. Single Responsibility Per File

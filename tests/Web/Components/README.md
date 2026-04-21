@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Tests for Livewire components. Each file contains tests for a specific Livewire component's functionality.
+Tests for reusable Livewire components that still exist in the application. Request-driven item, partner, and collection pages are covered in `tests/Web/Pages/` instead of this directory.
 
 ## Structure
 
 One test file per Livewire component:
-- `ItemsTableTest.php` - ItemsTable Livewire component
-- `PartnersTableTest.php` - PartnersTable Livewire component
+- `TagsTableTest.php` - TagsTable Livewire component
+- `ProjectsTableTest.php` - ProjectsTable Livewire component
 - `GlossaryTableTest.php` - GlossaryTable Livewire component
 - etc.
 
@@ -30,14 +30,14 @@ Each component test file includes **4 tests** (via `TestsWebLivewire` trait):
 
 namespace Tests\Web\Components;
 
-use App\Livewire\Tables\ItemsTable;
-use App\Models\Item;
+use App\Livewire\Tables\TagsTable;
+use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
 use Tests\Web\Traits\TestsWebLivewire;
 
-class ItemsTableTest extends TestCase
+class TagsTableTest extends TestCase
 {
     use AuthenticatesWebRequests;  // Authenticated session
     use RefreshDatabase;
@@ -45,12 +45,12 @@ class ItemsTableTest extends TestCase
 
     protected function getComponentClass(): string
     {
-        return ItemsTable::class;  // Livewire component class
+        return TagsTable::class;  // Livewire component class
     }
 
     protected function getModelClass(): string
     {
-        return Item::class;  // Model that component displays
+        return Tag::class;  // Model that component displays
     }
 
     protected function getIdentifier($model): string
@@ -109,7 +109,7 @@ public function test_component_can_sort(): void
 ```php
 protected function getSortableFields(): array
 {
-    return ['name', 'created_at', 'updated_at'];
+    return ['internal_name', 'created_at', 'updated_at'];
 }
 ```
 
@@ -174,7 +174,7 @@ Components typically require authentication to render, so this trait is essentia
 
 ## Adding a New Component Test
 
-1. Identify the Livewire component class (e.g., `App\Livewire\Tables\ItemsTable`)
+1. Identify the Livewire component class (e.g., `App\Livewire\Tables\TagsTable`)
 2. Create test file: `tests/Web/Components/{ComponentName}Test.php`
 3. Use `AuthenticatesWebRequests` + `RefreshDatabase` + `TestsWebLivewire` traits
 4. Implement three required methods:
@@ -189,7 +189,7 @@ Components typically require authentication to render, so this trait is essentia
 ```php
 public function test_component_has_correct_default_properties(): void
 {
-    $component = \Livewire\Livewire::test(ItemsTable::class);
+    $component = \Livewire\Livewire::test(TagsTable::class);
     
     $component->assertSet('perPage', 15)
               ->assertSet('sortField', 'name')
@@ -199,11 +199,11 @@ public function test_component_has_correct_default_properties(): void
 
 ### Testing Component Methods
 ```php
-public function test_can_select_all_items(): void
+public function test_can_select_all_tags(): void
 {
-    Item::factory()->count(5)->create();
+    Tag::factory()->count(5)->create();
     
-    $component = \Livewire\Livewire::test(ItemsTable::class);
+    $component = \Livewire\Livewire::test(TagsTable::class);
     
     $component->call('selectAll')
               ->assertSet('selectedIds', function($ids) {
@@ -216,18 +216,19 @@ public function test_can_select_all_items(): void
 ```php
 public function test_component_emits_delete_event(): void
 {
-    $item = Item::factory()->create();
+    $tag = Tag::factory()->create();
     
-    $component = \Livewire\Livewire::test(ItemsTable::class);
+    $component = \Livewire\Livewire::test(TagsTable::class);
     
-    $component->call('delete', $item->id)
-              ->assertEmitted('item-deleted');
+    $component->call('delete', $tag->id)
+              ->assertEmitted('tag-deleted');
 }
 ```
 
 ## Components Not Covered
 
 These component types have separate test locations:
+- **Request-driven list pages for items, partners, and collections** - Test via Page tests in `Web/Pages/`
 - **Form components** - Test via Page tests (form submission)
 - **Modal components** - Test via parent component that triggers them
 - **Profile components** - `Web/Auth/ProfileTest.php`

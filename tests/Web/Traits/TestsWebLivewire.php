@@ -5,7 +5,7 @@ namespace Tests\Web\Traits;
 use Livewire\Livewire;
 
 /**
- * Trait for testing Livewire components
+ * Trait for testing reusable Livewire components that are not request-driven pages.
  */
 trait TestsWebLivewire
 {

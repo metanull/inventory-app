@@ -70,23 +70,22 @@ public function test_item_name_is_required()
 }
 ```
 
-## Livewire Component Tests
+## Request-Driven Page Tests
 
-Test Livewire components using Livewire's testing utilities.
+Test request-driven list pages with normal HTTP requests. Items, partners, and collections now use page tests instead of Livewire component tests.
 
-### Basic Component Test
+### Basic Page Test
 
 ```php
-use Livewire\Livewire;
-
-public function test_items_table_renders()
+public function test_items_index_renders_request_driven_page()
 {
     Item::factory()->count(3)->create();
 
-    Livewire::actingAs($this->user)
-        ->test(ItemsTable::class)
-        ->assertStatus(200)
-        ->assertSee('Items');
+    $response = $this->actingAs($this->user)
+        ->get(route('items.index'));
+
+    $response->assertOk();
+    $response->assertViewIs('items.index');
 }
 ```
 
@@ -98,24 +97,32 @@ public function test_can_sort_items_by_name()
     Item::factory()->create(['internal_name' => 'Zebra']);
     Item::factory()->create(['internal_name' => 'Apple']);
 
-    Livewire::actingAs($this->user)
-        ->test(ItemsTable::class)
-        ->call('sortBy', 'internal_name')
-        ->assertSeeInOrder(['Apple', 'Zebra']);
+    $response = $this->actingAs($this->user)
+        ->get(route('items.index', [
+            'hierarchy' => false,
+            'sort' => 'internal_name',
+            'direction' => 'asc',
+        ]));
+
+    $response->assertSeeInOrder(['Apple', 'Zebra']);
 }
 ```
 
 ### Testing Pagination
 
 ```php
-public function test_items_table_paginates()
+public function test_items_index_paginates()
 {
     Item::factory()->count(20)->create();
 
-    Livewire::actingAs($this->user)
-        ->test(ItemsTable::class)
-        ->assertSet('items.perPage', 15)
-        ->assertSee('Next');
+    $response = $this->actingAs($this->user)
+        ->get(route('items.index', [
+            'hierarchy' => false,
+            'per_page' => 10,
+        ]));
+
+    $response->assertOk();
+    $this->assertStringContainsString('per_page=10', $response->viewData('items')->nextPageUrl());
 }
 ```
 
@@ -127,11 +134,14 @@ public function test_can_search_items()
     Item::factory()->create(['internal_name' => 'Findable']);
     Item::factory()->create(['internal_name' => 'Hidden']);
 
-    Livewire::actingAs($this->user)
-        ->test(ItemsTable::class)
-        ->set('search', 'Findable')
-        ->assertSee('Findable')
-        ->assertDontSee('Hidden');
+    $response = $this->actingAs($this->user)
+        ->get(route('items.index', [
+            'q' => 'Findable',
+            'hierarchy' => false,
+        ]));
+
+    $response->assertSee('Findable');
+    $response->assertDontSee('Hidden');
 }
 ```
 
@@ -215,16 +225,16 @@ public function test_item_creation_redirects_with_success_message()
 Tests are organized by feature:
 
 ```
-tests/Feature/
-├── Http/
-│   └── Controllers/
-│       ├── ItemControllerTest.php
-│       ├── PartnerControllerTest.php
-│       └── ...
-└── Livewire/
-    └── Tables/
-        ├── ItemsTableTest.php
-        ├── PartnersTableTest.php
+tests/
+└── Web/
+    ├── Pages/
+    │   ├── ItemIndexTest.php
+    │   ├── PartnerIndexTest.php
+    │   ├── CollectionIndexTest.php
+    │   └── ...
+    └── Components/
+        ├── TagsTableTest.php
+        ├── ProjectsTableTest.php
         └── ...
 ```
 

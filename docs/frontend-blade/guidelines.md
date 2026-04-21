@@ -219,12 +219,14 @@ Use named slots for complex components:
 
 {% endraw %}
 
-## Livewire Component Conventions
+## Reusable Livewire Component Conventions
+
+Use these conventions only for genuinely reusable widgets. Item, partner, and collection list pages are request-driven Blade pages and do not use Livewire.
 
 ### Component Structure
 
 ```php
-class ItemsTable extends Component
+class TagsTable extends Component
 {
     use WithPagination;
 
@@ -247,8 +249,8 @@ class ItemsTable extends Component
 
     public function render()
     {
-        return view('livewire.tables.items-table', [
-            'items' => $this->getItems(),
+        return view('livewire.tables.tags-table', [
+            'tags' => $this->getTags(),
         ]);
     }
 }
@@ -380,10 +382,13 @@ Always paginate large datasets:
 $items = Item::paginate(15);
 ```
 
-### Livewire Lazy Loading
+### Request-Driven List Pages
 
 ```php
-<livewire:items-table lazy />
+$items = Item::query()
+    ->with(['partner', 'country', 'translations'])
+    ->paginate(15)
+    ->withQueryString();
 ```
 
 ## Security

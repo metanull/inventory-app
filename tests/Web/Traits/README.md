@@ -127,7 +127,7 @@ class ItemTest extends TestCase
 ---
 
 ### TestsWebLivewire.php
-**Purpose:** Standard tests for Livewire table components
+**Purpose:** Standard tests for reusable Livewire table components that still exist after the request-driven page migration
 
 **Provides 4 test methods:**
 1. `test_component_can_render()` - Component loads (200)
@@ -145,7 +145,7 @@ abstract protected function getIdentifier($model): string; // Visible field
 **Optional methods to enable additional tests:**
 ```php
 protected function getSortableFields(): array {
-    return ['name', 'created_at'];  // Enable sort test
+    return ['internal_name', 'created_at'];  // Enable sort test
 }
 
 protected function getFilterableFields(): array {
@@ -160,17 +160,17 @@ protected function getFilterableFields(): array {
 ```php
 use Tests\Web\Traits\TestsWebLivewire;
 
-class ItemsTableTest extends TestCase
+class TagsTableTest extends TestCase
 {
     use AuthenticatesWebRequests;
     use TestsWebLivewire;
     
     protected function getComponentClass(): string {
-        return App\Livewire\Tables\ItemsTable::class;
+        return App\Livewire\Tables\TagsTable::class;
     }
     
     protected function getModelClass(): string {
-        return Item::class;
+        return Tag::class;
     }
     
     protected function getIdentifier($model): string {
@@ -179,10 +179,12 @@ class ItemsTableTest extends TestCase
     
     // Optional: Enable sorting test
     protected function getSortableFields(): array {
-        return ['name', 'created_at'];
+        return ['internal_name', 'created_at'];
     }
 }
 ```
+
+**Scope note:** Do not use this trait for the item, partner, or collection list pages. Cover those request-driven screens with HTTP tests in `tests/Web/Pages/`.
 
 **What it tests:**
 - ✅ Component renders without errors
