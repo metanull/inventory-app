@@ -14,6 +14,7 @@ use App\Models\Partner;
 use App\Models\Project;
 use App\Models\Tag;
 use App\Services\Web\ItemIndexQuery;
+use App\Services\Web\ItemShowPageData;
 use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -52,23 +53,12 @@ class ItemController extends Controller
         ]);
     }
 
-    public function show(Item $item): View
+    public function show(Item $item, ItemShowPageData $itemShowPageData): View
     {
-        // Load translations with their relationships
-        $item->load([
-            'translations.context',
-            'translations.language',
-            'outgoingLinks.target.itemImages',
-            'outgoingLinks.context',
-            'incomingLinks.source.itemImages',
-            'incomingLinks.context',
-            'parent.itemImages',
-            'children.itemImages',
-        ]);
-
+        $pageData = $itemShowPageData->build($item);
         $breadcrumbs = $this->buildAncestorBreadcrumbs($item);
 
-        return view('items.show', compact('item', 'breadcrumbs'));
+        return view('items.show', array_merge($pageData, compact('item', 'breadcrumbs')));
     }
 
     public function create(Request $request): View

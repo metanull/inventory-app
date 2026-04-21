@@ -3,7 +3,7 @@
     Groups links by context for better organization
 --}}
 
-@props(['model', 'collection' => null])
+@props(['model', 'formattedLinks', 'linkTargetOptions', 'contextOptions', 'collection' => null])
 
 @php
     $tc = $entityColor('item-item-links');
@@ -23,33 +23,12 @@
     </div>
 
     @php
-        $allLinks = $model->outgoingLinks->concat($model->incomingLinks);
+        $allLinks = $formattedLinks;
     @endphp
     
     @if($allLinks->isEmpty())
         <p class="text-xs text-gray-500 italic mb-3">No links</p>
     @else
-        @php
-            // Prepare links with direction and target item info
-            $formattedLinks = collect();
-            foreach ($model->outgoingLinks as $link) {
-                $formattedLinks->push((object)[
-                    'id' => $link->id,
-                    'item' => $link->target,
-                    'direction' => 'outgoing',
-                    'link' => $link,
-                ]);
-            }
-            foreach ($model->incomingLinks as $link) {
-                $formattedLinks->push((object)[
-                    'id' => $link->id,
-                    'item' => $link->source,
-                    'direction' => 'incoming',
-                    'link' => $link,
-                ]);
-            }
-        @endphp
-
         <div class="space-y-2 mb-3">
             @foreach($formattedLinks as $linkItem)
                 <div class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 transition-colors group">
@@ -113,16 +92,13 @@
                     <x-form.entity-select 
                         name="target_id" 
                         :value="null"
-                        :model-class="\App\Models\Item::class"
+                        :options="$linkTargetOptions"
                         display-field="internal_name"
                         value-field="id"
                         placeholder="Search items to link..."
                         search-placeholder="Type name or ID..."
                         required
                         entity="items"
-                        :filter-column="'id'"
-                        :filter-operator="'!='"
-                        :filter-value="$model->id"
                     />
                 </div>
                 <div>
@@ -130,7 +106,7 @@
                     <x-form.entity-select 
                         name="context_id" 
                         :value="null"
-                        :options="\App\Models\Context::orderBy('internal_name')->get()"
+                        :options="$contextOptions"
                         display-field="internal_name"
                         placeholder="Select context..."
                         search-placeholder="Type to search..."

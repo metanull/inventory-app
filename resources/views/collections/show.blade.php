@@ -23,24 +23,24 @@
             <x-display.field label="Display Order" :value="$collection->display_order" />
         </x-display.description-list>
 
-        <x-entity.images-section entity="collections" :model="$collection" />
+        <x-entity.images-section entity="collections" :model="$collection" :images="$collectionImages" />
 
         <!-- Child Collections Section -->
-        <x-entity.children-section :model="$collection" />
+        <x-entity.children-section :model="$collection" :children="$childCollections" />
 
         <!-- Items Section -->
-        <x-entity.collection-items-section :model="$collection" />
+        <x-entity.collection-items-section :model="$collection" :items="$collection->attachedItems" :attachable-items="$attachableItems" />
 
         <!-- Translations Section -->
-        <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" />
+        <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" :translation-groups="$translationGroups" />
 
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Parent Collection Card -->
-            <x-sidebar.parent-collection-card :model="$collection" />
+            <x-sidebar.parent-collection-card :model="$collection" :parent-collection="$collection->parent" :parent-options="$parentOptions" />
 
             <!-- Children Collections Card -->
-            <x-sidebar.children-collections-card :model="$collection" />
+            <x-sidebar.children-collections-card :model="$collection" :children="$childCollections" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card

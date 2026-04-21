@@ -23,7 +23,7 @@
             entity="glossary" 
             :model="$glossary" 
             translationRoute="glossaries.translations" 
-            :groupByContext="false"
+            :translation-groups="$translationGroups"
             primaryField="definition"
             :secondaryField="null"
             :descriptionField="null"

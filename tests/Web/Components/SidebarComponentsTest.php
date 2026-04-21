@@ -2,6 +2,7 @@
 
 namespace Tests\Web\Components;
 
+use App\Enums\ItemType;
 use App\Models\Item;
 use App\Models\ItemItemLink;
 use App\Models\Tag;
@@ -26,8 +27,12 @@ class SidebarComponentsTest extends TestCase
         $child = Item::factory()->create(['type' => 'detail', 'parent_id' => $parent->id]);
 
         $view = $this->blade(
-            '<x-sidebar.parent-item-card :model="$model" />',
-            ['model' => $child]
+            '<x-sidebar.parent-item-card :model="$model" :parent-item="$parentItem" :parent-options="$parentOptions" />',
+            [
+                'model' => $child,
+                'parentItem' => $parent,
+                'parentOptions' => Item::query()->orderBy('internal_name')->get(),
+            ]
         );
 
         $view->assertSee($parent->internal_name);
@@ -39,8 +44,12 @@ class SidebarComponentsTest extends TestCase
         $item = Item::factory()->create(['parent_id' => null]);
 
         $view = $this->blade(
-            '<x-sidebar.parent-item-card :model="$model" />',
-            ['model' => $item]
+            '<x-sidebar.parent-item-card :model="$model" :parent-item="$parentItem" :parent-options="$parentOptions" />',
+            [
+                'model' => $item,
+                'parentItem' => null,
+                'parentOptions' => Item::query()->orderBy('internal_name')->get(),
+            ]
         );
 
         $view->assertSee('No parent item');
@@ -52,8 +61,12 @@ class SidebarComponentsTest extends TestCase
         $child = Item::factory()->create(['type' => 'detail', 'parent_id' => $parent->id]);
 
         $view = $this->blade(
-            '<x-sidebar.children-items-card :model="$model" />',
-            ['model' => $parent]
+            '<x-sidebar.children-items-card :model="$model" :children="$children" :child-options="$childOptions" />',
+            [
+                'model' => $parent,
+                'children' => $parent->children()->get(),
+                'childOptions' => Item::query()->whereKeyNot($parent->id)->orderBy('internal_name')->get(),
+            ]
         );
 
         $view->assertSee($child->internal_name);
@@ -65,8 +78,12 @@ class SidebarComponentsTest extends TestCase
         $item = Item::factory()->create();
 
         $view = $this->blade(
-            '<x-sidebar.children-items-card :model="$model" />',
-            ['model' => $item]
+            '<x-sidebar.children-items-card :model="$model" :children="$children" :child-options="$childOptions" />',
+            [
+                'model' => $item,
+                'children' => collect(),
+                'childOptions' => Item::query()->whereKeyNot($item->id)->orderBy('internal_name')->get(),
+            ]
         );
 
         $view->assertSee('No children');
@@ -79,11 +96,15 @@ class SidebarComponentsTest extends TestCase
         $item->tags()->attach($tag);
 
         $view = $this->blade(
-            '<x-sidebar.tags-card :model="$model" />',
-            ['model' => $item->fresh()]
+            '<x-sidebar.tags-card :model="$model" :tags="$tags" :available-tags="$availableTags" />',
+            [
+                'model' => $item->fresh(),
+                'tags' => $item->fresh()->tags,
+                'availableTags' => Tag::query()->whereKeyNot($tag->id)->get(),
+            ]
         );
 
-        $view->assertSee($tag->internal_name);
+        $view->assertSee($tag->description);
         $view->assertSee('Tags');
     }
 
@@ -92,8 +113,12 @@ class SidebarComponentsTest extends TestCase
         $item = Item::factory()->create();
 
         $view = $this->blade(
-            '<x-sidebar.tags-card :model="$model" />',
-            ['model' => $item]
+            '<x-sidebar.tags-card :model="$model" :tags="$tags" :available-tags="$availableTags" />',
+            [
+                'model' => $item,
+                'tags' => collect(),
+                'availableTags' => Tag::query()->get(),
+            ]
         );
 
         $view->assertSee('No tags');
@@ -104,10 +129,23 @@ class SidebarComponentsTest extends TestCase
         $source = Item::factory()->create();
         $target = Item::factory()->create();
         $link = ItemItemLink::factory()->between($source, $target)->create();
+        $link->load(['target', 'context']);
 
         $view = $this->blade(
-            '<x-sidebar.links-card :model="$model" />',
-            ['model' => $source->fresh()]
+            '<x-sidebar.links-card :model="$model" :formatted-links="$formattedLinks" :link-target-options="$linkTargetOptions" :context-options="$contextOptions" />',
+            [
+                'model' => $source->fresh(),
+                'formattedLinks' => collect([
+                    (object) [
+                        'id' => $link->id,
+                        'item' => $link->target,
+                        'direction' => 'outgoing',
+                        'link' => $link,
+                    ],
+                ]),
+                'linkTargetOptions' => Item::query()->whereKeyNot($source->id)->orderBy('internal_name')->get(),
+                'contextOptions' => collect([$link->context]),
+            ]
         );
 
         $view->assertSee('Links');
@@ -119,8 +157,13 @@ class SidebarComponentsTest extends TestCase
         $item = Item::factory()->create();
 
         $view = $this->blade(
-            '<x-sidebar.links-card :model="$model" />',
-            ['model' => $item]
+            '<x-sidebar.links-card :model="$model" :formatted-links="$formattedLinks" :link-target-options="$linkTargetOptions" :context-options="$contextOptions" />',
+            [
+                'model' => $item,
+                'formattedLinks' => collect(),
+                'linkTargetOptions' => Item::query()->whereKeyNot($item->id)->orderBy('internal_name')->get(),
+                'contextOptions' => collect(),
+            ]
         );
 
         $view->assertSee('No links');
@@ -156,5 +199,12 @@ class SidebarComponentsTest extends TestCase
 
             $view->assertDontSee('Exception');
         }
+
+        $enumView = $this->blade(
+            '<x-display.item-type-icon :type="$type" />',
+            ['type' => ItemType::PICTURE]
+        );
+
+        $enumView->assertDontSee('Exception');
     }
 }

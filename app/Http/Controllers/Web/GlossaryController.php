@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\StoreGlossaryRequest;
 use App\Http\Requests\Web\UpdateGlossaryRequest;
 use App\Models\Glossary;
+use App\Services\Web\TranslationSectionData;
 use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -32,11 +33,14 @@ class GlossaryController extends Controller
         return view('glossaries.index', compact('glossaries', 'search'));
     }
 
-    public function show(Glossary $glossary): View
+    public function show(Glossary $glossary, TranslationSectionData $translationSectionData): View
     {
         $glossary->load(['translations.language', 'spellings.language', 'synonyms']);
 
-        return view('glossaries.show', compact('glossary'));
+        return view('glossaries.show', [
+            'glossary' => $glossary,
+            'translationGroups' => $translationSectionData->build($glossary->translations, false),
+        ]);
     }
 
     public function create(): View

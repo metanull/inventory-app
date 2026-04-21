@@ -12,6 +12,8 @@ use App\Models\Context;
 use App\Models\Item;
 use App\Models\Language;
 use App\Services\Web\CollectionIndexQuery;
+use App\Services\Web\CollectionShowPageData;
+use App\Services\Web\ItemShowPageData;
 use App\Support\Web\Lists\CollectionListDefinition;
 use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
@@ -44,21 +46,12 @@ class CollectionController extends Controller
         ]);
     }
 
-    public function show(Collection $collection): View
+    public function show(Collection $collection, CollectionShowPageData $collectionShowPageData): View
     {
-        $collection->load([
-            'context',
-            'language',
-            'parent',
-            'children',
-            'translations.context',
-            'translations.language',
-            'attachedItems.itemImages',
-        ]);
-
+        $pageData = $collectionShowPageData->build($collection);
         $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
 
-        return view('collections.show', compact('collection', 'breadcrumbs'));
+        return view('collections.show', array_merge($pageData, compact('collection', 'breadcrumbs')));
     }
 
     public function create(Request $request): View
@@ -100,19 +93,9 @@ class CollectionController extends Controller
         return redirect()->route('collections.index')->with('success', 'Collection deleted successfully');
     }
 
-    public function showItem(Collection $collection, Item $item): View
+    public function showItem(Collection $collection, Item $item, ItemShowPageData $itemShowPageData): View
     {
-        $item->load([
-            'translations.context',
-            'translations.language',
-            'outgoingLinks.target.itemImages',
-            'outgoingLinks.context',
-            'incomingLinks.source.itemImages',
-            'incomingLinks.context',
-            'parent.itemImages',
-            'children.itemImages',
-        ]);
-
+        $pageData = $itemShowPageData->build($item);
         $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
         $breadcrumbs[] = [
             'label' => $collection->internal_name,
@@ -134,6 +117,7 @@ class CollectionController extends Controller
             'item' => $item,
             'collection' => $collection,
             'breadcrumbs' => $breadcrumbs,
+            ...$pageData,
         ]);
     }
 

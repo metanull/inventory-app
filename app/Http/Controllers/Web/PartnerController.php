@@ -10,6 +10,7 @@ use App\Http\Requests\Web\UpdatePartnerRequest;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Services\Web\PartnerIndexQuery;
+use App\Services\Web\PartnerShowPageData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,11 +36,12 @@ class PartnerController extends Controller
         ]);
     }
 
-    public function show(Partner $partner): View
+    public function show(Partner $partner, PartnerShowPageData $partnerShowPageData): View
     {
-        $partner->load('country', 'project', 'monumentItem', 'translations.context', 'translations.language');
-
-        return view('partners.show', compact('partner'));
+        return view('partners.show', array_merge(
+            $partnerShowPageData->build($partner),
+            compact('partner')
+        ));
     }
 
     public function create(): View

@@ -11,13 +11,19 @@
     'class' => 'w-4 h-4',
 ])
 
-@if($type === 'object')
+@php
+    $normalizedType = $type instanceof \App\Enums\ItemType
+        ? $type->value
+        : $type;
+@endphp
+
+@if($normalizedType === 'object')
     <x-heroicon-s-cube :class="$class" />
-@elseif($type === 'monument')
+@elseif($normalizedType === 'monument')
     <x-heroicon-s-building-office-2 :class="$class" />
-@elseif($type === 'detail')
+@elseif($normalizedType === 'detail')
     <x-heroicon-s-magnifying-glass-plus :class="$class" />
-@elseif($type === 'picture')
+@elseif($normalizedType === 'picture')
     <x-heroicon-s-photo :class="$class" />
 @else
     <x-heroicon-s-question-mark-circle :class="$class" />

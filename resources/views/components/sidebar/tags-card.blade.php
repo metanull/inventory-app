@@ -3,7 +3,7 @@
     Compact display with inline add/remove for two-column layout
 --}}
 
-@props(['model'])
+@props(['model', 'tags', 'availableTags'])
 
 @php($tc = $entityColor('tags'))
 
@@ -20,15 +20,17 @@
         @endcan
     </div>
 
-    @if($model->tags->isEmpty())
+    @if($tags->isEmpty())
         <p class="text-xs text-gray-500 italic">No tags</p>
     @else
         <div class="flex flex-wrap gap-1 mb-3">
-            @foreach($model->tags as $tag)
-                <div class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 hover:bg-gray-200 transition-colors group">
+            @foreach($tags as $tag)
+                <div class="inline-flex items-center gap-1 group">
                     <a href="{{ route('tags.show', $tag) }}" 
-                       class="font-medium {{ $tc['text'] }} hover:underline">
-                        {{ $tag->internal_name }}
+                       class="hover:underline">
+                        <x-ui.badge :color="\App\Support\Web\TagPresentation::badgeColor($tag->category)" variant="pill" size="sm">
+                            {{ \App\Support\Web\TagPresentation::label($tag) }}
+                        </x-ui.badge>
                     </a>
                     @can(\App\Enums\Permission::UPDATE_DATA->value)
                         <button 
@@ -56,7 +58,7 @@
                     <x-form.entity-select 
                         name="tag_id" 
                         :value="null"
-                        :options="\App\Models\Tag::orderBy('internal_name')->get()->reject(fn($tag) => $model->tags->contains($tag->id))"
+                        :options="$availableTags"
                         displayField="internal_name"
                         placeholder="Select a tag..."
                         searchPlaceholder="Type to search..."

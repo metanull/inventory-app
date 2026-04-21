@@ -3,10 +3,9 @@
     Shows children with counts and links
 --}}
 
-@props(['model'])
+@props(['model', 'children'])
 
 @php($tc = $entityColor('collections'))
-@php($children = $model->children()->orderBy('display_order')->get())
 
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
     <div class="flex items-center justify-between gap-2 mb-3">

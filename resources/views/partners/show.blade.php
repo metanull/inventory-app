@@ -35,15 +35,15 @@
         </x-display.description-list>
 
         <!-- Images Section -->
-        <x-entity.images-section entity="partners" :model="$partner" />
+        <x-entity.images-section entity="partners" :model="$partner" :images="$partnerImages" />
 
         <!-- Translations Section -->
-        <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" />
+        <x-entity.translations-section entity="partners" :model="$partner" translationRoute="partner-translations" :translation-groups="$translationGroups" />
 
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Monument Item Card -->
-            <x-sidebar.monument-item-card :partner="$partner" />
+            <x-sidebar.monument-item-card :partner="$partner" :monument-item="$partner->monumentItem" :monument-options="$monumentOptions" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card
