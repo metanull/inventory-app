@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexTagRequest;
 use App\Http\Requests\Web\StoreTagRequest;
 use App\Http\Requests\Web\UpdateTagRequest;
+use App\Models\Language;
 use App\Models\Tag;
 use App\Services\Web\TagIndexQuery;
 use Illuminate\Contracts\View\View;
@@ -35,12 +36,16 @@ class TagController extends Controller
 
     public function show(Tag $tag): View
     {
-        return view('tags.show', compact('tag'));
+        $itemCount = $tag->items()->count();
+
+        return view('tags.show', compact('tag', 'itemCount'));
     }
 
     public function create(): View
     {
-        return view('tags.create');
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('tags.create', compact('languages'));
     }
 
     public function store(StoreTagRequest $request): RedirectResponse
@@ -53,7 +58,9 @@ class TagController extends Controller
 
     public function edit(Tag $tag): View
     {
-        return view('tags.edit', compact('tag'));
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('tags.edit', compact('tag', 'languages'));
     }
 
     public function update(UpdateTagRequest $request, Tag $tag): RedirectResponse

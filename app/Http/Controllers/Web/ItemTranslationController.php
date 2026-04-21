@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexItemTranslationRequest;
 use App\Http\Requests\Web\StoreItemTranslationRequest;
 use App\Http\Requests\Web\UpdateItemTranslationRequest;
+use App\Models\Author;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\ItemTranslation;
@@ -50,11 +51,12 @@ class ItemTranslationController extends Controller
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
+        $authors = Author::orderBy('name')->get();
 
         // Get item_id from query parameter if provided (from item show page)
         $selectedItemId = $request->input('item_id');
 
-        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId'));
+        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId', 'authors'));
     }
 
     /**
@@ -89,8 +91,9 @@ class ItemTranslationController extends Controller
         $items = Item::orderBy('internal_name')->get();
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();
+        $authors = Author::orderBy('name')->get();
 
-        return view('item-translations.edit', compact('itemTranslation', 'items', 'languages', 'contexts'));
+        return view('item-translations.edit', compact('itemTranslation', 'items', 'languages', 'contexts', 'authors'));
     }
 
     /**

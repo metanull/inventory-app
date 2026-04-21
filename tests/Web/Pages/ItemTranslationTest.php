@@ -4,6 +4,7 @@ namespace Tests\Web\Pages;
 
 use App\Models\Item;
 use App\Models\ItemTranslation;
+use App\Models\Author;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
@@ -110,5 +111,26 @@ class ItemTranslationTest extends TestCase
         $response->assertSee('Note');
         $response->assertSee('Test note');
         $response->assertSee('empty');
+    }
+
+    public function test_edit_page_passes_authors_from_controller(): void
+    {
+        Author::factory()->count(3)->create();
+        $itemTranslation = ItemTranslation::factory()->create();
+
+        $response = $this->get(route('item-translations.edit', $itemTranslation));
+
+        $response->assertOk()
+            ->assertViewHas('authors');
+    }
+
+    public function test_create_page_passes_authors_from_controller(): void
+    {
+        Author::factory()->count(3)->create();
+
+        $response = $this->get(route('item-translations.create'));
+
+        $response->assertOk()
+            ->assertViewHas('authors');
     }
 }

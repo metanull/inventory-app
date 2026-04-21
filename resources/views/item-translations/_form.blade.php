@@ -180,7 +180,7 @@
             <x-form.entity-select 
                 name="author_id"
                 :value="old('author_id', $itemTranslation->author_id ?? null)"
-                :options="\App\Models\Author::orderBy('name')->get()"
+                :options="$authors"
                 displayField="name"
                 placeholder="Select an author..."
                 searchPlaceholder="Type to search authors..."
@@ -191,7 +191,7 @@
             <x-form.entity-select 
                 name="text_copy_editor_id"
                 :value="old('text_copy_editor_id', $itemTranslation->text_copy_editor_id ?? null)"
-                :options="\App\Models\Author::orderBy('name')->get()"
+                :options="$authors"
                 displayField="name"
                 placeholder="Select a copy editor..."
                 searchPlaceholder="Type to search authors..."
@@ -202,7 +202,7 @@
                 <x-form.entity-select 
                     name="translator_id"
                     :value="old('translator_id', $itemTranslation->translator_id ?? null)"
-                    :options="\App\Models\Author::orderBy('name')->get()"
+                    :options="$authors"
                     displayField="name"
                     placeholder="Select a translator..."
                     searchPlaceholder="Type to search authors..."
@@ -213,7 +213,7 @@
                 <x-form.entity-select 
                     name="translation_copy_editor_id"
                     :value="old('translation_copy_editor_id', $itemTranslation->translation_copy_editor_id ?? null)"
-                    :options="\App\Models\Author::orderBy('name')->get()"
+                    :options="$authors"
                     displayField="name"
                     placeholder="Select a translation copy editor..."
                     searchPlaceholder="Type to search authors..."
