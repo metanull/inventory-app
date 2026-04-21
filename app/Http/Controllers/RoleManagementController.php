@@ -7,6 +7,8 @@ use App\Http\Requests\Web\IndexRoleManagementRequest;
 use App\Http\Requests\Web\StoreRoleManagementRequest;
 use App\Http\Requests\Web\UpdatePermissionsRoleManagementRequest;
 use App\Http\Requests\Web\UpdateRoleManagementRequest;
+use App\Services\Web\RoleManagementIndexQuery;
+use Illuminate\Contracts\View\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -21,22 +23,14 @@ class RoleManagementController extends Controller
     /**
      * Display a listing of roles.
      */
-    public function index(IndexRoleManagementRequest $request)
+    public function index(IndexRoleManagementRequest $request, RoleManagementIndexQuery $roleManagementIndexQuery): View
     {
-        $query = Role::with('permissions');
+        $listState = $request->listState();
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $roles = $query->paginate(20)->withQueryString();
-
-        return view('admin.roles.index', compact('roles'));
+        return view('admin.roles.index', [
+            'roles' => $roleManagementIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     /**

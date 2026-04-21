@@ -4,18 +4,16 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexContextRequest;
 use App\Http\Requests\Web\StoreContextRequest;
 use App\Http\Requests\Web\UpdateContextRequest;
 use App\Models\Context;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\ContextIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class ContextController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -25,11 +23,14 @@ class ContextController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexContextRequest $request, ContextIndexQuery $contextIndexQuery): View
     {
-        [$contexts, $search] = $this->searchAndPaginate(Context::query(), $request);
+        $listState = $request->listState();
 
-        return view('contexts.index', compact('contexts', 'search'));
+        return view('contexts.index', [
+            'contexts' => $contextIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Context $context): View

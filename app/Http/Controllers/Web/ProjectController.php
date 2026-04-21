@@ -4,20 +4,18 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexProjectRequest;
 use App\Http\Requests\Web\StoreProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Project;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\ProjectIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -27,11 +25,14 @@ class ProjectController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexProjectRequest $request, ProjectIndexQuery $projectIndexQuery): View
     {
-        [$projects, $search] = $this->searchAndPaginate(Project::query(), $request);
+        $listState = $request->listState();
 
-        return view('projects.index', compact('projects', 'search'));
+        return view('projects.index', [
+            'projects' => $projectIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Project $project): View

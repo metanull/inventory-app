@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexGlossaryRequest;
 use App\Http\Requests\Web\StoreGlossaryRequest;
 use App\Http\Requests\Web\UpdateGlossaryRequest;
 use App\Models\Glossary;
+use App\Services\Web\GlossaryIndexQuery;
 use App\Services\Web\TranslationSectionData;
-use App\Support\Web\SearchAndPaginate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class GlossaryController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,11 +24,14 @@ class GlossaryController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexGlossaryRequest $request, GlossaryIndexQuery $glossaryIndexQuery): View
     {
-        [$glossaries, $search] = $this->searchAndPaginate(Glossary::query(), $request);
+        $listState = $request->listState();
 
-        return view('glossaries.index', compact('glossaries', 'search'));
+        return view('glossaries.index', [
+            'glossaries' => $glossaryIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Glossary $glossary, TranslationSectionData $translationSectionData): View

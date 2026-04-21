@@ -228,7 +228,7 @@ class RoleManagementWebInterfaceTest extends TestCase
         Role::create(['name' => 'User Role', 'description' => 'Regular user']);
         Role::create(['name' => 'Guest Role', 'description' => 'Guest access']);
 
-        $response = $this->get(route('admin.roles.index', ['search' => 'Admin']));
+        $response = $this->get(route('admin.roles.index', ['q' => 'Admin']));
 
         $response->assertOk()
             ->assertSee('Admin Role')
