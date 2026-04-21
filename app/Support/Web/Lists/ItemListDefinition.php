@@ -36,6 +36,11 @@ final class ItemListDefinition extends ListDefinition
         ];
     }
 
+    public function searchColumns(): array
+    {
+        return ['items.internal_name', 'items.backward_compatibility'];
+    }
+
     public function eagerLoads(): array
     {
         return ['partner', 'collection', 'country'];

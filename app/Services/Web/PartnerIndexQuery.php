@@ -11,12 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class PartnerIndexQuery
 {
-    private const SORT_MAP = [
-        'internal_name' => 'partners.internal_name',
-        'created_at' => 'partners.created_at',
-        'updated_at' => 'partners.updated_at',
-    ];
-
     public function __construct(private readonly PartnerListDefinition $definition) {}
 
     public function paginate(ListState $state): LengthAwarePaginator
@@ -42,16 +36,12 @@ final class PartnerIndexQuery
 
     private function applySearch(Builder $query, ?string $search): void
     {
-        if ($search === null) {
-            return;
-        }
-
-        $query->where('partners.internal_name', 'like', "%{$search}%");
+        $this->definition->applySearch($query, $search);
     }
 
     private function applySort(Builder $query, ListState $state): void
     {
-        $column = self::SORT_MAP[$state->sort] ?? self::SORT_MAP[$this->definition->defaultSort()];
+        $column = $this->definition->sortColumn($state->sort);
         $direction = in_array($state->direction, ListQueryParameters::directions(), true)
             ? $state->direction
             : $this->definition->defaultDirection();

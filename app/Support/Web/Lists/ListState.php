@@ -16,6 +16,16 @@ final class ListState
         public readonly array $filters = [],
     ) {}
 
+    public function hasFilter(string $key): bool
+    {
+        return array_key_exists($key, $this->filters);
+    }
+
+    public function filter(string $key, mixed $default = null): mixed
+    {
+        return $this->hasFilter($key) ? $this->filters[$key] : $default;
+    }
+
     /**
      * @return array<string, mixed>
      */

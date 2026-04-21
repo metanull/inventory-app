@@ -11,13 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class CollectionIndexQuery
 {
-    private const SORT_MAP = [
-        'internal_name' => 'collections.internal_name',
-        'display_order' => 'collections.display_order',
-        'created_at' => 'collections.created_at',
-        'updated_at' => 'collections.updated_at',
-    ];
-
     public function __construct(private readonly CollectionListDefinition $definition) {}
 
     public function paginate(ListState $state): LengthAwarePaginator
@@ -47,11 +40,7 @@ final class CollectionIndexQuery
 
     private function applySearch(Builder $query, ?string $search): void
     {
-        if ($search === null) {
-            return;
-        }
-
-        $query->where('collections.internal_name', 'like', "%{$search}%");
+        $this->definition->applySearch($query, $search);
     }
 
     private function applyFilters(Builder $query, ListState $state): void
@@ -75,7 +64,7 @@ final class CollectionIndexQuery
 
     private function applySort(Builder $query, ListState $state): void
     {
-        $column = self::SORT_MAP[$state->sort] ?? self::SORT_MAP[$this->definition->defaultSort()];
+        $column = $this->definition->sortColumn($state->sort);
         $direction = in_array($state->direction, ListQueryParameters::directions(), true)
             ? $state->direction
             : $this->definition->defaultDirection();

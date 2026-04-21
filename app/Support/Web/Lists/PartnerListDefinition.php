@@ -23,6 +23,11 @@ final class PartnerListDefinition extends ListDefinition
         ];
     }
 
+    public function searchColumns(): array
+    {
+        return ['partners.internal_name'];
+    }
+
     public function eagerLoads(): array
     {
         return ['country'];

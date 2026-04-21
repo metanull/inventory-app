@@ -11,12 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class ItemIndexQuery
 {
-    private const SORT_MAP = [
-        'internal_name' => 'items.internal_name',
-        'created_at' => 'items.created_at',
-        'updated_at' => 'items.updated_at',
-    ];
-
     public function __construct(private readonly ItemListDefinition $definition) {}
 
     public function paginate(ListState $state): LengthAwarePaginator
@@ -54,15 +48,14 @@ final class ItemIndexQuery
         }
 
         $query->where(function (Builder $builder) use ($search): void {
-            $builder
-                ->where('items.internal_name', 'like', "%{$search}%")
-                ->orWhere('items.backward_compatibility', 'like', "%{$search}%")
-                ->orWhereHas('translations', function (Builder $translationQuery) use ($search): void {
-                    $translationQuery
-                        ->where('name', 'like', "%{$search}%")
-                        ->orWhere('alternate_name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                });
+            $this->definition->applySearch($builder, $search);
+
+            $builder->orWhereHas('translations', function (Builder $translationQuery) use ($search): void {
+                $translationQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('alternate_name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
         });
     }
 
@@ -101,7 +94,7 @@ final class ItemIndexQuery
 
     private function applySort(Builder $query, ListState $state): void
     {
-        $column = self::SORT_MAP[$state->sort] ?? self::SORT_MAP[$this->definition->defaultSort()];
+        $column = $this->definition->sortColumn($state->sort);
         $direction = in_array($state->direction, ListQueryParameters::directions(), true)
             ? $state->direction
             : $this->definition->defaultDirection();

@@ -30,7 +30,7 @@ abstract class IndexListRequest extends FormRequest
             ListQueryParameters::DIRECTION => ['sometimes', 'string', Rule::in(ListQueryParameters::directions())],
             ListQueryParameters::PAGE => ['sometimes', 'integer', 'min:1'],
             ListQueryParameters::PER_PAGE => ['sometimes', 'integer', Rule::in(array_map('intval', (array) config('interface.pagination.per_page_options')))],
-        ], $definition->filterRules());
+        ], $this->filterRules($definition));
     }
 
     public function definition(): ListDefinition
@@ -65,5 +65,37 @@ abstract class IndexListRequest extends FormRequest
         $normalized = app(ListInputNormalizer::class)->normalize($this->query(), $this->definition());
 
         $this->merge(array_filter($normalized, static fn (mixed $value): bool => $value !== null && $value !== []));
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterRules(ListDefinition $definition): array
+    {
+        $filterRules = $definition->filterRules();
+
+        foreach ($definition->requiredFilterParameters() as $parameter) {
+            if (! array_key_exists($parameter, $filterRules)) {
+                continue;
+            }
+
+            $rules = array_values(array_filter(
+                $this->normalizeRuleSet($filterRules[$parameter]),
+                static fn (mixed $rule): bool => $rule !== 'sometimes' && $rule !== 'nullable',
+            ));
+
+            array_unshift($rules, 'required');
+            $filterRules[$parameter] = $rules;
+        }
+
+        return $filterRules;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function normalizeRuleSet(mixed $rules): array
+    {
+        return is_array($rules) ? $rules : [$rules];
     }
 }

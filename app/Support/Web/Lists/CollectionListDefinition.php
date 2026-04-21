@@ -33,6 +33,11 @@ final class CollectionListDefinition extends ListDefinition
         ];
     }
 
+    public function searchColumns(): array
+    {
+        return ['collections.internal_name'];
+    }
+
     public function eagerLoads(): array
     {
         return ['context', 'language'];
