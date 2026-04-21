@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexGlossarySpellingRequest;
 use App\Http\Requests\Web\StoreGlossarySpellingRequest;
 use App\Http\Requests\Web\UpdateGlossarySpellingRequest;
 use App\Models\Glossary;
 use App\Models\GlossarySpelling;
 use App\Models\Language;
+use App\Services\Web\GlossarySpellingIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -24,11 +26,15 @@ class GlossarySpellingController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Glossary $glossary): View
+    public function index(Glossary $glossary, IndexGlossarySpellingRequest $request, GlossarySpellingIndexQuery $glossarySpellingIndexQuery): View
     {
-        $spellings = $glossary->spellings()->with('language')->get();
+        $listState = $request->listState();
 
-        return view('glossary-spelling.index', compact('glossary', 'spellings'));
+        return view('glossary-spelling.index', [
+            'spellings' => $glossarySpellingIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'glossary' => $glossary,
+        ]);
     }
 
     public function create(Glossary $glossary): View
