@@ -45,7 +45,7 @@
             </div>
         </form>
 
-        @if (Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
+        @if (Route::has('register') && $selfRegistrationEnabled)
             <div class="mt-4 text-center text-sm text-gray-600">
                 {{ __("Don't have an account?") }}
                 <a href="{{ route('register') }}" class="underline hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">

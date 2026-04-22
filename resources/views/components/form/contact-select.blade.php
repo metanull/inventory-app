@@ -1,12 +1,13 @@
 @props([
     'name' => 'contact_id',
     'selected' => null,
+    'contacts' => null,
     'required' => false,
     'placeholder' => 'Select or search for a contact...',
 ])
 
 @php
-    $contacts = \App\Models\Contact::orderBy('internal_name')->get(['id', 'internal_name']);
+    $contacts = $contacts ?? collect();
     $contactsForSelect = $contacts->map(function($contact) {
         return [
             'id' => $contact->id,

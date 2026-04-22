@@ -8,7 +8,7 @@
 ])
 
 @php
-    $languages = $languages ?: \App\Models\Language::orderBy('internal_name')->get();
+    $languages = $languages ?? collect();
 @endphp
 
 <x-form.select 

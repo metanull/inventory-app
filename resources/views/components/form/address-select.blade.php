@@ -1,12 +1,13 @@
 @props([
     'name' => 'address_id',
     'selected' => null,
+    'addresses' => null,
     'required' => false,
     'placeholder' => 'Select or search for an address...',
 ])
 
 @php
-    $addresses = \App\Models\Address::with('country')->orderBy('internal_name')->get(['id', 'internal_name', 'country_id']);
+    $addresses = $addresses ?? collect();
     $addressesForSelect = $addresses->map(function($address) {
         $label = $address->internal_name;
         if ($address->country) {

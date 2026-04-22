@@ -12,7 +12,9 @@ use App\Listeners\DispatchSyncSpellingToCollectionTranslations;
 use App\Listeners\DispatchSyncSpellingToItemTranslations;
 use App\Listeners\DispatchSyncSpellingToTimelineEventTranslations;
 use App\Listeners\DispatchSyncTimelineEventTranslationSpellings;
+use App\Services\Settings;
 use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
+use App\View\Composers\SettingsComposer;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -28,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(Settings::class);
     }
 
     /**
@@ -43,6 +45,12 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(SpellingSaved::class, DispatchSyncSpellingToItemTranslations::class);
         Event::listen(SpellingSaved::class, DispatchSyncSpellingToCollectionTranslations::class);
         Event::listen(SpellingSaved::class, DispatchSyncSpellingToTimelineEventTranslations::class);
+
+        // Inject settings (e.g. self_registration_enabled) into shared layouts
+        View::composer(
+            ['components.app-nav', 'auth.login', 'navigation-menu', 'welcome'],
+            SettingsComposer::class
+        );
 
         // Share entity color config helper across views
         View::share('entityColor', function (string $entity): array {
