@@ -2,9 +2,9 @@
 
 namespace Tests\Web\Pages;
 
+use App\Models\Author;
 use App\Models\Item;
 use App\Models\ItemTranslation;
-use App\Models\Author;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
