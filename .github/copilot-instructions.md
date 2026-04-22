@@ -207,9 +207,31 @@ Every new model must include:
 **Web controllers** (in `app/Http/Controllers/Web/`):
 - Use `App\Http\Requests\Web\*` Form Requests
 - Return `view()` or `redirect()` responses
-- Use `SearchAndPaginate` trait from `App\Support\Web`
 - Apply middleware in constructor: `$this->middleware(['auth', 'permission:...'])`
 - Web routes use **plural** nouns: `/web/contexts`, `/web/languages`, `/web/items`
+
+#### Web list pages — request-driven pattern (the only approved approach)
+
+Every web index (`index()`) action **must** follow the request-driven list pattern:
+
+| Piece | Role |
+|---|---|
+| `App\Http\Requests\Web\Index{Entity}Request` | Extends `IndexListRequest`; declares allowed sort columns, default sort, and allowed filters. |
+| `App\Services\Web\{Entity}IndexQuery` | Encapsulates the Eloquent query; receives a `ListState` and returns a paginator. |
+| `App\Support\Web\Lists\ListDefinition` | (base class) Wired via `IndexListRequest` — provides `listState()` to the controller. |
+| Blade view | Receives the paginator and `$listState` — **no Eloquent calls inside the view**. |
+
+Canonical reference implementation:
+- Controller: `app/Http/Controllers/Web/ItemController::index()`
+- Request: `app/Http/Requests/Web/IndexItemRequest`
+- Query service: `app/Services/Web/ItemIndexQuery`
+- Blade view: `resources/views/items/index.blade.php`
+
+**Forbidden patterns — never reintroduce:**
+- ❌ `App\Support\Web\SearchAndPaginate` trait (deleted — use the request-driven pattern)
+- ❌ Mounting a Livewire component to handle list filtering, sorting, searching, or pagination on a web list page
+- ❌ Issuing Eloquent queries directly from any Blade list view, detail view, or form view
+- ❌ Creating an `Index*Request` class for a web list page that does **not** extend `IndexListRequest`
 
 All controllers follow standard resource methods:
 - `index()` - List all records
@@ -438,6 +460,10 @@ For detailed language and framework-specific guidelines, see:
 - ❌ Inline SVG or custom icon components (use Heroicons)
 - ❌ Creating components without tests
 - ❌ Ignoring lint warnings or test failures
+- ❌ Reintroducing `SearchAndPaginate` (deleted) — use `IndexListRequest` + `{Entity}IndexQuery` instead
+- ❌ Using Livewire for list filtering/sorting/searching/pagination on web index pages
+- ❌ Issuing Eloquent queries from Blade list, detail, or form views
+- ❌ Creating an `Index*Request` web class that does not extend `IndexListRequest`
 - ❌ Using Terminal instead of VS Code tools
 - ❌ Using terminal to run tests instead of VS Code testing features
 - ❌ Creating scripts to alter files instead of using VS Code refactoring tools
