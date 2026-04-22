@@ -22,9 +22,7 @@
         model-class="\App\Models\Item"
         display-field="internal_name"
         value-field="id"
-        filter-column="id"
-        filter-operator="!="
-        :filter-value="$model->id"
+        :scopes="[['scope' => 'excludingDescendantsOf', 'args' => [$model->id]]]"
         placeholder="Search items..."
         search-placeholder="Type name or ID..."
         required

@@ -442,4 +442,78 @@ class Item extends Model
     {
         $this->attributes['mwnf_reference'] = $value === '' ? null : $value;
     }
+
+    /**
+     * Scope to exclude items with the given IDs.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function scopeExcludingIds(Builder $query, array $ids): Builder
+    {
+        return empty($ids) ? $query : $query->whereNotIn('id', $ids);
+    }
+
+    /**
+     * Scope to exclude the given item and all its transitive descendants.
+     * Prevents a descendant from being set as the item's own parent.
+     * Hard-caps traversal at 10 levels.
+     *
+     * @param  string  $itemId  UUID of the item whose descendants to exclude
+     */
+    public function scopeExcludingDescendantsOf(Builder $query, string $itemId): Builder
+    {
+        $maxDepth = 10;
+        $excludeIds = [$itemId];
+        $currentLevel = [$itemId];
+
+        for ($depth = 0; $depth < $maxDepth; $depth++) {
+            $nextLevel = static::whereIn('parent_id', $currentLevel)->pluck('id')->all();
+            if (empty($nextLevel)) {
+                break;
+            }
+            $excludeIds = array_merge($excludeIds, $nextLevel);
+            $currentLevel = $nextLevel;
+
+            if ($depth + 1 >= $maxDepth) {
+                $hasMore = static::whereIn('parent_id', $currentLevel)->exists();
+                if ($hasMore) {
+                    throw new \RuntimeException('Item hierarchy depth exceeds maximum of '.$maxDepth.' levels.');
+                }
+            }
+        }
+
+        return $query->whereNotIn('id', $excludeIds);
+    }
+
+    /**
+     * Scope to exclude the given item and all its transitive ancestors.
+     * Prevents an ancestor from being set as a child of the item.
+     * Hard-caps traversal at 10 levels.
+     *
+     * @param  string  $itemId  UUID of the item whose ancestors to exclude
+     */
+    public function scopeExcludingAncestorsOf(Builder $query, string $itemId): Builder
+    {
+        $maxDepth = 10;
+        $excludeIds = [$itemId];
+        $currentId = $itemId;
+
+        for ($depth = 0; $depth < $maxDepth; $depth++) {
+            $parentId = static::where('id', $currentId)->value('parent_id');
+            if ($parentId === null) {
+                break;
+            }
+            $excludeIds[] = $parentId;
+            $currentId = $parentId;
+
+            if ($depth + 1 >= $maxDepth) {
+                $hasMore = static::where('id', $currentId)->whereNotNull('parent_id')->exists();
+                if ($hasMore) {
+                    throw new \RuntimeException('Item hierarchy depth exceeds maximum of '.$maxDepth.' levels.');
+                }
+            }
+        }
+
+        return $query->whereNotIn('id', $excludeIds);
+    }
 }

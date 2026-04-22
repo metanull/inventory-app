@@ -14,6 +14,7 @@
     
     // For dynamic DB queries (e.g., items with 1000+ records)
     'modelClass' => null, // Model class (e.g., \App\Models\Item::class)
+    'scopes' => null, // Named Eloquent scopes (e.g., [['scope' => 'excludingIds', 'args' => [['id1']]]])
     'filterColumn' => null, // Optional: column to filter on (e.g., 'id')
     'filterOperator' => '!=', // Optional: operator for filter (e.g., '!=', 'NOT IN')
     'filterValue' => null, // Optional: value(s) to filter
@@ -37,6 +38,7 @@
     'searchPlaceholder' => $searchPlaceholder,
     'entity' => $entity,
     'required' => $required,
+    'scopes' => $scopes,
     'filterColumn' => $filterColumn,
     'filterOperator' => $filterOperator,
     'filterValue' => $filterValue,

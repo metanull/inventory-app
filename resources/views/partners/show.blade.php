@@ -43,7 +43,7 @@
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Monument Item Card -->
-            <x-sidebar.monument-item-card :partner="$partner" :monument-item="$sections['monument']['item']" :monument-options="$sections['monument']['options']" />
+            <x-sidebar.monument-item-card :partner="$partner" :monument-item="$sections['monument']['item']" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card

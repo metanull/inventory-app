@@ -42,10 +42,12 @@ class PartnerShowPageDataTest extends TestCase
             ['images', 'translations', 'monument', 'system'],
             array_keys($pageData['sections'])
         );
+        $this->assertArrayHasKey('item', $pageData['sections']['monument']);
+        $this->assertArrayNotHasKey('options', $pageData['sections']['monument']);
 
         $pageData['sections']['images']['images']->first()?->alt_text;
         $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
-        $pageData['sections']['monument']['options']->first()?->internal_name;
+        $pageData['sections']['monument']['item']?->internal_name;
         $pageData['sections']['system']['id'];
 
         $this->assertCount($queryCountAfterBuild, DB::getQueryLog());

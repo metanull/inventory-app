@@ -51,4 +51,28 @@ class TagScopeTest extends TestCase
         $this->assertCount(1, $tagsForItem);
         $this->assertTrue($tagsForItem->contains('id', $tag->id));
     }
+
+    public function test_scope_not_attached_to_excludes_tags_already_on_item(): void
+    {
+        $item = Item::factory()->create();
+        $attachedTag = Tag::factory()->create();
+        $unattachedTag = Tag::factory()->create();
+
+        $item->tags()->attach($attachedTag->id);
+
+        $results = Tag::notAttachedTo($item->id)->get();
+
+        $this->assertFalse($results->contains('id', $attachedTag->id));
+        $this->assertTrue($results->contains('id', $unattachedTag->id));
+    }
+
+    public function test_scope_not_attached_to_returns_all_when_no_tags_attached(): void
+    {
+        $item = Item::factory()->create();
+        Tag::factory()->count(3)->create();
+
+        $results = Tag::notAttachedTo($item->id)->get();
+
+        $this->assertCount(3, $results);
+    }
 }

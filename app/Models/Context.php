@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -82,5 +83,15 @@ class Context extends Model
             // Set all rows' 'default' column to false (or 0)
             self::query()->update(['is_default' => false]);
         });
+    }
+
+    /**
+     * Scope to exclude contexts with the given IDs.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function scopeExcludingIds(Builder $query, array $ids): Builder
+    {
+        return empty($ids) ? $query : $query->whereNotIn('id', $ids);
     }
 }

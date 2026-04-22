@@ -29,9 +29,7 @@
         model-class="\App\Models\Item"
         display-field="internal_name"
         value-field="id"
-        filter-column="parent_id"
-        filter-operator="!="
-        :filter-value="$model->id"
+        :scopes="[['scope' => 'excludingAncestorsOf', 'args' => [$model->id]], ['scope' => 'excludingIds', 'args' => [$children->pluck('id')->all()]]]"
         placeholder="Search items..."
         search-placeholder="Type name or ID..."
         required

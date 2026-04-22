@@ -7,7 +7,6 @@ use App\Models\CollectionImage;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Item;
-use App\Models\ItemImage;
 use App\Models\Language;
 use App\Services\Web\CollectionShowPageData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +32,6 @@ class CollectionShowPageDataTest extends TestCase
         ]);
         $item = Item::factory()->create();
         $collection->attachItem($item);
-        ItemImage::factory()->create(['item_id' => $item->id]);
         CollectionImage::factory()->create(['collection_id' => $collection->id]);
         CollectionTranslation::factory()->forCollection($collection->id)->withLanguage($defaultLanguage->id)->withContext($defaultContext->id)->create();
 
@@ -54,12 +52,16 @@ class CollectionShowPageDataTest extends TestCase
             ['images', 'children', 'items', 'translations', 'parent', 'system'],
             array_keys($pageData['sections'])
         );
+        $this->assertArrayHasKey('items', $pageData['sections']['items']);
+        $this->assertArrayNotHasKey('attachableItems', $pageData['sections']['items']);
+        $this->assertArrayHasKey('collection', $pageData['sections']['parent']);
+        $this->assertArrayNotHasKey('options', $pageData['sections']['parent']);
 
         $pageData['sections']['images']['images']->first()?->alt_text;
         $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
         $pageData['sections']['children']['items']->first()?->internal_name;
-        $pageData['sections']['items']['attachableItems']->first()?->internal_name;
-        $pageData['sections']['parent']['options']->first()?->internal_name;
+        $pageData['sections']['items']['items']->first()?->internal_name;
+        $pageData['sections']['parent']['collection']?->internal_name;
         $pageData['sections']['children']['items']->first()?->display_order;
         $pageData['sections']['system']['id'];
 

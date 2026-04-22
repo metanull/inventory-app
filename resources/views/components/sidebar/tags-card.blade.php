@@ -60,9 +60,7 @@
                         :value="null"
                         model-class="\App\Models\Tag"
                         display-field="internal_name"
-                        filter-column="id"
-                        filter-operator="NOT IN"
-                        :filter-value="$model->tags->pluck('id')->all()"
+                        :scopes="[['scope' => 'notAttachedTo', 'args' => [$model->id]]]"
                         placeholder="Select a tag..."
                         search-placeholder="Type to search..."
                         required

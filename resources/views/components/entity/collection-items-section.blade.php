@@ -1,4 +1,4 @@
-@props(['model', 'items', 'attachableItems'])
+@props(['model', 'items'])
 
 @php($tc = $entityColor('collections'))
 <div class="mt-8">
@@ -100,7 +100,8 @@
                 <x-form.field label="Select Item" name="item_id" required>
                     <x-form.entity-select 
                         name="item_id"
-                        :options="$attachableItems"
+                        model-class="\App\Models\Item"
+                        :scopes="[['scope' => 'excludingIds', 'args' => [$items->pluck('id')->all()]]]"
                         displayField="internal_name"
                         placeholder="Select an item..."
                         searchPlaceholder="Type to search items..."

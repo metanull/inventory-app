@@ -116,4 +116,84 @@ class ItemScopeTest extends TestCase
         $this->assertCount(1, $itemsWithAnyTags);
         $this->assertTrue($itemsWithAnyTags->contains('id', $item->id));
     }
+
+    public function test_scope_excluding_ids_excludes_given_ids(): void
+    {
+        $item1 = Item::factory()->create();
+        $item2 = Item::factory()->create();
+        $item3 = Item::factory()->create();
+
+        $results = Item::excludingIds([$item1->id, $item2->id])->get();
+
+        $this->assertFalse($results->contains('id', $item1->id));
+        $this->assertFalse($results->contains('id', $item2->id));
+        $this->assertTrue($results->contains('id', $item3->id));
+    }
+
+    public function test_scope_excluding_ids_with_empty_array_returns_all(): void
+    {
+        Item::factory()->count(3)->create();
+
+        $results = Item::excludingIds([])->get();
+
+        $this->assertCount(3, $results);
+    }
+
+    public function test_scope_excluding_descendants_of_excludes_self_and_children(): void
+    {
+        $root = Item::factory()->create();
+        $child = Item::factory()->withParent($root)->create();
+        $grandchild = Item::factory()->withParent($child)->create();
+        $unrelated = Item::factory()->create();
+
+        $results = Item::excludingDescendantsOf($root->id)->get();
+
+        $this->assertFalse($results->contains('id', $root->id));
+        $this->assertFalse($results->contains('id', $child->id));
+        $this->assertFalse($results->contains('id', $grandchild->id));
+        $this->assertTrue($results->contains('id', $unrelated->id));
+    }
+
+    public function test_scope_excluding_descendants_of_only_excludes_own_subtree(): void
+    {
+        $branch1 = Item::factory()->create();
+        $branch1Child = Item::factory()->withParent($branch1)->create();
+        $branch2 = Item::factory()->create();
+        $branch2Child = Item::factory()->withParent($branch2)->create();
+
+        $results = Item::excludingDescendantsOf($branch1->id)->get();
+
+        $this->assertFalse($results->contains('id', $branch1->id));
+        $this->assertFalse($results->contains('id', $branch1Child->id));
+        $this->assertTrue($results->contains('id', $branch2->id));
+        $this->assertTrue($results->contains('id', $branch2Child->id));
+    }
+
+    public function test_scope_excluding_ancestors_of_excludes_self_and_parents(): void
+    {
+        $grandparent = Item::factory()->create();
+        $parent = Item::factory()->withParent($grandparent)->create();
+        $subject = Item::factory()->withParent($parent)->create();
+        $unrelated = Item::factory()->create();
+
+        $results = Item::excludingAncestorsOf($subject->id)->get();
+
+        $this->assertFalse($results->contains('id', $subject->id));
+        $this->assertFalse($results->contains('id', $parent->id));
+        $this->assertFalse($results->contains('id', $grandparent->id));
+        $this->assertTrue($results->contains('id', $unrelated->id));
+    }
+
+    public function test_scope_excluding_ancestors_of_leaves_siblings_visible(): void
+    {
+        $parent = Item::factory()->create();
+        $subject = Item::factory()->withParent($parent)->create();
+        $sibling = Item::factory()->withParent($parent)->create();
+
+        $results = Item::excludingAncestorsOf($subject->id)->get();
+
+        $this->assertFalse($results->contains('id', $subject->id));
+        $this->assertFalse($results->contains('id', $parent->id));
+        $this->assertTrue($results->contains('id', $sibling->id));
+    }
 }
