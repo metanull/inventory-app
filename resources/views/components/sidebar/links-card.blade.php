@@ -3,7 +3,7 @@
     Groups links by context for better organization
 --}}
 
-@props(['model', 'formattedLinks', 'linkTargetOptions', 'contextOptions', 'collection' => null])
+@props(['model', 'formattedLinks', 'collection' => null])
 
 @php
     $tc = $entityColor('item-item-links');
@@ -89,12 +89,15 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Target Item</label>
-                    <x-form.entity-select 
-                        name="target_id" 
+                    <x-form.entity-select
+                        name="target_id"
                         :value="null"
-                        :options="$linkTargetOptions"
+                        model-class="\App\Models\Item"
                         display-field="internal_name"
                         value-field="id"
+                        filter-column="id"
+                        filter-operator="!="
+                        :filter-value="$model->id"
                         placeholder="Search items to link..."
                         search-placeholder="Type name or ID..."
                         required
@@ -103,10 +106,10 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Context</label>
-                    <x-form.entity-select 
-                        name="context_id" 
+                    <x-form.entity-select
+                        name="context_id"
                         :value="null"
-                        :options="$contextOptions"
+                        model-class="\App\Models\Context"
                         display-field="internal_name"
                         placeholder="Select context..."
                         search-placeholder="Type to search..."

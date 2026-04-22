@@ -3,10 +3,7 @@
 namespace App\Services\Web;
 
 use App\Enums\ItemType;
-use App\Models\Context;
 use App\Models\Item;
-use App\Models\Tag;
-use App\Support\Web\TagPresentation;
 use Illuminate\Support\Collection;
 
 class ItemShowPageData
@@ -36,11 +33,6 @@ class ItemShowPageData
             'incomingLinks.context',
         ]);
 
-        $relatableItems = Item::query()
-            ->whereKeyNot($item->id)
-            ->orderBy('internal_name')
-            ->get();
-
         $pictureChildren = $item->children
             ->filter(fn (Item $child): bool => $child->type === ItemType::PICTURE)
             ->values();
@@ -62,32 +54,15 @@ class ItemShowPageData
                 ],
                 'parent' => [
                     'item' => $item->parent,
-                    'options' => $relatableItems,
                 ],
                 'children' => [
                     'items' => $structuralChildren,
-                    'options' => $relatableItems
-                        ->whereNotIn('id', $item->children->pluck('id'))
-                        ->values(),
                 ],
                 'tags' => [
                     'items' => $item->tags->values(),
-                    'availableTags' => Tag::query()
-                        ->whereDoesntHave('items', fn ($query) => $query->where('items.id', $item->id))
-                        ->orderBy('internal_name')
-                        ->get()
-                        ->map(function (Tag $tag): Tag {
-                            $tag->setAttribute('display_label', TagPresentation::label($tag));
-
-                            return $tag;
-                        })
-                        ->sortBy('display_label')
-                        ->values(),
                 ],
                 'links' => [
                     'formatted' => $this->buildFormattedLinks($item),
-                    'contextOptions' => Context::query()->orderBy('internal_name')->get(),
-                    'targetOptions' => $relatableItems,
                 ],
                 'system' => [
                     'id' => $item->id,
