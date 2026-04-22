@@ -1,14 +1,12 @@
 @props([
     'entity',           // e.g., 'items', 'partners', 'collections'
     'model',            // The model instance ($item, $partner, $collection)
-    'relationship' => null, // Optional override for relationship method name
+    'images',
 ])
 
 @php
     $entitySingular = \Illuminate\Support\Str::singular($entity);
-    $relationship = $relationship ?? $entitySingular . 'Images';
     $routePrefix = $entity . '.' . $entitySingular . '-images';
-    $images = $model->{$relationship}()->orderBy('display_order')->get();
 @endphp
 
 <div class="mt-8">

@@ -54,6 +54,7 @@ Route::prefix('web')->group(function () {
 
         // Item Images - nested routes
         Route::prefix('items/{item}/images')->name('items.item-images.')->group(function () {
+            Route::get('/', [WebItemImageController::class, 'index'])->name('index');
             Route::get('/create', [WebItemImageController::class, 'create'])->name('create');
             Route::post('/', [WebItemImageController::class, 'store'])->name('store');
             Route::get('/{item_image}/view', [WebItemImageController::class, 'view'])->name('view');
@@ -99,6 +100,7 @@ Route::prefix('web')->group(function () {
 
         // Partner Images - nested routes
         Route::prefix('partners/{partner}/images')->name('partners.partner-images.')->group(function () {
+            Route::get('/', [WebPartnerImageController::class, 'index'])->name('index');
             Route::get('/create', [WebPartnerImageController::class, 'create'])->name('create');
             Route::post('/', [WebPartnerImageController::class, 'store'])->name('store');
             Route::get('/{partner_image}/view', [WebPartnerImageController::class, 'view'])->name('view');
@@ -115,6 +117,7 @@ Route::prefix('web')->group(function () {
 
         // Partner Translation Images - nested routes
         Route::prefix('partner-translations/{partner_translation}/images')->name('partner-translations.partner-translation-images.')->group(function () {
+            Route::get('/', [WebPartnerTranslationImageController::class, 'index'])->name('index');
             Route::get('/create', [WebPartnerTranslationImageController::class, 'create'])->name('create');
             Route::post('/', [WebPartnerTranslationImageController::class, 'store'])->name('store');
             Route::get('/{partner_translation_image}/view', [WebPartnerTranslationImageController::class, 'view'])->name('view');
@@ -175,6 +178,7 @@ Route::prefix('web')->group(function () {
 
         // Collection Images - nested routes
         Route::prefix('collections/{collection}/images')->name('collections.collection-images.')->group(function () {
+            Route::get('/', [WebCollectionImageController::class, 'index'])->name('index');
             Route::get('/create', [WebCollectionImageController::class, 'create'])->name('create');
             Route::post('/', [WebCollectionImageController::class, 'store'])->name('store');
             Route::get('/{collection_image}/view', [WebCollectionImageController::class, 'view'])->name('view');

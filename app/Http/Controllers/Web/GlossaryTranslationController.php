@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexGlossaryTranslationRequest;
 use App\Http\Requests\Web\StoreGlossaryTranslationRequest;
 use App\Http\Requests\Web\UpdateGlossaryTranslationRequest;
 use App\Models\Glossary;
 use App\Models\GlossaryTranslation;
 use App\Models\Language;
+use App\Services\Web\GlossaryTranslationIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -24,11 +26,17 @@ class GlossaryTranslationController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Glossary $glossary): View
+    public function index(Glossary $glossary, IndexGlossaryTranslationRequest $request, GlossaryTranslationIndexQuery $glossaryTranslationIndexQuery): View
     {
-        $translations = $glossary->translations()->with('language')->get();
+        $listState = $request->listState();
+        $languages = Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get();
 
-        return view('glossary-translation.index', compact('glossary', 'translations'));
+        return view('glossary-translation.index', [
+            'translations' => $glossaryTranslationIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'glossary' => $glossary,
+            'languages' => $languages,
+        ]);
     }
 
     public function create(Glossary $glossary): View

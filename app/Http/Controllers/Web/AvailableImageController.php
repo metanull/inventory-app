@@ -4,19 +4,17 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexAvailableImageRequest;
 use App\Http\Requests\Web\UpdateAvailableImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\AvailableImageIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -25,23 +23,14 @@ class AvailableImageController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    /**
-     * Display a listing of available images.
-     */
-    public function index(Request $request): View
+    public function index(IndexAvailableImageRequest $request, AvailableImageIndexQuery $availableImageIndexQuery): View
     {
-        $perPage = $this->resolvePerPage($request);
-        $search = trim((string) $request->query('q'));
+        $listState = $request->listState();
 
-        $query = AvailableImage::query()->orderBy('created_at', 'desc');
-
-        if ($search !== '') {
-            $query->where('comment', 'LIKE', "%{$search}%");
-        }
-
-        $availableImages = $query->paginate($perPage)->withQueryString();
-
-        return view('available-images.index', compact('availableImages', 'search'));
+        return view('available-images.index', [
+            'availableImages' => $availableImageIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     /**

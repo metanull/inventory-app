@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexItemImageRequest;
 use App\Http\Requests\Web\StoreItemImageRequest;
 use App\Http\Requests\Web\UpdateItemImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
+use App\Services\Web\ItemImageIndexQuery;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ItemImageController extends Controller
@@ -17,9 +20,21 @@ class ItemImageController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:'.Permission::VIEW_DATA->value)->only(['index']);
         $this->middleware('permission:'.Permission::CREATE_DATA->value)->only(['create', 'store']);
         $this->middleware('permission:'.Permission::UPDATE_DATA->value)->only(['edit', 'update', 'move_up', 'move_down']);
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy', 'detach']);
+    }
+
+    public function index(Item $item, IndexItemImageRequest $request, ItemImageIndexQuery $itemImageIndexQuery): View
+    {
+        $listState = $request->listState();
+
+        return view('item-images.index', [
+            'itemImages' => $itemImageIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'item' => $item,
+        ]);
     }
 
     /**

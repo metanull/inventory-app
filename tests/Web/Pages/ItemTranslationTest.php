@@ -2,6 +2,8 @@
 
 namespace Tests\Web\Pages;
 
+use App\Models\Author;
+use App\Models\Item;
 use App\Models\ItemTranslation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -35,6 +37,17 @@ class ItemTranslationTest extends TestCase
     protected function getDatabaseAssertions(array $data): array
     {
         return array_diff_key($data, array_flip(['extra', '_token', '_method']));
+    }
+
+    public function test_index_page_displays(): void
+    {
+        $item = Item::factory()->create();
+        ItemTranslation::factory()->count(3)->forItem($item->id)->create();
+
+        $response = $this->get(route($this->getRouteName().'.index', ['item_id' => $item->id]));
+
+        $response->assertOk()
+            ->assertViewIs($this->getIndexView());
     }
 
     /**
@@ -98,5 +111,26 @@ class ItemTranslationTest extends TestCase
         $response->assertSee('Note');
         $response->assertSee('Test note');
         $response->assertSee('empty');
+    }
+
+    public function test_edit_page_passes_authors_from_controller(): void
+    {
+        Author::factory()->count(3)->create();
+        $itemTranslation = ItemTranslation::factory()->create();
+
+        $response = $this->get(route('item-translations.edit', $itemTranslation));
+
+        $response->assertOk()
+            ->assertViewHas('authors');
+    }
+
+    public function test_create_page_passes_authors_from_controller(): void
+    {
+        Author::factory()->count(3)->create();
+
+        $response = $this->get(route('item-translations.create'));
+
+        $response->assertOk()
+            ->assertViewHas('authors');
     }
 }

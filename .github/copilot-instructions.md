@@ -135,13 +135,28 @@ composer dev
 ```powershell
 composer ci-lint          # Run Pint + Prettier (auto-fix)
 composer ci-lint:test     # Lint check only (non-modifying)
-composer ci-test          # Run Unit, Api, Web test suites (parallel)
-composer ci-test:integration  # Run Integration suite (non-parallel)
-composer ci-test:all      # Run all test suites
+composer ci-test          # Run Unit, Api, and Web suites with Laravel parallel runner
+composer ci-test:integration  # Run Integration suite only
+composer ci-test:all      # Run the full test suite in one command
 composer ci-build         # Build frontend assets (npm run build)
 composer ci-audit         # Composer validate + audit + npm audit
 composer ci-reset         # Full reset: db + config + install + build + seed
 ```
+
+**Backend CI matrix parity**
+```powershell
+php artisan test --testsuite=Unit --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Web --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Console --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Event --coverage --parallel --no-ansi --stop-on-failure
+php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-on-failure
+```
+
+Use the CI matrix commands above, or equivalent VS Code tasks, when validating backend changes that must match GitHub Actions behavior. Do not treat a single plain `php artisan test` run as CI parity.
+
+VS Code task runs are terminal-based and do not feed results back into the Testing panel. For interactive PHP test discovery and per-test results inside VS Code, use the `PHPUnit & Pest Test Explorer` extension and run tests from the Testing view instead of from tasks.
 
 **SPA commands** (run from `/spa/` directory):
 ```powershell
@@ -192,9 +207,31 @@ Every new model must include:
 **Web controllers** (in `app/Http/Controllers/Web/`):
 - Use `App\Http\Requests\Web\*` Form Requests
 - Return `view()` or `redirect()` responses
-- Use `SearchAndPaginate` trait from `App\Support\Web`
 - Apply middleware in constructor: `$this->middleware(['auth', 'permission:...'])`
 - Web routes use **plural** nouns: `/web/contexts`, `/web/languages`, `/web/items`
+
+#### Web list pages — request-driven pattern (the only approved approach)
+
+Every web index (`index()`) action **must** follow the request-driven list pattern:
+
+| Piece | Role |
+|---|---|
+| `App\Http\Requests\Web\Index{Entity}Request` | Extends `IndexListRequest`; declares allowed sort columns, default sort, and allowed filters. |
+| `App\Services\Web\{Entity}IndexQuery` | Encapsulates the Eloquent query; receives a `ListState` and returns a paginator. |
+| `App\Support\Web\Lists\ListDefinition` | (base class) Wired via `IndexListRequest` — provides `listState()` to the controller. |
+| Blade view | Receives the paginator and `$listState` — **no Eloquent calls inside the view**. |
+
+Canonical reference implementation:
+- Controller: `app/Http/Controllers/Web/ItemController::index()`
+- Request: `app/Http/Requests/Web/IndexItemRequest`
+- Query service: `app/Services/Web/ItemIndexQuery`
+- Blade view: `resources/views/items/index.blade.php`
+
+**Forbidden patterns — never reintroduce:**
+- ❌ `App\Support\Web\SearchAndPaginate` trait (deleted — use the request-driven pattern)
+- ❌ Mounting a Livewire component to handle list filtering, sorting, searching, or pagination on a web list page
+- ❌ Issuing Eloquent queries directly from any Blade list view, detail view, or form view
+- ❌ Creating an `Index*Request` class for a web list page that does **not** extend `IndexListRequest`
 
 All controllers follow standard resource methods:
 - `index()` - List all records
@@ -411,6 +448,9 @@ For detailed language and framework-specific guidelines, see:
 
 ## Common Pitfalls to Avoid
 
+- ❌ **NEVER pipe test or build commands through any output filter.** Running `php artisan test`, `composer test`, `composer ci-*`, or any test/lint/build command through `Select-Object`, `head`, `tail`, `Out-String`, `grep`, or any other trimming filter hides failure details and forces the entire run to be repeated. Always run these commands unpiped so the full output — including failure messages, stack traces, and error context — is visible.
+  - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
+  - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`
 - ❌ Editing files in `/api-client/` (auto-generated)
 - ❌ Using `fetch`, `axios`, or local `/api-client/` in SPA Demo (use published npm package)
 - ❌ Altering existing migrations (create new ones)
@@ -420,6 +460,10 @@ For detailed language and framework-specific guidelines, see:
 - ❌ Inline SVG or custom icon components (use Heroicons)
 - ❌ Creating components without tests
 - ❌ Ignoring lint warnings or test failures
+- ❌ Reintroducing `SearchAndPaginate` (deleted) — use `IndexListRequest` + `{Entity}IndexQuery` instead
+- ❌ Using Livewire for list filtering/sorting/searching/pagination on web index pages
+- ❌ Issuing Eloquent queries from Blade list, detail, or form views
+- ❌ Creating an `Index*Request` web class that does not extend `IndexListRequest`
 - ❌ Using Terminal instead of VS Code tools
 - ❌ Using terminal to run tests instead of VS Code testing features
 - ❌ Creating scripts to alter files instead of using VS Code refactoring tools

@@ -28,7 +28,7 @@
             :value="old('language_id', $tag->language_id ?? '')"
         >
             <option value="">-- No Language --</option>
-            @foreach(\App\Models\Language::all() as $language)
+            @foreach($languages as $language)
                 <option value="{{ $language->id }}" @selected(old('language_id', $tag->language_id ?? '') === $language->id)>
                     {{ $language->name }}
                 </option>

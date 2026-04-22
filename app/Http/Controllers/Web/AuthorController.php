@@ -4,18 +4,16 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexAuthorRequest;
 use App\Http\Requests\Web\StoreAuthorRequest;
 use App\Http\Requests\Web\UpdateAuthorRequest;
 use App\Models\Author;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\AuthorIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -25,11 +23,14 @@ class AuthorController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexAuthorRequest $request, AuthorIndexQuery $authorIndexQuery): View
     {
-        [$authors, $search] = $this->searchAndPaginate(Author::query(), $request);
+        $listState = $request->listState();
 
-        return view('authors.index', compact('authors', 'search'));
+        return view('authors.index', [
+            'authors' => $authorIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Author $author): View

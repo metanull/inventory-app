@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexCollectionTranslationRequest;
 use App\Http\Requests\Web\StoreCollectionTranslationRequest;
 use App\Http\Requests\Web\UpdateCollectionTranslationRequest;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Language;
+use App\Services\Web\CollectionTranslationIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,30 +27,18 @@ class CollectionTranslationController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    /**
-     * Display a listing of collection translations.
-     */
-    public function index(Request $request): View
+    public function index(IndexCollectionTranslationRequest $request, CollectionTranslationIndexQuery $collectionTranslationIndexQuery): View
     {
-        $query = CollectionTranslation::with(['collection', 'language', 'context']);
+        $listState = $request->listState();
+        $collection = Collection::findOrFail($listState->filters['collection_id']);
 
-        // Apply search if provided
-        $search = $request->input('q');
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhereHas('collection', function ($collectionQuery) use ($search) {
-                        $collectionQuery->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $perPage = $request->input('perPage', 15);
-        $collectionTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
-
-        return view('collection-translations.index', compact('collectionTranslations', 'search'));
+        return view('collection-translations.index', [
+            'collectionTranslations' => $collectionTranslationIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'collection' => $collection,
+            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+        ]);
     }
 
     /**

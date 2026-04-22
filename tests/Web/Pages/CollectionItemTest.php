@@ -132,7 +132,7 @@ class CollectionItemTest extends TestCase
         $response->assertOk();
         $response->assertSee($item->internal_name);
         $response->assertSee($collection->internal_name);
-        $response->assertSee(route('collections.index'), false);
+        $response->assertSee(route('collections.show', $collection), false);
     }
 
     public function test_show_item_in_collection_context_has_collection_breadcrumbs(): void

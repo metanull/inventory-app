@@ -3,14 +3,13 @@
     'title' => null,
     'createRoute' => null,
     'createButtonText' => null,
-    'livewireTable' => null,
+    'parentContext' => null,
 ])
 
 @php
     $title = $title ?? \Illuminate\Support\Str::title($entity);
     $createRoute = $createRoute ?? route($entity . '.create');
     $createButtonText = $createButtonText ?? 'Add ' . \Illuminate\Support\Str::singular(\Illuminate\Support\Str::title($entity));
-    $livewireTable = $livewireTable ?? 'tables.' . $entity . '-table';
 @endphp
 
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -30,5 +29,18 @@
         <x-ui.alert :message="session('status')" type="success" :entity="$entity" />
     @endif
 
-    <livewire:dynamic-component :is="$livewireTable" />
+    @if(is_array($parentContext) && $parentContext !== [])
+        <x-list.parent-context-header
+            :breadcrumbs="$parentContext['breadcrumbs'] ?? []"
+            :title="$parentContext['title'] ?? null"
+            :description="$parentContext['description'] ?? null"
+            :parent-label="$parentContext['parent_label'] ?? null"
+            :parent-value="$parentContext['parent_value'] ?? null"
+            :parent-url="$parentContext['parent_url'] ?? null"
+            :back-url="$parentContext['back_url'] ?? null"
+            :back-label="$parentContext['back_label'] ?? 'Back'"
+        />
+    @endif
+
+    {{ $slot }}
 </div>

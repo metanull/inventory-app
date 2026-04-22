@@ -1,7 +1,6 @@
-@props(['model'])
+@props(['model', 'children'])
 
 @php($tc = $entityColor('collections'))
-@php($children = $model->children()->orderBy('display_order')->get())
 
 <div class="mt-8">
     <x-layout.section title="Child Collections" icon="squares-2x2">

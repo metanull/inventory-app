@@ -4,21 +4,21 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexItemTranslationRequest;
 use App\Http\Requests\Web\StoreItemTranslationRequest;
 use App\Http\Requests\Web\UpdateItemTranslationRequest;
+use App\Models\Author;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\ItemTranslation;
 use App\Models\Language;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\ItemTranslationIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ItemTranslationController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,31 +28,18 @@ class ItemTranslationController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    /**
-     * Display a listing of item translations.
-     */
-    public function index(Request $request): View
+    public function index(IndexItemTranslationRequest $request, ItemTranslationIndexQuery $itemTranslationIndexQuery): View
     {
-        $query = ItemTranslation::with(['item', 'language', 'context']);
+        $listState = $request->listState();
+        $item = Item::findOrFail($listState->filters['item_id']);
 
-        // Apply search if provided
-        $search = $request->input('q');
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('alternate_name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhereHas('item', function ($itemQuery) use ($search) {
-                        $itemQuery->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $perPage = $request->input('perPage', 15);
-        $itemTranslations = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
-
-        return view('item-translations.index', compact('itemTranslations', 'search'));
+        return view('item-translations.index', [
+            'itemTranslations' => $itemTranslationIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'item' => $item,
+            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+        ]);
     }
 
     /**
@@ -64,11 +51,12 @@ class ItemTranslationController extends Controller
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
+        $authors = Author::orderBy('name')->get();
 
         // Get item_id from query parameter if provided (from item show page)
         $selectedItemId = $request->input('item_id');
 
-        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId'));
+        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId', 'authors'));
     }
 
     /**
@@ -103,8 +91,9 @@ class ItemTranslationController extends Controller
         $items = Item::orderBy('internal_name')->get();
         $languages = Language::orderBy('internal_name')->get();
         $contexts = Context::orderBy('internal_name')->get();
+        $authors = Author::orderBy('name')->get();
 
-        return view('item-translations.edit', compact('itemTranslation', 'items', 'languages', 'contexts'));
+        return view('item-translations.edit', compact('itemTranslation', 'items', 'languages', 'contexts', 'authors'));
     }
 
     /**

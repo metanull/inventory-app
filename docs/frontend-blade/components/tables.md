@@ -204,20 +204,20 @@ For mobile devices, tables can use the `<x-table.mobile-card>` component for bet
 
 {% endraw %}
 
-## Livewire Tables
+## Request-Driven Tables
 
-For dynamic tables with sorting, filtering, and pagination, use Livewire components.
+For item, partner, and collection list pages, use request-driven Blade tables with GET forms, sort links, and paginator query strings. Reserve Livewire for reusable widgets that still need it.
 
 ### Component Structure
 
-Livewire table components are in `resources/views/livewire/tables/`:
+Request-driven list pages live in resource-specific views:
 
 ```
-livewire/tables/
-├── items-table.blade.php
-├── partners-table.blade.php
-├── tags-table.blade.php
-└── ...
+resources/views/
+├── items/index.blade.php
+├── partners/index.blade.php
+├── collections/index.blade.php
+└── livewire/tables/tags-table.blade.php
 ```
 
 ### Sortable Columns
@@ -225,58 +225,30 @@ livewire/tables/
 {% raw %}
 
 ```blade
-<th wire:click="sortBy('internal_name')" class="cursor-pointer px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hover:bg-gray-100">
-    Name
-    @if($sortField === 'internal_name')
-        @if($sortDirection === 'asc')
-            <x-heroicon-o-chevron-up class="inline w-4 h-4" />
-        @else
-            <x-heroicon-o-chevron-down class="inline w-4 h-4" />
-        @endif
-    @endif
-</th>
+<x-list.sort-link
+    label="Internal Name"
+    field="internal_name"
+    :current-sort="$listState->sort"
+    :current-direction="$listState->direction"
+    :url="route('items.index')"
+    :query="$listState->query(['sort', 'direction', 'page'])"
+/>
 ```
 
 {% endraw %}
 
-### Livewire Table Component Example
+### Request-Driven Page Example
 
 ```php
-class ItemsTable extends Component
+public function index(IndexListRequest $request, ItemIndexQuery $query): View
 {
-    use WithPagination;
+    $listState = $request->toListState(new ItemListDefinition);
+    $items = $query->paginate($listState);
 
-    public $sortField = 'created_at';
-    public $sortDirection = 'desc';
-    public $search = '';
-
-    protected $queryString = [
-        'search' => ['except' => ''],
-        'sortField' => ['except' => 'created_at'],
-        'sortDirection' => ['except' => 'desc'],
-    ];
-
-    public function sortBy($field)
-    {
-        if ($this->sortField === $field) {
-            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortField = $field;
-            $this->sortDirection = 'asc';
-        }
-    }
-
-    public function render()
-    {
-        $items = Item::query()
-            ->when($this->search, function ($query) {
-                $query->where('internal_name', 'like', '%' . $this->search . '%');
-            })
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(15);
-
-        return view('livewire.tables.items-table', compact('items'));
-    }
+    return view('items.index', [
+        'items' => $items,
+        'listState' => $listState,
+    ]);
 }
 ```
 

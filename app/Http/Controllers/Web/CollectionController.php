@@ -4,21 +4,24 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexCollectionRequest;
 use App\Http\Requests\Web\StoreCollectionRequest;
 use App\Http\Requests\Web\UpdateCollectionRequest;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\Language;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\CollectionIndexQuery;
+use App\Services\Web\CollectionShowPageData;
+use App\Services\Web\ItemShowPageData;
+use App\Support\Web\Lists\CollectionListDefinition;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class CollectionController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,28 +31,27 @@ class CollectionController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexCollectionRequest $request, CollectionIndexQuery $collectionIndexQuery): View
     {
-        [$collections, $search] = $this->searchAndPaginate(Collection::query()->with(['context', 'language']), $request);
+        $listState = $request->listState();
+        $hierarchyMode = ($listState->filters['mode'] ?? CollectionListDefinition::MODE_HIERARCHY) === CollectionListDefinition::MODE_HIERARCHY;
+        $parentCollection = $hierarchyMode ? $this->resolveParentCollection($listState) : null;
 
-        return view('collections.index', compact('collections', 'search'));
+        return view('collections.index', [
+            'collections' => $collectionIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'hierarchyMode' => $hierarchyMode,
+            'parentCollection' => $parentCollection,
+            'breadcrumbs' => $hierarchyMode && $parentCollection ? $this->buildIndexBreadcrumbs($parentCollection) : [],
+        ]);
     }
 
-    public function show(Collection $collection): View
+    public function show(Collection $collection, CollectionShowPageData $collectionShowPageData): View
     {
-        $collection->load([
-            'context',
-            'language',
-            'parent',
-            'children',
-            'translations.context',
-            'translations.language',
-            'attachedItems.itemImages',
-        ]);
-
+        $pageData = $collectionShowPageData->build($collection);
         $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
 
-        return view('collections.show', compact('collection', 'breadcrumbs'));
+        return view('collections.show', array_merge($pageData, compact('collection', 'breadcrumbs')));
     }
 
     public function create(Request $request): View
@@ -91,19 +93,9 @@ class CollectionController extends Controller
         return redirect()->route('collections.index')->with('success', 'Collection deleted successfully');
     }
 
-    public function showItem(Collection $collection, Item $item): View
+    public function showItem(Collection $collection, Item $item, ItemShowPageData $itemShowPageData): View
     {
-        $item->load([
-            'translations.context',
-            'translations.language',
-            'outgoingLinks.target.itemImages',
-            'outgoingLinks.context',
-            'incomingLinks.source.itemImages',
-            'incomingLinks.context',
-            'parent.itemImages',
-            'children.itemImages',
-        ]);
-
+        $pageData = $itemShowPageData->build($item);
         $breadcrumbs = $this->buildAncestorBreadcrumbs($collection);
         $breadcrumbs[] = [
             'label' => $collection->internal_name,
@@ -125,6 +117,7 @@ class CollectionController extends Controller
             'item' => $item,
             'collection' => $collection,
             'breadcrumbs' => $breadcrumbs,
+            ...$pageData,
         ]);
     }
 
@@ -222,6 +215,41 @@ class CollectionController extends Controller
                 'url' => route('collections.show', $ancestor),
             ]);
             $ancestor = $ancestor->parent;
+        }
+
+        return $breadcrumbs;
+    }
+
+    private function resolveParentCollection(ListState $listState): ?Collection
+    {
+        $parentId = $listState->filters['parent_id'] ?? null;
+
+        if (! is_string($parentId) || $parentId === '') {
+            return null;
+        }
+
+        return Collection::query()
+            ->select('id', 'parent_id', 'internal_name')
+            ->find($parentId);
+    }
+
+    /**
+     * @return array<int, array{id: string, label: string}>
+     */
+    private function buildIndexBreadcrumbs(Collection $collection): array
+    {
+        $breadcrumbs = [];
+        $ancestor = $collection;
+
+        while ($ancestor) {
+            array_unshift($breadcrumbs, [
+                'id' => $ancestor->id,
+                'label' => $ancestor->internal_name,
+            ]);
+
+            $ancestor = $ancestor->parent()
+                ->select('id', 'parent_id', 'internal_name')
+                ->first();
         }
 
         return $breadcrumbs;

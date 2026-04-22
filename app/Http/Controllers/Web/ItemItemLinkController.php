@@ -4,19 +4,18 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexItemItemLinkRequest;
 use App\Http\Requests\Web\StoreItemItemLinkRequest;
 use App\Http\Requests\Web\UpdateItemItemLinkRequest;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\ItemItemLink;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\ItemItemLinkIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ItemItemLinkController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,12 +25,15 @@ class ItemItemLinkController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    /**
-     * Display a listing of item-item links for an item.
-     */
-    public function index(Item $item): View
+    public function index(Item $item, IndexItemItemLinkRequest $request, ItemItemLinkIndexQuery $itemItemLinkIndexQuery): View
     {
-        return view('item-links.index', compact('item'));
+        $listState = $request->listState();
+
+        return view('item-links.index', [
+            'itemItemLinks' => $itemItemLinkIndexQuery->paginate($listState),
+            'listState' => $listState,
+            'item' => $item,
+        ]);
     }
 
     /**

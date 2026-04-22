@@ -7,6 +7,8 @@ use App\Http\Requests\Web\IndexUserManagementRequest;
 use App\Http\Requests\Web\StoreUserManagementRequest;
 use App\Http\Requests\Web\UpdateUserManagementRequest;
 use App\Models\User;
+use App\Services\Web\UserManagementIndexQuery;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -21,30 +23,15 @@ class UserManagementController extends Controller
     /**
      * Display a listing of users.
      */
-    public function index(IndexUserManagementRequest $request)
+    public function index(IndexUserManagementRequest $request, UserManagementIndexQuery $userManagementIndexQuery): View
     {
-        $query = User::with('roles');
+        $listState = $request->listState();
 
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        // Role filter
-        if ($request->has('role') && $request->role) {
-            $query->whereHas('roles', function ($q) use ($request) {
-                $q->where('name', $request->role);
-            });
-        }
-
-        $users = $query->paginate(20)->withQueryString();
-        $roles = Role::all();
-
-        return view('admin.users.index', compact('users', 'roles'));
+        return view('admin.users.index', [
+            'users' => $userManagementIndexQuery->paginate($listState),
+            'roles' => Role::query()->orderBy('name')->get(['id', 'name']),
+            'listState' => $listState,
+        ]);
     }
 
     /**

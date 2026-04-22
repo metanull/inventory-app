@@ -4,19 +4,16 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexCountryRequest;
 use App\Http\Requests\Web\StoreCountryRequest;
 use App\Http\Requests\Web\UpdateCountryRequest;
 use App\Models\Country;
-use App\Support\Web\SearchAndPaginate;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Services\Web\CountryIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class CountryController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,12 +23,14 @@ class CountryController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexCountryRequest $request, CountryIndexQuery $countryIndexQuery): View
     {
-        /** @var LengthAwarePaginator $countries */
-        [$countries, $search] = $this->searchAndPaginate(Country::query(), $request);
+        $listState = $request->listState();
 
-        return view('countries.index', compact('countries', 'search'));
+        return view('countries.index', [
+            'countries' => $countryIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Country $country): View

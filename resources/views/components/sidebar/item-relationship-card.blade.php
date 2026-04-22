@@ -29,6 +29,8 @@
 ])
 
 @php($tc = $entityColor('items'))
+@php($resolveRecord = static fn ($item) => $item->record ?? $item->item ?? $item)
+@php($resolveRemoveAction = static fn ($item) => $item->removeAction ?? $removeRoute)
 
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
     <!-- Header with Title and Add Button -->
@@ -57,10 +59,11 @@
     @else
         <div class="space-y-2 mb-3">
             @foreach($items as $item)
+                @php($record = $resolveRecord($item))
                 <div class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 transition-colors group">
                     <!-- Type Icon -->
                     <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center shrink-0">
-                        <x-display.item-type-icon :type="$item->type" class="w-4 h-4 text-gray-600" />
+                        <x-display.item-type-icon :type="$record->type" class="w-4 h-4 text-gray-600" />
                     </div>
                     
                     <!-- Content -->
@@ -73,13 +76,13 @@
                                     <span class="text-green-600 font-bold text-sm shrink-0" title="Incoming link">«</span>
                                 @endif
                             @endif
-                            <a href="{{ $collection ? route('collections.items.show', [$collection, isset($item->direction) ? $item->item : $item]) : route('items.show', isset($item->direction) ? $item->item : $item) }}" 
+                            <a href="{{ $collection ? route('collections.items.show', [$collection, $record]) : route('items.show', $record) }}" 
                                class="text-xs font-medium {{ $tc['accentLink'] }} hover:underline truncate block">
-                                {{ isset($item->direction) ? $item->item->internal_name : $item->internal_name }}
+                                {{ $record->internal_name }}
                             </a>
                         </div>
                         <p class="text-xs text-gray-500 font-mono">
-                            <x-format.uuid :uuid="isset($item->direction) ? $item->item->id : $item->id" format="long" />
+                            <x-format.uuid :uuid="$record->id" format="long" />
                         </p>
                     </div>
 
@@ -88,11 +91,11 @@
                         @can(\App\Enums\Permission::UPDATE_DATA->value)
                             <button 
                                 type="button"
-                                onclick="if(confirm('Remove {{ strtolower($title) }}?')) { document.getElementById('remove-item-form-{{ $type }}-{{ $item->id }}').submit(); }"
+                                onclick="if(confirm('Remove {{ strtolower($title) }}?')) { document.getElementById('remove-item-form-{{ $type }}-{{ $record->id }}').submit(); }"
                                 class="text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100 shrink-0">
                                 <x-heroicon-o-x-mark class="w-3 h-3" />
                             </button>
-                            <form id="remove-item-form-{{ $type }}-{{ $item->id }}" action="{{ $removeRoute }}" method="POST" class="hidden">
+                            <form id="remove-item-form-{{ $type }}-{{ $record->id }}" action="{{ $resolveRemoveAction($item) }}" method="POST" class="hidden">
                                 @csrf
                                 @method('DELETE')
                             </form>

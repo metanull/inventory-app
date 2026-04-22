@@ -4,19 +4,19 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexPartnerRequest;
 use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
 use App\Models\Country;
 use App\Models\Partner;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\PartnerIndexQuery;
+use App\Services\Web\PartnerShowPageData;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,18 +26,22 @@ class PartnerController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexPartnerRequest $request, PartnerIndexQuery $partnerIndexQuery): View
     {
-        [$partners, $search] = $this->searchAndPaginate(Partner::query()->with('country'), $request);
+        $listState = $request->listState();
 
-        return view('partners.index', compact('partners', 'search'));
+        return view('partners.index', [
+            'partners' => $partnerIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
-    public function show(Partner $partner): View
+    public function show(Partner $partner, PartnerShowPageData $partnerShowPageData): View
     {
-        $partner->load('country', 'project', 'monumentItem', 'translations.context', 'translations.language');
-
-        return view('partners.show', compact('partner'));
+        return view('partners.show', array_merge(
+            $partnerShowPageData->build($partner),
+            compact('partner')
+        ));
     }
 
     public function create(): View

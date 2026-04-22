@@ -3,12 +3,12 @@
     Uses unified item-relationship-card component
 --}}
 
-@props(['model', 'collection' => null])
+@props(['model', 'parentItem' => null, 'parentOptions', 'collection' => null])
 
 <x-sidebar.item-relationship-card
     title="Parent Item"
     :model="$model"
-    :items="$model->parent ? collect([$model->parent]) : collect()"
+    :items="$parentItem ? collect([$parentItem]) : collect()"
     type="parent"
     :add-route="route('items.setParent', $model)"
     :remove-route="route('items.removeParent', $model)"
@@ -19,16 +19,13 @@
     <x-form.entity-select 
         name="parent_id" 
         :value="$model->parent_id"
-        :model-class="\App\Models\Item::class"
+        :options="$parentOptions"
         display-field="internal_name"
         value-field="id"
         placeholder="Search items..."
         search-placeholder="Type name or ID..."
         required
         entity="items"
-        :filter-column="'id'"
-        :filter-operator="'!='"
-        :filter-value="$model->id"
     />
 </x-sidebar.item-relationship-card>
 

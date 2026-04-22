@@ -51,3 +51,38 @@ applyTo: "**/*.php"
 - **CRITICAL: Strictly verify PHP code quality and formatting using Pint.**
 - Never ignore lint errors and warnings.
 - Never ignore failing tests.
+
+## Web List Pages — Request-Driven Pattern (the only approved approach)
+
+Every web index (`index()`) action must follow the request-driven list pattern. Do **not** use any other approach.
+
+### Required pieces
+
+| Piece | Role |
+|---|---|
+| `App\Http\Requests\Web\Index{Entity}Request` | Extends `IndexListRequest`; declares allowed sort columns, default sort, and allowed filters. |
+| `App\Services\Web\{Entity}IndexQuery` | Encapsulates the Eloquent query; receives a `ListState` and returns a paginator. |
+| `App\Support\Web\Lists\ListDefinition` | (base class) Wired via `IndexListRequest` — provides `listState()` to the controller. |
+| Blade view | Receives the paginator and `$listState` — **no Eloquent calls inside the view**. |
+
+### Canonical reference implementation
+
+- Controller: `app/Http/Controllers/Web/ItemController::index()`
+- Request: `app/Http/Requests/Web/IndexItemRequest`
+- Query service: `app/Services/Web/ItemIndexQuery`
+- Blade view: `resources/views/items/index.blade.php`
+
+### How to add a new web list page
+
+1. Create `app/Http/Requests/Web/Index{Entity}Request` extending `IndexListRequest`.
+2. Declare `$allowedSorts`, `$defaultSort`, and `$allowedFilters` on the request.
+3. Create `app/Services/Web/{Entity}IndexQuery` with a `paginate(ListState $state)` method.
+4. In the controller `index()`, inject both the request and the query service, call `$request->listState()`, and pass the result to the query service.
+5. Pass `$listState` to the Blade view — never run Eloquent queries inside a view.
+
+### Forbidden patterns — never reintroduce
+
+- ❌ `App\Support\Web\SearchAndPaginate` trait — **deleted**; use the request-driven pattern above.
+- ❌ Mounting a Livewire component to handle list filtering, sorting, searching, or pagination on a web list page.
+- ❌ Issuing Eloquent queries directly from any Blade list view, detail view, or form view.
+- ❌ Creating an `Index*Request` class for a web list page that does not extend `IndexListRequest`.

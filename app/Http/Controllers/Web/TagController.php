@@ -4,18 +4,17 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexTagRequest;
 use App\Http\Requests\Web\StoreTagRequest;
 use App\Http\Requests\Web\UpdateTagRequest;
+use App\Models\Language;
 use App\Models\Tag;
-use App\Support\Web\SearchAndPaginate;
+use App\Services\Web\TagIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class TagController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -25,21 +24,28 @@ class TagController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexTagRequest $request, TagIndexQuery $tagIndexQuery): View
     {
-        [$tags, $search] = $this->searchAndPaginate(Tag::query(), $request);
+        $listState = $request->listState();
 
-        return view('tags.index', compact('tags', 'search'));
+        return view('tags.index', [
+            'tags' => $tagIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Tag $tag): View
     {
-        return view('tags.show', compact('tag'));
+        $itemCount = $tag->items()->count();
+
+        return view('tags.show', compact('tag', 'itemCount'));
     }
 
     public function create(): View
     {
-        return view('tags.create');
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('tags.create', compact('languages'));
     }
 
     public function store(StoreTagRequest $request): RedirectResponse
@@ -52,7 +58,9 @@ class TagController extends Controller
 
     public function edit(Tag $tag): View
     {
-        return view('tags.edit', compact('tag'));
+        $languages = Language::orderBy('internal_name')->get();
+
+        return view('tags.edit', compact('tag', 'languages'));
     }
 
     public function update(UpdateTagRequest $request, Tag $tag): RedirectResponse

@@ -1,4 +1,4 @@
-@props(['model'])
+@props(['model', 'items', 'attachableItems'])
 
 @php($tc = $entityColor('collections'))
 <div class="mt-8">
@@ -15,12 +15,12 @@
             </x-slot>
         @endcan
 
-        @if($model->attachedItems->isEmpty())
+        @if($items->isEmpty())
             <p class="text-sm text-gray-500 italic">No items in this collection</p>
         @else
             <div class="bg-white shadow overflow-hidden sm:rounded-md">
                 <ul class="divide-y divide-gray-200">
-                    @foreach($model->attachedItems as $item)
+                    @foreach($items as $item)
                         <li class="px-6 py-4 hover:bg-gray-50">
                             <div class="flex items-start space-x-4">
                                 <!-- Thumbnail -->
@@ -46,7 +46,7 @@
                                         </a>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                                             <x-display.item-type-icon :type="$item->type" class="w-3 h-3 mr-1" />
-                                            {{ $item->type->label() }}
+                                            {{ $item->type?->label() ?? ucfirst((string) $item->type) }}
                                         </span>
                                     </div>
                                     @if($item->backward_compatibility)
@@ -100,15 +100,12 @@
                 <x-form.field label="Select Item" name="item_id" required>
                     <x-form.entity-select 
                         name="item_id"
-                        :modelClass="\App\Models\Item::class"
+                        :options="$attachableItems"
                         displayField="internal_name"
                         placeholder="Select an item..."
                         searchPlaceholder="Type to search items..."
                         entity="items"
                         :required="true"
-                        filterColumn="id"
-                        filterOperator="NOT IN"
-                        :filterValue="$model->attachedItems->pluck('id')->toArray()"
                     />
                 </x-form.field>
             </div>

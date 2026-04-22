@@ -4,19 +4,16 @@ namespace App\Http\Controllers\Web;
 
 use App\Enums\Permission;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\IndexLanguageRequest;
 use App\Http\Requests\Web\StoreLanguageRequest;
 use App\Http\Requests\Web\UpdateLanguageRequest;
 use App\Models\Language;
-use App\Support\Web\SearchAndPaginate;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Services\Web\LanguageIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class LanguageController extends Controller
 {
-    use SearchAndPaginate;
-
     public function __construct()
     {
         $this->middleware('auth');
@@ -26,12 +23,14 @@ class LanguageController extends Controller
         $this->middleware('permission:'.Permission::DELETE_DATA->value)->only(['destroy']);
     }
 
-    public function index(Request $request): View
+    public function index(IndexLanguageRequest $request, LanguageIndexQuery $languageIndexQuery): View
     {
-        /** @var LengthAwarePaginator $languages */
-        [$languages, $search] = $this->searchAndPaginate(Language::query(), $request);
+        $listState = $request->listState();
 
-        return view('languages.index', compact('languages', 'search'));
+        return view('languages.index', [
+            'languages' => $languageIndexQuery->paginate($listState),
+            'listState' => $listState,
+        ]);
     }
 
     public function show(Language $language): View

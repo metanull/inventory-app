@@ -58,7 +58,15 @@ List views display all records with filtering, sorting, and pagination.
         <x-ui.alert :message="session('status')" type="success" entity="items" />
     @endif
 
-    <livewire:tables.items-table />
+    <x-list.search-form
+        :action="route('items.index')"
+        :query="$listState->query(['q', 'page'])"
+        :search="$listState->search"
+        placeholder="Search internal names..."
+        :clear-url="route('items.index')"
+    />
+
+    {{-- Render the request-driven table with controller-provided data. --}}
 </div>
 @endsection
 ```
@@ -70,7 +78,7 @@ List views display all records with filtering, sorting, and pagination.
 - Entity color integration
 - Permission-based "Add" button
 - Success/error alerts
-- Livewire table component for data
+- Request-driven list table rendered from controller data
 
 ## Show View Pattern
 
