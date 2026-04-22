@@ -34,23 +34,27 @@
                     <input type="hidden" name="partner_id" value="{{ $listState->filters['partner_id'] }}">
 
                     <div class="w-full md:w-52">
-                        <label for="language" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Language</label>
-                        <select id="language" name="language" class="block w-full rounded-md border-gray-300 text-sm focus:border-yellow-500 focus:ring-yellow-500">
-                            <option value="">All languages</option>
-                            @foreach($languages as $lang)
-                                <option value="{{ $lang->id }}" @selected(($listState->filters['language'] ?? null) === $lang->id)>{{ $lang->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Language</label>
+                        <x-form.entity-select
+                            name="language"
+                            :modelClass="\App\Models\Language::class"
+                            displayField="internal_name"
+                            :value="$selectedLanguage?->id"
+                            entity="languages"
+                            placeholder="All languages"
+                        />
                     </div>
 
                     <div class="w-full md:w-52">
-                        <label for="context" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Context</label>
-                        <select id="context" name="context" class="block w-full rounded-md border-gray-300 text-sm focus:border-yellow-500 focus:ring-yellow-500">
-                            <option value="">All contexts</option>
-                            @foreach($contexts as $ctx)
-                                <option value="{{ $ctx->id }}" @selected(($listState->filters['context'] ?? null) === $ctx->id)>{{ $ctx->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Context</label>
+                        <x-form.entity-select
+                            name="context"
+                            :modelClass="\App\Models\Context::class"
+                            displayField="internal_name"
+                            :value="$selectedContext?->id"
+                            entity="contexts"
+                            placeholder="All contexts"
+                        />
                     </div>
                 </x-list.search-form>
             </div>

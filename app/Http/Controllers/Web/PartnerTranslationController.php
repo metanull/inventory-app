@@ -12,6 +12,7 @@ use App\Models\Language;
 use App\Models\Partner;
 use App\Models\PartnerTranslation;
 use App\Services\Web\PartnerTranslationIndexQuery;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,8 +37,8 @@ class PartnerTranslationController extends Controller
             'partnerTranslations' => $partnerTranslationIndexQuery->paginate($listState),
             'listState' => $listState,
             'partner' => $partner,
-            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'selectedLanguage' => $this->resolveSelectedLanguage($listState),
+            'selectedContext' => $this->resolveSelectedContext($listState),
         ]);
     }
 
@@ -109,5 +110,27 @@ class PartnerTranslationController extends Controller
         return redirect()
             ->route('partner-translations.index')
             ->with('success', 'Partner translation deleted successfully');
+    }
+
+    private function resolveSelectedLanguage(ListState $listState): ?Language
+    {
+        $languageId = $listState->filters['language'] ?? null;
+
+        if (! is_string($languageId) || $languageId === '') {
+            return null;
+        }
+
+        return Language::query()->select('id', 'internal_name')->find($languageId);
+    }
+
+    private function resolveSelectedContext(ListState $listState): ?Context
+    {
+        $contextId = $listState->filters['context'] ?? null;
+
+        if (! is_string($contextId) || $contextId === '') {
+            return null;
+        }
+
+        return Context::query()->select('id', 'internal_name')->find($contextId);
     }
 }

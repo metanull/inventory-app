@@ -24,6 +24,21 @@
     $initialIds = $selectedOptions
         ? collect($selectedOptions)->map(fn ($o) => (string) (is_object($o) ? $o->id : $o['id']))->all()
         : [];
+
+    $livewireProps = array_merge([
+        'selectedIds' => $initialIds,
+        'name' => $name,
+        'staticOptions' => $options,
+        'modelClass' => $modelClass,
+        'displayField' => $displayField,
+        'placeholder' => $placeholder,
+        'searchPlaceholder' => $searchPlaceholder,
+        'entity' => $entity,
+        'scopes' => $scopes,
+        'filterColumn' => $filterColumn,
+        'filterOperator' => $filterOperator,
+        'filterValue' => $filterValue,
+    ], $perPage !== null ? ['perPage' => $perPage] : []);
 @endphp
 
 @if($label)
@@ -32,18 +47,4 @@
     </label>
 @endif
 
-@livewire('searchable-multi-select', [
-    'selectedIds' => $initialIds,
-    'name' => $name,
-    'staticOptions' => $options,
-    'modelClass' => $modelClass,
-    'displayField' => $displayField,
-    'placeholder' => $placeholder,
-    'searchPlaceholder' => $searchPlaceholder,
-    'entity' => $entity,
-    'scopes' => $scopes,
-    'perPage' => $perPage,
-    'filterColumn' => $filterColumn,
-    'filterOperator' => $filterOperator,
-    'filterValue' => $filterValue,
-])
+@livewire('searchable-multi-select', $livewireProps)

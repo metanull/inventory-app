@@ -37,13 +37,15 @@
                     :clear-url="route('glossaries.translations.index', $glossary)"
                 >
                     <div class="w-full md:w-52">
-                        <label for="language" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Language</label>
-                        <select id="language" name="language" class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-                            <option value="">All languages</option>
-                            @foreach($languages as $lang)
-                                <option value="{{ $lang->id }}" @selected(($listState->filters['language'] ?? null) === $lang->id)>{{ $lang->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Language</label>
+                        <x-form.entity-select
+                            name="language"
+                            :modelClass="\App\Models\Language::class"
+                            displayField="internal_name"
+                            :value="$selectedLanguage?->id"
+                            entity="languages"
+                            placeholder="All languages"
+                        />
                     </div>
                 </x-list.search-form>
             </div>

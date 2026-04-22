@@ -99,4 +99,45 @@ class PartnerIndexTest extends TestCase
             $response->getContent(),
         );
     }
+
+    public function test_index_can_filter_by_country(): void
+    {
+        $country = Country::factory()->create(['internal_name' => 'Jordan']);
+        Partner::factory()->create([
+            'internal_name' => 'Museum Alpha',
+            'country_id' => $country->id,
+        ]);
+        Partner::factory()->create([
+            'internal_name' => 'Other Partner',
+            'country_id' => null,
+        ]);
+
+        $response = $this->get(route('partners.index', ['country_id' => $country->id]));
+
+        $response
+            ->assertOk()
+            ->assertSee('Museum Alpha')
+            ->assertDontSee('Other Partner');
+    }
+
+    public function test_index_exposes_selected_country_when_filter_is_active(): void
+    {
+        $country = Country::factory()->create(['internal_name' => 'Jordan']);
+        Partner::factory()->create(['country_id' => $country->id]);
+
+        $response = $this->get(route('partners.index', ['country_id' => $country->id]));
+
+        $response->assertOk();
+
+        $this->assertSame($country->id, $response->viewData('selectedCountry')->id);
+    }
+
+    public function test_index_exposes_null_selected_country_when_no_filter_is_active(): void
+    {
+        $response = $this->get(route('partners.index'));
+
+        $response->assertOk();
+
+        $this->assertNull($response->viewData('selectedCountry'));
+    }
 }

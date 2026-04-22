@@ -83,60 +83,63 @@
                     </div>
 
                     <div class="w-full md:w-52">
-                        <label for="partner_id" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Partner</label>
-                        <select id="partner_id" name="partner_id" class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-                            <option value="">All partners</option>
-                            @foreach($partners as $partner)
-                                <option value="{{ $partner->id }}" @selected(($listState->filters['partner_id'] ?? null) === $partner->id)>{{ $partner->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Partner</label>
+                        <x-form.entity-select
+                            name="partner_id"
+                            :modelClass="\App\Models\Partner::class"
+                            displayField="internal_name"
+                            :value="$selectedPartner?->id"
+                            entity="partners"
+                            placeholder="All partners"
+                        />
                     </div>
 
                     <div class="w-full md:w-52">
-                        <label for="collection_id" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Collection</label>
-                        <select id="collection_id" name="collection_id" class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-                            <option value="">All collections</option>
-                            @foreach($collections as $collection)
-                                <option value="{{ $collection->id }}" @selected(($listState->filters['collection_id'] ?? null) === $collection->id)>{{ $collection->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Collection</label>
+                        <x-form.entity-select
+                            name="collection_id"
+                            :modelClass="\App\Models\Collection::class"
+                            displayField="internal_name"
+                            :value="$selectedCollection?->id"
+                            entity="collections"
+                            placeholder="All collections"
+                        />
                     </div>
 
                     <div class="w-full md:w-52">
-                        <label for="project_id" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Project</label>
-                        <select id="project_id" name="project_id" class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-                            <option value="">All projects</option>
-                            @foreach($projects as $project)
-                                <option value="{{ $project->id }}" @selected(($listState->filters['project_id'] ?? null) === $project->id)>{{ $project->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Project</label>
+                        <x-form.entity-select
+                            name="project_id"
+                            :modelClass="\App\Models\Project::class"
+                            displayField="internal_name"
+                            :value="$selectedProject?->id"
+                            entity="projects"
+                            placeholder="All projects"
+                        />
                     </div>
 
                     <div class="w-full md:w-52">
-                        <label for="country_id" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Country</label>
-                        <select id="country_id" name="country_id" class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500">
-                            <option value="">All countries</option>
-                            @foreach($countries as $country)
-                                <option value="{{ $country->id }}" @selected(($listState->filters['country_id'] ?? null) === $country->id)>{{ $country->internal_name }}</option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Country</label>
+                        <x-form.entity-select
+                            name="country_id"
+                            :modelClass="\App\Models\Country::class"
+                            displayField="internal_name"
+                            :value="$selectedCountry?->id"
+                            entity="countries"
+                            placeholder="All countries"
+                        />
                     </div>
 
                     <div class="w-full">
-                        <label for="tags" class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Tags</label>
-                        <select
-                            id="tags"
-                            name="tags[]"
-                            multiple
-                            size="{{ min(max($availableTags->count(), 3), 8) }}"
-                            class="block w-full rounded-md border-gray-300 text-sm focus:border-teal-500 focus:ring-teal-500"
-                        >
-                            @foreach($availableTags as $tag)
-                                <option value="{{ $tag->id }}" @selected(in_array($tag->id, $selectedTagIds, true))>
-                                    {{ $tag->internal_name }}@if($tag->description) - {{ $tag->description }}@endif
-                                </option>
-                            @endforeach
-                        </select>
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Tags</label>
+                        <x-form.searchable-multi-select
+                            name="tags"
+                            :modelClass="\App\Models\Tag::class"
+                            displayField="internal_name"
+                            :selected-options="$selectedTags"
+                            entity="tags"
+                            placeholder="Filter by tags"
+                        />
                     </div>
                 </x-list.search-form>
             </div>

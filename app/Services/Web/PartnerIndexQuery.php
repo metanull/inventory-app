@@ -27,6 +27,7 @@ final class PartnerIndexQuery
             ->with($this->mapEagerLoads());
 
         $this->applySearch($query, $state->search);
+        $this->applyFilters($query, $state);
         $this->applySort($query, $state);
 
         return $query
@@ -37,6 +38,15 @@ final class PartnerIndexQuery
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
+    }
+
+    private function applyFilters(Builder $query, ListState $state): void
+    {
+        $filters = $state->filters;
+
+        if (isset($filters['country_id'])) {
+            $query->where('partners.country_id', $filters['country_id']);
+        }
     }
 
     private function applySort(Builder $query, ListState $state): void

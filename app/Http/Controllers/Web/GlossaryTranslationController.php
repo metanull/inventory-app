@@ -11,6 +11,7 @@ use App\Models\Glossary;
 use App\Models\GlossaryTranslation;
 use App\Models\Language;
 use App\Services\Web\GlossaryTranslationIndexQuery;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
@@ -29,13 +30,12 @@ class GlossaryTranslationController extends Controller
     public function index(Glossary $glossary, IndexGlossaryTranslationRequest $request, GlossaryTranslationIndexQuery $glossaryTranslationIndexQuery): View
     {
         $listState = $request->listState();
-        $languages = Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get();
 
         return view('glossary-translation.index', [
             'translations' => $glossaryTranslationIndexQuery->paginate($listState),
             'listState' => $listState,
             'glossary' => $glossary,
-            'languages' => $languages,
+            'selectedLanguage' => $this->resolveSelectedLanguage($listState),
         ]);
     }
 
@@ -121,5 +121,16 @@ class GlossaryTranslationController extends Controller
 
         return redirect()->route('glossaries.translations.index', $glossary)
             ->with('success', 'Translation deleted successfully');
+    }
+
+    private function resolveSelectedLanguage(ListState $listState): ?Language
+    {
+        $languageId = $listState->filters['language'] ?? null;
+
+        if (! is_string($languageId) || $languageId === '') {
+            return null;
+        }
+
+        return Language::query()->select('id', 'internal_name')->find($languageId);
     }
 }

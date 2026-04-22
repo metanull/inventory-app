@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexPartnerRequest;
 use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
+use App\Models\Country;
 use App\Models\Partner;
 use App\Services\Web\PartnerIndexQuery;
 use App\Services\Web\PartnerShowPageData;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,6 +34,7 @@ class PartnerController extends Controller
         return view('partners.index', [
             'partners' => $partnerIndexQuery->paginate($listState),
             'listState' => $listState,
+            'selectedCountry' => $this->resolveSelectedCountry($listState),
         ]);
     }
 
@@ -94,5 +97,16 @@ class PartnerController extends Controller
 
         return redirect()->route('partners.show', $partner)
             ->with('success', 'Monument item removed successfully');
+    }
+
+    private function resolveSelectedCountry(ListState $listState): ?Country
+    {
+        $countryId = $listState->filters['country_id'] ?? null;
+
+        if (! is_string($countryId) || $countryId === '') {
+            return null;
+        }
+
+        return Country::query()->select('id', 'internal_name')->find($countryId);
     }
 }

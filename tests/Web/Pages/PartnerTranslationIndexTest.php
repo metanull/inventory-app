@@ -196,4 +196,56 @@ class PartnerTranslationIndexTest extends TestCase
 
         $this->assertSame($partner->id, $response->viewData('partner')->id);
     }
+
+    public function test_index_does_not_preload_full_language_or_context_tables(): void
+    {
+        $partner = Partner::factory()->create();
+
+        $response = $this->get(route('partner-translations.index', ['partner_id' => $partner->id]));
+
+        $response->assertOk();
+        $this->assertArrayNotHasKey('languages', $response->viewData());
+        $this->assertArrayNotHasKey('contexts', $response->viewData());
+    }
+
+    public function test_index_exposes_selected_language_when_filter_is_active(): void
+    {
+        $partner = Partner::factory()->create();
+        $language = Language::factory()->create(['internal_name' => 'English']);
+        PartnerTranslation::factory()->forPartner($partner->id)->forLanguage($language->id)->create();
+
+        $response = $this->get(route('partner-translations.index', [
+            'partner_id' => $partner->id,
+            'language' => $language->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($language->id, $response->viewData('selectedLanguage')->id);
+    }
+
+    public function test_index_exposes_selected_context_when_filter_is_active(): void
+    {
+        $partner = Partner::factory()->create();
+        $context = Context::factory()->create(['internal_name' => 'Web']);
+        PartnerTranslation::factory()->forPartner($partner->id)->forContext($context->id)->create();
+
+        $response = $this->get(route('partner-translations.index', [
+            'partner_id' => $partner->id,
+            'context' => $context->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($context->id, $response->viewData('selectedContext')->id);
+    }
+
+    public function test_index_exposes_null_selected_options_when_no_filter_active(): void
+    {
+        $partner = Partner::factory()->create();
+
+        $response = $this->get(route('partner-translations.index', ['partner_id' => $partner->id]));
+
+        $response->assertOk();
+        $this->assertNull($response->viewData('selectedLanguage'));
+        $this->assertNull($response->viewData('selectedContext'));
+    }
 }
