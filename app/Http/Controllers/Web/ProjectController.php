@@ -7,8 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexProjectRequest;
 use App\Http\Requests\Web\StoreProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
-use App\Models\Context;
-use App\Models\Language;
 use App\Models\Project;
 use App\Services\Web\ProjectIndexQuery;
 use Illuminate\Contracts\View\View;
@@ -44,10 +42,7 @@ class ProjectController extends Controller
 
     public function create(): View
     {
-        $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
-        $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
-
-        return view('projects.create', compact('contexts', 'languages'));
+        return view('projects.create');
     }
 
     public function store(StoreProjectRequest $request): RedirectResponse
@@ -60,10 +55,8 @@ class ProjectController extends Controller
     public function edit(Project $project): View
     {
         $project->load(['context', 'language']);
-        $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
-        $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
 
-        return view('projects.edit', compact('project', 'contexts', 'languages'));
+        return view('projects.edit', compact('project'));
     }
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse

@@ -8,9 +8,7 @@ use App\Http\Requests\Web\IndexCollectionRequest;
 use App\Http\Requests\Web\StoreCollectionRequest;
 use App\Http\Requests\Web\UpdateCollectionRequest;
 use App\Models\Collection;
-use App\Models\Context;
 use App\Models\Item;
-use App\Models\Language;
 use App\Services\Web\CollectionIndexQuery;
 use App\Services\Web\CollectionShowPageData;
 use App\Services\Web\ItemShowPageData;
@@ -56,11 +54,9 @@ class CollectionController extends Controller
 
     public function create(Request $request): View
     {
-        $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
-        $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
         $parentId = $request->query('parent_id');
 
-        return view('collections.create', compact('contexts', 'languages', 'parentId'));
+        return view('collections.create', compact('parentId'));
     }
 
     public function store(StoreCollectionRequest $request): RedirectResponse
@@ -73,10 +69,8 @@ class CollectionController extends Controller
     public function edit(Collection $collection): View
     {
         $collection->load(['context', 'language']);
-        $contexts = Context::query()->orderBy('internal_name')->get(['id', 'internal_name']);
-        $languages = Language::query()->orderBy('id')->get(['id', 'internal_name']);
 
-        return view('collections.edit', compact('collection', 'contexts', 'languages'));
+        return view('collections.edit', compact('collection'));
     }
 
     public function update(UpdateCollectionRequest $request, Collection $collection): RedirectResponse

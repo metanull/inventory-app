@@ -35,7 +35,7 @@
     <x-form.entity-select 
         name="language_id" 
         :value="old('language_id', $collection->language_id ?? null)"
-        :options="\App\Models\Language::orderBy('internal_name')->get()"
+        :modelClass="\App\Models\Language::class"
         displayField="internal_name"
         placeholder="Select a language..."
         searchPlaceholder="Type to search languages..."
@@ -49,7 +49,7 @@
     <x-form.entity-select 
         name="context_id" 
         :value="old('context_id', $collection->context_id ?? null)"
-        :options="\App\Models\Context::orderBy('internal_name')->get()"
+        :modelClass="\App\Models\Context::class"
         displayField="internal_name"
         placeholder="Select a context..."
         searchPlaceholder="Type to search contexts..."
@@ -62,7 +62,7 @@
     <x-form.entity-select 
         name="parent_id" 
         :value="old('parent_id', $collection->parent_id ?? $parentId ?? null)"
-        :options="\App\Models\Collection::orderBy('internal_name')->get()"
+        :modelClass="\App\Models\Collection::class"
         displayField="internal_name"
         placeholder="Select a parent collection (optional)..."
         searchPlaceholder="Type to search collections..."

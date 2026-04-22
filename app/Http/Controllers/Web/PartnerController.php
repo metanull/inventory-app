@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexPartnerRequest;
 use App\Http\Requests\Web\StorePartnerRequest;
 use App\Http\Requests\Web\UpdatePartnerRequest;
-use App\Models\Country;
 use App\Models\Partner;
 use App\Services\Web\PartnerIndexQuery;
 use App\Services\Web\PartnerShowPageData;
@@ -46,9 +45,7 @@ class PartnerController extends Controller
 
     public function create(): View
     {
-        $countries = Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
-
-        return view('partners.create', compact('countries'));
+        return view('partners.create');
     }
 
     public function store(StorePartnerRequest $request): RedirectResponse
@@ -61,9 +58,8 @@ class PartnerController extends Controller
     public function edit(Partner $partner): View
     {
         $partner->load('country', 'project', 'monumentItem');
-        $countries = Country::query()->orderBy('internal_name')->get(['id', 'internal_name']);
 
-        return view('partners.edit', compact('partner', 'countries'));
+        return view('partners.edit', compact('partner'));
     }
 
     public function update(UpdatePartnerRequest $request, Partner $partner): RedirectResponse

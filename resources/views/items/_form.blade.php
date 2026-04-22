@@ -27,7 +27,7 @@
     <x-form.entity-select 
         name="country_id" 
         :value="old('country_id', $item->country_id ?? null)"
-        :options="\App\Models\Country::orderBy('internal_name')->get()"
+        :modelClass="\App\Models\Country::class"
         displayField="internal_name"
         placeholder="Select a country..."
         searchPlaceholder="Type to search countries..."

@@ -46,16 +46,13 @@ class PartnerTranslationController extends Controller
      */
     public function create(Request $request): View
     {
-        $partners = Partner::orderBy('internal_name')->get();
-        $languages = Language::orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
         $defaultLanguage = Language::where('is_default', true)->first();
 
         // Get partner_id from query parameter if provided (from partner show page)
         $selectedPartnerId = $request->input('partner_id');
 
-        return view('partner-translations.create', compact('partners', 'languages', 'contexts', 'defaultContext', 'defaultLanguage', 'selectedPartnerId'));
+        return view('partner-translations.create', compact('defaultContext', 'defaultLanguage', 'selectedPartnerId'));
     }
 
     /**
@@ -87,11 +84,7 @@ class PartnerTranslationController extends Controller
     {
         $partnerTranslation->load(['partner', 'language', 'context']);
 
-        $partners = Partner::orderBy('internal_name')->get();
-        $languages = Language::orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
-
-        return view('partner-translations.edit', compact('partnerTranslation', 'partners', 'languages', 'contexts'));
+        return view('partner-translations.edit', compact('partnerTranslation'));
     }
 
     /**

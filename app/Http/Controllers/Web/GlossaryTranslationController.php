@@ -41,10 +41,14 @@ class GlossaryTranslationController extends Controller
 
     public function create(Glossary $glossary): View
     {
-        $languages = Language::orderBy('internal_name')->get();
         $usedLanguageIds = $glossary->translations()->pluck('language_id')->toArray();
+        $languageOptions = Language::orderBy('internal_name')->get()->map(function ($lang) use ($usedLanguageIds) {
+            $lang->disabled = in_array($lang->id, $usedLanguageIds);
 
-        return view('glossary-translation.create', compact('glossary', 'languages', 'usedLanguageIds'));
+            return $lang;
+        });
+
+        return view('glossary-translation.create', compact('glossary', 'languageOptions'));
     }
 
     public function store(StoreGlossaryTranslationRequest $request, Glossary $glossary): RedirectResponse
@@ -79,14 +83,17 @@ class GlossaryTranslationController extends Controller
     public function edit(Glossary $glossary, GlossaryTranslation $translation): View
     {
         $translation->load('language');
-        $languages = Language::orderBy('internal_name')->get();
-        // When editing, allow the current language but disable others that are already used
         $usedLanguageIds = $glossary->translations()
             ->where('id', '!=', $translation->id)
             ->pluck('language_id')
             ->toArray();
+        $languageOptions = Language::orderBy('internal_name')->get()->map(function ($lang) use ($usedLanguageIds) {
+            $lang->disabled = in_array($lang->id, $usedLanguageIds);
 
-        return view('glossary-translation.edit', compact('glossary', 'translation', 'languages', 'usedLanguageIds'));
+            return $lang;
+        });
+
+        return view('glossary-translation.edit', compact('glossary', 'translation', 'languageOptions'));
     }
 
     public function update(UpdateGlossaryTranslationRequest $request, Glossary $glossary, GlossaryTranslation $translation): RedirectResponse

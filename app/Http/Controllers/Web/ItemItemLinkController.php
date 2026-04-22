@@ -41,11 +41,9 @@ class ItemItemLinkController extends Controller
      */
     public function create(Item $item): View
     {
-        $items = Item::where('id', '!=', $item->id)->orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
 
-        return view('item-links.create', compact('item', 'items', 'contexts', 'defaultContext'));
+        return view('item-links.create', compact('item', 'defaultContext'));
     }
 
     /**
@@ -99,10 +97,7 @@ class ItemItemLinkController extends Controller
 
         $itemItemLink->load(['target', 'context']);
 
-        $items = Item::where('id', '!=', $item->id)->orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
-
-        return view('item-links.edit', compact('item', 'itemItemLink', 'items', 'contexts'));
+        return view('item-links.edit', compact('item', 'itemItemLink'));
     }
 
     /**

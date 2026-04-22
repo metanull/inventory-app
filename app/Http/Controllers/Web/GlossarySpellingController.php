@@ -9,7 +9,6 @@ use App\Http\Requests\Web\StoreGlossarySpellingRequest;
 use App\Http\Requests\Web\UpdateGlossarySpellingRequest;
 use App\Models\Glossary;
 use App\Models\GlossarySpelling;
-use App\Models\Language;
 use App\Services\Web\GlossarySpellingIndexQuery;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\QueryException;
@@ -39,9 +38,7 @@ class GlossarySpellingController extends Controller
 
     public function create(Glossary $glossary): View
     {
-        $languages = Language::orderBy('internal_name')->get();
-
-        return view('glossary-spelling.create', compact('glossary', 'languages'));
+        return view('glossary-spelling.create', compact('glossary'));
     }
 
     public function store(StoreGlossarySpellingRequest $request, Glossary $glossary): RedirectResponse
@@ -76,9 +73,8 @@ class GlossarySpellingController extends Controller
     public function edit(Glossary $glossary, GlossarySpelling $spelling): View
     {
         $spelling->load('language');
-        $languages = Language::orderBy('internal_name')->get();
 
-        return view('glossary-spelling.edit', compact('glossary', 'spelling', 'languages'));
+        return view('glossary-spelling.edit', compact('glossary', 'spelling'));
     }
 
     public function update(UpdateGlossarySpellingRequest $request, Glossary $glossary, GlossarySpelling $spelling): RedirectResponse
