@@ -5,49 +5,49 @@ namespace Tests\Web\Pages;
 use App\Models\Item;
 use App\Models\ItemItemLink;
 use App\Models\Tag;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 use Tests\Web\Traits\AuthenticatesWebRequests;
+use Tests\Web\Traits\RendersShowPageUnderRealisticDataset;
 
 /**
  * Realistic-dataset HTTP test for GET /web/items/{id}.
  *
  * Seeds a production-like number of related rows to surface memory-exhaustion
  * and query-count regressions that a single-record test would not catch.
- *
- * Budget constants (documenting the "why" for reviewers and future tuners):
- *
- *  QUERY_BUDGET        – Maximum number of DB queries the show page may issue.
- *                        25 is generous for a page that eager-loads ~8 relations.
- *                        A full-table get() for the items table alone would add
- *                        queries and (more critically) explode memory/response size.
- *
- *  RESPONSE_SIZE_BUDGET – Maximum allowed response body in bytes (1 MB).
- *                         With static-options Livewire snapshots for 500+ items
- *                         the dehydrated snapshot alone reaches several MB.
  */
 class ItemShowRealisticDatasetTest extends TestCase
 {
     use AuthenticatesWebRequests;
     use RefreshDatabase;
+    use RendersShowPageUnderRealisticDataset;
 
     /**
-     * Maximum number of DB queries the show page may issue.
-     * Full-table get() calls would inflate this far above 25.
+     * 25 covers ~8 eager-loaded relations with framework overhead.
+     * A full-table get() on items alone would push well past this.
      */
-    private const QUERY_BUDGET = 25;
-
-    /**
-     * Maximum allowed response body size in bytes.
-     * Livewire snapshots containing 500+ item rows exceed this easily.
-     */
-    private const RESPONSE_SIZE_BUDGET = 1_000_000; // 1 MB
-
-    public function test_show_page_renders_under_realistic_dataset(): void
+    protected function queryBudget(): int
     {
-        // ── Seed a realistic dataset ──────────────────────────────────────
+        return 25;
+    }
 
+    /**
+     * 1 MB ceiling — Livewire snapshots embedding 500+ item rows easily
+     * exceed this in the static-options regime.
+     */
+    protected function responseSizeBudget(): int
+    {
+        return 1_000_000;
+    }
+
+    protected function getShowRouteName(): string
+    {
+        return 'items.show';
+    }
+
+    protected function seedRealisticDataset(): Model
+    {
         $subject = Item::factory()->create();
 
         // ≥ 500 sibling items (not related to the subject)
@@ -66,29 +66,6 @@ class ItemShowRealisticDatasetTest extends TestCase
         // ≥ 20 incoming ItemItemLink records targeting the subject
         ItemItemLink::factory()->count(20)->toTarget($subject)->create();
 
-        // ── Issue the request and collect diagnostics ──────────────────────
-        DB::enableQueryLog();
-
-        $response = $this->get(route('items.show', $subject));
-
-        $queryCount = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        $responseSize = strlen($response->getContent());
-
-        // ── Assertions ────────────────────────────────────────────────────
-        $response->assertOk();
-
-        $this->assertLessThanOrEqual(
-            self::QUERY_BUDGET,
-            $queryCount,
-            "Show page issued {$queryCount} queries; budget is ".self::QUERY_BUDGET.'.',
-        );
-
-        $this->assertLessThanOrEqual(
-            self::RESPONSE_SIZE_BUDGET,
-            $responseSize,
-            "Response body is {$responseSize} bytes; budget is ".self::RESPONSE_SIZE_BUDGET.'.',
-        );
+        return $subject;
     }
 }
