@@ -3,7 +3,7 @@
     Compact display with inline add/remove for two-column layout
 --}}
 
-@props(['model', 'tags', 'availableTags'])
+@props(['model', 'tags'])
 
 @php($tc = $entityColor('tags'))
 
@@ -55,13 +55,16 @@
             <form action="{{ route('items.tags.attach', $model) }}" method="POST" class="space-y-2">
                 @csrf
                 <div>
-                    <x-form.entity-select 
-                        name="tag_id" 
+                    <x-form.entity-select
+                        name="tag_id"
                         :value="null"
-                        :options="$availableTags"
-                        displayField="display_label"
+                        model-class="\App\Models\Tag"
+                        display-field="internal_name"
+                        filter-column="id"
+                        filter-operator="NOT IN"
+                        :filter-value="$model->tags->pluck('id')->all()"
                         placeholder="Select a tag..."
-                        searchPlaceholder="Type to search..."
+                        search-placeholder="Type to search..."
                         required
                         entity="tags"
                     />
