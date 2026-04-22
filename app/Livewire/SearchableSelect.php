@@ -2,18 +2,15 @@
 
 namespace App\Livewire;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
+use App\Livewire\Support\OptionsLookup;
 use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
-/**
- * Server-side searchable select component for both static and dynamic datasets
- * Handles both static options arrays and dynamic DB queries with Livewire
- */
 class SearchableSelect extends Component
 {
+    use OptionsLookup;
+
     #[Modelable]
     public $selectedId = '';
 
@@ -123,54 +120,12 @@ class SearchableSelect extends Component
     {
         // Static options mode: filter provided options
         if ($this->staticOptions !== null) {
-            $options = collect($this->staticOptions);
-
-            $search = trim($this->search);
-            if ($search !== '') {
-                $options = $options->filter(function ($option) use ($search) {
-                    $displayValue = is_object($option)
-                        ? ($option->{$this->displayField} ?? '')
-                        : ($option[$this->displayField] ?? '');
-
-                    return stripos($displayValue, $search) !== false;
-                });
-            }
-
-            return $options;
+            return $this->resolveStaticOptions();
         }
 
         // Dynamic DB query mode
         if ($this->modelClass) {
-            $query = $this->modelClass::query();
-
-            // Apply filter if provided
-            if ($this->filterColumn && $this->filterValue !== null) {
-                $this->applyFilter($query);
-            }
-
-            // Apply named scopes
-            if ($this->scopes) {
-                foreach ($this->scopes as $scopeEntry) {
-                    $query->{$scopeEntry['scope']}(...$scopeEntry['args']);
-                }
-            }
-
-            // Prefix-first search: prefix matches are ordered before infix matches
-            $search = trim($this->search);
-            if ($search !== '') {
-                $grammar = $query->getModel()->getConnection()->getQueryGrammar();
-                $wrappedColumn = $grammar->wrap($this->displayField);
-                $query->where($this->displayField, 'LIKE', "%{$search}%")
-                    ->orderByRaw(
-                        "CASE WHEN {$wrappedColumn} LIKE ? THEN 0 ELSE 1 END",
-                        ["{$search}%"]
-                    )
-                    ->orderBy($this->displayField);
-            } else {
-                $query->orderBy($this->displayField);
-            }
-
-            return $query->limit($this->perPage)->get();
+            return $this->resolveOptionsQuery()->get();
         }
 
         return collect();
@@ -201,81 +156,6 @@ class SearchableSelect extends Component
         }
 
         return null;
-    }
-
-    protected function applyFilter(Builder $query): void
-    {
-        match (strtoupper($this->filterOperator)) {
-            'IN' => $query->whereIn($this->filterColumn, (array) $this->filterValue),
-            'NOT IN' => $query->whereNotIn($this->filterColumn, (array) $this->filterValue),
-            default => $query->where($this->filterColumn, $this->filterOperator, $this->filterValue),
-        };
-    }
-
-    /**
-     * Normalise the $scopes mount parameter into the canonical
-     * array<int, array{scope: string, args: array}> shape.
-     *
-     * Accepted input shapes:
-     *   string                                    → single scope, no args
-     *   array<int, string>                        → multiple scopes, no args
-     *   array<int, array{scope: string, args: array}> → fully specified
-     *
-     * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
-     */
-    private function normalizeScopes(mixed $scopes, ?string $modelClass): array
-    {
-        if (is_string($scopes)) {
-            $scopes = [$scopes];
-        }
-
-        if (! is_array($scopes)) {
-            throw new InvalidArgumentException('The scopes parameter must be a string or an array.');
-        }
-
-        $normalized = [];
-
-        foreach ($scopes as $scope) {
-            if (is_string($scope)) {
-                $this->validateScopeName($scope, $modelClass);
-                $normalized[] = ['scope' => $scope, 'args' => []];
-            } elseif (is_array($scope) && array_key_exists('scope', $scope)) {
-                $this->validateScopeName($scope['scope'], $modelClass);
-                $args = $scope['args'] ?? [];
-                $this->validateScopeArgs($args);
-                $normalized[] = ['scope' => $scope['scope'], 'args' => array_values((array) $args)];
-            } else {
-                throw new InvalidArgumentException('Each scope must be a string or an array with a "scope" key.');
-            }
-        }
-
-        return $normalized;
-    }
-
-    private function validateScopeName(string $name, ?string $modelClass): void
-    {
-        if (! preg_match('/^[a-zA-Z0-9]+$/', $name)) {
-            throw new InvalidArgumentException(
-                "Scope name '{$name}' contains non-alphanumeric characters. Only alphanumeric scope names are allowed."
-            );
-        }
-
-        if ($modelClass !== null && ! method_exists($modelClass, 'scope'.Str::studly($name))) {
-            throw new InvalidArgumentException(
-                "Scope '{$name}' does not exist on model {$modelClass}."
-            );
-        }
-    }
-
-    private function validateScopeArgs(mixed $args): void
-    {
-        foreach ((array) $args as $arg) {
-            if (! is_scalar($arg) && ! is_null($arg) && ! is_array($arg)) {
-                throw new InvalidArgumentException(
-                    'Scope arguments must be scalars, arrays, or null. Objects (including Eloquent models) are not allowed in component state.'
-                );
-            }
-        }
     }
 
     public function render()

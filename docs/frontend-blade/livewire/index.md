@@ -3,7 +3,7 @@ layout: default
 title: Livewire
 nav_order: 2
 parent: Blade/Livewire Frontend
-has_children: false
+has_children: true
 ---
 
 # Livewire Component Patterns
