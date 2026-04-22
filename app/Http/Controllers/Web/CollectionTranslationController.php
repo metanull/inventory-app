@@ -12,6 +12,7 @@ use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Language;
 use App\Services\Web\CollectionTranslationIndexQuery;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,8 +37,8 @@ class CollectionTranslationController extends Controller
             'collectionTranslations' => $collectionTranslationIndexQuery->paginate($listState),
             'listState' => $listState,
             'collection' => $collection,
-            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'selectedLanguage' => $this->resolveSelectedLanguage($listState),
+            'selectedContext' => $this->resolveSelectedContext($listState),
         ]);
     }
 
@@ -115,5 +116,27 @@ class CollectionTranslationController extends Controller
         return redirect()
             ->route('collection-translations.index')
             ->with('success', 'Collection translation deleted successfully');
+    }
+
+    private function resolveSelectedLanguage(ListState $listState): ?Language
+    {
+        $languageId = $listState->filters['language'] ?? null;
+
+        if (! is_string($languageId) || $languageId === '') {
+            return null;
+        }
+
+        return Language::query()->select('id', 'internal_name')->find($languageId);
+    }
+
+    private function resolveSelectedContext(ListState $listState): ?Context
+    {
+        $contextId = $listState->filters['context'] ?? null;
+
+        if (! is_string($contextId) || $contextId === '') {
+            return null;
+        }
+
+        return Context::query()->select('id', 'internal_name')->find($contextId);
     }
 }

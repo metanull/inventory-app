@@ -44,12 +44,11 @@ class ItemController extends Controller
             'hierarchyMode' => $hierarchyMode,
             'parentItem' => $parentItem,
             'breadcrumbs' => $hierarchyMode && $parentItem ? $this->buildIndexBreadcrumbs($parentItem) : [],
-            'availableTags' => Tag::query()->select('id', 'internal_name', 'description', 'category')->orderBy('internal_name')->get(),
             'selectedTags' => $this->resolveSelectedTags($listState),
-            'partners' => Partner::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'collections' => Collection::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'projects' => Project::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'countries' => Country::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'selectedPartner' => $this->resolveSelectedPartner($listState),
+            'selectedCollection' => $this->resolveSelectedCollection($listState),
+            'selectedProject' => $this->resolveSelectedProject($listState),
+            'selectedCountry' => $this->resolveSelectedCountry($listState),
         ]);
     }
 
@@ -282,6 +281,50 @@ class ItemController extends Controller
         }
 
         return $breadcrumbs;
+    }
+
+    private function resolveSelectedPartner(ListState $listState): ?Partner
+    {
+        $partnerId = $listState->filters['partner_id'] ?? null;
+
+        if (! is_string($partnerId) || $partnerId === '') {
+            return null;
+        }
+
+        return Partner::query()->select('id', 'internal_name')->find($partnerId);
+    }
+
+    private function resolveSelectedCollection(ListState $listState): ?Collection
+    {
+        $collectionId = $listState->filters['collection_id'] ?? null;
+
+        if (! is_string($collectionId) || $collectionId === '') {
+            return null;
+        }
+
+        return Collection::query()->select('id', 'internal_name')->find($collectionId);
+    }
+
+    private function resolveSelectedProject(ListState $listState): ?Project
+    {
+        $projectId = $listState->filters['project_id'] ?? null;
+
+        if (! is_string($projectId) || $projectId === '') {
+            return null;
+        }
+
+        return Project::query()->select('id', 'internal_name')->find($projectId);
+    }
+
+    private function resolveSelectedCountry(ListState $listState): ?Country
+    {
+        $countryId = $listState->filters['country_id'] ?? null;
+
+        if (! is_string($countryId) || $countryId === '') {
+            return null;
+        }
+
+        return Country::query()->select('id', 'internal_name')->find($countryId);
     }
 
     private function resolveSelectedTags(ListState $listState): EloquentCollection

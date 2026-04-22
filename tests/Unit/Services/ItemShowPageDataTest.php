@@ -74,10 +74,8 @@ class ItemShowPageDataTest extends TestCase
         $pageData['sections']['pictureChildren']['items']->first()?->itemImages->first()?->alt_text;
         $pageData['sections']['translations']['groups']->first()['translations']->first()?->language?->internal_name;
         $pageData['sections']['links']['formatted']->first()?->item?->internal_name;
-        $pageData['sections']['links']['contextOptions']->first()?->internal_name;
-        $pageData['sections']['links']['targetOptions']->first()?->internal_name;
-        $pageData['sections']['parent']['options']->first()?->internal_name;
-        $pageData['sections']['children']['options']->first()?->internal_name;
+        $pageData['sections']['parent']['item']?->internal_name;
+        $pageData['sections']['children']['items']->first()?->internal_name;
         $pageData['sections']['system']['id'];
 
         $this->assertCount($queryCountAfterBuild, DB::getQueryLog());

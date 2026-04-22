@@ -85,6 +85,16 @@ class Tag extends Model
     }
 
     /**
+     * Scope to exclude tags already attached to the given item.
+     *
+     * @param  string  $itemId  UUID of the item to check attachment against
+     */
+    public function scopeNotAttachedTo(Builder $query, string $itemId): Builder
+    {
+        return $query->whereDoesntHave('items', fn (Builder $q) => $q->whereKey($itemId));
+    }
+
+    /**
      * Get the columns that should automatically receive a unique identifier.
      *
      * @return array<int, string>

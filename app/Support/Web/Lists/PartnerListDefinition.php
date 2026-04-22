@@ -6,12 +6,14 @@ final class PartnerListDefinition extends ListDefinition
 {
     public function filterParameters(): array
     {
-        return [];
+        return ['country_id'];
     }
 
     public function filterRules(): array
     {
-        return [];
+        return [
+            'country_id' => ['sometimes', 'nullable', 'string', 'size:3', 'exists:countries,id'],
+        ];
     }
 
     public function sorts(): array
@@ -31,5 +33,23 @@ final class PartnerListDefinition extends ListDefinition
     public function eagerLoads(): array
     {
         return ['country'];
+    }
+
+    public function normalizeFilters(array $input): array
+    {
+        return array_filter([
+            'country_id' => $this->normalizeNullableString($input['country_id'] ?? null),
+        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+    }
+
+    private function normalizeNullableString(mixed $value): ?string
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $normalized = trim($value);
+
+        return $normalized === '' ? null : $normalized;
     }
 }

@@ -26,10 +26,11 @@
                         <x-form.entity-select 
                             name="tag_id" 
                             :value="null"
-                            :options="\App\Models\Tag::orderBy('internal_name')->get()->reject(fn($tag) => $model->tags->contains($tag->id))"
-                            displayField="internal_name"
+                            model-class="\App\Models\Tag"
+                            display-field="internal_name"
+                            :scopes="[['scope' => 'notAttachedTo', 'args' => [$model->id]]]"
                             placeholder="Select a tag..."
-                            searchPlaceholder="Type to search tags..."
+                            search-placeholder="Type to search tags..."
                             required
                             entity="tags"
                         />

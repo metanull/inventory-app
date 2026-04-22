@@ -3,7 +3,7 @@
     Uses unified collection-relationship-card component
 --}}
 
-@props(['model', 'parentCollection' => null, 'parentOptions'])
+@props(['model', 'parentCollection' => null])
 
 <x-sidebar.collection-relationship-card
     title="Parent Collection"
@@ -18,9 +18,10 @@
     <x-form.entity-select
         name="parent_id"
         :value="$model->parent_id"
-        :options="$parentOptions"
+        model-class="\App\Models\Collection"
         display-field="internal_name"
         value-field="id"
+        :scopes="[['scope' => 'excludingDescendantsOf', 'args' => [$model->id]]]"
         placeholder="Search collections..."
         search-placeholder="Type name or ID..."
         required

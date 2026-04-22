@@ -30,6 +30,7 @@ return [
             'base' => 'teal-500',
             'bg' => 'bg-teal-50',
             'text' => 'text-teal-600',
+            'border' => 'border-teal-200',
         ],
         'yellow' => [
             'button' => 'bg-yellow-600 hover:bg-yellow-700 text-white',
@@ -41,6 +42,7 @@ return [
             'base' => 'yellow-500',
             'bg' => 'bg-yellow-50',
             'text' => 'text-yellow-600',
+            'border' => 'border-yellow-200',
         ],
         'indigo' => [
             'button' => 'bg-indigo-600 hover:bg-indigo-700 text-white',
@@ -52,6 +54,7 @@ return [
             'base' => 'indigo-500',
             'bg' => 'bg-indigo-50',
             'text' => 'text-indigo-600',
+            'border' => 'border-indigo-200',
         ],
         'fuchsia' => [
             'button' => 'bg-fuchsia-600 hover:bg-fuchsia-700 text-white',
@@ -63,6 +66,7 @@ return [
             'base' => 'fuchsia-500',
             'bg' => 'bg-fuchsia-50',
             'text' => 'text-fuchsia-600',
+            'border' => 'border-fuchsia-200',
         ],
         'emerald' => [
             'button' => 'bg-emerald-600 hover:bg-emerald-700 text-white',
@@ -74,6 +78,7 @@ return [
             'base' => 'emerald-500',
             'bg' => 'bg-emerald-50',
             'text' => 'text-emerald-600',
+            'border' => 'border-emerald-200',
         ],
     ],
 ];

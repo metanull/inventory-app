@@ -135,15 +135,36 @@ class GlossaryTranslationIndexTest extends TestCase
     public function test_index_passes_languages_to_view_for_dropdown(): void
     {
         $glossary = Glossary::factory()->create();
-        Language::factory()->create(['internal_name' => 'FilterLanguage']);
+        $language = Language::factory()->create(['internal_name' => 'FilterLanguage']);
+        GlossaryTranslation::factory()->for($glossary)->for($language)->create();
+
+        $response = $this->get(route('glossaries.translations.index', [
+            'glossary' => $glossary->id,
+            'language' => $language->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($language->id, $response->viewData('selectedLanguage')->id);
+    }
+
+    public function test_index_does_not_preload_full_language_table(): void
+    {
+        $glossary = Glossary::factory()->create();
 
         $response = $this->get(route('glossaries.translations.index', $glossary));
 
         $response->assertOk();
+        $this->assertArrayNotHasKey('languages', $response->viewData());
+    }
 
-        $languages = $response->viewData('languages');
-        $this->assertNotEmpty($languages);
-        $response->assertSee('FilterLanguage');
+    public function test_index_exposes_null_selected_language_when_no_filter_active(): void
+    {
+        $glossary = Glossary::factory()->create();
+
+        $response = $this->get(route('glossaries.translations.index', $glossary));
+
+        $response->assertOk();
+        $this->assertNull($response->viewData('selectedLanguage'));
     }
 
     public function test_index_preserves_query_strings_in_pagination_links(): void

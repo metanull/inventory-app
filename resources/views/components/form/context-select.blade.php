@@ -8,7 +8,7 @@
 ])
 
 @php
-    $contexts = $contexts ?: \App\Models\Context::orderBy('internal_name')->get();
+    $contexts = $contexts ?? collect();
 @endphp
 
 <x-form.select 

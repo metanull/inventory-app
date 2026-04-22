@@ -3,7 +3,7 @@
     Uses unified item-relationship-card component
 --}}
 
-@props(['model', 'children', 'childOptions', 'collection' => null])
+@props(['model', 'children', 'collection' => null])
 
 @php
     $childItems = $children->map(fn ($child) => (object) [
@@ -23,12 +23,13 @@
     :count="$children->count()"
     :collection="$collection"
 >
-    <x-form.entity-select 
-        name="child_id" 
+    <x-form.entity-select
+        name="child_id"
         :value="null"
-        :options="$childOptions"
+        model-class="\App\Models\Item"
         display-field="internal_name"
         value-field="id"
+        :scopes="[['scope' => 'excludingAncestorsOf', 'args' => [$model->id]], ['scope' => 'excludingIds', 'args' => [$children->pluck('id')->all()]]]"
         placeholder="Search items..."
         search-placeholder="Type name or ID..."
         required

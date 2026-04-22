@@ -24,7 +24,7 @@
                             Login
                         </x-welcome-cta-button>
                         
-                        @if (Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
+                        @if (Route::has('register') && $selfRegistrationEnabled)
                             <x-welcome-cta-button href="{{ route('register') }}" variant="secondary">
                                 <x-heroicon-o-user-plus class="size-5 mr-2" />
                                 Register
@@ -55,7 +55,7 @@
                         :highlighted="true"
                     >Login</x-ui.card>
                     
-                    @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
+                    @if(Route::has('register') && $selfRegistrationEnabled)
                         {{-- Register Tile --}}
                         <x-ui.card 
                             href="{{ route('register') }}"
@@ -129,7 +129,7 @@
                 </p>
                 <div class="flex flex-wrap justify-center gap-4">
                     @guest
-                        @if(\App\Models\Setting::get('self_registration_enabled', false))
+                        @if($selfRegistrationEnabled)
                             <x-welcome-cta-button href="{{ route('register') }}" variant="primary">
                                 <x-heroicon-o-user-plus class="size-5 mr-2" />
                                 Get Started Today

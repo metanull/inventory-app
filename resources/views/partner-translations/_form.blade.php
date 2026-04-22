@@ -7,7 +7,7 @@
                 <x-form.entity-select 
                     name="partner_id" 
                     :value="old('partner_id', $partnerTranslation->partner_id ?? $selectedPartnerId ?? null)"
-                    :options="$partners"
+                    :modelClass="\App\Models\Partner::class"
                     displayField="internal_name"
                     placeholder="Select a partner..."
                     searchPlaceholder="Type to search partners..."
@@ -20,7 +20,7 @@
                 <x-form.entity-select 
                     name="language_id" 
                     :value="old('language_id', $partnerTranslation->language_id ?? ($defaultLanguage->id ?? null))"
-                    :options="$languages"
+                    :modelClass="\App\Models\Language::class"
                     displayField="internal_name"
                     placeholder="Select a language..."
                     searchPlaceholder="Type to search languages..."
@@ -33,7 +33,7 @@
                 <x-form.entity-select 
                     name="context_id" 
                     :value="old('context_id', $partnerTranslation->context_id ?? ($defaultContext->id ?? null))"
-                    :options="$contexts"
+                    :modelClass="\App\Models\Context::class"
                     displayField="internal_name"
                     placeholder="Select a context..."
                     searchPlaceholder="Type to search contexts..."

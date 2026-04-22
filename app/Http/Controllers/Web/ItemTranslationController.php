@@ -7,12 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexItemTranslationRequest;
 use App\Http\Requests\Web\StoreItemTranslationRequest;
 use App\Http\Requests\Web\UpdateItemTranslationRequest;
-use App\Models\Author;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\ItemTranslation;
 use App\Models\Language;
 use App\Services\Web\ItemTranslationIndexQuery;
+use App\Support\Web\Lists\ListState;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,8 +37,8 @@ class ItemTranslationController extends Controller
             'itemTranslations' => $itemTranslationIndexQuery->paginate($listState),
             'listState' => $listState,
             'item' => $item,
-            'languages' => Language::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
-            'contexts' => Context::query()->select('id', 'internal_name')->orderBy('internal_name')->get(),
+            'selectedLanguage' => $this->resolveSelectedLanguage($listState),
+            'selectedContext' => $this->resolveSelectedContext($listState),
         ]);
     }
 
@@ -47,16 +47,12 @@ class ItemTranslationController extends Controller
      */
     public function create(Request $request): View
     {
-        $items = Item::orderBy('internal_name')->get();
-        $languages = Language::orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
         $defaultContext = Context::where('is_default', true)->first();
-        $authors = Author::orderBy('name')->get();
 
         // Get item_id from query parameter if provided (from item show page)
         $selectedItemId = $request->input('item_id');
 
-        return view('item-translations.create', compact('items', 'languages', 'contexts', 'defaultContext', 'selectedItemId', 'authors'));
+        return view('item-translations.create', compact('defaultContext', 'selectedItemId'));
     }
 
     /**
@@ -88,12 +84,7 @@ class ItemTranslationController extends Controller
     {
         $itemTranslation->load(['item', 'language', 'context']);
 
-        $items = Item::orderBy('internal_name')->get();
-        $languages = Language::orderBy('internal_name')->get();
-        $contexts = Context::orderBy('internal_name')->get();
-        $authors = Author::orderBy('name')->get();
-
-        return view('item-translations.edit', compact('itemTranslation', 'items', 'languages', 'contexts', 'authors'));
+        return view('item-translations.edit', compact('itemTranslation'));
     }
 
     /**
@@ -118,5 +109,27 @@ class ItemTranslationController extends Controller
         return redirect()
             ->route('item-translations.index')
             ->with('success', 'Item translation deleted successfully');
+    }
+
+    private function resolveSelectedLanguage(ListState $listState): ?Language
+    {
+        $languageId = $listState->filters['language'] ?? null;
+
+        if (! is_string($languageId) || $languageId === '') {
+            return null;
+        }
+
+        return Language::query()->select('id', 'internal_name')->find($languageId);
+    }
+
+    private function resolveSelectedContext(ListState $listState): ?Context
+    {
+        $contextId = $listState->filters['context'] ?? null;
+
+        if (! is_string($contextId) || $contextId === '') {
+            return null;
+        }
+
+        return Context::query()->select('id', 'internal_name')->find($contextId);
     }
 }

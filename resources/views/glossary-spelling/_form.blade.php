@@ -5,7 +5,7 @@
         <x-form.entity-select 
             name="language_id" 
             :value="old('language_id', ($spelling ?? null)?->language_id ?? null)"
-            :options="$languages"
+            :modelClass="\App\Models\Language::class"
             displayField="internal_name"
             placeholder="Select a language..."
             searchPlaceholder="Type to search languages..."

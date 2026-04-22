@@ -3,7 +3,7 @@
     Uses unified item-relationship-card component
 --}}
 
-@props(['partner', 'monumentItem' => null, 'monumentOptions'])
+@props(['partner', 'monumentItem' => null])
 
 <x-sidebar.item-relationship-card
     title="Monument Item"
@@ -18,9 +18,10 @@
     <x-form.entity-select 
         name="monument_item_id" 
         :value="$partner->monument_item_id"
-        :options="$monumentOptions"
+        model-class="\App\Models\Item"
         display-field="internal_name"
         value-field="id"
+        :scopes="[['scope' => 'monuments']]"
         placeholder="Search monument items..."
         search-placeholder="Type name or ID..."
         required

@@ -6,7 +6,7 @@
             <x-form.entity-select 
                 name="target_id" 
                 :value="old('target_id', $itemItemLink->target_id ?? null)"
-                :options="$items"
+                :modelClass="\App\Models\Item::class"
                 displayField="internal_name"
                 placeholder="Select a target item..."
                 searchPlaceholder="Type to search items..."
@@ -19,7 +19,7 @@
             <x-form.entity-select 
                 name="context_id" 
                 :value="old('context_id', $itemItemLink->context_id ?? ($defaultContext->id ?? null))"
-                :options="$contexts"
+                :modelClass="\App\Models\Context::class"
                 displayField="internal_name"
                 placeholder="Select a context..."
                 searchPlaceholder="Type to search contexts..."

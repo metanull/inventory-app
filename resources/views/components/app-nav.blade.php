@@ -256,7 +256,7 @@
             @else
                 <div class="hidden md:flex items-center gap-2 text-sm">
                     <a href="{{ route('login') }}" class="px-2 py-1 rounded text-gray-600 hover:text-gray-800 hover:bg-gray-50">Login</a>
-                    @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
+                    @if(Route::has('register') && $selfRegistrationEnabled)
                         <a href="{{ route('register') }}" class="px-2 py-1 rounded text-gray-600 hover:text-gray-800 hover:bg-gray-50">Register</a>
                     @endif
                 </div>
@@ -418,7 +418,7 @@
                 @else
                     <div class="flex gap-2">
                         <a href="{{ route('login') }}" class="flex-1 text-center px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Login</a>
-                        @if(Route::has('register') && \App\Models\Setting::get('self_registration_enabled', false))
+                        @if(Route::has('register') && $selfRegistrationEnabled)
                             <a href="{{ route('register') }}" class="flex-1 text-center px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50">Register</a>
                         @endif
                     </div>

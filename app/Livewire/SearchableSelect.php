@@ -2,16 +2,15 @@
 
 namespace App\Livewire;
 
-use Illuminate\Database\Eloquent\Builder;
+use App\Livewire\Support\OptionsLookup;
+use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
-/**
- * Server-side searchable select component for both static and dynamic datasets
- * Handles both static options arrays and dynamic DB queries with Livewire
- */
 class SearchableSelect extends Component
 {
+    use OptionsLookup;
+
     #[Modelable]
     public $selectedId = '';
 
@@ -44,6 +43,10 @@ class SearchableSelect extends Component
 
     public $filterValue = null; // Optional: value(s) to filter (e.g., '123' or ['123', '456'])
 
+    public $scopes = null; // Optional: named Eloquent scope(s) applied to dynamic queries
+
+    public int $perPage = 50; // Maximum options returned by a dynamic query
+
     protected $queryString = [
         'search' => ['except' => ''],
     ];
@@ -61,7 +64,9 @@ class SearchableSelect extends Component
         bool $required = false,
         ?string $filterColumn = null,
         ?string $filterOperator = '!=',
-        $filterValue = null
+        $filterValue = null,
+        $scopes = null,
+        ?int $perPage = null
     ): void {
         $this->selectedId = old($name, $selectedId);
         $this->name = $name;
@@ -76,6 +81,21 @@ class SearchableSelect extends Component
         $this->filterColumn = $filterColumn;
         $this->filterOperator = $filterOperator;
         $this->filterValue = $filterValue;
+        $this->perPage = $perPage ?? (int) config('interface.searchable_select.per_page', 50);
+
+        if ($scopes !== null) {
+            $this->scopes = $this->normalizeScopes($scopes, $this->modelClass);
+        }
+
+        if ($this->staticOptions !== null) {
+            $count = count(collect($this->staticOptions));
+            $max = (int) config('interface.searchable_select.static_options_max', 50);
+            if ($count > $max) {
+                throw new InvalidArgumentException(
+                    "SearchableSelect received {$count} staticOptions but the configured maximum is {$max}. Use dynamic mode (modelClass + scope) for growable entities."
+                );
+            }
+        }
     }
 
     public function updatedSearch(): void
@@ -100,38 +120,12 @@ class SearchableSelect extends Component
     {
         // Static options mode: filter provided options
         if ($this->staticOptions !== null) {
-            $options = collect($this->staticOptions);
-
-            $search = trim($this->search);
-            if ($search !== '') {
-                $options = $options->filter(function ($option) use ($search) {
-                    $displayValue = is_object($option)
-                        ? ($option->{$this->displayField} ?? '')
-                        : ($option[$this->displayField] ?? '');
-
-                    return stripos($displayValue, $search) !== false;
-                });
-            }
-
-            return $options;
+            return $this->resolveStaticOptions();
         }
 
         // Dynamic DB query mode
         if ($this->modelClass) {
-            $query = $this->modelClass::query();
-
-            // Apply filter if provided
-            if ($this->filterColumn && $this->filterValue !== null) {
-                $this->applyFilter($query);
-            }
-
-            // Apply search
-            $search = trim($this->search);
-            if ($search !== '') {
-                $query->where($this->displayField, 'LIKE', "%{$search}%");
-            }
-
-            return $query->orderBy($this->displayField)->limit(50)->get();
+            return $this->resolveOptionsQuery()->get();
         }
 
         return collect();
@@ -162,15 +156,6 @@ class SearchableSelect extends Component
         }
 
         return null;
-    }
-
-    protected function applyFilter(Builder $query): void
-    {
-        match (strtoupper($this->filterOperator)) {
-            'IN' => $query->whereIn($this->filterColumn, (array) $this->filterValue),
-            'NOT IN' => $query->whereNotIn($this->filterColumn, (array) $this->filterValue),
-            default => $query->where($this->filterColumn, $this->filterOperator, $this->filterValue),
-        };
     }
 
     public function render()

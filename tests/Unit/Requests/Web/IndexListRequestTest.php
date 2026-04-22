@@ -43,7 +43,7 @@ class IndexListRequestTest extends TestCase
         $partnerDefinition = new PartnerListDefinition;
         $collectionDefinition = new CollectionListDefinition;
 
-        $this->assertSame([], $partnerDefinition->filterParameters());
+        $this->assertSame(['country_id'], $partnerDefinition->filterParameters());
         $this->assertSame(['country'], $partnerDefinition->eagerLoads());
 
         $this->assertSame(['parent_id', 'mode'], $collectionDefinition->filterParameters());

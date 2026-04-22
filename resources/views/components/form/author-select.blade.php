@@ -1,12 +1,13 @@
 @props([
     'name' => 'author_id',
     'selected' => null,
+    'authors' => null,
     'required' => false,
     'placeholder' => 'Select or search for an author...',
 ])
 
 @php
-    $authors = \App\Models\Author::orderBy('name')->get(['id', 'name']);
+    $authors = $authors ?? collect();
 @endphp
 
 <x-form.searchable-select 

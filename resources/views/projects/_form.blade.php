@@ -23,7 +23,7 @@
     <x-form.entity-select 
         name="context_id" 
         :value="old('context_id', $project->context_id ?? null)"
-        :options="$contexts"
+        :modelClass="\App\Models\Context::class"
         displayField="internal_name"
         placeholder="Select a context..."
         searchPlaceholder="Type to search contexts..."
@@ -35,7 +35,7 @@
     <x-form.entity-select 
         name="language_id" 
         :value="old('language_id', $project->language_id ?? null)"
-        :options="$languages"
+        :modelClass="\App\Models\Language::class"
         displayField="internal_name"
         placeholder="Select a language..."
         searchPlaceholder="Type to search languages..."

@@ -7,7 +7,7 @@
             <x-form.entity-select 
                 name="item_id" 
                 :value="old('item_id', $itemTranslation->item_id ?? $selectedItemId ?? null)"
-                :options="$items"
+                :modelClass="\App\Models\Item::class"
                 displayField="internal_name"
                 placeholder="Select an item..."
                 searchPlaceholder="Type to search items..."
@@ -20,7 +20,7 @@
             <x-form.entity-select 
                 name="language_id" 
                 :value="old('language_id', $itemTranslation->language_id ?? ($defaultContext ?? null))"
-                :options="$languages"
+                :modelClass="\App\Models\Language::class"
                 displayField="internal_name"
                 placeholder="Select a language..."
                 searchPlaceholder="Type to search languages..."
@@ -33,7 +33,7 @@
             <x-form.entity-select 
                 name="context_id" 
                 :value="old('context_id', $itemTranslation->context_id ?? ($defaultContext->id ?? null))"
-                :options="$contexts"
+                :modelClass="\App\Models\Context::class"
                 displayField="internal_name"
                 placeholder="Select a context..."
                 searchPlaceholder="Type to search contexts..."
@@ -180,7 +180,7 @@
             <x-form.entity-select 
                 name="author_id"
                 :value="old('author_id', $itemTranslation->author_id ?? null)"
-                :options="$authors"
+                :modelClass="\App\Models\Author::class"
                 displayField="name"
                 placeholder="Select an author..."
                 searchPlaceholder="Type to search authors..."
@@ -191,7 +191,7 @@
             <x-form.entity-select 
                 name="text_copy_editor_id"
                 :value="old('text_copy_editor_id', $itemTranslation->text_copy_editor_id ?? null)"
-                :options="$authors"
+                :modelClass="\App\Models\Author::class"
                 displayField="name"
                 placeholder="Select a copy editor..."
                 searchPlaceholder="Type to search authors..."
@@ -202,7 +202,7 @@
                 <x-form.entity-select 
                     name="translator_id"
                     :value="old('translator_id', $itemTranslation->translator_id ?? null)"
-                    :options="$authors"
+                    :modelClass="\App\Models\Author::class"
                     displayField="name"
                     placeholder="Select a translator..."
                     searchPlaceholder="Type to search authors..."
@@ -213,7 +213,7 @@
                 <x-form.entity-select 
                     name="translation_copy_editor_id"
                     :value="old('translation_copy_editor_id', $itemTranslation->translation_copy_editor_id ?? null)"
-                    :options="$authors"
+                    :modelClass="\App\Models\Author::class"
                     displayField="name"
                     placeholder="Select a translation copy editor..."
                     searchPlaceholder="Type to search authors..."

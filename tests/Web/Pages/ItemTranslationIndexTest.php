@@ -196,4 +196,56 @@ class ItemTranslationIndexTest extends TestCase
 
         $this->assertSame($item->id, $response->viewData('item')->id);
     }
+
+    public function test_index_does_not_preload_full_language_or_context_tables(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->get(route('item-translations.index', ['item_id' => $item->id]));
+
+        $response->assertOk();
+        $this->assertArrayNotHasKey('languages', $response->viewData());
+        $this->assertArrayNotHasKey('contexts', $response->viewData());
+    }
+
+    public function test_index_exposes_selected_language_when_filter_is_active(): void
+    {
+        $item = Item::factory()->create();
+        $language = Language::factory()->create(['internal_name' => 'English']);
+        ItemTranslation::factory()->forItem($item->id)->forLanguage($language->id)->create();
+
+        $response = $this->get(route('item-translations.index', [
+            'item_id' => $item->id,
+            'language' => $language->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($language->id, $response->viewData('selectedLanguage')->id);
+    }
+
+    public function test_index_exposes_selected_context_when_filter_is_active(): void
+    {
+        $item = Item::factory()->create();
+        $context = Context::factory()->create(['internal_name' => 'Web']);
+        ItemTranslation::factory()->forItem($item->id)->forContext($context->id)->create();
+
+        $response = $this->get(route('item-translations.index', [
+            'item_id' => $item->id,
+            'context' => $context->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($context->id, $response->viewData('selectedContext')->id);
+    }
+
+    public function test_index_exposes_null_selected_options_when_no_filter_active(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->get(route('item-translations.index', ['item_id' => $item->id]));
+
+        $response->assertOk();
+        $this->assertNull($response->viewData('selectedLanguage'));
+        $this->assertNull($response->viewData('selectedContext'));
+    }
 }

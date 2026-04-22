@@ -42,16 +42,16 @@
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Parent Item Card -->
-            <x-sidebar.parent-item-card :model="$item" :parent-item="$sections['parent']['item']" :parent-options="$sections['parent']['options']" :collection="$collection ?? null" />
+            <x-sidebar.parent-item-card :model="$item" :parent-item="$sections['parent']['item']" :collection="$collection ?? null" />
 
             <!-- Children Items Card -->
-            <x-sidebar.children-items-card :model="$item" :children="$sections['children']['items']" :child-options="$sections['children']['options']" :collection="$collection ?? null" />
+            <x-sidebar.children-items-card :model="$item" :children="$sections['children']['items']" :collection="$collection ?? null" />
 
             <!-- Tags Card -->
-            <x-sidebar.tags-card :model="$item" :tags="$sections['tags']['items']" :available-tags="$sections['tags']['availableTags']" />
+            <x-sidebar.tags-card :model="$item" :tags="$sections['tags']['items']" />
 
             <!-- Links Card -->
-            <x-sidebar.links-card :model="$item" :formatted-links="$sections['links']['formatted']" :link-target-options="$sections['links']['targetOptions']" :context-options="$sections['links']['contextOptions']" :collection="$collection ?? null" />
+            <x-sidebar.links-card :model="$item" :formatted-links="$sections['links']['formatted']" :collection="$collection ?? null" />
 
             <!-- System Properties Card -->
             <x-sidebar.system-properties-card

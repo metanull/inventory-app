@@ -16,7 +16,20 @@
                     :search="$listState->search"
                     placeholder="Search internal names..."
                     :clear-url="route('partners.index')"
-                />
+                    class="gap-4"
+                >
+                    <div class="w-full md:w-44">
+                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">Country</label>
+                        <x-form.entity-select
+                            name="country_id"
+                            :modelClass="\App\Models\Country::class"
+                            displayField="internal_name"
+                            :value="$selectedCountry?->id"
+                            entity="countries"
+                            placeholder="All countries"
+                        />
+                    </div>
+                </x-list.search-form>
             </div>
 
             <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">

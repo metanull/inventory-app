@@ -3,7 +3,6 @@
 namespace App\Services\Web;
 
 use App\Models\Collection;
-use App\Models\Item;
 
 class CollectionShowPageData
 {
@@ -35,20 +34,12 @@ class CollectionShowPageData
                 ],
                 'items' => [
                     'items' => $collection->attachedItems->values(),
-                    'attachableItems' => Item::query()
-                        ->whereNotIn('id', $collection->attachedItems->pluck('id'))
-                        ->orderBy('internal_name')
-                        ->get(),
                 ],
                 'translations' => [
                     'groups' => $this->translationSectionData->build($collection->translations),
                 ],
                 'parent' => [
                     'collection' => $collection->parent,
-                    'options' => Collection::query()
-                        ->whereKeyNot($collection->id)
-                        ->orderBy('internal_name')
-                        ->get(),
                 ],
                 'system' => [
                     'id' => $collection->id,

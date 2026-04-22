@@ -196,4 +196,56 @@ class CollectionTranslationIndexTest extends TestCase
 
         $this->assertSame($collection->id, $response->viewData('collection')->id);
     }
+
+    public function test_index_does_not_preload_full_language_or_context_tables(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->get(route('collection-translations.index', ['collection_id' => $collection->id]));
+
+        $response->assertOk();
+        $this->assertArrayNotHasKey('languages', $response->viewData());
+        $this->assertArrayNotHasKey('contexts', $response->viewData());
+    }
+
+    public function test_index_exposes_selected_language_when_filter_is_active(): void
+    {
+        $collection = Collection::factory()->create();
+        $language = Language::factory()->create(['internal_name' => 'English']);
+        CollectionTranslation::factory()->forCollection($collection->id)->withLanguage($language->id)->create();
+
+        $response = $this->get(route('collection-translations.index', [
+            'collection_id' => $collection->id,
+            'language' => $language->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($language->id, $response->viewData('selectedLanguage')->id);
+    }
+
+    public function test_index_exposes_selected_context_when_filter_is_active(): void
+    {
+        $collection = Collection::factory()->create();
+        $context = Context::factory()->create(['internal_name' => 'Web']);
+        CollectionTranslation::factory()->forCollection($collection->id)->withContext($context->id)->create();
+
+        $response = $this->get(route('collection-translations.index', [
+            'collection_id' => $collection->id,
+            'context' => $context->id,
+        ]));
+
+        $response->assertOk();
+        $this->assertSame($context->id, $response->viewData('selectedContext')->id);
+    }
+
+    public function test_index_exposes_null_selected_options_when_no_filter_active(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->get(route('collection-translations.index', ['collection_id' => $collection->id]));
+
+        $response->assertOk();
+        $this->assertNull($response->viewData('selectedLanguage'));
+        $this->assertNull($response->viewData('selectedContext'));
+    }
 }

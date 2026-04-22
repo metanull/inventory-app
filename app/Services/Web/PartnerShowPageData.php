@@ -2,7 +2,6 @@
 
 namespace App\Services\Web;
 
-use App\Models\Item;
 use App\Models\Partner;
 
 class PartnerShowPageData
@@ -33,10 +32,6 @@ class PartnerShowPageData
                 ],
                 'monument' => [
                     'item' => $partner->monumentItem,
-                    'options' => Item::query()
-                        ->monuments()
-                        ->orderBy('internal_name')
-                        ->get(),
                 ],
                 'system' => [
                     'id' => $partner->id,

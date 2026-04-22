@@ -5,17 +5,14 @@
         <x-form.entity-select 
             name="language_id" 
             :value="old('language_id', ($translation ?? null)?->language_id ?? null)"
-            :options="$languages->map(function($lang) use ($usedLanguageIds) {
-                $lang->disabled = in_array($lang->id, $usedLanguageIds ?? []);
-                return $lang;
-            })"
+            :options="$languageOptions"
             displayField="internal_name"
             placeholder="Select a language..."
             searchPlaceholder="Type to search languages..."
             required
             :showId="true"
         />
-        @if(isset($usedLanguageIds) && count($usedLanguageIds) > 0)
+        @if($languageOptions->contains('disabled', true))
             <p class="mt-1 text-sm text-gray-500">Some languages may not be available as they are already used for this glossary.</p>
         @endif
     </x-form.field>

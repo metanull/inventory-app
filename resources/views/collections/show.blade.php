@@ -29,7 +29,7 @@
         <x-entity.children-section :model="$collection" :children="$sections['children']['items']" />
 
         <!-- Items Section -->
-        <x-entity.collection-items-section :model="$collection" :items="$sections['items']['items']" :attachable-items="$sections['items']['attachableItems']" />
+        <x-entity.collection-items-section :model="$collection" :items="$sections['items']['items']" />
 
         <!-- Translations Section -->
         <x-entity.translations-section entity="collections" :model="$collection" translationRoute="collection-translations" :translation-groups="$sections['translations']['groups']" />
@@ -37,7 +37,7 @@
         <!-- Sidebar Content -->
         <x-slot name="sidebar">
             <!-- Parent Collection Card -->
-            <x-sidebar.parent-collection-card :model="$collection" :parent-collection="$sections['parent']['collection']" :parent-options="$sections['parent']['options']" />
+            <x-sidebar.parent-collection-card :model="$collection" :parent-collection="$sections['parent']['collection']" />
 
             <!-- Children Collections Card -->
             <x-sidebar.children-collections-card :model="$collection" :children="$sections['children']['items']" />

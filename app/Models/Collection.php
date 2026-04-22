@@ -370,4 +370,78 @@ class Collection extends Model
     {
         $this->attachedItems()->detach($itemIds);
     }
+
+    /**
+     * Scope to exclude collections with the given IDs.
+     *
+     * @param  array<int, string>  $ids
+     */
+    public function scopeExcludingIds(Builder $query, array $ids): Builder
+    {
+        return empty($ids) ? $query : $query->whereNotIn('id', $ids);
+    }
+
+    /**
+     * Scope to exclude the given collection and all its transitive descendants.
+     * Prevents circular hierarchies when selecting a parent collection.
+     * Hard-caps traversal at 10 levels.
+     *
+     * @param  string  $collectionId  UUID of the collection whose descendants to exclude
+     */
+    public function scopeExcludingDescendantsOf(Builder $query, string $collectionId): Builder
+    {
+        $maxDepth = 10;
+        $excludeIds = [$collectionId];
+        $currentLevel = [$collectionId];
+
+        for ($depth = 0; $depth < $maxDepth; $depth++) {
+            $nextLevel = static::whereIn('parent_id', $currentLevel)->pluck('id')->all();
+            if (empty($nextLevel)) {
+                break;
+            }
+            $excludeIds = array_merge($excludeIds, $nextLevel);
+            $currentLevel = $nextLevel;
+
+            if ($depth + 1 >= $maxDepth) {
+                $hasMore = static::whereIn('parent_id', $currentLevel)->exists();
+                if ($hasMore) {
+                    throw new \RuntimeException('Collection hierarchy depth exceeds maximum of '.$maxDepth.' levels.');
+                }
+            }
+        }
+
+        return $query->whereNotIn('id', $excludeIds);
+    }
+
+    /**
+     * Scope to exclude the given collection and all its transitive ancestors.
+     * Prevents an ancestor from being set as a child of the collection.
+     * Hard-caps traversal at 10 levels.
+     *
+     * @param  string  $collectionId  UUID of the collection whose ancestors to exclude
+     */
+    public function scopeExcludingAncestorsOf(Builder $query, string $collectionId): Builder
+    {
+        $maxDepth = 10;
+        $excludeIds = [$collectionId];
+        $currentId = $collectionId;
+
+        for ($depth = 0; $depth < $maxDepth; $depth++) {
+            $parentId = static::where('id', $currentId)->value('parent_id');
+            if ($parentId === null) {
+                break;
+            }
+            $excludeIds[] = $parentId;
+            $currentId = $parentId;
+
+            if ($depth + 1 >= $maxDepth) {
+                $hasMore = static::where('id', $currentId)->whereNotNull('parent_id')->exists();
+                if ($hasMore) {
+                    throw new \RuntimeException('Collection hierarchy depth exceeds maximum of '.$maxDepth.' levels.');
+                }
+            }
+        }
+
+        return $query->whereNotIn('id', $excludeIds);
+    }
 }

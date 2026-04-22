@@ -182,4 +182,69 @@ class ItemIndexTest extends TestCase
             $response->getContent(),
         );
     }
+
+    public function test_index_does_not_preload_full_partner_collection_project_country_tables(): void
+    {
+        $partner = Partner::factory()->create(['internal_name' => 'Solo Partner']);
+        Partner::factory()->count(3)->create();
+
+        $response = $this->get(route('items.index', [
+            'hierarchy' => false,
+            'partner_id' => $partner->id,
+        ]));
+
+        $response->assertOk();
+
+        $this->assertArrayNotHasKey('partners', $response->viewData());
+        $this->assertArrayNotHasKey('collections', $response->viewData());
+        $this->assertArrayNotHasKey('projects', $response->viewData());
+        $this->assertArrayNotHasKey('countries', $response->viewData());
+        $this->assertArrayNotHasKey('availableTags', $response->viewData());
+    }
+
+    public function test_index_exposes_selected_option_variables_when_filter_is_active(): void
+    {
+        $partner = Partner::factory()->create(['internal_name' => 'Active Partner']);
+        $collection = Collection::factory()->create(['internal_name' => 'Active Collection']);
+        $project = Project::factory()->create(['internal_name' => 'Active Project']);
+        $country = Country::factory()->create(['internal_name' => 'Active Country']);
+        $tag = Tag::factory()->create(['internal_name' => 'active-tag']);
+        $item = Item::factory()->create([
+            'partner_id' => $partner->id,
+            'collection_id' => $collection->id,
+            'project_id' => $project->id,
+            'country_id' => $country->id,
+        ]);
+        $item->tags()->attach($tag->id);
+
+        $response = $this->get(route('items.index', [
+            'hierarchy' => false,
+            'partner_id' => $partner->id,
+            'collection_id' => $collection->id,
+            'project_id' => $project->id,
+            'country_id' => $country->id,
+            'tags' => [$tag->id],
+        ]));
+
+        $response->assertOk();
+
+        $this->assertSame($partner->id, $response->viewData('selectedPartner')->id);
+        $this->assertSame($collection->id, $response->viewData('selectedCollection')->id);
+        $this->assertSame($project->id, $response->viewData('selectedProject')->id);
+        $this->assertSame($country->id, $response->viewData('selectedCountry')->id);
+        $this->assertSame($tag->id, $response->viewData('selectedTags')->first()->id);
+    }
+
+    public function test_index_exposes_null_selected_option_when_no_filter_is_active(): void
+    {
+        $response = $this->get(route('items.index'));
+
+        $response->assertOk();
+
+        $this->assertNull($response->viewData('selectedPartner'));
+        $this->assertNull($response->viewData('selectedCollection'));
+        $this->assertNull($response->viewData('selectedProject'));
+        $this->assertNull($response->viewData('selectedCountry'));
+        $this->assertTrue($response->viewData('selectedTags')->isEmpty());
+    }
 }
