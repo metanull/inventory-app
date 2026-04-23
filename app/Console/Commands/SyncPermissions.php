@@ -74,6 +74,7 @@ class SyncPermissions extends Command
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
+            PermissionEnum::ACCESS_ADMIN_PANEL->value => 'Access the Filament administration panel',
         ];
 
         $created = 0;
@@ -184,6 +185,7 @@ class SyncPermissions extends Command
 
                     // System settings permissions
                     PermissionEnum::MANAGE_SETTINGS->value,
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
                 ],
             ],
         ];
