@@ -26,6 +26,9 @@ enum Permission: string
     // System settings permissions
     case MANAGE_SETTINGS = 'manage settings';
 
+    // Reference data management
+    case MANAGE_REFERENCE_DATA = 'manage-reference-data';
+
     // Filament admin panel access
     case ACCESS_ADMIN_PANEL = 'access-admin-panel';
 
