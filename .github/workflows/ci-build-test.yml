@@ -126,6 +126,7 @@ jobs:
           - Unit
           - Api
           - Web
+          - Filament
           - Configuration
           - Console
           - Event

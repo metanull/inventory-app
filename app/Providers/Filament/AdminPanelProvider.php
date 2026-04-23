@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
 
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        $panel = $panel
             ->default()
             ->id('admin')
             ->path('admin')
@@ -44,7 +44,6 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Indigo,
             ])
-            ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -65,6 +64,12 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+
+        if (! $this->shouldUseViteTheme()) {
+            return $panel;
+        }
+
+        return $panel->viteTheme('resources/css/filament/admin/theme.css');
     }
 
     protected function brandLogo(string $classes): HtmlString
@@ -74,5 +79,10 @@ class AdminPanelProvider extends PanelProvider
             .'<path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />'
             .'</svg>'
         );
+    }
+
+    protected function shouldUseViteTheme(): bool
+    {
+        return file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json'));
     }
 }

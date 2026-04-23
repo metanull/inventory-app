@@ -15,6 +15,9 @@
         <testsuite name="Web">
             <directory>tests/Web</directory>
         </testsuite>
+        <testsuite name="Filament">
+            <directory>tests/Filament</directory>
+        </testsuite>
         <testsuite name="Configuration">
             <directory>tests/Configuration</directory>
         </testsuite>

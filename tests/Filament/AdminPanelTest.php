@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Web\Admin;
+namespace Tests\Filament;
 
 use App\Enums\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class FilamentAdminPanelTest extends TestCase
+class AdminPanelTest extends TestCase
 {
     use RefreshDatabase;
 
