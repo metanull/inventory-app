@@ -3,10 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages\EditUser;
-use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\ListUser;
 use App\Models\User;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -58,10 +60,22 @@ class UserResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('name'),
+                TextEntry::make('email'),
+                TextEntry::make('email_verified_at')
+                    ->label('Verified')
+                    ->dateTime(),
+            ]);
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => ListUsers::route('/'),
+            'index' => ListUser::route('/'),
             'edit' => EditUser::route('/{record}/edit'),
         ];
     }
