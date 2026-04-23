@@ -47,6 +47,14 @@ jobs:
       run: |
         composer install --no-dev --no-interaction --optimize-autoloader --no-scripts --prefer-dist
 
+    - name: Publish Filament assets
+      run: |
+        cp .env.example .env
+        php artisan key:generate --force --no-interaction
+        php artisan package:discover --ansi
+        php artisan filament:assets --no-interaction
+        rm -f .env
+
     - name: Install backend dependencies
       run: |
         npm ci --no-audit --no-fund
@@ -75,6 +83,8 @@ jobs:
         assetPaths=(
           "public/build"
           "public/cli"
+          "public/css/filament"
+          "public/js/filament"
         )
         for path in "${assetPaths[@]}"; do
           if [ -d "$path" ]; then
