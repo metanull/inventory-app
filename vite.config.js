@@ -2,10 +2,16 @@ import { defineConfig } from 'vite'
 import laravel from 'laravel-vite-plugin'
 import { fileURLToPath, URL } from 'node:url'
 
+const input = [
+  'resources/css/app.css',
+  'resources/css/filament/admin/theme.css',
+  'resources/js/app.js',
+]
+
 export default defineConfig({
   plugins: [
     laravel({
-      input: ['resources/css/app.css', 'resources/js/app.js'],
+      input,
       refresh: true,
     }),
     // Custom plugin to normalize manifest paths
@@ -77,7 +83,7 @@ export default defineConfig({
     outDir: 'public/build',
     manifest: 'manifest.json',
     rollupOptions: {
-      input: ['resources/css/app.css', 'resources/js/app.js'],
+      input,
     },
     assetsInlineLimit: 0,
   },
