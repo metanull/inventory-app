@@ -1,0 +1,8 @@
+:root {
+  --font-family: 'Inter', system-ui, sans-serif;
+}
+
+.fi-logo svg {
+  height: 100%;
+  width: auto;
+}
