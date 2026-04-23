@@ -3,7 +3,6 @@
 namespace Tests\Filament;
 
 use App\Enums\Permission;
-use App\Enums\Permission as PermissionEnum;
 use App\Filament\Auth\Login as AdminLogin;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -62,7 +61,7 @@ class AdminPanelTest extends TestCase
 
         $role = Role::findByName('Manager of Users');
 
-        $this->assertTrue($role->hasPermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value));
+        $this->assertTrue($role->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value));
     }
 
     public function test_filament_login_uses_existing_fortify_two_factor_flow(): void
@@ -70,7 +69,7 @@ class AdminPanelTest extends TestCase
         $this->mockTotpProvider(true);
 
         $user = $this->createUserWithTotp(['email_verified_at' => now()]);
-        $user->givePermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value);
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -95,7 +94,7 @@ class AdminPanelTest extends TestCase
     public function test_filament_login_rejects_users_without_panel_access_before_two_factor_challenge(): void
     {
         $user = $this->createUserWithTotp(['email_verified_at' => now()]);
-        $user->givePermissionTo(PermissionEnum::MANAGE_USERS->value);
+        $user->givePermissionTo(Permission::MANAGE_USERS->value);
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
