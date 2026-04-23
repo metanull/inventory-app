@@ -82,13 +82,14 @@ class SyncPermissionsCommandTest extends TestCase
 
         // Verify Manager has user/role management permissions
         $managerRole = Role::findByName('Manager of Users');
-        $this->assertCount(6, $managerRole->permissions);
+        $this->assertCount(7, $managerRole->permissions);
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::MANAGE_USERS->value));
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::ASSIGN_ROLES->value));
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::VIEW_USER_MANAGEMENT->value));
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::MANAGE_ROLES->value));
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::VIEW_ROLE_MANAGEMENT->value));
         $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::MANAGE_SETTINGS->value));
+        $this->assertTrue($managerRole->hasPermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value));
     }
 
     public function test_command_is_idempotent(): void
