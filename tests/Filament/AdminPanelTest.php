@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class AdminPanelTest extends TestCase
 {

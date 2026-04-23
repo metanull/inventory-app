@@ -4,7 +4,7 @@ namespace Tests\Web\Authentication;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class RecoveryKeyGenerationTest extends TestCase
 {
