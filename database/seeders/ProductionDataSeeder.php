@@ -53,6 +53,7 @@ class ProductionDataSeeder extends Seeder
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
+            PermissionEnum::ACCESS_ADMIN_PANEL->value => 'Access the Filament administration panel',
         ];
 
         foreach ($permissions as $name => $description) {
@@ -112,6 +113,7 @@ class ProductionDataSeeder extends Seeder
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
         ]);
 
         $this->command->info('Roles and permissions setup completed!');

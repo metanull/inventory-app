@@ -12,6 +12,8 @@ use App\Listeners\DispatchSyncSpellingToCollectionTranslations;
 use App\Listeners\DispatchSyncSpellingToItemTranslations;
 use App\Listeners\DispatchSyncSpellingToTimelineEventTranslations;
 use App\Listeners\DispatchSyncTimelineEventTranslationSpellings;
+use App\Models\User;
+use App\Policies\UserPolicy;
 use App\Services\Settings;
 use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
 use App\View\Composers\SettingsComposer;
@@ -136,6 +138,8 @@ class AppServiceProvider extends ServiceProvider
             // Allow authenticated users to view API docs
             return $user !== null;
         });
+
+        Gate::policy(User::class, UserPolicy::class);
 
         // Register Scramble rule transformers for automatic API documentation
         Scramble::configure()

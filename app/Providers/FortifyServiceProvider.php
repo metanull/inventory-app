@@ -24,6 +24,7 @@ use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\PasswordResetResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -49,6 +50,11 @@ class FortifyServiceProvider extends ServiceProvider
         // Register custom login response to check email verification
         $this->app->singleton(
             LoginResponse::class,
+            CustomLoginResponse::class
+        );
+
+        $this->app->singleton(
+            TwoFactorLoginResponse::class,
             CustomLoginResponse::class
         );
 
