@@ -39,4 +39,13 @@ class FilamentAdminPanelTest extends TestCase
             ->assertOk()
             ->assertSee('Dashboard');
     }
+
+    public function test_user_without_administrative_permissions_cannot_access_filament_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/admin');
+
+        $response->assertForbidden();
+    }
 }
