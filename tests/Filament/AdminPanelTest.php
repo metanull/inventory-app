@@ -3,13 +3,19 @@
 namespace Tests\Filament;
 
 use App\Enums\Permission;
+use App\Filament\Auth\Login as AdminLogin;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class AdminPanelTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase;
 
     public function test_filament_login_screen_renders_at_admin_login(): void
     {
@@ -31,7 +37,7 @@ class AdminPanelTest extends TestCase
     public function test_user_with_administrative_permission_can_access_filament_dashboard(): void
     {
         $user = User::factory()->create();
-        $user->givePermissionTo(Permission::MANAGE_USERS);
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
         $response = $this->actingAs($user)->get('/admin');
 
@@ -47,5 +53,59 @@ class AdminPanelTest extends TestCase
         $response = $this->actingAs($user)->get('/admin');
 
         $response->assertForbidden();
+    }
+
+    public function test_manager_role_is_seeded_with_admin_panel_permission(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $role = Role::findByName('Manager of Users');
+
+        $this->assertTrue($role->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value));
+    }
+
+    public function test_filament_login_uses_existing_fortify_two_factor_flow(): void
+    {
+        $this->mockTotpProvider(true);
+
+        $user = $this->createUserWithTotp(['email_verified_at' => now()]);
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::test(AdminLogin::class)
+            ->set('data.email', $user->email)
+            ->set('data.password', 'password')
+            ->call('authenticate');
+
+        $this->assertGuest();
+        $this->assertSame($user->getKey(), session('login.id'));
+        $this->assertSame('admin', session('filament.auth.panel'));
+        $this->get(route('two-factor.login'))->assertOk();
+
+        $response = $this->post(route('two-factor.login.store'), [
+            'code' => $this->getValidTotpCode(),
+        ]);
+
+        $response->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_filament_login_rejects_users_without_panel_access_before_two_factor_challenge(): void
+    {
+        $user = $this->createUserWithTotp(['email_verified_at' => now()]);
+        $user->givePermissionTo(Permission::MANAGE_USERS->value);
+
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::test(AdminLogin::class)
+            ->set('data.email', $user->email)
+            ->set('data.password', 'password')
+            ->call('authenticate')
+            ->assertHasErrors(['data.email']);
+
+        $this->assertGuest();
+        $this->assertNull(session('login.id'));
+        $this->get(route('two-factor.login'))->assertRedirect(route('login'));
     }
 }

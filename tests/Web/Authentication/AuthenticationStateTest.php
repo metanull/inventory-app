@@ -5,7 +5,7 @@ namespace Tests\Web\Authentication;
 use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class AuthenticationStateTest extends TestCase
 {

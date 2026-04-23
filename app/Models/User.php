@@ -141,6 +141,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return false;
         }
 
-        return $this->hasAnyPermission(Permission::administrative());
+        return $this->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Web\Traits;
+namespace Tests\Traits;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
