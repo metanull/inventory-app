@@ -23,16 +23,15 @@ class CountrySmokeTest extends TestCase
         $user = $this->createAuthorizedUser();
         $this->seedCountries();
 
-        $queryCount = 0;
-        DB::listen(static function () use (&$queryCount): void {
-            $queryCount++;
-        });
+        DB::flushQueryLog();
+        DB::enableQueryLog();
 
         $response = $this->actingAs($user)->get('/admin/countries');
 
         $response->assertOk();
-        $this->assertLessThan(50, $queryCount);
+        $this->assertLessThan(50, count(DB::getQueryLog()));
         $this->assertLessThan(2 * 1024 * 1024, strlen($response->getContent()));
+        DB::disableQueryLog();
 
         $this->setCurrentPanel();
 
@@ -87,6 +86,7 @@ class CountrySmokeTest extends TestCase
             ->sequence(fn (Sequence $sequence): array => [
                 'id' => $this->isoCodeFromIndex($sequence->index),
                 'internal_name' => sprintf('Country %05d', $sequence->index),
+                // 1296 = 36^2, which lets us cycle through all 2-character base-36 legacy codes.
                 'backward_compatibility' => str_pad(base_convert($sequence->index % 1296, 10, 36), 2, '0', STR_PAD_LEFT),
             ])
             ->make()
