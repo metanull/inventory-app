@@ -1,0 +1,146 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Concerns\HasBackwardCompatibilityColumn;
+use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasUuidColumn;
+use App\Filament\Resources\ContextResource\Pages\CreateContext;
+use App\Filament\Resources\ContextResource\Pages\EditContext;
+use App\Filament\Resources\ContextResource\Pages\ListContext;
+use App\Filament\Resources\ContextResource\Pages\ViewContext;
+use App\Models\Context;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+
+class ContextResource extends Resource
+{
+    use HasBackwardCompatibilityColumn;
+    use HasInternalNameColumn;
+    use HasTimestampsColumns;
+    use HasUuidColumn;
+
+    protected static ?string $model = Context::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+
+    protected static ?string $navigationGroup = 'Shared data';
+
+    protected static ?string $recordTitleAttribute = 'internal_name';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('internal_name')
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('backward_compatibility')
+                    ->label('Legacy code')
+                    ->maxLength(255),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('internal_name', 'asc')
+            ->columns([
+                static::internalNameColumn()
+                    ->searchable(['internal_name', 'id']),
+                static::backwardCompatibilityColumn(),
+                IconColumn::make('is_default')
+                    ->label('Default')
+                    ->boolean()
+                    ->sortable(),
+                static::uuidColumn(),
+                ...static::timestampsColumns(),
+            ])
+            ->filters([
+                TernaryFilter::make('is_default')
+                    ->label('Default')
+                    ->queries(
+                        true: fn (Builder $query): Builder => $query->default(),
+                        false: fn (Builder $query): Builder => $query->where('is_default', false),
+                        blank: fn (Builder $query): Builder => $query,
+                    ),
+            ])
+            ->actions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->bulkActions([
+                BulkAction::make('setDefault')
+                    ->label('Set as default')
+                    ->requiresConfirmation()
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records): void {
+                        if ($records->count() !== 1) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Select exactly one context')
+                                ->body('The Set as default action can only be applied to a single context.')
+                                ->send();
+
+                            return;
+                        }
+
+                        /** @var Context $context */
+                        $context = $records->first();
+                        $context->setDefault();
+
+                        Notification::make()
+                            ->success()
+                            ->title('Default context updated')
+                            ->send();
+                    }),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('internal_name'),
+                TextEntry::make('backward_compatibility')
+                    ->label('Legacy code'),
+                IconEntry::make('is_default')
+                    ->label('Default')
+                    ->boolean(),
+                TextEntry::make('id')
+                    ->label('UUID'),
+                TextEntry::make('created_at')
+                    ->label('Created')
+                    ->dateTime(),
+                TextEntry::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime(),
+            ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListContext::route('/'),
+            'create' => CreateContext::route('/create'),
+            'edit' => EditContext::route('/{record}/edit'),
+            'view' => ViewContext::route('/{record}'),
+        ];
+    }
+}
