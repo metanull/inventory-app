@@ -3,6 +3,14 @@ applyTo: "**/*.php"
 ---
 # Project coding standards and conventions for PHP
 
+> **Active milestone — Milestone 3 (Filament 3 migration)**
+>
+> `/admin` (Filament 3) is the **main UI** — not a restricted back-office. See `.github/copilot-instructions.md` for the three-tier authorization model and the self-service scope.
+>
+> **Do not** author new code against `IndexListRequest`, `{Entity}IndexQuery`, `SearchAndPaginate`, `SearchableSelect`, Livewire components, web-scoped Form Requests, or `/web/*` controllers. These describe the **legacy** stack being removed in EPIC 12. Prefer a Filament `Resource`, `RelationManager`, `Page`, `Action`, or `Widget`.
+>
+> New tests for Filament code go under `tests/Filament/{Resources,Pages,Panel,Authorization}/`. Never extend `tests/Web/`.
+
 ## General Guidelines
 
 - **CRITICAL: Strictly follow Laravel 12 guidelines and recommendations.**
