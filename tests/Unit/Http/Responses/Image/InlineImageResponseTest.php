@@ -5,13 +5,15 @@ namespace Tests\Unit\Http\Responses\Image;
 use App\Contracts\StreamableImageFile;
 use App\Http\Responses\Image\InlineImageResponse;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class InlineImageResponseTest extends TestCase
 {
     private function makeImageFile(string $disk, string $storagePath, ?string $mimeType, string $downloadFilename): StreamableImageFile
     {
-        return new class($disk, $storagePath, $mimeType, $downloadFilename) implements StreamableImageFile {
+        return new class($disk, $storagePath, $mimeType, $downloadFilename) implements StreamableImageFile
+        {
             public function __construct(
                 private string $disk,
                 private string $storagePath,
@@ -71,7 +73,7 @@ class InlineImageResponseTest extends TestCase
 
         $image = $this->makeImageFile('public', 'images/missing.jpg', 'image/jpeg', 'missing.jpg');
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
 
         (new InlineImageResponse($image))->toResponse(request());
     }

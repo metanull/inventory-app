@@ -5,13 +5,15 @@ namespace Tests\Unit\Http\Responses\Image;
 use App\Contracts\StreamableImageFile;
 use App\Http\Responses\Image\DownloadImageResponse;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class DownloadImageResponseTest extends TestCase
 {
     private function makeImageFile(string $disk, string $storagePath, ?string $mimeType, string $downloadFilename): StreamableImageFile
     {
-        return new class($disk, $storagePath, $mimeType, $downloadFilename) implements StreamableImageFile {
+        return new class($disk, $storagePath, $mimeType, $downloadFilename) implements StreamableImageFile
+        {
             public function __construct(
                 private string $disk,
                 private string $storagePath,
@@ -54,7 +56,7 @@ class DownloadImageResponseTest extends TestCase
         $this->assertStringContainsString('my-photo.jpg', $response->headers->get('Content-Disposition'));
     }
 
-    public function test_download_filename_from_imageDownloadFilename_is_used(): void
+    public function test_download_filename_from_image_download_filename_is_used(): void
     {
         Storage::fake('public');
         Storage::disk('public')->put('pictures/uuid-filename.jpg', 'fake-image-content');
@@ -72,7 +74,7 @@ class DownloadImageResponseTest extends TestCase
 
         $image = $this->makeImageFile('public', 'pictures/missing.jpg', 'image/jpeg', 'missing.jpg');
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
 
         (new DownloadImageResponse($image))->toResponse(request());
     }
