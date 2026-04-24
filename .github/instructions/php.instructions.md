@@ -105,25 +105,70 @@ User-supplied image binaries are **never** written directly to public storage. E
 2. `ImageUpload` creation dispatches `App\Events\ImageUploadEvent`.
 3. `App\Listeners\ImageUploadListener` validates (Intervention Image), resizes to the configured max dimensions, creates an `App\Models\AvailableImage` record (same UUID), deletes the `ImageUpload`, and dispatches `App\Events\AvailableImageEvent`.
 4. `App\Listeners\AvailableImageListener` moves the validated file to the **public** `public` disk in the `images` directory.
-5. Only then can the `AvailableImage` be attached to a host entity via the existing pivot models (`ItemImage`, `CollectionImage`, `PartnerImage`).
+5. The `AvailableImage` is the unattached pool. **Attach is a move, not a reference.** `ItemImage`, `CollectionImage`, `PartnerImage` are **NOT pivot tables** — they have no foreign key to `available_images`. Each row is a standalone, entity-owned record carrying its own copy of `path`, `original_name`, `mime_type`, `size`, `alt_text`, `display_order`. The transition is implemented exclusively by the model methods `*::attachFromAvailableImage()` and `*->detachToAvailableImage()`.
+
+### Attach / detach semantics (canonical, do not reimplement)
+
+- **Attach** (`ItemImage::attachFromAvailableImage(AvailableImage, $hostId, $altText = null)` and the `Collection`/`Partner` equivalents) — runs in a DB transaction:
+  - Moves the file from `public`/`images/` to `public`/`pictures/` (`config/localstorage.php` → `available.images.*` and `pictures.*`).
+  - Creates the entity image row, **reusing the source `AvailableImage` UUID**, copying `path`, `original_name`, `mime_type`, `size`, `comment` → `alt_text`.
+  - **Deletes the `AvailableImage` row.**
+- **Detach** (`$itemImage->detachToAvailableImage()` and the `Collection`/`Partner` equivalents) — exact reverse, in a DB transaction:
+  - Moves the file from `public`/`pictures/` back to `public`/`images/`.
+  - Recreates the `AvailableImage` row with the same UUID, restoring `path`, `original_name`, `mime_type`, `size`, `alt_text` → `comment`.
+  - Deletes the entity image row.
+
+**Consequences that all attach/detach call sites MUST honor:**
+
+- Each image is **unique and owned by at most one entity at a time**. `AvailableImage` is transient — it exists only while the image is unattached.
+- The `AvailableImage` pool stays small (production: ~25 000 images; the pool is a workbench, not a catalogue).
+- Attach errors are corrected by **detach → re-attach** without re-uploading the binary.
 
 ### Rules
 
 - ❌ **NEVER** write user-uploaded image binaries to the `public` disk, the `images` directory, or any web-reachable location directly. The `public` disk is the **output** of validation, never an input.
-- ❌ **NEVER** create an `AvailableImage` record from a user upload. `AvailableImage` is produced exclusively by `ImageUploadListener`.
+- ❌ **NEVER** create an `AvailableImage` record from a user upload. `AvailableImage` is produced exclusively by `ImageUploadListener` or by a detach operation.
 - ❌ **NEVER** use `Filament\Forms\Components\FileUpload->disk('public')` (or any equivalent) to accept a user image. Filament image upload fields MUST target the `local` disk + `image_uploads` directory and persist as an `ImageUpload` record so the event chain runs.
 - ❌ **NEVER** reimplement validation, resizing, or thumbnailing in a new controller, action, page, or Filament component. Trigger the existing event chain.
-- ❌ **NEVER** introduce a new disk, directory, or storage path for image uploads.
+- ❌ **NEVER** reimplement the attach or detach file move. Always call `*::attachFromAvailableImage()` / `*->detachToAvailableImage()`.
+- ❌ **NEVER** treat `ItemImage`/`CollectionImage`/`PartnerImage` as pivots — they hold no foreign key to `available_images`, and the same image cannot be attached to multiple entities at once.
+- ❌ **NEVER** introduce a new disk, directory, or storage path for image uploads or attachments.
 - ✅ A Filament "upload" Action / Page / Resource MUST create an `ImageUpload` (so `ImageUploadEvent` fires) and surface the resulting `AvailableImage` once the listeners have run.
-- ✅ A Filament "attach image to entity" Action MUST pick from the existing `AvailableImage` pool via server-side search; it MUST NOT accept a raw file.
-- ✅ Tests covering upload flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched), and never write directly to the `public` disk.
+- ✅ A Filament "attach image to entity" Action MUST pick from the existing `AvailableImage` pool via server-side search and invoke `*::attachFromAvailableImage()`; it MUST NOT accept a raw file.
+- ✅ A Filament "detach image" Action MUST invoke `*->detachToAvailableImage()` so the binary returns to the `AvailableImage` pool with the same UUID.
+- ✅ Tests covering upload, attach, or detach flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched) for uploads, and never write directly to the `public` disk outside the existing listener / model methods.
+
+### Display and download — reuse the existing controller endpoints (every surface)
+
+Image bytes are NEVER served from a constructed `/storage/...` URL or any direct disk path. Each image model has its own dedicated `view` (inline) and `download` (attachment) controller actions that stream the file through `App\Http\Responses\FileResponse`. These endpoints exist for both the API and `/web`, are covered by `tests/Api/Traits/TestsApiImageViewing.php`, and enforce authorization (`auth` + `permission:view-data` on the Web controllers). Filament `/admin` MUST hit the same endpoints.
+
+| Model            | API controller (`view` / `download`)                       | Web controller (`view` / `download`)                            |
+| ---------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
+| `AvailableImage` | `App\Http\Controllers\AvailableImageController`            | `App\Http\Controllers\Web\AvailableImageController`             |
+| `ItemImage`      | `App\Http\Controllers\ItemImageController`                 | `App\Http\Controllers\Web\ItemImageController`                  |
+| `CollectionImage`| `App\Http\Controllers\CollectionImageController`           | `App\Http\Controllers\Web\CollectionImageController`            |
+| `PartnerImage`   | `App\Http\Controllers\PartnerImageController`              | `App\Http\Controllers\Web\PartnerImageController`               |
+
+**Rules:**
+
+- ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any other direct disk path.
+- ❌ **NEVER** assume an `AvailableImage` URL accessor exists for "the URL convention" — there is none. The pool's URL pattern is an internal detail of `AvailableImageController`, not a public contract.
+- ❌ **NEVER** add a new endpoint that streams image bytes. The four pairs of controllers above are the canonical, tested, authorized boundary.
+- ✅ Filament view pages, gallery components, table columns, and lightboxes MUST resolve URLs from the existing named routes that target the four controllers above — e.g. `route('item-image.view', $itemImage)` for inline display, `route('item-image.download', $itemImage)` for download, and the `available-images.view` / `available-images.download` routes for the unattached pool.
+- ✅ When configuring Filament's `ImageColumn` / `ImageEntry` (or any other component that needs a URL), feed it the route URL — not a `Storage::url($path)` value.
+- ✅ Tests asserting display or download flows MUST hit the route (`get(route('item-image.view', $image))` etc.) and assert the streamed response, not assert against a constructed disk URL.
 
 ### Reference implementation
 
 - Model (upload staging): `app/Models/ImageUpload.php`
 - Model (validated pool): `app/Models/AvailableImage.php`
+- Models (attached, entity-owned): `app/Models/ItemImage.php`, `app/Models/CollectionImage.php`, `app/Models/PartnerImage.php` — see `attachFromAvailableImage()` / `detachToAvailableImage()`.
 - Events: `app/Events/ImageUploadEvent.php`, `app/Events/AvailableImageEvent.php`
 - Listeners: `app/Listeners/ImageUploadListener.php`, `app/Listeners/AvailableImageListener.php`
 - Config: `config/localstorage.php` (disks, directories, max dimensions)
-- API controller: `app/Http/Controllers/ImageUploadController.php`
+- API controller (upload): `app/Http/Controllers/ImageUploadController.php`
+- API controllers (display/download): `app/Http/Controllers/{AvailableImage,ItemImage,CollectionImage,PartnerImage}Controller.php` — `view()` and `download()` actions.
+- Web controllers (display/download): `app/Http/Controllers/Web/{AvailableImage,ItemImage,CollectionImage,PartnerImage}Controller.php` — `view()` and `download()` actions.
+- Streaming helper: `app/Http/Responses/FileResponse.php`.
+- Display/download test trait: `tests/Api/Traits/TestsApiImageViewing.php`.
 - Event tests: `tests/Event/ImageUpload/ImageUploadTest.php`, `tests/Event/AvailableImage/AvailableImageTest.php`

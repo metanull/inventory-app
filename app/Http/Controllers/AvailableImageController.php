@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Api\IndexAvailableImageRequest;
 use App\Http\Requests\Api\UpdateAvailableImageRequest;
 use App\Http\Resources\AvailableImageResource;
-use App\Http\Responses\FileResponse;
+use App\Http\Responses\Image\DownloadImageResponse;
+use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use Illuminate\Support\Facades\Storage;
 
@@ -67,18 +68,7 @@ class AvailableImageController extends Controller
      */
     public function download(AvailableImage $availableImage)
     {
-        $disk = config('localstorage.available.images.disk');
-        $directory = trim(config('localstorage.available.images.directory'), '/');
-        $filename = basename($availableImage->path);
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$availableImage->path;
-
-        return FileResponse::download(
-            $disk,
-            $storagePath,
-            $filename
-        );
+        return new DownloadImageResponse($availableImage);
     }
 
     /**
@@ -86,15 +76,6 @@ class AvailableImageController extends Controller
      */
     public function view(AvailableImage $availableImage)
     {
-        $disk = config('localstorage.available.images.disk');
-        $directory = trim(config('localstorage.available.images.directory'), '/');
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$availableImage->path;
-
-        return FileResponse::view(
-            $disk,
-            $storagePath
-        );
+        return new InlineImageResponse($availableImage);
     }
 }

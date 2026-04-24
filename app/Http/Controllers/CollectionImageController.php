@@ -9,7 +9,8 @@ use App\Http\Requests\Api\StoreCollectionImageRequest;
 use App\Http\Requests\Api\UpdateCollectionImageRequest;
 use App\Http\Resources\CollectionImageResource;
 use App\Http\Resources\OperationSuccessResource;
-use App\Http\Responses\FileResponse;
+use App\Http\Responses\Image\DownloadImageResponse;
+use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
@@ -163,19 +164,7 @@ class CollectionImageController extends Controller
      */
     public function download(CollectionImage $collectionImage)
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-        $filename = $collectionImage->original_name ?: basename($collectionImage->path);
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$collectionImage->path;
-
-        return FileResponse::download(
-            $disk,
-            $storagePath,
-            $filename,
-            $collectionImage->mime_type
-        );
+        return new DownloadImageResponse($collectionImage);
     }
 
     /**
@@ -183,16 +172,6 @@ class CollectionImageController extends Controller
      */
     public function view(CollectionImage $collectionImage)
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$collectionImage->path;
-
-        return FileResponse::view(
-            $disk,
-            $storagePath,
-            $collectionImage->mime_type
-        );
+        return new InlineImageResponse($collectionImage);
     }
 }
