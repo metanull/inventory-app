@@ -7,6 +7,14 @@ applyTo: "tests/**/*Test.php"
 > - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
 > - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`
 
+> **Active milestone — Milestone 3 (Filament 3 migration)**
+>
+> New UI tests **must** live under `tests/Filament/{Resources,Pages,Panel,Authorization}/`. Never add tests to `tests/Web/` — that suite is frozen and is deleted in EPIC 12.
+>
+> Non-UI suites (`tests/Api`, `tests/Unit`, `tests/Configuration`, `tests/Console`, `tests/Event`, `tests/Integration`) are unchanged.
+>
+> When a Milestone 3 story references `tests/Web/...` as a reference example, treat it as **context only** — author the new test under `tests/Filament/...` following Filament's test helpers (`livewire()`, `Livewire::test()`, `assertCanSeeTableRecords()`, etc.).
+
 - Organize tests in a logical and consistent directory structure.
 - Keep tests simple and focused on a single behavior.
 - Keep tests isolated and independent from each other.

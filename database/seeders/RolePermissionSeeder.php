@@ -65,6 +65,7 @@ class RolePermissionSeeder extends Seeder
 
         $visitorRole->syncPermissions([
             PermissionEnum::VIEW_DATA->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
         ]);
 
         // Create "Regular User" role with data operation permissions
