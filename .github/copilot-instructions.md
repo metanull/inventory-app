@@ -449,6 +449,29 @@ When adding new models, controllers, or components:
 - **SQL injection prevention**: Use Eloquent exclusively
 - **Authentication**: Sanctum tokens for API, standard Laravel auth for web
 
+## Image upload pipeline — indirect upload is mandatory
+
+User-supplied image binaries are **never** written directly to public storage. All image uploads — whether issued from the API, the legacy `/web` UI, or the Filament `/admin` UI — MUST go through the existing two-stage indirect pipeline. This is a security boundary, not a stylistic preference.
+
+**The canonical flow (do not bypass, do not parallelize, do not reimplement):**
+
+1. Upload writes a new `App\Models\ImageUpload` record. The binary is stored on the **private** `local` disk under the `image_uploads` directory (see `config/localstorage.php`). It is NOT web-reachable.
+2. Creation dispatches `App\Events\ImageUploadEvent`.
+3. `App\Listeners\ImageUploadListener` validates the binary (Intervention Image), resizes if it exceeds the configured max dimensions, creates an `App\Models\AvailableImage` record (same UUID), deletes the `ImageUpload`, and dispatches `App\Events\AvailableImageEvent`.
+4. `App\Listeners\AvailableImageListener` moves the validated file to the **public** `public` disk under the `images` directory.
+5. Only then can an `AvailableImage` be attached to a host entity (Item, Collection, Partner, …) through the existing per-entity image pivot models (`ItemImage`, `CollectionImage`, `PartnerImage`).
+
+**Rules — apply to every UI surface (API, `/web`, `/admin` Filament, future surfaces):**
+
+- ❌ **NEVER** write user-uploaded image binaries to the `public` disk, the `images` directory, or any web-reachable location directly. The `public` disk is the **output** of validation, never an input.
+- ❌ **NEVER** create an `AvailableImage` record from a user upload. `AvailableImage` is produced exclusively by `ImageUploadListener`.
+- ❌ **NEVER** use `Filament\Forms\Components\FileUpload->disk('public')` (or any equivalent) to accept a user image. Filament image upload fields MUST target the `local` disk + `image_uploads` directory and persist as an `ImageUpload` record so the existing event chain runs.
+- ❌ **NEVER** reimplement validation, resizing, or thumbnailing in a new controller, action, page, or Filament component. Trigger the existing event chain.
+- ❌ **NEVER** introduce a new disk, directory, or storage path for image uploads.
+- ✅ A Filament "upload" Action / Page / Resource MUST create an `ImageUpload` (so `ImageUploadEvent` fires) and surface the resulting `AvailableImage` once the listeners have run.
+- ✅ A Filament "attach image to entity" Action MUST pick from the existing `AvailableImage` pool via server-side search; it MUST NOT accept a raw file.
+- ✅ Tests covering upload flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched), and never write directly to the `public` disk.
+
 ## File-Specific Instructions
 
 For detailed language and framework-specific guidelines, see:
@@ -482,6 +505,9 @@ For detailed language and framework-specific guidelines, see:
 - ❌ Using Livewire for list filtering/sorting/searching/pagination on web index pages
 - ❌ Issuing Eloquent queries from Blade list, detail, or form views
 - ❌ Creating an `Index*Request` web class that does not extend `IndexListRequest`
+- ❌ Uploading user-supplied image binaries directly to the `public` disk or the `images` directory — uploads MUST land on the `local` disk in `image_uploads/` as an `ImageUpload` record so the `ImageUploadEvent` → `AvailableImageEvent` listener chain runs (see *Image upload pipeline — indirect upload is mandatory*)
+- ❌ Creating an `AvailableImage` from a user upload — `AvailableImage` records are produced exclusively by `App\Listeners\ImageUploadListener`
+- ❌ Using `FileUpload->disk('public')` in any Filament Resource / Action / Page that accepts a user image — Filament uploads MUST target `local` + `image_uploads/` and persist as an `ImageUpload`
 - ❌ Using Terminal instead of VS Code tools
 - ❌ Using terminal to run tests instead of VS Code testing features
 - ❌ Creating scripts to alter files instead of using VS Code refactoring tools
