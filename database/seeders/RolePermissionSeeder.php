@@ -78,6 +78,8 @@ class RolePermissionSeeder extends Seeder
             PermissionEnum::CREATE_DATA->value,
             PermissionEnum::UPDATE_DATA->value,
             PermissionEnum::DELETE_DATA->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
+            PermissionEnum::MANAGE_REFERENCE_DATA->value,
         ]);
 
         // Create "Manager of Users" role with only user/role management permissions

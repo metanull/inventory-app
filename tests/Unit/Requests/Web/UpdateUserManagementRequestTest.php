@@ -120,4 +120,43 @@ class UpdateUserManagementRequestTest extends TestCase
         $validator->validate();
         $this->assertFalse($validator->errors()->any());
     }
+
+    public function test_rejects_admin_panel_role_for_user_without_mfa(): void
+    {
+        $user = User::factory()->create();
+        $role = Role::create(['name' => 'filament-editor']);
+        $role->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
+        ]);
+
+        $request = new UpdateUserManagementRequest;
+        $request->setRouteResolver(function () use ($user) {
+            return new class($user)
+            {
+                public function __construct(private User $user) {}
+
+                public function parameter($key)
+                {
+                    return $key === 'user' ? $this->user : null;
+                }
+            };
+        });
+        $request->merge([
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => [$role->id],
+        ]);
+
+        $validator = Validator::make($request->all(), $request->rules());
+        $request->withValidator($validator);
+
+        try {
+            $validator->validate();
+            $this->fail('Validation should have failed for admin panel access without MFA');
+        } catch (ValidationException $e) {
+            $this->assertTrue($validator->errors()->has('roles'));
+            $this->assertStringContainsString('multi-factor authentication', $validator->errors()->first('roles'));
+        }
+    }
 }

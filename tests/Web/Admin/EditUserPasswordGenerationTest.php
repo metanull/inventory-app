@@ -7,10 +7,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class EditUserPasswordGenerationTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -25,7 +26,7 @@ class EditUserPasswordGenerationTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create(['email_verified_at' => now()]);
+        $targetUser = $this->createUserWithTotp(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
 
         $originalPassword = $targetUser->password;
@@ -56,7 +57,7 @@ class EditUserPasswordGenerationTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create(['email_verified_at' => now()]);
+        $targetUser = $this->createUserWithTotp(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
 
         $originalPassword = $targetUser->password;
@@ -83,7 +84,7 @@ class EditUserPasswordGenerationTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create(['email_verified_at' => now()]);
+        $targetUser = $this->createUserWithTotp(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
 
         // Generate first password
@@ -158,7 +159,7 @@ class EditUserPasswordGenerationTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create(['email_verified_at' => now()]);
+        $targetUser = $this->createUserWithTotp(['email_verified_at' => now()]);
         $targetUser->assignRole('Regular User');
 
         // Generate password
@@ -219,7 +220,7 @@ class EditUserPasswordGenerationTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create(['email_verified_at' => null]); // Unverified
+        $targetUser = $this->createUserWithTotp(['email_verified_at' => null]); // Unverified
         $targetUser->assignRole('Regular User');
 
         $response = $this->actingAs($admin)->put(route('admin.users.update', $targetUser), [
