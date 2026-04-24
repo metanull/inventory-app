@@ -94,3 +94,36 @@ Every web index (`index()`) action must follow the request-driven list pattern. 
 - ❌ Mounting a Livewire component to handle list filtering, sorting, searching, or pagination on a web list page.
 - ❌ Issuing Eloquent queries directly from any Blade list view, detail view, or form view.
 - ❌ Creating an `Index*Request` class for a web list page that does not extend `IndexListRequest`.
+
+## Image Uploads — Indirect Pipeline Is Mandatory (API, `/web`, `/admin` Filament)
+
+User-supplied image binaries are **never** written directly to public storage. Every image upload, from every UI surface (REST API, legacy `/web` controllers, Filament `/admin`, future surfaces), MUST go through the existing two-stage indirect pipeline. This is a security boundary.
+
+### Canonical flow (do not bypass, do not reimplement)
+
+1. Upload creates an `App\Models\ImageUpload` record. The binary lands on the **private** `local` disk in the `image_uploads` directory (see `config/localstorage.php`). It is NOT web-reachable.
+2. `ImageUpload` creation dispatches `App\Events\ImageUploadEvent`.
+3. `App\Listeners\ImageUploadListener` validates (Intervention Image), resizes to the configured max dimensions, creates an `App\Models\AvailableImage` record (same UUID), deletes the `ImageUpload`, and dispatches `App\Events\AvailableImageEvent`.
+4. `App\Listeners\AvailableImageListener` moves the validated file to the **public** `public` disk in the `images` directory.
+5. Only then can the `AvailableImage` be attached to a host entity via the existing pivot models (`ItemImage`, `CollectionImage`, `PartnerImage`).
+
+### Rules
+
+- ❌ **NEVER** write user-uploaded image binaries to the `public` disk, the `images` directory, or any web-reachable location directly. The `public` disk is the **output** of validation, never an input.
+- ❌ **NEVER** create an `AvailableImage` record from a user upload. `AvailableImage` is produced exclusively by `ImageUploadListener`.
+- ❌ **NEVER** use `Filament\Forms\Components\FileUpload->disk('public')` (or any equivalent) to accept a user image. Filament image upload fields MUST target the `local` disk + `image_uploads` directory and persist as an `ImageUpload` record so the event chain runs.
+- ❌ **NEVER** reimplement validation, resizing, or thumbnailing in a new controller, action, page, or Filament component. Trigger the existing event chain.
+- ❌ **NEVER** introduce a new disk, directory, or storage path for image uploads.
+- ✅ A Filament "upload" Action / Page / Resource MUST create an `ImageUpload` (so `ImageUploadEvent` fires) and surface the resulting `AvailableImage` once the listeners have run.
+- ✅ A Filament "attach image to entity" Action MUST pick from the existing `AvailableImage` pool via server-side search; it MUST NOT accept a raw file.
+- ✅ Tests covering upload flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched), and never write directly to the `public` disk.
+
+### Reference implementation
+
+- Model (upload staging): `app/Models/ImageUpload.php`
+- Model (validated pool): `app/Models/AvailableImage.php`
+- Events: `app/Events/ImageUploadEvent.php`, `app/Events/AvailableImageEvent.php`
+- Listeners: `app/Listeners/ImageUploadListener.php`, `app/Listeners/AvailableImageListener.php`
+- Config: `config/localstorage.php` (disks, directories, max dimensions)
+- API controller: `app/Http/Controllers/ImageUploadController.php`
+- Event tests: `tests/Event/ImageUpload/ImageUploadTest.php`, `tests/Event/AvailableImage/AvailableImageTest.php`
