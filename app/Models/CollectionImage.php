@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class CollectionImage extends Model
+class CollectionImage extends Model implements StreamableImageFile
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
@@ -195,5 +196,25 @@ class CollectionImage extends Model
 
             return $availableImage;
         });
+    }
+
+    public function imageDisk(): string
+    {
+        return config('localstorage.pictures.disk');
+    }
+
+    public function imageStoragePath(): string
+    {
+        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+    }
+
+    public function imageMimeType(): ?string
+    {
+        return $this->mime_type;
+    }
+
+    public function imageDownloadFilename(): string
+    {
+        return $this->original_name ?: basename($this->path);
     }
 }

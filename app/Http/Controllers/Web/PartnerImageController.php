@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\IndexPartnerImageRequest;
 use App\Http\Requests\Web\StorePartnerImageRequest;
 use App\Http\Requests\Web\UpdatePartnerImageRequest;
-use App\Http\Responses\FileResponse;
+use App\Http\Responses\Image\DownloadImageResponse;
+use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
@@ -159,24 +160,11 @@ class PartnerImageController extends Controller
      */
     public function download(Partner $partner, PartnerImage $partnerImage)
     {
-        // Ensure the image belongs to the partner
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-        $filename = $partnerImage->original_name ?: basename($partnerImage->path);
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$partnerImage->path;
-
-        return FileResponse::download(
-            $disk,
-            $storagePath,
-            $filename,
-            $partnerImage->mime_type
-        );
+        return new DownloadImageResponse($partnerImage);
     }
 
     /**
@@ -184,21 +172,10 @@ class PartnerImageController extends Controller
      */
     public function view(Partner $partner, PartnerImage $partnerImage)
     {
-        // Ensure the image belongs to the partner
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$partnerImage->path;
-
-        return FileResponse::view(
-            $disk,
-            $storagePath,
-            $partnerImage->mime_type
-        );
+        return new InlineImageResponse($partnerImage);
     }
 }
