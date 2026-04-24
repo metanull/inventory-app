@@ -102,7 +102,6 @@ enum Permission: string
             self::MANAGE_ROLES->value,
             self::ASSIGN_ROLES->value,
             self::MANAGE_SETTINGS->value,
-            self::ACCESS_ADMIN_PANEL->value,
         ];
     }
 }
