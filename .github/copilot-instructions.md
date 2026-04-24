@@ -32,6 +32,24 @@ Use mocking/stubbing to isolate code under test.
 
 ---
 
+## Active milestone: Filament 3 is the main UI
+
+> This project is mid-migration under **Milestone 3** (see `temp_MILESTONE3_FILAMENT_MIGRATION.md` and EPIC 0 — GitHub issue #849). The rules below supersede any Blade/Livewire back-office guidance in this file or the per-file instruction files until EPIC 14 rewrites them.
+
+1. **`/admin` (Filament 3) is the main UI**, not a restricted admin-only back-office. Every authenticated role except `Non-verified users` must be able to reach `/admin`.
+2. **Three-tier authorization model** (enforced by EPIC 2):
+   - **Tier 1 — Panel gate**: Spatie permission `access-admin-panel` grants entry to `/admin`. Assigned to `Visitor`, `Regular User`, and `Manager of Users`. Never assigned to `Non-verified users`.
+   - **Tier 2 — Navigation / Resource visibility**: per-feature Spatie permissions (`view-data`, `manage-users`, `manage-roles`, `manage-settings`, `manage-reference-data`) drive `canViewAny()` and `shouldRegisterNavigation()`.
+   - **Tier 3 — Record / Action authorization**: existing `App\Policies\*` classes, unchanged.
+3. **Test placement during Milestone 3**:
+   - All new Filament tests live under `tests/Filament/{Resources,Pages,Panel,Authorization}/`.
+   - Never add tests to `tests/Web/` — that suite is frozen and deleted in EPIC 12. The Blade/Livewire back-office no longer receives new coverage.
+   - `tests/Api/`, `tests/Unit/`, `tests/Configuration/`, `tests/Console/`, `tests/Event/`, `tests/Integration/` remain the correct homes for non-UI tests.
+4. **Self-service is first-class**: user profile, password change, two-factor enrolment, browser-session logout, and account deletion are delivered as a Filament `ProfilePage` (EPIC 10b). Do not reintroduce Jetstream Blade profile pages.
+5. **Forward-pointer to EPIC 14**: existing sections of this file (and `php.instructions.md`, `test-php.instructions.md`) that describe `IndexListRequest`, `{Entity}IndexQuery`, `SearchableSelect`, `SearchAndPaginate`, Livewire list components, or `/web/*` routes describe the **legacy** stack being removed. Do not author new code against those patterns. When in doubt, prefer a Filament Resource / Relation Manager / Page.
+
+---
+
 ## Project Overview
 
 The **Inventory Management API** is a comprehensive Laravel 12 backend application for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
