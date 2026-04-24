@@ -12,6 +12,7 @@ use App\Filament\Resources\PartnerResource\Pages\EditPartner;
 use App\Filament\Resources\PartnerResource\Pages\ListPartner;
 use App\Filament\Resources\PartnerResource\Pages\ViewPartner;
 use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipationsRelationManager;
+use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
 use App\Models\Partner;
@@ -160,6 +161,7 @@ class PartnerResource extends Resource
         return [
             OwnedItemsRelationManager::class,
             CollectionParticipationsRelationManager::class,
+            ImagesRelationManager::class,
             TranslationsRelationManager::class,
         ];
     }

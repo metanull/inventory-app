@@ -11,6 +11,7 @@ use App\Filament\Resources\CollectionResource\Pages\EditCollection;
 use App\Filament\Resources\CollectionResource\Pages\ListCollection;
 use App\Filament\Resources\CollectionResource\Pages\ViewCollection;
 use App\Filament\Resources\CollectionResource\RelationManagers\ChildCollectionsRelationManager;
+use App\Filament\Resources\CollectionResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
@@ -298,6 +299,7 @@ class CollectionResource extends Resource
             ChildCollectionsRelationManager::class,
             ItemsRelationManager::class,
             PartnersRelationManager::class,
+            ImagesRelationManager::class,
             TranslationsRelationManager::class,
         ];
     }
