@@ -169,6 +169,9 @@ class SyncPermissions extends Command
                     PermissionEnum::CREATE_DATA->value,
                     PermissionEnum::UPDATE_DATA->value,
                     PermissionEnum::DELETE_DATA->value,
+                    
+                    // Get access to the Filament "admin" panel, but no permissions to see or manage users/roles/settings
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
                 ],
             ],
             [
