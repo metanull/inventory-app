@@ -1,0 +1,276 @@
+<?php
+
+namespace Tests\Filament\Resources;
+
+use App\Enums\Permission;
+use App\Filament\Resources\PartnerResource\Pages\CreatePartner;
+use App\Filament\Resources\PartnerResource\Pages\EditPartner;
+use App\Filament\Resources\PartnerResource\Pages\ListPartner;
+use App\Filament\Resources\PartnerResource\Pages\ViewPartner;
+use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipationsRelationManager;
+use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
+use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Models\Collection;
+use App\Models\Context;
+use App\Models\Country;
+use App\Models\Item;
+use App\Models\Language;
+use App\Models\Partner;
+use App\Models\Project;
+use App\Models\User;
+use Filament\Facades\Filament;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class PartnerResourceTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authorized_users_can_render_all_partner_resource_pages_relation_managers_and_stats(): void
+    {
+        $user = $this->createCrudUser();
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $monument = Item::factory()->Monument()->create(['internal_name' => 'Great monument']);
+        $partner = Partner::factory()->create([
+            'internal_name' => 'Jordan Museum',
+            'type' => 'museum',
+            'country_id' => $country->id,
+            'project_id' => $project->id,
+            'monument_item_id' => $monument->id,
+            'visible' => true,
+        ]);
+        $ownedItem = Item::factory()->Object()->create([
+            'partner_id' => $partner->id,
+            'project_id' => $project->id,
+            'internal_name' => 'Relief fragment',
+        ]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $partner->collections()->attach($collection->id, [
+            'collection_type' => 'collection',
+            'level' => 'partner',
+            'visible' => true,
+        ]);
+        $partner->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum',
+            'description' => 'Museum description',
+        ]);
+
+        $this->actingAs($user)->get('/admin/partners')
+            ->assertOk()
+            ->assertSee('Partners');
+
+        $this->actingAs($user)->get('/admin/partners/create')
+            ->assertOk()
+            ->assertSee('Create');
+
+        $this->actingAs($user)->get("/admin/partners/{$partner->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('Jordan Museum')
+            ->assertSee('Owned items')
+            ->assertSee('Collection participations')
+            ->assertSee('Translations');
+
+        $this->actingAs($user)->get("/admin/partners/{$partner->getKey()}")
+            ->assertOk()
+            ->assertSee('Jordan Museum')
+            ->assertSee('Owned items')
+            ->assertSee('Collection participations')
+            ->assertSee('1');
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(OwnedItemsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => ViewPartner::class,
+            ])
+            ->assertCanSeeTableRecords([$ownedItem]);
+
+        Livewire::actingAs($user)
+            ->test(CollectionParticipationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => ViewPartner::class,
+            ])
+            ->assertCanSeeTableRecords([$collection]);
+    }
+
+    public function test_authorized_users_can_create_edit_and_delete_partners(): void
+    {
+        $user = $this->createCrudUser();
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $monument = Item::factory()->Monument()->create(['internal_name' => 'Great monument']);
+        $partner = Partner::factory()->create([
+            'internal_name' => 'Jordan Museum',
+            'type' => 'museum',
+            'country_id' => $country->id,
+            'project_id' => $project->id,
+            'monument_item_id' => $monument->id,
+            'visible' => false,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(CreatePartner::class)
+            ->fillForm([
+                'internal_name' => 'Petra Institute',
+                'type' => 'institution',
+                'backward_compatibility' => 'par-02',
+                'country_id' => $country->id,
+                'latitude' => 31.95,
+                'longitude' => 35.91,
+                'map_zoom' => 12,
+                'project_id' => $project->id,
+                'monument_item_id' => $monument->id,
+                'visible' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('partners', [
+            'internal_name' => 'Petra Institute',
+            'type' => 'institution',
+            'backward_compatibility' => 'par-02',
+            'country_id' => $country->id,
+            'project_id' => $project->id,
+            'monument_item_id' => $monument->id,
+            'visible' => true,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(EditPartner::class, [
+                'record' => $partner->getRouteKey(),
+            ])
+            ->assertFormSet([
+                'internal_name' => 'Jordan Museum',
+                'type' => 'museum',
+                'country_id' => $country->id,
+                'project_id' => $project->id,
+                'monument_item_id' => $monument->id,
+                'visible' => false,
+            ])
+            ->fillForm([
+                'internal_name' => 'Jordan Heritage Museum',
+                'type' => 'museum',
+                'backward_compatibility' => 'par-11',
+                'country_id' => $country->id,
+                'latitude' => 31.96,
+                'longitude' => 35.92,
+                'map_zoom' => 13,
+                'project_id' => $project->id,
+                'monument_item_id' => $monument->id,
+                'visible' => true,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('partners', [
+            'id' => $partner->id,
+            'internal_name' => 'Jordan Heritage Museum',
+            'backward_compatibility' => 'par-11',
+            'visible' => true,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->callTableAction(DeleteAction::class, $partner)
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('partners', [
+            'id' => $partner->id,
+        ]);
+    }
+
+    public function test_partner_translations_relation_manager_supports_crud_operations(): void
+    {
+        $user = $this->createCrudUser();
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->mountTableAction('create')
+            ->setTableActionData([
+                'language_id' => $language->id,
+                'context_id' => $context->id,
+                'name' => 'Jordan Museum',
+                'description' => 'Museum description',
+            ])
+            ->callMountedTableAction()
+            ->assertHasNoTableActionErrors();
+
+        $translation = $partner->translations()->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->assertCanSeeTableRecords([$translation])
+            ->mountTableAction(EditAction::class, $translation)
+            ->setTableActionData([
+                'language_id' => $language->id,
+                'context_id' => $context->id,
+                'name' => 'Jordan Heritage Museum',
+                'description' => 'Updated description',
+            ])
+            ->callMountedTableAction()
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('partner_translations', [
+            'id' => $translation->id,
+            'name' => 'Jordan Heritage Museum',
+            'description' => 'Updated description',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->callTableAction(DeleteAction::class, $translation->fresh())
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('partner_translations', [
+            'id' => $translation->id,
+        ]);
+    }
+
+    protected function createCrudUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::CREATE_DATA->value,
+            Permission::UPDATE_DATA->value,
+            Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function setCurrentPanel(): void
+    {
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+    }
+}
