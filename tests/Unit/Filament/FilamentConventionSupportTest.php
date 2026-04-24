@@ -20,8 +20,10 @@ class FilamentConventionSupportTest extends TestCase
     public function test_entity_color_resolves_tokens_and_palettes_from_config(): void
     {
         $this->assertSame('teal', EntityColor::token('projects'));
+        $this->assertSame('blue', EntityColor::token('keyword'));
         $this->assertSame('gray', EntityColor::token('missing-entity'));
         $this->assertSame(Color::Teal, EntityColor::palette('projects'));
+        $this->assertSame(Color::Blue, EntityColor::palette('keyword'));
         $this->assertSame(Color::Gray, EntityColor::palette('missing-entity'));
     }
 
@@ -40,6 +42,11 @@ class FilamentConventionSupportTest extends TestCase
         $this->assertSame('alternate_name', $schema[3]->getName());
         $this->assertInstanceOf(Textarea::class, $schema[4]);
         $this->assertSame('description', $schema[4]->getName());
+        $this->assertSame('language_id', TranslationFormSchema::languageField()->getName());
+        $this->assertSame('context_id', TranslationFormSchema::contextField()->getName());
+        $this->assertSame('name', TranslationFormSchema::nameField()->getName());
+        $this->assertSame('alternate_name', TranslationFormSchema::alternateNameField()->getName());
+        $this->assertSame('description', TranslationFormSchema::descriptionField()->getName());
     }
 
     public function test_table_column_concerns_apply_the_shared_defaults(): void
