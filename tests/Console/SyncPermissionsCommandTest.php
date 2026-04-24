@@ -72,13 +72,15 @@ class SyncPermissionsCommandTest extends TestCase
         $this->assertCount(1, $visitorRole->permissions);
         $this->assertTrue($visitorRole->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
 
-        // Verify Regular User has data operation permissions
+        // Verify Regular User has data operation permissions and Filament reference-data access
         $regularRole = Role::findByName('Regular User');
-        $this->assertCount(4, $regularRole->permissions);
+        $this->assertCount(6, $regularRole->permissions);
         $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
         $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::CREATE_DATA->value));
         $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::UPDATE_DATA->value));
         $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::DELETE_DATA->value));
+        $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value));
+        $this->assertTrue($regularRole->hasPermissionTo(PermissionEnum::MANAGE_REFERENCE_DATA->value));
 
         // Verify Manager has user/role management permissions
         $managerRole = Role::findByName('Manager of Users');
@@ -169,11 +171,13 @@ class SyncPermissionsCommandTest extends TestCase
 
         // Verify all expected permissions are now assigned
         $role->refresh();
-        $this->assertCount(4, $role->permissions);
+        $this->assertCount(6, $role->permissions);
         $this->assertTrue($role->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
         $this->assertTrue($role->hasPermissionTo(PermissionEnum::CREATE_DATA->value));
         $this->assertTrue($role->hasPermissionTo(PermissionEnum::UPDATE_DATA->value));
         $this->assertTrue($role->hasPermissionTo(PermissionEnum::DELETE_DATA->value));
+        $this->assertTrue($role->hasPermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value));
+        $this->assertTrue($role->hasPermissionTo(PermissionEnum::MANAGE_REFERENCE_DATA->value));
     }
 
     public function test_command_clears_permission_cache(): void
