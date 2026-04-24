@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -49,6 +51,31 @@ class Project extends Model
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class, 'language_id');
+    }
+
+    /**
+     * Get the items associated with the Project.
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class);
+    }
+
+    /**
+     * Get the partners associated with the Project.
+     */
+    public function partners(): HasMany
+    {
+        return $this->hasMany(Partner::class);
+    }
+
+    /**
+     * Get the collections associated with the Project through its items.
+     */
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class, 'items', 'project_id', 'collection_id')
+            ->whereNotNull('items.collection_id');
     }
 
     /**
