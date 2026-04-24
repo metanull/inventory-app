@@ -1,3 +1,19 @@
+@import 'tailwindcss';
+
+@source '../../../../app/**/*.php';
+@source '../../../../resources/**/*.blade.php';
+@source '../../../../vendor/filament/**/*.blade.php';
+
+@layer base {
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  [data-field-wrapper] {
+    scroll-margin-top: 8rem;
+  }
+}
+
 :root {
   --font-family: 'Inter', system-ui, sans-serif;
 }
