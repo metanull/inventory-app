@@ -37,6 +37,7 @@ class RolePermissionSeeder extends Seeder
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
+            PermissionEnum::MANAGE_REFERENCE_DATA->value => 'Manage reference-data resources in the Filament administration panel',
             PermissionEnum::ACCESS_ADMIN_PANEL->value => 'Access the Filament administration panel',
         ];
 

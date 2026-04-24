@@ -82,4 +82,22 @@ class FilamentConventionsTest extends TestCase
             "Custom Filament resource Blade view(s) found:\n".implode("\n", $violations),
         );
     }
+
+    public function test_filament_admin_vite_theme_includes_tailwind_and_filament_sources(): void
+    {
+        $themePath = resource_path('css/filament/admin/theme.css');
+        $themeCss = File::get($themePath);
+
+        $this->assertStringContainsString(
+            "@import 'tailwindcss';",
+            $themeCss,
+            'The Filament admin Vite theme must load Tailwind styles.',
+        );
+
+        $this->assertStringContainsString(
+            "@source '../../../../vendor/filament/**/*.blade.php';",
+            $themeCss,
+            'The Filament admin Vite theme must scan Filament Blade sources so panel utilities are generated.',
+        );
+    }
 }
