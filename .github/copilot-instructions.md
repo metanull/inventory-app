@@ -495,19 +495,58 @@ User-supplied image binaries are **never** written directly to public storage. A
 - ✅ A Filament "detach image" Action MUST invoke `*->detachToAvailableImage()` so the binary returns to the `AvailableImage` pool under the same UUID.
 - ✅ Tests covering upload, attach, or detach flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched) for uploads, and never write directly to the `public` disk outside the existing listener/model methods.
 
-**Image display and download — every UI surface MUST reuse the existing controller endpoints:**
+**Image display and download — each UI surface MUST own its own routes, all backed by the shared `Responsable` classes:**
 
-Image bytes are NEVER served from a constructed `/storage/...` URL or any direct disk path. Each image model has its own dedicated `view` (inline) and `download` (attachment) controller actions that stream the file through `App\Http\Responses\FileResponse`. These endpoints exist for both the API and `/web`, are tested, and enforce authorization. Filament `/admin` MUST use the same endpoints.
+Image bytes are NEVER served from a constructed `/storage/...` URL or any direct disk path. Every surface (`/api`, `/web`, `/admin` Filament, future surfaces) MUST register its OWN distinct `view` (inline) and `download` (attachment) routes per image model — surfaces NEVER call into another surface's routes. Controllers are one-line delegations to two shared `Responsable` classes that wrap `App\Http\Responses\FileResponse`:
 
+- `App\Http\Responses\Image\InlineImageResponse` — for inline display.
+- `App\Http\Responses\Image\DownloadImageResponse` — for `Content-Disposition: attachment` downloads.
+
+Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (currently `AvailableImage`, `ItemImage`, `CollectionImage`, `PartnerImage`). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation (config key, mime fallback, download filename rule); response classes and controllers contain zero duplication.
+
+**Existing surfaces (do not touch their routes; tests pin them):**
 - `AvailableImage` — `App\Http\Controllers\AvailableImageController@view|download` (API) and `App\Http\Controllers\Web\AvailableImageController@view|download` (Web).
 - `ItemImage` — `App\Http\Controllers\ItemImageController@view|download` (API) and `App\Http\Controllers\Web\ItemImageController@view|download` (Web).
 - `CollectionImage` — `App\Http\Controllers\CollectionImageController@view|download` (API) and `App\Http\Controllers\Web\CollectionImageController@view|download` (Web).
 - `PartnerImage` — `App\Http\Controllers\PartnerImageController@view|download` (API) and `App\Http\Controllers\Web\PartnerImageController@view|download` (Web).
 
-- ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any direct disk path. There is no `getUrl()` accessor on `AvailableImage` to "reuse"; URL conventions on the public disk are an implementation detail of the controllers, not an API for clients.
-- ❌ **NEVER** add a new endpoint that streams image bytes. The four pairs of controllers above are the canonical, tested, authorized boundary.
-- ✅ Filament view/edit pages, gallery components, and lightboxes MUST resolve image URLs from the named routes that target the four controllers above (e.g. `route('item-image.view', $itemImage)` for inline display, `route('item-image.download', $itemImage)` for download). The same applies to thumbnails on the `AvailableImage` pool — use the `available-images.view` route, not a constructed `/storage/images/...` URL.
-- ✅ Tests asserting display/download MUST hit the route, not assert against a constructed disk URL.
+**Mandatory controller body shape — every `view`/`download` action on every surface:**
+
+```php
+public function view(ItemImage $itemImage)
+{
+    return new InlineImageResponse($itemImage);
+}
+
+public function download(ItemImage $itemImage)
+{
+    return new DownloadImageResponse($itemImage);
+}
+```
+
+Optional guards (parent-ownership checks, policy gates, signed-URL validation, …) MAY appear before the `return`, but the action MUST end with `return new InlineImageResponse(...)` or `return new DownloadImageResponse(...)`. Example:
+
+```php
+public function view(Item $item, ItemImage $itemImage)
+{
+    if ($itemImage->item_id !== $item->id) {
+        abort(404);
+    }
+
+    return new InlineImageResponse($itemImage);
+}
+```
+
+**Rules:**
+
+- ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any direct disk path. There is no `getUrl()` accessor on `AvailableImage`; URL conventions on the public disk are an implementation detail of the response classes, not an API for clients.
+- ❌ **NEVER** call `FileResponse::view()` / `FileResponse::download()` directly from a controller, action, page, or Filament component. Always go through `InlineImageResponse` / `DownloadImageResponse`.
+- ❌ **NEVER** duplicate the disk + directory + path + filename + mime-type resolution in a controller body. That logic lives exclusively in the model's `StreamableImageFile` methods and the two response classes.
+- ❌ **NEVER** route a Filament `/admin` page to a `/api/...` or `/web/...` image URL. Filament must own its own `/admin/...` view/download routes (registered in the Filament panel) returning the same response classes.
+- ❌ **NEVER** add a third low-level streaming primitive. The two response classes are the canonical boundary; extend them instead of creating siblings.
+- ✅ Each surface registers its OWN distinct named routes per model (e.g. `item-image.view` is API; the Web equivalent is `items.item-images.view`; the Filament equivalent is a separate name like `filament.admin.item-image.view`). Resolve URLs only from routes belonging to the surface that is rendering them.
+- ✅ Filament view/edit pages, gallery components, and lightboxes MUST resolve URLs from Filament's own named routes (which themselves return `InlineImageResponse` / `DownloadImageResponse`). Same for the `AvailableImage` pool.
+- ✅ Tests asserting display/download MUST hit a route on the surface under test (not a route from another surface) and assert the streamed response, not a constructed disk URL.
 
 ## File-Specific Instructions
 
