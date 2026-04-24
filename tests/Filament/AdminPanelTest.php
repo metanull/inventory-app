@@ -64,6 +64,15 @@ class AdminPanelTest extends TestCase
         $this->assertTrue($role->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value));
     }
 
+    public function test_visitor_role_is_seeded_with_admin_panel_permission(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $role = Role::findByName('Visitor');
+
+        $this->assertTrue($role->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value));
+    }
+
     public function test_regular_user_role_is_seeded_with_filament_reference_data_access(): void
     {
         $this->seed(RolePermissionSeeder::class);

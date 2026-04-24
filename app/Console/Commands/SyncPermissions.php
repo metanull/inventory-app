@@ -202,6 +202,7 @@ class SyncPermissions extends Command
                 'description' => 'Read-only access to data (list and show operations only)',
                 'permissions' => [
                     PermissionEnum::VIEW_DATA->value,
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
                 ],
             ]]);
         }

@@ -67,10 +67,11 @@ class SyncPermissionsCommandTest extends TestCase
         $nonVerifiedRole = Role::findByName('Non-verified users');
         $this->assertCount(0, $nonVerifiedRole->permissions);
 
-        // Verify Visitor has only VIEW_DATA
+        // Verify Visitor has VIEW_DATA and ACCESS_ADMIN_PANEL
         $visitorRole = Role::findByName('Visitor');
-        $this->assertCount(1, $visitorRole->permissions);
+        $this->assertCount(2, $visitorRole->permissions);
         $this->assertTrue($visitorRole->hasPermissionTo(PermissionEnum::VIEW_DATA->value));
+        $this->assertTrue($visitorRole->hasPermissionTo(PermissionEnum::ACCESS_ADMIN_PANEL->value));
 
         // Verify Regular User has data operation permissions and Filament reference-data access
         $regularRole = Role::findByName('Regular User');
