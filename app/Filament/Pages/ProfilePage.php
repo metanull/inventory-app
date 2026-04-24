@@ -224,7 +224,11 @@ class ProfilePage extends EditProfile
                 Notification::make()
                     ->success()
                     ->title('Recovery codes regenerated.')
-                    ->body(implode("\n", $recoveryCodes))
+                    ->body(new HtmlString(
+                        '<div class="font-mono text-xs space-y-1">'
+                        .implode('', array_map(fn (string $c) => '<div>'.e($c).'</div>', $recoveryCodes))
+                        .'</div>'
+                    ))
                     ->persistent()
                     ->send();
             });

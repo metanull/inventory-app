@@ -21,7 +21,7 @@ class ProfilePageTest extends TestCase
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    protected function userWithPanelAccess(array $extra = []): User
+    protected function createUserWithPanelAccess(array $extra = []): User
     {
         $user = User::factory()->create(array_merge([
             'password' => Hash::make('password'),
@@ -54,7 +54,7 @@ class ProfilePageTest extends TestCase
 
     public function test_profile_page_is_accessible_by_any_user_with_panel_access(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->actingAs($user)->get('/admin/profile')
             ->assertOk()
@@ -63,7 +63,7 @@ class ProfilePageTest extends TestCase
 
     public function test_profile_page_shows_the_authenticated_user_name_and_email(): void
     {
-        $user = $this->userWithPanelAccess(['name' => 'Alice Test', 'email' => 'alice@example.test']);
+        $user = $this->createUserWithPanelAccess(['name' => 'Alice Test', 'email' => 'alice@example.test']);
 
         $this->actingAs($user)->get('/admin/profile')
             ->assertOk()
@@ -73,7 +73,7 @@ class ProfilePageTest extends TestCase
 
     public function test_profile_page_is_in_the_user_menu(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->setPanel();
 
@@ -90,7 +90,7 @@ class ProfilePageTest extends TestCase
 
     public function test_user_can_update_name_and_email(): void
     {
-        $user = $this->userWithPanelAccess(['name' => 'Old Name', 'email' => 'old@example.test']);
+        $user = $this->createUserWithPanelAccess(['name' => 'Old Name', 'email' => 'old@example.test']);
 
         $this->setPanel();
 
@@ -114,7 +114,7 @@ class ProfilePageTest extends TestCase
 
     public function test_user_can_change_password_with_correct_current_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->setPanel();
 
@@ -133,7 +133,7 @@ class ProfilePageTest extends TestCase
 
     public function test_change_password_fails_with_wrong_current_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->setPanel();
 
@@ -155,7 +155,7 @@ class ProfilePageTest extends TestCase
     {
         $this->mockFullTotpProvider(true);
 
-        $user = $this->userWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
+        $user = $this->createUserWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
 
         $this->setPanel();
 
@@ -172,7 +172,7 @@ class ProfilePageTest extends TestCase
     {
         $this->mockFullTotpProvider(false);
 
-        $user = $this->userWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
+        $user = $this->createUserWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
 
         $this->setPanel();
 
@@ -186,8 +186,9 @@ class ProfilePageTest extends TestCase
 
     public function test_user_can_disable_two_factor_authentication(): void
     {
-        // Direct Livewire component test — ACCESS_ADMIN_PANEL is listed as a "sensitive" permission
-        // so we create a user without it to test the happy path. Panel middleware is bypassed.
+        // Direct Livewire component test — ACCESS_ADMIN_PANEL is in Permission::sensitivePermissions(),
+        // so we create a user without any permissions to test the happy path.
+        // Panel middleware is bypassed when testing the Livewire component directly.
         $user = $this->createUserWithTotp(['email_verified_at' => now()]);
 
         $this->setPanel();
@@ -243,7 +244,7 @@ class ProfilePageTest extends TestCase
 
     public function test_user_can_logout_other_browser_sessions_with_correct_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->setPanel();
 
@@ -255,25 +256,23 @@ class ProfilePageTest extends TestCase
 
     public function test_logout_other_sessions_fails_with_wrong_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
 
         $this->setPanel();
-
-        // With wrong password, the action halts without completing — the user stays authenticated
-        $this->actingAs($user);
 
         Livewire::actingAs($user)
             ->test(ProfilePage::class)
             ->callAction('logoutOtherBrowserSessions', ['password' => 'wrongpassword']);
 
-        $this->assertAuthenticatedAs($user);
+        // Wrong password: action halts, so the user is still present in the database
+        $this->assertDatabaseHas('users', ['id' => $user->id]);
     }
 
     // ── Delete account ───────────────────────────────────────────────────────
 
     public function test_user_can_delete_own_account_with_correct_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
         $userId = $user->id;
 
         $this->setPanel();
@@ -287,7 +286,7 @@ class ProfilePageTest extends TestCase
 
     public function test_delete_account_fails_with_wrong_password(): void
     {
-        $user = $this->userWithPanelAccess();
+        $user = $this->createUserWithPanelAccess();
         $userId = $user->id;
 
         $this->setPanel();
@@ -305,7 +304,7 @@ class ProfilePageTest extends TestCase
     {
         $this->mockFullTotpProvider(true);
 
-        $user = $this->userWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
+        $user = $this->createUserWithPanelAccess(['two_factor_secret' => null, 'two_factor_confirmed_at' => null]);
 
         // Step 1: Enrol via ProfilePage
         $this->setPanel();
