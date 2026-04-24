@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Facades\DB;
 
 /**
  * CollectionPartner Pivot Model
@@ -84,5 +85,21 @@ class CollectionPartner extends Pivot
     public function partner(): BelongsTo
     {
         return $this->belongsTo(Partner::class);
+    }
+
+    /**
+     * Delete the pivot record using the composite primary key.
+     *
+     * Overrides AsPivot::delete() to handle the composite primary key
+     * (collection_id, collection_type, partner_id) which the base method
+     * cannot resolve because getKeyName() returns an array.
+     */
+    public function delete(): int
+    {
+        return DB::table($this->table)
+            ->where('collection_id', $this->collection_id)
+            ->where('collection_type', $this->collection_type)
+            ->where('partner_id', $this->partner_id)
+            ->delete();
     }
 }
