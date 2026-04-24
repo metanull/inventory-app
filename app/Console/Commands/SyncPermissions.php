@@ -170,7 +170,7 @@ class SyncPermissions extends Command
                     PermissionEnum::UPDATE_DATA->value,
                     PermissionEnum::DELETE_DATA->value,
 
-                    // Get access to the Filament "admin" panel and the reference-data resources managed there.
+                    // Get access to the Filament "admin" panel and the reference data resources managed there.
                     PermissionEnum::ACCESS_ADMIN_PANEL->value,
                     PermissionEnum::MANAGE_REFERENCE_DATA->value,
                 ],
