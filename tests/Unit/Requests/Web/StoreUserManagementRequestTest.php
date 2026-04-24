@@ -133,7 +133,7 @@ class StoreUserManagementRequestTest extends TestCase
         $this->assertFalse($validator->errors()->any());
     }
 
-    public function test_accepts_role_with_admin_panel_and_reference_data_permissions(): void
+    public function test_rejects_role_with_admin_panel_and_reference_data_permissions(): void
     {
         $role = Role::create(['name' => 'filament-editor']);
         $role->givePermissionTo([
@@ -151,8 +151,13 @@ class StoreUserManagementRequestTest extends TestCase
         $validator = Validator::make($request->all(), $request->rules());
         $request->withValidator($validator);
 
-        $validator->validate();
-        $this->assertFalse($validator->errors()->any());
+        try {
+            $validator->validate();
+            $this->fail('Validation should have failed for admin panel access without MFA');
+        } catch (ValidationException $e) {
+            $this->assertTrue($validator->errors()->has('roles'));
+            $this->assertStringContainsString('multi-factor authentication', $validator->errors()->first('roles'));
+        }
     }
 
     public function test_accepts_user_without_roles(): void
