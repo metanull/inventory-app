@@ -32,8 +32,10 @@ class CollectionSmokeTest extends TestCase
         $response = $this->actingAs($user)->get('/admin/collections');
 
         $response->assertOk();
+        // Limit is loose enough for the admin panel's own queries while still catching N+1 regressions.
         $this->assertLessThan(50, count(DB::getQueryLog()));
-        $this->assertLessThan(2 * 1024 * 1024, strlen($response->getContent()));
+        // Page payload should remain under 512KB for 10k records (pagination keeps it small).
+        $this->assertLessThan(512 * 1024, strlen($response->getContent()));
         DB::disableQueryLog();
 
         $this->setCurrentPanel();
@@ -66,7 +68,7 @@ class CollectionSmokeTest extends TestCase
 
         $component->assertSee($hierarchy[0]->internal_name);
 
-        // Expand each level
+        // Expand each level and verify children become visible (lazy loading).
         foreach ($hierarchy as $depth => $node) {
             $component->call('expand', $node->id);
 
@@ -75,7 +77,8 @@ class CollectionSmokeTest extends TestCase
             }
         }
 
-        $this->assertLessThan(20 * 1024 * 1024, strlen($component->html()));
+        // 5-level tree HTML should stay well under 2MB.
+        $this->assertLessThan(2 * 1024 * 1024, strlen($component->html()));
     }
 
     protected function createAuthorizedUser(): User

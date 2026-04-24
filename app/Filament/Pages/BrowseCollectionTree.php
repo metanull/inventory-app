@@ -25,6 +25,11 @@ class BrowseCollectionTree extends Page
     public array $expanded = [];
 
     /**
+     * Maximum depth for ancestor chain traversal to prevent infinite loops.
+     */
+    private const MAX_ANCESTOR_DEPTH = 10;
+
+    /**
      * Expand a tree node by loading its children.
      */
     public function expand(string $id): void
@@ -83,7 +88,10 @@ class BrowseCollectionTree extends Page
     }
 
     /**
-     * Build the ancestor breadcrumb chain for a given collection.
+     * Build the ancestor breadcrumb chain for a given collection, ordered root-first.
+     *
+     * Uses iterative parent lookups bounded by MAX_ANCESTOR_DEPTH to prevent
+     * infinite loops in corrupted hierarchies.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Collection>
      */
@@ -91,9 +99,8 @@ class BrowseCollectionTree extends Page
     {
         $ancestorIds = [];
         $currentId = $collectionId;
-        $maxDepth = 10;
 
-        for ($depth = 0; $depth < $maxDepth; $depth++) {
+        for ($depth = 0; $depth < self::MAX_ANCESTOR_DEPTH; $depth++) {
             $parentId = Collection::where('id', $currentId)->value('parent_id');
             if ($parentId === null) {
                 break;
@@ -106,8 +113,16 @@ class BrowseCollectionTree extends Page
             return new \Illuminate\Database\Eloquent\Collection;
         }
 
-        return Collection::whereIn('id', $ancestorIds)
-            ->orderByRaw('FIELD(id, '.implode(',', array_map(fn ($id) => "'".addslashes($id)."'", array_reverse($ancestorIds))).')')
-            ->get();
+        // Fetch all ancestors in one query, then reorder to root-first using the collected order.
+        $byId = Collection::whereIn('id', $ancestorIds)
+            ->get()
+            ->keyBy('id');
+
+        // ancestorIds is leaf-to-root; reverse for root-first breadcrumb order.
+        return new \Illuminate\Database\Eloquent\Collection(
+            array_filter(
+                array_map(fn (string $id) => $byId->get($id), array_reverse($ancestorIds))
+            )
+        );
     }
 }

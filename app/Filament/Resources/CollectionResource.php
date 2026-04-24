@@ -198,10 +198,16 @@ class CollectionResource extends Resource
                                 ->title('Parent updated')
                                 ->send();
                         } catch (\RuntimeException $e) {
+                            logger()->warning('CollectionResource: changeParent failed', [
+                                'collection_id' => $record->id,
+                                'new_parent_id' => $data['parent_id'] ?? null,
+                                'error' => $e->getMessage(),
+                            ]);
+
                             Notification::make()
                                 ->danger()
                                 ->title('Cannot change parent')
-                                ->body($e->getMessage())
+                                ->body('The selected parent would create a circular hierarchy. Please choose a different parent.')
                                 ->send();
                         }
                     }),
@@ -229,7 +235,12 @@ class CollectionResource extends Resource
                                 $record->parent_id = $data['parent_id'] ?? null;
                                 $record->save();
                             } catch (\RuntimeException $e) {
-                                $errors[] = $record->internal_name.': '.$e->getMessage();
+                                logger()->warning('CollectionResource: moveToParent failed', [
+                                    'collection_id' => $record->id,
+                                    'new_parent_id' => $data['parent_id'] ?? null,
+                                    'error' => $e->getMessage(),
+                                ]);
+                                $errors[] = $record->internal_name;
                             }
                         }
 
@@ -242,7 +253,7 @@ class CollectionResource extends Resource
                             Notification::make()
                                 ->danger()
                                 ->title('Some collections could not be moved')
-                                ->body(implode("\n", $errors))
+                                ->body('The following collections would create a circular hierarchy: '.implode(', ', $errors))
                                 ->send();
                         }
                     })
