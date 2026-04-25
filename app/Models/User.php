@@ -44,6 +44,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'name',
         'email',
         'password',
+        'approved_at',
+        'suspended_at',
     ];
 
     /**
@@ -74,6 +76,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'suspended_at' => 'datetime',
         'password' => 'hashed',
     ];
 

@@ -50,6 +50,36 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the user is pending approval (self-registered, not yet approved).
+     */
+    public function pendingApproval(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'approved_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has been approved.
+     */
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'approved_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the user is suspended.
+     */
+    public function suspended(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'suspended_at' => now(),
+        ]);
+    }
+
+    /**
      * Indicate that the user should have a personal team.
      */
     public function withPersonalTeam(?callable $callback = null): static
