@@ -42,6 +42,11 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
+    }
+
     public static function canViewAny(): bool
     {
         return auth()->user()?->can('viewAny', User::class) ?? false;

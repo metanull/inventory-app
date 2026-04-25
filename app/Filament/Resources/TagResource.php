@@ -50,6 +50,11 @@ class TagResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'description';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['internal_name', 'backward_compatibility', 'description'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

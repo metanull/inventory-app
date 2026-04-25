@@ -36,6 +36,11 @@ class CountryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'internal_name';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['id', 'internal_name', 'backward_compatibility'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
