@@ -12,6 +12,7 @@ use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
@@ -417,6 +418,7 @@ class ItemResource extends Resource
         return [
             ChildItemsRelationManager::class,
             PicturesRelationManager::class,
+            ImagesRelationManager::class,
             TranslationsRelationManager::class,
             LinksRelationManager::class,
             TagsRelationManager::class,

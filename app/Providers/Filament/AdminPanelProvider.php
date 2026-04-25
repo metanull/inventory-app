@@ -4,6 +4,10 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Filament\Pages\ProfilePage;
+use App\Http\Controllers\Filament\AvailableImageController as FilamentAvailableImageController;
+use App\Http\Controllers\Filament\CollectionImageController as FilamentCollectionImageController;
+use App\Http\Controllers\Filament\ItemImageController as FilamentItemImageController;
+use App\Http\Controllers\Filament\PartnerImageController as FilamentPartnerImageController;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -19,6 +23,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -73,7 +78,28 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->authenticatedRoutes(function (): void {
+                Route::get('/available-images/{availableImage}/view', [FilamentAvailableImageController::class, 'view'])
+                    ->name('available-image.view');
+                Route::get('/available-images/{availableImage}/download', [FilamentAvailableImageController::class, 'download'])
+                    ->name('available-image.download');
+
+                Route::get('/items/{item}/images/{itemImage}/view', [FilamentItemImageController::class, 'view'])
+                    ->name('item-image.view');
+                Route::get('/items/{item}/images/{itemImage}/download', [FilamentItemImageController::class, 'download'])
+                    ->name('item-image.download');
+
+                Route::get('/collections/{collection}/images/{collectionImage}/view', [FilamentCollectionImageController::class, 'view'])
+                    ->name('collection-image.view');
+                Route::get('/collections/{collection}/images/{collectionImage}/download', [FilamentCollectionImageController::class, 'download'])
+                    ->name('collection-image.download');
+
+                Route::get('/partners/{partner}/images/{partnerImage}/view', [FilamentPartnerImageController::class, 'view'])
+                    ->name('partner-image.view');
+                Route::get('/partners/{partner}/images/{partnerImage}/download', [FilamentPartnerImageController::class, 'download'])
+                    ->name('partner-image.download');
+            });
 
         if (! $this->shouldUseViteTheme()) {
             return $panel;

@@ -114,7 +114,7 @@ class PartnerImage extends Model implements StreamableImageFile
             );
             Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
-            $partnerImage = static::create([
+            $partnerImage = Model::unguarded(fn () => static::create([
                 'id' => $availableImage->id, // Preserve the ID
                 'partner_id' => $partnerId,
                 'path' => $filename, // Keep filename unchanged
@@ -123,7 +123,7 @@ class PartnerImage extends Model implements StreamableImageFile
                 'size' => $availableImage->size ?? 0,
                 'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
-            ]);
+            ]));
 
             $availableImage->delete();
 
@@ -152,14 +152,11 @@ class PartnerImage extends Model implements StreamableImageFile
             );
             Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
-            $availableImage = AvailableImage::create([
+            $availableImage = Model::unguarded(fn () => AvailableImage::create([
                 'id' => $this->id, // Preserve the ID
                 'path' => $filename, // Keep filename unchanged
-                'original_name' => $this->original_name,
-                'mime_type' => $this->mime_type,
-                'size' => $this->size,
                 'comment' => $this->alt_text,
-            ]);
+            ]));
 
             $this->delete();
 
