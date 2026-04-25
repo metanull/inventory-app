@@ -3,7 +3,7 @@
 namespace Tests\Filament\Resources;
 
 use App\Enums\Permission;
-use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImages;
+use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImage;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
@@ -55,7 +55,7 @@ class AvailableImageSmokeTest extends TestCase
             ->firstOrFail();
 
         Livewire::actingAs($user)
-            ->test(ListAvailableImages::class)
+            ->test(ListAvailableImage::class)
             ->assertCanSeeTableRecords($expectedFirstPage)
             ->searchTable('img-00999')
             ->assertCanSeeTableRecords([$target]);
