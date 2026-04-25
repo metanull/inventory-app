@@ -33,6 +33,11 @@ class AvailableImageResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'path';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['path', 'comment'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

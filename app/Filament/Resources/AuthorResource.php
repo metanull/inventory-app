@@ -37,6 +37,11 @@ class AuthorResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'internal_name', 'backward_compatibility'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

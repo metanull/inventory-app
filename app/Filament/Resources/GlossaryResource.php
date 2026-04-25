@@ -38,6 +38,11 @@ class GlossaryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'internal_name';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['internal_name', 'backward_compatibility'];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
