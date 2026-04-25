@@ -91,16 +91,19 @@ class AdminPanelTest extends TestCase
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
+        // The Livewire login component must redirect directly to the Filament challenge
+        // page — not via the indirect Fortify /web/two-factor-challenge route.
         Livewire::test(AdminLogin::class)
             ->set('data.email', $user->email)
             ->set('data.password', 'password')
-            ->call('authenticate');
+            ->call('authenticate')
+            ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
 
         $this->assertGuest();
         $this->assertSame($user->getKey(), session('login.id'));
-        $this->assertSame('admin', session('filament.auth.panel'));
 
-        // The legacy Fortify GET route now redirects to the Filament challenge page
+        // The legacy Fortify GET route still redirects to the Filament challenge page
+        // (used when coming from the web login flow with filament.auth.panel in session).
         $this->get(route('two-factor.login'))
             ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
 

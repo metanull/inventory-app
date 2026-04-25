@@ -72,9 +72,15 @@ class Login extends \Filament\Pages\Auth\Login
         $user = Filament::auth()->user();
 
         if (! $user) {
-            // A non-HttpFoundation redirect was already queued by the pipeline
-            // (e.g. Livewire's Redirector wrapping a two-factor challenge redirect).
-            // Return null to let the queued redirect take effect.
+            // The pipeline placed the user in the 2FA-pending state (login.id in session).
+            // Redirect directly to the Filament challenge page rather than relying on the
+            // indirect path through the Fortify /web/two-factor-challenge route, which
+            // requires a filament.auth.panel session key to survive an extra redirect hop
+            // and has proven unreliable across environments.
+            if ($request->session()->has('login.id')) {
+                $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-challenge'));
+            }
+
             return null;
         }
 
