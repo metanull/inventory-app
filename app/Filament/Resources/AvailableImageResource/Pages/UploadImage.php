@@ -68,6 +68,7 @@ class UploadImage extends Page implements HasForms
             // If AvailableImageListener fails (pre-existing known issue with the
             // listener chain when both listeners run), ImageUploadListener may have
             // already created the AvailableImage record.
+            report($e);
         }
 
         $availableImage = AvailableImage::find($uploadId);

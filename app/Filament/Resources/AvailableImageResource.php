@@ -117,6 +117,7 @@ class AvailableImageResource extends Resource
                         } catch (\Exception $e) {
                             // If AvailableImageListener fails (pre-existing known issue),
                             // ImageUploadListener may have already created the AvailableImage.
+                            report($e);
                         }
 
                         $availableImage = AvailableImage::find($imageUpload->id);
