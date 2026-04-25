@@ -4,6 +4,7 @@ namespace Tests\Filament;
 
 use App\Enums\Permission;
 use App\Filament\Auth\Login as AdminLogin;
+use App\Filament\Auth\TwoFactorChallenge;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
@@ -85,8 +86,6 @@ class AdminPanelTest extends TestCase
 
     public function test_filament_login_uses_existing_fortify_two_factor_flow(): void
     {
-        $this->mockTotpProvider(true);
-
         $user = $this->createUserWithTotp(['email_verified_at' => now()]);
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
@@ -100,13 +99,18 @@ class AdminPanelTest extends TestCase
         $this->assertGuest();
         $this->assertSame($user->getKey(), session('login.id'));
         $this->assertSame('admin', session('filament.auth.panel'));
-        $this->get(route('two-factor.login'))->assertOk();
 
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => $this->getValidTotpCode(),
-        ]);
+        // The legacy Fortify GET route now redirects to the Filament challenge page
+        $this->get(route('two-factor.login'))
+            ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
 
-        $response->assertRedirect('/admin');
+        // Complete the challenge via the Filament challenge page
+        $this->mockTotpProvider(true);
+
+        Livewire::test(TwoFactorChallenge::class)
+            ->set('data.code', '123456')
+            ->call('submit');
+
         $this->assertAuthenticatedAs($user);
     }
 

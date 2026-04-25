@@ -71,9 +71,22 @@ class Login extends \Filament\Pages\Auth\Login
 
         $user = Filament::auth()->user();
 
+        if (! $user) {
+            // A non-HttpFoundation redirect was already queued by the pipeline
+            // (e.g. Livewire's Redirector wrapping a two-factor challenge redirect).
+            // Return null to let the queued redirect take effect.
+            return null;
+        }
+
         if (($user instanceof MustVerifyEmail) && (! $user->hasVerifiedEmail())) {
             $request->session()->forget('filament.auth.panel');
             $this->redirectRoute('verification.notice');
+
+            return null;
+        }
+
+        if (is_null($user->two_factor_confirmed_at)) {
+            $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-setup'));
 
             return null;
         }

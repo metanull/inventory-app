@@ -4,6 +4,7 @@ namespace Tests\Filament\Pages;
 
 use App\Enums\Permission;
 use App\Filament\Auth\Login as AdminLogin;
+use App\Filament\Auth\TwoFactorChallenge;
 use App\Filament\Pages\ProfilePage;
 use App\Models\User;
 use Filament\Facades\Filament;
@@ -332,12 +333,13 @@ class ProfilePageTest extends TestCase
         $this->assertGuest();
         $this->assertSame($user->getKey(), session('login.id'));
 
-        // Step 3: Complete 2FA challenge
-        $response = $this->post(route('two-factor.login.store'), [
-            'code' => '123456',
-        ]);
+        // Step 3: Complete 2FA challenge via the Filament challenge page
+        $this->mockTotpProvider(true);
 
-        $response->assertRedirect('/admin');
+        Livewire::test(TwoFactorChallenge::class)
+            ->set('data.code', '123456')
+            ->call('submit');
+
         $this->assertAuthenticatedAs($user);
     }
 }

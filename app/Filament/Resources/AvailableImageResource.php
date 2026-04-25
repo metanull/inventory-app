@@ -4,8 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Events\ImageUploadEvent;
 use App\Filament\Resources\AvailableImageResource\Pages\EditAvailableImage;
-use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImages;
-use App\Filament\Resources\AvailableImageResource\Pages\UploadImage;
+use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImage;
 use App\Filament\Resources\AvailableImageResource\Pages\ViewAvailableImage;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
@@ -154,8 +153,7 @@ class AvailableImageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListAvailableImages::route('/'),
-            'upload' => UploadImage::route('/upload'),
+            'index' => ListAvailableImage::route('/'),
             'view' => ViewAvailableImage::route('/{record}'),
             'edit' => EditAvailableImage::route('/{record}/edit'),
         ];

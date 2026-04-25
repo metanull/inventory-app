@@ -6,8 +6,7 @@ use App\Enums\Permission;
 use App\Events\AvailableImageEvent;
 use App\Events\ImageUploadEvent;
 use App\Filament\Resources\AvailableImageResource\Pages\EditAvailableImage;
-use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImages;
-use App\Filament\Resources\AvailableImageResource\Pages\UploadImage;
+use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImage;
 use App\Listeners\AvailableImageListener;
 use App\Listeners\ImageUploadListener;
 use App\Models\AvailableImage;
@@ -43,40 +42,18 @@ class AvailableImageResourceTest extends TestCase
             ->assertOk();
     }
 
-    public function test_authorized_users_can_render_upload_image_page(): void
-    {
-        Storage::fake('local');
-        Storage::fake('public');
-        Event::fake();
-
-        $user = $this->createCrudUser();
-
-        $this->actingAs($user)->get('/admin/available-images/upload')
-            ->assertOk();
-
-        $this->setCurrentPanel();
-
-        Livewire::actingAs($user)
-            ->test(UploadImage::class)
-            ->assertFormExists();
-    }
-
-    public function test_upload_image_page_renders_with_file_upload_form(): void
+    public function test_list_page_has_inline_upload_table_header_action(): void
     {
         Storage::fake('local');
         Storage::fake('public');
 
         $user = $this->createCrudUser();
 
-        $this->actingAs($user)->get('/admin/available-images/upload')
-            ->assertOk();
-
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(UploadImage::class)
-            ->assertFormExists()
-            ->assertFormFieldExists('file');
+            ->test(ListAvailableImage::class)
+            ->assertTableHeaderActionsExistInOrder(['upload']);
     }
 
     public function test_imageuploadevent_dispatches_correctly_when_imageupload_model_is_created(): void
@@ -141,7 +118,7 @@ class AvailableImageResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(ListAvailableImages::class)
+            ->test(ListAvailableImage::class)
             ->callTableAction(DeleteAction::class, $availableImage)
             ->assertHasNoTableActionErrors();
 
