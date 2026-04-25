@@ -83,12 +83,12 @@ class PermissionsRelationManager extends RelationManager
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->disabled(fn (Permission $record): bool => in_array($record->name, CriticalPermissions::NAMES, true))
-                    ->tooltip(fn (Permission $record): ?string => in_array($record->name, CriticalPermissions::NAMES, true)
+                    ->disabled(fn (Permission $record): bool => in_array($record->name, CriticalPermissions::names(), true))
+                    ->tooltip(fn (Permission $record): ?string => in_array($record->name, CriticalPermissions::names(), true)
                         ? 'This permission is used by system policies and cannot be deleted.'
                         : null)
                     ->action(function (Permission $record): void {
-                        if (in_array($record->name, CriticalPermissions::NAMES, true)) {
+                        if (in_array($record->name, CriticalPermissions::names(), true)) {
                             Notification::make()
                                 ->danger()
                                 ->title('Cannot delete critical permission')

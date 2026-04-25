@@ -8,7 +8,6 @@ use App\Filament\Resources\RoleResource\Pages\EditRole;
 use App\Filament\Resources\RoleResource\Pages\ListRole;
 use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationManager;
 use App\Models\User;
-use App\Support\Filament\CriticalPermissions;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -191,7 +190,7 @@ class RoleResourceTest extends TestCase
     {
         $manager = $this->createManagerUser();
         $role = Role::firstOrCreate(['name' => 'Reviewer', 'guard_name' => 'web']);
-        $criticalName = CriticalPermissions::NAMES[0];
+        $criticalName = 'access-admin-panel';
         $permission = SpatiePermission::firstOrCreate(['name' => $criticalName, 'guard_name' => 'web']);
         $role->givePermissionTo($permission);
 
@@ -199,8 +198,7 @@ class RoleResourceTest extends TestCase
 
         Livewire::actingAs($manager)
             ->test(PermissionsRelationManager::class, ['ownerRecord' => $role, 'pageClass' => EditRole::class])
-            ->callTableAction('deletePermission', $permission)
-            ->assertHasNoTableActionErrors();
+            ->assertTableActionDisabled('deletePermission', $permission);
 
         $this->assertDatabaseHas('permissions', ['id' => $permission->id, 'name' => $criticalName]);
     }

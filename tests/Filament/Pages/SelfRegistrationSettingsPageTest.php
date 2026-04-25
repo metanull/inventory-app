@@ -6,7 +6,6 @@ use App\Enums\Permission;
 use App\Filament\Pages\SelfRegistrationSettingsPage;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\Settings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
