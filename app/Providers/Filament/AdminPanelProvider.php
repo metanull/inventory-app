@@ -29,9 +29,16 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Livewire\Livewire;
 
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        Livewire::component('app.filament.auth.two-factor-challenge', TwoFactorChallenge::class);
+        Livewire::component('app.filament.auth.two-factor-setup', TwoFactorSetup::class);
+    }
+
     private const LIGHT_LOGO_CLASSES = 'h-full w-auto text-blue-900';
 
     private const DARK_LOGO_CLASSES = 'h-full w-auto text-indigo-200';
