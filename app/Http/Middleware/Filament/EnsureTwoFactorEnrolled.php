@@ -23,6 +23,7 @@ class EnsureTwoFactorEnrolled
 
         if (
             $request->routeIs('filament.admin.auth.two-factor-setup') ||
+            $request->routeIs('filament.admin.auth.two-factor-challenge') ||
             $request->routeIs('filament.admin.auth.logout')
         ) {
             return $next($request);

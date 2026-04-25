@@ -29,7 +29,7 @@ class TwoFactorChallenge extends SimplePage
 
     public function mount(): void
     {
-        if (! session()->has('login.id')) {
+        if (! session()->has('filament.admin.2fa.user_id')) {
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -69,14 +69,14 @@ class TwoFactorChallenge extends SimplePage
 
     public function submit(): void
     {
-        $loginId = session('login.id');
+        $loginId = session('filament.admin.2fa.user_id');
         $limiterKey = 'two-factor:'.$loginId;
         $maxAttempts = app()->environment('testing') ? 50 : 5;
 
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
             $availableIn = RateLimiter::availableIn($limiterKey);
 
-            session()->forget(['login.id', 'login.remember', 'filament.auth.panel']);
+            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember']);
 
             Notification::make()
                 ->danger()
@@ -100,7 +100,7 @@ class TwoFactorChallenge extends SimplePage
         $user = $userModel::find($loginId);
 
         if (! $user) {
-            session()->forget(['login.id', 'login.remember', 'filament.auth.panel']);
+            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember']);
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -133,10 +133,10 @@ class TwoFactorChallenge extends SimplePage
         RateLimiter::clear($limiterKey);
 
         $guard = Auth::guard(Filament::getAuthGuard());
-        $guard->login($user, session()->pull('login.remember', false));
+        $guard->login($user, session()->pull('filament.admin.2fa.remember', false));
 
         session()->regenerate();
-        session()->forget(['login.id', 'filament.auth.panel']);
+        session()->forget(['filament.admin.2fa.user_id']);
 
         $this->redirect(Filament::getUrl());
     }

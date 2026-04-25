@@ -7,7 +7,6 @@ use App\Actions\Fortify\CustomLoginResponse;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
-use App\Http\Responses\Auth\PanelAwareTwoFactorChallengeViewResponse;
 use App\Http\Responses\CustomLogoutResponse;
 use App\Http\Responses\CustomPasswordResetResponse;
 use App\Http\Responses\CustomRegisterResponse;
@@ -25,9 +24,6 @@ use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\PasswordResetResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
-use Laravel\Fortify\Contracts\TwoFactorChallengeViewResponse;
-use Laravel\Fortify\Contracts\TwoFactorLoginResponse;
-use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -45,13 +41,6 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (Features::enabled(Features::twoFactorAuthentication())) {
-            $this->app->singleton(
-                TwoFactorChallengeViewResponse::class,
-                PanelAwareTwoFactorChallengeViewResponse::class
-            );
-        }
-
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
@@ -60,11 +49,6 @@ class FortifyServiceProvider extends ServiceProvider
         // Register custom login response to check email verification
         $this->app->singleton(
             LoginResponse::class,
-            CustomLoginResponse::class
-        );
-
-        $this->app->singleton(
-            TwoFactorLoginResponse::class,
             CustomLoginResponse::class
         );
 
