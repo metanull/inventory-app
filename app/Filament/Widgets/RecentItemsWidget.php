@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Enums\Permission;
 use App\Models\Item;
+use App\Filament\Resources\ItemResource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -34,7 +35,8 @@ class RecentItemsWidget extends BaseWidget
                 TextColumn::make('internal_name')
                     ->label('Name')
                     ->searchable(false)
-                    ->sortable(false),
+                    ->sortable(false)
+                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn ($state): ?string => $state?->label())
