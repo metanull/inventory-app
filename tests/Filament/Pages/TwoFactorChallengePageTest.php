@@ -26,8 +26,7 @@ class TwoFactorChallengePageTest extends TestCase
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
-        session()->put('login.id', $user->getKey());
-        session()->put('filament.auth.panel', 'admin');
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
 
         Livewire::test(TwoFactorChallenge::class)
             ->assertStatus(200);
@@ -46,17 +45,16 @@ class TwoFactorChallengePageTest extends TestCase
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
-        session()->put('login.id', $user->getKey());
-        session()->put('login.remember', false);
-        session()->put('filament.auth.panel', 'admin');
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+        session()->put('filament.admin.2fa.remember', false);
 
         Livewire::test(TwoFactorChallenge::class)
             ->set('data.code', '123456')
             ->call('submit');
 
         $this->assertAuthenticatedAs($user);
-        $this->assertNull(session('login.id'));
-        $this->assertNull(session('filament.auth.panel'));
+        $this->assertNull(session('filament.admin.2fa.user_id'));
+        $this->assertNull(session('filament.admin.2fa.remember'));
     }
 
     public function test_invalid_totp_code_does_not_authenticate_and_keeps_session(): void
@@ -66,8 +64,7 @@ class TwoFactorChallengePageTest extends TestCase
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
-        session()->put('login.id', $user->getKey());
-        session()->put('filament.auth.panel', 'admin');
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
 
         Livewire::test(TwoFactorChallenge::class)
             ->set('data.code', '000000')
@@ -75,7 +72,7 @@ class TwoFactorChallengePageTest extends TestCase
             ->assertHasErrors(['data.code']);
 
         $this->assertGuest();
-        $this->assertSame($user->getKey(), session('login.id'));
+        $this->assertSame($user->getKey(), session('filament.admin.2fa.user_id'));
     }
 
     public function test_valid_recovery_code_completes_login_and_consumes_code(): void
@@ -85,9 +82,8 @@ class TwoFactorChallengePageTest extends TestCase
 
         $recoveryCode = $this->getUnusedRecoveryCode();
 
-        session()->put('login.id', $user->getKey());
-        session()->put('login.remember', false);
-        session()->put('filament.auth.panel', 'admin');
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+        session()->put('filament.admin.2fa.remember', false);
 
         Livewire::test(TwoFactorChallenge::class)
             ->set('data.recovery_code', $recoveryCode)
@@ -107,8 +103,7 @@ class TwoFactorChallengePageTest extends TestCase
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
-        session()->put('login.id', $user->getKey());
-        session()->put('filament.auth.panel', 'admin');
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
 
         // Exhaust the rate limit (50 in testing)
         $limiterKey = 'two-factor:'.$user->getKey();
@@ -127,7 +122,7 @@ class TwoFactorChallengePageTest extends TestCase
             ->assertRedirect(Filament::getLoginUrl());
 
         // Session keys should be cleared
-        $this->assertNull(session('login.id'));
-        $this->assertNull(session('filament.auth.panel'));
+        $this->assertNull(session('filament.admin.2fa.user_id'));
+        $this->assertNull(session('filament.admin.2fa.remember'));
     }
 }

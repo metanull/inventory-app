@@ -38,7 +38,7 @@ class LoginRedirectTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_successful_login_for_enrolled_user_triggers_fortify_challenge_redirect(): void
+    public function test_successful_login_for_enrolled_user_triggers_challenge_redirect(): void
     {
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
@@ -46,15 +46,13 @@ class LoginRedirectTest extends TestCase
         Livewire::test(AdminLogin::class)
             ->set('data.email', $user->email)
             ->set('data.password', 'password')
-            ->call('authenticate');
+            ->call('authenticate')
+            ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
 
         // User should not be authenticated yet — 2FA challenge pending
         $this->assertGuest();
-        $this->assertSame($user->getKey(), session('login.id'));
-
-        // The Fortify GET route should now redirect to the Filament challenge page
-        $this->get(route('two-factor.login'))
-            ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
+        $this->assertSame($user->getKey(), session('filament.admin.2fa.user_id'));
+        $this->assertNull(session('login.id'));
     }
 
     public function test_login_failure_raises_validation_exception(): void

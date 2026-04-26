@@ -84,15 +84,15 @@ class AdminPanelTest extends TestCase
         $this->assertTrue($role->hasPermissionTo(Permission::MANAGE_REFERENCE_DATA->value));
     }
 
-    public function test_filament_login_uses_existing_fortify_two_factor_flow(): void
+    public function test_filament_login_uses_filament_native_two_factor_flow(): void
     {
         $user = $this->createUserWithTotp(['email_verified_at' => now()]);
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
-        // The Livewire login component must redirect directly to the Filament challenge
-        // page — not via the indirect Fortify /web/two-factor-challenge route.
+        // The Livewire login component must redirect directly to the Filament challenge page
+        // using panel-scoped session keys — not via login.id or filament.auth.panel.
         Livewire::test(AdminLogin::class)
             ->set('data.email', $user->email)
             ->set('data.password', 'password')
@@ -100,12 +100,9 @@ class AdminPanelTest extends TestCase
             ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
 
         $this->assertGuest();
-        $this->assertSame($user->getKey(), session('login.id'));
-
-        // The legacy Fortify GET route still redirects to the Filament challenge page
-        // (used when coming from the web login flow with filament.auth.panel in session).
-        $this->get(route('two-factor.login'))
-            ->assertRedirect(route('filament.admin.auth.two-factor-challenge'));
+        $this->assertSame($user->getKey(), session('filament.admin.2fa.user_id'));
+        $this->assertNull(session('login.id'));
+        $this->assertNull(session('filament.auth.panel'));
 
         // Complete the challenge via the Filament challenge page
         $this->mockTotpProvider(true);
@@ -132,6 +129,6 @@ class AdminPanelTest extends TestCase
 
         $this->assertGuest();
         $this->assertNull(session('login.id'));
-        $this->get(route('two-factor.login'))->assertRedirect(route('login'));
+        $this->assertNull(session('filament.admin.2fa.user_id'));
     }
 }

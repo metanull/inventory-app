@@ -331,7 +331,7 @@ class ProfilePageTest extends TestCase
 
         // 2FA challenge: user is not yet fully authenticated
         $this->assertGuest();
-        $this->assertSame($user->getKey(), session('login.id'));
+        $this->assertSame($user->getKey(), session('filament.admin.2fa.user_id'));
 
         // Step 3: Complete 2FA challenge via the Filament challenge page
         $this->mockTotpProvider(true);
