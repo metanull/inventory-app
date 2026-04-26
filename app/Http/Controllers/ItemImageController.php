@@ -9,7 +9,8 @@ use App\Http\Requests\Api\StoreItemImageRequest;
 use App\Http\Requests\Api\UpdateItemImageRequest;
 use App\Http\Resources\ItemImageResource;
 use App\Http\Resources\OperationSuccessResource;
-use App\Http\Responses\FileResponse;
+use App\Http\Responses\Image\DownloadImageResponse;
+use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
@@ -163,19 +164,7 @@ class ItemImageController extends Controller
      */
     public function download(ItemImage $itemImage)
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-        $filename = $itemImage->original_name ?: basename($itemImage->path);
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$itemImage->path;
-
-        return FileResponse::download(
-            $disk,
-            $storagePath,
-            $filename,
-            $itemImage->mime_type
-        );
+        return new DownloadImageResponse($itemImage);
     }
 
     /**
@@ -183,16 +172,6 @@ class ItemImageController extends Controller
      */
     public function view(ItemImage $itemImage)
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
-
-        // Prepend directory to path
-        $storagePath = $directory.'/'.$itemImage->path;
-
-        return FileResponse::view(
-            $disk,
-            $storagePath,
-            $itemImage->mime_type
-        );
+        return new InlineImageResponse($itemImage);
     }
 }

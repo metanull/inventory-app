@@ -5,7 +5,7 @@ namespace Tests\Web\Authentication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class UsedRecoveryKeyTest extends TestCase
 {

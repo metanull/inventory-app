@@ -1,6 +1,6 @@
 {
     "name": "inventory-app",
-    "version": "6.13.1",
+    "version": "6.13.2",
     "private": true,
     "type": "module",
     "scripts": {

@@ -37,6 +37,8 @@ class RolePermissionSeeder extends Seeder
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
+            PermissionEnum::MANAGE_REFERENCE_DATA->value => 'Manage reference-data resources in the Filament administration panel',
+            PermissionEnum::ACCESS_ADMIN_PANEL->value => 'Access the Filament administration panel',
         ];
 
         foreach ($permissions as $name => $description) {
@@ -63,6 +65,7 @@ class RolePermissionSeeder extends Seeder
 
         $visitorRole->syncPermissions([
             PermissionEnum::VIEW_DATA->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
         ]);
 
         // Create "Regular User" role with data operation permissions
@@ -76,6 +79,8 @@ class RolePermissionSeeder extends Seeder
             PermissionEnum::CREATE_DATA->value,
             PermissionEnum::UPDATE_DATA->value,
             PermissionEnum::DELETE_DATA->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
+            PermissionEnum::MANAGE_REFERENCE_DATA->value,
         ]);
 
         // Create "Manager of Users" role with only user/role management permissions
@@ -96,6 +101,7 @@ class RolePermissionSeeder extends Seeder
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value,
+            PermissionEnum::ACCESS_ADMIN_PANEL->value,
         ]);
 
         $this->command->info('Roles and permissions created successfully!');

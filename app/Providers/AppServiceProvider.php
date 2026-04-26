@@ -12,6 +12,9 @@ use App\Listeners\DispatchSyncSpellingToCollectionTranslations;
 use App\Listeners\DispatchSyncSpellingToItemTranslations;
 use App\Listeners\DispatchSyncSpellingToTimelineEventTranslations;
 use App\Listeners\DispatchSyncTimelineEventTranslationSpellings;
+use App\Models\User;
+use App\Policies\RolePolicy;
+use App\Policies\UserPolicy;
 use App\Services\Settings;
 use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
 use App\View\Composers\SettingsComposer;
@@ -22,6 +25,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -136,6 +140,9 @@ class AppServiceProvider extends ServiceProvider
             // Allow authenticated users to view API docs
             return $user !== null;
         });
+
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
 
         // Register Scramble rule transformers for automatic API documentation
         Scramble::configure()

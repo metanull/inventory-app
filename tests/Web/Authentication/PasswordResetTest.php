@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 use Tests\Web\Traits\TestsFormValidation;
 
 class PasswordResetTest extends TestCase

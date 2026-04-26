@@ -74,6 +74,8 @@ class SyncPermissions extends Command
 
             // System settings permissions
             PermissionEnum::MANAGE_SETTINGS->value => 'Manage system settings and configuration',
+            PermissionEnum::MANAGE_REFERENCE_DATA->value => 'Manage reference-data resources in the Filament administration panel',
+            PermissionEnum::ACCESS_ADMIN_PANEL->value => 'Access the Filament administration panel',
         ];
 
         $created = 0;
@@ -167,6 +169,10 @@ class SyncPermissions extends Command
                     PermissionEnum::CREATE_DATA->value,
                     PermissionEnum::UPDATE_DATA->value,
                     PermissionEnum::DELETE_DATA->value,
+
+                    // Get access to the Filament "admin" panel and the reference data resources managed there.
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
+                    PermissionEnum::MANAGE_REFERENCE_DATA->value,
                 ],
             ],
             [
@@ -184,6 +190,7 @@ class SyncPermissions extends Command
 
                     // System settings permissions
                     PermissionEnum::MANAGE_SETTINGS->value,
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
                 ],
             ],
         ];
@@ -195,6 +202,7 @@ class SyncPermissions extends Command
                 'description' => 'Read-only access to data (list and show operations only)',
                 'permissions' => [
                     PermissionEnum::VIEW_DATA->value,
+                    PermissionEnum::ACCESS_ADMIN_PANEL->value,
                 ],
             ]]);
         }

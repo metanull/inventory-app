@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class PartnerImage extends Model
+class PartnerImage extends Model implements StreamableImageFile
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
@@ -113,7 +114,7 @@ class PartnerImage extends Model
             );
             Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
-            $partnerImage = static::create([
+            $partnerImage = Model::unguarded(fn () => static::create([
                 'id' => $availableImage->id, // Preserve the ID
                 'partner_id' => $partnerId,
                 'path' => $filename, // Keep filename unchanged
@@ -122,7 +123,7 @@ class PartnerImage extends Model
                 'size' => $availableImage->size ?? 0,
                 'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
-            ]);
+            ]));
 
             $availableImage->delete();
 
@@ -151,18 +152,35 @@ class PartnerImage extends Model
             );
             Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
-            $availableImage = AvailableImage::create([
+            $availableImage = Model::unguarded(fn () => AvailableImage::create([
                 'id' => $this->id, // Preserve the ID
                 'path' => $filename, // Keep filename unchanged
-                'original_name' => $this->original_name,
-                'mime_type' => $this->mime_type,
-                'size' => $this->size,
                 'comment' => $this->alt_text,
-            ]);
+            ]));
 
             $this->delete();
 
             return $availableImage;
         });
+    }
+
+    public function imageDisk(): string
+    {
+        return config('localstorage.pictures.disk');
+    }
+
+    public function imageStoragePath(): string
+    {
+        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+    }
+
+    public function imageMimeType(): ?string
+    {
+        return $this->mime_type;
+    }
+
+    public function imageDownloadFilename(): string
+    {
+        return $this->original_name ?: basename($this->path);
     }
 }

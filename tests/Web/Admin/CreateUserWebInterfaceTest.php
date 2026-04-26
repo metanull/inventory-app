@@ -47,12 +47,12 @@ class CreateUserWebInterfaceTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $regularUserRole = Role::where('name', 'Regular User')->first();
+        $visitorRole = Role::where('name', 'Visitor')->first();
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'name' => 'New User With Role',
             'email' => 'userrole@example.com',
-            'roles' => [$regularUserRole->id],
+            'roles' => [$visitorRole->id],
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
@@ -61,7 +61,7 @@ class CreateUserWebInterfaceTest extends TestCase
         // Verify user was created with role
         $user = User::where('email', 'userrole@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertTrue($user->hasRole('Regular User'));
+        $this->assertTrue($user->hasRole('Visitor'));
     }
 
     public function test_admin_can_create_user_with_multiple_roles(): void
@@ -69,20 +69,20 @@ class CreateUserWebInterfaceTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $regularUserRole = Role::where('name', 'Regular User')->first();
-        $visitorRole = Role::where('name', 'Visitor')->first(); // Use non-sensitive role
+        $visitorRole = Role::where('name', 'Visitor')->first();
+        $nonVerifiedRole = Role::where('name', 'Non-verified users')->first();
 
         $response = $this->actingAs($admin)->post(route('admin.users.store'), [
             'name' => 'Multi Role User',
             'email' => 'multirole@example.com',
-            'roles' => [$regularUserRole->id, $visitorRole->id],
+            'roles' => [$visitorRole->id, $nonVerifiedRole->id],
         ]);
 
         $response->assertRedirect(route('admin.users.index'));
 
         $user = User::where('email', 'multirole@example.com')->first();
-        $this->assertTrue($user->hasRole('Regular User'));
         $this->assertTrue($user->hasRole('Visitor'));
+        $this->assertTrue($user->hasRole('Non-verified users'));
     }
 
     public function test_create_user_form_validation_works(): void

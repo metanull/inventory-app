@@ -6,10 +6,11 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class UserManagementWebInterfaceTest extends TestCase
 {
-    use RefreshDatabase;
+    use CreatesTwoFactorUsers, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -24,7 +25,7 @@ class UserManagementWebInterfaceTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create();
+        $targetUser = $this->createUserWithTotp();
         $regularUserRole = Role::where('name', 'Regular User')->first();
 
         // Submit the form with role IDs (as the web form does)
@@ -97,7 +98,7 @@ class UserManagementWebInterfaceTest extends TestCase
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->assignRole('Manager of Users');
 
-        $targetUser = User::factory()->create([
+        $targetUser = $this->createUserWithTotp([
             'name' => 'Old Name',
             'email' => 'old@example.com',
         ]);

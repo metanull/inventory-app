@@ -7,7 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class MobileAuthenticationTest extends TestCase
 {

@@ -6,7 +6,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
-use Tests\Web\Traits\CreatesTwoFactorUsers;
+use Tests\Traits\CreatesTwoFactorUsers;
 
 class RecoveryKeyLoginTest extends TestCase
 {

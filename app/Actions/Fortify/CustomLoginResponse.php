@@ -11,14 +11,10 @@ class CustomLoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
-        if ($user) {
-            // Check email verification first
-            if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
-                return redirect()->route('verification.notice');
-            }
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
         }
 
-        // Default Fortify behavior
         return redirect()->intended(config('fortify.home'));
     }
 }

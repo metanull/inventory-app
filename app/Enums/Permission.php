@@ -26,6 +26,12 @@ enum Permission: string
     // System settings permissions
     case MANAGE_SETTINGS = 'manage settings';
 
+    // Reference data management
+    case MANAGE_REFERENCE_DATA = 'manage-reference-data';
+
+    // Filament admin panel access
+    case ACCESS_ADMIN_PANEL = 'access-admin-panel';
+
     /**
      * Get all permission values as an array
      */
@@ -67,6 +73,7 @@ enum Permission: string
         return [
             self::MANAGE_ROLES->value,
             self::VIEW_ROLE_MANAGEMENT->value,
+            self::ACCESS_ADMIN_PANEL->value,
         ];
     }
 
@@ -78,7 +85,10 @@ enum Permission: string
         return array_merge(
             self::userManagement(),
             self::roleManagement(),
-            [self::MANAGE_SETTINGS->value]
+            [
+                self::MANAGE_SETTINGS->value,
+                self::ACCESS_ADMIN_PANEL->value,
+            ]
         );
     }
 
@@ -92,6 +102,7 @@ enum Permission: string
             self::MANAGE_ROLES->value,
             self::ASSIGN_ROLES->value,
             self::MANAGE_SETTINGS->value,
+            self::ACCESS_ADMIN_PANEL->value,
         ];
     }
 }

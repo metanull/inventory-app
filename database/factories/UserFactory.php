@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => now(),
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'current_team_id' => null,
@@ -46,6 +47,36 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user is pending approval (self-registered, not yet approved).
+     */
+    public function pendingApproval(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'approved_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has been approved.
+     */
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'approved_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the user is suspended.
+     */
+    public function suspended(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'suspended_at' => now(),
         ]);
     }
 

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Permission;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -20,7 +22,7 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, MustVerifyEmail
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser, MustVerifyEmail
 {
     use Authenticatable;
     use Authorizable;
@@ -42,6 +44,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'name',
         'email',
         'password',
+        'approved_at',
+        'suspended_at',
     ];
 
     /**
@@ -72,6 +76,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'suspended_at' => 'datetime',
         'password' => 'hashed',
     ];
 
@@ -131,5 +137,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         return false;
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() !== 'admin') {
+            return false;
+        }
+
+        return $this->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
     }
 }

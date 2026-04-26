@@ -32,6 +32,41 @@ Use mocking/stubbing to isolate code under test.
 
 ---
 
+## Active milestone: Filament 3 is the main UI
+
+> This project is mid-migration under **Milestone 3** (see `temp_MILESTONE3_FILAMENT_MIGRATION.md` and EPIC 0 — GitHub issue #849). The rules below supersede any Blade/Livewire back-office guidance in this file or the per-file instruction files until EPIC 14 rewrites them.
+
+1. **`/admin` (Filament 3) is the main UI**, not a restricted admin-only back-office. Every authenticated role except `Non-verified users` must be able to reach `/admin`.
+2. **Three-tier authorization model** (enforced by EPIC 2):
+   - **Tier 1 — Panel gate**: Spatie permission `access-admin-panel` grants entry to `/admin`. Assigned to `Visitor`, `Regular User`, and `Manager of Users`. Never assigned to `Non-verified users`.
+   - **Tier 2 — Navigation / Resource visibility**: per-feature Spatie permissions (`view-data`, `manage-users`, `manage-roles`, `manage-settings`, `manage-reference-data`) drive `canViewAny()` and `shouldRegisterNavigation()`.
+   - **Tier 3 — Record / Action authorization**: existing `App\Policies\*` classes, unchanged.
+3. **Test placement during Milestone 3**:
+   - All new Filament tests live under `tests/Filament/{Resources,Pages,Panel,Authorization}/`.
+   - Never add tests to `tests/Web/` — that suite is frozen and deleted in EPIC 12. The Blade/Livewire back-office no longer receives new coverage.
+   - `tests/Api/`, `tests/Unit/`, `tests/Configuration/`, `tests/Console/`, `tests/Event/`, `tests/Integration/` remain the correct homes for non-UI tests.
+4. **Self-service is first-class**: user profile, password change, two-factor enrolment, browser-session logout, and account deletion are delivered as a Filament `ProfilePage` (EPIC 10b). Do not reintroduce Jetstream Blade profile pages.
+5. **Forward-pointer to EPIC 14**: existing sections of this file (and `php.instructions.md`, `test-php.instructions.md`) that describe `IndexListRequest`, `{Entity}IndexQuery`, `SearchableSelect`, `SearchAndPaginate`, Livewire list components, or `/web/*` routes describe the **legacy** stack being removed. Do not author new code against those patterns. When in doubt, prefer a Filament Resource / Relation Manager / Page.
+
+---
+
+## Strict `/admin` ⇄ `/web` auth isolation (hard requirement)
+
+`/admin` (Filament) and `/web` (Blade/Jetstream/Livewire) authentication flows MUST stay strictly isolated. `/web` is scheduled for removal in EPIC 12 / EPIC 14; until then it lives side-by-side with `/admin` but never shares control flow.
+
+1. **`/admin` is fully Filament-native** for login, MFA challenge, and MFA setup. All three are Filament `SimplePage` Livewire components served from the `admin` panel routes. Post-login, post-challenge, and post-setup redirects resolve **only** to `admin` panel URLs (`Filament::getCurrentPanel()->route(...)` / `Filament::getUrl()`). The MFA challenge transition is a Livewire-aware `$this->redirect(...)` from the Filament login page itself — never a Fortify response contract.
+2. **Fortify remains the underlying auth/MFA service layer**, used as a service, not as an orchestrator:
+   - ✅ Allowed in `/admin`: `Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider`, `Laravel\Fortify\Actions\EnableTwoFactorAuthentication`, `Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication`, `Laravel\Fortify\Actions\DisableTwoFactorAuthentication`, `Laravel\Fortify\TwoFactorAuthenticatable` (model trait), `Fortify::currentEncrypter()`, and `Features::twoFactorAuthentication()` checks.
+   - ❌ Forbidden in `/admin`: `Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable`, `Laravel\Fortify\Actions\AttemptToAuthenticate`, `Laravel\Fortify\Actions\PrepareAuthenticatedSession`, `Laravel\Fortify\Actions\EnsureLoginIsNotThrottled`, `Laravel\Fortify\Actions\CanonicalizeUsername`, `Laravel\Fortify\Contracts\LoginResponse`, `Laravel\Fortify\Contracts\TwoFactorLoginResponse`, `Laravel\Fortify\Contracts\TwoFactorChallengeViewResponse`, and the Fortify routes `two-factor.login` / `two-factor.login.store`.
+3. **No shared session marker bridges the two flows.** Specifically: do not use `filament.auth.panel`, do not use Fortify’s `login.id` from `/admin`, do not introduce any equivalent cross-surface marker. `/admin` uses panel-namespaced session keys only (e.g. `filament.admin.2fa.user_id`).
+4. **No code in `app/Filament/**`, `app/Http/Controllers/Filament/**`, `app/Http/Middleware/Filament/**`, or `app/Providers/Filament/**` may reference**: `two-factor.login`, `filament.auth.panel`, `login.id`, `RedirectsIfTwoFactorAuthenticatable`, `AttemptToAuthenticate`, `PrepareAuthenticatedSession`, `Illuminate\Routing\Pipeline`, `TwoFactorChallengeViewResponse`, `TwoFactorLoginResponse`, or any Blade view under `resources/views/auth/`.
+5. **`/web` Fortify flow remains untouched** until EPIC 14 retires `/web` entirely. `/web` continues to use Fortify’s default `route('two-factor.login')` + `view('auth.two-factor-challenge')`. Do not customize either of those for `/admin` purposes.
+6. **Tests for the boundary live under `tests/Filament/`** (Authorization or Pages). They MUST include both directional regressions: an `/admin` flow that completes without ever resolving any `/web` route, and a `/web` flow that completes without ever resolving any `/admin` route — even when the same browser session previously interacted with the other surface.
+
+When you remove `/web` later (EPIC 14), the `/admin` flow delivered under this rule must remain unchanged — that is the point of strict isolation.
+
+---
+
 ## Project Overview
 
 The **Inventory Management API** is a comprehensive Laravel 12 backend application for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
@@ -431,6 +466,105 @@ When adding new models, controllers, or components:
 - **SQL injection prevention**: Use Eloquent exclusively
 - **Authentication**: Sanctum tokens for API, standard Laravel auth for web
 
+## Image upload pipeline — indirect upload is mandatory
+
+User-supplied image binaries are **never** written directly to public storage. All image uploads — whether issued from the API, the legacy `/web` UI, or the Filament `/admin` UI — MUST go through the existing two-stage indirect pipeline. This is a security boundary, not a stylistic preference.
+
+**The canonical flow (do not bypass, do not parallelize, do not reimplement):**
+
+1. Upload writes a new `App\Models\ImageUpload` record. The binary is stored on the **private** `local` disk under the `image_uploads` directory (see `config/localstorage.php`). It is NOT web-reachable.
+2. Creation dispatches `App\Events\ImageUploadEvent`.
+3. `App\Listeners\ImageUploadListener` validates the binary (Intervention Image), resizes if it exceeds the configured max dimensions, creates an `App\Models\AvailableImage` record (same UUID), deletes the `ImageUpload`, and dispatches `App\Events\AvailableImageEvent`.
+4. `App\Listeners\AvailableImageListener` moves the validated file to the **public** `public` disk under the `images` directory.
+5. Only then can an `AvailableImage` be attached to a host entity (Item, Collection, Partner, …). **Attach is a move, not a reference.** The per-entity image models (`ItemImage`, `CollectionImage`, `PartnerImage`) are **NOT pivot tables** — they do not hold a foreign key to `available_images`. Each row is a standalone, entity-owned record that carries its own copy of the metadata (`path`, `original_name`, `mime_type`, `size`, `alt_text`, `display_order`). The canonical transition is implemented by the model methods `ItemImage::attachFromAvailableImage()`, `CollectionImage::attachFromAvailableImage()`, `PartnerImage::attachFromAvailableImage()` (and their reverse `detachToAvailableImage()` counterparts).
+
+**How attach actually works (in a DB transaction):**
+
+- Moves the file from `public`/`images/` to `public`/`pictures/` (directories from `config/localstorage.php`).
+- Creates the `ItemImage` / `CollectionImage` / `PartnerImage` row, **reusing the same UUID** as the source `AvailableImage`.
+- **Deletes** the `AvailableImage` record.
+
+**How detach works (exact reverse, in a DB transaction):**
+
+- Moves the file from `public`/`pictures/` back to `public`/`images/`.
+- Recreates the `AvailableImage` row with the same UUID.
+- Deletes the entity image row.
+
+**Consequences that all code MUST honor:**
+
+- Each image is **unique and owned by at most one entity at a time**. An `AvailableImage` is transient — it exists only while the image is unattached.
+- The `AvailableImage` pool stays small and manageable (the production corpus is ~25 000 images; holding every attached image in the pool would make the pool unusable).
+- Attach errors can be corrected by detach → re-attach **without re-uploading the binary**.
+- A Filament/API/Web "attach" code path MUST call the existing `*::attachFromAvailableImage()` model method. Do not reimplement the move, do not create an `ItemImage`/`CollectionImage`/`PartnerImage` row directly from an `AvailableImage` without going through it.
+- A "detach" code path MUST call the existing `*->detachToAvailableImage()` model method. Do not reimplement the reverse move.
+
+**Rules — apply to every UI surface (API, `/web`, `/admin` Filament, future surfaces):**
+
+- ❌ **NEVER** write user-uploaded image binaries to the `public` disk, the `images` directory, or any web-reachable location directly. The `public` disk is the **output** of validation, never an input.
+- ❌ **NEVER** create an `AvailableImage` record from a user upload. `AvailableImage` is produced exclusively by `ImageUploadListener` or by a detach operation.
+- ❌ **NEVER** use `Filament\Forms\Components\FileUpload->disk('public')` (or any equivalent) to accept a user image. Filament image upload fields MUST target the `local` disk + `image_uploads` directory and persist as an `ImageUpload` record so the existing event chain runs.
+- ❌ **NEVER** reimplement validation, resizing, or thumbnailing in a new controller, action, page, or Filament component. Trigger the existing event chain.
+- ❌ **NEVER** reimplement the attach or detach file-move logic. Call `*::attachFromAvailableImage()` / `*->detachToAvailableImage()`.
+- ❌ **NEVER** treat `ItemImage`/`CollectionImage`/`PartnerImage` as pivot tables; they have no foreign key to `available_images` and the same image cannot be simultaneously attached to multiple entities.
+- ❌ **NEVER** introduce a new disk, directory, or storage path for image uploads or attachments.
+- ✅ A Filament "upload" Action / Page / Resource MUST create an `ImageUpload` (so `ImageUploadEvent` fires) and surface the resulting `AvailableImage` once the listeners have run.
+- ✅ A Filament "attach image to entity" Action MUST pick from the existing `AvailableImage` pool via server-side search and invoke `*::attachFromAvailableImage()`; it MUST NOT accept a raw file.
+- ✅ A Filament "detach image" Action MUST invoke `*->detachToAvailableImage()` so the binary returns to the `AvailableImage` pool under the same UUID.
+- ✅ Tests covering upload, attach, or detach flows MUST use `Storage::fake('local')` and `Storage::fake('public')`, dispatch through the real event chain (or assert it was dispatched) for uploads, and never write directly to the `public` disk outside the existing listener/model methods.
+
+**Image display and download — each UI surface MUST own its own routes, all backed by the shared `Responsable` classes:**
+
+Image bytes are NEVER served from a constructed `/storage/...` URL or any direct disk path. Every surface (`/api`, `/web`, `/admin` Filament, future surfaces) MUST register its OWN distinct `view` (inline) and `download` (attachment) routes per image model — surfaces NEVER call into another surface's routes. Controllers are one-line delegations to two shared `Responsable` classes that wrap `App\Http\Responses\FileResponse`:
+
+- `App\Http\Responses\Image\InlineImageResponse` — for inline display.
+- `App\Http\Responses\Image\DownloadImageResponse` — for `Content-Disposition: attachment` downloads.
+
+Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (currently `AvailableImage`, `ItemImage`, `CollectionImage`, `PartnerImage`). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation (config key, mime fallback, download filename rule); response classes and controllers contain zero duplication.
+
+**Existing surfaces (do not touch their routes; tests pin them):**
+- `AvailableImage` — `App\Http\Controllers\AvailableImageController@view|download` (API) and `App\Http\Controllers\Web\AvailableImageController@view|download` (Web).
+- `ItemImage` — `App\Http\Controllers\ItemImageController@view|download` (API) and `App\Http\Controllers\Web\ItemImageController@view|download` (Web).
+- `CollectionImage` — `App\Http\Controllers\CollectionImageController@view|download` (API) and `App\Http\Controllers\Web\CollectionImageController@view|download` (Web).
+- `PartnerImage` — `App\Http\Controllers\PartnerImageController@view|download` (API) and `App\Http\Controllers\Web\PartnerImageController@view|download` (Web).
+
+**Mandatory controller body shape — every `view`/`download` action on every surface:**
+
+```php
+public function view(ItemImage $itemImage)
+{
+    return new InlineImageResponse($itemImage);
+}
+
+public function download(ItemImage $itemImage)
+{
+    return new DownloadImageResponse($itemImage);
+}
+```
+
+Optional guards (parent-ownership checks, policy gates, signed-URL validation, …) MAY appear before the `return`, but the action MUST end with `return new InlineImageResponse(...)` or `return new DownloadImageResponse(...)`. Example:
+
+```php
+public function view(Item $item, ItemImage $itemImage)
+{
+    if ($itemImage->item_id !== $item->id) {
+        abort(404);
+    }
+
+    return new InlineImageResponse($itemImage);
+}
+```
+
+**Rules:**
+
+- ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any direct disk path. There is no `getUrl()` accessor on `AvailableImage`; URL conventions on the public disk are an implementation detail of the response classes, not an API for clients.
+- ❌ **NEVER** call `FileResponse::view()` / `FileResponse::download()` directly from a controller, action, page, or Filament component. Always go through `InlineImageResponse` / `DownloadImageResponse`.
+- ❌ **NEVER** duplicate the disk + directory + path + filename + mime-type resolution in a controller body. That logic lives exclusively in the model's `StreamableImageFile` methods and the two response classes.
+- ❌ **NEVER** route a Filament `/admin` page to a `/api/...` or `/web/...` image URL. Filament must own its own `/admin/...` view/download routes (registered in the Filament panel) returning the same response classes.
+- ❌ **NEVER** add a third low-level streaming primitive. The two response classes are the canonical boundary; extend them instead of creating siblings.
+- ✅ Each surface registers its OWN distinct named routes per model (e.g. `item-image.view` is API; the Web equivalent is `items.item-images.view`; the Filament equivalent is a separate name like `filament.admin.item-image.view`). Resolve URLs only from routes belonging to the surface that is rendering them.
+- ✅ Filament view/edit pages, gallery components, and lightboxes MUST resolve URLs from Filament's own named routes (which themselves return `InlineImageResponse` / `DownloadImageResponse`). Same for the `AvailableImage` pool.
+- ✅ Tests asserting display/download MUST hit a route on the surface under test (not a route from another surface) and assert the streamed response, not a constructed disk URL.
+
 ## File-Specific Instructions
 
 For detailed language and framework-specific guidelines, see:
@@ -464,6 +598,9 @@ For detailed language and framework-specific guidelines, see:
 - ❌ Using Livewire for list filtering/sorting/searching/pagination on web index pages
 - ❌ Issuing Eloquent queries from Blade list, detail, or form views
 - ❌ Creating an `Index*Request` web class that does not extend `IndexListRequest`
+- ❌ Uploading user-supplied image binaries directly to the `public` disk or the `images` directory — uploads MUST land on the `local` disk in `image_uploads/` as an `ImageUpload` record so the `ImageUploadEvent` → `AvailableImageEvent` listener chain runs (see *Image upload pipeline — indirect upload is mandatory*)
+- ❌ Creating an `AvailableImage` from a user upload — `AvailableImage` records are produced exclusively by `App\Listeners\ImageUploadListener`
+- ❌ Using `FileUpload->disk('public')` in any Filament Resource / Action / Page that accepts a user image — Filament uploads MUST target `local` + `image_uploads/` and persist as an `ImageUpload`
 - ❌ Using Terminal instead of VS Code tools
 - ❌ Using terminal to run tests instead of VS Code testing features
 - ❌ Creating scripts to alter files instead of using VS Code refactoring tools
