@@ -11,6 +11,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,14 @@ class ImagesRelationManager extends RelationManager
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
+                ImageColumn::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->height(64)
+                    ->defaultImageUrl(null),
                 TextColumn::make('path')
                     ->label('Filename')
                     ->searchable()

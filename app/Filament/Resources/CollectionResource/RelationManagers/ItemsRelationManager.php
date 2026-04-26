@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Resources\ItemResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
@@ -33,7 +34,8 @@ class ItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
