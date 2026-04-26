@@ -59,7 +59,12 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Fetch the root-level items (no parent).
+     * Maximum number of root items to render at once.
+     */
+    private const MAX_ROOT_ITEMS = 250;
+
+    /**
+     * Fetch the root-level items (no parent), limited to avoid OOM on large datasets.
      *
      * @return Collection<int, Item>
      */
@@ -69,7 +74,18 @@ class BrowseItemTree extends Page
             ->whereNull('parent_id')
             ->withCount('children')
             ->orderBy('internal_name')
+            ->limit(self::MAX_ROOT_ITEMS)
             ->get();
+    }
+
+    /**
+     * Total count of root-level items (without loading models).
+     */
+    public function getRootCount(): int
+    {
+        return Item::query()
+            ->whereNull('parent_id')
+            ->count();
     }
 
     /**

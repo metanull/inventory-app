@@ -50,6 +50,23 @@ Use mocking/stubbing to isolate code under test.
 
 ---
 
+## Strict `/admin` ⇄ `/web` auth isolation (hard requirement)
+
+`/admin` (Filament) and `/web` (Blade/Jetstream/Livewire) authentication flows MUST stay strictly isolated. `/web` is scheduled for removal in EPIC 12 / EPIC 14; until then it lives side-by-side with `/admin` but never shares control flow.
+
+1. **`/admin` is fully Filament-native** for login, MFA challenge, and MFA setup. All three are Filament `SimplePage` Livewire components served from the `admin` panel routes. Post-login, post-challenge, and post-setup redirects resolve **only** to `admin` panel URLs (`Filament::getCurrentPanel()->route(...)` / `Filament::getUrl()`). The MFA challenge transition is a Livewire-aware `$this->redirect(...)` from the Filament login page itself — never a Fortify response contract.
+2. **Fortify remains the underlying auth/MFA service layer**, used as a service, not as an orchestrator:
+   - ✅ Allowed in `/admin`: `Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider`, `Laravel\Fortify\Actions\EnableTwoFactorAuthentication`, `Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication`, `Laravel\Fortify\Actions\DisableTwoFactorAuthentication`, `Laravel\Fortify\TwoFactorAuthenticatable` (model trait), `Fortify::currentEncrypter()`, and `Features::twoFactorAuthentication()` checks.
+   - ❌ Forbidden in `/admin`: `Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable`, `Laravel\Fortify\Actions\AttemptToAuthenticate`, `Laravel\Fortify\Actions\PrepareAuthenticatedSession`, `Laravel\Fortify\Actions\EnsureLoginIsNotThrottled`, `Laravel\Fortify\Actions\CanonicalizeUsername`, `Laravel\Fortify\Contracts\LoginResponse`, `Laravel\Fortify\Contracts\TwoFactorLoginResponse`, `Laravel\Fortify\Contracts\TwoFactorChallengeViewResponse`, and the Fortify routes `two-factor.login` / `two-factor.login.store`.
+3. **No shared session marker bridges the two flows.** Specifically: do not use `filament.auth.panel`, do not use Fortify’s `login.id` from `/admin`, do not introduce any equivalent cross-surface marker. `/admin` uses panel-namespaced session keys only (e.g. `filament.admin.2fa.user_id`).
+4. **No code in `app/Filament/**`, `app/Http/Controllers/Filament/**`, `app/Http/Middleware/Filament/**`, or `app/Providers/Filament/**` may reference**: `two-factor.login`, `filament.auth.panel`, `login.id`, `RedirectsIfTwoFactorAuthenticatable`, `AttemptToAuthenticate`, `PrepareAuthenticatedSession`, `Illuminate\Routing\Pipeline`, `TwoFactorChallengeViewResponse`, `TwoFactorLoginResponse`, or any Blade view under `resources/views/auth/`.
+5. **`/web` Fortify flow remains untouched** until EPIC 14 retires `/web` entirely. `/web` continues to use Fortify’s default `route('two-factor.login')` + `view('auth.two-factor-challenge')`. Do not customize either of those for `/admin` purposes.
+6. **Tests for the boundary live under `tests/Filament/`** (Authorization or Pages). They MUST include both directional regressions: an `/admin` flow that completes without ever resolving any `/web` route, and a `/web` flow that completes without ever resolving any `/admin` route — even when the same browser session previously interacted with the other surface.
+
+When you remove `/web` later (EPIC 14), the `/admin` flow delivered under this rule must remain unchanged — that is the point of strict isolation.
+
+---
+
 ## Project Overview
 
 The **Inventory Management API** is a comprehensive Laravel 12 backend application for museum inventory management at Museum With No Frontiers. This is a monorepo containing:
