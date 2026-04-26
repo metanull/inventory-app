@@ -33,14 +33,6 @@ class RecentItemsWidget extends BaseWidget
             )
             ->paginated(false)
             ->columns([
-                ImageColumn::make('preview')
-                    ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.item-image.view', [
-                        'item' => $record->item_id,
-                        'itemImage' => $record->id,
-                    ]))
-                    ->height(64)
-                    ->defaultImageUrl(null),
                 TextColumn::make('internal_name')
                     ->label('Name')
                     ->searchable(false)
