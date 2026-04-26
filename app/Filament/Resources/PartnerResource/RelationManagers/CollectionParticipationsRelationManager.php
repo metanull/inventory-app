@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\PartnerResource\RelationManagers;
 
 use App\Enums\PartnerLevel;
+use App\Filament\Resources\CollectionResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -30,7 +31,8 @@ class CollectionParticipationsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record) => CollectionResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->sortable(),
                 TextColumn::make('pivot.collection_type')
