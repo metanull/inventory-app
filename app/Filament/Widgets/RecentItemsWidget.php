@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Enums\Permission;
 use App\Models\Item;
 use App\Filament\Resources\ItemResource;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -32,6 +33,14 @@ class RecentItemsWidget extends BaseWidget
             )
             ->paginated(false)
             ->columns([
+                ImageColumn::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->height(64)
+                    ->defaultImageUrl(null),
                 TextColumn::make('internal_name')
                     ->label('Name')
                     ->searchable(false)
