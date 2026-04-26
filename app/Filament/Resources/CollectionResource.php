@@ -16,6 +16,7 @@ use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationMana
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
 use App\Models\Collection;
+use App\Models\Project;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -165,7 +166,7 @@ class CollectionResource extends Resource
                         : $query),
                 SelectFilter::make('project')
                     ->label('Project')
-                    ->options(fn (): array => \App\Models\Project::query()
+                    ->options(fn (): array => Project::query()
                         ->orderBy('internal_name')
                         ->pluck('internal_name', 'id')
                         ->all()
