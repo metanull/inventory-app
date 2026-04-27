@@ -40,16 +40,28 @@ docker run --rm -v "${PWD}:/app" inventory-app-test vendor/bin/pint --no-ansi
 
 Each suite maps 1:1 to a GitHub Actions matrix job. Always run with `--no-ansi` and never pipe output through filters.
 
+The named volume `inv-app-vendor-84` must be seeded from the image before the first run (or after a rebuild):
+
+```powershell
+# Seed Linux-native vendor into named volume (once after each image build)
+docker volume rm inv-app-vendor-84 2>$null
+docker run --rm -v inv-app-vendor-84:/app/vendor inventory-app-test echo "vendor volume initialized"
+# Clear any stale Windows bootstrap cache
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor `
+    -e APP_ENV=testing -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: -e CACHE_STORE=array `
+    inventory-app-test php artisan optimize:clear --no-ansi
+```
+
 ```powershell
 # Individual suites (CI parity)
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Unit          --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Api           --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Web           --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Filament      --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Console       --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Event         --coverage --parallel --no-ansi --stop-on-failure
-docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Integration   --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Unit          --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Api           --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Web           --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Filament      --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Configuration --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Console       --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Event         --coverage --parallel --no-ansi --stop-on-failure
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Integration   --coverage --parallel --no-ansi --stop-on-failure
 ```
 
 ### Full CI matrix in sequence
@@ -57,7 +69,7 @@ docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite
 ```powershell
 foreach ($suite in @('Unit','Api','Web','Filament','Configuration','Console','Event','Integration')) {
     Write-Host "=== $suite ===" -ForegroundColor Cyan
-    docker run --rm -v "${PWD}:/app" inventory-app-test `
+    docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test `
         php artisan test --testsuite=$suite --coverage --parallel --no-ansi --stop-on-failure
     if ($LASTEXITCODE -ne 0) { Write-Error "Suite $suite FAILED"; break }
 }
@@ -66,7 +78,7 @@ foreach ($suite in @('Unit','Api','Web','Filament','Configuration','Console','Ev
 ### Single test (by name filter)
 
 ```powershell
-docker run --rm -v "${PWD}:/app" inventory-app-test `
+docker run --rm -v "${PWD}:/app" -v inv-app-vendor-84:/app/vendor inventory-app-test `
     php artisan test --filter=MyTestMethodName --no-coverage --no-ansi
 ```
 
@@ -76,6 +88,7 @@ docker run --rm -v "${PWD}:/app" inventory-app-test `
 
 - ❌ **NEVER** run `php artisan test` directly — local PHP is 8.2 and lacks required extensions.
 - ❌ **NEVER** pipe test or Pint output through `Select-Object`, `grep`, `head`, or any filter — full output is needed to see failure details.
+- ✅ The image sets `memory_limit = 512M` (overriding the PHP CLI default of 128M) — required for Filament's class discovery scan.
 - ✅ The project root is mounted at `/app` inside the container — local edits are immediately visible without rebuilding.
 - ✅ The image vendor layer is baked in; no `composer install` is needed at runtime.
 - ✅ After `Dockerfile.testing` changes, rebuild with `docker build -f Dockerfile.testing -t inventory-app-test .`.
