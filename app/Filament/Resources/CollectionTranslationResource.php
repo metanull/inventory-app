@@ -63,7 +63,6 @@ class CollectionTranslationResource extends Resource
                     ->label('Language')
                     ->relationship('language', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->required()
                     ->unique(
                         table: 'collection_translations',
@@ -79,7 +78,6 @@ class CollectionTranslationResource extends Resource
                     ->label('Context')
                     ->relationship('context', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->required(),
 
                 Section::make('Content')
@@ -152,13 +150,11 @@ class CollectionTranslationResource extends Resource
                 SelectFilter::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Filter::make('default_language')
                     ->label('Default language only')
                     ->query(fn (Builder $query): Builder => $query->whereHas('language', fn (Builder $q): Builder => $q->where('is_default', true))),

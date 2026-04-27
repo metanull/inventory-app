@@ -16,7 +16,6 @@ class TranslationFormSchema
             ->label('Language')
             ->relationship('language', 'internal_name')
             ->searchable()
-            ->preload()
             ->required();
     }
 
@@ -26,7 +25,6 @@ class TranslationFormSchema
             ->label('Context')
             ->relationship('context', 'internal_name')
             ->searchable()
-            ->preload()
             ->required();
     }
 

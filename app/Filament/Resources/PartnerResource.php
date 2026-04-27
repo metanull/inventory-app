@@ -75,8 +75,7 @@ class PartnerResource extends Resource
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('country', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('latitude')
                     ->numeric(),
                 TextInput::make('longitude')
@@ -87,8 +86,7 @@ class PartnerResource extends Resource
                 Select::make('project_id')
                     ->label('Project')
                     ->relationship('project', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('monument_item_id')
                     ->label('Monument item')
                     ->relationship(
@@ -96,8 +94,7 @@ class PartnerResource extends Resource
                         titleAttribute: 'internal_name',
                         modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', ItemType::MONUMENT->value),
                     )
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Toggle::make('visible')
                     ->default(true),
             ]);

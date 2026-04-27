@@ -6,7 +6,10 @@ use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Pages\BrowseItemTree;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
+use App\Models\Country;
 use App\Models\Item;
+use App\Models\Partner;
+use App\Models\Project;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -76,12 +79,64 @@ class ItemSmokeTest extends TestCase
         $this->assertLessThan(2 * 1024 * 1024, strlen($component->html()));
     }
 
+    public function test_item_create_and_edit_forms_do_not_preload_large_option_datasets(): void
+    {
+        $user = $this->createCrudUser();
+
+        // Seed large related tables that were previously preloaded as select options.
+        $partner = Partner::factory()->create(['internal_name' => 'Test Partner']);
+        $project = Project::factory()->create(['internal_name' => 'Test Project']);
+        $country = Country::factory()->create(['id' => 'TST', 'internal_name' => 'Test Country']);
+        $item = Item::factory()->Object()->create([
+            'internal_name' => 'Existing Item',
+            'partner_id' => $partner->id,
+            'project_id' => $project->id,
+            'country_id' => $country->id,
+        ]);
+        $this->seedItems(1_000);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        // Create form must open without loading all items/partners/projects/countries.
+        $response = $this->actingAs($user)->get('/admin/items/create');
+        $response->assertOk();
+        $createQueryCount = count(DB::getQueryLog());
+
+        DB::flushQueryLog();
+
+        // Edit form must open without loading all items/partners/projects/countries.
+        $response = $this->actingAs($user)->get("/admin/items/{$item->getKey()}/edit");
+        $response->assertOk();
+        $editQueryCount = count(DB::getQueryLog());
+
+        DB::disableQueryLog();
+
+        // With preloads removed, query counts should stay well below the row count (1 000).
+        $this->assertLessThan(50, $createQueryCount, "Create form issued too many queries ($createQueryCount), likely still preloading option datasets.");
+        $this->assertLessThan(50, $editQueryCount, "Edit form issued too many queries ($editQueryCount), likely still preloading option datasets.");
+    }
+
     protected function createAuthorizedUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo([
             Permission::ACCESS_ADMIN_PANEL->value,
             Permission::VIEW_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createCrudUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::CREATE_DATA->value,
+            Permission::UPDATE_DATA->value,
+            Permission::DELETE_DATA->value,
         ]);
 
         return $user;

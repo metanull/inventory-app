@@ -204,13 +204,11 @@ class TranslationsRelationManager extends RelationManager
                 SelectFilter::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
             ])
             ->headerActions([
                 CreateAction::make()
