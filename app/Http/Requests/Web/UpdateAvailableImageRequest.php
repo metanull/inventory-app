@@ -23,6 +23,9 @@ class UpdateAvailableImageRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'original_name' => ['prohibited'],
+            'mime_type' => ['prohibited'],
+            'size' => ['prohibited'],
             'comment' => ['nullable', 'string', 'max:500'],
         ];
     }

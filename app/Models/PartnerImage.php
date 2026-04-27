@@ -155,6 +155,9 @@ class PartnerImage extends Model implements StreamableImageFile
             $availableImage = Model::unguarded(fn () => AvailableImage::create([
                 'id' => $this->id, // Preserve the ID
                 'path' => $filename, // Keep filename unchanged
+                'original_name' => $this->original_name ?: $filename,
+                'mime_type' => $this->mime_type ?: null,
+                'size' => $this->size ?: null,
                 'comment' => $this->alt_text,
             ]));
 
