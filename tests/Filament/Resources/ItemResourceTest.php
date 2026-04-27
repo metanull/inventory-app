@@ -388,6 +388,202 @@ class ItemResourceTest extends TestCase
         ]);
     }
 
+    public function test_item_table_shows_fallback_translation_badge(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $otherLang = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item with fallback']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item with fallback',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item without fallback']);
+        $itemWithoutFallback->translations()->create([
+            'language_id' => $otherLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item without fallback FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertCanSeeTableRecords([$itemWithFallback, $itemWithoutFallback]);
+    }
+
+    public function test_item_table_filter_has_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item A']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item A name',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('has_fallback_translation')
+            ->assertCanSeeTableRecords([$itemWithFallback])
+            ->assertCanNotSeeTableRecords([$itemWithoutFallback]);
+    }
+
+    public function test_item_table_filter_missing_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item A']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item A name',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('missing_fallback_translation')
+            ->assertCanSeeTableRecords([$itemWithoutFallback])
+            ->assertCanNotSeeTableRecords([$itemWithFallback]);
+    }
+
+    public function test_item_table_filter_has_translation_in_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemEn = Item::factory()->Object()->create(['internal_name' => 'English item']);
+        $itemEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English item name',
+        ]);
+
+        $itemFr = Item::factory()->Object()->create(['internal_name' => 'French item']);
+        $itemFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_language_has', $langFr->id)
+            ->assertCanSeeTableRecords([$itemFr])
+            ->assertCanNotSeeTableRecords([$itemEn]);
+    }
+
+    public function test_item_table_filter_missing_translation_in_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemEn = Item::factory()->Object()->create(['internal_name' => 'English item']);
+        $itemEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English item name',
+        ]);
+
+        $itemFr = Item::factory()->Object()->create(['internal_name' => 'French item']);
+        $itemFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_language_missing', $langFr->id)
+            ->assertCanSeeTableRecords([$itemEn])
+            ->assertCanNotSeeTableRecords([$itemFr]);
+    }
+
+    public function test_item_table_filter_has_translation_in_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $itemDefault = Item::factory()->Object()->create(['internal_name' => 'Default context item']);
+        $itemDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default item name',
+        ]);
+
+        $itemCatalogue = Item::factory()->Object()->create(['internal_name' => 'Catalogue item']);
+        $itemCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_context_has', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$itemCatalogue])
+            ->assertCanNotSeeTableRecords([$itemDefault]);
+    }
+
+    public function test_item_table_filter_missing_translation_in_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $itemDefault = Item::factory()->Object()->create(['internal_name' => 'Default context item']);
+        $itemDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default item name',
+        ]);
+
+        $itemCatalogue = Item::factory()->Object()->create(['internal_name' => 'Catalogue item']);
+        $itemCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_context_missing', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$itemDefault])
+            ->assertCanNotSeeTableRecords([$itemCatalogue]);
+    }
+
     public function test_browse_item_tree_page_renders(): void
     {
         $user = $this->createCrudUser();

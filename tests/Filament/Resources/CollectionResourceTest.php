@@ -325,6 +325,114 @@ class CollectionResourceTest extends TestCase
         ]);
     }
 
+    public function test_collection_table_filter_has_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $collectionWithFallback = Collection::factory()->create(['internal_name' => 'Collection A']);
+        $collectionWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'title' => 'Collection A title',
+        ]);
+
+        $collectionWithoutFallback = Collection::factory()->create(['internal_name' => 'Collection B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->filterTable('has_fallback_translation')
+            ->assertCanSeeTableRecords([$collectionWithFallback])
+            ->assertCanNotSeeTableRecords([$collectionWithoutFallback]);
+    }
+
+    public function test_collection_table_filter_missing_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $collectionWithFallback = Collection::factory()->create(['internal_name' => 'Collection A']);
+        $collectionWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'title' => 'Collection A title',
+        ]);
+
+        $collectionWithoutFallback = Collection::factory()->create(['internal_name' => 'Collection B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->filterTable('missing_fallback_translation')
+            ->assertCanSeeTableRecords([$collectionWithoutFallback])
+            ->assertCanNotSeeTableRecords([$collectionWithFallback]);
+    }
+
+    public function test_collection_table_filter_has_translation_in_non_default_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $collectionEn = Collection::factory()->create(['internal_name' => 'English collection']);
+        $collectionEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'title' => 'English collection title',
+        ]);
+
+        $collectionFr = Collection::factory()->create(['internal_name' => 'French collection']);
+        $collectionFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'title' => 'French collection title',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->filterTable('translation_language_has', $langFr->id)
+            ->assertCanSeeTableRecords([$collectionFr])
+            ->assertCanNotSeeTableRecords([$collectionEn]);
+    }
+
+    public function test_collection_table_filter_has_translation_in_non_default_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $collectionDefault = Collection::factory()->create(['internal_name' => 'Default context collection']);
+        $collectionDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'title' => 'Default title',
+        ]);
+
+        $collectionCatalogue = Collection::factory()->create(['internal_name' => 'Catalogue collection']);
+        $collectionCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'title' => 'Catalogue title',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->filterTable('translation_context_has', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$collectionCatalogue])
+            ->assertCanNotSeeTableRecords([$collectionDefault]);
+    }
+
     public function test_users_without_admin_panel_permission_receive_forbidden_on_the_filament_collection_resource(): void
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

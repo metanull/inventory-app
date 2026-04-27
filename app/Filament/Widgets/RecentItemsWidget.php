@@ -5,7 +5,6 @@ namespace App\Filament\Widgets;
 use App\Enums\Permission;
 use App\Filament\Resources\ItemResource;
 use App\Models\Item;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;

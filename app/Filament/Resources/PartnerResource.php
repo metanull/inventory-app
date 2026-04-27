@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
 use App\Filament\Resources\PartnerResource\Pages\CreatePartner;
 use App\Filament\Resources\PartnerResource\Pages\EditPartner;
@@ -37,6 +38,7 @@ class PartnerResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
+    use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     protected static ?string $model = Partner::class;
@@ -104,9 +106,11 @@ class PartnerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
+                static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
@@ -122,6 +126,9 @@ class PartnerResource extends Resource
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+            ])
+            ->filters([
+                ...static::translationCoverageFilters(),
             ])
             ->actions([
                 ViewAction::make(),
