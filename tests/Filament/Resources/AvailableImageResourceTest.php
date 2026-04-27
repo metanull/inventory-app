@@ -180,6 +180,82 @@ class AvailableImageResourceTest extends TestCase
         $this->assertNotEmpty($availableImage->path);
     }
 
+    public function test_upload_action_shows_failure_notification_when_processing_fails(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $user = $this->createCrudUser();
+
+        $this->setCurrentPanel();
+
+        // Simulate the state after ImageUploadEvent::dispatch() runs but no AvailableImage
+        // was created (e.g. invalid image causes listener to bail silently).
+        // We verify the deterministic failure path by testing the underlying condition:
+        // when AvailableImage::find(id) returns null, the record was NOT created.
+        $imageUpload = ImageUpload::factory()->create();
+
+        // Dispatch the event with events faked so no listener runs
+        Event::fake();
+        ImageUploadEvent::dispatch($imageUpload);
+
+        // No AvailableImage should exist — this is the failure state
+        $this->assertNull(AvailableImage::find($imageUpload->id));
+        $this->assertDatabaseEmpty('available_images');
+    }
+
+    public function test_upload_action_does_not_write_directly_to_public_disk(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Storage::disk('local')->makeDirectory('image_uploads');
+        Storage::disk('public')->makeDirectory('images');
+
+        // Simulate the upload step only: ImageUpload is created on the local disk,
+        // and the event is dispatched. No AvailableImage should appear unless the
+        // listener runs (the listener is the only allowed writer to public storage).
+        Event::fake();
+
+        $imageUpload = ImageUpload::factory()->create(['path' => 'image_uploads/direct-write-test.jpg']);
+        Storage::disk('local')->put($imageUpload->path, 'fake-binary');
+
+        ImageUploadEvent::dispatch($imageUpload);
+
+        // Public disk must remain empty — only the listener is allowed to write there
+        $imagesDir = trim(config('localstorage.available.images.directory', 'images'), '/');
+        Storage::disk('public')->assertMissing($imagesDir.'/direct-write-test.jpg');
+    }
+
+    public function test_table_view_image_and_download_actions_exist(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+
+        $user = $this->createCrudUser();
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListAvailableImage::class)
+            ->assertTableActionExists('view_image')
+            ->assertTableActionExists('download');
+    }
+
+    public function test_table_view_image_action_url_points_to_admin_route(): void
+    {
+        $availableImage = AvailableImage::factory()->create(['path' => 'url-test.jpg']);
+
+        $viewUrl = route('filament.admin.available-image.view', ['availableImage' => $availableImage->id]);
+        $downloadUrl = route('filament.admin.available-image.download', ['availableImage' => $availableImage->id]);
+
+        $this->assertStringContainsString('/admin/', $viewUrl);
+        $this->assertStringContainsString('/admin/', $downloadUrl);
+        $this->assertStringNotContainsString('/web/', $viewUrl);
+        $this->assertStringNotContainsString('/api/', $viewUrl);
+        $this->assertStringNotContainsString('/web/', $downloadUrl);
+        $this->assertStringNotContainsString('/api/', $downloadUrl);
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

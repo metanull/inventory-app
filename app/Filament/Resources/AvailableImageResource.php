@@ -11,6 +11,7 @@ use App\Models\ImageUpload;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
@@ -19,6 +20,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
@@ -53,6 +55,13 @@ class AvailableImageResource extends Resource
     {
         return $infolist
             ->schema([
+                ImageEntry::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                        'availableImage' => $record->id,
+                    ]))
+                    ->height(200)
+                    ->columnSpanFull(),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('path')
@@ -80,6 +89,17 @@ class AvailableImageResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
+                ImageColumn::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                        'availableImage' => $record->id,
+                    ]))
+                    ->height(64)
+                    ->url(fn ($record) => route('filament.admin.available-image.view', [
+                        'availableImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab()
+                    ->defaultImageUrl(null),
                 TextColumn::make('path')
                     ->label('Filename')
                     ->searchable()
@@ -135,13 +155,7 @@ class AvailableImageResource extends Resource
                             'size' => null,
                         ]);
 
-                        try {
-                            ImageUploadEvent::dispatch($imageUpload);
-                        } catch (\Exception $e) {
-                            // If AvailableImageListener fails (pre-existing known issue),
-                            // ImageUploadListener may have already created the AvailableImage.
-                            report($e);
-                        }
+                        ImageUploadEvent::dispatch($imageUpload);
 
                         $availableImage = AvailableImage::find($imageUpload->id);
 
@@ -152,14 +166,29 @@ class AvailableImageResource extends Resource
                                 ->send();
                         } else {
                             Notification::make()
-                                ->warning()
-                                ->title('Image upload submitted')
-                                ->body('The image is being processed. It will appear in the list shortly.')
+                                ->danger()
+                                ->title('Image processing failed')
+                                ->body('The uploaded file could not be processed as a valid image. It has not been added to the available image pool.')
                                 ->send();
                         }
                     }),
             ])
             ->actions([
+                Action::make('view_image')
+                    ->label('View image')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
+                        'availableImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab(),
+                Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (AvailableImage $record) => route('filament.admin.available-image.download', [
+                        'availableImage' => $record->id,
+                    ])),
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
