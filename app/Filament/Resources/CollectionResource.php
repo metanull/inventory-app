@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
 use App\Filament\Resources\CollectionResource\Pages\CreateCollection;
 use App\Filament\Resources\CollectionResource\Pages\EditCollection;
@@ -40,6 +41,7 @@ class CollectionResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
+    use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     private const TYPE_OPTIONS = [
@@ -121,14 +123,17 @@ class CollectionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'parent:id,internal_name',
-                'context:id,internal_name',
-                'language:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
+                $query->with([
+                    'parent:id,internal_name',
+                    'context:id,internal_name',
+                    'language:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
+                static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
@@ -149,6 +154,7 @@ class CollectionResource extends Resource
                 ...static::timestampsColumns(),
             ])
             ->filters([
+                ...static::translationCoverageFilters(),
                 SelectFilter::make('type')
                     ->options(self::TYPE_OPTIONS),
                 SelectFilter::make('parent_id')

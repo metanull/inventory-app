@@ -255,6 +255,114 @@ class PartnerResourceTest extends TestCase
         ]);
     }
 
+    public function test_partner_table_filter_has_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerWithFallback = Partner::factory()->create(['internal_name' => 'Partner A']);
+        $partnerWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Partner A name',
+        ]);
+
+        $partnerWithoutFallback = Partner::factory()->create(['internal_name' => 'Partner B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('has_fallback_translation')
+            ->assertCanSeeTableRecords([$partnerWithFallback])
+            ->assertCanNotSeeTableRecords([$partnerWithoutFallback]);
+    }
+
+    public function test_partner_table_filter_missing_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerWithFallback = Partner::factory()->create(['internal_name' => 'Partner A']);
+        $partnerWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Partner A name',
+        ]);
+
+        $partnerWithoutFallback = Partner::factory()->create(['internal_name' => 'Partner B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('missing_fallback_translation')
+            ->assertCanSeeTableRecords([$partnerWithoutFallback])
+            ->assertCanNotSeeTableRecords([$partnerWithFallback]);
+    }
+
+    public function test_partner_table_filter_has_translation_in_non_default_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerEn = Partner::factory()->create(['internal_name' => 'English partner']);
+        $partnerEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English partner name',
+        ]);
+
+        $partnerFr = Partner::factory()->create(['internal_name' => 'French partner']);
+        $partnerFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French partner name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('translation_language_has', $langFr->id)
+            ->assertCanSeeTableRecords([$partnerFr])
+            ->assertCanNotSeeTableRecords([$partnerEn]);
+    }
+
+    public function test_partner_table_filter_has_translation_in_non_default_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $partnerDefault = Partner::factory()->create(['internal_name' => 'Default partner']);
+        $partnerDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default partner name',
+        ]);
+
+        $partnerCatalogue = Partner::factory()->create(['internal_name' => 'Catalogue partner']);
+        $partnerCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue partner name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('translation_context_has', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$partnerCatalogue])
+            ->assertCanNotSeeTableRecords([$partnerDefault]);
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

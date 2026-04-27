@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
 use App\Filament\Resources\ItemResource\Pages\CreateItem;
 use App\Filament\Resources\ItemResource\Pages\EditItem;
@@ -47,6 +48,7 @@ class ItemResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
+    use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     protected static ?string $model = Item::class;
@@ -120,15 +122,18 @@ class ItemResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'parent:id,internal_name',
-                'partner:id,internal_name',
-                'country:id,internal_name',
-                'project:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
+                $query->with([
+                    'parent:id,internal_name',
+                    'partner:id,internal_name',
+                    'country:id,internal_name',
+                    'project:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
+                static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
@@ -154,6 +159,7 @@ class ItemResource extends Resource
                 ...static::timestampsColumns(),
             ])
             ->filters([
+                ...static::translationCoverageFilters(),
                 SelectFilter::make('type')
                     ->options(
                         collect(ItemType::cases())
