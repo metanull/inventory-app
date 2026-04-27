@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Filament\Resources\PartnerTranslationResource\RelationManagers;
+
+use App\Models\AvailableImage;
+use App\Models\PartnerTranslationImage;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
+
+class ImagesRelationManager extends RelationManager
+{
+    protected static string $relationship = 'partnerTranslationImages';
+
+    protected static ?string $recordTitleAttribute = 'path';
+
+    protected static ?string $title = 'Images';
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('display_order', 'asc')
+            ->paginated([25, 50, 100])
+            ->defaultPaginationPageOption(25)
+            ->columns([
+                ImageColumn::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.partner-translation-image.view', [
+                        'partnerTranslation' => $record->partner_translation_id,
+                        'partnerTranslationImage' => $record->id,
+                    ]))
+                    ->height(64)
+                    ->defaultImageUrl(null),
+                TextColumn::make('path')
+                    ->label('Filename')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('alt_text')
+                    ->label('Alt text')
+                    ->limit(50)
+                    ->toggleable(),
+                TextColumn::make('display_order')
+                    ->label('Order')
+                    ->sortable(),
+                TextColumn::make('mime_type')
+                    ->label('Type')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('size')
+                    ->label('Size (bytes)')
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at')
+                    ->label('Attached')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Action::make('attach')
+                    ->label('Attach image')
+                    ->icon('heroicon-o-paper-clip')
+                    ->form([
+                        Select::make('available_image_id')
+                            ->label('Available image')
+                            ->required()
+                            ->getSearchResultsUsing(fn (string $search): array => AvailableImage::query()
+                                ->where('path', 'like', "%{$search}%")
+                                ->orWhere('comment', 'like', "%{$search}%")
+                                ->orderBy('created_at', 'desc')
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(fn (AvailableImage $img) => [
+                                    $img->id => $img->path.($img->comment ? ' — '.$img->comment : ''),
+                                ])
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => AvailableImage::find($value)?->path ?? $value)
+                            ->searchable(),
+                        TextInput::make('alt_text')
+                            ->label('Alt text')
+                            ->maxLength(255)
+                            ->nullable(),
+                    ])
+                    ->action(function (array $data): void {
+                        $availableImage = AvailableImage::find($data['available_image_id']);
+
+                        if (! $availableImage) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Image not found')
+                                ->body('The selected image is no longer available.')
+                                ->send();
+
+                            return;
+                        }
+
+                        $partnerTranslation = $this->getOwnerRecord();
+
+                        PartnerTranslationImage::attachFromAvailableImage(
+                            $availableImage,
+                            $partnerTranslation->id,
+                            $data['alt_text'] ?? null
+                        );
+
+                        Notification::make()
+                            ->success()
+                            ->title('Image attached')
+                            ->send();
+                    }),
+            ])
+            ->actions([
+                EditAction::make()
+                    ->form([
+                        TextInput::make('alt_text')
+                            ->label('Alt text')
+                            ->maxLength(255)
+                            ->nullable(),
+                        TextInput::make('display_order')
+                            ->label('Display order')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                    ]),
+                Action::make('detach')
+                    ->label('Detach')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Detach image')
+                    ->modalDescription('This will move the image back to the available image pool. You can re-attach it later.')
+                    ->action(function (PartnerTranslationImage $record): void {
+                        $record->detachToAvailableImage();
+
+                        Notification::make()
+                            ->success()
+                            ->title('Image detached and returned to pool')
+                            ->send();
+                    }),
+                DeleteAction::make()
+                    ->before(function (PartnerTranslationImage $record): void {
+                        Storage::disk($record->imageDisk())
+                            ->delete($record->imageStoragePath());
+                    }),
+            ]);
+    }
+}

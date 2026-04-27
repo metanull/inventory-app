@@ -6,6 +6,7 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
+use App\Filament\Resources\PartnerTranslationResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Partner;
 use App\Models\PartnerTranslation;
@@ -268,6 +269,13 @@ class PartnerTranslationResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ImagesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
