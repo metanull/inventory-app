@@ -11,6 +11,7 @@ use App\Http\Controllers\Filament\AvailableImageController as FilamentAvailableI
 use App\Http\Controllers\Filament\CollectionImageController as FilamentCollectionImageController;
 use App\Http\Controllers\Filament\ItemImageController as FilamentItemImageController;
 use App\Http\Controllers\Filament\PartnerImageController as FilamentPartnerImageController;
+use App\Http\Controllers\Filament\PartnerTranslationImageController as FilamentPartnerTranslationImageController;
 use App\Http\Middleware\Filament\EnsureTwoFactorEnrolled;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
@@ -117,6 +118,11 @@ class AdminPanelProvider extends PanelProvider
                     ->name('partner-image.view');
                 Route::get('/partners/{partner}/images/{partnerImage}/download', [FilamentPartnerImageController::class, 'download'])
                     ->name('partner-image.download');
+
+                Route::get('/partner-translations/{partnerTranslation}/images/{partnerTranslationImage}/view', [FilamentPartnerTranslationImageController::class, 'view'])
+                    ->name('partner-translation-image.view');
+                Route::get('/partner-translations/{partnerTranslation}/images/{partnerTranslationImage}/download', [FilamentPartnerTranslationImageController::class, 'download'])
+                    ->name('partner-translation-image.download');
             });
 
         if (! $this->shouldUseViteTheme()) {
