@@ -140,15 +140,24 @@ class CollectionResource extends Resource
                 TextColumn::make('parent.internal_name')
                     ->label('Parent')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
@@ -279,13 +288,25 @@ class CollectionResource extends Resource
                 TextEntry::make('internal_name'),
                 TextEntry::make('type'),
                 TextEntry::make('parent.internal_name')
-                    ->label('Parent'),
+                    ->label('Parent')
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextEntry::make('context.internal_name')
-                    ->label('Context'),
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('country.internal_name')
-                    ->label('Country'),
+                    ->label('Country')
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextEntry::make('latitude'),
                 TextEntry::make('longitude'),
                 TextEntry::make('map_zoom')

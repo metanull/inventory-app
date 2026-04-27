@@ -126,9 +126,15 @@ class ProjectResource extends Resource
                     ->label('Enabled')
                     ->boolean(),
                 TextEntry::make('context.internal_name')
-                    ->label('Context'),
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('created_at')

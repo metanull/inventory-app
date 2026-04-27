@@ -141,19 +141,31 @@ class ItemResource extends Resource
                 TextColumn::make('parent.internal_name')
                     ->label('Parent')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
@@ -402,13 +414,25 @@ class ItemResource extends Resource
                 TextEntry::make('type')
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
                 TextEntry::make('parent.internal_name')
-                    ->label('Parent'),
+                    ->label('Parent')
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextEntry::make('partner.internal_name')
-                    ->label('Partner'),
+                    ->label('Partner')
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
                 TextEntry::make('country.internal_name')
-                    ->label('Country'),
+                    ->label('Country')
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextEntry::make('project.internal_name')
-                    ->label('Project'),
+                    ->label('Project')
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 TextEntry::make('display_order')
                     ->label('Display order'),
                 TextEntry::make('backward_compatibility')

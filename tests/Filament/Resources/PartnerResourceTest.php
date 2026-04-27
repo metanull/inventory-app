@@ -3,6 +3,9 @@
 namespace Tests\Filament\Resources;
 
 use App\Enums\Permission;
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\CountryResource;
+use App\Filament\Resources\LanguageResource;
 use App\Filament\Resources\PartnerResource\Pages\CreatePartner;
 use App\Filament\Resources\PartnerResource\Pages\EditPartner;
 use App\Filament\Resources\PartnerResource\Pages\ListPartner;
@@ -10,6 +13,7 @@ use App\Filament\Resources\PartnerResource\Pages\ViewPartner;
 use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipationsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\ProjectResource;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Country;
@@ -21,6 +25,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -361,6 +366,151 @@ class PartnerResourceTest extends TestCase
             ->filterTable('translation_context_has', $ctxCatalogue->id)
             ->assertCanSeeTableRecords([$partnerCatalogue])
             ->assertCanNotSeeTableRecords([$partnerDefault]);
+    }
+
+    public function test_partner_table_country_column_links_to_country_resource_with_manage_reference_data(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
+        ]);
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $partner = Partner::factory()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === CountryResource::getUrl('view', ['record' => $country]),
+                $partner
+            );
+    }
+
+    public function test_partner_table_country_column_is_plain_text_without_manage_reference_data(): void
+    {
+        $user = $this->createCrudUser();
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $partner = Partner::factory()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $partner
+            );
+    }
+
+    public function test_partner_table_project_column_links_to_project_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $partner = Partner::factory()->create(['project_id' => $project->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $partner
+            );
+    }
+
+    public function test_partner_translations_relation_manager_language_badge_links_to_language_resource(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
+        ]);
+
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $translation = $partner->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'language.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === LanguageResource::getUrl('view', ['record' => $language]),
+                $translation
+            );
+    }
+
+    public function test_partner_translations_relation_manager_context_badge_links_to_context_resource(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
+        ]);
+
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+        $translation = $partner->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'context.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ContextResource::getUrl('view', ['record' => $context]),
+                $translation
+            );
+    }
+
+    public function test_owned_items_relation_manager_project_column_links_to_project_resource(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $item = Item::factory()->Object()->create([
+            'partner_id' => $partner->id,
+            'project_id' => $project->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(OwnedItemsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => ViewPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $item
+            );
     }
 
     protected function createCrudUser(): User

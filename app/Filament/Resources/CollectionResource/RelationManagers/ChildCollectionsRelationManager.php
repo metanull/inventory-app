@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
+use App\Filament\Resources\CollectionResource;
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\LanguageResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -28,16 +31,25 @@ class ChildCollectionsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                        ? CollectionResource::getUrl('view', ['record' => $record])
+                        : null),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
