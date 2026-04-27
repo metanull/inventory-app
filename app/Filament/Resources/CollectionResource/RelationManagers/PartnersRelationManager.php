@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
 use App\Enums\PartnerLevel;
+use App\Filament\Resources\CountryResource;
+use App\Filament\Resources\PartnerResource;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -33,7 +35,10 @@ class PartnersRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                        ? PartnerResource::getUrl('view', ['record' => $record])
+                        : null),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
@@ -43,7 +48,10 @@ class PartnersRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

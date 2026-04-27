@@ -106,7 +106,10 @@ class PartnerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query))
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query->with([
+                'country:id,internal_name',
+                'project:id,internal_name',
+            ])))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
@@ -116,10 +119,16 @@ class PartnerResource extends Resource
                     ->sortable(),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 IconColumn::make('visible')
                     ->boolean()
                     ->sortable(),
@@ -144,11 +153,20 @@ class PartnerResource extends Resource
                 TextEntry::make('internal_name'),
                 TextEntry::make('type'),
                 TextEntry::make('country.internal_name')
-                    ->label('Country'),
+                    ->label('Country')
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextEntry::make('project.internal_name')
-                    ->label('Project'),
+                    ->label('Project')
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 TextEntry::make('monumentItem.internal_name')
-                    ->label('Monument item'),
+                    ->label('Monument item')
+                    ->url(fn ($record): ?string => $record->monumentItem
+                        ? (auth()->user()?->can('view', $record->monumentItem) ? ItemResource::getUrl('view', ['record' => $record->monumentItem]) : null)
+                        : null),
                 IconEntry::make('visible')
                     ->boolean(),
                 TextEntry::make('latitude'),

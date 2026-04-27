@@ -11,6 +11,8 @@ use App\Filament\Resources\CollectionResource\RelationManagers\ChildCollectionsR
 use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\LanguageResource;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
@@ -20,6 +22,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -448,6 +451,71 @@ class CollectionResourceTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_collection_table_context_column_links_to_context_resource_for_authorized_user(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $collection = Collection::factory()->create([
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->assertTableColumnExists(
+                'context.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ContextResource::getUrl('view', ['record' => $context]),
+                $collection
+            );
+    }
+
+    public function test_collection_table_context_column_is_plain_text_without_manage_reference_data(): void
+    {
+        $user = $this->createCrudUser();
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $collection = Collection::factory()->create([
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->assertTableColumnExists(
+                'context.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $collection
+            );
+    }
+
+    public function test_collection_table_language_column_links_to_language_resource_for_authorized_user(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $collection = Collection::factory()->create([
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->assertTableColumnExists(
+                'language.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === LanguageResource::getUrl('view', ['record' => $language]),
+                $collection
+            );
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
@@ -457,6 +525,18 @@ class CollectionResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Resources\CollectionResource;
+use App\Filament\Resources\ItemResource;
+use App\Filament\Resources\PartnerResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -29,17 +32,26 @@ class ItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                        ? ItemResource::getUrl('view', ['record' => $record])
+                        : null),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
                     ->sortable(),
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
                 TextColumn::make('collection.internal_name')
                     ->label('Collection')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->collection
+                        ? (auth()->user()?->can('view', $record->collection) ? CollectionResource::getUrl('view', ['record' => $record->collection]) : null)
+                        : null),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

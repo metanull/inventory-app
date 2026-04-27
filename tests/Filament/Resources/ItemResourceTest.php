@@ -5,6 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Pages\BrowseItemTree;
+use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\ItemResource\Pages\CreateItem;
 use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
@@ -14,16 +15,21 @@ use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\PartnerResource;
+use App\Filament\Resources\ProjectResource;
 use App\Models\Collection;
 use App\Models\Context;
+use App\Models\Country;
 use App\Models\Item;
 use App\Models\Language;
 use App\Models\Partner;
+use App\Models\Project;
 use App\Models\Tag;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -611,6 +617,96 @@ class ItemResourceTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_item_table_partner_column_links_to_partner_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $item = Item::factory()->Object()->create(['partner_id' => $partner->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'partner.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === PartnerResource::getUrl('view', ['record' => $partner]),
+                $item
+            );
+    }
+
+    public function test_item_table_country_column_is_plain_text_without_manage_reference_data_permission(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+        ]);
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $item = Item::factory()->Object()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $item
+            );
+    }
+
+    public function test_item_table_country_column_links_to_country_resource_with_manage_reference_data_permission(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $item = Item::factory()->Object()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === CountryResource::getUrl('view', ['record' => $country]),
+                $item
+            );
+    }
+
+    public function test_item_table_project_column_links_to_project_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $item = Item::factory()->Object()->create(['project_id' => $project->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $item
+            );
+    }
+
+    public function test_item_table_parent_column_renders_plain_text_when_parent_is_null(): void
+    {
+        $user = $this->createCrudUser();
+        $item = Item::factory()->Object()->create(['parent_id' => null]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'parent.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $item
+            );
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
@@ -620,6 +716,18 @@ class ItemResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

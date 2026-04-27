@@ -104,7 +104,10 @@ class TagResource extends Resource
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
             ])
@@ -129,7 +132,10 @@ class TagResource extends Resource
                     ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
                 TextEntry::make('internal_name'),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
                 TextEntry::make('id')

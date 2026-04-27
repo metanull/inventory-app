@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PartnerResource\RelationManagers;
 
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\LanguageResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Context;
@@ -70,12 +72,18 @@ class TranslationsRelationManager extends RelationManager
                     ->label('Language')
                     ->sortable()
                     ->badge()
-                    ->color(fn (PartnerTranslation $r): string => $r->language?->is_default ? 'success' : 'gray'),
+                    ->color(fn (PartnerTranslation $r): string => $r->language?->is_default ? 'success' : 'gray')
+                    ->url(fn (PartnerTranslation $r): ?string => $r->language
+                        ? (auth()->user()?->can('view', $r->language) ? LanguageResource::getUrl('view', ['record' => $r->language]) : null)
+                        : null),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
                     ->badge()
-                    ->color(fn (PartnerTranslation $r): string => $r->context?->is_default ? 'success' : 'gray'),
+                    ->color(fn (PartnerTranslation $r): string => $r->context?->is_default ? 'success' : 'gray')
+                    ->url(fn (PartnerTranslation $r): ?string => $r->context
+                        ? (auth()->user()?->can('view', $r->context) ? ContextResource::getUrl('view', ['record' => $r->context]) : null)
+                        : null),
                 IconColumn::make('is_default_pair')
                     ->label('★')
                     ->tooltip('Default language + context pair')
