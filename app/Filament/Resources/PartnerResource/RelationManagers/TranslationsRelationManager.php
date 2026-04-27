@@ -145,7 +145,7 @@ class TranslationsRelationManager extends RelationManager
                             ->simple(
                                 TextInput::make('value')
                                     ->label('Phone')
-                                    ->tel()
+                                    ->maxLength(255)
                             )
                             ->columnSpanFull(),
                     ])

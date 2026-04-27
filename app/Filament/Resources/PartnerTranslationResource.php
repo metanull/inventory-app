@@ -171,7 +171,7 @@ class PartnerTranslationResource extends Resource
                             ->simple(
                                 TextInput::make('value')
                                     ->label('Phone')
-                                    ->tel()
+                                    ->maxLength(255)
                             )
                             ->columnSpanFull(),
                     ])

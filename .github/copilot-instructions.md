@@ -191,6 +191,14 @@ php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-
 
 Use the CI matrix commands above, or equivalent VS Code tasks, when validating backend changes that must match GitHub Actions behavior. Do not treat a single plain `php artisan test` run as CI parity.
 
+> **Windows dev machine — PHP 8.4 via Docker is required.**
+> The local PHP installation is 8.2 and lacks several extensions required by the current codebase (Filament 3 needs `intl`, `zip`, `gd`, `exif`). On Windows, prefix every `php artisan test` and `vendor/bin/pint` command with the Docker wrapper:
+> ```powershell
+> docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test ...
+> docker run --rm -v "${PWD}:/app" inventory-app-test vendor/bin/pint ...
+> ```
+> Build the image once with `docker build -f Dockerfile.testing -t inventory-app-test .` (see `Dockerfile.testing`). Rebuild when `composer.lock` changes. GitHub Actions runners (Linux) do **not** use this image — they use `shivammathur/setup-php@v2` directly.
+
 VS Code task runs are terminal-based and do not feed results back into the Testing panel. For interactive PHP test discovery and per-test results inside VS Code, use the `PHPUnit & Pest Test Explorer` extension and run tests from the Testing view instead of from tasks.
 
 **SPA commands** (run from `/spa/` directory):

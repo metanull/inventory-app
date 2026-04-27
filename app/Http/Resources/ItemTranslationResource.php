@@ -77,7 +77,7 @@ class ItemTranslationResource extends JsonResource
             'updated_at' => $this->updated_at,
 
             // The item relationship (ItemResource)
-            'item' => new ItemResource($this->whenLoaded('item')),
+            'item' => new ItemResource($this->whenLoaded('item', fn ($item) => $item->withoutRelations())),
             // The language relationship (LanguageResource)
             'language' => new LanguageResource($this->whenLoaded('language')),
             // The context relationship (ContextResource)

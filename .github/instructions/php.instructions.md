@@ -60,6 +60,15 @@ applyTo: "**/*.php"
 - Never ignore lint errors and warnings.
 - Never ignore failing tests.
 
+> **Windows dev machine — use Docker for Pint and tests.**
+> The local PHP is 8.2 and lacks extensions required by Filament 3 (`intl`, `zip`, `gd`, `exif`). Always run Pint and `php artisan test` via the `inventory-app-test` Docker image:
+> ```powershell
+> docker run --rm -v "${PWD}:/app" inventory-app-test vendor/bin/pint --no-ansi
+> docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+> ```
+> Build once: `docker build -f Dockerfile.testing -t inventory-app-test .` Rebuild when `composer.lock` changes.
+> See `.github/agents/php-test-runner.agent.md` for the full command reference.
+
 ## Web List Pages — Request-Driven Pattern (the only approved approach)
 
 Every web index (`index()`) action must follow the request-driven list pattern. Do **not** use any other approach.
