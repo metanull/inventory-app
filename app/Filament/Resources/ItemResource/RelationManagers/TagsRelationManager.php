@@ -44,8 +44,7 @@ class TagsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
-                AttachAction::make()
-                    ->preloadRecordSelect(),
+                AttachAction::make(),
             ])
             ->actions([
                 DetachAction::make(),

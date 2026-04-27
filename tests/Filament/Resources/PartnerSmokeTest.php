@@ -72,12 +72,54 @@ class PartnerSmokeTest extends TestCase
             ->assertCanNotSeeTableRecords([$nonTarget]);
     }
 
+    public function test_partner_create_and_edit_forms_do_not_preload_large_option_datasets(): void
+    {
+        $user = $this->createCrudUser();
+        $partner = Partner::factory()->create(['internal_name' => 'Test Partner']);
+        $this->seedOwnedItems($partner);
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        // Create form must open without loading all items (monument_item select) or all partners/projects/countries.
+        $response = $this->actingAs($user)->get('/admin/partners/create');
+        $response->assertOk();
+        $createQueryCount = count(DB::getQueryLog());
+
+        DB::flushQueryLog();
+
+        // Edit form must also open without loading the full item/project/country datasets.
+        $response = $this->actingAs($user)->get("/admin/partners/{$partner->getKey()}/edit");
+        $response->assertOk();
+        $editQueryCount = count(DB::getQueryLog());
+
+        DB::disableQueryLog();
+
+        // With preloads removed, query counts must stay well below the 10 000-row item count.
+        $this->assertLessThan(50, $createQueryCount, "Create form issued too many queries ($createQueryCount), likely still preloading monument_item/country/project datasets.");
+        $this->assertLessThan(50, $editQueryCount, "Edit form issued too many queries ($editQueryCount), likely still preloading monument_item/country/project datasets.");
+    }
+
     protected function createAuthorizedUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo([
             Permission::ACCESS_ADMIN_PANEL->value,
             Permission::VIEW_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createCrudUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::CREATE_DATA->value,
+            Permission::UPDATE_DATA->value,
+            Permission::DELETE_DATA->value,
         ]);
 
         return $user;

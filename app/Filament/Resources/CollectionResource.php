@@ -85,13 +85,11 @@ class CollectionResource extends Resource
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('parent_id')
                     ->label('Parent collection')
                     ->relationship(
@@ -102,13 +100,11 @@ class CollectionResource extends Resource
                             : $query,
                     )
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('country', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('latitude')
                     ->numeric(),
                 TextInput::make('longitude')
@@ -169,23 +165,24 @@ class CollectionResource extends Resource
                 SelectFilter::make('parent_id')
                     ->label('Parent')
                     ->relationship('parent', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('partner')
                     ->label('Partner')
                     ->relationship('partners', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
                         : $query),
                 SelectFilter::make('project')
                     ->label('Project')
-                    ->options(fn (): array => Project::query()
+                    ->getSearchResultsUsing(fn (string $search): array => Project::query()
+                        ->where('internal_name', 'like', "%{$search}%")
                         ->orderBy('internal_name')
+                        ->limit(50)
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
@@ -197,15 +194,19 @@ class CollectionResource extends Resource
                 Action::make('changeParent')
                     ->label('Change parent')
                     ->icon('heroicon-o-arrow-uturn-up')
-                    ->form([
+                    ->form(fn (Collection $record): array => [
                         Select::make('parent_id')
                             ->label('New parent collection')
                             ->nullable()
-                            ->options(fn (Collection $record): array => Collection::query()
+                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->excludingDescendantsOf($record->id)
+                                ->where('internal_name', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
+                                ->limit(50)
                                 ->pluck('internal_name', 'id')
-                                ->all())
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
                             ->searchable(),
                     ])
                     ->action(function (Collection $record, array $data): void {
@@ -241,11 +242,14 @@ class CollectionResource extends Resource
                         Select::make('parent_id')
                             ->label('New parent collection')
                             ->nullable()
-                            ->options(fn (EloquentCollection $records): array => Collection::query()
-                                ->excludingIds($records->pluck('id')->all())
+                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                                ->where('internal_name', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
+                                ->limit(50)
                                 ->pluck('internal_name', 'id')
-                                ->all())
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {

@@ -91,25 +91,21 @@ class ItemResource extends Resource
                             : $query,
                     )
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 Select::make('partner_id')
                     ->label('Partner')
                     ->relationship('partner', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('country', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 Select::make('project_id')
                     ->label('Project')
                     ->relationship('project', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 TextInput::make('display_order')
                     ->label('Display order')

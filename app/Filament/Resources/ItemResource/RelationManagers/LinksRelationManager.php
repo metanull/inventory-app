@@ -31,13 +31,11 @@ class LinksRelationManager extends RelationManager
                     ->label('Target item')
                     ->relationship('target', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->required(),
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->nullable(),
             ]);
     }

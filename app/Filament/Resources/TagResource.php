@@ -72,8 +72,7 @@ class TagResource extends Resource
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('backward_compatibility')
                     ->label('Legacy code')
                     ->maxLength(255),

@@ -73,40 +73,56 @@ trait HasTranslationCoverageFilters
 
             SelectFilter::make('translation_language_has')
                 ->label('Has translation in language')
-                ->options(fn (): array => Language::query()
+                ->getSearchResultsUsing(fn (string $search): array => Language::query()
+                    ->where('internal_name', 'like', "%{$search}%")
                     ->orderBy('internal_name')
+                    ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
+                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereHas('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
                     : $query),
 
             SelectFilter::make('translation_language_missing')
                 ->label('Missing translation in language')
-                ->options(fn (): array => Language::query()
+                ->getSearchResultsUsing(fn (string $search): array => Language::query()
+                    ->where('internal_name', 'like', "%{$search}%")
                     ->orderBy('internal_name')
+                    ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
+                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereDoesntHave('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
                     : $query),
 
             SelectFilter::make('translation_context_has')
                 ->label('Has translation in context')
-                ->options(fn (): array => Context::query()
+                ->getSearchResultsUsing(fn (string $search): array => Context::query()
+                    ->where('internal_name', 'like', "%{$search}%")
                     ->orderBy('internal_name')
+                    ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
+                ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? $value)
+                ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereHas('translations', fn (Builder $q): Builder => $q->where('context_id', $data['value']))
                     : $query),
 
             SelectFilter::make('translation_context_missing')
                 ->label('Missing translation in context')
-                ->options(fn (): array => Context::query()
+                ->getSearchResultsUsing(fn (string $search): array => Context::query()
+                    ->where('internal_name', 'like', "%{$search}%")
                     ->orderBy('internal_name')
+                    ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
+                ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? $value)
+                ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereDoesntHave('translations', fn (Builder $q): Builder => $q->where('context_id', $data['value']))
                     : $query),
