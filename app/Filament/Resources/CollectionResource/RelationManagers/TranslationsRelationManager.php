@@ -2,17 +2,27 @@
 
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
+use App\Filament\Resources\CollectionResource;
 use App\Filament\Support\TranslationFormSchema;
+use App\Models\CollectionTranslation;
+use App\Models\Context;
+use App\Models\Language;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rules\Unique;
 
 class TranslationsRelationManager extends RelationManager
 {
@@ -24,19 +34,32 @@ class TranslationsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
+        $ownerRecord = $this->ownerRecord;
+
         return $form
             ->schema([
-                TranslationFormSchema::languageField(),
+                TranslationFormSchema::languageField()
+                    ->unique(
+                        table: 'collection_translations',
+                        column: 'language_id',
+                        modifyRuleUsing: function (Unique $rule, Get $get) use ($ownerRecord): Unique {
+                            return $rule
+                                ->where('collection_id', $ownerRecord->id)
+                                ->where('context_id', $get('context_id') ?? '');
+                        },
+                        ignoreRecord: true,
+                    )
+                    ->validationMessages(['unique' => 'A translation for this language and context already exists.']),
                 TranslationFormSchema::contextField(),
                 TextInput::make('title')
                     ->required()
                     ->maxLength(255),
                 Textarea::make('description')
-                    ->required()
                     ->rows(4)
                     ->columnSpanFull(),
                 TextInput::make('url')
                     ->url()
+                    ->nullable()
                     ->maxLength(255),
             ]);
     }
@@ -45,8 +68,8 @@ class TranslationsRelationManager extends RelationManager
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'context:id,internal_name',
-                'language:id,internal_name',
+                'context:id,internal_name,is_default',
+                'language:id,internal_name,is_default',
             ]))
             ->defaultSort('title', 'asc')
             ->paginated([25, 50, 100])
@@ -54,10 +77,22 @@ class TranslationsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('language.internal_name')
                     ->label('Language')
-                    ->sortable(),
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (CollectionTranslation $r): string => $r->language?->is_default ? 'success' : 'gray'),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
-                    ->sortable(),
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (CollectionTranslation $r): string => $r->context?->is_default ? 'success' : 'gray'),
+                IconColumn::make('is_default_pair')
+                    ->label('★')
+                    ->tooltip('Default language + context pair')
+                    ->getStateUsing(fn (CollectionTranslation $r): bool => (bool) ($r->language?->is_default && $r->context?->is_default))
+                    ->trueIcon('heroicon-s-star')
+                    ->falseIcon('heroicon-o-minus')
+                    ->trueColor('warning')
+                    ->falseColor('gray'),
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
@@ -72,10 +107,80 @@ class TranslationsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->filters([
+                SelectFilter::make('language_id')
+                    ->label('Language')
+                    ->relationship('language', 'internal_name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('context_id')
+                    ->label('Context')
+                    ->relationship('context', 'internal_name')
+                    ->searchable()
+                    ->preload(),
+            ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->fillForm(fn (): array => [
+                        'language_id' => Language::default()->first()?->id,
+                        'context_id' => Context::default()->first()?->id,
+                    ]),
+                Action::make('createDefaultTranslation')
+                    ->label('Create default translation')
+                    ->icon('heroicon-o-star')
+                    ->color('warning')
+                    ->form([
+                        TranslationFormSchema::languageField(),
+                        TranslationFormSchema::contextField(),
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        Textarea::make('description')
+                            ->rows(4)
+                            ->columnSpanFull(),
+                        TextInput::make('url')
+                            ->url()
+                            ->nullable()
+                            ->maxLength(255),
+                    ])
+                    ->fillForm(fn (): array => [
+                        'language_id' => Language::default()->first()?->id,
+                        'context_id' => Context::default()->first()?->id,
+                    ])
+                    ->visible(fn (): bool => ! $this->ownerRecord->translations()
+                        ->whereHas('language', fn ($q) => $q->where('is_default', true))
+                        ->whereHas('context', fn ($q) => $q->where('is_default', true))
+                        ->exists()
+                    )
+                    ->action(function (array $data): void {
+                        $exists = $this->ownerRecord->translations()
+                            ->where('language_id', $data['language_id'])
+                            ->where('context_id', $data['context_id'])
+                            ->exists();
+
+                        if ($exists) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Translation already exists for this language and context.')
+                                ->send();
+
+                            return;
+                        }
+
+                        $this->ownerRecord->translations()->create($data);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Default translation created.')
+                            ->send();
+                    }),
             ])
             ->actions([
+                Action::make('viewCollection')
+                    ->label('View collection')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->url(fn (CollectionTranslation $r): string => CollectionResource::getUrl('view', ['record' => $r->collection_id]))
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
