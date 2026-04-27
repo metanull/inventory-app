@@ -486,7 +486,7 @@ class TranslationResourceTest extends TestCase
 
         $translation = ItemTranslation::where('item_id', $item->id)->where('language_id', $language->id)->first();
         $this->assertNotNull($translation);
-        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $extra = $this->extraToArray($translation->extra);
         $this->assertArrayHasKey('notes', $extra);
     }
 
@@ -587,7 +587,7 @@ class TranslationResourceTest extends TestCase
         ]);
 
         $translation->refresh();
-        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $extra = $this->extraToArray($translation->extra);
         $this->assertArrayHasKey('type', $extra);
         $this->assertSame('museum', $extra['type']);
     }
@@ -679,12 +679,27 @@ class TranslationResourceTest extends TestCase
         ]);
 
         $translation->refresh();
-        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $extra = $this->extraToArray($translation->extra);
         $this->assertArrayHasKey('curator', $extra);
         $this->assertSame('Dr. Jones', $extra['curator']);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────────
+
+    /**
+     * Normalise the model's `extra` attribute to a plain PHP array regardless of
+     * whether it comes back as stdClass (object cast) or a plain array.
+     *
+     * @return array<string, mixed>
+     */
+    protected function extraToArray(mixed $extra): array
+    {
+        if (is_array($extra)) {
+            return $extra;
+        }
+
+        return (array) $extra;
+    }
 
     protected function createCrudUser(): User
     {

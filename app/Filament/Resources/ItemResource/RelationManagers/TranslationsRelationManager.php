@@ -6,12 +6,10 @@ use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
-use App\Models\Author;
 use App\Models\Context;
 use App\Models\ItemTranslation;
 use App\Models\Language;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -130,58 +128,10 @@ class TranslationsRelationManager extends RelationManager
 
                 Section::make('Contributors')
                     ->schema([
-                        Select::make('author_id')
-                            ->label('Author')
-                            ->nullable()
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => Author::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('internal_name', 'like', "%{$search}%")
-                                ->orderBy('name')
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v),
-                        Select::make('text_copy_editor_id')
-                            ->label('Text copy editor')
-                            ->nullable()
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => Author::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('internal_name', 'like', "%{$search}%")
-                                ->orderBy('name')
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v),
-                        Select::make('translator_id')
-                            ->label('Translator')
-                            ->nullable()
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => Author::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('internal_name', 'like', "%{$search}%")
-                                ->orderBy('name')
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v),
-                        Select::make('translation_copy_editor_id')
-                            ->label('Translation copy editor')
-                            ->nullable()
-                            ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => Author::query()
-                                ->where('name', 'like', "%{$search}%")
-                                ->orWhere('internal_name', 'like', "%{$search}%")
-                                ->orderBy('name')
-                                ->limit(50)
-                                ->pluck('name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v),
+                        TranslationFormSchema::authorSelectField('author_id', 'Author'),
+                        TranslationFormSchema::authorSelectField('text_copy_editor_id', 'Text copy editor'),
+                        TranslationFormSchema::authorSelectField('translator_id', 'Translator'),
+                        TranslationFormSchema::authorSelectField('translation_copy_editor_id', 'Translation copy editor'),
                     ])
                     ->columns(2)
                     ->collapsible()
