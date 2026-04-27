@@ -6,8 +6,11 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
+use App\Filament\Support\TranslationFormSchema;
 use App\Models\Partner;
 use App\Models\PartnerTranslation;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -79,12 +82,111 @@ class PartnerTranslationResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Textarea::make('description')
-                    ->rows(4)
-                    ->columnSpanFull(),
+
+                Section::make('Basic Information')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('city_display')
+                            ->label('City (display)')
+                            ->placeholder('City name to display (may differ from actual address)')
+                            ->maxLength(255),
+                        Textarea::make('description')
+                            ->rows(4)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Address')
+                    ->schema([
+                        TextInput::make('address_line_1')
+                            ->label('Address line 1')
+                            ->placeholder('Street address')
+                            ->maxLength(255),
+                        TextInput::make('address_line_2')
+                            ->label('Address line 2')
+                            ->placeholder('Apartment, suite, etc.')
+                            ->maxLength(255),
+                        TextInput::make('postal_code')
+                            ->label('Postal code')
+                            ->placeholder('ZIP / Postal code')
+                            ->maxLength(255),
+                        Textarea::make('address_notes')
+                            ->label('Address notes')
+                            ->placeholder('Additional address information or directions')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                Section::make('Contact Information')
+                    ->schema([
+                        TextInput::make('contact_name')
+                            ->label('Contact name')
+                            ->placeholder('Primary contact person')
+                            ->maxLength(255),
+                        TextInput::make('contact_phone')
+                            ->label('Phone')
+                            ->placeholder('+1 234 567 8900')
+                            ->maxLength(255),
+                        TextInput::make('contact_email_general')
+                            ->label('General email')
+                            ->email()
+                            ->placeholder('general@example.com')
+                            ->maxLength(255),
+                        TextInput::make('contact_email_press')
+                            ->label('Press email')
+                            ->email()
+                            ->placeholder('press@example.com')
+                            ->maxLength(255),
+                        TextInput::make('contact_website')
+                            ->label('Website')
+                            ->url()
+                            ->placeholder('https://example.com')
+                            ->maxLength(255),
+                        Textarea::make('contact_notes')
+                            ->label('Contact notes')
+                            ->placeholder('Additional contact information')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                Section::make('Additional Contacts')
+                    ->schema([
+                        Repeater::make('contact_emails')
+                            ->label('Additional email addresses')
+                            ->simple(
+                                TextInput::make('value')
+                                    ->label('Email')
+                                    ->email()
+                            )
+                            ->columnSpanFull(),
+                        Repeater::make('contact_phones')
+                            ->label('Additional phone numbers')
+                            ->simple(
+                                TextInput::make('value')
+                                    ->label('Phone')
+                                    ->tel()
+                            )
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
+
+                Section::make('Legacy & Metadata')
+                    ->schema([
+                        TranslationFormSchema::backwardCompatibilityField(),
+                        TranslationFormSchema::extraField(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
