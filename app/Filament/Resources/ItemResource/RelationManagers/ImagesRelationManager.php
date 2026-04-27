@@ -38,6 +38,11 @@ class ImagesRelationManager extends RelationManager
                         'itemImage' => $record->id,
                     ]))
                     ->height(64)
+                    ->url(fn ($record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab()
                     ->defaultImageUrl(null),
                 TextColumn::make('path')
                     ->label('Filename')
@@ -117,6 +122,23 @@ class ImagesRelationManager extends RelationManager
                     }),
             ])
             ->actions([
+                Action::make('view_image')
+                    ->label('View image')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (ItemImage $record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab(),
+                Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (ItemImage $record) => route('filament.admin.item-image.download', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ])),
                 EditAction::make()
                     ->form([
                         TextInput::make('alt_text')
@@ -145,6 +167,10 @@ class ImagesRelationManager extends RelationManager
                             ->send();
                     }),
                 DeleteAction::make()
+                    ->label('Delete permanently')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete image permanently')
+                    ->modalDescription('The image file will be permanently deleted from storage and cannot be recovered. It will NOT be returned to the available image pool.')
                     ->before(function (ItemImage $record): void {
                         Storage::disk($record->imageDisk())
                             ->delete($record->imageStoragePath());
