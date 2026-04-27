@@ -9,6 +9,7 @@ use App\Filament\Support\TranslationFormSchema;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Language;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -53,16 +54,34 @@ class TranslationsRelationManager extends RelationManager
                     )
                     ->validationMessages(['unique' => 'A translation for this language and context already exists.']),
                 TranslationFormSchema::contextField(),
-                TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Textarea::make('description')
-                    ->rows(4)
-                    ->columnSpanFull(),
-                TextInput::make('url')
-                    ->url()
-                    ->nullable()
-                    ->maxLength(255),
+
+                Section::make('Content')
+                    ->schema([
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('url')
+                            ->url()
+                            ->nullable()
+                            ->maxLength(255),
+                        Textarea::make('description')
+                            ->rows(4)
+                            ->columnSpanFull(),
+                        Textarea::make('quote')
+                            ->placeholder('A representative quote or excerpt')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Legacy & Metadata')
+                    ->schema([
+                        TranslationFormSchema::backwardCompatibilityField(),
+                        TranslationFormSchema::extraField(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

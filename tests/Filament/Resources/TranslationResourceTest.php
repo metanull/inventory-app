@@ -12,6 +12,7 @@ use App\Filament\Resources\ItemTranslationResource\Pages\ListItemTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
+use App\Models\Author;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
@@ -425,6 +426,262 @@ class TranslationResourceTest extends TestCase
             ])
             ->call('create')
             ->assertHasFormErrors(['language_id']);
+    }
+
+    // ─── Rich Field Tests ────────────────────────────────────────────────────────
+
+    public function test_item_translation_rich_fields_persist_through_form(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $author = Author::factory()->create(['name' => 'Jane Author']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(CreateItemTranslation::class)
+            ->fillForm([
+                'item_id' => $item->id,
+                'language_id' => $language->id,
+                'context_id' => $context->id,
+                'name' => 'Rich item translation',
+                'alternate_name' => 'Alt name',
+                'description' => 'Full description text.',
+                'type' => 'sculpture',
+                'holder' => 'The British Museum',
+                'owner' => 'Crown Estate',
+                'initial_owner' => 'Unknown',
+                'dates' => '3rd century BC',
+                'location' => 'Room 18, British Museum',
+                'dimensions' => '120x80x60 cm',
+                'place_of_production' => 'Athens, Greece',
+                'method_for_datation' => 'Carbon dating',
+                'method_for_provenance' => 'Documentary evidence',
+                'provenance' => 'Elgin Collection',
+                'obtention' => 'Acquired 1801',
+                'bibliography' => 'Smith, J. (1900). Ancient Reliefs.',
+                'author_id' => $author->id,
+                'backward_compatibility' => 'legacy-123',
+                'extra' => ['notes' => 'Some extra notes'],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('item_translations', [
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'name' => 'Rich item translation',
+            'type' => 'sculpture',
+            'holder' => 'The British Museum',
+            'dates' => '3rd century BC',
+            'place_of_production' => 'Athens, Greece',
+            'provenance' => 'Elgin Collection',
+            'obtention' => 'Acquired 1801',
+            'bibliography' => 'Smith, J. (1900). Ancient Reliefs.',
+            'author_id' => $author->id,
+            'backward_compatibility' => 'legacy-123',
+        ]);
+
+        $translation = ItemTranslation::where('item_id', $item->id)->where('language_id', $language->id)->first();
+        $this->assertNotNull($translation);
+        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $this->assertArrayHasKey('notes', $extra);
+    }
+
+    public function test_item_translation_contributor_fields_persist(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $author = Author::factory()->create(['name' => 'Jane Author']);
+        $editor = Author::factory()->create(['name' => 'Bob Editor']);
+        $translator = Author::factory()->create(['name' => 'Alice Translator']);
+        $copyEditor = Author::factory()->create(['name' => 'Carol Copy']);
+
+        $translation = ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Original translation',
+            'author_id' => null,
+            'text_copy_editor_id' => null,
+            'translator_id' => null,
+            'translation_copy_editor_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(EditItemTranslation::class, ['record' => $translation->getRouteKey()])
+            ->fillForm([
+                'author_id' => $author->id,
+                'text_copy_editor_id' => $editor->id,
+                'translator_id' => $translator->id,
+                'translation_copy_editor_id' => $copyEditor->id,
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('item_translations', [
+            'id' => $translation->id,
+            'author_id' => $author->id,
+            'text_copy_editor_id' => $editor->id,
+            'translator_id' => $translator->id,
+            'translation_copy_editor_id' => $copyEditor->id,
+        ]);
+    }
+
+    public function test_partner_translation_rich_fields_persist_through_form(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+            'extra' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()])
+            ->fillForm([
+                'city_display' => 'Amman',
+                'address_line_1' => '1 Museum Street',
+                'address_line_2' => 'Suite 100',
+                'postal_code' => '11190',
+                'address_notes' => 'Near the Citadel',
+                'contact_name' => 'Dr. Ahmad',
+                'contact_email_general' => 'info@jordanmuseum.jo',
+                'contact_email_press' => 'press@jordanmuseum.jo',
+                'contact_phone' => '+962 6 4629317',
+                'contact_website' => 'https://www.jordanmuseum.jo',
+                'contact_notes' => 'Open Sunday–Thursday',
+                'backward_compatibility' => 'partner-legacy-42',
+                'extra' => ['type' => 'museum'],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('partner_translations', [
+            'id' => $translation->id,
+            'city_display' => 'Amman',
+            'address_line_1' => '1 Museum Street',
+            'address_line_2' => 'Suite 100',
+            'postal_code' => '11190',
+            'address_notes' => 'Near the Citadel',
+            'contact_name' => 'Dr. Ahmad',
+            'contact_email_general' => 'info@jordanmuseum.jo',
+            'contact_email_press' => 'press@jordanmuseum.jo',
+            'contact_phone' => '+962 6 4629317',
+            'contact_website' => 'https://www.jordanmuseum.jo',
+            'contact_notes' => 'Open Sunday–Thursday',
+            'backward_compatibility' => 'partner-legacy-42',
+        ]);
+
+        $translation->refresh();
+        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $this->assertArrayHasKey('type', $extra);
+        $this->assertSame('museum', $extra['type']);
+    }
+
+    public function test_partner_translation_contact_arrays_persist(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+            'contact_emails' => null,
+            'contact_phones' => null,
+            'extra' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()])
+            ->fillForm([
+                'contact_emails' => [
+                    ['value' => 'info@jordanmuseum.jo'],
+                    ['value' => 'events@jordanmuseum.jo'],
+                ],
+                'contact_phones' => [
+                    ['value' => '+962 6 4629317'],
+                    ['value' => '+962 6 4629318'],
+                ],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $translation->refresh();
+        $this->assertIsArray($translation->contact_emails);
+        $this->assertContains('info@jordanmuseum.jo', $translation->contact_emails);
+        $this->assertContains('events@jordanmuseum.jo', $translation->contact_emails);
+        $this->assertIsArray($translation->contact_phones);
+        $this->assertContains('+962 6 4629317', $translation->contact_phones);
+    }
+
+    public function test_collection_translation_rich_fields_persist_through_form(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+            'quote' => null,
+            'url' => null,
+            'backward_compatibility' => null,
+            'extra' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(EditCollectionTranslation::class, ['record' => $translation->getRouteKey()])
+            ->fillForm([
+                'title' => 'Temple Collection Updated',
+                'description' => 'A rich collection description.',
+                'quote' => '"Art speaks where words are unable to explain." — Mathiole',
+                'url' => 'https://example.com/collections/temple',
+                'backward_compatibility' => 'coll-legacy-99',
+                'extra' => ['curator' => 'Dr. Jones'],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('collection_translations', [
+            'id' => $translation->id,
+            'title' => 'Temple Collection Updated',
+            'description' => 'A rich collection description.',
+            'quote' => '"Art speaks where words are unable to explain." — Mathiole',
+            'url' => 'https://example.com/collections/temple',
+            'backward_compatibility' => 'coll-legacy-99',
+        ]);
+
+        $translation->refresh();
+        $extra = is_array($translation->extra) ? $translation->extra : (array) $translation->extra;
+        $this->assertArrayHasKey('curator', $extra);
+        $this->assertSame('Dr. Jones', $extra['curator']);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────────

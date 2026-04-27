@@ -6,8 +6,10 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\CollectionTranslationResource\Pages\CreateCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\EditCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\ListCollectionTranslation;
+use App\Filament\Support\TranslationFormSchema;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -79,16 +81,34 @@ class CollectionTranslationResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required(),
-                TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Textarea::make('description')
-                    ->rows(4)
-                    ->columnSpanFull(),
-                TextInput::make('url')
-                    ->url()
-                    ->nullable()
-                    ->maxLength(255),
+
+                Section::make('Content')
+                    ->schema([
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('url')
+                            ->url()
+                            ->nullable()
+                            ->maxLength(255),
+                        Textarea::make('description')
+                            ->rows(4)
+                            ->columnSpanFull(),
+                        Textarea::make('quote')
+                            ->placeholder('A representative quote or excerpt')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                Section::make('Legacy & Metadata')
+                    ->schema([
+                        TranslationFormSchema::backwardCompatibilityField(),
+                        TranslationFormSchema::extraField(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
