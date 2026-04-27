@@ -8,6 +8,7 @@ use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Widgets\InventoryOverviewWidget;
 use App\Filament\Widgets\RecentItemsWidget;
+use App\Filament\Widgets\StorageUsageWidget;
 use App\Models\Collection;
 use App\Models\Item;
 use App\Models\Partner;
@@ -49,6 +50,7 @@ class Dashboard extends \Filament\Pages\Dashboard
     {
         return [
             InventoryOverviewWidget::class,
+            StorageUsageWidget::class,
             RecentItemsWidget::class,
         ];
     }
