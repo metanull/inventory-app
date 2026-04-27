@@ -658,12 +658,7 @@ class ItemResourceTest extends TestCase
 
     public function test_item_table_country_column_links_to_country_resource_with_manage_reference_data_permission(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
         $item = Item::factory()->Object()->create(['country_id' => $country->id]);
@@ -721,6 +716,18 @@ class ItemResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

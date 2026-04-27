@@ -370,12 +370,7 @@ class PartnerResourceTest extends TestCase
 
     public function test_partner_table_country_column_links_to_country_resource_with_manage_reference_data(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
         $partner = Partner::factory()->create(['country_id' => $country->id]);
@@ -427,12 +422,7 @@ class PartnerResourceTest extends TestCase
 
     public function test_partner_translations_relation_manager_language_badge_links_to_language_resource(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
@@ -459,12 +449,7 @@ class PartnerResourceTest extends TestCase
 
     public function test_partner_translations_relation_manager_context_badge_links_to_context_resource(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
@@ -522,6 +507,18 @@ class PartnerResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

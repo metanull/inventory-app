@@ -453,12 +453,7 @@ class CollectionResourceTest extends TestCase
 
     public function test_collection_table_context_column_links_to_context_resource_for_authorized_user(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $context = Context::factory()->create(['internal_name' => 'Catalogue']);
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
@@ -501,12 +496,7 @@ class CollectionResourceTest extends TestCase
 
     public function test_collection_table_language_column_links_to_language_resource_for_authorized_user(): void
     {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        $user->givePermissionTo([
-            Permission::ACCESS_ADMIN_PANEL->value,
-            Permission::VIEW_DATA->value,
-            Permission::MANAGE_REFERENCE_DATA->value,
-        ]);
+        $user = $this->createViewAndReferenceDataUser();
 
         $context = Context::factory()->create(['internal_name' => 'Catalogue']);
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
@@ -535,6 +525,18 @@ class CollectionResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;
