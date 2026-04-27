@@ -25,37 +25,39 @@ return new class extends Migration
         $disk = config('localstorage.available.images.disk', 'public');
         $directory = rtrim(config('localstorage.available.images.directory', 'images'), '/');
 
-        DB::table('available_images')->orderBy('id')->each(function ($row) use ($disk, $directory) {
-            $filename = $row->path;
-            if (! $filename) {
-                return;
-            }
-
-            $fullPath = $directory.'/'.$filename;
-            $size = null;
-            $mimeType = null;
-
-            if (Storage::disk($disk)->exists($fullPath)) {
-                try {
-                    $size = Storage::disk($disk)->size($fullPath);
-                } catch (Exception) {
-                    // Size not available – leave null
+        DB::table('available_images')->orderBy('id')->chunkById(100, function ($rows) use ($disk, $directory) {
+            foreach ($rows as $row) {
+                $filename = $row->path;
+                if (! $filename) {
+                    continue;
                 }
-                try {
-                    $detected = Storage::disk($disk)->mimeType($fullPath);
-                    $mimeType = $detected ?: null;
-                } catch (Exception) {
-                    // MIME detection not available – leave null
-                }
-            }
 
-            DB::table('available_images')
-                ->where('id', $row->id)
-                ->update([
-                    'original_name' => $filename,
-                    'mime_type' => $mimeType,
-                    'size' => $size,
-                ]);
+                $fullPath = $directory.'/'.$filename;
+                $size = null;
+                $mimeType = null;
+
+                if (Storage::disk($disk)->exists($fullPath)) {
+                    try {
+                        $size = Storage::disk($disk)->size($fullPath);
+                    } catch (Exception) {
+                        // Size not available – leave null
+                    }
+                    try {
+                        $detected = Storage::disk($disk)->mimeType($fullPath);
+                        $mimeType = $detected ?: null;
+                    } catch (Exception) {
+                        // MIME detection not available – leave null
+                    }
+                }
+
+                DB::table('available_images')
+                    ->where('id', $row->id)
+                    ->update([
+                        'original_name' => $filename,
+                        'mime_type' => $mimeType,
+                        'size' => $size,
+                    ]);
+            }
         });
     }
 
