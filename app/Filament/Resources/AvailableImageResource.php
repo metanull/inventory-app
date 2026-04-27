@@ -57,6 +57,13 @@ class AvailableImageResource extends Resource
                     ->label('UUID'),
                 TextEntry::make('path')
                     ->label('Filename'),
+                TextEntry::make('original_name')
+                    ->label('Original name'),
+                TextEntry::make('mime_type')
+                    ->label('MIME type'),
+                TextEntry::make('size')
+                    ->label('Size (bytes)')
+                    ->numeric(),
                 TextEntry::make('comment')
                     ->label('Comment / Alt text'),
                 TextEntry::make('created_at')
@@ -77,6 +84,18 @@ class AvailableImageResource extends Resource
                     ->label('Filename')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('original_name')
+                    ->label('Original name')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('mime_type')
+                    ->label('MIME type')
+                    ->toggleable(),
+                TextColumn::make('size')
+                    ->label('Size (bytes)')
+                    ->numeric()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('comment')
                     ->label('Comment')
                     ->limit(50)

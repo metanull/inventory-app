@@ -19,6 +19,12 @@ class AvailableImageResource extends JsonResource
             'id' => $this->id,
             // The path to the picture file
             'path' => $this->path,
+            // The original filename as uploaded
+            'original_name' => $this->original_name,
+            // The MIME type of the file
+            'mime_type' => $this->mime_type,
+            // The size of the processed file in bytes
+            'size' => $this->size,
             // A user defined comment associated with the file
             'comment' => $this->comment,
             // The date of creation of the resource (managed by the system)

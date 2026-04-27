@@ -133,8 +133,13 @@ class ImageUploadListener
             // Clean up the original upload file
             Storage::disk($uploadDisk)->delete($file->path);
 
-            // Store only filename in database (no directory)
-            $availableImage = new AvailableImage(['path' => $filename]);
+            // Store only filename in database (no directory), preserving upload metadata
+            $availableImage = new AvailableImage([
+                'path' => $filename,
+                'original_name' => $file->name ?: $filename,
+                'mime_type' => $file->mime_type ?: null,
+                'size' => strlen($processedImageData),
+            ]);
             $availableImage->id = $event->imageUpload->id;
             $availableImage->save();
 

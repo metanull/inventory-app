@@ -14,7 +14,19 @@ class AvailableImage extends Model implements StreamableImageFile
 
     protected $fillable = [
         'path',
+        'original_name',
+        'mime_type',
+        'size',
         'comment',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'size' => 'integer',
     ];
 
     /**
@@ -39,11 +51,11 @@ class AvailableImage extends Model implements StreamableImageFile
 
     public function imageMimeType(): ?string
     {
-        return null;
+        return $this->mime_type ?: null;
     }
 
     public function imageDownloadFilename(): string
     {
-        return basename($this->path);
+        return $this->original_name ?: basename($this->path);
     }
 }

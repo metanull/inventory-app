@@ -117,4 +117,25 @@ class AvailableImageTest extends TestCase
         $availableImage->refresh();
         $this->assertFileDoesNotExist(Storage::disk('local')->path($imageUpload->path));
     }
+
+    public function test_imageuploadlistener_preserves_metadata_in_available_image(): void
+    {
+        $minimalJpeg = base64_decode('/9j/4AAQSkZJRgABAQEAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=');
+
+        $imageUpload = ImageUpload::factory()->create([
+            'name' => 'my-upload.jpg',
+            'mime_type' => 'image/jpeg',
+        ]);
+        Storage::disk('local')->put($imageUpload->path, $minimalJpeg);
+
+        $imageUploadEvent = new ImageUploadEvent($imageUpload);
+        $imageUploadListener = new ImageUploadListener;
+        $imageUploadListener->handle($imageUploadEvent);
+
+        $availableImage = AvailableImage::find($imageUpload->id);
+        $this->assertNotNull($availableImage);
+        $this->assertEquals('my-upload.jpg', $availableImage->original_name);
+        $this->assertEquals('image/jpeg', $availableImage->mime_type);
+        $this->assertGreaterThan(0, $availableImage->size);
+    }
 }
