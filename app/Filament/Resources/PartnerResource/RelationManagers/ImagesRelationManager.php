@@ -78,6 +78,7 @@ class ImagesRelationManager extends RelationManager
                             ->required()
                             ->getSearchResultsUsing(fn (string $search): array => AvailableImage::query()
                                 ->where('path', 'like', "%{$search}%")
+                                ->orWhere('original_name', 'like', "%{$search}%")
                                 ->orWhere('comment', 'like', "%{$search}%")
                                 ->orderBy('created_at', 'desc')
                                 ->limit(50)

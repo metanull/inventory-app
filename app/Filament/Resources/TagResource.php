@@ -53,7 +53,7 @@ class TagResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'description'];
+        return ['internal_name', 'backward_compatibility', 'description', 'language.internal_name'];
     }
 
     public static function canViewAny(): bool

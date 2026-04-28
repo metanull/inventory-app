@@ -38,7 +38,7 @@ class AvailableImageResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['path', 'comment'];
+        return ['path', 'original_name', 'comment'];
     }
 
     public static function canViewAny(): bool
@@ -130,6 +130,7 @@ class AvailableImageResource extends Resource
                 TextColumn::make('comment')
                     ->label('Comment')
                     ->limit(50)
+                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('id')
                     ->label('UUID')
