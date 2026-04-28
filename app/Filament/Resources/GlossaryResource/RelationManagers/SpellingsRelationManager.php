@@ -36,6 +36,9 @@ class SpellingsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('spelling')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['language:id,internal_name']))
+            ->defaultSort('spelling', 'asc')
+            ->paginated([25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->columns([
                 TextColumn::make('language.internal_name')
                     ->label('Language')
