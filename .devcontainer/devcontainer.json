@@ -1,0 +1,86 @@
+{
+    "name": "Inventory App",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+
+    "workspaceFolder": "/workspaces/inventory-app",
+
+    // Named volumes for vendor/node_modules keep dependency files on the fast
+    // Linux FS instead of the slow Windows-mounted workspace volume.
+    "mounts": [
+        "source=inv-app-php-vendor,target=/workspaces/inventory-app/vendor,type=volume",
+        "source=inv-app-node-modules,target=/workspaces/inventory-app/node_modules,type=volume",
+        "source=inv-app-spa-node-modules,target=/workspaces/inventory-app/spa/node_modules,type=volume",
+        "source=inv-app-importer-node-modules,target=/workspaces/inventory-app/scripts/importer/node_modules,type=volume"
+    ],
+
+    // Forward Laravel (8000) and Vite (5173) ports to the host.
+    "forwardPorts": [8000, 5173],
+    "portsAttributes": {
+        "8000": { "label": "Laravel (php artisan serve)", "onAutoForward": "notify" },
+        "5173": { "label": "Vite dev server", "onAutoForward": "notify" }
+    },
+
+    // Install PHP and JS dependencies after the container is created.
+    "postCreateCommand": "composer install --no-interaction && npm install && npm install --prefix spa && npm install --prefix scripts/importer",
+
+    "remoteUser": "vscode",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // PHP
+                "bmewburn.vscode-intelephense-client",
+                "xdebug.php-debug",
+                "recca0120.vscode-phpunit",
+                // Vue / JS / CSS
+                "vue.volar",
+                "bradlc.vscode-tailwindcss",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "vitest.explorer"
+            ],
+            "settings": {
+                "php.executablePath": "/usr/local/bin/php",
+                "phpunit.php": "/usr/local/bin/php",
+                "phpunit.phpunit": "vendor/bin/pest",
+                "phpunit.args": ["--no-coverage"],
+                "vitest.rootConfig": "./spa/vitest.config.ts",
+                "eslint.workingDirectories": [{ "mode": "auto" }],
+                "eslint.options": { "configFile": "./eslint.config.js" },
+                "tailwindCSS.includeLanguages": {
+                    "html": "html",
+                    "vue": "html",
+                    "blade": "html"
+                },
+                "tailwindCSS.files.exclude": [
+                    "**/.git/**",
+                    "**/node_modules/**",
+                    "**/dist/**",
+                    "**/vendor/**",
+                    "**/storage/**",
+                    "**/bootstrap/cache/**"
+                ],
+                "files.associations": {
+                    "*.blade.php": "blade"
+                },
+                "emmet.includeLanguages": {
+                    "blade": "html",
+                    "vue": "html"
+                },
+                "css.validate": false,
+                "less.validate": false,
+                "scss.validate": false,
+                "vitest.exclude": [
+                    "**/node_modules/**",
+                    "**/dist/**",
+                    "**/vendor/**",
+                    "**/storage/**",
+                    "**/bootstrap/cache/**"
+                ]
+            }
+        }
+    }
+}

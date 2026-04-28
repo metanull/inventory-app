@@ -60,13 +60,13 @@ applyTo: "**/*.php"
 - Never ignore lint errors and warnings.
 - Never ignore failing tests.
 
-> **Windows dev machine — use Docker for Pint and tests.**
-> The local PHP is 8.2 and lacks extensions required by Filament 3 (`intl`, `zip`, `gd`, `exif`). Always run Pint and `php artisan test` via the `inventory-app-test` Docker image:
-> ```powershell
-> docker run --rm -v "${PWD}:/app" inventory-app-test vendor/bin/pint --no-ansi
-> docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+> **Windows dev machine — use the Dev Container for Pint and tests.**
+> Open the workspace with **"Reopen in Container"** (Dev Containers extension). VS Code will build `inventory-app-dev` from `.devcontainer/Dockerfile` and all PHP 8.4 tooling runs natively inside the container — no `docker run` wrappers needed:
+> ```bash
+> vendor/bin/pint --no-ansi
+> php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
 > ```
-> Build once: `docker build -f Dockerfile.testing -t inventory-app-test .` Rebuild when `composer.lock` changes.
+> Rebuild the image after `.devcontainer/Dockerfile` or `composer.lock` changes: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (run from the host, then reopen in container).
 > See `.github/agents/php-test-runner.agent.md` for the full command reference.
 
 ## Web List Pages — Request-Driven Pattern (the only approved approach)
