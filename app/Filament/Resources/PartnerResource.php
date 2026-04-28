@@ -17,7 +17,9 @@ use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipat
 use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Models\Country;
 use App\Models\Partner;
+use App\Models\Project;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -31,6 +33,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -52,7 +55,7 @@ class PartnerResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.name'];
+        return ['internal_name', 'backward_compatibility', 'translations.name', 'country.internal_name', 'project.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -146,6 +149,32 @@ class PartnerResource extends Resource
             ])
             ->filters([
                 ...static::translationCoverageFilters(),
+                SelectFilter::make('country_id')
+                    ->label('Country')
+                    ->relationship('country', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+                SelectFilter::make('project_id')
+                    ->label('Project')
+                    ->relationship('project', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Project::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
+                    ->searchable(),
             ])
             ->actions([
                 ViewAction::make(),

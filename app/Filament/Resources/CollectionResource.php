@@ -67,7 +67,7 @@ class CollectionResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.title'];
+        return ['internal_name', 'backward_compatibility', 'translations.title', 'parent.internal_name', 'country.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -188,6 +188,7 @@ class CollectionResource extends Resource
                     ->label('Project')
                     ->getSearchResultsUsing(fn (string $search): array => Project::query()
                         ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -212,6 +213,7 @@ class CollectionResource extends Resource
                             ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->excludingDescendantsOf($record->id)
                                 ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -255,6 +257,7 @@ class CollectionResource extends Resource
                             ->nullable()
                             ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')

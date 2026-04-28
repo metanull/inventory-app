@@ -62,7 +62,7 @@ class ItemResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name'];
+        return ['internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name', 'partner.internal_name', 'country.internal_name', 'project.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -190,6 +190,7 @@ class ItemResource extends Resource
                     ->relationship('partner', 'internal_name')
                     ->getSearchResultsUsing(fn (string $search): array => Partner::query()
                         ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -201,6 +202,7 @@ class ItemResource extends Resource
                     ->label('Collection')
                     ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                         ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -216,6 +218,7 @@ class ItemResource extends Resource
                     ->relationship('project', 'internal_name')
                     ->getSearchResultsUsing(fn (string $search): array => Project::query()
                         ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -228,6 +231,7 @@ class ItemResource extends Resource
                     ->relationship('country', 'internal_name')
                     ->getSearchResultsUsing(fn (string $search): array => Country::query()
                         ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -240,12 +244,15 @@ class ItemResource extends Resource
                     ->multiple()
                     ->getSearchResultsUsing(fn (string $search): array => Tag::query()
                         ->where('internal_name', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orderBy('description')
                         ->limit(50)
-                        ->pluck('internal_name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Tag::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find($value)) ? "{$tag->description} [{$tag->internal_name}]" : $value)
                     ->query(fn (Builder $query, array $data): Builder => ! empty($data['values'])
                         ? $query->withAnyTags($data['values'])
                         : $query),
@@ -271,6 +278,7 @@ class ItemResource extends Resource
                             ->nullable()
                             ->getSearchResultsUsing(fn (string $search): array => Item::query()
                                 ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -314,6 +322,7 @@ class ItemResource extends Resource
                             ->nullable()
                             ->getSearchResultsUsing(fn (string $search): array => Item::query()
                                 ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -361,6 +370,7 @@ class ItemResource extends Resource
                             ->required()
                             ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -390,12 +400,15 @@ class ItemResource extends Resource
                             ->required()
                             ->getSearchResultsUsing(fn (string $search): array => Tag::query()
                                 ->where('internal_name', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
+                                ->orWhere('description', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orderBy('description')
                                 ->limit(50)
-                                ->pluck('internal_name', 'id')
+                                ->get()
+                                ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => Tag::find($value)?->internal_name ?? $value)
+                            ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find($value)) ? "{$tag->description} [{$tag->internal_name}]" : $value)
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {
