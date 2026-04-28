@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Enums\ItemType;
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
@@ -62,6 +63,16 @@ class ItemResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasUuidColumn;
@@ -53,6 +54,16 @@ class TagResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['internal_name', 'backward_compatibility', 'description'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::MANAGE_REFERENCE_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form

@@ -30,6 +30,11 @@ class ProfilePage extends EditProfile
 {
     protected static ?string $slug = 'profile';
 
+    public static function canAccess(): bool
+    {
+        return auth()->check();
+    }
+
     /**
      * Only show name and email on the main profile form.
      * Password change is handled via a dedicated modal action.
