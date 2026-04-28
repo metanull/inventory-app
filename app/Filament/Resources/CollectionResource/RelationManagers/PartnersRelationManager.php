@@ -60,6 +60,7 @@ class PartnersRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
+                    ->recordSelectSearchColumns(['internal_name'])
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
                         Select::make('level')

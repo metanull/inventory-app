@@ -61,7 +61,8 @@ class ItemsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
-                AttachAction::make(),
+                AttachAction::make()
+                    ->recordSelectSearchColumns(['internal_name']),
             ])
             ->actions([
                 DetachAction::make(),
