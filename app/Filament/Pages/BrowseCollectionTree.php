@@ -36,9 +36,32 @@ class BrowseCollectionTree extends Page
     public array $expanded = [];
 
     /**
+     * Root search query string.
+     */
+    public string $search = '';
+
+    /**
+     * Current pagination page for root collections (1-based).
+     */
+    public int $page = 1;
+
+    /**
+     * Number of root collections shown per page.
+     */
+    private const PAGE_SIZE = 50;
+
+    /**
      * Maximum depth for ancestor chain traversal to prevent infinite loops.
      */
     private const MAX_ANCESTOR_DEPTH = 10;
+
+    /**
+     * Reset pagination when the search query changes.
+     */
+    public function updatedSearch(): void
+    {
+        $this->page = 1;
+    }
 
     /**
      * Expand a tree node by loading its children.
@@ -69,18 +92,76 @@ class BrowseCollectionTree extends Page
     }
 
     /**
-     * Fetch the root-level collections (no parent).
+     * Advance to the next page of roots.
+     */
+    public function nextPage(): void
+    {
+        if ($this->page < $this->getTotalPages()) {
+            $this->page++;
+        }
+    }
+
+    /**
+     * Return to the previous page of roots.
+     */
+    public function previousPage(): void
+    {
+        if ($this->page > 1) {
+            $this->page--;
+        }
+    }
+
+    /**
+     * Total number of pages for the current root query.
+     */
+    public function getTotalPages(): int
+    {
+        return (int) max(1, ceil($this->getRootCount() / self::PAGE_SIZE));
+    }
+
+    /**
+     * Fetch a paginated, optionally-searched page of root-level collections (no parent).
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, Collection>
      */
     public function getRoots(): \Illuminate\Database\Eloquent\Collection
     {
-        return Collection::query()
+        $query = Collection::query()
             ->whereNull('parent_id')
             ->withCount('children')
             ->withCount('items')
-            ->orderBy('internal_name')
+            ->orderBy('internal_name');
+
+        if ($this->search !== '') {
+            $term = $this->search;
+            $query->where(function ($q) use ($term): void {
+                $q->where('internal_name', 'like', '%'.$term.'%')
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+            });
+        }
+
+        return $query
+            ->offset(($this->page - 1) * self::PAGE_SIZE)
+            ->limit(self::PAGE_SIZE)
             ->get();
+    }
+
+    /**
+     * Total count of root-level collections matching the current search (without loading models).
+     */
+    public function getRootCount(): int
+    {
+        $query = Collection::query()->whereNull('parent_id');
+
+        if ($this->search !== '') {
+            $term = $this->search;
+            $query->where(function ($q) use ($term): void {
+                $q->where('internal_name', 'like', '%'.$term.'%')
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+            });
+        }
+
+        return $query->count();
     }
 
     /**
