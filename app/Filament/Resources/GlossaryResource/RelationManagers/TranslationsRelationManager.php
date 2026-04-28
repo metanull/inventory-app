@@ -37,6 +37,9 @@ class TranslationsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('definition')
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['language:id,internal_name']))
+            ->defaultSort('definition', 'asc')
+            ->paginated([25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->columns([
                 TextColumn::make('language.internal_name')
                     ->label('Language')
