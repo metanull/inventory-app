@@ -2,110 +2,98 @@
 	"version": "2.0.0",
 	"tasks": [
 
-		// ── Docker ────────────────────────────────────────────────────────────────
-		{
-			"label": "docker:rebuild",
-			"type": "shell",
-			"command": "docker build -f Dockerfile.testing -t inventory-app-test . && docker volume rm inv-app-vendor-84 2>$null; docker run --rm -v inv-app-vendor-84:/app/vendor inventory-app-test echo 'vendor seeded' && docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor -e APP_ENV=testing -e DB_CONNECTION=sqlite \"-e DB_DATABASE=:memory:\" -e CACHE_STORE=array inventory-app-test php artisan optimize:clear --no-ansi",
-			"group": "build",
-			"options": { "cwd": "${workspaceFolder}" },
-			"presentation": { "reveal": "always", "panel": "shared" },
-			"problemMatcher": [],
-			"detail": "Build inventory-app-test image, re-seed Linux vendor volume, clear bootstrap cache"
-		},
-
 		// ── PHP lint ──────────────────────────────────────────────────────────────
 		{
 			"label": "php:lint",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test vendor/bin/pint --no-ansi",
+			"command": "vendor/bin/pint --no-ansi",
 			"group": "build",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "Run Laravel Pint inside the PHP 8.4 Docker test image"
+			"detail": "Run Laravel Pint (PHP 8.4 Dev Container)"
 		},
 
 		// ── PHP test suites (atomic, one per CI matrix job) ───────────────────────
 		{
 			"label": "php:test:Unit",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Unit --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Unit --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Unit (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Unit"
 		},
 		{
 			"label": "php:test:Api",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Api --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Api --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Api (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Api"
 		},
 		{
 			"label": "php:test:Web",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Web --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Web --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Web (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Web"
 		},
 		{
 			"label": "php:test:Filament",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Filament --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Filament --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Filament (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Filament"
 		},
 		{
 			"label": "php:test:Configuration",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Configuration --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Configuration --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Configuration (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Configuration"
 		},
 		{
 			"label": "php:test:Console",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Console --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Console --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Console (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Console"
 		},
 		{
 			"label": "php:test:Event",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Event --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Event --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Event (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Event"
 		},
 		{
 			"label": "php:test:Integration",
 			"type": "shell",
-			"command": "docker run --rm -v \"${workspaceFolder}:/app\" -v inv-app-vendor-84:/app/vendor inventory-app-test php artisan test --testsuite=Integration --no-coverage --parallel --no-ansi --stop-on-failure",
+			"command": "php artisan test --testsuite=Integration --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "php artisan test --testsuite=Integration (Docker PHP 8.4)"
+			"detail": "php artisan test --testsuite=Integration"
 		},
 		{
 			"label": "php:test",
@@ -123,7 +111,7 @@
 			"group": { "kind": "test", "isDefault": true },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
-			"detail": "Run the full CI test matrix in sequence (Docker PHP 8.4)"
+			"detail": "Run the full CI test matrix in sequence"
 		},
 
 		// ── Audit ─────────────────────────────────────────────────────────────────
@@ -152,7 +140,7 @@
 			"type": "shell",
 			"command": "npm audit",
 			"group": "build",
-			"options": { "cwd": "${workspaceFolder}\\spa" },
+			"options": { "cwd": "${workspaceFolder}/spa" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "npm audit (spa/)"
@@ -162,7 +150,7 @@
 			"type": "shell",
 			"command": "npm audit",
 			"group": "build",
-			"options": { "cwd": "${workspaceFolder}\\scripts\\importer" },
+			"options": { "cwd": "${workspaceFolder}/scripts/importer" },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "npm audit (scripts/importer/)"
