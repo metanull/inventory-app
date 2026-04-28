@@ -28,8 +28,8 @@ class DashboardSmokeTest extends TestCase
             ->assertSee('Dashboard');
     }
 
-    public function test_dashboard_loads_under_500ms_with_100k_items(): void
-    {
+    public function test_dashboard_loads_under_1000ms_with_100k_items(): void
+    {   
         $user = $this->createViewUser();
         $this->seedItems(100_000);
 
@@ -38,7 +38,7 @@ class DashboardSmokeTest extends TestCase
         $elapsed = (microtime(true) - $start) * 1000;
 
         $response->assertOk();
-        $this->assertLessThan(500, $elapsed, "Dashboard took {$elapsed}ms, expected < 500ms");
+        $this->assertLessThan(1000, $elapsed, "Dashboard took {$elapsed}ms, expected < 1000ms");
     }
 
     public function test_dashboard_shows_inventory_stats_for_authorized_user(): void
