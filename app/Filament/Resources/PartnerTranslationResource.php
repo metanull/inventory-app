@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
@@ -44,6 +45,16 @@ class PartnerTranslationResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
 
     public static function form(Form $form): Form
     {

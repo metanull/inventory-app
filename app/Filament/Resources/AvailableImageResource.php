@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Events\ImageUploadEvent;
 use App\Filament\Resources\AvailableImageResource\Pages\EditAvailableImage;
 use App\Filament\Resources\AvailableImageResource\Pages\ListAvailableImage;
@@ -38,6 +39,16 @@ class AvailableImageResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['path', 'comment'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form

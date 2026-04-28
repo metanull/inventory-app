@@ -40,6 +40,11 @@ class RoleResource extends Resource
         return auth()->user()?->can('viewAny', Role::class) ?? false;
     }
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function form(Form $form): Form
     {
         return $form

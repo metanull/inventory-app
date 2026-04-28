@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\CollectionTranslationResource\Pages\CreateCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\EditCollectionTranslation;
@@ -42,6 +43,16 @@ class CollectionTranslationResource extends Resource
     protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
 
     public static function form(Form $form): Form
     {

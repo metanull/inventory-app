@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +18,16 @@ class BrowseItemTree extends Page
     protected static ?int $navigationSort = 3;
 
     protected static string $view = 'filament.pages.browse-item-tree';
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
 
     /**
      * IDs of expanded tree nodes.
