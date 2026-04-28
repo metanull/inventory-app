@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
 use App\Filament\Resources\CollectionResource\Pages\CreateCollection;
 use App\Filament\Resources\CollectionResource\Pages\EditCollection;
@@ -40,6 +42,7 @@ class CollectionResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
+    use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     private const TYPE_OPTIONS = [
@@ -64,7 +67,17 @@ class CollectionResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.title'];
+        return ['internal_name', 'backward_compatibility', 'translations.title', 'parent.internal_name', 'country.internal_name'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form
@@ -83,13 +96,11 @@ class CollectionResource extends Resource
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('parent_id')
                     ->label('Parent collection')
                     ->relationship(
@@ -100,13 +111,11 @@ class CollectionResource extends Resource
                             : $query,
                     )
                     ->searchable()
-                    ->preload()
                     ->nullable(),
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('country', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('latitude')
                     ->numeric(),
                 TextInput::make('longitude')
@@ -121,56 +130,71 @@ class CollectionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'parent:id,internal_name',
-                'context:id,internal_name',
-                'language:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
+                $query->with([
+                    'parent:id,internal_name',
+                    'context:id,internal_name',
+                    'language:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
+                static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
                 TextColumn::make('parent.internal_name')
                     ->label('Parent')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
             ])
             ->filters([
+                ...static::translationCoverageFilters(),
                 SelectFilter::make('type')
                     ->options(self::TYPE_OPTIONS),
                 SelectFilter::make('parent_id')
                     ->label('Parent')
                     ->relationship('parent', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('partner')
                     ->label('Partner')
                     ->relationship('partners', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
                         : $query),
                 SelectFilter::make('project')
                     ->label('Project')
-                    ->options(fn (): array => Project::query()
+                    ->getSearchResultsUsing(fn (string $search): array => Project::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
                         ->orderBy('internal_name')
+                        ->limit(50)
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
@@ -182,15 +206,20 @@ class CollectionResource extends Resource
                 Action::make('changeParent')
                     ->label('Change parent')
                     ->icon('heroicon-o-arrow-uturn-up')
-                    ->form([
+                    ->form(fn (Collection $record): array => [
                         Select::make('parent_id')
                             ->label('New parent collection')
                             ->nullable()
-                            ->options(fn (Collection $record): array => Collection::query()
+                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->excludingDescendantsOf($record->id)
+                                ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
+                                ->limit(50)
                                 ->pluck('internal_name', 'id')
-                                ->all())
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
                             ->searchable(),
                     ])
                     ->action(function (Collection $record, array $data): void {
@@ -226,11 +255,15 @@ class CollectionResource extends Resource
                         Select::make('parent_id')
                             ->label('New parent collection')
                             ->nullable()
-                            ->options(fn (EloquentCollection $records): array => Collection::query()
-                                ->excludingIds($records->pluck('id')->all())
+                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                                ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
+                                ->limit(50)
                                 ->pluck('internal_name', 'id')
-                                ->all())
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {
@@ -273,13 +306,25 @@ class CollectionResource extends Resource
                 TextEntry::make('internal_name'),
                 TextEntry::make('type'),
                 TextEntry::make('parent.internal_name')
-                    ->label('Parent'),
+                    ->label('Parent')
+                    ->url(fn ($record): ?string => $record->parent
+                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                        : null),
                 TextEntry::make('context.internal_name')
-                    ->label('Context'),
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('country.internal_name')
-                    ->label('Country'),
+                    ->label('Country')
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextEntry::make('latitude'),
                 TextEntry::make('longitude'),
                 TextEntry::make('map_zoom')

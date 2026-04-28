@@ -11,6 +11,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,19 @@ class ImagesRelationManager extends RelationManager
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
+                ImageColumn::make('preview')
+                    ->label('Preview')
+                    ->getStateUsing(fn ($record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->height(64)
+                    ->url(fn ($record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab()
+                    ->defaultImageUrl(null),
                 TextColumn::make('path')
                     ->label('Filename')
                     ->searchable()
@@ -64,6 +78,7 @@ class ImagesRelationManager extends RelationManager
                             ->required()
                             ->getSearchResultsUsing(fn (string $search): array => AvailableImage::query()
                                 ->where('path', 'like', "%{$search}%")
+                                ->orWhere('original_name', 'like', "%{$search}%")
                                 ->orWhere('comment', 'like', "%{$search}%")
                                 ->orderBy('created_at', 'desc')
                                 ->limit(50)
@@ -108,6 +123,23 @@ class ImagesRelationManager extends RelationManager
                     }),
             ])
             ->actions([
+                Action::make('view_image')
+                    ->label('View image')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->url(fn (ItemImage $record) => route('filament.admin.item-image.view', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ]))
+                    ->openUrlInNewTab(),
+                Action::make('download')
+                    ->label('Download')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (ItemImage $record) => route('filament.admin.item-image.download', [
+                        'item' => $record->item_id,
+                        'itemImage' => $record->id,
+                    ])),
                 EditAction::make()
                     ->form([
                         TextInput::make('alt_text')
@@ -136,6 +168,10 @@ class ImagesRelationManager extends RelationManager
                             ->send();
                     }),
                 DeleteAction::make()
+                    ->label('Delete permanently')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete image permanently')
+                    ->modalDescription('The image file will be permanently deleted from storage and cannot be recovered. It will NOT be returned to the available image pool.')
                     ->before(function (ItemImage $record): void {
                         Storage::disk($record->imageDisk())
                             ->delete($record->imageStoragePath());

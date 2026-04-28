@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
@@ -49,6 +50,16 @@ class ProjectResource extends Resource
         return ['internal_name', 'backward_compatibility'];
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -69,13 +80,11 @@ class ProjectResource extends Resource
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
             ]);
     }
 
@@ -126,9 +135,15 @@ class ProjectResource extends Resource
                     ->label('Enabled')
                     ->boolean(),
                 TextEntry::make('context.internal_name')
-                    ->label('Context'),
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('created_at')

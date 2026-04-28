@@ -3,6 +3,9 @@
 namespace Tests\Filament\Resources;
 
 use App\Enums\Permission;
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\CountryResource;
+use App\Filament\Resources\LanguageResource;
 use App\Filament\Resources\PartnerResource\Pages\CreatePartner;
 use App\Filament\Resources\PartnerResource\Pages\EditPartner;
 use App\Filament\Resources\PartnerResource\Pages\ListPartner;
@@ -10,6 +13,7 @@ use App\Filament\Resources\PartnerResource\Pages\ViewPartner;
 use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipationsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\ProjectResource;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Country;
@@ -21,6 +25,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -255,6 +260,244 @@ class PartnerResourceTest extends TestCase
         ]);
     }
 
+    public function test_partner_table_filter_has_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerWithFallback = Partner::factory()->create(['internal_name' => 'Partner A']);
+        $partnerWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Partner A name',
+        ]);
+
+        $partnerWithoutFallback = Partner::factory()->create(['internal_name' => 'Partner B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('has_fallback_translation')
+            ->assertCanSeeTableRecords([$partnerWithFallback])
+            ->assertCanNotSeeTableRecords([$partnerWithoutFallback]);
+    }
+
+    public function test_partner_table_filter_missing_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerWithFallback = Partner::factory()->create(['internal_name' => 'Partner A']);
+        $partnerWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Partner A name',
+        ]);
+
+        $partnerWithoutFallback = Partner::factory()->create(['internal_name' => 'Partner B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('missing_fallback_translation')
+            ->assertCanSeeTableRecords([$partnerWithoutFallback])
+            ->assertCanNotSeeTableRecords([$partnerWithFallback]);
+    }
+
+    public function test_partner_table_filter_has_translation_in_non_default_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $partnerEn = Partner::factory()->create(['internal_name' => 'English partner']);
+        $partnerEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English partner name',
+        ]);
+
+        $partnerFr = Partner::factory()->create(['internal_name' => 'French partner']);
+        $partnerFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French partner name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('translation_language_has', $langFr->id)
+            ->assertCanSeeTableRecords([$partnerFr])
+            ->assertCanNotSeeTableRecords([$partnerEn]);
+    }
+
+    public function test_partner_table_filter_has_translation_in_non_default_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $partnerDefault = Partner::factory()->create(['internal_name' => 'Default partner']);
+        $partnerDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default partner name',
+        ]);
+
+        $partnerCatalogue = Partner::factory()->create(['internal_name' => 'Catalogue partner']);
+        $partnerCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue partner name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->filterTable('translation_context_has', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$partnerCatalogue])
+            ->assertCanNotSeeTableRecords([$partnerDefault]);
+    }
+
+    public function test_partner_table_country_column_links_to_country_resource_with_manage_reference_data(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $partner = Partner::factory()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === CountryResource::getUrl('view', ['record' => $country]),
+                $partner
+            );
+    }
+
+    public function test_partner_table_country_column_is_plain_text_without_manage_reference_data(): void
+    {
+        $user = $this->createCrudUser();
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $partner = Partner::factory()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $partner
+            );
+    }
+
+    public function test_partner_table_project_column_links_to_project_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $partner = Partner::factory()->create(['project_id' => $project->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartner::class)
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $partner
+            );
+    }
+
+    public function test_partner_translations_relation_manager_language_badge_links_to_language_resource(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $translation = $partner->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'language.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === LanguageResource::getUrl('view', ['record' => $language]),
+                $translation
+            );
+    }
+
+    public function test_partner_translations_relation_manager_context_badge_links_to_context_resource(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+        $translation = $partner->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(TranslationsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => EditPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'context.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ContextResource::getUrl('view', ['record' => $context]),
+                $translation
+            );
+    }
+
+    public function test_owned_items_relation_manager_project_column_links_to_project_resource(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $item = Item::factory()->Object()->create([
+            'partner_id' => $partner->id,
+            'project_id' => $project->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(OwnedItemsRelationManager::class, [
+                'ownerRecord' => $partner,
+                'pageClass' => ViewPartner::class,
+            ])
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $item
+            );
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
@@ -264,6 +507,18 @@ class PartnerResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Resources\ContextResource;
+use App\Filament\Resources\ItemResource;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -29,13 +31,11 @@ class LinksRelationManager extends RelationManager
                     ->label('Target item')
                     ->relationship('target', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->required(),
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
                     ->searchable()
-                    ->preload()
                     ->nullable(),
             ]);
     }
@@ -53,14 +53,20 @@ class LinksRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('target.internal_name')
                     ->label('Target item')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->target
+                        ? (auth()->user()?->can('view', $record->target) ? ItemResource::getUrl('view', ['record' => $record->target]) : null)
+                        : null),
                 TextColumn::make('target.type')
                     ->label('Target type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state instanceof ItemType ? $state->label() : (string) $state),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

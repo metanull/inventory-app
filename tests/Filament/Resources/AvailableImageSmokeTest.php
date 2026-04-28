@@ -168,6 +168,148 @@ class AvailableImageSmokeTest extends TestCase
         $this->assertDatabaseHas('available_images', ['id' => $attachedId]);
     }
 
+    public function test_metadata_is_preserved_through_attach_to_item(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Storage::disk('public')->makeDirectory('images');
+        Storage::disk('public')->makeDirectory('pictures');
+
+        $availableImage = AvailableImage::factory()->create([
+            'path' => 'meta-test.jpg',
+            'original_name' => 'my-original-photo.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => 12345,
+        ]);
+        Storage::disk('public')->put(
+            trim(config('localstorage.available.images.directory'), '/').'/'.$availableImage->path,
+            'fake-image-data'
+        );
+
+        $item = Item::factory()->Object()->create();
+        $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id, 'Alt text');
+
+        $this->assertDatabaseHas('item_images', [
+            'id' => $availableImage->id,
+            'original_name' => 'my-original-photo.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => 12345,
+        ]);
+        $this->assertEquals($availableImage->id, $itemImage->id);
+        $this->assertEquals('my-original-photo.jpg', $itemImage->original_name);
+        $this->assertEquals('image/jpeg', $itemImage->mime_type);
+        $this->assertEquals(12345, $itemImage->size);
+    }
+
+    public function test_metadata_is_preserved_through_detach_from_item(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Storage::disk('public')->makeDirectory('images');
+        Storage::disk('public')->makeDirectory('pictures');
+
+        $item = Item::factory()->Object()->create();
+        $itemImage = ItemImage::factory()->forItem($item)->create([
+            'path' => 'detach-meta.jpg',
+            'original_name' => 'original-upload.jpg',
+            'mime_type' => 'image/png',
+            'size' => 98765,
+        ]);
+        Storage::disk(config('localstorage.pictures.disk'))->put(
+            trim(config('localstorage.pictures.directory'), '/').'/detach-meta.jpg',
+            'fake-image-data'
+        );
+
+        $attachedId = $itemImage->id;
+        $availableImage = $itemImage->detachToAvailableImage();
+
+        $this->assertEquals($attachedId, $availableImage->id);
+        $this->assertEquals('original-upload.jpg', $availableImage->original_name);
+        $this->assertEquals('image/png', $availableImage->mime_type);
+        $this->assertEquals(98765, $availableImage->size);
+        $this->assertDatabaseHas('available_images', [
+            'id' => $attachedId,
+            'original_name' => 'original-upload.jpg',
+            'mime_type' => 'image/png',
+            'size' => 98765,
+        ]);
+    }
+
+    public function test_metadata_survives_full_detach_and_reattach_roundtrip(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Storage::disk('public')->makeDirectory('images');
+        Storage::disk('public')->makeDirectory('pictures');
+
+        $availableImage = AvailableImage::factory()->create([
+            'path' => 'roundtrip.jpg',
+            'original_name' => 'roundtrip-upload.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => 55555,
+        ]);
+        Storage::disk('public')->put(
+            trim(config('localstorage.available.images.directory'), '/').'/roundtrip.jpg',
+            'fake-image-data'
+        );
+
+        $item = Item::factory()->Object()->create();
+        $originalId = $availableImage->id;
+
+        // Attach
+        $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id);
+        $this->assertEquals($originalId, $itemImage->id);
+        $this->assertEquals('roundtrip-upload.jpg', $itemImage->original_name);
+
+        // Detach
+        $availableImage2 = $itemImage->detachToAvailableImage();
+        $this->assertEquals($originalId, $availableImage2->id);
+        $this->assertEquals('roundtrip-upload.jpg', $availableImage2->original_name);
+        $this->assertEquals('image/jpeg', $availableImage2->mime_type);
+        $this->assertEquals(55555, $availableImage2->size);
+
+        // Re-attach to another item
+        $item2 = Item::factory()->Object()->create();
+        $availableImage2->refresh();
+        $itemImage2 = ItemImage::attachFromAvailableImage($availableImage2, $item2->id);
+        $this->assertEquals($originalId, $itemImage2->id);
+        $this->assertEquals('roundtrip-upload.jpg', $itemImage2->original_name);
+        $this->assertEquals('image/jpeg', $itemImage2->mime_type);
+        $this->assertEquals(55555, $itemImage2->size);
+    }
+
+    public function test_metadata_is_preserved_through_partner_attach_and_detach(): void
+    {
+        Storage::fake('local');
+        Storage::fake('public');
+        Storage::disk('public')->makeDirectory('images');
+        Storage::disk('public')->makeDirectory('pictures');
+
+        $availableImage = AvailableImage::factory()->create([
+            'path' => 'partner-meta.jpg',
+            'original_name' => 'partner-original.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => 77777,
+        ]);
+        Storage::disk('public')->put(
+            trim(config('localstorage.available.images.directory'), '/').'/partner-meta.jpg',
+            'fake-image-data'
+        );
+
+        $partner = Partner::factory()->create();
+        $originalId = $availableImage->id;
+
+        $partnerImage = PartnerImage::attachFromAvailableImage($availableImage, $partner->id);
+        $this->assertEquals($originalId, $partnerImage->id);
+        $this->assertEquals('partner-original.jpg', $partnerImage->original_name);
+
+        $returned = $partnerImage->detachToAvailableImage();
+        $this->assertEquals($originalId, $returned->id);
+        $this->assertEquals('partner-original.jpg', $returned->original_name);
+        $this->assertEquals('image/jpeg', $returned->mime_type);
+        $this->assertEquals(77777, $returned->size);
+    }
+
     protected function createAuthorizedUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);

@@ -81,12 +81,74 @@ class CollectionSmokeTest extends TestCase
         $this->assertLessThan(2 * 1024 * 1024, strlen($component->html()));
     }
 
+    public function test_collection_create_and_edit_forms_do_not_preload_large_option_datasets(): void
+    {
+        $user = $this->createCrudUser();
+        $this->seedCollections();
+
+        $collection = Collection::query()->first();
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        // Create form must open without loading all collections (which were formerly preloaded for parent select).
+        $response = $this->actingAs($user)->get('/admin/collections/create');
+        $response->assertOk();
+        $createQueryCount = count(DB::getQueryLog());
+
+        DB::flushQueryLog();
+
+        // Edit form must open without loading all collections.
+        $response = $this->actingAs($user)->get("/admin/collections/{$collection->getKey()}/edit");
+        $response->assertOk();
+        $editQueryCount = count(DB::getQueryLog());
+
+        DB::disableQueryLog();
+
+        // With preloads removed, query counts must stay well below the 10 000-row count.
+        $this->assertLessThan(50, $createQueryCount, "Create form issued too many queries ($createQueryCount), likely still preloading parent/language/context datasets.");
+        $this->assertLessThan(50, $editQueryCount, "Edit form issued too many queries ($editQueryCount), likely still preloading parent/language/context datasets.");
+    }
+
+    public function test_change_parent_search_returns_bounded_results(): void
+    {
+        $user = $this->createCrudUser();
+        $this->seedCollections();
+        $this->setCurrentPanel();
+
+        $child = Collection::factory()->create(['internal_name' => 'Standalone child', 'parent_id' => null]);
+
+        // Calling the action with a specific parent ID should still work (search returns correct results).
+        $parent = Collection::query()->where('internal_name', 'Collection 00001')->firstOrFail();
+
+        Livewire::actingAs($user)
+            ->test(ListCollection::class)
+            ->callTableAction('changeParent', $child, data: ['parent_id' => $parent->id])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('collections', ['id' => $child->id, 'parent_id' => $parent->id]);
+    }
+
     protected function createAuthorizedUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
         $user->givePermissionTo([
             Permission::ACCESS_ADMIN_PANEL->value,
             Permission::VIEW_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createCrudUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::CREATE_DATA->value,
+            Permission::UPDATE_DATA->value,
+            Permission::DELETE_DATA->value,
         ]);
 
         return $user;

@@ -3,9 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Enums\ItemType;
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
 use App\Filament\Resources\PartnerResource\Pages\CreatePartner;
 use App\Filament\Resources\PartnerResource\Pages\EditPartner;
@@ -15,7 +17,9 @@ use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipat
 use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Models\Country;
 use App\Models\Partner;
+use App\Models\Project;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -29,6 +33,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -37,6 +42,7 @@ class PartnerResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
+    use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     protected static ?string $model = Partner::class;
@@ -49,7 +55,17 @@ class PartnerResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.name'];
+        return ['internal_name', 'backward_compatibility', 'translations.name', 'country.internal_name', 'project.internal_name'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form
@@ -73,8 +89,7 @@ class PartnerResource extends Resource
                 Select::make('country_id')
                     ->label('Country')
                     ->relationship('country', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('latitude')
                     ->numeric(),
                 TextInput::make('longitude')
@@ -85,8 +100,7 @@ class PartnerResource extends Resource
                 Select::make('project_id')
                     ->label('Project')
                     ->relationship('project', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Select::make('monument_item_id')
                     ->label('Monument item')
                     ->relationship(
@@ -94,8 +108,7 @@ class PartnerResource extends Resource
                         titleAttribute: 'internal_name',
                         modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', ItemType::MONUMENT->value),
                     )
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 Toggle::make('visible')
                     ->default(true),
             ]);
@@ -104,24 +117,64 @@ class PartnerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query->with([
+                'country:id,internal_name',
+                'project:id,internal_name',
+            ])))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
+                static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 IconColumn::make('visible')
                     ->boolean()
                     ->sortable(),
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+            ])
+            ->filters([
+                ...static::translationCoverageFilters(),
+                SelectFilter::make('country_id')
+                    ->label('Country')
+                    ->relationship('country', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+                SelectFilter::make('project_id')
+                    ->label('Project')
+                    ->relationship('project', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Project::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
+                    ->searchable(),
             ])
             ->actions([
                 ViewAction::make(),
@@ -137,11 +190,20 @@ class PartnerResource extends Resource
                 TextEntry::make('internal_name'),
                 TextEntry::make('type'),
                 TextEntry::make('country.internal_name')
-                    ->label('Country'),
+                    ->label('Country')
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextEntry::make('project.internal_name')
-                    ->label('Project'),
+                    ->label('Project')
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 TextEntry::make('monumentItem.internal_name')
-                    ->label('Monument item'),
+                    ->label('Monument item')
+                    ->url(fn ($record): ?string => $record->monumentItem
+                        ? (auth()->user()?->can('view', $record->monumentItem) ? ItemResource::getUrl('view', ['record' => $record->monumentItem]) : null)
+                        : null),
                 IconEntry::make('visible')
                     ->boolean(),
                 TextEntry::make('latitude'),

@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Resources\CountryResource;
+use App\Filament\Resources\ItemResource;
+use App\Filament\Resources\PartnerResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -30,17 +33,24 @@ class ChildItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
                     ->sortable(),
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->country
+                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                        : null),
                 TextColumn::make('display_order')
                     ->label('Order')
                     ->sortable(),

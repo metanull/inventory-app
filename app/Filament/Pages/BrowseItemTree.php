@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Permission;
 use App\Models\Item;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Collection;
@@ -18,6 +19,16 @@ class BrowseItemTree extends Page
 
     protected static string $view = 'filament.pages.browse-item-tree';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccess();
+    }
+
     /**
      * IDs of expanded tree nodes.
      *
@@ -26,9 +37,32 @@ class BrowseItemTree extends Page
     public array $expanded = [];
 
     /**
+     * Root search query string.
+     */
+    public string $search = '';
+
+    /**
+     * Current pagination page for root items (1-based).
+     */
+    public int $page = 1;
+
+    /**
+     * Number of root items shown per page.
+     */
+    private const PAGE_SIZE = 50;
+
+    /**
      * Maximum depth for ancestor chain traversal to prevent infinite loops.
      */
     private const MAX_ANCESTOR_DEPTH = 10;
+
+    /**
+     * Reset pagination when the search query changes.
+     */
+    public function updatedSearch(): void
+    {
+        $this->page = 1;
+    }
 
     /**
      * Expand a tree node by loading its children.
@@ -59,33 +93,75 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Maximum number of root items to render at once.
+     * Advance to the next page of roots.
      */
-    private const MAX_ROOT_ITEMS = 250;
+    public function nextPage(): void
+    {
+        if ($this->page < $this->getTotalPages()) {
+            $this->page++;
+        }
+    }
 
     /**
-     * Fetch the root-level items (no parent), limited to avoid OOM on large datasets.
+     * Return to the previous page of roots.
+     */
+    public function previousPage(): void
+    {
+        if ($this->page > 1) {
+            $this->page--;
+        }
+    }
+
+    /**
+     * Total number of pages for the current root query.
+     */
+    public function getTotalPages(): int
+    {
+        return (int) max(1, ceil($this->getRootCount() / self::PAGE_SIZE));
+    }
+
+    /**
+     * Fetch a paginated, optionally-searched page of root-level items (no parent).
      *
      * @return Collection<int, Item>
      */
     public function getRoots(): Collection
     {
-        return Item::query()
+        $query = Item::query()
             ->whereNull('parent_id')
             ->withCount('children')
-            ->orderBy('internal_name')
-            ->limit(self::MAX_ROOT_ITEMS)
+            ->orderBy('internal_name');
+
+        if ($this->search !== '') {
+            $term = $this->search;
+            $query->where(function ($q) use ($term): void {
+                $q->where('internal_name', 'like', '%'.$term.'%')
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+            });
+        }
+
+        return $query
+            ->offset(($this->page - 1) * self::PAGE_SIZE)
+            ->limit(self::PAGE_SIZE)
             ->get();
     }
 
     /**
-     * Total count of root-level items (without loading models).
+     * Total count of root-level items matching the current search (without loading models).
      */
     public function getRootCount(): int
     {
-        return Item::query()
-            ->whereNull('parent_id')
-            ->count();
+        $query = Item::query()->whereNull('parent_id');
+
+        if ($this->search !== '') {
+            $term = $this->search;
+            $query->where(function ($q) use ($term): void {
+                $q->where('internal_name', 'like', '%'.$term.'%')
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+            });
+        }
+
+        return $query->count();
     }
 
     /**

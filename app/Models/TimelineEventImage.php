@@ -79,7 +79,7 @@ class TimelineEventImage extends Model
             );
             Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
-            $image = static::create([
+            $image = Model::unguarded(fn () => static::create([
                 'id' => $availableImage->id,
                 'timeline_event_id' => $timelineEventId,
                 'path' => $filename,
@@ -88,7 +88,7 @@ class TimelineEventImage extends Model
                 'size' => $availableImage->size ?? 0,
                 'alt_text' => $altText ?? $availableImage->comment,
                 'display_order' => $displayOrder,
-            ]);
+            ]));
 
             $availableImage->delete();
 
@@ -115,14 +115,14 @@ class TimelineEventImage extends Model
             );
             Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
-            $availableImage = AvailableImage::create([
+            $availableImage = Model::unguarded(fn () => AvailableImage::create([
                 'id' => $this->id,
                 'path' => $filename,
-                'original_name' => $this->original_name,
+                'original_name' => $this->original_name ?: $filename,
                 'mime_type' => $this->mime_type,
                 'size' => $this->size,
                 'comment' => $this->alt_text,
-            ]);
+            ]));
 
             $this->delete();
 

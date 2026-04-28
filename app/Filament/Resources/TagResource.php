@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasUuidColumn;
@@ -52,7 +53,17 @@ class TagResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'description'];
+        return ['internal_name', 'backward_compatibility', 'description', 'language.internal_name'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::MANAGE_REFERENCE_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
     }
 
     public static function form(Form $form): Form
@@ -72,8 +83,7 @@ class TagResource extends Resource
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 TextInput::make('backward_compatibility')
                     ->label('Legacy code')
                     ->maxLength(255),
@@ -104,7 +114,10 @@ class TagResource extends Resource
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
             ])
@@ -129,7 +142,10 @@ class TagResource extends Resource
                     ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
                 TextEntry::make('internal_name'),
                 TextEntry::make('language.internal_name')
-                    ->label('Language'),
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
                 TextEntry::make('id')

@@ -2,6 +2,7 @@
 
 namespace Tests\Filament\Resources;
 
+use App\Filament\Resources\LanguageResource;
 use App\Filament\Resources\TagResource\Pages\CreateTag;
 use App\Filament\Resources\TagResource\Pages\EditTag;
 use App\Filament\Resources\TagResource\Pages\ListTag;
@@ -143,5 +144,25 @@ class TagResourceTest extends TestCase
             ->filterTable('category', 'keyword')
             ->assertCanSeeTableRecords([$keyword])
             ->assertCanNotSeeTableRecords([$material]);
+    }
+
+    public function test_tag_table_language_column_links_to_language_resource_with_manage_reference_data(): void
+    {
+        $user = $this->createAuthorizedUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $tag = Tag::factory()->keyword()->create([
+            'internal_name' => 'woodwork',
+            'language_id' => $language->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListTag::class)
+            ->assertTableColumnExists(
+                'language.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === LanguageResource::getUrl('view', ['record' => $language]),
+                $tag
+            );
     }
 }

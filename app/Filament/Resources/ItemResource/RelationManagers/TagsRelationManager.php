@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
+use App\Filament\Resources\TagResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
@@ -26,7 +27,10 @@ class TagsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                        ? TagResource::getUrl('view', ['record' => $record])
+                        : null),
                 TextColumn::make('category')
                     ->badge()
                     ->sortable(),
@@ -41,7 +45,7 @@ class TagsRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
-                    ->preloadRecordSelect(),
+                    ->recordSelectSearchColumns(['internal_name']),
             ])
             ->actions([
                 DetachAction::make(),

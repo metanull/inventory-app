@@ -5,6 +5,7 @@ namespace Tests\Filament\Resources;
 use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Pages\BrowseItemTree;
+use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\ItemResource\Pages\CreateItem;
 use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
@@ -14,16 +15,21 @@ use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\PartnerResource;
+use App\Filament\Resources\ProjectResource;
 use App\Models\Collection;
 use App\Models\Context;
+use App\Models\Country;
 use App\Models\Item;
 use App\Models\Language;
 use App\Models\Partner;
+use App\Models\Project;
 use App\Models\Tag;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -388,6 +394,202 @@ class ItemResourceTest extends TestCase
         ]);
     }
 
+    public function test_item_table_shows_fallback_translation_badge(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $otherLang = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item with fallback']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item with fallback',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item without fallback']);
+        $itemWithoutFallback->translations()->create([
+            'language_id' => $otherLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item without fallback FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertCanSeeTableRecords([$itemWithFallback, $itemWithoutFallback]);
+    }
+
+    public function test_item_table_filter_has_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item A']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item A name',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('has_fallback_translation')
+            ->assertCanSeeTableRecords([$itemWithFallback])
+            ->assertCanNotSeeTableRecords([$itemWithoutFallback]);
+    }
+
+    public function test_item_table_filter_missing_fallback_translation(): void
+    {
+        $user = $this->createCrudUser();
+        $defaultLang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $defaultCtx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemWithFallback = Item::factory()->Object()->create(['internal_name' => 'Item A']);
+        $itemWithFallback->translations()->create([
+            'language_id' => $defaultLang->id,
+            'context_id' => $defaultCtx->id,
+            'name' => 'Item A name',
+        ]);
+
+        $itemWithoutFallback = Item::factory()->Object()->create(['internal_name' => 'Item B']);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('missing_fallback_translation')
+            ->assertCanSeeTableRecords([$itemWithoutFallback])
+            ->assertCanNotSeeTableRecords([$itemWithFallback]);
+    }
+
+    public function test_item_table_filter_has_translation_in_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemEn = Item::factory()->Object()->create(['internal_name' => 'English item']);
+        $itemEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English item name',
+        ]);
+
+        $itemFr = Item::factory()->Object()->create(['internal_name' => 'French item']);
+        $itemFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_language_has', $langFr->id)
+            ->assertCanSeeTableRecords([$itemFr])
+            ->assertCanNotSeeTableRecords([$itemEn]);
+    }
+
+    public function test_item_table_filter_missing_translation_in_language(): void
+    {
+        $user = $this->createCrudUser();
+        $langEn = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $ctx = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+
+        $itemEn = Item::factory()->Object()->create(['internal_name' => 'English item']);
+        $itemEn->translations()->create([
+            'language_id' => $langEn->id,
+            'context_id' => $ctx->id,
+            'name' => 'English item name',
+        ]);
+
+        $itemFr = Item::factory()->Object()->create(['internal_name' => 'French item']);
+        $itemFr->translations()->create([
+            'language_id' => $langFr->id,
+            'context_id' => $ctx->id,
+            'name' => 'French item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_language_missing', $langFr->id)
+            ->assertCanSeeTableRecords([$itemEn])
+            ->assertCanNotSeeTableRecords([$itemFr]);
+    }
+
+    public function test_item_table_filter_has_translation_in_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $itemDefault = Item::factory()->Object()->create(['internal_name' => 'Default context item']);
+        $itemDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default item name',
+        ]);
+
+        $itemCatalogue = Item::factory()->Object()->create(['internal_name' => 'Catalogue item']);
+        $itemCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_context_has', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$itemCatalogue])
+            ->assertCanNotSeeTableRecords([$itemDefault]);
+    }
+
+    public function test_item_table_filter_missing_translation_in_context(): void
+    {
+        $user = $this->createCrudUser();
+        $lang = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $ctxDefault = Context::factory()->create(['internal_name' => 'Default context', 'is_default' => true]);
+        $ctxCatalogue = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => false]);
+
+        $itemDefault = Item::factory()->Object()->create(['internal_name' => 'Default context item']);
+        $itemDefault->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxDefault->id,
+            'name' => 'Default item name',
+        ]);
+
+        $itemCatalogue = Item::factory()->Object()->create(['internal_name' => 'Catalogue item']);
+        $itemCatalogue->translations()->create([
+            'language_id' => $lang->id,
+            'context_id' => $ctxCatalogue->id,
+            'name' => 'Catalogue item name',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->filterTable('translation_context_missing', $ctxCatalogue->id)
+            ->assertCanSeeTableRecords([$itemDefault])
+            ->assertCanNotSeeTableRecords([$itemCatalogue]);
+    }
+
     public function test_browse_item_tree_page_renders(): void
     {
         $user = $this->createCrudUser();
@@ -415,6 +617,96 @@ class ItemResourceTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_item_table_partner_column_links_to_partner_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $item = Item::factory()->Object()->create(['partner_id' => $partner->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'partner.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === PartnerResource::getUrl('view', ['record' => $partner]),
+                $item
+            );
+    }
+
+    public function test_item_table_country_column_is_plain_text_without_manage_reference_data_permission(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+        ]);
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $item = Item::factory()->Object()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $item
+            );
+    }
+
+    public function test_item_table_country_column_links_to_country_resource_with_manage_reference_data_permission(): void
+    {
+        $user = $this->createViewAndReferenceDataUser();
+
+        $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
+        $item = Item::factory()->Object()->create(['country_id' => $country->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'country.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === CountryResource::getUrl('view', ['record' => $country]),
+                $item
+            );
+    }
+
+    public function test_item_table_project_column_links_to_project_resource_for_authorized_user(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
+        $item = Item::factory()->Object()->create(['project_id' => $project->id]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'project.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === ProjectResource::getUrl('view', ['record' => $project]),
+                $item
+            );
+    }
+
+    public function test_item_table_parent_column_renders_plain_text_when_parent_is_null(): void
+    {
+        $user = $this->createCrudUser();
+        $item = Item::factory()->Object()->create(['parent_id' => null]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItem::class)
+            ->assertTableColumnExists(
+                'parent.internal_name',
+                fn (TextColumn $column): bool => $column->getUrl() === null,
+                $item
+            );
+    }
+
     protected function createCrudUser(): User
     {
         $user = User::factory()->create(['email_verified_at' => now()]);
@@ -424,6 +716,18 @@ class ItemResourceTest extends TestCase
             Permission::CREATE_DATA->value,
             Permission::UPDATE_DATA->value,
             Permission::DELETE_DATA->value,
+        ]);
+
+        return $user;
+    }
+
+    protected function createViewAndReferenceDataUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::VIEW_DATA->value,
+            Permission::MANAGE_REFERENCE_DATA->value,
         ]);
 
         return $user;

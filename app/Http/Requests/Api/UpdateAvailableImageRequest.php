@@ -25,6 +25,9 @@ class UpdateAvailableImageRequest extends FormRequest
         return [
             'id' => ['prohibited'],
             'path' => ['prohibited'],
+            'original_name' => ['prohibited'],
+            'mime_type' => ['prohibited'],
+            'size' => ['prohibited'],
             'comment' => ['nullable', 'string'],
         ];
     }

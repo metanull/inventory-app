@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GlossaryResource\RelationManagers;
 
+use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -11,6 +12,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SpellingsRelationManager extends RelationManager
 {
@@ -33,10 +35,17 @@ class SpellingsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('spelling')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['language:id,internal_name']))
+            ->defaultSort('spelling', 'asc')
+            ->paginated([25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->columns([
                 TextColumn::make('language.internal_name')
                     ->label('Language')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
                 TextColumn::make('spelling')
                     ->searchable()
                     ->sortable(),

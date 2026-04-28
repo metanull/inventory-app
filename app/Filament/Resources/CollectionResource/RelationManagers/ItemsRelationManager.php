@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Resources\ItemResource;
+use App\Filament\Resources\PartnerResource;
+use App\Filament\Resources\ProjectResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
@@ -33,17 +36,24 @@ class ItemsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('internal_name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
                     ->sortable(),
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn ($record): ?string => $record->project
+                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                        : null),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
@@ -52,7 +62,7 @@ class ItemsRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
-                    ->preloadRecordSelect(),
+                    ->recordSelectSearchColumns(['internal_name']),
             ])
             ->actions([
                 DetachAction::make(),
