@@ -15,9 +15,9 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
-class RecentItemsWidget extends BaseWidget
+class MissingImagesWidget extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 6;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -43,13 +43,14 @@ class RecentItemsWidget extends BaseWidget
             ->query(
                 fn (): Builder => Item::query()
                     ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+                    ->whereDoesntHave('itemImages')
                     ->latest('updated_at')
-                    ->limit(10),
+                    ->limit(25),
             )
             ->paginated(false)
             ->columns([
                 TextColumn::make('internal_name')
-                    ->label('Name')
+                    ->label('Item')
                     ->searchable(false)
                     ->sortable(false)
                     ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
@@ -65,7 +66,8 @@ class RecentItemsWidget extends BaseWidget
                     ->dateTime()
                     ->sortable(false),
             ])
-            ->heading('Recently Edited Items')
+            ->heading('Items Without Images')
+            ->emptyStateHeading('All items have images')
             ->headerActions($this->typeHeaderActions());
     }
 
@@ -75,13 +77,14 @@ class RecentItemsWidget extends BaseWidget
             ->query(
                 fn (): Builder => Collection::query()
                     ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+                    ->whereDoesntHave('collectionImages')
                     ->latest('updated_at')
-                    ->limit(10),
+                    ->limit(25),
             )
             ->paginated(false)
             ->columns([
                 TextColumn::make('internal_name')
-                    ->label('Name')
+                    ->label('Collection')
                     ->searchable(false)
                     ->sortable(false)
                     ->url(fn (Collection $record): string => CollectionResource::getUrl('view', ['record' => $record])),
@@ -96,7 +99,8 @@ class RecentItemsWidget extends BaseWidget
                     ->dateTime()
                     ->sortable(false),
             ])
-            ->heading('Recently Edited Collections')
+            ->heading('Collections Without Images')
+            ->emptyStateHeading('All collections have images')
             ->headerActions($this->typeHeaderActions());
     }
 
@@ -106,13 +110,14 @@ class RecentItemsWidget extends BaseWidget
             ->query(
                 fn (): Builder => Partner::query()
                     ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+                    ->whereDoesntHave('partnerImages')
                     ->latest('updated_at')
-                    ->limit(10),
+                    ->limit(25),
             )
             ->paginated(false)
             ->columns([
                 TextColumn::make('internal_name')
-                    ->label('Name')
+                    ->label('Partner')
                     ->searchable(false)
                     ->sortable(false)
                     ->url(fn (Partner $record): string => PartnerResource::getUrl('view', ['record' => $record])),
@@ -127,7 +132,8 @@ class RecentItemsWidget extends BaseWidget
                     ->dateTime()
                     ->sortable(false),
             ])
-            ->heading('Recently Edited Partners')
+            ->heading('Partners Without Images')
+            ->emptyStateHeading('All partners have images')
             ->headerActions($this->typeHeaderActions());
     }
 
