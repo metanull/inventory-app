@@ -22,20 +22,20 @@ class FilamentTier2ArchitectureTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @return array<class-string<Resource>> */
+    /** @return array<string> */
     private function discoverResources(): array
     {
         return $this->discoverClasses(app_path('Filament/Resources'), 'App\\Filament\\Resources', Resource::class);
     }
 
-    /** @return array<class-string<Page>> */
+    /** @return array<string> */
     private function discoverPages(): array
     {
         // Only top-level custom pages (not sub-pages registered under a resource).
         return $this->discoverClasses(app_path('Filament/Pages'), 'App\\Filament\\Pages', Page::class);
     }
 
-    /** @return array<class-string<Widget>> */
+    /** @return array<string> */
     private function discoverWidgets(): array
     {
         // Only top-level widgets in app/Filament/Widgets (not resource-scoped nested widgets).
@@ -45,9 +45,7 @@ class FilamentTier2ArchitectureTest extends TestCase
     /**
      * Find all concrete classes in a directory that extend the given base class.
      *
-     * @template T
-     * @param  class-string<T>  $baseClass
-     * @return array<class-string<T>>
+     * @return array<string>
      */
     private function discoverClasses(string $directory, string $namespace, string $baseClass): array
     {
