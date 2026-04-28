@@ -29,7 +29,7 @@ class DashboardSmokeTest extends TestCase
     }
 
     public function test_dashboard_loads_under_1000ms_with_100k_items(): void
-    {   
+    {
         $user = $this->createViewUser();
         $this->seedItems(100_000);
 
