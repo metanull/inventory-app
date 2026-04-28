@@ -191,18 +191,18 @@ php artisan test --testsuite=Integration --coverage --parallel --no-ansi --stop-
 
 Use the CI matrix commands above, or equivalent VS Code tasks, when validating backend changes that must match GitHub Actions behavior. Do not treat a single plain `php artisan test` run as CI parity.
 
-> **Windows dev machine — PHP 8.4 via Docker is required.**
-> The local PHP installation is 8.2 and lacks several extensions required by the current codebase (Filament 3 needs `intl`, `zip`, `gd`, `exif`). On Windows, prefix every `php artisan test` and `vendor/bin/pint` command with the Docker wrapper:
-> ```powershell
-> docker run --rm -v "${PWD}:/app" inventory-app-test php artisan test ...
-> docker run --rm -v "${PWD}:/app" inventory-app-test vendor/bin/pint ...
+> **Windows dev machine — use the Dev Container (PHP 8.4 + Node.js 24).**
+> The local PHP installation is 8.2 and lacks several extensions required by the current codebase (Filament 3 needs `intl`, `zip`, `gd`, `exif`). Open the workspace with **"Reopen in Container"** (Dev Containers extension). VS Code builds `inventory-app-dev` from `.devcontainer/Dockerfile` and all tooling runs natively inside the container — no `docker run` wrappers needed:
+> ```bash
+> php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
+> vendor/bin/pint --no-ansi
 > ```
-> Build the image once with `docker build -f Dockerfile.testing -t inventory-app-test .` (see `Dockerfile.testing`). Rebuild when `composer.lock` changes. GitHub Actions runners (Linux) do **not** use this image — they use `shivammathur/setup-php@v2` directly.
+> Rebuild the image after `.devcontainer/Dockerfile` or `composer.lock` changes: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (run from the Windows host, then reopen in container). GitHub Actions runners (Linux) do **not** use this image — they use `shivammathur/setup-php@v2` directly.
 
 VS Code task runs are terminal-based and do not feed results back into the Testing panel. For interactive PHP test discovery and per-test results inside VS Code, use the `PHPUnit & Pest Test Explorer` extension and run tests from the Testing view instead of from tasks.
 
 **SPA commands** (run from `/spa/` directory):
-```powershell
+```bash
 npm test                  # Run unit tests (excludes integration)
 npm run test:all          # Run all tests including integration
 npm run lint              # ESLint auto-fix
