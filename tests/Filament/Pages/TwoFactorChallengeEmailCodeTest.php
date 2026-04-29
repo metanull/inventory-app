@@ -74,8 +74,8 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         // The challenge_id stored in session must be a UUID, not the plaintext code
         $this->assertTrue(Str::isUuid($challengeId));
 
-        // No 6-digit numeric code should appear as a session value (string or integer)
-        $assertNoRawCode = function (mixed $value, string $path) use (&$assertNoRawCode): void {
+        // No 6-digit numeric code should appear as a session value (string, int, or nested array)
+        $assertNoPlaintextCode = function (mixed $value, string $path) use (&$assertNoPlaintextCode): void {
             if (is_string($value)) {
                 $this->assertDoesNotMatchRegularExpression(
                     '/^\d{6}$/',
@@ -90,13 +90,13 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
                 );
             } elseif (is_array($value)) {
                 foreach ($value as $k => $v) {
-                    $assertNoRawCode($v, "{$path}.{$k}");
+                    $assertNoPlaintextCode($v, "{$path}.{$k}");
                 }
             }
         };
 
         foreach (session()->all() as $key => $value) {
-            $assertNoRawCode($value, $key);
+            $assertNoPlaintextCode($value, $key);
         }
     }
 

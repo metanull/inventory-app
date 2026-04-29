@@ -128,11 +128,13 @@ class EmailTwoFactorCodeService
         return "filament-admin-email-2fa-send:{$userId}:{$ip}";
     }
 
+    /** @internal used for testing cache key assertions */
     public function verifyLimiterKey(string $challengeId): string
     {
         return "filament-admin-email-2fa-verify:{$challengeId}";
     }
 
+    /** @internal used for testing cache key assertions */
     public function cacheKey(string $challengeId): string
     {
         return "filament:admin:2fa:email:{$challengeId}";
