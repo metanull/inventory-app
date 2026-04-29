@@ -71,9 +71,19 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         $this->assertGreaterThan(6, strlen($payload['code_hash']));
         $this->assertStringStartsWith('$2y$', $payload['code_hash']);
 
-        // The plaintext code must NOT be stored in the session
-        $sessionData = json_encode(session()->all());
-        $this->assertStringNotContainsString('code_hash', $sessionData);
+        // The challenge_id stored in session must be a UUID, not the plaintext code
+        $this->assertTrue(Str::isUuid($challengeId));
+
+        // No 6-digit numeric code should appear as a session value
+        foreach (session()->all() as $key => $value) {
+            if (is_string($value)) {
+                $this->assertDoesNotMatchRegularExpression(
+                    '/^\d{6}$/',
+                    $value,
+                    "Session key '{$key}' appears to contain a raw 6-digit code."
+                );
+            }
+        }
     }
 
     public function test_valid_email_code_logs_in_clears_session_keys_and_cache(): void
@@ -283,8 +293,6 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
 
     public function test_submitting_multiple_credentials_fails_validation(): void
     {
-        $this->mockTotpProvider(true);
-
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
