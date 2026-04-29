@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use App\Services\Filament\Auth\EmailTwoFactorCodeService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
@@ -61,10 +62,51 @@ class TwoFactorChallenge extends SimplePage
                             ->label(__('Or use a recovery code'))
                             ->placeholder('xxxxx-xxxxx')
                             ->extraInputAttributes(['tabindex' => 2]),
+                        TextInput::make('email_code')
+                            ->label(__('Or use an email verification code'))
+                            ->placeholder('000000')
+                            ->maxLength(6)
+                            ->autocomplete('one-time-code')
+                            ->hint(__('Request a code to be sent to your verified email address.'))
+                            ->extraInputAttributes(['tabindex' => 3]),
                     ])
                     ->statePath('data'),
             ),
         ];
+    }
+
+    public function sendEmailCode(): void
+    {
+        $loginId = session('filament.admin.2fa.user_id');
+
+        if (! $loginId) {
+            $this->redirect(Filament::getLoginUrl());
+
+            return;
+        }
+
+        $userModel = config('auth.providers.users.model');
+        $user = $userModel::find($loginId);
+
+        if (! $user) {
+            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember', 'filament.admin.2fa.email_challenge_id']);
+            $this->redirect(Filament::getLoginUrl());
+
+            return;
+        }
+
+        try {
+            app(EmailTwoFactorCodeService::class)->send($user);
+
+            Notification::make()
+                ->success()
+                ->title(__('Verification code sent to your email address.'))
+                ->send();
+        } catch (\RuntimeException) {
+            throw ValidationException::withMessages([
+                'data.email_code' => [__('Unable to send verification code. Please try a different verification method.')],
+            ]);
+        }
     }
 
     public function submit(): void
@@ -76,7 +118,7 @@ class TwoFactorChallenge extends SimplePage
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
             $availableIn = RateLimiter::availableIn($limiterKey);
 
-            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember']);
+            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember', 'filament.admin.2fa.email_challenge_id']);
 
             Notification::make()
                 ->danger()
@@ -95,12 +137,23 @@ class TwoFactorChallenge extends SimplePage
 
         $code = trim((string) ($data['code'] ?? ''));
         $recoveryCode = trim((string) ($data['recovery_code'] ?? ''));
+        $emailCode = trim((string) ($data['email_code'] ?? ''));
+
+        $credentialCount = (int) ($code !== '') + (int) ($recoveryCode !== '') + (int) ($emailCode !== '');
+
+        if ($credentialCount !== 1) {
+            throw ValidationException::withMessages([
+                'data.code' => [__('Please provide exactly one verification method.')],
+                'data.recovery_code' => [__('Please provide exactly one verification method.')],
+                'data.email_code' => [__('Please provide exactly one verification method.')],
+            ]);
+        }
 
         $userModel = config('auth.providers.users.model');
         $user = $userModel::find($loginId);
 
         if (! $user) {
-            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember']);
+            session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember', 'filament.admin.2fa.email_challenge_id']);
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -120,10 +173,18 @@ class TwoFactorChallenge extends SimplePage
             $provider = app(TwoFactorAuthenticationProvider::class);
             $secret = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
             $verified = $provider->verify($secret, $code);
+        } elseif ($emailCode !== '') {
+            $verified = app(EmailTwoFactorCodeService::class)->verify($user, $emailCode);
         }
 
         if (! $verified) {
             RateLimiter::hit($limiterKey);
+
+            if ($emailCode !== '') {
+                throw ValidationException::withMessages([
+                    'data.email_code' => [__('The provided email verification code was invalid or has expired.')],
+                ]);
+            }
 
             throw ValidationException::withMessages([
                 'data.code' => [__('The provided two factor authentication code was invalid.')],
@@ -136,7 +197,7 @@ class TwoFactorChallenge extends SimplePage
         $guard->login($user, session()->pull('filament.admin.2fa.remember', false));
 
         session()->regenerate();
-        session()->forget(['filament.admin.2fa.user_id']);
+        session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.email_challenge_id']);
 
         $this->redirect(Filament::getUrl());
     }
@@ -150,6 +211,11 @@ class TwoFactorChallenge extends SimplePage
             Action::make('submit')
                 ->label(__('Verify'))
                 ->submit('submit'),
+            Action::make('sendEmailCode')
+                ->label(__('Send code to my email'))
+                ->action('sendEmailCode')
+                ->color('gray')
+                ->outlined(),
         ];
     }
 
