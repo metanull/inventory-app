@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Random\RandomException;
 
 class EmailTwoFactorCodeService
 {
@@ -37,7 +38,12 @@ class EmailTwoFactorCodeService
             throw new \RuntimeException('Too many email code requests. Please try again later.');
         }
 
-        $code = (string) random_int(self::CODE_MIN, self::CODE_MAX);
+        try {
+            $code = (string) random_int(self::CODE_MIN, self::CODE_MAX);
+        } catch (RandomException $e) {
+            throw new \RuntimeException('Failed to generate verification code.', 0, $e);
+        }
+
         $codeHash = Hash::make($code);
         $challengeId = Str::uuid()->toString();
         $cacheKey = $this->cacheKey($challengeId);
@@ -55,6 +61,8 @@ class EmailTwoFactorCodeService
 
         session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
 
+        RateLimiter::hit($sendLimiterKey, self::CACHE_TTL);
+
         try {
             $user->notify(new EmailTwoFactorCodeNotification($code));
         } catch (\Throwable $e) {
@@ -62,8 +70,6 @@ class EmailTwoFactorCodeService
             session()->forget('filament.admin.2fa.email_challenge_id');
             throw $e;
         }
-
-        RateLimiter::hit($sendLimiterKey, self::CACHE_TTL);
     }
 
     public function verify(User $user, string $code): bool
@@ -89,7 +95,7 @@ class EmailTwoFactorCodeService
 
         $pendingUserId = session('filament.admin.2fa.user_id');
 
-        if ($payload['user_id'] !== $user->getKey() || $payload['user_id'] !== $pendingUserId) {
+        if ($payload['user_id'] !== $user->getKey() || $user->getKey() !== $pendingUserId) {
             session()->forget('filament.admin.2fa.email_challenge_id');
 
             return false;

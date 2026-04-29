@@ -102,7 +102,7 @@ class TwoFactorChallenge extends SimplePage
                 ->success()
                 ->title(__('Verification code sent to your email address.'))
                 ->send();
-        } catch (\Exception) {
+        } catch (\RuntimeException) {
             throw ValidationException::withMessages([
                 'data.email_code' => [__('Unable to send verification code. Please try a different verification method.')],
             ]);
@@ -144,6 +144,8 @@ class TwoFactorChallenge extends SimplePage
         if ($credentialCount !== 1) {
             throw ValidationException::withMessages([
                 'data.code' => [__('Please provide exactly one verification method.')],
+                'data.recovery_code' => [__('Please provide exactly one verification method.')],
+                'data.email_code' => [__('Please provide exactly one verification method.')],
             ]);
         }
 

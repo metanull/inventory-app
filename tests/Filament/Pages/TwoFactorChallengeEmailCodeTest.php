@@ -74,15 +74,29 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         // The challenge_id stored in session must be a UUID, not the plaintext code
         $this->assertTrue(Str::isUuid($challengeId));
 
-        // No 6-digit numeric code should appear as a session value
-        foreach (session()->all() as $key => $value) {
+        // No 6-digit numeric code should appear as a session value (string or integer)
+        $assertNoRawCode = function (mixed $value, string $path) use (&$assertNoRawCode): void {
             if (is_string($value)) {
                 $this->assertDoesNotMatchRegularExpression(
                     '/^\d{6}$/',
                     $value,
-                    "Session key '{$key}' appears to contain a raw 6-digit code."
+                    "Session path '{$path}' appears to contain a raw 6-digit code."
                 );
+            } elseif (is_int($value)) {
+                $this->assertDoesNotMatchRegularExpression(
+                    '/^\d{6}$/',
+                    (string) $value,
+                    "Session path '{$path}' appears to contain a raw 6-digit code."
+                );
+            } elseif (is_array($value)) {
+                foreach ($value as $k => $v) {
+                    $assertNoRawCode($v, "{$path}.{$k}");
+                }
             }
+        };
+
+        foreach (session()->all() as $key => $value) {
+            $assertNoRawCode($value, $key);
         }
     }
 
@@ -255,6 +269,8 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         $user = $this->createUserWithTotp(['email_verified_at' => null]);
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
+        $this->assertNull($user->email_verified_at);
+
         session()->put('filament.admin.2fa.user_id', $user->getKey());
 
         Livewire::test(TwoFactorChallenge::class)
@@ -268,6 +284,8 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
     {
         $user = $this->createUserWithTotp(['email_verified_at' => null]);
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        $this->assertNull($user->email_verified_at);
 
         $challengeId = (string) Str::uuid();
 
