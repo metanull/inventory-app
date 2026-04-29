@@ -102,7 +102,7 @@ class TwoFactorChallenge extends SimplePage
                 ->success()
                 ->title(__('Verification code sent to your email address.'))
                 ->send();
-        } catch (\Throwable) {
+        } catch (\Exception) {
             throw ValidationException::withMessages([
                 'data.email_code' => [__('Unable to send verification code. Please try a different verification method.')],
             ]);

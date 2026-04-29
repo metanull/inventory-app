@@ -31,7 +31,7 @@ class EmailTwoFactorCodeService
             throw new \RuntimeException('No pending admin MFA session for this user.');
         }
 
-        $sendLimiterKey = $this->sendLimiterKey($user->getKey(), request()->ip() ?? '');
+        $sendLimiterKey = $this->sendLimiterKey($user->getKey(), request()->ip() ?? 'unknown');
 
         if (RateLimiter::tooManyAttempts($sendLimiterKey, self::SEND_MAX_ATTEMPTS)) {
             throw new \RuntimeException('Too many email code requests. Please try again later.');

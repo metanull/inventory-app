@@ -189,7 +189,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         $this->assertNull(Cache::get($cacheKey));
 
         // Reset auth state and session for second attempt
-        Auth()->logout();
+        auth()->logout();
         session()->put('filament.admin.2fa.user_id', $user->getKey());
         session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
 
