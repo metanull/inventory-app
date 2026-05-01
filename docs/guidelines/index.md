@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Backend Guidelines
-nav_order: 10
+nav_order: 75
 has_children: true
 permalink: /guidelines/
 ---
 
 # Backend Development Guidelines
 
-Conventions and standards for developers working on the Laravel backend. These are project-specific rules on top of standard Laravel practices — they do not aim to teach Laravel itself.
+Conventions and standards for developers working on the Laravel backend. Start with the [Collaborator Guide]({{ '/collaborators/' | relative_url }}) for current orientation, then use these pages for detailed project rules.
 
 ## Sections
 

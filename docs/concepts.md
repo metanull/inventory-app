@@ -2,6 +2,7 @@
 layout: default
 title: Core Concepts
 nav_order: 3
+nav_exclude: true
 description: >-
   Explains the core concepts, entities and processes of the Inventory Management API
   to allow any stakeholder — from business users to developers — to understand and

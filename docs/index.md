@@ -11,85 +11,52 @@ nav_order: 1
 [![Deploy](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/metanull/inventory-app/actions/workflows/deploy.yml)
 [![Documentation](https://github.com/metanull/inventory-app/actions/workflows/continuous-deployment_github-pages.yml/badge.svg)](https://metanull.github.io/inventory-app)
 
-# Inventory Management System
+# MWNF Inventory Documentation
 
-The Inventory Management System is the digital backbone of **Museum With No Frontiers (MWNF)**. It stores and serves the inventory of museum artifacts, monuments, and related cultural heritage content managed by partner institutions around the world.
+MWNF Inventory replaces a fragmented legacy data landscape with one content-focused Inventory. The system stores museum content, organizes it through a rationalized model, and exposes it through an integrated Filament back-office and programmatic APIs.
 
-The system provides:
+The documentation starts with the business model and the import process because validation is the current priority. Technical references remain available, but they support the main explanation instead of driving it.
 
-- A **web interface** for content managers and administrators to browse, create, and edit inventory records.
-- A **REST API** for programmatic access, enabling external applications to read and manage inventory data.
-- **Multi-language, multi-audience content** — the same artifact can be described in different languages and for different audiences (general public, academic, educational, etc.).
-- **Image management** — upload, process, and attach images to items, collections, and partners.
-- **Role-based access control** — fine-grained permissions for different user roles.
+## Start here
 
-## Getting Started
+| Audience | Start with | Purpose |
+|---|---|---|
+| Customers, content owners, and validators | [Understanding the Inventory](understanding/) | Learn what the new model means and how legacy content lands in it. |
+| Collaborators and developers | [Collaborator Guide](collaborators/) | Learn where the code lives and how the main systems fit together. |
+| API consumers | [Management API Reference](api/) | Inspect the authenticated management API and generated TypeScript client. |
+| Data model reviewers | [Database Models](models/) | Open generated model, field, and relationship reference pages. |
 
-### For business users and content managers
+## What this system does
 
-Start with the [Core Concepts]({{ '/concepts' | relative_url }}) page — it explains every entity and process in plain language.
+- It stores reusable MWNF content only: objects, monuments, partners, collections, images, translations, glossary entries, timelines, links, tags, contributors, and related media.
+- It keeps application-specific configuration outside the Inventory model.
+- It uses `/admin` as the main back-office through Filament.
+- It keeps the management API as a maintained programmatic interface.
+- It prepares the ground for a dedicated read-only API optimized for lightweight public clients.
 
-### For developers and collaborators
+## Validation focus
 
-1. [Core Concepts]({{ '/concepts' | relative_url }}) — Understand the domain model before touching any code
-2. [Development Setup]({{ '/deployment/development-setup' | relative_url }}) — Set up your local environment
-3. [Contributing]({{ '/development/contributing' | relative_url }}) — Workflow, quality standards, and PR process
+The project is at the import and validation stage. Use the documentation in this order:
 
-## Documentation Sections
+1. Read [Inventory Principles](understanding/inventory-principles) to understand what belongs in the Inventory.
+2. Read [Core Model](understanding/core-model) to map legacy ideas to new concepts.
+3. Read [Legacy Import](understanding/legacy-import) to understand the source-to-target flow.
+4. Use [Validation Guide](understanding/validation-guide) when comparing legacy records with imported results.
 
-### Understanding the System
+## Technical orientation
 
-| Section                         | Audience         | Description |
-| ------------------------------- | ---------------- | ----------- | ----------------------------------------------------------------------- |
-| [Core Concepts]({{ '/concepts'  | relative_url }}) | Everyone    | What the system does, how entities relate, and key business rules       |
-| [Database Models]({{ '/models/' | relative_url }}) | Developers  | Auto-generated reference for all data models, fields, and relationships |
+Collaborators should start with [Codebase Map](collaborators/codebase-map), then follow the page that matches the task:
 
-### Using the System
+- [Filament Back-Office](collaborators/filament-admin) for `/admin` UI work.
+- [Importer Orientation](collaborators/importer) for legacy data import work.
+- [APIs and Documentation](collaborators/apis-and-docs) for API, OpenAPI, client, and Jekyll documentation work.
+- [Development Workflow](collaborators/development-workflow) for setup, testing, and validation commands.
 
-| Section                               | Audience         | Description                  |
-| ------------------------------------- | ---------------- | ---------------------------- | ----------------------------------------------------------- |
-| [Web Interface]({{ '/frontend-blade/' | relative_url }}) | Content managers, Developers | The main production UI for managing inventory content       |
-| [API Documentation]({{ '/api/'        | relative_url }}) | Developers                   | Interactive API explorer (Swagger UI) and TypeScript client |
+## Reference material
 
-### Running and Deploying
-
-| Section                              | Audience         | Description     |
-| ------------------------------------ | ---------------- | --------------- | ------------------------------------------------------------------ |
-| [Deployment Guide]({{ '/deployment/' | relative_url }}) | Developers, Ops | Development setup, production deployment, and server configuration |
-
-### Contributing
-
-| Section                                | Audience         | Description |
-| -------------------------------------- | ---------------- | ----------- | ---------------------------------------------------------------------- |
-| [Development]({{ '/development/'       | relative_url }}) | Developers  | Contributing guidelines, testing, CI/CD workflows, and project history |
-| [Backend Guidelines]({{ '/guidelines/' | relative_url }}) | Developers  | Project-specific coding conventions and patterns                       |
-
-### Reference Applications
-
-| Section                                        | Audience         | Description |
-| ---------------------------------------------- | ---------------- | ----------- | -------------------------------------------------------------------- |
-| [Vue.js Sample App]({{ '/frontend-vue-sample/' | relative_url }}) | Developers  | A demo SPA showing how to consume the API with the TypeScript client |
-
-{: .note }
-
-> The Vue.js sample app is a **reference implementation** for external developers. The main user interface is the [Web Interface (Blade/Livewire)]({{ '/frontend-blade/' | relative_url }}).
-
----
-
-## Additional Resources
-
-- [GitHub Repository](https://github.com/metanull/inventory-app) — Source code and issue tracking
-- [GitHub Issues](https://github.com/metanull/inventory-app/issues) — Bug reports and feature requests
-- [Development Archive]({{ '/development/archive' | relative_url }}) — Commit history
-
-{: .note }
-
-> This documentation website is built with Jekyll and deployed automatically to GitHub Pages. For details on how it works, see [Documentation Site]({{ '/development/documentation-site/' | relative_url }}).
-
-## License
-
-This project is licensed under the MIT License — see the [LICENSE](https://github.com/metanull/inventory-app/blob/main/LICENSE) file for details.
-
----
+- [Generated Database Models](models/) gives field-level model reference.
+- [Management API Reference](api/) gives Swagger UI, OpenAPI, and TypeScript client links.
+- [Deployment Guide](deployment/) keeps operational setup notes.
+- [Technical Archive](development/) keeps older developer notes that still help maintainers, but the current project narrative lives in the new `understanding/` and `collaborators/` sections.
 
 _Last updated: {{ site.time | date: "%B %d, %Y" }}_
