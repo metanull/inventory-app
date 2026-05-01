@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment Guide
-nav_order: 3
+nav_order: 60
 has_children: true
 permalink: /deployment/
 ---
@@ -10,7 +10,7 @@ permalink: /deployment/
 
 {: .no_toc }
 
-This section covers how to set up the system for local development and how to deploy it to a production server.
+This section covers local setup and production deployment. Use it as operational reference after reading the [Collaborator Guide]({{ '/collaborators/' | relative_url }}).
 
 ## Table of Contents
 
@@ -25,9 +25,9 @@ This section covers how to set up the system for local development and how to de
 
 The system can be deployed in several configurations:
 
-- **Development** — Local machine with SQLite and the built-in PHP server
-- **Production** — Windows Server with Apache and MariaDB
-- **Testing** — Same as development, using an isolated SQLite database
+- **Development** - Dev Container with SQLite and local services.
+- **Production** - Windows Server with Apache and MariaDB.
+- **Testing** - Isolated test databases through the Laravel test runner.
 
 ## Quick Start (Development)
 
@@ -41,7 +41,7 @@ php artisan key:generate
 composer dev
 ```
 
-This starts the Laravel server, asset watcher, and queue worker. Access the web interface at `http://localhost:8000/web`.
+This starts the Laravel server, asset watcher, and queue worker. Access the main back-office at `http://localhost:8000/admin`.
 
 ## Architecture Overview
 
@@ -53,12 +53,12 @@ This starts the Laravel server, asset watcher, and queue worker. Access the web 
          │                       │
          ▼                       ▼
     Static Assets          Business Logic
-    CSS/JS                 Web Interface (Blade/Livewire)
+      CSS/JS                 Filament /admin back-office
     Uploaded Images        REST API (/api routes)
                            Authentication & Permissions
 ```
 
-The **web interface** (Blade/Livewire, server-rendered) is the primary production UI. A Vue.js SPA demo also exists as a reference for external API consumers, but is not part of the core deployment.
+The Filament `/admin` panel is the primary production UI. The Vue.js SPA demo exists as a reference for external API consumers and is not part of the core deployment.
 
 ## Security
 
@@ -72,11 +72,11 @@ The **web interface** (Blade/Livewire, server-rendered) is the primary productio
 
 ## Next Steps
 
-- [Development Setup](development-setup) — Set up a local environment
-- [Production Deployment](production-deployment) — Deploy to a Windows Server
-- [Configuration](configuration) — Environment and application settings
-- [Server Configuration](server-configuration) — Apache/Nginx setup
-- [Trusted Proxy Configuration](trusted-proxies) — Reverse proxy support
-- [Command Line User Management](command-line-user-management) — Manage users via CLI
-- [CORS Configuration](cors-configuration) — Cross-origin request settings
-- [Testing Troubleshooting](testing-troubleshooting) — Common testing issues
+- [Development Setup](development-setup) - Set up a local environment
+- [Production Deployment](production-deployment) - Deploy to a Windows Server
+- [Configuration](configuration) - Environment and application settings
+- [Server Configuration](server-configuration) - Apache/Nginx setup
+- [Trusted Proxy Configuration](trusted-proxies) - Reverse proxy support
+- [Command Line User Management](command-line-user-management) - Manage users via CLI
+- [CORS Configuration](cors-configuration) - Cross-origin request settings
+- [Testing Troubleshooting](testing-troubleshooting) - Common testing issues
