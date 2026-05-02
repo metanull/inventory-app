@@ -2,283 +2,75 @@
 
 Date: 2026-05-02
 
-## Scope Note
+## Scope
 
-The corrected public website for this validation is `https://baroqueart.museumwnf.org`. It identifies itself as **Discover Baroque Art** and its item detail code accepts only records whose legacy project is `BAR`.
+This report validates imported Inventory data against the public website `https://baroqueart.museumwnf.org`, the supporting legacy codebase at `E:\mwnf-server\apps\baroqueart.museumwnf.org`, the production legacy database, and the imported Inventory database.
 
-An Islamic Art test URL on the corrected host, `database_item.php?id=object;ISL;dz;Mus01;8;en`, returns the website message that the object reference is invalid. The supporting PHP code confirms this rule: after loading a record, `modules/database_item.php` rejects it when the loaded `project_id` is not `BAR`.
+The website is the primary source. The sample deliberately covers several visible website areas instead of limiting validation to one record family.
 
-For that reason, this report validates the data that the corrected website actually serves: Baroque Art website records. It does not make a quality assessment of Islamic Art imports.
+Relevant internal references:
 
-## Sources Used
+- [Legacy Import](../../../docs/understanding/legacy-import.md)
+- [Validation Guide](../../../docs/understanding/validation-guide.md)
+- [Inventory Principles](../../../docs/understanding/inventory-principles.md)
 
-This validation uses read-only checks against:
+## Summary
 
-- the live website pages on `https://baroqueart.museumwnf.org`;
-- the Baroque Art PHP codebase at `E:\mwnf-server\apps\baroqueart.museumwnf.org`;
-- the production legacy database used by that PHP site;
-- the imported Inventory database on OVH;
-- the importer mapping documentation in [Legacy Import](../../../docs/understanding/legacy-import.md).
+The Baroque Art import is credible for the main text of sampled objects, monuments, project context, and exhibition titles. The imported records keep consistent legacy identities such as `mwnf3:objects:BAR:pt:Mus11_A:13` and `mwnf3:monuments:BAR:pt:Mon11:23`.
 
-Existing reports in this folder were not used as evidence for the findings below.
+The most important gaps are supporting website experience data: image sets are incomplete, item-to-timeline links are missing in the sample, partner detail is thinner than the live page, and monument special-feature content is not clearly represented.
 
-## Method
+## Samples Checked
 
-The validation uses a small number of website-led samples across different page types instead of many records from one list:
+| Website area | Sampled website page | Website facts checked | Inventory result |
+|---|---|---|---|
+| Homepage and highlight | `https://baroqueart.museumwnf.org/` | Website title; navigation to Permanent Collection, Database, Exhibitions, Timeline; highlighted object `object;BAR;pt;Mus11_A;13;en` | BAR project context exists as `mwnf3:projects:BAR`. Highlighted object exists. |
+| Object detail | `database_item.php?id=object;BAR;pt;Mus11_A;13;en` | `Portrait of the Marquis of Pombal`; Oeiras, Lisbon, Portugal; holder Oeiras Town Hall; date 1766; oil on canvas; 6 visible object images; timeline link; portrait category | Item `mwnf3:objects:BAR:pt:Mus11_A:13` exists. Type, country, partner, English title, date, location, holder, and description match. Only 1 imported image was found for the sampled object. |
+| Partner list/detail | `pm_partner_list.php?type=museum&`; `pm_partner.php?id=Mus11_A;pt&type=museum&theme=BAR` | Country-grouped partner list; Portugal includes associated museums; detail page displays `Further Associated Museums`, Portugal, image, logo, and a visible list of Portuguese institutions | Partner `mwnf3:museums:Mus11_A:pt` exists with name and country. The sampled detail is flatter than the website: city and website are null, and one image is imported. |
+| Permanent collection | `pclist_all.php?country=pt&lang=en` | Portugal has 50 objects and 35 monuments; includes monument `Church of St. Francis, Oporto` and object links | Sampled object and monument records exist. Project collection `mwnf3:projects:BAR` has 597 item links, matching the portal Baroque count sampled separately. |
+| Monument detail | `database_item.php?id=monument;BAR;pt;Mon11;23;en` | `Church of St. Francis, Oporto`; 13th-14th and 17th-18th century date text; Parish of St. Nicolau, Oporto, Portugal; 5 main images plus special features; timeline link | Item `mwnf3:monuments:BAR:pt:Mon11:23` exists. Title, date, location, country, and description match. Only 1 imported image was found, and no sampled timeline links were found. |
+| Exhibition index | `exhibitions/BAR/index.php` | Exhibitions include `Absolutism`, `Devotion and Pilgrimage`, `The Age of Enlightenment`, and others | Imported collection titles match sampled BAR exhibition roots such as `mwnf3:exhibitions:43`, `44`, `45`, `46`, `47`, `50`, and `51`. |
 
-| Website area | Sample | Why it matters |
-|---|---|---|
-| Home page and object detail | `object;BAR;pt;Mus11_A;13;en`, **Portrait of the Marquis of Pombal** | Checks a record displayed as the home page highlight and as a full object detail page. |
-| Object images | Six public images under `objects/bar/pt/11_a/13/` | Checks whether the visible image set survives the import. |
-| Partner page | `pm_partner.php?id=Mus11_A;pt&type=museum`, **Further Associated Museums** | Checks the holding-partner surface linked from the object. |
-| Exhibition relation | **The Age of Enlightenment** > **Signs of social responsibility: enlightened absolutism** | Checks whether an object shown as part of a website exhibition is linked to the matching Inventory collection path. |
-| Timeline link | Timeline for the Pombal object | Checks whether the website's timeline behaviour is represented in Inventory. |
+## Legacy Source Mapping
 
-## Overall Assessment
-
-The sampled object, its main descriptive fields, its partner record, its image records, and its exhibition placement are traceable from the website to the legacy database and then to Inventory.
-
-The strongest import result is the object detail page: the Inventory item keeps the same legacy identity, title, owner reference, MWNF reference, country, project, partner, date, location, owner fields, materials, dimensions, and descriptive text. The exhibition path shown on the website is also present in Inventory as nested collections, with the object linked to the page-level collection.
-
-The main gap is timeline behaviour. The website shows a timeline link for the object based on Portuguese country events within the object's date range. Inventory contains Baroque-relevant HCR text, but no direct BAR compatibility keys and no `timeline_event_item` links to BAR project items were found in the imported database.
-
-A second review point is context duplication. The sampled Baroque object has English and Portuguese translations both in the `Discover Baroque Art` context and in an `Explore Islamic Art Collections` context. This is not a duplicate item, but it can confuse validation unless reviewers filter translations by context.
-
-## Sample Findings
-
-### 1. Object Detail: Portrait of the Marquis of Pombal
-
-Website page:
-
-- `https://baroqueart.museumwnf.org/database_item.php?id=object;BAR;pt;Mus11_A;13;en`
-- Display title: `Portrait of the Marquis of Pombal`
-- Location: `Oeiras, Lisbon, Portugal`
-- Holding museum: `Oeiras Town Hall`
-- Date: `1766`
-- Museum inventory number: `002605`
-- Material: `Oil on canvas`
-- Dimensions: `H: 290 cm; w: 354 cm`
-- Type of object: `Painting`
-- MWNF working number: `PT 16`
-
-Legacy source:
-
-| Source | Legacy key | Result |
-|---|---|---|
-| `objects` | `project_id=BAR`, `country=pt`, `museum_id=Mus11_A`, `number=13`, `lang=en` | The website fields above come from this row. |
-| `objects_pictures` | same key, `type=''` | Six image rows exist, ordered by `image_number`. |
-
-Important legacy values:
-
-| Field | Legacy value |
+| Website content | Legacy source used by the site |
 |---|---|
-| `name` | `Portrait of the Marquis of Pombal` |
-| `location` / `province` | `Oeiras` / `Lisbon` |
-| `holding_museum` | `Oeiras Town Hall` |
-| `original_owner` | `Sebastião José de Carvalho e Melo, Marquis de Pombal` |
-| `current_owner` | `Oeiras Town Hall` |
-| `date_description` | `1766` |
-| `inventory_id` | `002605` |
-| `materials` | `Oil on canvas` |
-| `dimensions` | `H: 290 cm; w: 354 cm.` |
-| `workshop` | `Portraiture European and Baroque` |
-| `provenance` | `Palace of the Marquis de Pombal, Oeiras` |
-| `typeof` | `Painting` |
-| `period_activity` | `Mid/2nd half 18th century` |
-| `production_place` | `Lisbon and Paris` |
-| `working_number` | `PT 16` |
-| `start_date` / `end_date` | `1717` / `1807` |
-| `log_dateupd` | `2021-08-22 18:10:19` |
+| Objects | `mwnf3.objects`, `objects_pictures`, object links, dynasty and author tables, loaded through the legacy item class. |
+| Monuments | `mwnf3.monuments`, `monuments_pictures`, `monument_details`, monument links, trail links, and author links. |
+| Partners | `mwnf3.museums`, museum names, museum pictures, and associated partner tables. |
+| Exhibitions | `mwnf3.exhibitions`, exhibition fields, themes, pages, page images, and page image details. |
+| Timelines | `mwnf3.hcr` and item-country/project filters surfaced by item pages. |
 
-Inventory result:
+## Import Quality
 
-| Inventory record | Value |
-|---|---|
-| Item legacy key | `mwnf3:objects:BAR:pt:Mus11_A:13` |
-| Type | `object` |
-| Internal name | `Portrait of the Marquis of Pombal` |
-| Country | `prt` |
-| Project | `mwnf3:projects:BAR` / `Discover Baroque Art` |
-| Direct collection | `mwnf3:projects:BAR` / `Discover Baroque Art` |
-| Partner | `mwnf3:museums:Mus11_A:pt` |
-| English title in BAR context | `Portrait of the Marquis of Pombal` |
-| Holder / owner / initial owner | `Oeiras Town Hall` / `Oeiras Town Hall` / `Sebastião José de Carvalho e Melo, Marquis of Pombal` |
+Core text import is good for the sampled object and monument. The public identity of both records is preserved: names, dates, places, holders, and descriptions are recognizable.
 
-Assessment: **Good match.** The sampled business-facing object facts are present and traceable. Minor formatting differences are expected because the importer converts legacy text into the Inventory text format.
+The exhibition root import also looks strong in the sample. The public exhibition titles are present as Inventory collections.
 
-### 2. Object Images
+The import is weaker for the material that turns a database record into the full website page: multiple images, special-feature images, partner profile richness, and timeline relations.
 
-Website image links for the object:
+## Gaps To Address
 
-- `objects/bar/pt/11_a/13/1.jpg`
-- `objects/bar/pt/11_a/13/2.jpg`
-- `objects/bar/pt/11_a/13/3.jpg`
-- `objects/bar/pt/11_a/13/4.jpg`
-- `objects/bar/pt/11_a/13/5.jpg`
-- `objects/bar/pt/11_a/13/6.jpg`
+1. **Media completeness gap**
 
-Legacy source:
+   The sampled object has 6 visible website images but only 1 imported item image. The sampled monument has 5 main images plus special-feature images but only 1 imported item image. This is the most visible Baroque gap.
 
-| Source | Count | Notes |
-|---|---:|---|
-| `objects_pictures` | 6 | All six rows have photographer `Carlos Santos`; all six have copyright `Câmara Municipal de Oeiras`; only image 6 has caption `Detail`. |
+2. **Timeline relationship gap**
 
-Inventory result:
+   The sampled object and monument pages expose `Timeline for this item`, but no `timeline_event_item` links were found for those records.
 
-| Inventory representation | Result |
-|---|---|
-| Direct `item_images` on the object | One row, original `objects/bar/pt/11_a/13/1.jpg`, display order `1`. |
-| Child picture items | Six child items exist: `mwnf3:objects_pictures:bar:pt:Mus11_A:13:1` through `:6`. |
-| Child picture image rows | Each child picture item has one image row with the corresponding original image name. |
+3. **Partner detail gap**
 
-Assessment: **Good match, with a model difference.** The website shows six images directly on the object. Inventory preserves the full six-image set, but represents images 1-6 primarily as child picture items. Reviewers should include child picture items when validating image completeness.
+   The sampled associated-museum partner exists, but the imported row is sparse compared with the live page. City, website, richer associated-museum structure, and some image/logo presentation data need review.
 
-### 3. Partner Page: Further Associated Museums
+4. **Monument special-feature gap**
 
-Website page:
+   The live monument page exposes structured special features with detail-level images and text. The sampled imported item/media rows did not show equivalent content.
 
-- `https://baroqueart.museumwnf.org/pm_partner.php?id=Mus11_A;pt&type=museum`
-- Displayed heading: `Further Associated Museums`
-- Country: `Portugal`
-- The visible description is a list of associated Portuguese museums and places, including `Oeiras Town Hall`.
-- The page has a `View Objects` link to `pm_museum_items.php?id=Mus11_A;pt`.
-- The visible image uses `museums/pt/11_a/1.jpg` and has alt text `Army Museum Lisbon`.
+5. **Context duplication requires deliberate filtering**
 
-Legacy source:
+   Sampled BAR item translations also appear under an EPM context. That may be legitimate reuse, but validation and future screens must filter by the intended context.
 
-| Source | Legacy key | Result |
-|---|---|---|
-| `museums` | `museum_id=Mus11_A`, `country=pt` | `project_id=BAR`, name `Further Associated Museums`, logo `museums/pt/11_A/logos/1.jpg`. |
-| `museumnames` | same museum/country, `lang=en` | Display name and description used by the page. |
-| `museums_pictures` | same museum/country | One image row: `museums/pt/11_a/1.jpg`, caption `Army Museum Lisbon`. |
+## Business Assessment
 
-Inventory result:
-
-| Inventory record | Value |
-|---|---|
-| Partner legacy key | `mwnf3:museums:Mus11_A:pt` |
-| Type | `museum` |
-| Country | `prt` |
-| Internal name | `Further Associated Museums` |
-| Visible | `0` |
-| Partner image | One row, original `museums/pt/11_a/1.jpg`, display order `1`. |
-
-Assessment: **Good match for the legacy partner record.** The partner is not a single institution named `Oeiras Town Hall`; it is a grouped legacy partner called `Further Associated Museums`. That grouping is source data, not an importer error.
-
-### 4. Exhibition Placement
-
-The object page displays the item under:
-
-- `Discover Baroque Art`
-- `The Age of Enlightenment`
-- `Signs of social responsibility: enlightened absolutism`
-
-Legacy source:
-
-| Source | Key/value | Result |
-|---|---|---|
-| `exhibition_page_images` | `image_id=1857`, `page_id=342`, `ref_item=O;BAR;pt;11_A;13` | Links the object to the exhibition page. |
-| `exhibitions` and EAV fields | `exhibition_id=45` | English title `The Age of Enlightenment`. |
-| `exhibition_themes` and EAV fields | `theme_id=146` | English title `Signs of social responsibility: enlightened absolutism`. |
-| `exhibition_pages` and EAV fields | `page_id=342` | Page title `Signs of social responsibility: enlightened absolutism`; page quote begins `The rebuilding of Lisbon after the disastrous earthquake...`. |
-
-Inventory result:
-
-| Inventory link | Result |
-|---|---|
-| Collection path | `Discover Baroque Art` > `The Age of Enlightenment` > `Signs of social responsibility: enlightened absolutism` > `Signs of social responsibility: enlightened absolutism`. |
-| Page collection key | `mwnf3:exhibition_pages:342` |
-| Object link | The Pombal object is linked to this page collection with display order `1`. |
-| Extra picture | `objects/bar/pt/11_a/13/2.jpg` |
-
-Assessment: **Good match.** The website exhibition placement is preserved in Inventory as a collection hierarchy and item membership.
-
-### 5. Additional Collection Membership
-
-Inventory also links the sampled object to:
-
-| Collection | Title / meaning |
-|---|---|
-| `mwnf3:exhibitions:46` | `Absolutism` |
-| `mwnf3_thematic_gallery:thg_gallery:31` | `gallery_portraits` / `Portraits` gallery |
-| `mwnf3:projects:BAR` | `Discover Baroque Art` main project collection |
-
-Assessment: **Useful enrichment, not a mismatch.** These memberships explain why the same object can appear through several public contexts.
-
-### 6. Timeline Link
-
-The object detail page shows a `Timeline for this item` link.
-
-Legacy website behaviour:
-
-- The website does not use a direct object-to-event relation for this sample.
-- It checks whether HCR rows exist for the object's country, `pt`.
-- It opens the timeline popup using the object's country and date range: `start_date=1717`, `end_date=1807`.
-
-Legacy events returned for this date window:
-
-| HCR id | Country | Date | Description summary |
-|---:|---|---|---|
-| 831 | `pt` | `1755` | Lisbon earthquake. Reconstruction begins under the Marquis of Pombal. |
-| 832 | `pt` | `1769` | Mazagán, the last Portuguese town in Morocco, is abandoned. |
-
-Inventory result:
-
-- No timeline rows with BAR compatibility keys were found.
-- No timeline event rows with BAR compatibility keys were found.
-- `timeline_event_item` has no links to BAR project items.
-- A Baroque-relevant HCR event exists independently, but it is not linked to BAR items.
-
-Assessment: **Confirmed gap.** The website timeline behaviour for the sampled item is not represented as item-linked timeline data in Inventory.
-
-## Data Quality Points For Reviewers
-
-### Context Duplication
-
-The sampled Baroque item has four Inventory translation rows:
-
-| Language | Context | Notes |
-|---|---|---|
-| English | `mwnf3:projects:BAR` / `Discover Baroque Art` | Matches the sampled website page. |
-| Portuguese | `mwnf3:projects:BAR` / `Discover Baroque Art` | Matches the alternate website language. |
-| English | `mwnf3:projects:EPM` / `Explore Islamic Art Collections` | Same item, different context and description text. |
-| Portuguese | `mwnf3:projects:EPM` / `Explore Islamic Art Collections` | Same item, different context and description text. |
-
-This is not a duplicate object row. It is one object with translations in more than one context. For website validation, reviewers should filter by the context that corresponds to the website being checked.
-
-### Partner Grouping
-
-The sampled partner page is a grouped source record named `Further Associated Museums`. The object's visible holding museum, `Oeiras Town Hall`, is part of that grouped description rather than a standalone partner record in this sample.
-
-This is important for customer review: a search for a specific institution name can miss the imported partner if the legacy site grouped several institutions under one partner record.
-
-### Image Completeness
-
-Inventory preserves the visible image set, but object images are split between:
-
-- one direct image on the object;
-- six child picture items, each with its own image row.
-
-Validation screens and queries should include child picture items when checking whether all website images are present.
-
-## Findings Summary
-
-| Area | Assessment |
-|---|---|
-| Website object identity | Good match. |
-| Main object descriptive fields | Good match. |
-| Object images | Good match when child picture items are included. |
-| Partner page | Good match to the legacy grouped partner. |
-| Exhibition placement | Good match. |
-| Timeline behaviour | Gap: website country/date HCR timeline is not linked to BAR Inventory items. |
-| Translation context clarity | Review point: the same BAR item also has translations in the EPM context. |
-
-## Practical Validation Guidance
-
-When customers validate imported Baroque records, they should:
-
-- compare item facts by `backward_compatibility`, not only by title;
-- filter translations by the website context, for example `mwnf3:projects:BAR` for Discover Baroque Art;
-- include child picture items when checking image completeness;
-- treat grouped legacy partner pages as source truth when the website groups several institutions under one partner;
-- review timelines separately, because the sampled website timeline is driven by country and date range rather than direct item-event links.
+The Baroque Art import is good enough for validating the main object, monument, and exhibition text. It is not yet good enough to reproduce the public website experience for image-rich pages, timeline navigation, and partner profiles.
