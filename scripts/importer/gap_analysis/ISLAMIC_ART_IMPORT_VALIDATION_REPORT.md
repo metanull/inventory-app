@@ -18,7 +18,7 @@ Relevant internal references:
 
 The Islamic Art import is strong for the main public content families sampled here: object identity, partner identity, historical chronology records, exhibition hierarchy, and exhibition-item links. The sampled records keep stable `backward_compatibility` keys and recognizable business fields.
 
-The main gaps are not whole missing families. They are presentation and modeling issues that can affect public review: provenance can be missing, some objects have multiple same-language translations, and picture records can appear as standalone items if future screens do not filter them carefully.
+The main gaps are not whole missing families. They are presentation and modeling issues that can affect public review: provenance can be missing, and some objects have multiple same-language translations that need context-aware display rules.
 
 ## Samples Checked
 
@@ -56,14 +56,14 @@ Exhibition structure is also good in the sample. The root exhibition, page colle
 
    Some sampled objects have more than one English translation. This may preserve different source text fields or contexts, but it can create duplicate rows in lists unless every query is context-aware.
 
-3. **Picture rows can pollute object listings**
-
-   The sampled museum partner has real objects and imported `type = picture` items. Pictures are valid Inventory content, but public object lists must filter them intentionally so images do not appear as holdings.
-
-4. **Single-date timeline events use `year_to = 0`**
+3. **Single-date timeline events use `year_to = 0`**
 
    The sampled timeline import is otherwise strong. Future presentation should treat `0` as no end year, or the importer should normalize it if the model permits.
 
+## Image Model Note
+
+The presence of `type = picture` child items is intentional in the Inventory model. A parent object or monument keeps one main image, and additional images can exist as child picture items. This report does not treat child picture rows as an import gap.
+
 ## Business Assessment
 
-The Islamic Art import is suitable for validating the core museum collection, exhibition hierarchy, and historical chronology content. Reviewers should focus next on provenance coverage, duplicate/contextual translations, and list filtering rules for picture items.
+The Islamic Art import is suitable for validating the core museum collection, exhibition hierarchy, and historical chronology content. Reviewers should focus next on provenance coverage and duplicate/contextual translations.

@@ -18,17 +18,17 @@ Relevant internal references:
 
 The Baroque Art import is credible for the main text of sampled objects, monuments, project context, and exhibition titles. The imported records keep consistent legacy identities such as `mwnf3:objects:BAR:pt:Mus11_A:13` and `mwnf3:monuments:BAR:pt:Mon11:23`.
 
-The most important gaps are supporting website experience data: image sets are incomplete, item-to-timeline links are missing in the sample, partner detail is thinner than the live page, and monument special-feature content is not clearly represented.
+The most important gaps are supporting website experience data: item-to-timeline links are missing in the sample, partner detail is thinner than the live page, and monument special-feature content is not clearly represented. The sampled multi-image object and monument pages are not image-import gaps: their extra images exist as child `picture` items.
 
 ## Samples Checked
 
 | Website area | Sampled website page | Website facts checked | Inventory result |
 |---|---|---|---|
 | Homepage and highlight | `https://baroqueart.museumwnf.org/` | Website title; navigation to Permanent Collection, Database, Exhibitions, Timeline; highlighted object `object;BAR;pt;Mus11_A;13;en` | BAR project context exists as `mwnf3:projects:BAR`. Highlighted object exists. |
-| Object detail | `database_item.php?id=object;BAR;pt;Mus11_A;13;en` | `Portrait of the Marquis of Pombal`; Oeiras, Lisbon, Portugal; holder Oeiras Town Hall; date 1766; oil on canvas; 6 visible object images; timeline link; portrait category | Item `mwnf3:objects:BAR:pt:Mus11_A:13` exists. Type, country, partner, English title, date, location, holder, and description match. Only 1 imported image was found for the sampled object. |
+| Object detail | `database_item.php?id=object;BAR;pt;Mus11_A;13;en` | `Portrait of the Marquis of Pombal`; Oeiras, Lisbon, Portugal; holder Oeiras Town Hall; date 1766; oil on canvas; 6 visible object images; timeline link; portrait category | Item `mwnf3:objects:BAR:pt:Mus11_A:13` exists. Type, country, partner, English title, date, location, holder, and description match. The parent has 1 image and 6 child `picture` items (`mwnf3:objects_pictures:bar:pt:Mus11_A:13:1..6`). |
 | Partner list/detail | `pm_partner_list.php?type=museum&`; `pm_partner.php?id=Mus11_A;pt&type=museum&theme=BAR` | Country-grouped partner list; Portugal includes associated museums; detail page displays `Further Associated Museums`, Portugal, image, logo, and a visible list of Portuguese institutions | Partner `mwnf3:museums:Mus11_A:pt` exists with name and country. The sampled detail is flatter than the website: city and website are null, and one image is imported. |
 | Permanent collection | `pclist_all.php?country=pt&lang=en` | Portugal has 50 objects and 35 monuments; includes monument `Church of St. Francis, Oporto` and object links | Sampled object and monument records exist. Project collection `mwnf3:projects:BAR` has 597 item links, matching the portal Baroque count sampled separately. |
-| Monument detail | `database_item.php?id=monument;BAR;pt;Mon11;23;en` | `Church of St. Francis, Oporto`; 13th-14th and 17th-18th century date text; Parish of St. Nicolau, Oporto, Portugal; 5 main images plus special features; timeline link | Item `mwnf3:monuments:BAR:pt:Mon11:23` exists. Title, date, location, country, and description match. Only 1 imported image was found, and no sampled timeline links were found. |
+| Monument detail | `database_item.php?id=monument;BAR;pt;Mon11;23;en` | `Church of St. Francis, Oporto`; 13th-14th and 17th-18th century date text; Parish of St. Nicolau, Oporto, Portugal; 5 main images plus special features; timeline link | Item `mwnf3:monuments:BAR:pt:Mon11:23` exists. Title, date, location, country, and description match. The parent has 1 image and 5 child `picture` items (`mwnf3:monuments_pictures:bar:pt:Mon11:23:1..5`). No sampled timeline links were found. |
 | Exhibition index | `exhibitions/BAR/index.php` | Exhibitions include `Absolutism`, `Devotion and Pilgrimage`, `The Age of Enlightenment`, and others | Imported collection titles match sampled BAR exhibition roots such as `mwnf3:exhibitions:43`, `44`, `45`, `46`, `47`, `50`, and `51`. |
 
 ## Legacy Source Mapping
@@ -47,30 +47,26 @@ Core text import is good for the sampled object and monument. The public identit
 
 The exhibition root import also looks strong in the sample. The public exhibition titles are present as Inventory collections.
 
-The import is weaker for the material that turns a database record into the full website page: multiple images, special-feature images, partner profile richness, and timeline relations.
+The import is weaker for the material that turns a database record into the full website page: partner profile richness, timeline relations, and the structured special-feature content shown on monument pages.
 
 ## Gaps To Address
 
-1. **Media completeness gap**
-
-   The sampled object has 6 visible website images but only 1 imported item image. The sampled monument has 5 main images plus special-feature images but only 1 imported item image. This is the most visible Baroque gap.
-
-2. **Timeline relationship gap**
+1. **Timeline relationship gap**
 
    The sampled object and monument pages expose `Timeline for this item`, but no `timeline_event_item` links were found for those records.
 
-3. **Partner detail gap**
+2. **Partner detail gap**
 
    The sampled associated-museum partner exists, but the imported row is sparse compared with the live page. City, website, richer associated-museum structure, and some image/logo presentation data need review.
 
-4. **Monument special-feature gap**
+3. **Monument special-feature gap**
 
-   The live monument page exposes structured special features with detail-level images and text. The sampled imported item/media rows did not show equivalent content.
+   The live monument page exposes structured special features with detail-level images and text. The main monument images are present as child `picture` items, but the sampled imported rows did not show the structured special-feature text/detail grouping.
 
-5. **Context duplication requires deliberate filtering**
+4. **Context duplication requires deliberate filtering**
 
    Sampled BAR item translations also appear under an EPM context. That may be legitimate reuse, but validation and future screens must filter by the intended context.
 
 ## Business Assessment
 
-The Baroque Art import is good enough for validating the main object, monument, and exhibition text. It is not yet good enough to reproduce the public website experience for image-rich pages, timeline navigation, and partner profiles.
+The Baroque Art import is good enough for validating the main object, monument, exhibition text, and sampled multi-image records through the parent plus child-picture model. It is not yet good enough to reproduce the public website experience for timeline navigation, partner profiles, and structured monument special features.
