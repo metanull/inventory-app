@@ -1,6 +1,8 @@
 @php
     $isExpanded = isset($this->expanded[$node->id]);
     $hasChildren = $node->children_count > 0;
+    $hasItems = $node->attached_items_count > 0;
+    $hasExpandable = $hasChildren || $hasItems;
     $indent = $depth * 1.5;
 @endphp
 
@@ -8,7 +10,7 @@
      style="padding-left: {{ 1 + $indent }}rem">
 
     {{-- Expand / collapse control --}}
-    @if ($hasChildren)
+    @if ($hasExpandable)
         <button
             wire:click="toggle('{{ $node->id }}')"
             class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition"
@@ -45,25 +47,57 @@
         {{ $node->type }}
     </span>
 
-    {{-- Child count --}}
+    {{-- Child collection count --}}
     @if ($hasChildren)
         <span class="flex-shrink-0 text-xs text-gray-400 dark:text-gray-500">
             {{ $node->children_count }} {{ Str::plural('child', $node->children_count) }}
         </span>
     @endif
 
-    {{-- Item count --}}
-    <span class="flex-shrink-0 text-xs text-gray-400 dark:text-gray-500">
-        {{ $node->items_count }} {{ Str::plural('item', $node->items_count) }}
-    </span>
+    {{-- Direct member item count (from collection_item pivot) --}}
+    @if ($hasItems)
+        <span class="flex-shrink-0 text-xs text-gray-400 dark:text-gray-500">
+            {{ $node->attached_items_count }} {{ Str::plural('item', $node->attached_items_count) }}
+        </span>
+    @endif
 </div>
 
 {{-- Lazy-loaded children rendered only when expanded --}}
-@if ($isExpanded && $hasChildren)
+@if ($isExpanded)
+    {{-- Child collections --}}
     @foreach ($this->getChildren($node->id) as $child)
         @include('filament.pages.partials.collection-tree-node', [
             'node' => $child,
             'depth' => $depth + 1,
         ])
     @endforeach
+
+    {{-- Direct member items from collection_item pivot --}}
+    @if ($hasItems)
+        @foreach ($this->getCollectionItems($node->id) as $item)
+            @php
+                $itemIndent = ($depth + 1) * 1.5;
+                $typeLabel = $item->type instanceof \App\Enums\ItemType ? $item->type->label() : (string) $item->type;
+            @endphp
+            <div class="px-4 py-2 flex items-center gap-3 bg-gray-50 dark:bg-white/5"
+                 style="padding-left: {{ 1 + $itemIndent }}rem">
+                <span class="flex-shrink-0 w-4 h-4"></span>
+                <x-filament::icon
+                    icon="heroicon-o-cube"
+                    class="flex-shrink-0 h-4 w-4 text-indigo-400 dark:text-indigo-500"
+                />
+                <div class="flex-1 min-w-0">
+                    <a
+                        href="{{ \App\Filament\Resources\ItemResource::getUrl('view', ['record' => $item->id]) }}"
+                        class="text-sm text-gray-700 dark:text-gray-300 hover:underline truncate block"
+                    >
+                        {{ $item->internal_name }}
+                    </a>
+                </div>
+                <span class="flex-shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                    {{ $typeLabel }}
+                </span>
+            </div>
+        @endforeach
+    @endif
 @endif

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Enums\Permission;
 use App\Models\Collection;
+use App\Models\Item;
 use Filament\Pages\Page;
 
 class BrowseCollectionTree extends Page
@@ -129,7 +130,7 @@ class BrowseCollectionTree extends Page
         $query = Collection::query()
             ->whereNull('parent_id')
             ->withCount('children')
-            ->withCount('items')
+            ->withCount('attachedItems')
             ->orderBy('internal_name');
 
         if ($this->search !== '') {
@@ -174,7 +175,25 @@ class BrowseCollectionTree extends Page
         return Collection::query()
             ->where('parent_id', $parentId)
             ->withCount('children')
-            ->withCount('items')
+            ->withCount('attachedItems')
+            ->orderBy('internal_name')
+            ->get();
+    }
+
+    /**
+     * Fetch direct member items for a given collection via the collection_item pivot.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Item>
+     */
+    public function getCollectionItems(string $collectionId): \Illuminate\Database\Eloquent\Collection
+    {
+        $collection = Collection::find($collectionId);
+
+        if ($collection === null) {
+            return new \Illuminate\Database\Eloquent\Collection;
+        }
+
+        return $collection->attachedItems()
             ->orderBy('internal_name')
             ->get();
     }
