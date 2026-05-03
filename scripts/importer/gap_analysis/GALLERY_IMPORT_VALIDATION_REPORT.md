@@ -18,7 +18,7 @@ Relevant internal references:
 
 The Amulets gallery import is strong for the core object and partner records sampled from the public site. Dates, holders, locations, object descriptions, partner descriptions, coordinates, and related object links are mostly preserved.
 
-The gallery-level import is weaker: the collection exists and membership is present, but the sampled gallery collection has no English title/description. Multi-image object coverage and image rights/caption preservation also need attention.
+The gallery-level import is weaker: the collection exists and membership is present, but the sampled gallery collection has no English title/description. Image rights/caption preservation also needs attention. The sampled two-image object is not an image-import gap because the second image exists as a child `picture` item.
 
 ## Samples Checked
 
@@ -28,7 +28,7 @@ The gallery-level import is weaker: the collection exists and membership is pres
 | Collection results | `/collection-results`; `/api/v2/items?hash=2e356d8` | 46 total objects across 3 pages; first samples include `ISL/jo/Mus01/4`, `EPM/gr/Mus21/25`, `ISL/tr/Mus01/18` | Sampled object items exist. They are linked to the gallery or related contexts. |
 | Search | `/search?q=kufic`; `/api/v2/items?hash=2e356d8&q=kufic` | 7 results including `Inscription stone`, `Bronze mirror with sphinxes and kufic inscription`, `Amulet`, and `Amulet case` | Sampled objects exist with matching names and fields. Search behavior itself is not directly validated by Inventory rows. |
 | Item detail | `/database-item/mwnf3/objects/ISL/jo/Mus01/4/en` | `Inscription stone`; date 700-750; holder Jordan Archaeological Museum; long and short descriptions; one image; 5 related objects; source URL to Islamic Art | Item `mwnf3:objects:ISL:jo:Mus01:4` exists. Core fields, image, and related object links match. It has multiple English translations across contexts. |
-| Item detail | `/database-item/mwnf3/objects/ISL/tr/Mus01/18/en` | `Talismanic shirt`; date 1375-1425; two live/legacy images; one related object; exhibition link to `Echoes of Paradise` | Item `mwnf3:objects:ISL:tr:Mus01:18` exists with matching core fields and related link. Only one imported image was found, while the website has two. |
+| Item detail | `/database-item/mwnf3/objects/ISL/tr/Mus01/18/en` | `Talismanic shirt`; date 1375-1425; two live/legacy images; one related object; exhibition link to `Echoes of Paradise` | Item `mwnf3:objects:ISL:tr:Mus01:18` exists with matching core fields and related link. The parent has 1 image and 2 child `picture` items (`mwnf3:objects_pictures:isl:tr:Mus01:18:1..2`). |
 | Partner profiles | `/partner/ISL/jo/Mus01/en`; `/partner/EPM/gr/Mus21/en` | Jordan Archaeological Museum and Benaki Museum include descriptions, contact/map data, logos, and three partner photos each | Partners `mwnf3:museums:Mus01:jo` and `mwnf3:museums:Mus21:gr` exist with names, cities, phone/website where available, map coordinates, descriptions, contact data, and three images. |
 | Timeline | `/timeline-results?c=jo&start=700&end=750` | Four Jordan events: HCR 673-676, years 728, 743-744, 747, and 749 | Events `mwnf3:hcr:673` through `mwnf3:hcr:676` exist with matching years, country, and English descriptions. |
 
@@ -55,22 +55,18 @@ The imported collection shell is present, but the public gallery name and descri
 
    Collection `mwnf3_thematic_gallery:thg_gallery:4` exists, but the English title `Amulets and Talismans` was not found as a collection translation.
 
-2. **Multi-image object coverage is incomplete**
-
-   The `Talismanic shirt` page has two live/legacy images, while Inventory has one image in the sampled query.
-
-3. **Context-scoped translations need clear display rules**
+2. **Context-scoped translations need clear display rules**
 
    Sampled items have multiple English translations from project and gallery contexts. This can be correct, but future screens must select the intended context.
 
-4. **Image credits and captions need broader review**
+3. **Image credits and captions need broader review**
 
    Some live/legacy image records include copyright or credit data. The sampled imported image fields did not clearly preserve all such values.
 
-5. **Source action links are not fully first-class**
+4. **Source action links are not fully first-class**
 
    The live gallery exposes source-site actions such as remote object, collection, book, and travel links. Inventory preserves some relationships and extra data, but these actions are not clearly structured as user-facing links.
 
 ## Business Assessment
 
-The Amulets import is good for object and partner validation, but gallery-level metadata and complete media coverage need work before the public gallery experience can be reproduced from Inventory alone.
+The Amulets import is good for object and partner validation, including sampled multi-image object records through the parent plus child-picture model. Gallery-level metadata, image credit/caption coverage, and source action links need work before the public gallery experience can be reproduced from Inventory alone.
