@@ -468,8 +468,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // Convert undefined values to null for SQL compatibility
     const safeNull = (val: string | null | undefined): string | null => val ?? null;
     await this.db.execute(
-      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.item_id,
@@ -488,6 +488,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         safeNull(sanitized.place_of_production),
         safeNull(sanitized.method_for_datation),
         safeNull(sanitized.method_for_provenance),
+        safeNull(sanitized.provenance),
         safeNull(sanitized.obtention),
         safeNull(sanitized.bibliography),
         safeNull(sanitized.author_id),
