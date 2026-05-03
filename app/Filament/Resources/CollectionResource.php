@@ -20,6 +20,7 @@ use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelat
 use App\Models\Collection;
 use App\Models\Project;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -84,46 +85,54 @@ class CollectionResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('internal_name')
-                    ->required()
-                    ->maxLength(255),
-                Select::make('type')
-                    ->options(self::TYPE_OPTIONS)
-                    ->required(),
-                TextInput::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->maxLength(255),
-                Select::make('language_id')
-                    ->label('Language')
-                    ->relationship('language', 'internal_name')
-                    ->searchable(),
-                Select::make('context_id')
-                    ->label('Context')
-                    ->relationship('context', 'internal_name')
-                    ->searchable(),
-                Select::make('parent_id')
-                    ->label('Parent collection')
-                    ->relationship(
-                        name: 'parent',
-                        titleAttribute: 'internal_name',
-                        modifyQueryUsing: fn (Builder $query, ?Collection $record): Builder => $record
-                            ? $query->excludingDescendantsOf($record->id)
-                            : $query,
-                    )
-                    ->searchable()
-                    ->nullable(),
-                Select::make('country_id')
-                    ->label('Country')
-                    ->relationship('country', 'internal_name')
-                    ->searchable(),
-                TextInput::make('latitude')
-                    ->numeric(),
-                TextInput::make('longitude')
-                    ->numeric(),
-                TextInput::make('map_zoom')
-                    ->label('Map zoom')
-                    ->numeric()
-                    ->integer(),
+                Tabs::make('collection-details')
+                    ->tabs([
+                        Tabs\Tab::make('Core information')
+                            ->schema([
+                                TextInput::make('internal_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('type')
+                                    ->options(self::TYPE_OPTIONS)
+                                    ->required(),
+                                TextInput::make('backward_compatibility')
+                                    ->label('Legacy code')
+                                    ->maxLength(255),
+                                Select::make('language_id')
+                                    ->label('Language')
+                                    ->relationship('language', 'internal_name')
+                                    ->searchable(),
+                                Select::make('context_id')
+                                    ->label('Context')
+                                    ->relationship('context', 'internal_name')
+                                    ->searchable(),
+                                Select::make('parent_id')
+                                    ->label('Parent collection')
+                                    ->relationship(
+                                        name: 'parent',
+                                        titleAttribute: 'internal_name',
+                                        modifyQueryUsing: fn (Builder $query, ?Collection $record): Builder => $record
+                                            ? $query->excludingDescendantsOf($record->id)
+                                            : $query,
+                                    )
+                                    ->searchable()
+                                    ->nullable(),
+                                Select::make('country_id')
+                                    ->label('Country')
+                                    ->relationship('country', 'internal_name')
+                                    ->searchable(),
+                                TextInput::make('latitude')
+                                    ->numeric(),
+                                TextInput::make('longitude')
+                                    ->numeric(),
+                                TextInput::make('map_zoom')
+                                    ->label('Map zoom')
+                                    ->numeric()
+                                    ->integer(),
+                            ])
+                            ->columns(2),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 

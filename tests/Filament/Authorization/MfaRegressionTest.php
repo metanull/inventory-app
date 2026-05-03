@@ -197,13 +197,16 @@ class MfaRegressionTest extends TestCase
 
     /**
      * T-8: Isolation A — static check.
-     * The app/Filament/** and app/Http/Middleware/Filament/** trees must contain no forbidden strings.
+     * The app/Filament/**, app/Http/Middleware/Filament/**, app/Services/Filament/**,
+     * and app/Notifications/Filament/** trees must contain no forbidden strings.
      */
     public function test_isolation_a_filament_trees_contain_no_forbidden_strings(): void
     {
         $trees = [
             base_path('app/Filament'),
             base_path('app/Http/Middleware/Filament'),
+            base_path('app/Services/Filament'),
+            base_path('app/Notifications/Filament'),
         ];
 
         $forbidden = [

@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,12 +24,38 @@ class PicturesRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->where('type', ItemType::PICTURE->value)
-                ->with(['partner:id,internal_name'])
+                ->with(['partner:id,internal_name', 'itemImages'])
             )
             ->defaultSort('display_order', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
+                ImageColumn::make('thumbnail')
+                    ->label('Preview')
+                    ->getStateUsing(function ($record): ?string {
+                        $firstImage = $record->itemImages->first();
+
+                        return $firstImage
+                            ? route('filament.admin.item-image.view', [
+                                'item' => $record->id,
+                                'itemImage' => $firstImage->id,
+                            ])
+                            : null;
+                    })
+                    ->height(48)
+                    ->width(48)
+                    ->url(function ($record): ?string {
+                        $firstImage = $record->itemImages->first();
+
+                        return $firstImage
+                            ? route('filament.admin.item-image.view', [
+                                'item' => $record->id,
+                                'itemImage' => $firstImage->id,
+                            ])
+                            : null;
+                    })
+                    ->openUrlInNewTab()
+                    ->defaultImageUrl(null),
                 TextColumn::make('internal_name')
                     ->searchable()
                     ->sortable()

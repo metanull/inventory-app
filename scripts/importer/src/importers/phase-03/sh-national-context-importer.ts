@@ -6,9 +6,10 @@
  * representative images and assign objects/monuments with justification texts.
  *
  * Step 1: Import NC country-exhibition Collections (~62 rows)
- * Step 2: Import NC exhibition texts (3 rows) → CollectionTranslation
- * Step 3: Import NC exhibition images (~130 rows) → collection_item pivot
- * Step 4: Import NC item assignments + justifications (~132 rows)
+ * Step 2: Import NC exhibition images (~130 rows) → collection_item pivot
+ * Step 3: Import NC item assignments + justifications (~132 rows)
+ *
+ * Note: sh_national_context_exhibition_texts contains only 3 dummy rows and is ignored.
  *
  * All theme-level and subtheme-level NC tables are empty and are skipped.
  *
@@ -26,7 +27,6 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import type {
   ShLegacyNCExhibition,
-  ShLegacyNCExhibitionText,
   ShLegacyNCExhibitionImage,
   ShLegacyRelObjectsNCExhibitions,
   ShLegacyRelObjectsNCExhibitionJustification,
@@ -58,17 +58,12 @@ export class ShNationalContextImporter extends BaseImporter {
       await this.importNCCollections(result);
 
       // ========================================================================
-      // Step 2: Import NC exhibition texts → CollectionTranslation
-      // ========================================================================
-      await this.importNCTexts(result);
-
-      // ========================================================================
-      // Step 3: Import NC exhibition images → collection_item pivot
+      // Step 2: Import NC exhibition images → collection_item pivot
       // ========================================================================
       await this.importNCImages(result);
 
       // ========================================================================
-      // Step 4: Import NC item assignments + justifications
+      // Step 3: Import NC item assignments + justifications
       // ========================================================================
       await this.importNCItemAssignments(result);
 
@@ -183,94 +178,7 @@ export class ShNationalContextImporter extends BaseImporter {
   }
 
   // --------------------------------------------------------------------------
-  // Step 2: NC exhibition texts → CollectionTranslation
-  // --------------------------------------------------------------------------
-  private async importNCTexts(result: ImportResult): Promise<void> {
-    const texts = await this.context.legacyDb.query<ShLegacyNCExhibitionText>(
-      `SELECT country, exhibition_id, lang, context
-       FROM ${SH_SCHEMA}.sh_national_context_exhibition_texts
-       WHERE context IS NOT NULL AND context != ''
-       ORDER BY country, exhibition_id, lang`
-    );
-
-    this.logInfo(`Found ${texts.length} NC exhibition texts`);
-
-    for (const legacy of texts) {
-      try {
-        const collectionBackwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${legacy.country.toLowerCase()}:${legacy.exhibition_id}`;
-        const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
-        if (!collectionId) {
-          result.warnings = result.warnings || [];
-          result.warnings.push(
-            `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: Collection not found`
-          );
-          this.logWarning(
-            `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: Collection not found, skipping`
-          );
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
-
-        const languageId = await this.getLanguageIdByLegacyCodeAsync(legacy.lang);
-        if (!languageId) {
-          this.logWarning(
-            `NC text ${legacy.country}/${legacy.exhibition_id}: Unknown language '${legacy.lang}', skipping`
-          );
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
-
-        const contextId = await this.resolveContextForExhibition(legacy.exhibition_id);
-        if (!contextId) {
-          result.warnings = result.warnings || [];
-          result.warnings.push(
-            `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: Context not found`
-          );
-          this.logWarning(
-            `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: Context not found, skipping`
-          );
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
-
-        const backwardCompat = `${SH_SCHEMA}:sh_national_context_exhibition_texts:${legacy.country.toLowerCase()}:${legacy.exhibition_id}:${legacy.lang}`;
-
-        // Compose title from exhibition name + country code
-        const title = `National Context — ${legacy.country.toUpperCase()} / Exhibition ${legacy.exhibition_id}`;
-
-        if (this.isDryRun || this.isSampleOnlyMode) {
-          result.imported++;
-          this.showProgress();
-          continue;
-        }
-
-        await this.context.strategy.writeCollectionTranslation({
-          collection_id: collectionId,
-          language_id: languageId,
-          context_id: contextId,
-          title,
-          description: convertHtmlToMarkdown(legacy.context),
-          backward_compatibility: backwardCompat,
-        });
-
-        result.imported++;
-        this.showProgress();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        result.errors.push(
-          `NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}: ${message}`
-        );
-        this.logError(`NC text ${legacy.country}/${legacy.exhibition_id}/${legacy.lang}`, message);
-        this.showError();
-      }
-    }
-  }
-
-  // --------------------------------------------------------------------------
-  // Step 3: NC exhibition images → collection_item pivot
+  // Step 2: NC exhibition images → collection_item pivot
   // --------------------------------------------------------------------------
   private async importNCImages(result: ImportResult): Promise<void> {
     const images = await this.context.legacyDb.query<ShLegacyNCExhibitionImage>(
@@ -283,6 +191,20 @@ export class ShNationalContextImporter extends BaseImporter {
 
     for (const legacy of images) {
       try {
+        // Reject unknown item_type before any further processing
+        if (legacy.item_type !== 'obj' && legacy.item_type !== 'mon') {
+          result.warnings = result.warnings || [];
+          result.warnings.push(
+            `NC image ${legacy.image_id}: Unknown item_type '${legacy.item_type}', skipping`
+          );
+          this.logWarning(
+            `NC image ${legacy.image_id}: Unknown item_type '${legacy.item_type}', skipping`
+          );
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         const collectionBackwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${legacy.country.toLowerCase()}:${legacy.exhibition_id}`;
         const collectionId = await this.getEntityUuidAsync(collectionBackwardCompat, 'collection');
         if (!collectionId) {
@@ -338,6 +260,10 @@ export class ShNationalContextImporter extends BaseImporter {
             collection_id: collectionId,
             item_id: itemId,
             display_order: legacy.sort_order,
+            extra: {
+              source_image_id: legacy.image_id,
+              source_image_item: legacy.image_item,
+            },
           });
         } catch (writeError) {
           const writeMsg = writeError instanceof Error ? writeError.message : String(writeError);
@@ -363,7 +289,7 @@ export class ShNationalContextImporter extends BaseImporter {
   }
 
   // --------------------------------------------------------------------------
-  // Step 4: NC item assignments with justifications
+  // Step 3: NC item assignments with justifications
   // --------------------------------------------------------------------------
   private async importNCItemAssignments(result: ImportResult): Promise<void> {
     // Step 4a: Object assignments

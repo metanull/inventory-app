@@ -55,6 +55,7 @@ The caller is responsible for keeping `selectedOptions` bounded: query only the 
 
 ## Canonical Usage: Filter Bar (Tags on Items Index)
 
+{% raw %}
 ```blade
 {{-- In the filter bar partial of items/index.blade.php --}}
 <x-form.searchable-multi-select
@@ -69,11 +70,13 @@ The caller is responsible for keeping `selectedOptions` bounded: query only the 
     placeholder="Filter by tag..."
 />
 ```
+{% endraw %}
 
 The hidden inputs submitted will be `filter[tag_ids][]`, which `IndexListRequest` resolves to an array of ids — no changes to the request pipeline required.
 
 ## Canonical Usage: Form Multi-Picker
 
+{% raw %}
 ```blade
 {{-- In a _form.blade.php where $item->tags is the current relationship --}}
 <x-form.searchable-multi-select
@@ -86,6 +89,7 @@ The hidden inputs submitted will be `filter[tag_ids][]`, which `IndexListRequest
     placeholder="Add a tag..."
 />
 ```
+{% endraw %}
 
 The controller reads `$request->input('tag_ids', [])` and passes it to `$item->tags()->sync(...)`.
 

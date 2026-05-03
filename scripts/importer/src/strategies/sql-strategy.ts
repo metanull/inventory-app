@@ -292,7 +292,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const extra = data.extra ? JSON.stringify(data.extra) : null;
     await this.db.execute(
       `INSERT INTO collection_item (collection_id, item_id, display_order, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         display_order = VALUES(display_order),
+         extra = VALUES(extra),
+         updated_at = VALUES(updated_at)`,
       [sanitized.collection_id, sanitized.item_id, displayOrder, extra, this.now, this.now]
     );
   }
@@ -468,8 +472,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // Convert undefined values to null for SQL compatibility
     const safeNull = (val: string | null | undefined): string | null => val ?? null;
     await this.db.execute(
-      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO item_translations (id, item_id, language_id, context_id, name, alternate_name, description, type, holder, owner, initial_owner, dates, location, dimensions, place_of_production, method_for_datation, method_for_provenance, provenance, obtention, bibliography, author_id, text_copy_editor_id, translator_id, translation_copy_editor_id, extra, backward_compatibility, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.item_id,
@@ -488,6 +492,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         safeNull(sanitized.place_of_production),
         safeNull(sanitized.method_for_datation),
         safeNull(sanitized.method_for_provenance),
+        safeNull(sanitized.provenance),
         safeNull(sanitized.obtention),
         safeNull(sanitized.bibliography),
         safeNull(sanitized.author_id),

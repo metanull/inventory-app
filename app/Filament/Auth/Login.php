@@ -4,9 +4,13 @@ namespace App\Filament\Auth;
 
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse as FilamentLoginResponse;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
 use Laravel\Fortify\Features;
 
 class Login extends \Filament\Pages\Auth\Login
@@ -66,5 +70,24 @@ class Login extends \Filament\Pages\Auth\Login
         }
 
         return app(FilamentLoginResponse::class);
+    }
+
+    protected function getForgotPasswordUrl(): ?string
+    {
+        return Filament::getCurrentPanel()->route('auth.password.request');
+    }
+
+    protected function getPasswordFormComponent(): Component
+    {
+        $url = $this->getForgotPasswordUrl();
+
+        return TextInput::make('password')
+            ->label(__('filament-panels::pages/auth/login.form.password.label'))
+            ->hint($url ? new HtmlString(Blade::render('<x-filament::link :href="$url" tabindex="3"> {{ __(\'filament-panels::pages/auth/login.actions.request_password_reset.label\') }}</x-filament::link>', ['url' => $url])) : null)
+            ->password()
+            ->revealable(filament()->arePasswordsRevealable())
+            ->autocomplete('current-password')
+            ->required()
+            ->extraInputAttributes(['tabindex' => 2]);
     }
 }

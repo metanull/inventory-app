@@ -2,11 +2,12 @@
 layout: default
 title: Deployment Guide
 nav_order: 8
+nav_exclude: true
 ---
 
 # Inventory App Deployment Guide
 
-This guide provides comprehensive instructions for deploying the Inventory Management API on Windows servers using the PowerShell deployment script.
+This legacy deployment note provides detailed Windows deployment information. Use [Deployment Guide](deployment/) for the current operational entry point.
 
 ## Overview
 

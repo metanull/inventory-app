@@ -18,6 +18,7 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult, ItemImageData } from '../../core/types.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import path from 'path';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 /**
  * Legacy monument picture structure
@@ -47,6 +48,8 @@ interface PictureGroup {
 }
 
 export class ExploreMonumentPictureImporter extends BaseImporter {
+  private monumentResolver!: ExploreMonumentResolver;
+
   getName(): string {
     return 'ExploreMonumentPictureImporter';
   }
@@ -56,6 +59,12 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing explore monument pictures...');
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // Query all monument pictures
       const pictures = await this.context.legacyDb.query<LegacyMonumentPicture>(
@@ -139,10 +148,12 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
     }
 
     // Find parent monument item
-    const monumentBackwardCompat = `mwnf3_explore:monument:${group.monumentId}`;
-    const itemId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
-    if (!itemId) {
-      throw new Error(`Parent monument item not found: ${monumentBackwardCompat}`);
+    const monumentResolution = await this.monumentResolver.resolve(group.monumentId);
+    if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+      throw new Error(
+        monumentResolution.message ??
+          `Explore monument mwnf3_explore:monument:${group.monumentId} did not resolve to an item`
+      );
     }
 
     // Collect sample
@@ -161,7 +172,7 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
     }
 
     // Calculate display_order for this item
-    const displayOrderKey = `explore_monument_picture_order:${itemId}`;
+    const displayOrderKey = `explore_monument_picture_order:${monumentResolution.itemId}`;
     const currentOrder = this.context.tracker.getMetadata(displayOrderKey);
     const displayOrder = currentOrder ? parseInt(currentOrder, 10) + 1 : 1;
     this.context.tracker.setMetadata(displayOrderKey, String(displayOrder));
@@ -193,7 +204,7 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
 
     // Create ItemImage
     const imageData: ItemImageData = {
-      item_id: itemId,
+      item_id: monumentResolution.itemId,
       path: group.path,
       original_name: originalName,
       mime_type: mimeType,

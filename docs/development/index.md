@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Development
-nav_order: 9
+nav_order: 70
 has_children: true
 permalink: /development/
 ---
 
-# Development Documentation
+# Technical Archive
 
-This section contains documentation for developers contributing to the Inventory Management API project.
+This section keeps older developer notes and generated copies of project scripts and workflows. Start new technical orientation from the [Collaborator Guide]({{ '/collaborators/' | relative_url }}), then use this archive when you need detailed historical or operational notes.
 
 ## Sections
 
@@ -45,5 +45,5 @@ Historical record of development changes and project evolution.
 ## Quick Links
 
 - [Backend Guidelines]({{ '/guidelines/' | relative_url }})
-- [API Documentation]({{ '/api/' | relative_url }})
+- [Management API Reference]({{ '/api/' | relative_url }})
 - [Model Documentation]({{ '/models/' | relative_url }})

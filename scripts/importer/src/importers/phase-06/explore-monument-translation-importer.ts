@@ -25,6 +25,7 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
 import { parseExplorePreparedBy } from '../../helpers/explore-prepared-by-parser.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyMonumentText {
   monumentId: number;
@@ -65,6 +66,7 @@ interface LegacyFurtherReading {
 export class ExploreMonumentTranslationImporter extends BaseImporter {
   private exploreContextId!: string;
   private authorHelper!: AuthorHelper;
+  private monumentResolver!: ExploreMonumentResolver;
 
   getName(): string {
     return 'ExploreMonumentTranslationImporter';
@@ -87,6 +89,12 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
         this.context.tracker,
         this.logger
       );
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       this.logInfo('Importing Explore monument translations...');
 
@@ -132,10 +140,11 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             continue;
           }
 
-          const monumentBC = `mwnf3_explore:monument:${text.monumentId}`;
-          const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-          if (!itemId) {
-            this.logWarning(`Monument item not found: ${monumentBC}, skipping translation`);
+          const monumentResolution = await this.monumentResolver.resolve(text.monumentId);
+          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${text.monumentId} did not resolve to an item`}, skipping translation`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -241,7 +250,7 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
           }
 
           await this.context.strategy.writeItemTranslation({
-            item_id: itemId,
+            item_id: monumentResolution.itemId,
             language_id: languageId,
             context_id: this.exploreContextId,
             backward_compatibility: translationBC,

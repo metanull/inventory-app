@@ -14,6 +14,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyMonumentTheme {
   cycleId: number;
@@ -22,6 +23,8 @@ interface LegacyMonumentTheme {
 }
 
 export class ExploreMonumentThemeLinkImporter extends BaseImporter {
+  private monumentResolver!: ExploreMonumentResolver;
+
   getName(): string {
     return 'ExploreMonumentThemeLinkImporter';
   }
@@ -31,6 +34,12 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing Explore monument-theme links...');
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       const links = await this.context.legacyDb.query<LegacyMonumentTheme>(
         `SELECT themeId AS cycleId, monumentId, locationId FROM mwnf3_explore.exploremonumentsthemes ORDER BY themeId, monumentId`
@@ -50,10 +59,11 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
           }
 
           // Resolve monument item
-          const monumentBC = `mwnf3_explore:monument:${link.monumentId}`;
-          const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-          if (!itemId) {
-            this.logWarning(`Monument item not found: ${monumentBC}, skipping link`);
+          const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping link`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -71,7 +81,7 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
           const linkBC = `mwnf3_explore:monument_theme:${link.cycleId}:${link.monumentId}`;
           await this.context.strategy.writeCollectionItem({
             collection_id: collectionId,
-            item_id: itemId,
+            item_id: monumentResolution.itemId,
             backward_compatibility: linkBC,
           });
 

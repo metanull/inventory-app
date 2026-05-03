@@ -11,6 +11,7 @@ use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
@@ -21,6 +22,7 @@ use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Country;
 use App\Models\Item;
+use App\Models\ItemImage;
 use App\Models\Language;
 use App\Models\Partner;
 use App\Models\Project;
@@ -58,10 +60,12 @@ class ItemResourceTest extends TestCase
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}/edit")
             ->assertOk()
             ->assertSee('Temple relief')
+            ->assertSee('Core information')
             ->assertSee('Child items')
             ->assertSee('Pictures')
             ->assertSee('Translations')
-            ->assertSee('Links');
+            ->assertSee('Links')
+            ->assertSee('Displayed in');
 
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}")
             ->assertOk()
@@ -731,6 +735,94 @@ class ItemResourceTest extends TestCase
         ]);
 
         return $user;
+    }
+
+    public function test_pictures_relation_manager_shows_thumbnail_column_for_picture_with_image(): void
+    {
+        $user = $this->createCrudUser();
+        $parent = Item::factory()->Object()->create(['internal_name' => 'Root item']);
+        $picture = Item::factory()->create([
+            'internal_name' => 'Picture item',
+            'type' => ItemType::PICTURE,
+            'parent_id' => $parent->id,
+        ]);
+        $image = ItemImage::factory()->forItem($picture)->create(['path' => 'test.jpg', 'display_order' => 1]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(PicturesRelationManager::class, [
+                'ownerRecord' => $parent,
+                'pageClass' => ViewItem::class,
+            ])
+            ->assertTableColumnExists('thumbnail')
+            ->assertCanSeeTableRecords([$picture]);
+    }
+
+    public function test_pictures_relation_manager_shows_thumbnail_column_for_picture_without_image(): void
+    {
+        $user = $this->createCrudUser();
+        $parent = Item::factory()->Object()->create(['internal_name' => 'Root item']);
+        $picture = Item::factory()->create([
+            'internal_name' => 'Picture without image',
+            'type' => ItemType::PICTURE,
+            'parent_id' => $parent->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(PicturesRelationManager::class, [
+                'ownerRecord' => $parent,
+                'pageClass' => ViewItem::class,
+            ])
+            ->assertTableColumnExists('thumbnail')
+            ->assertCanSeeTableRecords([$picture]);
+    }
+
+    public function test_displayed_in_relation_manager_shows_collections_containing_item(): void
+    {
+        $user = $this->createCrudUser();
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $collection->attachedItems()->attach($item->id);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(DisplayedInCollectionsRelationManager::class, [
+                'ownerRecord' => $item,
+                'pageClass' => ViewItem::class,
+            ])
+            ->assertCanSeeTableRecords([$collection]);
+    }
+
+    public function test_displayed_in_relation_manager_shows_empty_state_when_item_not_in_any_collection(): void
+    {
+        $user = $this->createCrudUser();
+        $item = Item::factory()->Object()->create(['internal_name' => 'Standalone item']);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue']);
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
+        $otherCollection = Collection::factory()->create([
+            'internal_name' => 'Other collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(DisplayedInCollectionsRelationManager::class, [
+                'ownerRecord' => $item,
+                'pageClass' => ViewItem::class,
+            ])
+            ->assertCanNotSeeTableRecords([$otherCollection]);
     }
 
     protected function setCurrentPanel(): void

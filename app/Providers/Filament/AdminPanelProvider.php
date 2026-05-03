@@ -3,6 +3,9 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Auth\PasswordResetMfaChallenge;
+use App\Filament\Auth\RequestPasswordReset;
+use App\Filament\Auth\ResetPassword;
 use App\Filament\Auth\TwoFactorChallenge;
 use App\Filament\Auth\TwoFactorSetup;
 use App\Filament\Pages\Dashboard;
@@ -38,6 +41,9 @@ class AdminPanelProvider extends PanelProvider
     {
         Livewire::component('app.filament.auth.two-factor-challenge', TwoFactorChallenge::class);
         Livewire::component('app.filament.auth.two-factor-setup', TwoFactorSetup::class);
+        Livewire::component('app.filament.auth.request-password-reset', RequestPasswordReset::class);
+        Livewire::component('app.filament.auth.reset-password', ResetPassword::class);
+        Livewire::component('app.filament.auth.password-reset-mfa-challenge', PasswordResetMfaChallenge::class);
     }
 
     private const LIGHT_LOGO_CLASSES = 'h-full w-auto text-blue-900';
@@ -94,6 +100,12 @@ class AdminPanelProvider extends PanelProvider
             ->routes(function (): void {
                 Route::get('/two-factor-challenge', TwoFactorChallenge::class)
                     ->name('auth.two-factor-challenge');
+                Route::get('/forgot-password', RequestPasswordReset::class)
+                    ->name('auth.password.request');
+                Route::get('/reset-password/{token}', ResetPassword::class)
+                    ->name('auth.password.reset');
+                Route::get('/reset-password-mfa', PasswordResetMfaChallenge::class)
+                    ->name('auth.password.reset.mfa');
             })
             ->authenticatedRoutes(function (): void {
                 Route::get('/two-factor-setup', TwoFactorSetup::class)

@@ -1,9 +1,9 @@
 remote_theme: just-the-docs/just-the-docs
 
-title: Inventory Management API
+title: MWNF Inventory
 description: >-
-  Documentation for the Inventory Management API — the system powering
-  Museum With No Frontiers' digital inventory of cultural heritage.
+  Documentation for MWNF Inventory, the content-focused system replacing
+  legacy museum content databases and applications.
 
 url: "https://metanull.github.io"
 baseurl: "/inventory-app"
@@ -44,7 +44,7 @@ nav_external_links:
     url: https://metanull.github.io/inventory-app/swagger-ui.html
 
 # Footer
-footer_content: "Copyright &copy; 2025 Pascal Havelange. Made with ❤️ using 💎 Ruby and 🐍 Python."
+footer_content: "Copyright &copy; 2025 Pascal Havelange. Built with Jekyll and GitHub Pages."
 
 # Back to top
 back_to_top: true
