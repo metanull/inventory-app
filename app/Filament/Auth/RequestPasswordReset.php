@@ -2,6 +2,8 @@
 
 namespace App\Filament\Auth;
 
+use App\Models\User;
+use App\Notifications\AdminPasswordResetNotification;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Filament\Actions\Action;
@@ -81,7 +83,12 @@ class RequestPasswordReset extends SimplePage
 
         $data = $this->form->getState();
 
-        Password::broker(config('fortify.passwords'))->sendResetLink(['email' => $data['email']]);
+        $user = User::query()->where('email', $data['email'])->first();
+
+        if ($user) {
+            $token = Password::broker(config('fortify.passwords'))->createToken($user);
+            $user->notify(new AdminPasswordResetNotification($token));
+        }
 
         Notification::make()
             ->title(__('If an account exists for that email, we have sent a password reset link.'))
