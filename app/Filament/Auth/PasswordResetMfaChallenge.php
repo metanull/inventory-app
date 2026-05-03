@@ -24,6 +24,10 @@ class PasswordResetMfaChallenge extends SimplePage
 
     protected static string $view = 'filament.auth.password-reset-mfa-challenge';
 
+    private const MAX_ATTEMPTS_PRODUCTION = 5;
+
+    private const MAX_ATTEMPTS_TESTING = 50;
+
     /**
      * @var array<string, mixed>|null
      */
@@ -113,7 +117,7 @@ class PasswordResetMfaChallenge extends SimplePage
     {
         $userId = session('filament.admin.password_reset.user_id');
         $limiterKey = 'password-reset-mfa:'.$userId;
-        $maxAttempts = app()->environment('testing') ? 50 : 5;
+        $maxAttempts = app()->environment('testing') ? self::MAX_ATTEMPTS_TESTING : self::MAX_ATTEMPTS_PRODUCTION;
 
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
             $availableIn = RateLimiter::availableIn($limiterKey);

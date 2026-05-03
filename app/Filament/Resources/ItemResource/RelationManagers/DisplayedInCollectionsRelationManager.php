@@ -33,9 +33,7 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                 TextColumn::make('internal_name')
                     ->searchable()
                     ->sortable()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
-                        ? CollectionResource::getUrl('view', ['record' => $record])
-                        : null),
+                    ->url(fn ($record): ?string => $this->getAuthorizedUrl($record, CollectionResource::class)),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
@@ -44,14 +42,14 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable()
                     ->url(fn ($record): ?string => $record->context
-                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        ? $this->getAuthorizedUrl($record->context, ContextResource::class)
                         : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->toggleable()
                     ->url(fn ($record): ?string => $record->language
-                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        ? $this->getAuthorizedUrl($record->language, LanguageResource::class)
                         : null),
                 TextColumn::make('created_at')
                     ->label('Created')
@@ -59,5 +57,12 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ]);
+    }
+
+    private function getAuthorizedUrl(mixed $record, string $resourceClass): ?string
+    {
+        return auth()->user()?->can('view', $record)
+            ? $resourceClass::getUrl('view', ['record' => $record])
+            : null;
     }
 }

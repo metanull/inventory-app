@@ -32,22 +32,28 @@ class PicturesRelationManager extends RelationManager
             ->columns([
                 ImageColumn::make('thumbnail')
                     ->label('Preview')
-                    ->getStateUsing(fn ($record) => $record->itemImages->first()
-                        ? route('filament.admin.item-image.view', [
-                            'item' => $record->id,
-                            'itemImage' => $record->itemImages->first()->id,
-                        ])
-                        : null
-                    )
+                    ->getStateUsing(function ($record): ?string {
+                        $firstImage = $record->itemImages->first();
+
+                        return $firstImage
+                            ? route('filament.admin.item-image.view', [
+                                'item' => $record->id,
+                                'itemImage' => $firstImage->id,
+                            ])
+                            : null;
+                    })
                     ->height(48)
                     ->width(48)
-                    ->url(fn ($record) => $record->itemImages->first()
-                        ? route('filament.admin.item-image.view', [
-                            'item' => $record->id,
-                            'itemImage' => $record->itemImages->first()->id,
-                        ])
-                        : null
-                    )
+                    ->url(function ($record): ?string {
+                        $firstImage = $record->itemImages->first();
+
+                        return $firstImage
+                            ? route('filament.admin.item-image.view', [
+                                'item' => $record->id,
+                                'itemImage' => $firstImage->id,
+                            ])
+                            : null;
+                    })
                     ->openUrlInNewTab()
                     ->defaultImageUrl(null),
                 TextColumn::make('internal_name')

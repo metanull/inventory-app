@@ -309,7 +309,7 @@ class PasswordResetTest extends TestCase
             ->set('data.code', '123456')
             ->set('data.recovery_code', 'RECOVERY-CODE-1')
             ->call('submit')
-            ->assertHasErrors(['data.code', 'data.recovery_code']);
+            ->assertHasErrors(['data.code', 'data.recovery_code', 'data.email_code']);
     }
 
     // ─── Route isolation ──────────────────────────────────────────────────────

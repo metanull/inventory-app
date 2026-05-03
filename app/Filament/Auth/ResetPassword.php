@@ -61,8 +61,7 @@ class ResetPassword extends SimplePage
                             ->label(__('Email address'))
                             ->email()
                             ->required()
-                            ->readOnly()
-                            ->extraInputAttributes(['tabindex' => -1]),
+                            ->readOnly(),
                         TextInput::make('password')
                             ->label(__('New password'))
                             ->password()
