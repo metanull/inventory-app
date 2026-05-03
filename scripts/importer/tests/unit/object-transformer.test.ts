@@ -185,6 +185,41 @@ describe('transformObjectTranslation', () => {
     expect(result?.authorName).toBe('John Doe');
     expect(result?.textCopyEditorName).toBe('Jane Doe');
   });
+
+  it('should include provenance in translation data', () => {
+    const obj: LegacyObject = {
+      project_id: 'ISL',
+      country: 'eg',
+      museum_id: 'Mus01',
+      number: '1',
+      lang: 'en',
+      name: 'Test Object',
+      description: 'A test description',
+      provenance: 'Egypt, probably Cairo.',
+    };
+
+    const result = transformObjectTranslation(obj, 'description');
+
+    expect(result).not.toBeNull();
+    expect(result?.data.provenance).toBe('Egypt, probably Cairo.');
+  });
+
+  it('should set provenance to null when not provided', () => {
+    const obj: LegacyObject = {
+      project_id: 'ISL',
+      country: 'eg',
+      museum_id: 'Mus01',
+      number: '1',
+      lang: 'en',
+      name: 'Test Object',
+      description: 'A test description',
+    };
+
+    const result = transformObjectTranslation(obj, 'description');
+
+    expect(result).not.toBeNull();
+    expect(result?.data.provenance === null || result?.data.provenance === undefined).toBe(true);
+  });
 });
 
 describe('extractObjectTags', () => {
