@@ -14,6 +14,7 @@ use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
@@ -26,6 +27,7 @@ use App\Models\Partner;
 use App\Models\Project;
 use App\Models\Tag;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
@@ -79,50 +81,58 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('type')
-                    ->options(
-                        collect(ItemType::cases())
-                            ->mapWithKeys(fn (ItemType $type) => [$type->value => $type->label()])
-                            ->all()
-                    )
-                    ->required(),
-                TextInput::make('internal_name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->maxLength(255),
-                Select::make('parent_id')
-                    ->label('Parent item')
-                    ->relationship(
-                        name: 'parent',
-                        titleAttribute: 'internal_name',
-                        modifyQueryUsing: fn (Builder $query, ?Item $record): Builder => $record
-                            ? $query->excludingDescendantsOf($record->id)
-                            : $query,
-                    )
-                    ->searchable()
-                    ->nullable(),
-                Select::make('partner_id')
-                    ->label('Partner')
-                    ->relationship('partner', 'internal_name')
-                    ->searchable()
-                    ->nullable(),
-                Select::make('country_id')
-                    ->label('Country')
-                    ->relationship('country', 'internal_name')
-                    ->searchable()
-                    ->nullable(),
-                Select::make('project_id')
-                    ->label('Project')
-                    ->relationship('project', 'internal_name')
-                    ->searchable()
-                    ->nullable(),
-                TextInput::make('display_order')
-                    ->label('Display order')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
+                Tabs::make('item-details')
+                    ->tabs([
+                        Tabs\Tab::make('Core information')
+                            ->schema([
+                                Select::make('type')
+                                    ->options(
+                                        collect(ItemType::cases())
+                                            ->mapWithKeys(fn (ItemType $type) => [$type->value => $type->label()])
+                                            ->all()
+                                    )
+                                    ->required(),
+                                TextInput::make('internal_name')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('backward_compatibility')
+                                    ->label('Legacy code')
+                                    ->maxLength(255),
+                                Select::make('parent_id')
+                                    ->label('Parent item')
+                                    ->relationship(
+                                        name: 'parent',
+                                        titleAttribute: 'internal_name',
+                                        modifyQueryUsing: fn (Builder $query, ?Item $record): Builder => $record
+                                            ? $query->excludingDescendantsOf($record->id)
+                                            : $query,
+                                    )
+                                    ->searchable()
+                                    ->nullable(),
+                                Select::make('partner_id')
+                                    ->label('Partner')
+                                    ->relationship('partner', 'internal_name')
+                                    ->searchable()
+                                    ->nullable(),
+                                Select::make('country_id')
+                                    ->label('Country')
+                                    ->relationship('country', 'internal_name')
+                                    ->searchable()
+                                    ->nullable(),
+                                Select::make('project_id')
+                                    ->label('Project')
+                                    ->relationship('project', 'internal_name')
+                                    ->searchable()
+                                    ->nullable(),
+                                TextInput::make('display_order')
+                                    ->label('Display order')
+                                    ->numeric()
+                                    ->integer()
+                                    ->nullable(),
+                            ])
+                            ->columns(2),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -477,6 +487,7 @@ class ItemResource extends Resource
             TranslationsRelationManager::class,
             LinksRelationManager::class,
             TagsRelationManager::class,
+            DisplayedInCollectionsRelationManager::class,
         ];
     }
 
