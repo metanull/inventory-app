@@ -7,10 +7,11 @@ use App\Filament\Auth\PasswordResetMfaChallenge;
 use App\Filament\Auth\RequestPasswordReset;
 use App\Filament\Auth\ResetPassword;
 use App\Models\User;
+use App\Notifications\AdminPasswordResetNotification;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -46,7 +47,7 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_link_is_dispatched_for_existing_email(): void
     {
-        Mail::fake();
+        Notification::fake();
 
         $user = User::factory()->create(['email' => 'user@example.com']);
 
@@ -54,6 +55,23 @@ class PasswordResetTest extends TestCase
             ->set('data.email', 'user@example.com')
             ->call('submit')
             ->assertHasNoErrors();
+
+        Notification::assertSentTo($user, AdminPasswordResetNotification::class);
+    }
+
+    public function test_admin_reset_link_targets_filament_route_not_web_route(): void
+    {
+        $user = User::factory()->create(['email' => 'user@example.com']);
+        $notification = new AdminPasswordResetNotification('admin-reset-token');
+
+        $mailMessage = $notification->toMail($user);
+        $expectedUrl = route('filament.admin.auth.password.reset', [
+            'token' => 'admin-reset-token',
+            'email' => 'user@example.com',
+        ]);
+
+        $this->assertSame($expectedUrl, $mailMessage->actionUrl);
+        $this->assertStringNotContainsString('/web/', $mailMessage->actionUrl);
     }
 
     public function test_reset_link_submission_shows_success_notification_even_for_unknown_email(): void
@@ -115,6 +133,7 @@ class PasswordResetTest extends TestCase
             ->assertRedirect(Filament::getLoginUrl());
 
         $this->assertTrue(Hash::check('NewPassword1!', $user->fresh()->password));
+        $this->assertGuest(config('fortify.guard'));
     }
 
     public function test_reset_password_token_is_invalidated_after_successful_reset_without_mfa(): void
@@ -202,6 +221,7 @@ class PasswordResetTest extends TestCase
             ->assertRedirect(Filament::getLoginUrl());
 
         $this->assertEquals($newPasswordHash, $user->fresh()->password);
+        $this->assertGuest(config('fortify.guard'));
     }
 
     public function test_valid_totp_code_invalidates_reset_token(): void

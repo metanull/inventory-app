@@ -210,6 +210,7 @@ class PasswordResetMfaChallenge extends SimplePage
             ->success()
             ->send();
 
+        Filament::auth()->logout();
         $this->redirect(Filament::getLoginUrl());
     }
 
