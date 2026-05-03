@@ -30,10 +30,12 @@ import {
   type ExploreLegacyMonument,
   type ExploreMonumentNameTranslation,
 } from '../../domain/transformers/explore-monument-transformer.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 export class ExploreMonumentImporter extends BaseImporter {
   private exploreContextId: string | null = null;
   private locationCollectionCache: Map<number, string | null> = new Map();
+  private monumentResolver!: ExploreMonumentResolver;
 
   getName(): string {
     return 'ExploreMonumentImporter';
@@ -61,6 +63,12 @@ export class ExploreMonumentImporter extends BaseImporter {
       this.logInfo(`Found Explore context: ${this.exploreContextId}`);
       this.logInfo('Importing Explore monuments...');
       const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // Query monuments from legacy database
       const monuments = await this.context.legacyDb.query<ExploreLegacyMonument>(
@@ -102,9 +110,12 @@ export class ExploreMonumentImporter extends BaseImporter {
       for (const legacy of monuments) {
         try {
           const backwardCompat = `mwnf3_explore:monument:${legacy.monumentId}`;
+          const resolution = await this.monumentResolver.resolve(legacy.monumentId);
+          if (resolution.mode === 'missing-target' || resolution.mode === 'ambiguous') {
+            throw new Error(resolution.message ?? `Unable to resolve ${backwardCompat}`);
+          }
 
-          // Check if already exists
-          if (await this.entityExistsAsync(backwardCompat, 'item')) {
+          if (resolution.mode === 'native' && resolution.itemId) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -129,6 +140,36 @@ export class ExploreMonumentImporter extends BaseImporter {
             'success'
           );
 
+          const collectionId = transformed.locationId
+            ? await this.getLocationCollectionId(transformed.locationId)
+            : null;
+
+          if (resolution.mode === 'referenced') {
+            if (!resolution.itemId || !resolution.itemBackwardCompatibility) {
+              throw new Error(`Referenced monument ${backwardCompat} did not resolve to a target item`);
+            }
+
+            this.context.tracker.set(backwardCompat, resolution.itemId, 'item');
+
+            if (this.isDryRun || this.isSampleOnlyMode) {
+              this.logInfo(
+                `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would reuse source item ${resolution.itemBackwardCompatibility} for ${backwardCompat}`
+              );
+              this.registerEntity(resolution.itemId, backwardCompat, 'item');
+            } else if (collectionId) {
+              await this.context.strategy.writeCollectionItem({
+                collection_id: collectionId,
+                item_id: resolution.itemId,
+                backward_compatibility: `${backwardCompat}:collection_link:${transformed.locationId}`,
+                display_order: null,
+              });
+            }
+
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
               `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create item: ${transformed.data.internal_name} (${backwardCompat})`
@@ -150,16 +191,13 @@ export class ExploreMonumentImporter extends BaseImporter {
           this.registerEntity(itemId, backwardCompat, 'item');
 
           // Link item to location collection if available
-          if (transformed.locationId) {
-            const collectionId = await this.getLocationCollectionId(transformed.locationId);
-            if (collectionId) {
-              await this.context.strategy.writeCollectionItem({
-                collection_id: collectionId,
-                item_id: itemId,
-                backward_compatibility: `${backwardCompat}:collection_link:${transformed.locationId}`,
-                display_order: null,
-              });
-            }
+          if (collectionId) {
+            await this.context.strategy.writeCollectionItem({
+              collection_id: collectionId,
+              item_id: itemId,
+              backward_compatibility: `${backwardCompat}:collection_link:${transformed.locationId}`,
+              display_order: null,
+            });
           }
 
           result.imported++;

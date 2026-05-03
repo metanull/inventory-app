@@ -15,6 +15,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { ExploreMonumentResolver } from '../phase-06/explore-monument-resolver.js';
 
 /**
  * Legacy thg_gallery_explore_monuments structure
@@ -25,6 +26,8 @@ interface LegacyThgGalleryExploreMonument {
 }
 
 export class ThgGalleryExploreMonumentImporter extends BaseImporter {
+  private monumentResolver!: ExploreMonumentResolver;
+
   getName(): string {
     return 'ThgGalleryExploreMonumentImporter';
   }
@@ -34,6 +37,12 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing THG gallery -> Explore monument associations...');
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // Query thg_gallery_explore_monuments entries from legacy database
       let galleryMonuments: LegacyThgGalleryExploreMonument[];
@@ -71,14 +80,11 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
         try {
           // Build backward_compatibility for the Explore monument
           // Format matches Phase 6 Explore monument importer: mwnf3_explore:monument:{item_id}
-          const itemBackwardCompat = `mwnf3_explore:monument:${legacy.item_id}`;
-
-          // Get the item ID from tracker or database (items are from earlier phases)
-          const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
-          if (!itemId) {
+          const monumentResolution = await this.monumentResolver.resolve(legacy.item_id);
+          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Gallery ${legacy.gallery_id}: Explore monument not found (${itemBackwardCompat})`
+              `Gallery ${legacy.gallery_id}: ${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${legacy.item_id} did not resolve to an item`}`
             );
             skippedNoItem++;
             continue;
@@ -101,8 +107,8 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
             collectionItems.set(collectionId, []);
           }
           const items = collectionItems.get(collectionId)!;
-          if (!items.includes(itemId)) {
-            items.push(itemId);
+          if (!items.includes(monumentResolution.itemId)) {
+            items.push(monumentResolution.itemId);
           }
 
           // Collect sample
@@ -110,7 +116,7 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
             'thg_gallery_explore_monument',
             {
               ...legacy,
-              resolved_item_backward_compat: itemBackwardCompat,
+              resolved_item_backward_compat: monumentResolution.itemBackwardCompatibility,
             } as unknown as Record<string, unknown>,
             'success'
           );

@@ -14,6 +14,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyMonumentVM {
   monumentId: number;
@@ -48,6 +49,7 @@ interface LegacyMonumentMuseum {
 
 export class ExploreMonumentCrossRefImporter extends BaseImporter {
   private exploreContextId!: string;
+  private monumentResolver!: ExploreMonumentResolver;
 
   getName(): string {
     return 'ExploreMonumentCrossRefImporter';
@@ -64,6 +66,12 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
         throw new Error(`Explore context not found (${exploreContextBC}).`);
       }
       this.exploreContextId = exploreContextId;
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // 1. exploremonument_vm → mwnf3 monuments
       this.logInfo('Importing Explore → mwnf3 monument cross-references...');
@@ -76,10 +84,11 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const vm of vmLinks) {
         try {
-          const sourceBC = `mwnf3_explore:monument:${vm.monumentId}`;
-          const sourceId = await this.getEntityUuidAsync(sourceBC, 'item');
-          if (!sourceId) {
-            this.logWarning(`Explore monument not found: ${sourceBC}, skipping`);
+          const sourceResolution = await this.monumentResolver.resolve(vm.monumentId);
+          if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${vm.monumentId} did not resolve to an item`}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -95,6 +104,12 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
+          if (sourceResolution.itemId === targetId) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();
@@ -103,7 +118,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
           const linkBC = `mwnf3_explore:monument_vm:${vm.monumentId}:${vm.REF_monuments_project_id}:${vm.REF_monuments_country}:${vm.REF_monuments_institution_id}:${vm.REF_monuments_number}`;
           await this.context.strategy.writeItemItemLink({
-            source_id: sourceId,
+            source_id: sourceResolution.itemId,
             target_id: targetId,
             context_id: this.exploreContextId,
             backward_compatibility: linkBC,
@@ -132,10 +147,11 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const tr of trLinks) {
         try {
-          const sourceBC = `mwnf3_explore:monument:${tr.monumentId}`;
-          const sourceId = await this.getEntityUuidAsync(sourceBC, 'item');
-          if (!sourceId) {
-            this.logWarning(`Explore monument not found: ${sourceBC}, skipping`);
+          const sourceResolution = await this.monumentResolver.resolve(tr.monumentId);
+          if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${tr.monumentId} did not resolve to an item`}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -151,6 +167,12 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
+          if (sourceResolution.itemId === targetId) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();
@@ -159,7 +181,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
           const linkBC = `mwnf3_explore:monument_tr:${tr.monumentId}:${tr.REF_tr_monuments_project_id}:${tr.REF_tr_monuments_country}:${tr.REF_tr_monuments_trail_id}:${tr.REF_tr_monuments_itinerary_id}:${tr.REF_tr_monuments_location_id}:${tr.REF_tr_monuments_number}`;
           await this.context.strategy.writeItemItemLink({
-            source_id: sourceId,
+            source_id: sourceResolution.itemId,
             target_id: targetId,
             context_id: this.exploreContextId,
             backward_compatibility: linkBC,
@@ -182,10 +204,11 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const sh of shLinks) {
         try {
-          const sourceBC = `mwnf3_explore:monument:${sh.monumentId}`;
-          const sourceId = await this.getEntityUuidAsync(sourceBC, 'item');
-          if (!sourceId) {
-            this.logWarning(`Explore monument not found: ${sourceBC}, skipping`);
+          const sourceResolution = await this.monumentResolver.resolve(sh.monumentId);
+          if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${sh.monumentId} did not resolve to an item`}, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -201,6 +224,12 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
+          if (sourceResolution.itemId === targetId) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();
@@ -209,7 +238,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
           const linkBC = `mwnf3_explore:monument_sh:${sh.monumentId}:${sh.project_id.toLowerCase()}:${sh.country.toLowerCase()}:${sh.number}`;
           await this.context.strategy.writeItemItemLink({
-            source_id: sourceId,
+            source_id: sourceResolution.itemId,
             target_id: targetId,
             context_id: this.exploreContextId,
             backward_compatibility: linkBC,
@@ -232,10 +261,11 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const ml of museumLinks) {
         try {
-          const monumentBC = `mwnf3_explore:monument:${ml.monumentId}`;
-          const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-          if (!itemId) {
-            this.logWarning(`Explore monument not found: ${monumentBC}, skipping museum check`);
+          const monumentResolution = await this.monumentResolver.resolve(ml.monumentId);
+          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${ml.monumentId} did not resolve to an item`}, skipping museum check`
+            );
             continue;
           }
 
@@ -253,7 +283,10 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
           // Store in ItemTranslation(eng).extra.additional_explore_partners[]
           // Only if an English translation exists for this monument
-          const existingExtra = await this.context.strategy.getItemTranslationExtra(itemId, 'eng');
+          const existingExtra = await this.context.strategy.getItemTranslationExtra(
+            monumentResolution.itemId,
+            'eng'
+          );
           if (existingExtra !== null) {
             const extra = existingExtra;
             const existing = extra.additional_explore_partners as string[] | undefined;
@@ -263,7 +296,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             }
             extra.additional_explore_partners = partners;
             await this.context.strategy.setItemTranslationExtra(
-              itemId,
+              monumentResolution.itemId,
               'eng',
               JSON.stringify(extra)
             );
