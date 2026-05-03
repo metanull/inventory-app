@@ -187,14 +187,11 @@ class BrowseCollectionTree extends Page
      */
     public function getCollectionItems(string $collectionId): \Illuminate\Database\Eloquent\Collection
     {
-        $collection = Collection::find($collectionId);
-
-        if ($collection === null) {
-            return new \Illuminate\Database\Eloquent\Collection;
-        }
-
-        return $collection->attachedItems()
-            ->orderBy('internal_name')
+        return Item::query()
+            ->join('collection_item', 'items.id', '=', 'collection_item.item_id')
+            ->where('collection_item.collection_id', $collectionId)
+            ->select('items.*')
+            ->orderBy('items.internal_name')
             ->get();
     }
 
