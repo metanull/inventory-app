@@ -67,4 +67,9 @@ class Login extends \Filament\Pages\Auth\Login
 
         return app(FilamentLoginResponse::class);
     }
+
+    protected function getForgotPasswordUrl(): ?string
+    {
+        return Filament::getCurrentPanel()->route('auth.password.request');
+    }
 }

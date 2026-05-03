@@ -54,6 +54,7 @@ class CollectionResourceTest extends TestCase
         $this->actingAs($user)->get("/admin/collections/{$collection->getKey()}/edit")
             ->assertOk()
             ->assertSee('Temple collection')
+            ->assertSee('Core information')
             ->assertSee('Child collections')
             ->assertSee('Items')
             ->assertSee('Partners')
