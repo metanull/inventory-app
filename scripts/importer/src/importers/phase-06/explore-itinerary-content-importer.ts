@@ -18,6 +18,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyItineraryLang {
   itineraries_id: number;
@@ -77,6 +78,10 @@ interface LegacyCrossSchemaLink {
   itineraryId: number;
 }
 
+interface LegacyTravelsDescription {
+  description: string | null;
+}
+
 function parseGeoCoordinates(coords: string | null): [number | null, number | null] {
   if (!coords || !coords.trim()) return [null, null];
   const cleaned = coords.replace(/\s+/g, '').trim();
@@ -91,6 +96,7 @@ function parseGeoCoordinates(coords: string | null): [number | null, number | nu
 export class ExploreItineraryContentImporter extends BaseImporter {
   private exploreContextId!: string;
   private exploreByItineraryId: string | null = null;
+  private monumentResolver!: ExploreMonumentResolver;
 
   getName(): string {
     return 'ExploreItineraryContentImporter';
@@ -107,6 +113,12 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         throw new Error(`Explore context not found (${exploreContextBC}).`);
       }
       this.exploreContextId = exploreContextId;
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // Get Explore by Itinerary root
       const byItineraryBC = 'mwnf3_explore:root:explore_by_itinerary';
@@ -170,6 +182,16 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
+        const title = trans.title?.trim() ?? '';
+        if (title === '') {
+          this.logWarning(
+            `Explore itinerary ${itineraryBC} is missing a required source title for ${trans.langId}, skipping translation`
+          );
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         const translationBC = `${itineraryBC}:translation:${languageId}`;
         if (await this.entityExistsAsync(translationBC, 'collection_translation')) {
           result.skipped++;
@@ -186,6 +208,7 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         if (trans.et_title) extra.et_title = trans.et_title;
         if (trans.et_introduction) extra.et_introduction = trans.et_introduction;
         const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
+        const visibleDescription = await this.resolveVisibleDescription(trans);
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           result.imported++;
@@ -198,8 +221,8 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           language_id: languageId,
           context_id: this.exploreContextId,
           backward_compatibility: translationBC,
-          title: trans.title ?? `Itinerary ${trans.itineraries_id}`,
-          description: trans.introduction ?? '',
+          title,
+          description: visibleDescription,
           extra: extraJson,
         });
 
@@ -237,10 +260,11 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
-        const monumentBC = `mwnf3_explore:monument:${link.monumentId}`;
-        const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-        if (!itemId) {
-          this.logWarning(`Monument not found: ${monumentBC}, skipping`);
+        const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+        if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+          this.logWarning(
+            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -263,7 +287,7 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         const linkBC = `mwnf3_explore:itinerary_monument:${link.itineraries_id}:${link.monumentId}`;
         await this.context.strategy.writeCollectionItem({
           collection_id: collectionId,
-          item_id: itemId,
+          item_id: monumentResolution.itemId,
           backward_compatibility: linkBC,
           display_order: link.mn_order,
           extra: Object.keys(extra).length > 0 ? extra : null,
@@ -473,10 +497,11 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
-        const monumentBC = `mwnf3_explore:monument:${link.monumentId}`;
-        const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-        if (!itemId) {
-          this.logWarning(`Monument not found: ${monumentBC}, skipping`);
+        const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+        if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+          this.logWarning(
+            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -491,7 +516,7 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         const linkBC = `mwnf3_explore:old_itinerary_monument:${link.itinerary_id}:${link.monumentId}`;
         await this.context.strategy.writeCollectionItem({
           collection_id: collectionId,
-          item_id: itemId,
+          item_id: monumentResolution.itemId,
           backward_compatibility: linkBC,
           display_order: link.itin_order,
         });
@@ -574,5 +599,64 @@ export class ExploreItineraryContentImporter extends BaseImporter {
         }
       }
     }
+  }
+
+  private async resolveVisibleDescription(trans: LegacyItineraryLang): Promise<string> {
+    if (trans.introduction && trans.introduction.trim() !== '') {
+      return trans.introduction;
+    }
+
+    const shortDescription = await this.resolveTravelsDescriptionReference(
+      trans.et_title,
+      'description'
+    );
+    if (shortDescription) {
+      return shortDescription;
+    }
+
+    const longDescription = await this.resolveTravelsDescriptionReference(
+      trans.et_introduction,
+      'description2'
+    );
+    if (longDescription) {
+      return longDescription;
+    }
+
+    return '';
+  }
+
+  private async resolveTravelsDescriptionReference(
+    reference: string | null,
+    field: 'description' | 'description2'
+  ): Promise<string | null> {
+    if (!reference || reference.trim() === '') {
+      return null;
+    }
+
+    const parts = reference.split(';').map((part) => part.trim());
+    if (parts.length !== 5) {
+      return null;
+    }
+
+    const [projectId, country, number, lang, trailIdRaw] = parts;
+    const trailId = Number.parseInt(trailIdRaw, 10);
+    if (!projectId || !country || !number || !lang || Number.isNaN(trailId)) {
+      return null;
+    }
+
+    const rows = await this.context.legacyDb.query<LegacyTravelsDescription>(
+      `SELECT ${field} AS description
+       FROM mwnf3_travels.tr_itineraries
+       WHERE project_id = ?
+         AND country = ?
+         AND number = ?
+         AND lang = ?
+         AND trail_id = ?
+       LIMIT 1`,
+      [projectId, country, number, lang, trailId]
+    );
+
+    const description = rows[0]?.description ?? null;
+    return description && description.trim() !== '' ? description : null;
   }
 }

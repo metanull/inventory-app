@@ -16,6 +16,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyFilter {
   filterId: string;
@@ -29,6 +30,8 @@ interface LegacyFilterMonument {
 }
 
 export class ExploreFilterImporter extends BaseImporter {
+  private monumentResolver!: ExploreMonumentResolver;
+
   getName(): string {
     return 'ExploreFilterImporter';
   }
@@ -38,6 +41,12 @@ export class ExploreFilterImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing Explore filters...');
+      this.monumentResolver = new ExploreMonumentResolver({
+        legacyDb: this.context.legacyDb,
+        tracker: this.context.tracker,
+        getEntityUuid: (backwardCompatibility, entityType) =>
+          this.getEntityUuidAsync(backwardCompatibility, entityType),
+      });
 
       // 1. Import filters → Tags
       const filters = await this.context.legacyDb.query<LegacyFilter>(
@@ -125,10 +134,11 @@ export class ExploreFilterImporter extends BaseImporter {
           }
 
           // Resolve monument item
-          const monumentBC = `mwnf3_explore:monument:${link.monumentId}`;
-          const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
-          if (!itemId) {
-            this.logWarning(`Monument item not found: ${monumentBC}, skipping link`);
+          const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+            this.logWarning(
+              `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping link`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -140,7 +150,7 @@ export class ExploreFilterImporter extends BaseImporter {
             continue;
           }
 
-          await this.context.strategy.attachTagsToItem(itemId, [tagId]);
+          await this.context.strategy.attachTagsToItem(monumentResolution.itemId, [tagId]);
           result.imported++;
           this.showProgress();
         } catch (error) {

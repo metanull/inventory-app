@@ -292,7 +292,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const extra = data.extra ? JSON.stringify(data.extra) : null;
     await this.db.execute(
       `INSERT INTO collection_item (collection_id, item_id, display_order, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         display_order = VALUES(display_order),
+         extra = VALUES(extra),
+         updated_at = VALUES(updated_at)`,
       [sanitized.collection_id, sanitized.item_id, displayOrder, extra, this.now, this.now]
     );
   }

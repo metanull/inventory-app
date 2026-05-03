@@ -555,7 +555,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'Explore Monuments',
     description: 'Import monuments with geocoordinates from Explore',
     importerClass: ExploreMonumentImporter,
-    dependencies: ['explore-location'],
+    dependencies: ['explore-location', 'monument', 'sh-monument', 'travels-monument'],
   },
   {
     key: 'explore-monument-picture',
