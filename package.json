@@ -22,19 +22,19 @@
         "@tailwindcss/upgrade": "^4.1.16",
         "@types/node": "^25.3.3",
         "autoprefixer": "^10.4.19",
-        "baseline-browser-mapping": "^2.10.11",
+        "baseline-browser-mapping": "^2.10.23",
         "concurrently": "^9.2.0",
         "eslint": "^10.0.2",
         "eslint-config-prettier": "^10.1.5",
         "eslint-plugin-prettier": "^5.2.1",
         "form-data": "^4.0.5",
         "laravel-vite-plugin": "^3.0.0",
-        "postcss": "^8.4.38",
+        "postcss": "^8.5.12",
         "prettier": "^3.4.2",
-        "stylelint": "^17.6.0",
+        "stylelint": "^17.9.1",
         "stylelint-config-standard": "^40.0.0",
         "tailwindcss": "^4.1.16",
-        "vite": "^8.0.3"
+        "vite": "^8.0.10"
     },
     "packageManager": "npm@11.6.2",
     "engines": {
