@@ -22,13 +22,16 @@ class EmailTwoFactorCodeService
 
     private const VERIFY_MAX_ATTEMPTS = 5;
 
-    public function send(User $user): void
-    {
+    public function send(
+        User $user,
+        string $userIdSessionKey = 'filament.admin.2fa.user_id',
+        string $challengeIdSessionKey = 'filament.admin.2fa.email_challenge_id',
+    ): void {
         if (! $user->hasVerifiedEmail()) {
             throw new \RuntimeException('User does not have a verified email address.');
         }
 
-        if (session('filament.admin.2fa.user_id') !== $user->getKey()) {
+        if (session($userIdSessionKey) !== $user->getKey()) {
             throw new \RuntimeException('No pending admin MFA session for this user.');
         }
 
@@ -48,7 +51,7 @@ class EmailTwoFactorCodeService
         $challengeId = Str::uuid()->toString();
         $cacheKey = $this->cacheKey($challengeId);
 
-        $previousChallengeId = session('filament.admin.2fa.email_challenge_id');
+        $previousChallengeId = session($challengeIdSessionKey);
         if ($previousChallengeId) {
             Cache::forget($this->cacheKey($previousChallengeId));
         }
@@ -59,7 +62,7 @@ class EmailTwoFactorCodeService
             'expires_at' => now()->addSeconds(self::CACHE_TTL)->timestamp,
         ], self::CACHE_TTL);
 
-        session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
+        session()->put($challengeIdSessionKey, $challengeId);
 
         RateLimiter::hit($sendLimiterKey, self::CACHE_TTL);
 
@@ -67,18 +70,22 @@ class EmailTwoFactorCodeService
             $user->notify(new EmailTwoFactorCodeNotification($code));
         } catch (\Throwable $e) {
             Cache::forget($cacheKey);
-            session()->forget('filament.admin.2fa.email_challenge_id');
+            session()->forget($challengeIdSessionKey);
             throw $e;
         }
     }
 
-    public function verify(User $user, string $code): bool
-    {
+    public function verify(
+        User $user,
+        string $code,
+        string $userIdSessionKey = 'filament.admin.2fa.user_id',
+        string $challengeIdSessionKey = 'filament.admin.2fa.email_challenge_id',
+    ): bool {
         if (! $user->hasVerifiedEmail()) {
             return false;
         }
 
-        $challengeId = session('filament.admin.2fa.email_challenge_id');
+        $challengeId = session($challengeIdSessionKey);
 
         if (! $challengeId) {
             return false;
@@ -88,15 +95,15 @@ class EmailTwoFactorCodeService
         $payload = Cache::get($cacheKey);
 
         if (! $payload) {
-            session()->forget('filament.admin.2fa.email_challenge_id');
+            session()->forget($challengeIdSessionKey);
 
             return false;
         }
 
-        $pendingUserId = session('filament.admin.2fa.user_id');
+        $pendingUserId = session($userIdSessionKey);
 
         if ($payload['user_id'] !== $user->getKey() || $user->getKey() !== $pendingUserId) {
-            session()->forget('filament.admin.2fa.email_challenge_id');
+            session()->forget($challengeIdSessionKey);
 
             return false;
         }
@@ -104,7 +111,7 @@ class EmailTwoFactorCodeService
         $verifyLimiterKey = $this->verifyLimiterKey($challengeId);
 
         if (RateLimiter::tooManyAttempts($verifyLimiterKey, self::VERIFY_MAX_ATTEMPTS)) {
-            session()->forget('filament.admin.2fa.email_challenge_id');
+            session()->forget($challengeIdSessionKey);
             Cache::forget($cacheKey);
 
             return false;
@@ -112,7 +119,7 @@ class EmailTwoFactorCodeService
 
         if (Hash::check($code, $payload['code_hash'])) {
             Cache::forget($cacheKey);
-            session()->forget('filament.admin.2fa.email_challenge_id');
+            session()->forget($challengeIdSessionKey);
             RateLimiter::clear($verifyLimiterKey);
 
             return true;

@@ -6,8 +6,12 @@ use App\Models\User;
 use App\Services\Filament\Auth\EmailTwoFactorCodeService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\Actions as FormActions;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
@@ -28,6 +32,10 @@ class PasswordResetMfaChallenge extends SimplePage
 
     private const MAX_ATTEMPTS_TESTING = 50;
 
+    private const USER_ID_SESSION_KEY = 'filament.admin.password_reset.user_id';
+
+    private const CHALLENGE_ID_SESSION_KEY = 'filament.admin.password_reset.email_challenge_id';
+
     /**
      * @var array<string, mixed>|null
      */
@@ -40,6 +48,8 @@ class PasswordResetMfaChallenge extends SimplePage
 
             return;
         }
+
+        $this->form->fill();
     }
 
     public function form(Form $form): Form
@@ -56,24 +66,46 @@ class PasswordResetMfaChallenge extends SimplePage
             'form' => $this->form(
                 $this->makeForm()
                     ->schema([
+                        Radio::make('method')
+                            ->label(__('Verification method'))
+                            ->options([
+                                'totp' => __('Authenticator app'),
+                                'recovery' => __('Recovery code'),
+                                'email' => __('Email code'),
+                            ])
+                            ->default('totp')
+                            ->inline()
+                            ->live(),
                         TextInput::make('code')
                             ->label(__('Authentication Code'))
                             ->placeholder('000 000')
                             ->maxLength(8)
                             ->autocomplete('one-time-code')
                             ->autofocus()
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'totp')
                             ->extraInputAttributes(['tabindex' => 1]),
                         TextInput::make('recovery_code')
-                            ->label(__('Or use a recovery code'))
+                            ->label(__('Recovery Code'))
                             ->placeholder('xxxxx-xxxxx')
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'recovery')
                             ->extraInputAttributes(['tabindex' => 2]),
                         TextInput::make('email_code')
-                            ->label(__('Or use an email verification code'))
+                            ->label(__('Email Verification Code'))
                             ->placeholder('000000')
                             ->maxLength(6)
                             ->autocomplete('one-time-code')
-                            ->hint(__('Request a code to be sent to your verified email address.'))
+                            ->hint(__('Enter the code sent to your email address.'))
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'email')
                             ->extraInputAttributes(['tabindex' => 3]),
+                        FormActions::make([
+                            FormAction::make('sendEmailCode')
+                                ->label(__('Send code to my email'))
+                                ->color('gray')
+                                ->outlined()
+                                ->action(fn ($livewire) => $livewire->sendEmailCode()),
+                        ])
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'email')
+                            ->columnSpanFull(),
                     ])
                     ->statePath('data'),
             ),
@@ -93,14 +125,18 @@ class PasswordResetMfaChallenge extends SimplePage
         $user = User::find($userId);
 
         if (! $user) {
-            session()->forget(['filament.admin.password_reset.user_id', 'filament.admin.password_reset.password_hash', 'filament.admin.password_reset.token']);
+            $this->clearPasswordResetSession();
             $this->redirect(Filament::getLoginUrl());
 
             return;
         }
 
         try {
-            app(EmailTwoFactorCodeService::class)->send($user);
+            app(EmailTwoFactorCodeService::class)->send(
+                $user,
+                self::USER_ID_SESSION_KEY,
+                self::CHALLENGE_ID_SESSION_KEY,
+            );
 
             Notification::make()
                 ->success()
@@ -122,7 +158,7 @@ class PasswordResetMfaChallenge extends SimplePage
         if (RateLimiter::tooManyAttempts($limiterKey, $maxAttempts)) {
             $availableIn = RateLimiter::availableIn($limiterKey);
 
-            session()->forget(['filament.admin.password_reset.user_id', 'filament.admin.password_reset.password_hash', 'filament.admin.password_reset.token']);
+            $this->clearPasswordResetSession();
 
             Notification::make()
                 ->danger()
@@ -139,24 +175,22 @@ class PasswordResetMfaChallenge extends SimplePage
 
         $data = $this->form->getState();
 
-        $code = trim((string) ($data['code'] ?? ''));
-        $recoveryCode = trim((string) ($data['recovery_code'] ?? ''));
-        $emailCode = trim((string) ($data['email_code'] ?? ''));
+        $method = $data['method'] ?? 'totp';
 
-        $credentialCount = (int) ($code !== '') + (int) ($recoveryCode !== '') + (int) ($emailCode !== '');
+        $code = $method === 'totp' ? trim((string) ($data['code'] ?? '')) : '';
+        $recoveryCode = $method === 'recovery' ? trim((string) ($data['recovery_code'] ?? '')) : '';
+        $emailCode = $method === 'email' ? trim((string) ($data['email_code'] ?? '')) : '';
 
-        if ($credentialCount !== 1) {
+        if ($code === '' && $recoveryCode === '' && $emailCode === '') {
             throw ValidationException::withMessages([
-                'data.code' => [__('Please provide exactly one verification method.')],
-                'data.recovery_code' => [__('Please provide exactly one verification method.')],
-                'data.email_code' => [__('Please provide exactly one verification method.')],
+                'data.'.$this->fieldForMethod($method) => [__('Please enter your verification code.')],
             ]);
         }
 
         $user = User::find($userId);
 
         if (! $user) {
-            session()->forget(['filament.admin.password_reset.user_id', 'filament.admin.password_reset.password_hash', 'filament.admin.password_reset.token']);
+            $this->clearPasswordResetSession();
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -177,33 +211,51 @@ class PasswordResetMfaChallenge extends SimplePage
             $secret = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
             $verified = $provider->verify($secret, $code);
         } elseif ($emailCode !== '') {
-            $verified = app(EmailTwoFactorCodeService::class)->verify($user, $emailCode);
+            $verified = app(EmailTwoFactorCodeService::class)->verify(
+                $user,
+                $emailCode,
+                self::USER_ID_SESSION_KEY,
+                self::CHALLENGE_ID_SESSION_KEY,
+            );
         }
 
         if (! $verified) {
             RateLimiter::hit($limiterKey);
 
-            if ($emailCode !== '') {
-                throw ValidationException::withMessages([
-                    'data.email_code' => [__('The provided email verification code was invalid or has expired.')],
-                ]);
-            }
-
             throw ValidationException::withMessages([
-                'data.code' => [__('The provided two factor authentication code was invalid.')],
+                'data.'.$this->fieldForMethod($method) => [$this->errorForMethod($method)],
             ]);
         }
 
         RateLimiter::clear($limiterKey);
 
+        // Pull all pending reset state atomically; fail fast if any piece is missing
         $pendingHash = session()->pull('filament.admin.password_reset.password_hash');
         $pendingToken = session()->pull('filament.admin.password_reset.token');
-        session()->forget('filament.admin.password_reset.user_id');
+        $this->clearPasswordResetSession();
 
-        if ($pendingHash && $pendingToken) {
-            $user->forceFill(['password' => $pendingHash])->save();
-            Password::broker(config('fortify.passwords'))->deleteToken($user);
+        if (! $pendingHash || ! $pendingToken) {
+            $this->redirect(Filament::getLoginUrl());
+
+            return;
         }
+
+        // Re-check token validity after MFA succeeds, before applying the password change
+        $tokenRepository = Password::broker(config('fortify.passwords'))->getRepository();
+
+        if (! $tokenRepository->exists($user, $pendingToken)) {
+            Notification::make()
+                ->warning()
+                ->title(__('The password reset token has expired. Please request a new reset link.'))
+                ->send();
+
+            $this->redirect(Filament::getLoginUrl());
+
+            return;
+        }
+
+        $user->forceFill(['password' => $pendingHash])->save();
+        Password::broker(config('fortify.passwords'))->deleteToken($user);
 
         Notification::make()
             ->title(__('Your password has been reset. You may now log in.'))
@@ -212,6 +264,33 @@ class PasswordResetMfaChallenge extends SimplePage
 
         Filament::auth()->logout();
         $this->redirect(Filament::getLoginUrl());
+    }
+
+    private function fieldForMethod(string $method): string
+    {
+        return match ($method) {
+            'recovery' => 'recovery_code',
+            'email' => 'email_code',
+            default => 'code',
+        };
+    }
+
+    private function errorForMethod(string $method): string
+    {
+        return match ($method) {
+            'email' => __('The provided email verification code was invalid or has expired.'),
+            default => __('The provided two factor authentication code was invalid.'),
+        };
+    }
+
+    private function clearPasswordResetSession(): void
+    {
+        session()->forget([
+            'filament.admin.password_reset.user_id',
+            'filament.admin.password_reset.password_hash',
+            'filament.admin.password_reset.token',
+            self::CHALLENGE_ID_SESSION_KEY,
+        ]);
     }
 
     /**
@@ -223,11 +302,6 @@ class PasswordResetMfaChallenge extends SimplePage
             Action::make('submit')
                 ->label(__('Verify and reset password'))
                 ->submit('submit'),
-            Action::make('sendEmailCode')
-                ->label(__('Send code to my email'))
-                ->action('sendEmailCode')
-                ->color('gray')
-                ->outlined(),
         ];
     }
 
