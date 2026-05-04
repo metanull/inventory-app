@@ -1044,7 +1044,7 @@ export class TimelineImporter extends BaseImporter {
                 const itemId = await this.getEntityUuidAsync(item.backwardCompatibility, 'item');
                 if (!itemId) {
                   this.logWarning(
-                    `BAR: Item not found for backward_compatibility: ${item.backwardCompatibility}`
+                    `BAR [${legacyCountryCode}]: Item not found for HCR event ${hcr.hcr_id}, backward_compatibility: ${item.backwardCompatibility}`
                   );
                   continue;
                 }
@@ -1110,11 +1110,13 @@ export class TimelineImporter extends BaseImporter {
       });
       if (!seen.has(bc)) {
         seen.add(bc);
+        const parsedStart = row.start_date !== null ? parseInt(row.start_date, 10) : NaN;
+        const parsedEnd = row.end_date !== null ? parseInt(row.end_date, 10) : NaN;
         items.push({
           backwardCompatibility: bc,
           country: row.country,
-          startDate: row.start_date ? parseInt(row.start_date, 10) || null : null,
-          endDate: row.end_date ? parseInt(row.end_date, 10) || null : null,
+          startDate: isNaN(parsedStart) ? null : parsedStart,
+          endDate: isNaN(parsedEnd) ? null : parsedEnd,
         });
       }
     }
@@ -1127,11 +1129,13 @@ export class TimelineImporter extends BaseImporter {
       });
       if (!seen.has(bc)) {
         seen.add(bc);
+        const parsedStart = row.start_date !== null ? parseInt(row.start_date, 10) : NaN;
+        const parsedEnd = row.end_date !== null ? parseInt(row.end_date, 10) : NaN;
         items.push({
           backwardCompatibility: bc,
           country: row.country,
-          startDate: row.start_date ? parseInt(row.start_date, 10) || null : null,
-          endDate: row.end_date ? parseInt(row.end_date, 10) || null : null,
+          startDate: isNaN(parsedStart) ? null : parsedStart,
+          endDate: isNaN(parsedEnd) ? null : parsedEnd,
         });
       }
     }

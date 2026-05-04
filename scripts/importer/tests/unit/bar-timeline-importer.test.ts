@@ -504,7 +504,7 @@ describe('TimelineImporter BAR timeline import (Step 5)', () => {
     expect(strategy.writeTimelineEventItem).not.toHaveBeenCalled();
     // A warning should be logged (logWarning passes undefined as second arg when details omitted)
     expect(logger.warning).toHaveBeenCalledWith(
-      expect.stringContaining('Item not found for backward_compatibility'),
+      expect.stringContaining('Item not found for HCR event'),
       undefined
     );
   });
