@@ -30,6 +30,7 @@ describe('ExploreRegionImporter', () => {
     vi.clearAllMocks();
 
     tracker = new UnifiedTracker();
+    tracker.setMetadata('default_language_id', 'eng');
     tracker.set('mwnf3_explore:context', 'explore-context-uuid', 'context');
     tracker.set('mwnf3_explore:country:eg', 'country-collection-uuid', 'collection');
     tracker.set('fr', 'fra', 'language');
@@ -108,7 +109,7 @@ describe('ExploreRegionImporter', () => {
       expect.stringContaining('SELECT regionId, themeId FROM mwnf3_explore.regionsthemes')
     );
     expect(writeCollectionMock).toHaveBeenCalledWith({
-      internal_name: 'region_6_delta',
+      internal_name: 'Delta',
       backward_compatibility: 'mwnf3_explore:region:6',
       context_id: 'explore-context-uuid',
       language_id: 'eng',

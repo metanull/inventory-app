@@ -36,7 +36,6 @@ interface ThgLegacyHcr {
   to_ad: number | null;
   from_ah: number | null;
   to_ah: number | null;
-  display_order: number | null;
 }
 
 /**
@@ -45,7 +44,7 @@ interface ThgLegacyHcr {
  */
 interface ThgLegacyHcrEvent {
   hcr_id: number;
-  lang: string; // 2-char legacy language code
+  lang_id: string; // 2-char legacy language code
   name: string | null;
   description: string | null;
   datedesc_ah: string | null;
@@ -67,9 +66,9 @@ export class ThgTimelineImporter extends BaseImporter {
       let hcrRows: ThgLegacyHcr[];
       try {
         hcrRows = await this.context.legacyDb.query<ThgLegacyHcr>(
-          `SELECT hcr_id, gallery_id, name, from_ad, to_ad, from_ah, to_ah, display_order
+          `SELECT hcr_id, gallery_id, name, from_ad, to_ad, from_ah, to_ah
            FROM mwnf3_thematic_gallery.hcr
-           ORDER BY gallery_id, display_order IS NULL, display_order, from_ad, hcr_id`
+           ORDER BY gallery_id, from_ad, hcr_id`
         );
       } catch (queryError) {
         const message = queryError instanceof Error ? queryError.message : String(queryError);
@@ -89,9 +88,9 @@ export class ThgTimelineImporter extends BaseImporter {
       let hcrEvents: ThgLegacyHcrEvent[];
       try {
         hcrEvents = await this.context.legacyDb.query<ThgLegacyHcrEvent>(
-          `SELECT hcr_id, lang, name, description, datedesc_ah, datedesc_ad
+          `SELECT hcr_id, lang_id, name, description, datedesc_ah, datedesc_ad
            FROM mwnf3_thematic_gallery.hcr_events
-           ORDER BY hcr_id, lang`
+           ORDER BY hcr_id, lang_id`
         );
       } catch {
         hcrEvents = [];
@@ -191,7 +190,7 @@ export class ThgTimelineImporter extends BaseImporter {
                 year_to_ah: hcr.to_ah ?? null,
                 date_from: null,
                 date_to: null,
-                display_order: hcr.display_order ?? displayOrder,
+                display_order: displayOrder,
                 backward_compatibility: eventBC,
               });
               this.registerEntity(eventId, eventBC, 'timeline_event');
@@ -202,16 +201,16 @@ export class ThgTimelineImporter extends BaseImporter {
               const translations = eventsByHcrId.get(hcr.hcr_id) ?? [];
               for (const trans of translations) {
                 try {
-                  if (!trans.lang) {
+                  if (!trans.lang_id) {
                     this.logWarning(
                       `THG HCR event ${hcr.hcr_id}: translation row has no language value (table: hcr_events, pk: hcr_id=${hcr.hcr_id}), skipping`
                     );
                     continue;
                   }
-                  const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.lang);
+                  const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.lang_id);
                   if (!languageId) {
                     this.logWarning(
-                      `THG HCR event ${hcr.hcr_id}: unknown language '${trans.lang}', skipping translation`
+                      `THG HCR event ${hcr.hcr_id}: unknown language '${trans.lang_id}', skipping translation`
                     );
                     continue;
                   }
@@ -228,7 +227,7 @@ export class ThgTimelineImporter extends BaseImporter {
                 } catch (transError) {
                   const message = transError instanceof Error ? transError.message : String(transError);
                   this.logWarning(
-                    `THG HCR event ${hcr.hcr_id} lang ${trans.lang}: ${message}`
+                    `THG HCR event ${hcr.hcr_id} lang ${trans.lang_id}: ${message}`
                   );
                 }
               }
