@@ -51,6 +51,7 @@ import {
   ShProjectImporter,
   ShPartnerImporter,
   ShPartnerLogoImporter,
+  ShPartnerPictureImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,
@@ -321,6 +322,13 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'SH Partner Logos',
     description: 'Import Sharing History partner logos',
     importerClass: ShPartnerLogoImporter,
+    dependencies: ['sh-partner'],
+  },
+  {
+    key: 'sh-partner-picture',
+    name: 'SH Partner Pictures',
+    description: 'Import Sharing History partner profile/gallery pictures',
+    importerClass: ShPartnerPictureImporter,
     dependencies: ['sh-partner'],
   },
   {
