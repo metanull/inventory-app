@@ -15,7 +15,8 @@
  *
  * Mapping:
  * - (project_id, country, trail_id, number) → backward_compatibility
- * - title → internal_name (default language first, then first named translation)
+ * - internal_name = 'travels:itinerary:{project_id}:{country}:{trail_id}:{number}' (namespaced; globally unique)
+ * - Public titles are stored in collection_translations.title, not in internal_name
  * - type = 'itinerary'
  * - parent_id = trail collection
  *
@@ -26,8 +27,6 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy itinerary structure
@@ -121,23 +120,7 @@ export class TravelsItineraryImporter extends BaseImporter {
             continue;
           }
 
-          const internalNameCandidates = [];
-          for (const translation of itineraryGroup) {
-            internalNameCandidates.push({
-              languageId: mapLanguageCode(translation.lang),
-              value: translation.title,
-            });
-          }
-
-          const selectedInternalName = selectItemInternalName(
-            internalNameCandidates,
-            this.defaultLanguageId,
-            'Travels itinerary',
-            backwardCompat
-          );
-          if (selectedInternalName.warning) {
-            this.logWarning(selectedInternalName.warning);
-          }
+          const internalName = `travels:itinerary:${legacy.project_id}:${legacy.country}:${legacy.trail_id}:${legacy.number}`;
 
           // Collect sample
           this.collectSample(
@@ -149,7 +132,7 @@ export class TravelsItineraryImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create itinerary: ${selectedInternalName.internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create itinerary: ${internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -159,7 +142,7 @@ export class TravelsItineraryImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: selectedInternalName.internalName,
+            internal_name: internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,

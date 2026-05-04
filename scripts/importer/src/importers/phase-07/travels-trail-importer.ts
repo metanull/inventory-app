@@ -14,7 +14,8 @@
  *
  * Mapping:
  * - (project_id, country, number) → backward_compatibility (mwnf3_travels:trail:{project_id}:{country}:{number})
- * - title → internal_name (default language first, then first named translation)
+ * - internal_name = 'travels:trail:{project_id}:{country}:{number}' (namespaced; globally unique)
+ * - Public titles are stored in collection_translations.title, not in internal_name
  * - type = 'exhibition trail'
  * - parent_id = travels root collection
  * - country_id = looked up from country code
@@ -27,8 +28,6 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy trail structure (one row per language)
@@ -135,23 +134,7 @@ export class TravelsTrailImporter extends BaseImporter {
             );
           }
 
-          const internalNameCandidates = [];
-          for (const translation of trailGroup) {
-            internalNameCandidates.push({
-              languageId: mapLanguageCode(translation.lang),
-              value: translation.title,
-            });
-          }
-
-          const selectedInternalName = selectItemInternalName(
-            internalNameCandidates,
-            this.defaultLanguageId,
-            'Travels trail',
-            backwardCompat
-          );
-          if (selectedInternalName.warning) {
-            this.logWarning(selectedInternalName.warning);
-          }
+          const internalName = `travels:trail:${legacy.project_id}:${legacy.country}:${legacy.number}`;
 
           // Collect sample
           this.collectSample(
@@ -163,7 +146,7 @@ export class TravelsTrailImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create trail: ${selectedInternalName.internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create trail: ${internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -173,7 +156,7 @@ export class TravelsTrailImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: selectedInternalName.internalName,
+            internal_name: internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,
