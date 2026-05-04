@@ -122,6 +122,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', $plainCode)
             ->call('submit')
             ->assertRedirect(Filament::getUrl());
@@ -153,6 +154,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', '999999')
             ->call('submit')
             ->assertHasErrors(['data.email_code']);
@@ -174,6 +176,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         // Cache is empty — simulates expiry
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', '123456')
             ->call('submit')
             ->assertHasErrors(['data.email_code']);
@@ -206,6 +209,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
 
         // First submission — succeeds and logs in
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', $plainCode)
             ->call('submit');
 
@@ -219,6 +223,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
 
         // Second submission — cache is gone, must fail
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', $plainCode)
             ->call('submit')
             ->assertHasErrors(['data.email_code']);
@@ -302,6 +307,7 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'email')
             ->set('data.email_code', '123456')
             ->call('submit')
             ->assertHasErrors(['data.email_code']);
@@ -309,18 +315,32 @@ class TwoFactorChallengeEmailCodeTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_submitting_multiple_credentials_fails_validation(): void
+    public function test_submitting_stale_fields_for_non_selected_method_does_not_cause_validation_errors(): void
     {
         $user = $this->createUserWithTotp();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
-        session()->put('filament.admin.2fa.user_id', $user->getKey());
+        $challengeId = (string) Str::uuid();
 
+        $service = app(EmailTwoFactorCodeService::class);
+        $cacheKey = $service->cacheKey($challengeId);
+
+        Cache::put($cacheKey, [
+            'user_id' => $user->getKey(),
+            'code_hash' => Hash::make('123456'),
+            'expires_at' => now()->addMinutes(10)->timestamp,
+        ], 600);
+
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+        session()->put('filament.admin.2fa.email_challenge_id', $challengeId);
+
+        // method=email with invalid email code and stale code field — only email_code is checked
         Livewire::test(TwoFactorChallenge::class)
-            ->set('data.code', '123456')
+            ->set('data.method', 'email')
+            ->set('data.code', '999999')
             ->set('data.email_code', '654321')
             ->call('submit')
-            ->assertHasErrors(['data.code']);
+            ->assertHasErrors(['data.email_code']);
 
         $this->assertGuest();
     }
