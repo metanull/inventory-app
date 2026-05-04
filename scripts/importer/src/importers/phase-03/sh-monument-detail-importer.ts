@@ -119,11 +119,11 @@ export class ShMonumentDetailImporter extends BaseImporter {
       return false;
     }
 
-    // Resolve parent monument
+    // Resolve parent monument (nullable — detail can exist without parent)
     const parentId = await this.getEntityUuidAsync(transformed.parentBackwardCompatibility, 'item');
     if (!parentId) {
-      throw new Error(
-        `Parent monument not found: ${transformed.parentBackwardCompatibility}. Detail ${transformed.backwardCompatibility} cannot be imported without its parent.`
+      this.logWarning(
+        `Parent monument not found: ${transformed.parentBackwardCompatibility}. Importing SH monument detail ${transformed.backwardCompatibility} with parent_id = null.`
       );
     }
 
@@ -181,7 +181,7 @@ export class ShMonumentDetailImporter extends BaseImporter {
     // Create Item (monument detail)
     const itemData: ItemData = {
       ...transformed.data,
-      parent_id: parentId,
+      parent_id: parentId ?? null,
       collection_id: collectionId,
       partner_id: null, // Details inherit partner from parent
       project_id: projectId,
