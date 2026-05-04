@@ -5,8 +5,12 @@ namespace App\Filament\Auth;
 use App\Services\Filament\Auth\EmailTwoFactorCodeService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\Actions as FormActions;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
@@ -35,6 +39,8 @@ class TwoFactorChallenge extends SimplePage
 
             return;
         }
+
+        $this->form->fill();
     }
 
     public function form(Form $form): Form
@@ -51,24 +57,46 @@ class TwoFactorChallenge extends SimplePage
             'form' => $this->form(
                 $this->makeForm()
                     ->schema([
+                        Radio::make('method')
+                            ->label(__('Verification method'))
+                            ->options([
+                                'totp' => __('Authenticator app'),
+                                'recovery' => __('Recovery code'),
+                                'email' => __('Email code'),
+                            ])
+                            ->default('totp')
+                            ->inline()
+                            ->live(),
                         TextInput::make('code')
                             ->label(__('Authentication Code'))
                             ->placeholder('000 000')
                             ->maxLength(8)
                             ->autocomplete('one-time-code')
                             ->autofocus()
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'totp')
                             ->extraInputAttributes(['tabindex' => 1]),
                         TextInput::make('recovery_code')
-                            ->label(__('Or use a recovery code'))
+                            ->label(__('Recovery Code'))
                             ->placeholder('xxxxx-xxxxx')
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'recovery')
                             ->extraInputAttributes(['tabindex' => 2]),
                         TextInput::make('email_code')
-                            ->label(__('Or use an email verification code'))
+                            ->label(__('Email Verification Code'))
                             ->placeholder('000000')
                             ->maxLength(6)
                             ->autocomplete('one-time-code')
-                            ->hint(__('Request a code to be sent to your verified email address.'))
+                            ->hint(__('Enter the code sent to your email address.'))
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'email')
                             ->extraInputAttributes(['tabindex' => 3]),
+                        FormActions::make([
+                            FormAction::make('sendEmailCode')
+                                ->label(__('Send code to my email'))
+                                ->color('gray')
+                                ->outlined()
+                                ->action(fn ($livewire) => $livewire->sendEmailCode()),
+                        ])
+                            ->hidden(fn (Get $get): bool => $get('method') !== 'email')
+                            ->columnSpanFull(),
                     ])
                     ->statePath('data'),
             ),
@@ -135,17 +163,15 @@ class TwoFactorChallenge extends SimplePage
 
         $data = $this->form->getState();
 
-        $code = trim((string) ($data['code'] ?? ''));
-        $recoveryCode = trim((string) ($data['recovery_code'] ?? ''));
-        $emailCode = trim((string) ($data['email_code'] ?? ''));
+        $method = $data['method'] ?? 'totp';
 
-        $credentialCount = (int) ($code !== '') + (int) ($recoveryCode !== '') + (int) ($emailCode !== '');
+        $code = $method === 'totp' ? trim((string) ($data['code'] ?? '')) : '';
+        $recoveryCode = $method === 'recovery' ? trim((string) ($data['recovery_code'] ?? '')) : '';
+        $emailCode = $method === 'email' ? trim((string) ($data['email_code'] ?? '')) : '';
 
-        if ($credentialCount !== 1) {
+        if ($code === '' && $recoveryCode === '' && $emailCode === '') {
             throw ValidationException::withMessages([
-                'data.code' => [__('Please provide exactly one verification method.')],
-                'data.recovery_code' => [__('Please provide exactly one verification method.')],
-                'data.email_code' => [__('Please provide exactly one verification method.')],
+                'data.'.$this->fieldForMethod($method) => [__('Please enter your verification code.')],
             ]);
         }
 
@@ -180,14 +206,8 @@ class TwoFactorChallenge extends SimplePage
         if (! $verified) {
             RateLimiter::hit($limiterKey);
 
-            if ($emailCode !== '') {
-                throw ValidationException::withMessages([
-                    'data.email_code' => [__('The provided email verification code was invalid or has expired.')],
-                ]);
-            }
-
             throw ValidationException::withMessages([
-                'data.code' => [__('The provided two factor authentication code was invalid.')],
+                'data.'.$this->fieldForMethod($method) => [$this->errorForMethod($method)],
             ]);
         }
 
@@ -202,6 +222,23 @@ class TwoFactorChallenge extends SimplePage
         $this->redirect(Filament::getUrl());
     }
 
+    private function fieldForMethod(string $method): string
+    {
+        return match ($method) {
+            'recovery' => 'recovery_code',
+            'email' => 'email_code',
+            default => 'code',
+        };
+    }
+
+    private function errorForMethod(string $method): string
+    {
+        return match ($method) {
+            'email' => __('The provided email verification code was invalid or has expired.'),
+            default => __('The provided two factor authentication code was invalid.'),
+        };
+    }
+
     /**
      * @return array<Action>
      */
@@ -211,11 +248,6 @@ class TwoFactorChallenge extends SimplePage
             Action::make('submit')
                 ->label(__('Verify'))
                 ->submit('submit'),
-            Action::make('sendEmailCode')
-                ->label(__('Send code to my email'))
-                ->action('sendEmailCode')
-                ->color('gray')
-                ->outlined(),
         ];
     }
 

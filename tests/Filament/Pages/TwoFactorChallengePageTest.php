@@ -86,6 +86,7 @@ class TwoFactorChallengePageTest extends TestCase
         session()->put('filament.admin.2fa.remember', false);
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'recovery')
             ->set('data.recovery_code', $recoveryCode)
             ->call('submit');
 

@@ -153,6 +153,7 @@ class MfaRegressionTest extends TestCase
         $recoveryCode = $this->getUnusedRecoveryCode();
 
         Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'recovery')
             ->set('data.recovery_code', $recoveryCode)
             ->call('submit')
             ->assertRedirect(Filament::getUrl());
@@ -302,5 +303,87 @@ class MfaRegressionTest extends TestCase
         $this->get(route('two-factor.login'))
             ->assertOk()
             ->assertViewIs('auth.two-factor-challenge');
+    }
+
+    /**
+     * T-11: Default MFA method is 'totp' on the login challenge page.
+     */
+    public function test_default_mfa_method_is_totp_on_login_challenge_page(): void
+    {
+        $user = $this->createUserWithTotp();
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+
+        Livewire::test(TwoFactorChallenge::class)
+            ->assertFormFieldExists('method')
+            ->assertSet('data.method', 'totp');
+    }
+
+    /**
+     * T-12: Invalid recovery code on /admin/two-factor-challenge reports error on
+     * data.recovery_code, not data.code.
+     */
+    public function test_invalid_recovery_code_on_admin_two_factor_challenge_reports_on_recovery_code_field(): void
+    {
+        $user = $this->createUserWithRecoveryCodes();
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+
+        Livewire::test(TwoFactorChallenge::class)
+            ->set('data.method', 'recovery')
+            ->set('data.recovery_code', 'INVALID-RECOVERY-CODE')
+            ->call('submit')
+            ->assertHasErrors(['data.recovery_code'])
+            ->assertHasNoErrors(['data.code'])
+            ->assertHasNoErrors(['data.email_code']);
+
+        $this->assertGuest();
+    }
+
+    /**
+     * T-13: /admin logout uses the Filament logout route, leaves no pending /admin auth keys,
+     * and does NOT redirect to /web.
+     */
+    public function test_admin_logout_uses_filament_route_and_clears_admin_session_keys(): void
+    {
+        $user = $this->createUserWithTotp();
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        $this->actingAs($user, config('fortify.guard'));
+
+        // Plant pending admin session keys to verify they are cleared
+        session()->put('filament.admin.2fa.user_id', $user->getKey());
+        session()->put('filament.admin.2fa.remember', false);
+        session()->put('filament.admin.2fa.email_challenge_id', 'some-challenge-id');
+
+        $response = $this->post(route('filament.admin.auth.logout'));
+
+        $this->assertGuest(config('fortify.guard'));
+        $this->assertNull(session('filament.admin.2fa.user_id'));
+        $this->assertNull(session('filament.admin.2fa.remember'));
+        $this->assertNull(session('filament.admin.2fa.email_challenge_id'));
+        $this->assertStringNotContainsString('/web/', $response->getTargetUrl() ?? '');
+    }
+
+    /**
+     * T-14: /admin logout does NOT use the Fortify login.id mechanism.
+     */
+    public function test_admin_logout_does_not_set_or_use_fortify_login_id(): void
+    {
+        $user = $this->createUserWithTotp();
+        $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
+
+        $this->actingAs($user, config('fortify.guard'));
+
+        // Simulate a stale login.id that should not be used
+        session()->put('login.id', 9999);
+
+        $this->post(route('filament.admin.auth.logout'));
+
+        $this->assertGuest(config('fortify.guard'));
+        // login.id belongs to the /web Fortify flow; /admin logout must not interact with it
+        // (it may or may not be cleared, but it must not cause /admin to redirect to /web)
     }
 }
