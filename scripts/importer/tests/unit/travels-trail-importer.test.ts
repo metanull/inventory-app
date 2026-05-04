@@ -81,12 +81,12 @@ describe('TravelsTrailImporter', () => {
     };
   });
 
-  it('uses the first named translation when english is missing and logs the fallback', async () => {
+  it('uses a namespaced BC-derived internal_name instead of the display title', async () => {
     const importer = new TravelsTrailImporter(context);
     const result = await importer.import();
 
     expect(writeCollectionMock).toHaveBeenCalledWith({
-      internal_name: 'Sentier francais',
+      internal_name: 'travels:trail:IAM:pt:1',
       backward_compatibility: 'mwnf3_travels:trail:IAM:pt:1',
       context_id: 'travels-context-uuid',
       language_id: 'eng',
@@ -97,10 +97,7 @@ describe('TravelsTrailImporter', () => {
       map_zoom: null,
       country_id: 'prt',
     });
-    expect(logger.warning).toHaveBeenCalledWith(
-      'Travels trail mwnf3_travels:trail:IAM:pt:1 has no translation with a name in default language eng, using fra instead',
-      undefined
-    );
+    expect(logger.warning).not.toHaveBeenCalled();
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
   });

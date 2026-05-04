@@ -15,7 +15,8 @@
  *
  * Mapping:
  * - (project_id, country, trail_id, itinerary_id, number) → backward_compatibility
- * - title → internal_name (default language first, then first named translation)
+ * - internal_name = 'travels:location:{project_id}:{country}:{trail_id}:{itinerary_id}:{number}' (namespaced; globally unique)
+ * - Public titles are stored in collection_translations.title, not in internal_name
  * - type = 'location'
  * - parent_id = itinerary collection
  *
@@ -26,8 +27,6 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
-import { selectItemInternalName } from '../../domain/transformers/item-internal-name-transformer.js';
 
 /**
  * Legacy location structure
@@ -120,23 +119,7 @@ export class TravelsLocationImporter extends BaseImporter {
             continue;
           }
 
-          const internalNameCandidates = [];
-          for (const translation of locationGroup) {
-            internalNameCandidates.push({
-              languageId: mapLanguageCode(translation.lang),
-              value: translation.title,
-            });
-          }
-
-          const selectedInternalName = selectItemInternalName(
-            internalNameCandidates,
-            this.defaultLanguageId,
-            'Travels location',
-            backwardCompat
-          );
-          if (selectedInternalName.warning) {
-            this.logWarning(selectedInternalName.warning);
-          }
+          const internalName = `travels:location:${legacy.project_id}:${legacy.country}:${legacy.trail_id}:${legacy.itinerary_id}:${legacy.number}`;
 
           // Collect sample
           this.collectSample(
@@ -148,7 +131,7 @@ export class TravelsLocationImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location: ${selectedInternalName.internalName}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create location: ${internalName}`
             );
             this.registerEntity('', backwardCompat, 'collection');
             result.imported++;
@@ -158,7 +141,7 @@ export class TravelsLocationImporter extends BaseImporter {
 
           // Write collection
           const collectionId = await this.context.strategy.writeCollection({
-            internal_name: selectedInternalName.internalName,
+            internal_name: internalName,
             backward_compatibility: backwardCompat,
             context_id: this.travelsContextId,
             language_id: this.defaultLanguageId,
