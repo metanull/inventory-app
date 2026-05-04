@@ -29,7 +29,7 @@ import path from 'path';
 interface LegacyExhibitionLogo {
   logo_id: number;
   gallery_id: number;
-  path: string;
+  logo: string;
   display_order: number | null;
 }
 
@@ -37,10 +37,10 @@ interface LegacyExhibitionLogo {
  * Related content row
  */
 interface LegacyExhibitionRelatedContent {
-  content_id: number;
+  related_content_id: number;
   gallery_id: number;
-  type: string | null;
-  url: string;
+  type_resource: string | null;
+  link: string;
   display_order: number | null;
 }
 
@@ -48,8 +48,8 @@ interface LegacyExhibitionRelatedContent {
  * Related content translation row
  */
 interface LegacyExhibitionRelatedContentI18n {
-  content_id: number;
-  lang: string;
+  related_content_id: number;
+  language_id: string;
   title: string | null;
   description: string | null;
 }
@@ -124,7 +124,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
     let logoRows: LegacyExhibitionLogo[];
     try {
       logoRows = await this.context.legacyDb.query<LegacyExhibitionLogo>(
-        `SELECT logo_id, gallery_id, path, display_order
+        `SELECT logo_id, gallery_id, logo, display_order
          FROM mwnf3_thematic_gallery.exhibition_logo
          ORDER BY gallery_id, display_order IS NULL, display_order, logo_id`
       );
@@ -144,7 +144,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
     for (const logo of logoRows) {
       try {
-        if (!logo.path) {
+        if (!logo.logo) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -162,7 +162,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
           continue;
         }
 
-        const trackerKey = logo.path.toLowerCase();
+        const trackerKey = logo.logo.toLowerCase();
 
         // Skip if already tracked (dedup by path)
         const existingId = await this.getEntityUuidAsync(trackerKey, 'image');
@@ -172,8 +172,8 @@ export class ThgGalleryContentImporter extends BaseImporter {
           continue;
         }
 
-        const mimeType = guessMimeType(logo.path);
-        const originalName = path.basename(logo.path);
+        const mimeType = guessMimeType(logo.logo);
+        const originalName = path.basename(logo.logo);
 
         this.collectSample(
           'exhibition_logo',
@@ -183,7 +183,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           this.logInfo(
-            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create exhibition logo image: ${logo.path} → collection ${collectionId}`
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create exhibition logo image: ${logo.logo} → collection ${collectionId}`
           );
           result.imported++;
           this.showProgress();
@@ -192,7 +192,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
         await this.context.strategy.writeCollectionImage({
           collection_id: collectionId,
-          path: logo.path,
+          path: logo.logo,
           original_name: originalName,
           mime_type: mimeType,
           size: 0,
@@ -223,9 +223,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
     let contentRows: LegacyExhibitionRelatedContent[];
     try {
       contentRows = await this.context.legacyDb.query<LegacyExhibitionRelatedContent>(
-        `SELECT content_id, gallery_id, type, url, display_order
+        `SELECT related_content_id, gallery_id, type_resource, link, display_order
          FROM mwnf3_thematic_gallery.exhibition_related_content
-         ORDER BY gallery_id, display_order IS NULL, display_order, content_id`
+         ORDER BY gallery_id, display_order IS NULL, display_order, related_content_id`
       );
     } catch (queryError) {
       const message = queryError instanceof Error ? queryError.message : String(queryError);
@@ -242,9 +242,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
     let i18nRows: LegacyExhibitionRelatedContentI18n[];
     try {
       i18nRows = await this.context.legacyDb.query<LegacyExhibitionRelatedContentI18n>(
-        `SELECT content_id, lang, title, description
+        `SELECT related_content_id, language_id, title, description
          FROM mwnf3_thematic_gallery.exhibition_related_content_i18n
-         ORDER BY content_id, lang`
+         ORDER BY related_content_id, language_id`
       );
     } catch {
       i18nRows = [];
@@ -261,14 +261,14 @@ export class ThgGalleryContentImporter extends BaseImporter {
     // Index translations by content_id
     const translationsByContentId = new Map<number, LegacyExhibitionRelatedContentI18n[]>();
     for (const i18n of i18nRows) {
-      const existing = translationsByContentId.get(i18n.content_id) ?? [];
+      const existing = translationsByContentId.get(i18n.related_content_id) ?? [];
       existing.push(i18n);
-      translationsByContentId.set(i18n.content_id, existing);
+      translationsByContentId.set(i18n.related_content_id, existing);
     }
 
     for (const content of contentRows) {
       try {
-        if (!content.url) {
+        if (!content.link) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -279,19 +279,19 @@ export class ThgGalleryContentImporter extends BaseImporter {
         if (!collectionId) {
           result.warnings = result.warnings || [];
           result.warnings.push(
-            `Related content ${content.content_id}: gallery collection not found (${galleryBC}), skipping`
+            `Related content ${content.related_content_id}: gallery collection not found (${galleryBC}), skipping`
           );
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
-        const mediaType = mapContentType(content.type);
-        const translations = translationsByContentId.get(content.content_id) ?? [];
+        const mediaType = mapContentType(content.type_resource);
+        const translations = translationsByContentId.get(content.related_content_id) ?? [];
 
         // Create one media entry per translation language (or one without language if no i18n)
         if (translations.length === 0) {
-          const bc = `mwnf3_thematic_gallery:exhibition_related_content:${content.content_id}`;
+          const bc = `mwnf3_thematic_gallery:exhibition_related_content:${content.related_content_id}`;
           if (await this.entityExistsAsync(bc, 'collection_media')) {
             result.skipped++;
             this.showSkipped();
@@ -309,15 +309,15 @@ export class ThgGalleryContentImporter extends BaseImporter {
               collection_id: collectionId,
               language_id: null,
               type: mediaType,
-              title: `Related content ${content.content_id}`,
+              title: `Related content ${content.related_content_id}`,
               description: null,
-              url: content.url,
+              url: content.link,
               display_order: content.display_order ?? 0,
               backward_compatibility: bc,
             });
           } else {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create related content media: ${content.url} (${mediaType})`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create related content media: ${content.link} (${mediaType})`
             );
           }
 
@@ -328,24 +328,24 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
         for (const i18n of translations) {
           try {
-            if (!i18n.lang) {
+            if (!i18n.language_id) {
               result.warnings = result.warnings || [];
               result.warnings.push(
-                `Related content ${content.content_id}: translation row has no language value (table: exhibition_related_content_i18n, pk: content_id=${content.content_id}), skipping`
+                `Related content ${content.related_content_id}: translation row has no language value (table: exhibition_related_content_i18n, pk: related_content_id=${content.related_content_id}), skipping`
               );
               continue;
             }
 
-            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.lang);
+            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.language_id);
             if (!languageId) {
               result.warnings = result.warnings || [];
               result.warnings.push(
-                `Related content ${content.content_id}: unknown language '${i18n.lang}', skipping`
+                `Related content ${content.related_content_id}: unknown language '${i18n.language_id}', skipping`
               );
               continue;
             }
 
-            const bc = `mwnf3_thematic_gallery:exhibition_related_content:${content.content_id}:${i18n.lang}`;
+            const bc = `mwnf3_thematic_gallery:exhibition_related_content:${content.related_content_id}:${i18n.language_id}`;
             if (await this.entityExistsAsync(bc, 'collection_media')) {
               result.skipped++;
               this.showSkipped();
@@ -365,15 +365,15 @@ export class ThgGalleryContentImporter extends BaseImporter {
                 collection_id: collectionId,
                 language_id: languageId,
                 type: mediaType,
-                title: i18n.title || `Related content ${content.content_id}`,
+                title: i18n.title || `Related content ${content.related_content_id}`,
                 description: i18n.description ?? null,
-                url: content.url,
+                url: content.link,
                 display_order: content.display_order ?? 0,
                 backward_compatibility: bc,
               });
             } else {
               this.logInfo(
-                `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create related content media (${i18n.lang}): ${content.url} (${mediaType})`
+                `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create related content media (${i18n.language_id}): ${content.link} (${mediaType})`
               );
             }
 
@@ -382,16 +382,16 @@ export class ThgGalleryContentImporter extends BaseImporter {
           } catch (transError) {
             const message = transError instanceof Error ? transError.message : String(transError);
             result.errors.push(
-              `Related content ${content.content_id} (${i18n.lang}): ${message}`
+              `Related content ${content.related_content_id} (${i18n.language_id}): ${message}`
             );
-            this.logError(`Related content ${content.content_id} (${i18n.lang})`, message);
+            this.logError(`Related content ${content.related_content_id} (${i18n.language_id})`, message);
             this.showError();
           }
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        result.errors.push(`Related content ${content.content_id}: ${message}`);
-        this.logError(`Related content ${content.content_id}`, message);
+        result.errors.push(`Related content ${content.related_content_id}: ${message}`);
+        this.logError(`Related content ${content.related_content_id}`, message);
         this.showError();
       }
     }

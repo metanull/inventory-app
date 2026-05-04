@@ -25,8 +25,8 @@ interface LegacyThgGalleryLang {
   gallery_id: number;
   lang: string; // 2-char language code
   title: string | null;
-  subtitle: string | null;
-  description: string | null;
+  long_title: string | null;
+  short_text: string | null;
 }
 
 export class ThgGalleryLangImporter extends BaseImporter {
@@ -42,7 +42,7 @@ export class ThgGalleryLangImporter extends BaseImporter {
 
       // Query base gallery translations
       const rows = await this.context.legacyDb.query<LegacyThgGalleryLang>(
-        `SELECT gallery_id, lang, title, subtitle, description
+        `SELECT gallery_id, lang, title, long_title, short_text
          FROM mwnf3_thematic_gallery.thg_gallery_lang
          ORDER BY gallery_id, lang`
       );
@@ -106,8 +106,8 @@ export class ThgGalleryLangImporter extends BaseImporter {
           const title = legacy.title || `Gallery ${legacy.gallery_id}`;
 
           const descriptionParts: string[] = [];
-          if (legacy.subtitle) descriptionParts.push(legacy.subtitle);
-          if (legacy.description) descriptionParts.push(legacy.description);
+          if (legacy.long_title) descriptionParts.push(legacy.long_title);
+          if (legacy.short_text) descriptionParts.push(legacy.short_text);
           const description = descriptionParts.join('\n\n') || null;
 
           this.collectSample(
