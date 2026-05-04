@@ -135,14 +135,14 @@ export class MonumentDetailImporter extends BaseImporter {
       return true;
     }
 
-    // Resolve parent monument
+    // Resolve parent monument (nullable — detail can exist without parent)
     const parentItemId = await this.getEntityUuidAsync(
       transformed.parentBackwardCompatibility,
       'item'
     );
     if (!parentItemId) {
-      throw new Error(
-        `Parent monument not found: ${transformed.parentBackwardCompatibility}. Monument detail ${transformed.backwardCompatibility} cannot be imported without its parent monument.`
+      this.logWarning(
+        `Parent monument not found: ${transformed.parentBackwardCompatibility}. Importing monument detail ${transformed.backwardCompatibility} with parent_id = null.`
       );
     }
 
@@ -189,13 +189,13 @@ export class MonumentDetailImporter extends BaseImporter {
       );
     }
 
-    // Create Item (detail with parent reference)
+    // Create Item (detail with optional parent reference)
     const itemData = {
       ...transformed.data,
       collection_id: collectionId,
       partner_id: partnerId,
       project_id: projectId,
-      parent_id: parentItemId, // Link to parent monument
+      parent_id: parentItemId ?? null, // Link to parent monument if resolved
     };
 
     const itemId = await this.context.strategy.writeItem(itemData);
