@@ -1,7 +1,9 @@
 /**
- * THG Gallery Translation Importer
+ * THG Gallery Translation Importer (Exhibition-specific extras)
  *
  * Imports exhibition_i18n entries as CollectionTranslation records.
+ * This covers exhibition-specific extra data and is only relevant for
+ * galleries whose project_id marks them as exhibitions.
  *
  * Legacy schema:
  * - mwnf3_thematic_gallery.exhibition_i18n (gallery_id, language_id, title, subtitle, heading, about)
@@ -9,7 +11,9 @@
  * New schema:
  * - collection_translations (id, collection_id, language_id, context_id, title, description, backward_compatibility)
  *
- * Note: Combines subtitle and heading into description field.
+ * Note: Combines subtitle, heading, and about into description field.
+ * Note: Base gallery/exhibition titles come from thg_gallery_lang (ThgGalleryLangImporter).
+ *       This importer handles only exhibition-specific enrichment from exhibition_i18n.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';

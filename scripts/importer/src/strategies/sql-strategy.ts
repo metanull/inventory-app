@@ -1011,7 +1011,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [
         id,
         sanitized.internal_name,
-        sanitized.country_id,
+        sanitized.country_id ?? null,
         sanitized.collection_id ?? null,
         sanitized.backward_compatibility,
         sanitized.extra ?? null,
@@ -1445,6 +1445,30 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `UPDATE item_translations SET extra = ?, updated_at = ? WHERE item_id = ? AND language_id = ?`,
       [extra, this.now, itemId, languageId]
+    );
+  }
+
+  async getCollectionItemExtra(
+    collectionId: string,
+    itemId: string
+  ): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM collection_item WHERE collection_id = ? AND item_id = ? LIMIT 1`,
+      [collectionId, itemId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setCollectionItemExtra(
+    collectionId: string,
+    itemId: string,
+    extra: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_item SET extra = ?, updated_at = ? WHERE collection_id = ? AND item_id = ?`,
+      [extra, this.now, collectionId, itemId]
     );
   }
 

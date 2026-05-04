@@ -729,6 +729,61 @@ export interface ThgLegacyExhibitionPartnerI18n {
 }
 
 // ============================================================================
+// THG Gallery Lang Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * thg_gallery_lang — base gallery/exhibition translations
+ * PK: (gallery_id, lang)
+ * Covers ALL galleries and exhibitions.
+ */
+export interface ThgLegacyGalleryLang {
+  gallery_id: number;
+  lang: string; // 2-char language code
+  title: string | null;
+  subtitle: string | null;
+  description: string | null;
+}
+
+// ============================================================================
+// THG Exhibition Content Types — mwnf3_thematic_gallery
+// ============================================================================
+
+/**
+ * exhibition_logo — logos for exhibitions
+ * PK: (logo_id)
+ */
+export interface ThgLegacyExhibitionLogo {
+  logo_id: number;
+  gallery_id: number;
+  path: string; // server-relative image path
+  display_order: number | null;
+}
+
+/**
+ * exhibition_related_content — related media/document links for exhibitions
+ * PK: (content_id)
+ */
+export interface ThgLegacyExhibitionRelatedContent {
+  content_id: number;
+  gallery_id: number;
+  type: string; // e.g. 'pdf', 'audio', 'video', or media type hint
+  url: string;
+  display_order: number | null;
+}
+
+/**
+ * exhibition_related_content_i18n — translations for related content
+ * PK: (content_id, lang)
+ */
+export interface ThgLegacyExhibitionRelatedContentI18n {
+  content_id: number;
+  lang: string; // 2-char
+  title: string | null;
+  description: string | null;
+}
+
+// ============================================================================
 // THG Tag Types — mwnf3_thematic_gallery
 // ============================================================================
 

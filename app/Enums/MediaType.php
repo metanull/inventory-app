@@ -6,6 +6,7 @@ enum MediaType: string
 {
     case AUDIO = 'audio';
     case VIDEO = 'video';
+    case DOCUMENT = 'document';
 
     /**
      * Get the display label for the type.
@@ -15,6 +16,7 @@ enum MediaType: string
         return match ($this) {
             self::AUDIO => 'Audio',
             self::VIDEO => 'Video',
+            self::DOCUMENT => 'Document',
         };
     }
 

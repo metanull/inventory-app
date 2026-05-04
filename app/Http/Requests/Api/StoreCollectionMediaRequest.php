@@ -20,7 +20,7 @@ class StoreCollectionMediaRequest extends FormRequest
         return [
             'id' => ['prohibited'],
             'language_id' => ['nullable', 'string', 'size:3', 'exists:languages,id'],
-            'type' => ['required', 'in:audio,video'],
+            'type' => ['required', 'in:audio,video,document'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'url' => ['required', 'string', 'max:512', 'url'],

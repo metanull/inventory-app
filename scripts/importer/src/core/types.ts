@@ -492,7 +492,7 @@ export interface ItemDynastyData {
  */
 export interface TimelineData {
   internal_name: string;
-  country_id: string;
+  country_id?: string | null;
   collection_id?: string | null;
   backward_compatibility: string;
   extra?: string | null;
@@ -575,12 +575,12 @@ export interface ItemMediaData {
 }
 
 /**
- * Collection media data for write operations (audio/video URLs)
+ * Collection media data for write operations (audio/video/document URLs)
  */
 export interface CollectionMediaData {
   collection_id: string;
   language_id?: string | null;
-  type: 'audio' | 'video';
+  type: 'audio' | 'video' | 'document';
   title: string;
   description?: string | null;
   url: string;

@@ -1,17 +1,18 @@
 /**
  * THG Theme Item Translation Importer
  *
- * Imports theme_item_i18n entries as ItemTranslation records with contextual descriptions.
- * These are contextual descriptions specific to how an item appears within a gallery.
+ * Stores theme_item_i18n contextual descriptions on the collection_item pivot extra field,
+ * grouped by language. Does NOT write item_translations — contextual text describes the
+ * item within the specific gallery theme context, not the item itself.
  *
  * Legacy schema:
  * - mwnf3_thematic_gallery.theme_item_i18n (gallery_id, theme_id, item_id, language_id, contextual_description)
  *
  * New schema:
- * - item_translations (id, item_id, language_id, context_id, description, backward_compatibility)
+ * - collection_item.extra (JSON) — merged field:
+ *     { "contextual_descriptions": { "eng": "...", "fra": "..." } }
  *
- * Context: Uses the gallery's context (created by ThgGalleryContextImporter)
- * This creates item translations specific to the gallery context.
+ * Context: Uses the theme collection (ThgThemeImporter BC) for the collection_item lookup.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -68,7 +69,6 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
       this.logInfo('Loading theme_item data for item resolution...');
 
       // Load theme_item data to resolve item references
-      // Note: The legacy schema may not have this table - handle gracefully
       try {
         const themeItems = await this.context.legacyDb.query<LegacyThemeItem>(
           `SELECT gallery_id, theme_id, item_id,
@@ -96,7 +96,9 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
         throw queryError;
       }
 
-      this.logInfo('Importing contextual item translations from theme_item_i18n...');
+      this.logInfo(
+        'Importing contextual item descriptions from theme_item_i18n into collection_item.extra...'
+      );
 
       // Query translations from legacy database
       const translations = await this.context.legacyDb.query<LegacyThemeItemI18n>(
@@ -106,29 +108,41 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
          ORDER BY gallery_id, theme_id, item_id, language_id`
       );
 
-      this.logInfo(`Found ${translations.length} contextual item translations to import`);
+      this.logInfo(`Found ${translations.length} contextual item descriptions to import`);
 
-      for (const legacy of translations) {
+      // Group by (gallery_id, theme_id, item_id) to process all languages at once
+      type GroupKey = string;
+      const grouped = new Map<GroupKey, LegacyThemeItemI18n[]>();
+      for (const row of translations) {
+        const key = `${row.gallery_id}.${row.theme_id}.${row.item_id}`;
+        const existing = grouped.get(key);
+        if (existing) {
+          existing.push(row);
+        } else {
+          grouped.set(key, [row]);
+        }
+      }
+
+      for (const [groupKey, rows] of grouped) {
+        const first = rows[0];
         try {
-          // Get the language ID by its legacy 2-char code (backward_compatibility)
-          // Returns the ISO-3 code (e.g., 'en' → 'eng')
-          const languageId = await this.getLanguageIdByLegacyCodeAsync(legacy.language_id);
-          if (!languageId) {
+          const themeItem = this.themeItemCache.get(groupKey);
+          if (!themeItem) {
             result.warnings = result.warnings || [];
-            result.warnings.push(
-              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: Language '${legacy.language_id}' not found`
-            );
+            result.warnings.push(`Theme item ${groupKey}: theme_item record not found, skipping`);
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get theme_item for item resolution
-          const themeItemKey = `${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}`;
-          const themeItem = this.themeItemCache.get(themeItemKey);
-          if (!themeItem) {
+          // Resolve the theme collection BC
+          const themeBC = `mwnf3_thematic_gallery:theme:${first.gallery_id}:${first.theme_id}`;
+          const collectionId = await this.getEntityUuidAsync(themeBC, 'collection');
+          if (!collectionId) {
             result.warnings = result.warnings || [];
-            result.warnings.push(`Theme item ${themeItemKey}: theme_item record not found`);
+            result.warnings.push(
+              `Theme item ${groupKey}: theme collection not found (${themeBC}), skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -137,103 +151,91 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           // Resolve the item reference
           const itemBackwardCompat = this.resolveItemReference(themeItem);
           if (!itemBackwardCompat) {
-            // Not an mwnf3 item - skip
+            // Not an mwnf3 item — skip silently (SH/Explore items may not need this)
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the item ID from tracker or database (items are from earlier phases)
           const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
           if (!itemId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme item ${themeItemKey}: Item not found (${itemBackwardCompat})`
+              `Theme item ${groupKey}: item not found (${itemBackwardCompat}), skipping`
             );
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the context ID for this gallery (Phase 05 internal, but use async for consistency)
-          const galleryBackwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
-          const contextId = await this.getEntityUuidAsync(galleryBackwardCompat, 'context');
-          if (!contextId) {
-            result.warnings = result.warnings || [];
-            result.warnings.push(
-              `Theme item ${themeItemKey}: Context not found for gallery ${legacy.gallery_id}`
-            );
+          // Build the contextual_descriptions map keyed by ISO-3 language ID
+          const contextualDescriptions: Record<string, string> = {};
+          let validLanguageCount = 0;
+          for (const row of rows) {
+            if (!row.language_id) {
+              result.warnings = result.warnings || [];
+              result.warnings.push(
+                `Theme item ${groupKey}: translation row has no language_id, skipping language`
+              );
+              continue;
+            }
+            const languageId = await this.getLanguageIdByLegacyCodeAsync(row.language_id);
+            if (!languageId) {
+              result.warnings = result.warnings || [];
+              result.warnings.push(
+                `Theme item ${groupKey}: unknown language '${row.language_id}', skipping language`
+              );
+              continue;
+            }
+            if (row.contextual_description) {
+              contextualDescriptions[languageId] = row.contextual_description;
+              validLanguageCount++;
+            }
+          }
+
+          if (validLanguageCount === 0) {
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          const backwardCompat = `mwnf3_thematic_gallery:theme_item_i18n:${legacy.gallery_id}:${legacy.theme_id}:${legacy.item_id}:${legacy.language_id}`;
-
-          // Check if this translation already exists (skip if so)
-          const existsInDb = await this.entityExistsAsync(backwardCompat, 'item_translation');
-          if (existsInDb) {
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
-
-          // Collect sample
           this.collectSample(
             'thg_theme_item_translation',
             {
-              ...legacy,
+              ...first,
               resolved_item_backward_compat: itemBackwardCompat,
+              resolved_collection_id: collectionId,
             } as unknown as Record<string, unknown>,
-            'success',
-            undefined,
-            languageId
+            'success'
           );
 
           if (this.isDryRun || this.isSampleOnlyMode) {
             this.logInfo(
-              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create contextual item translation: ${backwardCompat}`
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would update collection_item.extra: collection=${collectionId} item=${itemId} (${validLanguageCount} languages)`
             );
             result.imported++;
             this.showProgress();
             continue;
           }
 
-          // Write item translation using strategy
-          // Note: This creates a context-specific translation for the item
-          // Handle potential duplicates gracefully (skip if already exists due to unique constraint)
-          try {
-            await this.context.strategy.writeItemTranslation({
-              item_id: itemId,
-              language_id: languageId,
-              context_id: contextId,
-              backward_compatibility: backwardCompat,
-              name: '', // Name is not provided in contextual descriptions
-              description: legacy.contextual_description || '',
-            });
+          // Read existing extra and merge contextual_descriptions into it
+          const existingExtra =
+            await this.context.strategy.getCollectionItemExtra(collectionId, itemId);
+          const mergedExtra: Record<string, unknown> = existingExtra ?? {};
+          mergedExtra.contextual_descriptions = contextualDescriptions;
 
-            result.imported++;
-            this.showProgress();
-          } catch (writeError) {
-            const errMsg = writeError instanceof Error ? writeError.message : String(writeError);
-            // Check for duplicate entry error (unique constraint violation)
-            if (errMsg.includes('Duplicate entry') || errMsg.includes('unique')) {
-              this.logSkip(`Duplicate theme item translation, skipping`);
-              result.skipped++;
-            } else {
-              // Re-throw other errors
-              throw writeError;
-            }
-          }
+          await this.context.strategy.setCollectionItemExtra(
+            collectionId,
+            itemId,
+            JSON.stringify(mergedExtra)
+          );
+
+          result.imported++;
+          this.showProgress();
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          result.errors.push(
-            `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id} (${legacy.language_id}): ${message}`
-          );
-          this.logError(
-            `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id} (${legacy.language_id})`,
-            message
-          );
+          result.errors.push(`Theme item ${groupKey}: ${message}`);
+          this.logError(`Theme item ${groupKey}`, message);
           this.showError();
         }
       }
@@ -255,7 +257,6 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
    */
   private resolveItemReference(legacy: LegacyThemeItem): string | null {
     // Check mwnf3_object reference
-    // Format: mwnf3:objects:PROJECT:COUNTRY:MUSEUM:NUMBER (matching object-transformer.ts)
     if (
       legacy.mwnf3_object_project_id &&
       legacy.mwnf3_object_country_id &&
@@ -266,7 +267,6 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
     }
 
     // Check mwnf3_monument reference
-    // Format: mwnf3:monuments:PROJECT:COUNTRY:INSTITUTION:NUMBER (matching monument-transformer.ts)
     if (
       legacy.mwnf3_monument_project_id &&
       legacy.mwnf3_monument_country_id &&
@@ -277,7 +277,6 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
     }
 
     // Check mwnf3_monument_detail reference
-    // Format: mwnf3:monument_details:PROJECT:COUNTRY:INSTITUTION:MONUMENT:DETAIL (matching monument-detail-transformer.ts)
     if (
       legacy.mwnf3_monument_detail_project_id &&
       legacy.mwnf3_monument_detail_country_id &&
@@ -292,3 +291,4 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
     return null;
   }
 }
+
