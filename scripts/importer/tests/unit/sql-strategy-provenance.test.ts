@@ -36,7 +36,10 @@ describe('SqlWriteStrategy.writeItemTranslation – provenance', () => {
 
   beforeEach(() => {
     mock = makeMockDb();
-    strategy = new SqlWriteStrategy(mock.db, makeMockTracker());
+    strategy = new SqlWriteStrategy(
+      mock.db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
   });
 
   it('persists provenance to item_translations.provenance', async () => {
