@@ -12,6 +12,8 @@
  * - 16 standalone TimelineEventImages (from sh_hcr_images)
  * - Bibliography injected into Timeline.extra (from rel_sh_bibliography_hcr_country)
  * - 32 sh_hcr_image_texts → timeline_event_item.extra
+ * - BAR-specific per-country timelines bound to the Baroque Art collection
+ * - BAR timeline_event_item pivots (country + strict date containment rule)
  *
  * Source tables:
  * - mwnf3.hcr (1,075 rows) → TimelineEvent (18 Timelines from country groups)
@@ -22,6 +24,7 @@
  * - mwnf3_sharing_history.sh_hcr_image_texts (32 rows)
  * - mwnf3_sharing_history.rel_sh_bibliography_hcr_country (103 rows)
  * - mwnf3_sharing_history.sh_bibliography + sh_bibliography_langs
+ * - mwnf3.objects + mwnf3.monuments (project_id='BAR') → BAR timeline_event_item pivots
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -44,6 +47,39 @@ import type {
   ShLegacyBibliographyLang,
 } from '../../domain/types/index.js';
 import { mapCountryCode } from '../../utils/code-mappings.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
+
+// ---------------------------------------------------------------------------
+// BAR-specific internal types (not exported — private to this importer)
+// ---------------------------------------------------------------------------
+
+/** Minimal BAR object row (denormalized — queried from mwnf3.objects per-language) */
+interface BarLegacyObjectRow {
+  project_id: string;
+  country: string;
+  museum_id: string;
+  number: string;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+/** Minimal BAR monument row (denormalized — queried from mwnf3.monuments per-language) */
+interface BarLegacyMonumentRow {
+  project_id: string;
+  country: string;
+  institution_id: string;
+  number: string;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+/** Deduplicated BAR item entry (one per unique PK) */
+export interface BarDedupItem {
+  backwardCompatibility: string;
+  country: string;
+  startDate: number | null;
+  endDate: number | null;
+}
 
 const IMAGE_MIME_TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -89,6 +125,13 @@ export class TimelineImporter extends BaseImporter {
       result.imported += biblioResult.imported;
       result.skipped += biblioResult.skipped;
       result.errors.push(...biblioResult.errors);
+
+      // Step 5: Import Baroque Art HCR timelines (BAR-specific, collection-bound)
+      this.logInfo('Importing Baroque Art HCR timelines (BAR-specific)...');
+      const barResult = await this.importBarHcr();
+      result.imported += barResult.imported;
+      result.skipped += barResult.skipped;
+      result.errors.push(...barResult.errors);
 
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
@@ -807,5 +850,309 @@ export class TimelineImporter extends BaseImporter {
     }
 
     return result;
+  }
+
+  // ===========================================================================
+  // Step 5: Baroque Art HCR (BAR-specific, collection-bound)
+  // ===========================================================================
+
+  private async importBarHcr(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    // Resolve the Baroque Art collection (created by phase-01 ProjectImporter)
+    const barCollectionBC = 'mwnf3:projects:BAR';
+    const barCollectionId = await this.getEntityUuidAsync(barCollectionBC, 'collection');
+    if (!barCollectionId) {
+      this.logWarning(
+        'BAR collection not found (backward_compatibility: mwnf3:projects:BAR). ' +
+          'Skipping Baroque Art HCR import. Ensure phase-01 (project import) has run first.'
+      );
+      return result;
+    }
+
+    this.logInfo(`Resolved BAR collection: ${barCollectionId}`);
+
+    // Query all mwnf3 HCR rows and translations (same source as Step 1)
+    const hcrRows = await this.context.legacyDb.query<LegacyHcr>(
+      'SELECT * FROM mwnf3.hcr ORDER BY country_id, from_ad, hcr_id'
+    );
+    const hcrEvents = await this.context.legacyDb.query<LegacyHcrEvent>(
+      'SELECT * FROM mwnf3.hcr_events ORDER BY hcr_id, lang_id'
+    );
+
+    this.logInfo(`BAR: Found ${hcrRows.length} HCR rows, ${hcrEvents.length} translations`);
+
+    // Query BAR objects (denormalized — one row per language per item)
+    const barObjectRows = await this.context.legacyDb.query<BarLegacyObjectRow>(
+      "SELECT project_id, country, museum_id, number, start_date, end_date FROM mwnf3.objects WHERE project_id = 'BAR' ORDER BY country, museum_id, number, (lang = 'en') DESC, lang"
+    );
+
+    // Query BAR monuments (denormalized — one row per language per item)
+    const barMonumentRows = await this.context.legacyDb.query<BarLegacyMonumentRow>(
+      "SELECT project_id, country, institution_id, number, start_date, end_date FROM mwnf3.monuments WHERE project_id = 'BAR' ORDER BY country, institution_id, number, (lang = 'en') DESC, lang"
+    );
+
+    this.logInfo(
+      `BAR: Found ${barObjectRows.length} object rows, ${barMonumentRows.length} monument rows (including language duplicates)`
+    );
+
+    // Deduplicate BAR items: group by PK, keep first row (English preferred by ORDER BY above)
+    const barItems = this.deduplicateBarItems(barObjectRows, barMonumentRows);
+    this.logInfo(`BAR: Deduplicated to ${barItems.length} unique BAR items`);
+
+    // Group translations by hcr_id
+    const eventsByHcrId = new Map<number, LegacyHcrEvent[]>();
+    for (const evt of hcrEvents) {
+      const existing = eventsByHcrId.get(evt.hcr_id) || [];
+      existing.push(evt);
+      eventsByHcrId.set(evt.hcr_id, existing);
+    }
+
+    // Group HCR rows by country_id
+    const hcrByCountry = new Map<string, LegacyHcr[]>();
+    for (const row of hcrRows) {
+      const existing = hcrByCountry.get(row.country_id) || [];
+      existing.push(row);
+      hcrByCountry.set(row.country_id, existing);
+    }
+
+    // Get the set of countries that have BAR items
+    const barCountries = new Set<string>(barItems.map((item) => item.country));
+    this.logInfo(`BAR: Items span ${barCountries.size} countries`);
+
+    // Process each country that has both BAR items and HCR rows
+    for (const legacyCountryCode of barCountries) {
+      const countryHcrRows = hcrByCountry.get(legacyCountryCode);
+      if (!countryHcrRows || countryHcrRows.length === 0) {
+        this.logInfo(
+          `BAR: No HCR rows for country '${legacyCountryCode}', skipping timeline creation`
+        );
+        continue;
+      }
+
+      const countryItems = barItems.filter((item) => item.country === legacyCountryCode);
+
+      try {
+        const timelineBC = `mwnf3:hcr:bar:country:${legacyCountryCode}`;
+
+        // Check if timeline already exists
+        if (await this.entityExistsAsync(timelineBC, 'timeline')) {
+          result.skipped += 1 + countryHcrRows.length;
+          this.showSkipped();
+          continue;
+        }
+
+        // Resolve country code (2-char → ISO-3)
+        let countryId: string;
+        try {
+          countryId = mapCountryCode(legacyCountryCode);
+        } catch {
+          this.logWarning(
+            `BAR: Unknown country code '${legacyCountryCode}' for BAR HCR timeline, skipping`
+          );
+          result.skipped += 1 + countryHcrRows.length;
+          continue;
+        }
+
+        const internalName = `${legacyCountryCode} — Baroque Art`;
+
+        if (this.isDryRun || this.isSampleOnlyMode) {
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import BAR timeline: ${internalName} (${countryHcrRows.length} events, ${countryItems.length} items)`
+          );
+          this.registerEntity('sample-bar-timeline-' + legacyCountryCode, timelineBC, 'timeline');
+          result.imported += 1 + countryHcrRows.length;
+          this.showProgress();
+          continue;
+        }
+
+        // Create the BAR timeline bound to the Baroque Art collection
+        const timelineId = await this.context.strategy.writeTimeline({
+          internal_name: internalName,
+          country_id: countryId,
+          collection_id: barCollectionId,
+          backward_compatibility: timelineBC,
+        });
+        this.registerEntity(timelineId, timelineBC, 'timeline');
+        result.imported++;
+        this.showProgress();
+
+        let eventsImported = 0;
+        let pivotCount = 0;
+
+        // Create events and item associations within this timeline
+        let displayOrder = 1;
+        for (const hcr of countryHcrRows) {
+          try {
+            const eventBC = `mwnf3:hcr:bar:${hcr.hcr_id}`;
+
+            // Check if event already exists
+            if (await this.entityExistsAsync(eventBC, 'timeline_event')) {
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+
+            const transformed = transformHcrEvent(hcr);
+
+            const eventId = await this.context.strategy.writeTimelineEvent({
+              ...transformed.data,
+              backward_compatibility: eventBC,
+              timeline_id: timelineId,
+              display_order: displayOrder++,
+            });
+            this.registerEntity(eventId, eventBC, 'timeline_event');
+            result.imported++;
+            eventsImported++;
+
+            // Create translations for this event
+            const translations = eventsByHcrId.get(hcr.hcr_id) || [];
+            for (const trans of translations) {
+              try {
+                const languageId = await this.getLanguageIdByLegacyCodeAsync(trans.lang_id);
+                if (!languageId) {
+                  this.logWarning(
+                    `BAR: Unknown language code '${trans.lang_id}' for HCR event ${hcr.hcr_id}, skipping translation`
+                  );
+                  continue;
+                }
+
+                const transData = transformHcrEventTranslation(trans);
+                await this.context.strategy.writeTimelineEventTranslation({
+                  ...transData.data,
+                  timeline_event_id: eventId,
+                  language_id: languageId,
+                });
+                result.imported++;
+              } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                this.logWarning(
+                  `BAR: Failed to create translation for HCR event ${hcr.hcr_id}:${trans.lang_id}: ${message}`
+                );
+              }
+            }
+
+            // Materialize item-to-event associations using the legacy BAR selection rule:
+            // item.start_date >= hcr.from_ad AND item.end_date <= hcr.to_ad (same country)
+            const matchingItems = countryItems.filter((item) =>
+              this.barItemMatchesHcrEvent(item, hcr)
+            );
+
+            let pivotOrder = 1;
+            for (const item of matchingItems) {
+              try {
+                const itemId = await this.getEntityUuidAsync(item.backwardCompatibility, 'item');
+                if (!itemId) {
+                  this.logWarning(
+                    `BAR [${legacyCountryCode}]: Item not found for HCR event ${hcr.hcr_id}, backward_compatibility: ${item.backwardCompatibility}`
+                  );
+                  continue;
+                }
+
+                await this.context.strategy.writeTimelineEventItem({
+                  timeline_event_id: eventId,
+                  item_id: itemId,
+                  display_order: pivotOrder++,
+                  backward_compatibility: null,
+                  extra: null,
+                });
+
+                pivotCount++;
+                result.imported++;
+              } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                this.logWarning(
+                  `BAR: Failed to create item pivot for HCR event ${hcr.hcr_id}, item ${item.backwardCompatibility}: ${message}`
+                );
+              }
+            }
+
+            this.showProgress();
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            result.errors.push(`BAR HCR event ${hcr.hcr_id}: ${message}`);
+            this.logError(`BAR HCR event ${hcr.hcr_id}`, message);
+            this.showError();
+          }
+        }
+
+        this.logInfo(
+          `BAR [${legacyCountryCode}]: imported ${eventsImported} events, ${pivotCount} item associations (${countryItems.length} items eligible)`
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        result.errors.push(`BAR HCR timeline country=${legacyCountryCode}: ${message}`);
+        this.logError(`BAR HCR timeline country=${legacyCountryCode}`, message);
+        this.showError();
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Deduplicate BAR items from denormalized object and monument rows.
+   * Rows are expected to be ordered with English first (preferred for date extraction).
+   * Returns one entry per unique item PK.
+   */
+  deduplicateBarItems(
+    objectRows: BarLegacyObjectRow[],
+    monumentRows: BarLegacyMonumentRow[]
+  ): BarDedupItem[] {
+    const items: BarDedupItem[] = [];
+    const seen = new Set<string>();
+
+    for (const row of objectRows) {
+      const bc = formatBackwardCompatibility({
+        schema: 'mwnf3',
+        table: 'objects',
+        pkValues: [row.project_id, row.country, row.museum_id, row.number],
+      });
+      if (!seen.has(bc)) {
+        seen.add(bc);
+        const parsedStart = row.start_date !== null ? parseInt(row.start_date, 10) : NaN;
+        const parsedEnd = row.end_date !== null ? parseInt(row.end_date, 10) : NaN;
+        items.push({
+          backwardCompatibility: bc,
+          country: row.country,
+          startDate: isNaN(parsedStart) ? null : parsedStart,
+          endDate: isNaN(parsedEnd) ? null : parsedEnd,
+        });
+      }
+    }
+
+    for (const row of monumentRows) {
+      const bc = formatBackwardCompatibility({
+        schema: 'mwnf3',
+        table: 'monuments',
+        pkValues: [row.project_id, row.country, row.institution_id, row.number],
+      });
+      if (!seen.has(bc)) {
+        seen.add(bc);
+        const parsedStart = row.start_date !== null ? parseInt(row.start_date, 10) : NaN;
+        const parsedEnd = row.end_date !== null ? parseInt(row.end_date, 10) : NaN;
+        items.push({
+          backwardCompatibility: bc,
+          country: row.country,
+          startDate: isNaN(parsedStart) ? null : parsedStart,
+          endDate: isNaN(parsedEnd) ? null : parsedEnd,
+        });
+      }
+    }
+
+    return items;
+  }
+
+  /**
+   * Check whether a BAR item falls within an HCR event's date range.
+   * Legacy BAR selection rule: strict date containment —
+   *   item.start_date >= hcr.from_ad AND item.end_date <= hcr.to_ad
+   * Items with null dates cannot be associated and are excluded.
+   */
+  barItemMatchesHcrEvent(item: BarDedupItem, hcr: LegacyHcr): boolean {
+    if (item.startDate === null || item.endDate === null) {
+      return false;
+    }
+    return item.startDate >= hcr.from_ad && item.endDate <= hcr.to_ad;
   }
 }
