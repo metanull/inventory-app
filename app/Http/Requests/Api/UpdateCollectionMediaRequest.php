@@ -21,7 +21,7 @@ class UpdateCollectionMediaRequest extends FormRequest
             'id' => ['prohibited'],
             'collection_id' => ['prohibited'],
             'language_id' => ['sometimes', 'nullable', 'string', 'size:3', 'exists:languages,id'],
-            'type' => ['sometimes', 'in:audio,video'],
+            'type' => ['sometimes', 'in:audio,video,document'],
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string'],
             'url' => ['sometimes', 'string', 'max:512', 'url'],

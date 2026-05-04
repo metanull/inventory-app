@@ -208,6 +208,12 @@ export class ThgContributorImporter extends BaseImporter {
         const translations = i18nMap.get(legacy.contributor_id) || [];
         for (const i18n of translations) {
           try {
+            if (!i18n.lang) {
+              this.logWarning(
+                `Contributor ${legacy.contributor_id}: translation row has no language value (table: contributor_i18n, pk: contributor_id=${legacy.contributor_id}), skipping`
+              );
+              continue;
+            }
             const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.lang);
             if (!languageId) {
               this.logWarning(
@@ -361,6 +367,12 @@ export class ThgContributorImporter extends BaseImporter {
         const translations = i18nMap.get(legacy.partner_id) || [];
         for (const i18n of translations) {
           try {
+            if (!i18n.lang) {
+              this.logWarning(
+                `Exhibition partner ${legacy.partner_id}: translation row has no language value (table: exhibition_partner_i18n, pk: partner_id=${legacy.partner_id}), skipping`
+              );
+              continue;
+            }
             const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.lang);
             if (!languageId) {
               this.logWarning(

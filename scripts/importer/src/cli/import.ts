@@ -103,6 +103,7 @@ import {
   ThgGalleryContextImporter,
   ThgRootCollectionsImporter,
   ThgGalleryImporter,
+  ThgGalleryLangImporter,
   ThgGalleryTranslationImporter,
   ThgThemeImporter,
   ThgThemeTranslationImporter,
@@ -127,6 +128,8 @@ import {
   SchoolImporter,
   ThgContributorImporter,
   ThgTagImporter,
+  ThgTimelineImporter,
+  ThgGalleryContentImporter,
   PartnerHierarchyImporter,
   Mwnf3ExhibitionImporter,
   Mwnf3ExhibitionTranslationImporter,
@@ -733,9 +736,16 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-gallery-translation',
     name: 'THG Gallery Translations',
-    description: 'Import thematic gallery translations',
+    description: 'Import thematic gallery translations (exhibition_i18n — exhibition-specific extra data)',
     importerClass: ThgGalleryTranslationImporter,
     dependencies: ['thg-gallery', 'language'],
+  },
+  {
+    key: 'thg-gallery-lang',
+    name: 'THG Gallery Lang',
+    description: 'Import base gallery/exhibition translations from thg_gallery_lang',
+    importerClass: ThgGalleryLangImporter,
+    dependencies: ['thg-gallery', 'thg-gallery-context', 'language'],
   },
   {
     key: 'thg-theme',
@@ -854,6 +864,22 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import 2,629 curated gallery tags with dedup, and 27,543 item-tag links across mwnf3 and SH objects',
     importerClass: ThgTagImporter,
     dependencies: ['object', 'monument', 'sh-object', 'sh-monument', 'thg-gallery'],
+  },
+  // Phase 10: THG Timelines (exhibition/gallery HCR timeline events)
+  {
+    key: 'thg-timeline',
+    name: 'THG Timelines',
+    description: 'Import THG exhibition timelines and events from mwnf3_thematic_gallery.hcr',
+    importerClass: ThgTimelineImporter,
+    dependencies: ['thg-gallery', 'language'],
+  },
+  // Phase 10: THG Gallery Content (exhibition logos + related content)
+  {
+    key: 'thg-gallery-content',
+    name: 'THG Gallery Content',
+    description: 'Import exhibition logos as collection images and related content as collection media',
+    importerClass: ThgGalleryContentImporter,
+    dependencies: ['thg-gallery', 'language'],
   },
   // Phase 11: Post-Import Linking
   {

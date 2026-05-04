@@ -25,7 +25,7 @@ class ItemMediaFactory extends Factory
             'id' => $this->faker->unique()->uuid(),
             'item_id' => Item::factory(),
             'language_id' => null,
-            'type' => $this->faker->randomElement(MediaType::cases()),
+            'type' => $this->faker->randomElement([MediaType::AUDIO, MediaType::VIDEO]),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->optional(0.5)->paragraph(),
             'url' => 'https://www.youtube.com/watch?v='.$this->faker->regexify('[a-zA-Z0-9_-]{11}'),

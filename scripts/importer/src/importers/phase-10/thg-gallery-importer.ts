@@ -38,6 +38,8 @@ export class ThgGalleryImporter extends BaseImporter {
   private exhibitionProjectIds: Set<string> = new Set(['EXH']);
   private galleriesRootId: string | null = null;
   private exhibitionsRootId: string | null = null;
+  /** Gallery IDs that have rows in exhibition_i18n — these are the exhibition collections */
+  private exhibitionGalleryIds: Set<number> = new Set();
 
   getName(): string {
     return 'ThgGalleryImporter';
@@ -71,6 +73,15 @@ export class ThgGalleryImporter extends BaseImporter {
         this.logInfo(`Found Exhibitions root: ${this.exhibitionsRootId}`);
       }
 
+      // Pre-load exhibition gallery IDs from exhibition_i18n presence
+      const exhibitionRows = await this.context.legacyDb.query<{ gallery_id: number }>(
+        'SELECT DISTINCT gallery_id FROM mwnf3_thematic_gallery.exhibition_i18n'
+      );
+      this.exhibitionGalleryIds = new Set(exhibitionRows.map((r) => r.gallery_id));
+      this.logInfo(
+        `Found ${this.exhibitionGalleryIds.size} exhibition gallery IDs from exhibition_i18n`
+      );
+
       // Query galleries from legacy database
       const galleries = await this.context.legacyDb.query<LegacyThgGallery>(
         'SELECT gallery_id, project_id, name, link, sort_order, status FROM mwnf3_thematic_gallery.thg_gallery ORDER BY sort_order, gallery_id'
@@ -99,10 +110,12 @@ export class ThgGalleryImporter extends BaseImporter {
             continue;
           }
 
-          // Determine collection type and parent based on project_id
-          const isExhibition = legacy.project_id
-            ? this.exhibitionProjectIds.has(legacy.project_id)
-            : false;
+          // Determine collection type and parent based on exhibition_i18n presence
+          // Presence of exhibition_i18n rows means the gallery is an exhibition; otherwise it is a gallery.
+          // The project_id 'EXH' is kept as a secondary signal for backward compatibility.
+          const isExhibition =
+            this.exhibitionGalleryIds.has(legacy.gallery_id) ||
+            (legacy.project_id ? this.exhibitionProjectIds.has(legacy.project_id) : false);
           const collectionType = isExhibition ? 'exhibition' : 'gallery';
           const parentId = isExhibition ? this.exhibitionsRootId : this.galleriesRootId;
 

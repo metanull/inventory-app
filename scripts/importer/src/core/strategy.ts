@@ -508,6 +508,20 @@ export interface IWriteStrategy {
   setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void>;
 
   /**
+   * Read the extra JSON from a collection_item pivot row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getCollectionItemExtra(
+    collectionId: string,
+    itemId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on a collection_item pivot row.
+   */
+  setCollectionItemExtra(collectionId: string, itemId: string, extra: string): Promise<void>;
+
+  /**
    * Attach tags to a collection image via collection_image_tag pivot.
    */
   attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void>;

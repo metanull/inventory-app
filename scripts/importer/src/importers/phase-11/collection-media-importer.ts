@@ -111,11 +111,11 @@ export class CollectionMediaImporter extends BaseImporter {
             continue;
           }
         } else {
-          const themeBC = `mwnf3_thematic_gallery:thg_theme:${row.gallery_id}:${row.theme_id}`;
+          const themeBC = `mwnf3_thematic_gallery:theme:${row.gallery_id}:${row.theme_id}`;
           collectionId = await this.getEntityUuidAsync(themeBC, 'collection');
           if (!collectionId) {
             this.logWarning(
-              `Skipping theme ${mediaType}: theme collection not found for BC=${themeBC}`
+              `Skipping theme ${mediaType}: theme collection not found for BC=${themeBC} (media_id=${row.media_id})`
             );
             result.skipped++;
             continue;

@@ -76,6 +76,12 @@ export {
   ThgGalleryExploreMonumentImporter,
   // THG Tags
   ThgTagImporter,
+  // THG Gallery Lang (base translations)
+  ThgGalleryLangImporter,
+  // THG Timelines
+  ThgTimelineImporter,
+  // THG Gallery Content (logos, related content)
+  ThgGalleryContentImporter,
 } from './phase-10/index.js';
 // Phase 05: Timelines
 export { TimelineImporter } from './phase-05/index.js';
