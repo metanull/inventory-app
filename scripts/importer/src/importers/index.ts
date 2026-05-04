@@ -34,6 +34,7 @@ export {
   ShProjectImporter,
   ShPartnerImporter,
   ShPartnerLogoImporter,
+  ShPartnerPictureImporter,
   ShObjectImporter,
   ShMonumentImporter,
   ShMonumentDetailImporter,

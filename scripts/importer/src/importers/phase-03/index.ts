@@ -16,6 +16,7 @@
 export { ShProjectImporter } from './sh-project-importer.js';
 export { ShPartnerImporter } from './sh-partner-importer.js';
 export { ShPartnerLogoImporter } from './sh-partner-logo-importer.js';
+export { ShPartnerPictureImporter } from './sh-partner-picture-importer.js';
 export { ShObjectImporter } from './sh-object-importer.js';
 export { ShMonumentImporter } from './sh-monument-importer.js';
 export { ShMonumentDetailImporter } from './sh-monument-detail-importer.js';
