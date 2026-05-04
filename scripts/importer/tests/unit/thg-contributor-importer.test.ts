@@ -217,66 +217,12 @@ describe('ThgContributorImporter', () => {
     });
   });
 
-  describe('exhibition_partner_i18n language validation — language_id column', () => {
-    it('uses language_id from exhibition_partner_i18n rows', async () => {
-      queryMock = vi.fn(async (sql: string) => {
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor_category')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor_i18n')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.exhibition_partner_i18n')) {
-          return [
-            { partner_id: 1, language_id: 'en', description: 'English', further_reading: '' },
-          ];
-        }
-        if (sql.includes('FROM mwnf3_thematic_gallery.exhibition_partner')) {
-          return [
-            { partner_id: 1, gallery_id: 7, category_id: 1, entity_name: 'Partner',
-              entity_location: 'City', entity_country: 'US', contact_title: null,
-              contact_name: null, contact_email: null, contact_phone: null, contact_fax: null,
-              logo: '', display_order: 1, visible: 'Y' },
-          ];
-        }
-        return [];
-      });
-      context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+  it('does not query exhibition_partner tables because those import as partners elsewhere', async () => {
+    const importer = new ThgContributorImporter(context);
+    const result = await importer.import();
 
-      const importer = new ThgContributorImporter(context);
-      const result = await importer.import();
-
-      expect(writeContributorTranslationMock).toHaveBeenCalledTimes(1);
-      const call = writeContributorTranslationMock.mock.calls[0][0] as { language_id: string };
-      expect(call.language_id).toBe('eng');
-      expect(result.errors).toHaveLength(0);
-    });
-
-    it('skips exhibition_partner translation when language_id is null', async () => {
-      queryMock = vi.fn(async (sql: string) => {
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor_category')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor_i18n')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.contributor')) return [];
-        if (sql.includes('FROM mwnf3_thematic_gallery.exhibition_partner_i18n')) {
-          return [
-            { partner_id: 1, language_id: null, description: 'No lang', further_reading: '' },
-          ];
-        }
-        if (sql.includes('FROM mwnf3_thematic_gallery.exhibition_partner')) {
-          return [
-            { partner_id: 1, gallery_id: 7, category_id: 1, entity_name: 'Partner',
-              entity_location: '', entity_country: '', contact_title: null, contact_name: null,
-              contact_email: null, contact_phone: null, contact_fax: null,
-              logo: '', display_order: 1, visible: 'Y' },
-          ];
-        }
-        return [];
-      });
-      context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
-
-      const importer = new ThgContributorImporter(context);
-      const result = await importer.import();
-
-      expect(writeContributorMock).toHaveBeenCalledTimes(1);
-      expect(writeContributorTranslationMock).not.toHaveBeenCalled();
-      expect(result.errors).toHaveLength(0);
-    });
+    const queriedSql = queryMock.mock.calls.map((call: unknown[]) => String(call[0]));
+    expect(queriedSql.some((sql) => sql.includes('exhibition_partner'))).toBe(false);
+    expect(result.errors).toHaveLength(0);
   });
 });

@@ -3,10 +3,10 @@
  *
  * Imports contributors from mwnf3_thematic_gallery:
  * - contributor (9 rows) + contributor_category (4) + contributor_i18n (8)
- * - exhibition_partner (4 rows) + exhibition_partner_i18n (4)
  *
  * Creates Contributor + ContributorTranslation + ContributorImage (size:1 placeholder)
- * per entry. Resolves collection_id from gallery/theme backward_compatibility.
+ * per contributor entry. Resolves collection_id from gallery/theme backward_compatibility.
+ * Exhibition partner rows are imported as Partner records by ThgGalleryContentImporter.
  *
  * Phase placement: Phase 04 (THG phase), after gallery/theme Collections exist.
  */
@@ -22,28 +22,10 @@ import type {
   ThgLegacyContributor,
   ThgLegacyContributorCategory,
   ThgLegacyContributorI18n,
-  ThgLegacyExhibitionPartner,
-  ThgLegacyExhibitionPartnerI18n,
 } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import path from 'path';
-
-/**
- * Map exhibition_partner category_id to contributor category slug
- */
-function mapExhibitionPartnerCategory(categoryId: number): string {
-  switch (categoryId) {
-    case 1:
-      return 'full_partner';
-    case 2:
-      return 'co_organiser';
-    case 3:
-      return 'other_contributor';
-    default:
-      return 'other_contributor';
-  }
-}
 
 export class ThgContributorImporter extends BaseImporter {
   private defaultContextId!: string;
@@ -72,13 +54,6 @@ export class ThgContributorImporter extends BaseImporter {
       result.imported += contributorResult.imported;
       result.skipped += contributorResult.skipped;
       result.errors.push(...contributorResult.errors);
-
-      // Import THG exhibition partners as contributors
-      this.logInfo('Importing THG exhibition partners as contributors...');
-      const partnerResult = await this.importExhibitionPartners();
-      result.imported += partnerResult.imported;
-      result.skipped += partnerResult.skipped;
-      result.errors.push(...partnerResult.errors);
 
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
@@ -259,177 +234,6 @@ export class ThgContributorImporter extends BaseImporter {
         });
         result.errors.push(`${backwardCompat}: ${message}`);
         this.logError(`Contributor ${legacy.contributor_id}`, message);
-        this.showError();
-      }
-    }
-
-    return result;
-  }
-
-  private async importExhibitionPartners(): Promise<ImportResult> {
-    const result = this.createResult();
-
-    const partners = await this.context.legacyDb.query<ThgLegacyExhibitionPartner>(
-      'SELECT * FROM mwnf3_thematic_gallery.exhibition_partner ORDER BY gallery_id, display_order'
-    );
-
-    const i18nRows = await this.context.legacyDb.query<ThgLegacyExhibitionPartnerI18n>(
-      'SELECT * FROM mwnf3_thematic_gallery.exhibition_partner_i18n'
-    );
-
-    // Index i18n by partner_id
-    const i18nMap = new Map<number, ThgLegacyExhibitionPartnerI18n[]>();
-    for (const row of i18nRows) {
-      if (!i18nMap.has(row.partner_id)) {
-        i18nMap.set(row.partner_id, []);
-      }
-      i18nMap.get(row.partner_id)!.push(row);
-    }
-
-    this.logInfo(`Found ${partners.length} THG exhibition partners`);
-
-    for (const legacy of partners) {
-      try {
-        const backwardCompat = formatBackwardCompatibility({
-          schema: 'mwnf3_thematic_gallery',
-          table: 'exhibition_partner',
-          pkValues: [String(legacy.partner_id)],
-        });
-
-        // Check if already imported
-        if (await this.entityExistsAsync(backwardCompat, 'contributor')) {
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
-
-        // Resolve collection_id from gallery (exhibition_partner is per-gallery, no theme)
-        const collectionId = await this.resolveCollectionId(legacy.gallery_id, 0);
-        if (!collectionId) {
-          this.logWarning(
-            `Exhibition partner ${legacy.partner_id}: collection not found for gallery=${legacy.gallery_id}, skipping`
-          );
-          result.skipped++;
-          this.showSkipped();
-          continue;
-        }
-
-        const category = mapExhibitionPartnerCategory(legacy.category_id);
-        const internalName = legacy.entity_name
-          ? convertHtmlToMarkdown(legacy.entity_name)
-          : `exhibition-partner-${legacy.partner_id}`;
-
-        if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(
-            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import exhibition partner: ${backwardCompat}`
-          );
-          this.registerEntity(`sample-ep-${legacy.partner_id}`, backwardCompat, 'contributor');
-          result.imported++;
-          this.showProgress();
-          continue;
-        }
-
-        // Create Contributor
-        const contributorData: ContributorData = {
-          collection_id: collectionId,
-          category,
-          display_order: legacy.display_order,
-          visible: legacy.visible === 'Y',
-          backward_compatibility: backwardCompat,
-          internal_name: internalName,
-        };
-        const contributorId = await this.context.strategy.writeContributor(contributorData);
-        this.registerEntity(contributorId, backwardCompat, 'contributor');
-
-        // Create ContributorImage (size: 1 placeholder) if logo exists
-        if (legacy.logo?.trim()) {
-          try {
-            const imagePath = legacy.logo.trim();
-            const imageData: ContributorImageData = {
-              contributor_id: contributorId,
-              path: imagePath,
-              original_name: path.basename(imagePath),
-              mime_type: this.getMimeType(imagePath),
-              size: 1,
-              alt_text: null,
-              display_order: 1,
-            };
-            await this.context.strategy.writeContributorImage(imageData);
-          } catch (imgError) {
-            const imgMsg = imgError instanceof Error ? imgError.message : String(imgError);
-            this.logWarning(
-              `Exhibition partner ${legacy.partner_id}: failed to create image: ${imgMsg}`
-            );
-          }
-        }
-
-        // Create translations
-        const translations = i18nMap.get(legacy.partner_id) || [];
-        for (const i18n of translations) {
-          try {
-            if (!i18n.language_id) {
-              this.logWarning(
-                `Exhibition partner ${legacy.partner_id}: translation row has no language value (table: exhibition_partner_i18n, pk: partner_id=${legacy.partner_id}), skipping`
-              );
-              continue;
-            }
-            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.language_id);
-            if (!languageId) {
-              this.logWarning(
-                `Exhibition partner ${legacy.partner_id}: unknown language '${i18n.language_id}', skipping translation`
-              );
-              continue;
-            }
-
-            // Build extra with contact details and further_reading
-            const extra: Record<string, string> = {};
-            if (legacy.contact_title) extra.contact_title = legacy.contact_title;
-            if (legacy.contact_name) extra.contact_name = legacy.contact_name;
-            if (legacy.contact_email) extra.contact_email = legacy.contact_email;
-            if (legacy.contact_phone) extra.contact_phone = legacy.contact_phone;
-            if (legacy.contact_fax) extra.contact_fax = legacy.contact_fax;
-            if (i18n.further_reading) extra.further_reading = i18n.further_reading;
-            if (legacy.entity_location) extra.location = legacy.entity_location;
-            if (legacy.entity_country) extra.country = legacy.entity_country;
-
-            const translationData: ContributorTranslationData = {
-              contributor_id: contributorId,
-              language_id: languageId,
-              context_id: this.defaultContextId,
-              name: legacy.entity_name ? convertHtmlToMarkdown(legacy.entity_name) : null,
-              description: i18n.description ? convertHtmlToMarkdown(i18n.description) : null,
-              link: null,
-              alt_text: null,
-              extra: Object.keys(extra).length > 0 ? JSON.stringify(extra) : null,
-              backward_compatibility: formatBackwardCompatibility({
-                schema: 'mwnf3_thematic_gallery',
-                table: 'exhibition_partner_i18n',
-                pkValues: [String(legacy.partner_id), i18n.language_id],
-              }),
-            };
-            await this.context.strategy.writeContributorTranslation(translationData);
-          } catch (translationError) {
-            const msg =
-              translationError instanceof Error
-                ? translationError.message
-                : String(translationError);
-            this.logWarning(
-              `Exhibition partner ${legacy.partner_id}: translation (${i18n.language_id}) failed: ${msg}`
-            );
-          }
-        }
-
-        result.imported++;
-        this.showProgress();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const backwardCompat = formatBackwardCompatibility({
-          schema: 'mwnf3_thematic_gallery',
-          table: 'exhibition_partner',
-          pkValues: [String(legacy.partner_id)],
-        });
-        result.errors.push(`${backwardCompat}: ${message}`);
-        this.logError(`Exhibition partner ${legacy.partner_id}`, message);
         this.showError();
       }
     }

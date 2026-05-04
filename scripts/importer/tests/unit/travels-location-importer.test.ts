@@ -114,7 +114,7 @@ describe('TravelsLocationImporter', () => {
     expect(result.imported).toBe(2);
 
     const internalNames = writeCollectionMock.mock.calls.map(
-      (call: [{ internal_name: string }]) => call[0].internal_name
+      (call: unknown[]) => (call[0] as { internal_name: string }).internal_name
     );
     expect(new Set(internalNames).size).toBe(2);
     expect(internalNames).not.toContain('SINTRA');

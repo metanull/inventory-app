@@ -860,7 +860,7 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-contributor',
     name: 'THG Contributors',
-    description: 'Import THG contributors and exhibition partners as Contributor entities',
+    description: 'Import THG contributor rows as Contributor entities',
     importerClass: ThgContributorImporter,
     dependencies: ['default-context', 'language', 'thg-gallery', 'thg-theme'],
   },
