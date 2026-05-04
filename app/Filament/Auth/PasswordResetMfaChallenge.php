@@ -34,6 +34,10 @@ class PasswordResetMfaChallenge extends SimplePage
 
     private const USER_ID_SESSION_KEY = 'filament.admin.password_reset.user_id';
 
+    private const PASSWORD_HASH_SESSION_KEY = 'filament.admin.password_reset.password_hash';
+
+    private const TOKEN_SESSION_KEY = 'filament.admin.password_reset.token';
+
     private const CHALLENGE_ID_SESSION_KEY = 'filament.admin.password_reset.email_challenge_id';
 
     /**
@@ -43,7 +47,7 @@ class PasswordResetMfaChallenge extends SimplePage
 
     public function mount(): void
     {
-        if (! session()->has('filament.admin.password_reset.user_id')) {
+        if (! session()->has(self::USER_ID_SESSION_KEY)) {
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -114,7 +118,7 @@ class PasswordResetMfaChallenge extends SimplePage
 
     public function sendEmailCode(): void
     {
-        $userId = session('filament.admin.password_reset.user_id');
+        $userId = session(self::USER_ID_SESSION_KEY);
 
         if (! $userId) {
             $this->redirect(Filament::getLoginUrl());
@@ -151,7 +155,7 @@ class PasswordResetMfaChallenge extends SimplePage
 
     public function submit(): void
     {
-        $userId = session('filament.admin.password_reset.user_id');
+        $userId = session(self::USER_ID_SESSION_KEY);
         $limiterKey = 'password-reset-mfa:'.$userId;
         $maxAttempts = app()->environment('testing') ? self::MAX_ATTEMPTS_TESTING : self::MAX_ATTEMPTS_PRODUCTION;
 
@@ -229,9 +233,9 @@ class PasswordResetMfaChallenge extends SimplePage
 
         RateLimiter::clear($limiterKey);
 
-        // Pull all pending reset state atomically; fail fast if any piece is missing
-        $pendingHash = session()->pull('filament.admin.password_reset.password_hash');
-        $pendingToken = session()->pull('filament.admin.password_reset.token');
+        // Pull all pending reset state; fail fast if any piece is missing
+        $pendingHash = session()->pull(self::PASSWORD_HASH_SESSION_KEY);
+        $pendingToken = session()->pull(self::TOKEN_SESSION_KEY);
         $this->clearPasswordResetSession();
 
         if (! $pendingHash || ! $pendingToken) {
@@ -286,9 +290,9 @@ class PasswordResetMfaChallenge extends SimplePage
     private function clearPasswordResetSession(): void
     {
         session()->forget([
-            'filament.admin.password_reset.user_id',
-            'filament.admin.password_reset.password_hash',
-            'filament.admin.password_reset.token',
+            self::USER_ID_SESSION_KEY,
+            self::PASSWORD_HASH_SESSION_KEY,
+            self::TOKEN_SESSION_KEY,
             self::CHALLENGE_ID_SESSION_KEY,
         ]);
     }
