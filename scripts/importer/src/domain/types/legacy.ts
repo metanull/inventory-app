@@ -688,11 +688,11 @@ export interface ThgLegacyContributorCategory {
 
 /**
  * contributor_i18n (8 rows) — translations of contributor display name
- * PK: (contributor_id, lang)
+ * PK: (contributor_id, language_id)
  */
 export interface ThgLegacyContributorI18n {
   contributor_id: number;
-  lang: string; // 2-char
+  language_id: string; // 2-char
   context: string; // translated display name
 }
 
@@ -719,11 +719,11 @@ export interface ThgLegacyExhibitionPartner {
 
 /**
  * exhibition_partner_i18n (4 rows) — translations
- * PK: (partner_id, lang)
+ * PK: (partner_id, language_id)
  */
 export interface ThgLegacyExhibitionPartnerI18n {
   partner_id: number;
-  lang: string; // 2-char
+  language_id: string; // 2-char
   description: string;
   further_reading: string;
 }

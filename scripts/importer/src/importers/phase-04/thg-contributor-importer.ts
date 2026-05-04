@@ -208,16 +208,16 @@ export class ThgContributorImporter extends BaseImporter {
         const translations = i18nMap.get(legacy.contributor_id) || [];
         for (const i18n of translations) {
           try {
-            if (!i18n.lang) {
+            if (!i18n.language_id) {
               this.logWarning(
                 `Contributor ${legacy.contributor_id}: translation row has no language value (table: contributor_i18n, pk: contributor_id=${legacy.contributor_id}), skipping`
               );
               continue;
             }
-            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.lang);
+            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.language_id);
             if (!languageId) {
               this.logWarning(
-                `Contributor ${legacy.contributor_id}: unknown language '${i18n.lang}', skipping translation`
+                `Contributor ${legacy.contributor_id}: unknown language '${i18n.language_id}', skipping translation`
               );
               continue;
             }
@@ -233,7 +233,7 @@ export class ThgContributorImporter extends BaseImporter {
               backward_compatibility: formatBackwardCompatibility({
                 schema: 'mwnf3_thematic_gallery',
                 table: 'contributor_i18n',
-                pkValues: [String(legacy.contributor_id), i18n.lang],
+                pkValues: [String(legacy.contributor_id), i18n.language_id],
               }),
             };
             await this.context.strategy.writeContributorTranslation(translationData);
@@ -243,7 +243,7 @@ export class ThgContributorImporter extends BaseImporter {
                 ? translationError.message
                 : String(translationError);
             this.logWarning(
-              `Contributor ${legacy.contributor_id}: translation (${i18n.lang}) failed: ${msg}`
+              `Contributor ${legacy.contributor_id}: translation (${i18n.language_id}) failed: ${msg}`
             );
           }
         }
@@ -367,16 +367,16 @@ export class ThgContributorImporter extends BaseImporter {
         const translations = i18nMap.get(legacy.partner_id) || [];
         for (const i18n of translations) {
           try {
-            if (!i18n.lang) {
+            if (!i18n.language_id) {
               this.logWarning(
                 `Exhibition partner ${legacy.partner_id}: translation row has no language value (table: exhibition_partner_i18n, pk: partner_id=${legacy.partner_id}), skipping`
               );
               continue;
             }
-            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.lang);
+            const languageId = await this.getLanguageIdByLegacyCodeAsync(i18n.language_id);
             if (!languageId) {
               this.logWarning(
-                `Exhibition partner ${legacy.partner_id}: unknown language '${i18n.lang}', skipping translation`
+                `Exhibition partner ${legacy.partner_id}: unknown language '${i18n.language_id}', skipping translation`
               );
               continue;
             }
@@ -404,7 +404,7 @@ export class ThgContributorImporter extends BaseImporter {
               backward_compatibility: formatBackwardCompatibility({
                 schema: 'mwnf3_thematic_gallery',
                 table: 'exhibition_partner_i18n',
-                pkValues: [String(legacy.partner_id), i18n.lang],
+                pkValues: [String(legacy.partner_id), i18n.language_id],
               }),
             };
             await this.context.strategy.writeContributorTranslation(translationData);
@@ -414,7 +414,7 @@ export class ThgContributorImporter extends BaseImporter {
                 ? translationError.message
                 : String(translationError);
             this.logWarning(
-              `Exhibition partner ${legacy.partner_id}: translation (${i18n.lang}) failed: ${msg}`
+              `Exhibition partner ${legacy.partner_id}: translation (${i18n.language_id}) failed: ${msg}`
             );
           }
         }
@@ -440,14 +440,14 @@ export class ThgContributorImporter extends BaseImporter {
   /**
    * Resolve collection_id from gallery_id + theme_id backward_compatibility.
    * THG galleries use BC: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
-   * THG themes use BC: mwnf3_thematic_gallery:thg_theme:{gallery_id}:{theme_id}
+   * THG themes use BC: mwnf3_thematic_gallery:theme:{gallery_id}:{theme_id}
    */
   private async resolveCollectionId(galleryId: number, themeId: number): Promise<string | null> {
     // If theme_id > 0, try to find the theme collection first
     if (themeId > 0) {
       const themeBC = formatBackwardCompatibility({
         schema: 'mwnf3_thematic_gallery',
-        table: 'thg_theme',
+        table: 'theme',
         pkValues: [String(galleryId), String(themeId)],
       });
       const themeCollectionId = await this.getEntityUuidAsync(themeBC, 'collection');

@@ -3,15 +3,21 @@
  *
  * Imports thg_gallery entries as Collection records (type='gallery' or 'exhibition').
  *
+ * Collection type is resolved by joining:
+ *   thg_gallery.project_id -> thg_projects.type_id -> thg_project_type.(is_gallery|is_exhibition)
+ *
+ * Validated against exhibition_i18n presence:
+ *   - candidate gallery + exhibition_i18n rows present  → source-keyed error, skip
+ *   - candidate exhibition + no exhibition_i18n rows     → source-keyed error, skip
+ *
  * Legacy schema:
- * - mwnf3_thematic_gallery.thg_gallery (gallery_id, project_id, name, etc.)
+ * - mwnf3_thematic_gallery.thg_gallery
+ * - mwnf3_thematic_gallery.thg_projects
+ * - mwnf3_thematic_gallery.thg_project_type
  *
  * New schema:
  * - collections (id, type, context_id, language_id, parent_id, internal_name, backward_compatibility)
  *
- * Collection type: 'gallery' (THG project) or 'exhibition' (EXH project)
- * Parent: 'Galleries' root for galleries, 'Exhibitions' root for exhibitions
- * Context: Uses the context created by ThgGalleryContextImporter
  * Backward compatibility: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
  *
  * Dependencies:
@@ -34,12 +40,23 @@ interface LegacyThgGallery {
   status: 'A' | 'H';
 }
 
+/**
+ * Joined project type row
+ */
+interface LegacyProjectType {
+  project_id: string;
+  type_id: number;
+  is_gallery: number;
+  is_exhibition: number;
+}
+
 export class ThgGalleryImporter extends BaseImporter {
-  private exhibitionProjectIds: Set<string> = new Set(['EXH']);
   private galleriesRootId: string | null = null;
   private exhibitionsRootId: string | null = null;
-  /** Gallery IDs that have rows in exhibition_i18n — these are the exhibition collections */
+  /** Gallery IDs that have rows in exhibition_i18n */
   private exhibitionGalleryIds: Set<number> = new Set();
+  /** project_id -> { is_gallery, is_exhibition } resolved from thg_projects + thg_project_type */
+  private projectTypeMap: Map<string, { isGallery: boolean; isExhibition: boolean }> = new Map();
 
   getName(): string {
     return 'ThgGalleryImporter';
@@ -72,6 +89,9 @@ export class ThgGalleryImporter extends BaseImporter {
         this.logInfo(`Found Galleries root: ${this.galleriesRootId}`);
         this.logInfo(`Found Exhibitions root: ${this.exhibitionsRootId}`);
       }
+
+      // Load project types via thg_projects JOIN thg_project_type
+      await this.loadProjectTypeMap();
 
       // Pre-load exhibition gallery IDs from exhibition_i18n presence
       const exhibitionRows = await this.context.legacyDb.query<{ gallery_id: number }>(
@@ -110,14 +130,34 @@ export class ThgGalleryImporter extends BaseImporter {
             continue;
           }
 
-          // Determine collection type and parent based on exhibition_i18n presence
-          // Presence of exhibition_i18n rows means the gallery is an exhibition; otherwise it is a gallery.
-          // The project_id 'EXH' is kept as a secondary signal for backward compatibility.
-          const isExhibition =
-            this.exhibitionGalleryIds.has(legacy.gallery_id) ||
-            (legacy.project_id ? this.exhibitionProjectIds.has(legacy.project_id) : false);
-          const collectionType = isExhibition ? 'exhibition' : 'gallery';
-          const parentId = isExhibition ? this.exhibitionsRootId : this.galleriesRootId;
+          // Resolve collection type from project type flags
+          const classificationResult = this.classifyGallery(legacy);
+          if (classificationResult.error) {
+            result.errors.push(`Gallery ${legacy.gallery_id}: ${classificationResult.error}`);
+            this.showError();
+            continue;
+          }
+          const candidateType = classificationResult.type!;
+
+          // Validate candidate type against exhibition_i18n presence
+          const hasExhibitionRows = this.exhibitionGalleryIds.has(legacy.gallery_id);
+          if (candidateType === 'gallery' && hasExhibitionRows) {
+            result.errors.push(
+              `Gallery ${legacy.gallery_id}: Project type is gallery (is_gallery=1) but exhibition_i18n rows exist — data conflict, skipping`
+            );
+            this.showError();
+            continue;
+          }
+          if (candidateType === 'exhibition' && !hasExhibitionRows) {
+            result.errors.push(
+              `Gallery ${legacy.gallery_id}: Project type is exhibition (is_exhibition=1) but no exhibition_i18n rows exist, skipping`
+            );
+            this.showError();
+            continue;
+          }
+
+          const collectionType = candidateType;
+          const parentId = collectionType === 'exhibition' ? this.exhibitionsRootId : this.galleriesRootId;
 
           // Create internal name from link or name (slugified)
           const slug = this.slugify(legacy.link || legacy.name);
@@ -141,13 +181,12 @@ export class ThgGalleryImporter extends BaseImporter {
           }
 
           // Write collection using strategy
-          // Note: Collections need context_id, language_id, and parent_id
           const collectionId = await this.context.strategy.writeCollection({
             internal_name: internalName,
             backward_compatibility: backwardCompat,
             context_id: contextId,
             language_id: defaultLanguageId,
-            parent_id: parentId, // Set parent to Galleries or Exhibitions root
+            parent_id: parentId,
             type: collectionType,
           });
 
@@ -172,6 +211,60 @@ export class ThgGalleryImporter extends BaseImporter {
     }
 
     return result;
+  }
+
+  /**
+   * Load project type flags from thg_projects JOIN thg_project_type into projectTypeMap.
+   * Keys are project_id strings.
+   */
+  private async loadProjectTypeMap(): Promise<void> {
+    try {
+      const rows = await this.context.legacyDb.query<LegacyProjectType>(
+        `SELECT p.project_id, p.type_id, pt.is_gallery, pt.is_exhibition
+         FROM mwnf3_thematic_gallery.thg_projects p
+         JOIN mwnf3_thematic_gallery.thg_project_type pt ON p.type_id = pt.type_id`
+      );
+      for (const row of rows) {
+        this.projectTypeMap.set(row.project_id, {
+          isGallery: row.is_gallery === 1,
+          isExhibition: row.is_exhibition === 1,
+        });
+      }
+      this.logInfo(`Loaded ${this.projectTypeMap.size} project type mappings`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logWarning(`Failed to load project type mappings: ${msg}`);
+    }
+  }
+
+  /**
+   * Classify a thg_gallery row as gallery or exhibition using project type flags.
+   * Returns { type } on success or { error } on failure.
+   * Does NOT use literal project_id comparisons (e.g. 'EXH') as a classifier.
+   */
+  private classifyGallery(legacy: LegacyThgGallery): { type?: 'gallery' | 'exhibition'; error?: string } {
+    if (!legacy.project_id) {
+      return { error: 'project_id is null — cannot resolve project type, skipping' };
+    }
+
+    const flags = this.projectTypeMap.get(legacy.project_id);
+    if (!flags) {
+      return {
+        error: `project_id '${legacy.project_id}' not found in thg_projects/thg_project_type — cannot resolve type, skipping`,
+      };
+    }
+
+    if (flags.isGallery && !flags.isExhibition) {
+      return { type: 'gallery' };
+    }
+    if (flags.isExhibition && !flags.isGallery) {
+      return { type: 'exhibition' };
+    }
+
+    // Ambiguous or unsupported flag combination
+    return {
+      error: `project_id '${legacy.project_id}' has ambiguous type flags (is_gallery=${flags.isGallery ? 1 : 0}, is_exhibition=${flags.isExhibition ? 1 : 0}) — skipping`,
+    };
   }
 
   /**
