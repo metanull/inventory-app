@@ -168,8 +168,9 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Build the contextual_descriptions map keyed by ISO-3 language ID
+          // Build the contextual_descriptions map and source_bc_by_language map keyed by ISO-3 language ID
           const contextualDescriptions: Record<string, string> = {};
+          const sourceBcByLanguage: Record<string, string> = {};
           let validLanguageCount = 0;
           for (const row of rows) {
             if (!row.language_id) {
@@ -189,6 +190,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             }
             if (row.contextual_description) {
               contextualDescriptions[languageId] = row.contextual_description;
+              sourceBcByLanguage[languageId] = `mwnf3_thematic_gallery:theme_item_i18n:${row.gallery_id}:${row.theme_id}:${row.item_id}:${row.language_id}`;
               validLanguageCount++;
             }
           }
@@ -218,11 +220,12 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Read existing extra and merge contextual_descriptions into it
+          // Read existing extra and merge contextual_descriptions and source_bc_by_language into it
           const existingExtra =
             await this.context.strategy.getCollectionItemExtra(collectionId, itemId);
           const mergedExtra: Record<string, unknown> = existingExtra ?? {};
           mergedExtra.contextual_descriptions = contextualDescriptions;
+          mergedExtra.source_bc_by_language = sourceBcByLanguage;
 
           await this.context.strategy.setCollectionItemExtra(
             collectionId,

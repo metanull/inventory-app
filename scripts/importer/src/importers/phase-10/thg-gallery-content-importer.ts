@@ -195,7 +195,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
           path: logo.logo,
           original_name: originalName,
           mime_type: mimeType,
-          size: 0,
+          size: 1,
           alt_text: null,
           display_order: logo.display_order ?? 0,
         });

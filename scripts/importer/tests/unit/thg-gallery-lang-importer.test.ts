@@ -42,6 +42,30 @@ describe('ThgGalleryLangImporter', () => {
             title: 'The Gallery',
             long_title: 'The Extended Title',
             short_text: 'A short description.',
+            mouse_over_text: null,
+            keywords: null,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [
+          {
+            gallery_id: 42,
+            link: null,
+            image: null,
+            banner_image: null,
+            banner_item: null,
+            new_expire_date: null,
+            landing_url: null,
+            portal_image: null,
+            live_date: null,
+            homepage_image: null,
+            homepage_item: null,
+            has_timeline: null,
+            has_country_timeline: null,
+            featured: null,
+            status: null,
+            mwnf3_project_id: null,
           },
         ];
       }
@@ -72,13 +96,19 @@ describe('ThgGalleryLangImporter', () => {
     };
   });
 
-  it('queries long_title and short_text — not subtitle or description', async () => {
+  it('queries long_title, short_text, mouse_over_text, and keywords — not subtitle or description', async () => {
     const importer = new ThgGalleryLangImporter(context);
     await importer.import();
 
-    const sql: string = queryMock.mock.calls[0][0];
+    const langSqlCall = queryMock.mock.calls.find((args: unknown[]) =>
+      (args[0] as string).includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')
+    );
+    expect(langSqlCall).toBeDefined();
+    const sql: string = langSqlCall![0] as string;
     expect(sql).toContain('long_title');
     expect(sql).toContain('short_text');
+    expect(sql).toContain('mouse_over_text');
+    expect(sql).toContain('keywords');
     expect(sql).not.toContain('subtitle');
     expect(sql).not.toContain('description');
   });
@@ -102,6 +132,98 @@ describe('ThgGalleryLangImporter', () => {
     expect(result.errors).toHaveLength(0);
   });
 
+  it('includes mouse_over_text and keywords in extra.thg_gallery_lang when non-empty', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'en',
+            title: 'The Gallery',
+            long_title: null,
+            short_text: null,
+            mouse_over_text: 'Hover text',
+            keywords: 'art, history',
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [{ gallery_id: 42, link: null, image: null, banner_image: null,
+                  banner_item: null, new_expire_date: null, landing_url: null,
+                  portal_image: null, live_date: null, homepage_image: null,
+                  homepage_item: null, has_timeline: null, has_country_timeline: null,
+                  featured: null, status: null, mwnf3_project_id: null }];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgGalleryLangImporter(context);
+    await importer.import();
+
+    const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(call.extra).toBeDefined();
+    const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
+    expect(extra.thg_gallery_lang).toEqual({ mouse_over_text: 'Hover text', keywords: 'art, history' });
+  });
+
+  it('includes thg_gallery extra fields in extra.thg_gallery when non-empty', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'en',
+            title: 'The Gallery',
+            long_title: null,
+            short_text: null,
+            mouse_over_text: null,
+            keywords: null,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [{
+          gallery_id: 42,
+          link: 'islamic-art',
+          image: 'header.jpg',
+          banner_image: null,
+          banner_item: null,
+          new_expire_date: null,
+          landing_url: null,
+          portal_image: null,
+          live_date: null,
+          homepage_image: null,
+          homepage_item: null,
+          has_timeline: 1,
+          has_country_timeline: null,
+          featured: null,
+          status: 'A',
+          mwnf3_project_id: 7,
+        }];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgGalleryLangImporter(context);
+    await importer.import();
+
+    const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(call.extra).toBeDefined();
+    const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
+    expect(extra.thg_gallery).toMatchObject({ link: 'islamic-art', image: 'header.jpg', has_timeline: 1, status: 'A', mwnf3_project_id: 7 });
+    expect((extra.thg_gallery as Record<string, unknown>).banner_image).toBeUndefined();
+  });
+
+  it('extra is null when thg_gallery has no non-empty extra fields and no thg_gallery_lang extras', async () => {
+    const importer = new ThgGalleryLangImporter(context);
+    await importer.import();
+
+    const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(call.extra).toBeNull();
+  });
+
   it('skips a row when the gallery collection is not in the tracker', async () => {
     tracker = new UnifiedTracker();
     tracker.set('en', 'eng', 'language');
@@ -116,15 +238,22 @@ describe('ThgGalleryLangImporter', () => {
   });
 
   it('skips a row when the language code is unknown', async () => {
-    queryMock = vi.fn(async () => [
-      {
-        gallery_id: 42,
-        lang: 'xx',
-        title: 'Unknown lang',
-        long_title: null,
-        short_text: null,
-      },
-    ]);
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'xx',
+            title: 'Unknown lang',
+            long_title: null,
+            short_text: null,
+            mouse_over_text: null,
+            keywords: null,
+          },
+        ];
+      }
+      return [];
+    });
     legacyDb = { ...legacyDb, query: queryMock as ILegacyDatabase['query'] };
     context = { ...context, legacyDb };
 
