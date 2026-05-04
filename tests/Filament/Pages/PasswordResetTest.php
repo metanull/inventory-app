@@ -591,6 +591,7 @@ class PasswordResetTest extends TestCase
         session()->put('filament.admin.password_reset.token', 'expired-or-deleted-token');
 
         Livewire::test(PasswordResetMfaChallenge::class)
+            ->set('data.method', 'totp')
             ->set('data.code', '123456')
             ->call('submit')
             ->assertRedirect(Filament::getLoginUrl());
@@ -610,6 +611,7 @@ class PasswordResetTest extends TestCase
         session()->put('filament.admin.password_reset.user_id', $user->id);
 
         Livewire::test(PasswordResetMfaChallenge::class)
+            ->set('data.method', 'totp')
             ->set('data.code', '123456')
             ->call('submit')
             ->assertRedirect(Filament::getLoginUrl())
