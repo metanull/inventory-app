@@ -331,7 +331,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
             if (!i18n.lang) {
               result.warnings = result.warnings || [];
               result.warnings.push(
-                `Related content ${content.content_id}: translation row has no lang, skipping`
+                `Related content ${content.content_id}: translation row has no language value (table: exhibition_related_content_i18n, pk: content_id=${content.content_id}), skipping`
               );
               continue;
             }

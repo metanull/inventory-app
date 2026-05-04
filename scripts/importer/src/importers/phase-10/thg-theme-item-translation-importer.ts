@@ -175,7 +175,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             if (!row.language_id) {
               result.warnings = result.warnings || [];
               result.warnings.push(
-                `Theme item ${groupKey}: translation row has no language_id, skipping language`
+                `Theme item ${groupKey}: translation row has no language value (table: theme_item_i18n, pk: gallery_id=${row.gallery_id}, theme_id=${row.theme_id}, item_id=${row.item_id}, language_id=${row.language_id}), skipping language`
               );
               continue;
             }

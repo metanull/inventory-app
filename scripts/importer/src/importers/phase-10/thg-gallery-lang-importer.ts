@@ -54,7 +54,7 @@ export class ThgGalleryLangImporter extends BaseImporter {
           if (!legacy.lang) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Gallery ${legacy.gallery_id}: thg_gallery_lang row has no lang value, skipping`
+              `Gallery ${legacy.gallery_id}: translation row has no language value (table: thg_gallery_lang, pk: gallery_id=${legacy.gallery_id}, lang=${legacy.lang}), skipping`
             );
             result.skipped++;
             this.showSkipped();

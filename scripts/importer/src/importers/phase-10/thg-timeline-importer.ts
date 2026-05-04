@@ -204,7 +204,7 @@ export class ThgTimelineImporter extends BaseImporter {
                 try {
                   if (!trans.lang) {
                     this.logWarning(
-                      `THG HCR event ${hcr.hcr_id}: translation row has no lang, skipping`
+                      `THG HCR event ${hcr.hcr_id}: translation row has no language value (table: hcr_events, pk: hcr_id=${hcr.hcr_id}), skipping`
                     );
                     continue;
                   }
