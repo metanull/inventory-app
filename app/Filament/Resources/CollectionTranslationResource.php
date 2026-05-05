@@ -7,6 +7,7 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\CollectionTranslationResource\Pages\CreateCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\EditCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\ListCollectionTranslation;
+use App\Filament\Resources\CollectionTranslationResource\Pages\ViewCollectionTranslation;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
@@ -16,10 +17,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -121,6 +126,48 @@ class CollectionTranslationResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('collection.internal_name')
+                    ->label('Collection')
+                    ->url(fn ($record): ?string => $record->collection
+                        ? (auth()->user()?->can('view', $record->collection) ? CollectionResource::getUrl('view', ['record' => $record->collection]) : null)
+                        : null),
+                TextEntry::make('language.internal_name')
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
+                TextEntry::make('context.internal_name')
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
+
+                InfolistSection::make('Content')
+                    ->schema([
+                        TextEntry::make('title'),
+                        TextEntry::make('url'),
+                        TextEntry::make('description')->columnSpanFull(),
+                        TextEntry::make('quote')->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                InfolistSection::make('Legacy & Metadata')
+                    ->schema([
+                        TextEntry::make('backward_compatibility')->label('Legacy ID'),
+                        TextEntry::make('id')->label('UUID'),
+                        TextEntry::make('created_at')->label('Created')->dateTime(),
+                        TextEntry::make('updated_at')->label('Updated')->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -189,6 +236,7 @@ class CollectionTranslationResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->where('updated_at', '>=', now()->subDays(30))),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('viewCollection')
                     ->label('View collection')
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -205,6 +253,7 @@ class CollectionTranslationResource extends Resource
             'index' => ListCollectionTranslation::route('/'),
             'create' => CreateCollectionTranslation::route('/create'),
             'edit' => EditCollectionTranslation::route('/{record}/edit'),
+            'view' => ViewCollectionTranslation::route('/{record}'),
         ];
     }
 }
