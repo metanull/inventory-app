@@ -20,6 +20,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -260,6 +261,7 @@ class TranslationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('viewItem')
                     ->label('View item')
                     ->icon('heroicon-o-arrow-top-right-on-square')

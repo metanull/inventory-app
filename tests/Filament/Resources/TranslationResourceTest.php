@@ -6,12 +6,15 @@ use App\Enums\Permission;
 use App\Filament\Resources\CollectionTranslationResource\Pages\CreateCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\EditCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\ListCollectionTranslation;
+use App\Filament\Resources\CollectionTranslationResource\Pages\ViewCollectionTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\CreateItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\EditItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\ListItemTranslation;
+use App\Filament\Resources\ItemTranslationResource\Pages\ViewItemTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
+use App\Filament\Resources\PartnerTranslationResource\Pages\ViewPartnerTranslation;
 use App\Models\Author;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
@@ -24,6 +27,7 @@ use App\Models\PartnerTranslation;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\ViewAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -56,6 +60,10 @@ class TranslationResourceTest extends TestCase
             ->assertSee('Create');
 
         $this->actingAs($user)->get("/admin/item-translations/{$translation->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('Relief of the temple');
+
+        $this->actingAs($user)->get("/admin/item-translations/{$translation->getKey()}")
             ->assertOk()
             ->assertSee('Relief of the temple');
     }
@@ -191,6 +199,32 @@ class TranslationResourceTest extends TestCase
 
     // ─── CollectionTranslation ──────────────────────────────────────────────────
 
+    public function test_item_translation_view_action_and_view_page_work(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $translation = ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Relief of the temple',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListItemTranslation::class)
+            ->assertTableActionExists(ViewAction::class, record: $translation);
+
+        Livewire::actingAs($user)
+            ->test(ViewItemTranslation::class, ['record' => $translation->getRouteKey()])
+            ->assertSee('Relief of the temple');
+    }
+
+    // ─── CollectionTranslation ──────────────────────────────────────────────────
+
     public function test_authorized_users_can_render_all_collection_translation_resource_pages(): void
     {
         $user = $this->createCrudUser();
@@ -217,6 +251,10 @@ class TranslationResourceTest extends TestCase
             ->assertSee('Create');
 
         $this->actingAs($user)->get("/admin/collection-translations/{$translation->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('Temple Collection EN');
+
+        $this->actingAs($user)->get("/admin/collection-translations/{$translation->getKey()}")
             ->assertOk()
             ->assertSee('Temple Collection EN');
     }
@@ -315,6 +353,36 @@ class TranslationResourceTest extends TestCase
 
     // ─── PartnerTranslation ─────────────────────────────────────────────────────
 
+    public function test_collection_translation_view_action_and_view_page_work(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListCollectionTranslation::class)
+            ->assertTableActionExists(ViewAction::class, record: $translation);
+
+        Livewire::actingAs($user)
+            ->test(ViewCollectionTranslation::class, ['record' => $translation->getRouteKey()])
+            ->assertSee('Temple Collection EN');
+    }
+
+    // ─── PartnerTranslation ─────────────────────────────────────────────────────
+
     public function test_authorized_users_can_render_all_partner_translation_resource_pages(): void
     {
         $user = $this->createCrudUser();
@@ -337,6 +405,10 @@ class TranslationResourceTest extends TestCase
             ->assertSee('Create');
 
         $this->actingAs($user)->get("/admin/partner-translations/{$translation->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('Jordan Museum EN');
+
+        $this->actingAs($user)->get("/admin/partner-translations/{$translation->getKey()}")
             ->assertOk()
             ->assertSee('Jordan Museum EN');
     }
@@ -426,6 +498,32 @@ class TranslationResourceTest extends TestCase
             ])
             ->call('create')
             ->assertHasFormErrors(['language_id']);
+    }
+
+    // ─── Rich Field Tests ────────────────────────────────────────────────────────
+
+    public function test_partner_translation_view_action_and_view_page_work(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(ListPartnerTranslation::class)
+            ->assertTableActionExists(ViewAction::class, record: $translation);
+
+        Livewire::actingAs($user)
+            ->test(ViewPartnerTranslation::class, ['record' => $translation->getRouteKey()])
+            ->assertSee('Jordan Museum EN');
     }
 
     // ─── Rich Field Tests ────────────────────────────────────────────────────────

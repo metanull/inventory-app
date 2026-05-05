@@ -7,6 +7,7 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\ItemTranslationResource\Pages\CreateItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\EditItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\ListItemTranslation;
+use App\Filament\Resources\ItemTranslationResource\Pages\ViewItemTranslation;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Item;
 use App\Models\ItemTranslation;
@@ -16,10 +17,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -184,6 +189,101 @@ class ItemTranslationResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('item.internal_name')
+                    ->label('Item')
+                    ->url(fn ($record): ?string => $record->item
+                        ? (auth()->user()?->can('view', $record->item) ? ItemResource::getUrl('view', ['record' => $record->item]) : null)
+                        : null),
+                TextEntry::make('language.internal_name')
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
+                TextEntry::make('context.internal_name')
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
+
+                InfolistSection::make('Basic Text')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('alternate_name')->label('Alternate name'),
+                        TextEntry::make('description')->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                InfolistSection::make('Object Details')
+                    ->schema([
+                        TextEntry::make('type'),
+                        TextEntry::make('dates'),
+                        TextEntry::make('location'),
+                        TextEntry::make('dimensions'),
+                        TextEntry::make('place_of_production')->label('Place of production'),
+                        TextEntry::make('holder'),
+                        TextEntry::make('owner'),
+                        TextEntry::make('initial_owner')->label('Initial owner'),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('Research & Provenance')
+                    ->schema([
+                        TextEntry::make('method_for_datation')->label('Method for datation'),
+                        TextEntry::make('method_for_provenance')->label('Method for provenance'),
+                        TextEntry::make('provenance'),
+                        TextEntry::make('obtention'),
+                        TextEntry::make('bibliography')->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('Contributors')
+                    ->schema([
+                        TextEntry::make('author.name')
+                            ->label('Author')
+                            ->url(fn ($record): ?string => $record->author
+                                ? (auth()->user()?->can('view', $record->author) ? AuthorResource::getUrl('view', ['record' => $record->author]) : null)
+                                : null),
+                        TextEntry::make('textCopyEditor.name')
+                            ->label('Text copy editor')
+                            ->url(fn ($record): ?string => $record->textCopyEditor
+                                ? (auth()->user()?->can('view', $record->textCopyEditor) ? AuthorResource::getUrl('view', ['record' => $record->textCopyEditor]) : null)
+                                : null),
+                        TextEntry::make('translator.name')
+                            ->label('Translator')
+                            ->url(fn ($record): ?string => $record->translator
+                                ? (auth()->user()?->can('view', $record->translator) ? AuthorResource::getUrl('view', ['record' => $record->translator]) : null)
+                                : null),
+                        TextEntry::make('translationCopyEditor.name')
+                            ->label('Translation copy editor')
+                            ->url(fn ($record): ?string => $record->translationCopyEditor
+                                ? (auth()->user()?->can('view', $record->translationCopyEditor) ? AuthorResource::getUrl('view', ['record' => $record->translationCopyEditor]) : null)
+                                : null),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('Legacy & Metadata')
+                    ->schema([
+                        TextEntry::make('backward_compatibility')->label('Legacy ID'),
+                        TextEntry::make('id')->label('UUID'),
+                        TextEntry::make('created_at')->label('Created')->dateTime(),
+                        TextEntry::make('updated_at')->label('Updated')->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -252,6 +352,7 @@ class ItemTranslationResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->where('updated_at', '>=', now()->subDays(30))),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('viewItem')
                     ->label('View item')
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -268,6 +369,7 @@ class ItemTranslationResource extends Resource
             'index' => ListItemTranslation::route('/'),
             'create' => CreateItemTranslation::route('/create'),
             'edit' => EditItemTranslation::route('/{record}/edit'),
+            'view' => ViewItemTranslation::route('/{record}'),
         ];
     }
 }

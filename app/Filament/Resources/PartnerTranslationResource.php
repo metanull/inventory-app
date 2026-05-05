@@ -7,6 +7,7 @@ use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Resources\PartnerTranslationResource\Pages\CreatePartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
+use App\Filament\Resources\PartnerTranslationResource\Pages\ViewPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Partner;
@@ -18,10 +19,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -200,6 +205,71 @@ class PartnerTranslationResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('partner.internal_name')
+                    ->label('Partner')
+                    ->url(fn ($record): ?string => $record->partner
+                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                        : null),
+                TextEntry::make('language.internal_name')
+                    ->label('Language')
+                    ->url(fn ($record): ?string => $record->language
+                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                        : null),
+                TextEntry::make('context.internal_name')
+                    ->label('Context')
+                    ->url(fn ($record): ?string => $record->context
+                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                        : null),
+
+                InfolistSection::make('Basic Information')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('city_display')->label('City (display)'),
+                        TextEntry::make('description')->columnSpanFull(),
+                    ])
+                    ->columns(2),
+
+                InfolistSection::make('Address')
+                    ->schema([
+                        TextEntry::make('address_line_1')->label('Address line 1'),
+                        TextEntry::make('address_line_2')->label('Address line 2'),
+                        TextEntry::make('postal_code')->label('Postal code'),
+                        TextEntry::make('address_notes')->label('Address notes')->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('Contact Information')
+                    ->schema([
+                        TextEntry::make('contact_name')->label('Contact name'),
+                        TextEntry::make('contact_phone')->label('Phone'),
+                        TextEntry::make('contact_email_general')->label('General email'),
+                        TextEntry::make('contact_email_press')->label('Press email'),
+                        TextEntry::make('contact_website')->label('Website'),
+                        TextEntry::make('contact_notes')->label('Contact notes')->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('Legacy & Metadata')
+                    ->schema([
+                        TextEntry::make('backward_compatibility')->label('Legacy ID'),
+                        TextEntry::make('id')->label('UUID'),
+                        TextEntry::make('created_at')->label('Created')->dateTime(),
+                        TextEntry::make('updated_at')->label('Updated')->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
+            ]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -268,6 +338,7 @@ class PartnerTranslationResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->where('updated_at', '>=', now()->subDays(30))),
             ])
             ->actions([
+                ViewAction::make(),
                 Action::make('viewPartner')
                     ->label('View partner')
                     ->icon('heroicon-o-arrow-top-right-on-square')
@@ -291,6 +362,7 @@ class PartnerTranslationResource extends Resource
             'index' => ListPartnerTranslation::route('/'),
             'create' => CreatePartnerTranslation::route('/create'),
             'edit' => EditPartnerTranslation::route('/{record}/edit'),
+            'view' => ViewPartnerTranslation::route('/{record}'),
         ];
     }
 }
