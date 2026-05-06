@@ -8,7 +8,7 @@
 			"type": "shell",
 			"command": "vendor/bin/pint --no-ansi",
 			"group": "build",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "Run Laravel Pint (PHP 8.4 Dev Container)"
@@ -20,7 +20,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Unit --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Unit"
@@ -30,7 +30,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Api --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Api"
@@ -40,7 +40,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Web --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Web"
@@ -50,7 +50,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Filament --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Filament"
@@ -60,7 +60,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Configuration --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Configuration"
@@ -70,7 +70,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Console --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Console"
@@ -80,7 +80,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Event --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Event"
@@ -90,7 +90,7 @@
 			"type": "shell",
 			"command": "php artisan test --testsuite=Integration --no-coverage --parallel --no-ansi --stop-on-failure",
 			"group": "test",
-			"options": { "cwd": "${workspaceFolder}" },
+			"options": { "cwd": "${workspaceFolder}", "env": { "XDEBUG_MODE": "off" } },
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "php artisan test --testsuite=Integration"
@@ -174,12 +174,12 @@
 		{
 			"label": "docker:shell",
 			"type": "shell",
-			"command": "docker run --rm -it -v \"${workspaceFolder}:/workspaces/inventory-app\" -w /workspaces/inventory-app inventory-app-dev bash",
+			"command": "docker run --rm -it -v \"${workspaceFolder}:/workspaces/inventory-app\" -v inv-app-php-vendor:/workspaces/inventory-app/vendor -v inv-app-node-modules:/workspaces/inventory-app/node_modules -v inv-app-spa-node-modules:/workspaces/inventory-app/spa/node_modules -v inv-app-importer-node-modules:/workspaces/inventory-app/scripts/importer/node_modules -w /workspaces/inventory-app inventory-app-dev bash",
 			"group": "none",
 			"options": { "cwd": "${workspaceFolder}" },
 			"presentation": { "reveal": "always", "panel": "new", "focus": true },
 			"problemMatcher": [],
-			"detail": "Open an interactive bash shell in the inventory-app-dev container"
+			"detail": "Open an interactive bash shell in the inventory-app-dev container (mounts all dependency volumes)"
 		}
 
 	]

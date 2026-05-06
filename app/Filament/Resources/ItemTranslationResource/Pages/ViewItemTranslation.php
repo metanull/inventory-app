@@ -39,10 +39,10 @@ class ViewItemTranslation extends ViewRecord
         ];
     }
 
-    protected function getWidgetData(): array
+    public function getWidgetData(): array
     {
         return [
-            'parentId' => $this->record->item_id ?? '',
+            'parentId' => $this->record->item_id ?? throw new \RuntimeException('Translation record is missing a required item_id.'),
             'parentType' => 'item',
         ];
     }

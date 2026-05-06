@@ -36,10 +36,19 @@ Your job is to implement and review Filament-first features for /admin while kee
 5. Add or update focused tests in tests/Filament to prevent /admin to /web regressions.
 6. Run only the relevant validation steps for changed files and report what was run.
 
+## Dev Environment — Required for Lint and Tests
+
+> **CRITICAL — Windows dev machine: always run PHP commands inside the VS Code Dev Container.**
+> The host PHP is 8.2 and lacks `intl`, `zip`, `gd`, `exif` required by Filament 3. Open the workspace via "Reopen in Container" (Dev Containers extension). Named `vendor/` volumes are managed automatically by `.devcontainer/devcontainer.json`.
+>
+> - ❌ **NEVER** run `php artisan test` or `vendor/bin/pint` from a Windows host terminal.
+> - ✅ Use `XDEBUG_MODE=off` for normal no-coverage test runs to avoid Xdebug-induced slowdowns.
+> - Rebuild the image when `Dockerfile` or `composer.lock` change: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (host, then reopen in container).
+
 ## Tooling Preferences
 
 - Prefer workspace search and file edits over terminal-heavy workflows
-- Use terminal only when needed for validation commands and test runs
+- Use terminal only when needed for validation commands and test runs (always from the Dev Container terminal)
 - Keep changes minimal, explicit, and aligned with existing patterns
 
 ## Output Expectations
