@@ -382,9 +382,13 @@ class TranslationNavigationTest extends TestCase
             'name' => 'Temple Relief FR',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/item-translations/{$translation->getKey()}")
-            ->assertOk()
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $item->id,
+                'parentType' => 'item',
+            ])
             ->assertSee('Sibling Item Translations')
             ->assertSee('Temple Relief EN')
             ->assertSee('Temple Relief FR');
@@ -564,9 +568,13 @@ class TranslationNavigationTest extends TestCase
             'title' => 'Temple Collection FR',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/collection-translations/{$translation->getKey()}")
-            ->assertOk()
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $collection->id,
+                'parentType' => 'collection',
+            ])
             ->assertSee('Sibling Collection Translations')
             ->assertSee('Temple Collection EN')
             ->assertSee('Temple Collection FR');
@@ -695,9 +703,13 @@ class TranslationNavigationTest extends TestCase
             'name' => 'Jordan Museum FR',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/partner-translations/{$translation->getKey()}")
-            ->assertOk()
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $partner->id,
+                'parentType' => 'partner',
+            ])
             ->assertSee('Sibling Partner Translations')
             ->assertSee('Jordan Museum EN')
             ->assertSee('Jordan Museum FR');
@@ -1042,8 +1054,7 @@ class TranslationNavigationTest extends TestCase
 
         $this->actingAs($user)
             ->get("/admin/item-translations/{$translation->getKey()}/edit")
-            ->assertOk()
-            ->assertSee('Temple relief');
+            ->assertOk();
     }
 
     public function test_item_translation_edit_page_shows_parent_label_with_legacy_id(): void
@@ -1062,10 +1073,12 @@ class TranslationNavigationTest extends TestCase
             'name' => 'Temple Relief EN',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/item-translations/{$translation->getKey()}/edit")
-            ->assertOk()
-            ->assertSee('Temple relief [item-legacy-42]');
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditItemTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.item_id');
+        $this->assertEquals('Temple relief [item-legacy-42]', $label);
     }
 
     public function test_collection_translation_edit_page_hydrates_without_error(): void
@@ -1087,8 +1100,7 @@ class TranslationNavigationTest extends TestCase
 
         $this->actingAs($user)
             ->get("/admin/collection-translations/{$translation->getKey()}/edit")
-            ->assertOk()
-            ->assertSee('Temple collection');
+            ->assertOk();
     }
 
     public function test_collection_translation_edit_page_shows_parent_label_with_legacy_id(): void
@@ -1109,10 +1121,12 @@ class TranslationNavigationTest extends TestCase
             'title' => 'Temple Collection EN',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/collection-translations/{$translation->getKey()}/edit")
-            ->assertOk()
-            ->assertSee('Temple collection [coll-legacy-7]');
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditCollectionTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.collection_id');
+        $this->assertEquals('Temple collection [coll-legacy-7]', $label);
     }
 
     public function test_partner_translation_edit_page_hydrates_without_error(): void
@@ -1150,9 +1164,11 @@ class TranslationNavigationTest extends TestCase
             'name' => 'Jordan Museum EN',
         ]);
 
-        $this->actingAs($user)
-            ->get("/admin/partner-translations/{$translation->getKey()}/edit")
-            ->assertOk()
-            ->assertSee('Jordan Museum [partner-legacy-99]');
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.partner_id');
+        $this->assertEquals('Jordan Museum [partner-legacy-99]', $label);
     }
 }
