@@ -28,7 +28,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
 
       - name: "Check > Composer > Validate composer.json"
         run: |
@@ -169,7 +169,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
           tools: pint
 
       - name: "Check > Composer > Check requirements"
@@ -227,7 +227,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
+          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
           coverage: xdebug
           tools: phpunit, pest
 
