@@ -1189,15 +1189,19 @@ class TranslationNavigationTest extends TestCase
 
         $this->setCurrentPanel();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/Unsupported parentType/');
-
-        Livewire::actingAs($user)
-            ->test(SiblingTranslationsWidget::class, [
-                'parentId' => $item->id,
-                'parentType' => 'unknown_type',
-            ])
-            ->call('$refresh');
+        // Blade wraps exceptions thrown during rendering in ViewException.
+        // Verify the cause is the expected InvalidArgumentException from the guard.
+        try {
+            Livewire::actingAs($user)
+                ->test(SiblingTranslationsWidget::class, [
+                    'parentId' => $item->id,
+                    'parentType' => 'unknown_type',
+                ]);
+            $this->fail('Expected an exception to be thrown for invalid parentType.');
+        } catch (\Illuminate\View\ViewException $e) {
+            $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
+            $this->assertStringContainsString('Unsupported parentType', $e->getMessage());
+        }
     }
 
     public function test_sibling_translations_widget_throws_for_empty_parent_id(): void
@@ -1206,14 +1210,18 @@ class TranslationNavigationTest extends TestCase
 
         $this->setCurrentPanel();
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches('/non-empty parentId/');
-
-        Livewire::actingAs($user)
-            ->test(SiblingTranslationsWidget::class, [
-                'parentId' => '',
-                'parentType' => 'item',
-            ])
-            ->call('$refresh');
+        // Blade wraps exceptions thrown during rendering in ViewException.
+        // Verify the cause is the expected InvalidArgumentException from the guard.
+        try {
+            Livewire::actingAs($user)
+                ->test(SiblingTranslationsWidget::class, [
+                    'parentId' => '',
+                    'parentType' => 'item',
+                ]);
+            $this->fail('Expected an exception to be thrown for empty parentId.');
+        } catch (\Illuminate\View\ViewException $e) {
+            $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
+            $this->assertStringContainsString('non-empty parentId', $e->getMessage());
+        }
     }
 }
