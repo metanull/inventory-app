@@ -6,9 +6,20 @@
 #   2. Direct test/lint runner — same image used by CI-equivalent docker commands.
 #
 # Build:  docker build -f .devcontainer/Dockerfile -t inventory-app-dev .
-# Run tests outside VS Code:
-#   docker run --rm -v "${PWD}:/workspaces/inventory-app" inventory-app-dev \
+# Run tests outside VS Code (requires the named vendor volume to exist — create it once with
+# `docker run --rm -v "${PWD}:/workspaces/inventory-app" -v inv-app-php-vendor:/workspaces/inventory-app/vendor
+#  -w /workspaces/inventory-app inventory-app-dev composer install --no-interaction`):
+#
+#   docker run --rm \
+#     -v "${PWD}:/workspaces/inventory-app" \
+#     -v inv-app-php-vendor:/workspaces/inventory-app/vendor \
+#     -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: \
+#     -e XDEBUG_MODE=off \
+#     inventory-app-dev \
 #     php artisan test --testsuite=Api --no-coverage --no-ansi
+#
+# NOTE: The workspace is mounted read-write so artisan can write bootstrap/cache.
+# The vendor/ volume keeps compiled autoload files on the fast Linux FS.
 
 FROM php:8.4-cli-bookworm
 

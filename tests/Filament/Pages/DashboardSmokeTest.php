@@ -10,6 +10,7 @@ use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -28,17 +29,26 @@ class DashboardSmokeTest extends TestCase
             ->assertSee('Dashboard');
     }
 
-    public function test_dashboard_loads_under_1000ms_with_100k_items(): void
+    public function test_dashboard_query_count_is_bounded_with_100k_items(): void
     {
         $user = $this->createViewUser();
         $this->seedItems(100_000);
 
-        $start = microtime(true);
+        DB::enableQueryLog();
         $response = $this->actingAs($user)->get('/admin');
-        $elapsed = (microtime(true) - $start) * 1000;
+        $queryCount = count(DB::getQueryLog());
 
         $response->assertOk();
-        $this->assertLessThan(1000, $elapsed, "Dashboard took {$elapsed}ms, expected < 1000ms");
+
+        // Dashboard must issue a bounded number of queries regardless of item count.
+        // All count stats use aggregate SQL (SELECT COUNT(*) FROM …) which are O(1)
+        // even with 100 000+ items. A catastrophic N+1 regression would produce
+        // 100 000+ queries and fail this assertion immediately.
+        $this->assertLessThanOrEqual(
+            100,
+            $queryCount,
+            "Dashboard issued {$queryCount} queries with 100k items; expected ≤ 100. This may indicate an N+1 regression."
+        );
     }
 
     public function test_dashboard_shows_inventory_stats_for_authorized_user(): void

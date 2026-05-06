@@ -1,4 +1,3 @@
-```instructions
 ---
 applyTo: "resources/js/views/__tests__/**/*.test.ts"
 ---
