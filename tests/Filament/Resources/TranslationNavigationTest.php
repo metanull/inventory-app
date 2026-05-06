@@ -33,6 +33,7 @@ use App\Models\PartnerTranslation;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\View\ViewException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -1198,7 +1199,7 @@ class TranslationNavigationTest extends TestCase
                     'parentType' => 'unknown_type',
                 ]);
             $this->fail('Expected an exception to be thrown for invalid parentType.');
-        } catch (\Illuminate\View\ViewException $e) {
+        } catch (ViewException $e) {
             $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
             $this->assertStringContainsString('Unsupported parentType', $e->getMessage());
         }
@@ -1219,7 +1220,7 @@ class TranslationNavigationTest extends TestCase
                     'parentType' => 'item',
                 ]);
             $this->fail('Expected an exception to be thrown for empty parentId.');
-        } catch (\Illuminate\View\ViewException $e) {
+        } catch (ViewException $e) {
             $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
             $this->assertStringContainsString('non-empty parentId', $e->getMessage());
         }
