@@ -68,10 +68,19 @@ class ItemTranslationResource extends Resource
                     ->required()
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                        ->where('internal_name', 'like', "%{$search}%")
+                        ->where(fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
                         ->orderBy('internal_name')
                         ->limit(50)
-                        ->pluck('internal_name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Item $item): array => [
+                            $item->id => $item->backward_compatibility
+                                ? "{$item->internal_name} [{$item->backward_compatibility}]"
+                                : $item->internal_name,
+                        ])
                         ->all()
                     )
                     ->getOptionLabelUsing(fn ($v): string => Item::find($v)?->internal_name ?? $v),
@@ -296,17 +305,35 @@ class ItemTranslationResource extends Resource
                 TextColumn::make('item.internal_name')
                     ->label('Item')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('item', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->badge()
-                    ->color(fn (ItemTranslation $r): string => $r->language?->is_default ? 'success' : 'gray'),
+                    ->color(fn (ItemTranslation $r): string => $r->language?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('language', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
                     ->badge()
-                    ->color(fn (ItemTranslation $r): string => $r->context?->is_default ? 'success' : 'gray'),
+                    ->color(fn (ItemTranslation $r): string => $r->context?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('context', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 IconColumn::make('is_default_pair')
                     ->label('★')
                     ->tooltip('Default language + context pair')
@@ -318,6 +345,14 @@ class ItemTranslationResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('backward_compatibility')
+                    ->label('Legacy ID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('id')
+                    ->label('UUID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ...static::timestampsColumns(),
             ])
             ->filters([

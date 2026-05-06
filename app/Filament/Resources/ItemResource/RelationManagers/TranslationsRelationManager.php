@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\ItemResource;
+use App\Filament\Resources\ItemTranslationResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Context;
@@ -19,8 +20,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -261,13 +260,20 @@ class TranslationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                ViewAction::make(),
-                Action::make('viewItem')
-                    ->label('View item')
+                Action::make('viewTranslation')
+                    ->label('View translation')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (ItemTranslation $r): string => ItemTranslationResource::getUrl('view', ['record' => $r])),
+                Action::make('editTranslation')
+                    ->label('Edit translation')
+                    ->icon('heroicon-o-pencil')
+                    ->url(fn (ItemTranslation $r): string => ItemTranslationResource::getUrl('edit', ['record' => $r]))
+                    ->visible(fn (ItemTranslation $r): bool => auth()->user()?->can('update', $r) ?? false),
+                Action::make('viewParentItem')
+                    ->label('View parent item')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (ItemTranslation $r): string => ItemResource::getUrl('view', ['record' => $r->item_id]))
                     ->openUrlInNewTab(),
-                EditAction::make(),
                 DeleteAction::make(),
             ]);
     }

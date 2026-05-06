@@ -70,10 +70,19 @@ class PartnerTranslationResource extends Resource
                     ->required()
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array => Partner::query()
-                        ->where('internal_name', 'like', "%{$search}%")
+                        ->where(fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
                         ->orderBy('internal_name')
                         ->limit(50)
-                        ->pluck('internal_name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Partner $partner): array => [
+                            $partner->id => $partner->backward_compatibility
+                                ? "{$partner->internal_name} [{$partner->backward_compatibility}]"
+                                : $partner->internal_name,
+                        ])
                         ->all()
                     )
                     ->getOptionLabelUsing(fn ($v): string => Partner::find($v)?->internal_name ?? $v),
@@ -282,17 +291,35 @@ class PartnerTranslationResource extends Resource
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('partner', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->badge()
-                    ->color(fn (PartnerTranslation $r): string => $r->language?->is_default ? 'success' : 'gray'),
+                    ->color(fn (PartnerTranslation $r): string => $r->language?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('language', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
                     ->badge()
-                    ->color(fn (PartnerTranslation $r): string => $r->context?->is_default ? 'success' : 'gray'),
+                    ->color(fn (PartnerTranslation $r): string => $r->context?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('context', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 IconColumn::make('is_default_pair')
                     ->label('★')
                     ->tooltip('Default language + context pair')
@@ -304,6 +331,14 @@ class PartnerTranslationResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('backward_compatibility')
+                    ->label('Legacy ID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('id')
+                    ->label('UUID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ...static::timestampsColumns(),
             ])
             ->filters([
