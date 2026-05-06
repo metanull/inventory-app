@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
 use App\Filament\Resources\CollectionResource;
+use App\Filament\Resources\CollectionTranslationResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
@@ -19,7 +20,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -201,12 +201,20 @@ class TranslationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Action::make('viewCollection')
-                    ->label('View collection')
+                Action::make('viewTranslation')
+                    ->label('View translation')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (CollectionTranslation $r): string => CollectionTranslationResource::getUrl('view', ['record' => $r])),
+                Action::make('editTranslation')
+                    ->label('Edit translation')
+                    ->icon('heroicon-o-pencil')
+                    ->url(fn (CollectionTranslation $r): string => CollectionTranslationResource::getUrl('edit', ['record' => $r]))
+                    ->visible(fn (CollectionTranslation $r): bool => auth()->user()?->can('update', $r) ?? false),
+                Action::make('viewParentCollection')
+                    ->label('View parent collection')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (CollectionTranslation $r): string => CollectionResource::getUrl('view', ['record' => $r->collection_id]))
                     ->openUrlInNewTab(),
-                EditAction::make(),
                 DeleteAction::make(),
             ]);
     }

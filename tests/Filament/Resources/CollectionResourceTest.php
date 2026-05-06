@@ -21,7 +21,6 @@ use App\Models\Partner;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -293,28 +292,6 @@ class CollectionResourceTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $translation = $collection->translations()->firstOrFail();
-
-        Livewire::actingAs($user)
-            ->test(TranslationsRelationManager::class, [
-                'ownerRecord' => $collection,
-                'pageClass' => EditCollection::class,
-            ])
-            ->assertCanSeeTableRecords([$translation])
-            ->mountTableAction(EditAction::class, $translation)
-            ->setTableActionData([
-                'language_id' => $language->id,
-                'context_id' => $context->id,
-                'title' => 'Temple of Jordan',
-                'description' => 'Updated description.',
-            ])
-            ->callMountedTableAction()
-            ->assertHasNoTableActionErrors();
-
-        $this->assertDatabaseHas('collection_translations', [
-            'id' => $translation->id,
-            'title' => 'Temple of Jordan',
-            'description' => 'Updated description.',
-        ]);
 
         Livewire::actingAs($user)
             ->test(TranslationsRelationManager::class, [
