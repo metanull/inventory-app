@@ -83,7 +83,16 @@ class ItemTranslationResource extends Resource
                         ])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($v): string => Item::find($v)?->internal_name ?? $v),
+                    ->getOptionLabelUsing(function (mixed $value): string {
+                        $item = Item::find($value);
+                        if (! $item) {
+                            return (string) $value;
+                        }
+
+                        return $item->backward_compatibility
+                            ? "{$item->internal_name} [{$item->backward_compatibility}]"
+                            : $item->internal_name;
+                    }),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
