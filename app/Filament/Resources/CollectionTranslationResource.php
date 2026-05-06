@@ -83,7 +83,16 @@ class CollectionTranslationResource extends Resource
                         ])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($v): string => Collection::find($v)?->internal_name ?? $v),
+                    ->getOptionLabelUsing(function (mixed $value): string {
+                        $collection = Collection::find($value);
+                        if (! $collection) {
+                            return (string) $value;
+                        }
+
+                        return $collection->backward_compatibility
+                            ? "{$collection->internal_name} [{$collection->backward_compatibility}]"
+                            : $collection->internal_name;
+                    }),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')

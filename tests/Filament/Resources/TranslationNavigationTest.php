@@ -332,7 +332,7 @@ class TranslationNavigationTest extends TestCase
             ->assertActionExists('viewParentItem');
     }
 
-    public function test_item_translation_pages_register_sibling_widget(): void
+    public function test_item_translation_view_page_passes_widget_data_for_parent(): void
     {
         $user = $this->createCrudUser();
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
@@ -357,11 +357,41 @@ class TranslationNavigationTest extends TestCase
         $viewPage = Livewire::actingAs($user)
             ->test(ViewItemTranslation::class, ['record' => $translation->getRouteKey()]);
 
-        $this->assertContains(SiblingTranslationsWidget::class, $viewPage->instance()->getFooterWidgets());
-
         $widgetData = $viewPage->instance()->getWidgetData();
         $this->assertSame($item->id, $widgetData['parentId']);
         $this->assertSame('item', $widgetData['parentType']);
+    }
+
+    public function test_item_translation_view_page_renders_sibling_widget_output(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $translation = ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief EN',
+        ]);
+        ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $langFr->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $item->id,
+                'parentType' => 'item',
+            ])
+            ->assertSee('Sibling Item Translations')
+            ->assertSee('Temple Relief EN')
+            ->assertSee('Temple Relief FR');
     }
 
     public function test_sibling_translations_widget_shows_siblings_for_item(): void
@@ -480,6 +510,76 @@ class TranslationNavigationTest extends TestCase
             ->assertSee('Temple Collection FR');
     }
 
+    public function test_collection_translation_view_page_passes_widget_data_for_parent(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+        ]);
+        CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $langFr->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $viewPage = Livewire::actingAs($user)
+            ->test(ViewCollectionTranslation::class, ['record' => $translation->getRouteKey()]);
+
+        $widgetData = $viewPage->instance()->getWidgetData();
+        $this->assertSame($collection->id, $widgetData['parentId']);
+        $this->assertSame('collection', $widgetData['parentType']);
+    }
+
+    public function test_collection_translation_view_page_renders_sibling_widget_output(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+        ]);
+        CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $langFr->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $collection->id,
+                'parentType' => 'collection',
+            ])
+            ->assertSee('Sibling Collection Translations')
+            ->assertSee('Temple Collection EN')
+            ->assertSee('Temple Collection FR');
+    }
+
     // ── Partner Translation Page: Parent Action + Sibling Widget ──────────────
 
     public function test_view_partner_translation_page_exposes_view_parent_partner_action(): void
@@ -549,6 +649,68 @@ class TranslationNavigationTest extends TestCase
                 'parentId' => $partner->id,
                 'parentType' => 'partner',
             ])
+            ->assertSee('Jordan Museum EN')
+            ->assertSee('Jordan Museum FR');
+    }
+
+    public function test_partner_translation_view_page_passes_widget_data_for_parent(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+        ]);
+        PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $langFr->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $viewPage = Livewire::actingAs($user)
+            ->test(ViewPartnerTranslation::class, ['record' => $translation->getRouteKey()]);
+
+        $widgetData = $viewPage->instance()->getWidgetData();
+        $this->assertSame($partner->id, $widgetData['parentId']);
+        $this->assertSame('partner', $widgetData['parentType']);
+    }
+
+    public function test_partner_translation_view_page_renders_sibling_widget_output(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $langFr = Language::factory()->create(['id' => 'fra', 'internal_name' => 'French', 'is_default' => false]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+        ]);
+        PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $langFr->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum FR',
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $partner->id,
+                'parentType' => 'partner',
+            ])
+            ->assertSee('Sibling Partner Translations')
             ->assertSee('Jordan Museum EN')
             ->assertSee('Jordan Museum FR');
     }
@@ -873,5 +1035,140 @@ class TranslationNavigationTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/item-translations/{$translation->getKey()}/edit")
             ->assertForbidden();
+    }
+
+    // ── Edit page parent select hydration (issue #1105 regression) ────────────
+
+    public function test_item_translation_edit_page_hydrates_without_error(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        $translation = ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief EN',
+        ]);
+
+        $this->actingAs($user)
+            ->get("/admin/item-translations/{$translation->getKey()}/edit")
+            ->assertOk();
+    }
+
+    public function test_item_translation_edit_page_shows_parent_label_with_legacy_id(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create([
+            'internal_name' => 'Temple relief',
+            'backward_compatibility' => 'item-legacy-42',
+        ]);
+        $translation = ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditItemTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.item_id');
+        $this->assertEquals('Temple relief [item-legacy-42]', $label);
+    }
+
+    public function test_collection_translation_edit_page_hydrates_without_error(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+        ]);
+
+        $this->actingAs($user)
+            ->get("/admin/collection-translations/{$translation->getKey()}/edit")
+            ->assertOk();
+    }
+
+    public function test_collection_translation_edit_page_shows_parent_label_with_legacy_id(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $collection = Collection::factory()->create([
+            'internal_name' => 'Temple collection',
+            'context_id' => $context->id,
+            'language_id' => $language->id,
+            'backward_compatibility' => 'coll-legacy-7',
+        ]);
+        $translation = CollectionTranslation::factory()->create([
+            'collection_id' => $collection->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'title' => 'Temple Collection EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditCollectionTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.collection_id');
+        $this->assertEquals('Temple collection [coll-legacy-7]', $label);
+    }
+
+    public function test_partner_translation_edit_page_hydrates_without_error(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create(['internal_name' => 'Jordan Museum']);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+        ]);
+
+        $this->actingAs($user)
+            ->get("/admin/partner-translations/{$translation->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('Jordan Museum');
+    }
+
+    public function test_partner_translation_edit_page_shows_parent_label_with_legacy_id(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $partner = Partner::factory()->create([
+            'internal_name' => 'Jordan Museum',
+            'backward_compatibility' => 'partner-legacy-99',
+        ]);
+        $translation = PartnerTranslation::factory()->create([
+            'partner_id' => $partner->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Jordan Museum EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $livewire = Livewire::actingAs($user)
+            ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()]);
+        $label = $livewire->instance()->getFormSelectOptionLabel('data.partner_id');
+        $this->assertEquals('Jordan Museum [partner-legacy-99]', $label);
     }
 }

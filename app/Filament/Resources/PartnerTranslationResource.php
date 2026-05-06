@@ -85,7 +85,16 @@ class PartnerTranslationResource extends Resource
                         ])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($v): string => Partner::find($v)?->internal_name ?? $v),
+                    ->getOptionLabelUsing(function (mixed $value): string {
+                        $partner = Partner::find($value);
+                        if (! $partner) {
+                            return (string) $value;
+                        }
+
+                        return $partner->backward_compatibility
+                            ? "{$partner->internal_name} [{$partner->backward_compatibility}]"
+                            : $partner->internal_name;
+                    }),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')
