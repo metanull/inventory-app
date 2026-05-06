@@ -33,13 +33,6 @@ class SiblingTranslationsWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
-        if ($this->parentId === '') {
-            return $table
-                ->query(fn (): Builder => ItemTranslation::query()->whereRaw('0=1'))
-                ->columns([])
-                ->heading('Sibling Translations');
-        }
-
         return match ($this->parentType) {
             'collection' => $this->collectionTable($table),
             'partner' => $this->partnerTable($table),

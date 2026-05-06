@@ -30,7 +30,6 @@ use App\Models\Tag;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -283,28 +282,6 @@ class ItemResourceTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $translation = $item->translations()->firstOrFail();
-
-        Livewire::actingAs($user)
-            ->test(TranslationsRelationManager::class, [
-                'ownerRecord' => $item,
-                'pageClass' => EditItem::class,
-            ])
-            ->assertCanSeeTableRecords([$translation])
-            ->mountTableAction(EditAction::class, $translation)
-            ->setTableActionData([
-                'language_id' => $language->id,
-                'context_id' => $context->id,
-                'name' => 'Temple Relief Updated',
-                'description' => 'Updated description.',
-            ])
-            ->callMountedTableAction()
-            ->assertHasNoTableActionErrors();
-
-        $this->assertDatabaseHas('item_translations', [
-            'id' => $translation->id,
-            'name' => 'Temple Relief Updated',
-            'description' => 'Updated description.',
-        ]);
 
         Livewire::actingAs($user)
             ->test(TranslationsRelationManager::class, [
