@@ -39,7 +39,7 @@ class ViewPartnerTranslation extends ViewRecord
         ];
     }
 
-    protected function getWidgetData(): array
+    public function getWidgetData(): array
     {
         return [
             'parentId' => $this->record->partner_id ?? '',
