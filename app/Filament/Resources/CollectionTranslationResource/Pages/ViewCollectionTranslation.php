@@ -39,7 +39,7 @@ class ViewCollectionTranslation extends ViewRecord
         ];
     }
 
-    protected function getWidgetData(): array
+    public function getWidgetData(): array
     {
         return [
             'parentId' => $this->record->collection_id ?? '',
