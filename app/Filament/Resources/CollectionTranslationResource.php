@@ -68,10 +68,19 @@ class CollectionTranslationResource extends Resource
                     ->required()
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where('internal_name', 'like', "%{$search}%")
+                        ->where(fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
                         ->orderBy('internal_name')
                         ->limit(50)
-                        ->pluck('internal_name', 'id')
+                        ->get()
+                        ->mapWithKeys(fn (Collection $collection): array => [
+                            $collection->id => $collection->backward_compatibility
+                                ? "{$collection->internal_name} [{$collection->backward_compatibility}]"
+                                : $collection->internal_name,
+                        ])
                         ->all()
                     )
                     ->getOptionLabelUsing(fn ($v): string => Collection::find($v)?->internal_name ?? $v),
@@ -180,17 +189,35 @@ class CollectionTranslationResource extends Resource
                 TextColumn::make('collection.internal_name')
                     ->label('Collection')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('collection', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->badge()
-                    ->color(fn (CollectionTranslation $r): string => $r->language?->is_default ? 'success' : 'gray'),
+                    ->color(fn (CollectionTranslation $r): string => $r->language?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('language', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
                     ->badge()
-                    ->color(fn (CollectionTranslation $r): string => $r->context?->is_default ? 'success' : 'gray'),
+                    ->color(fn (CollectionTranslation $r): string => $r->context?->is_default ? 'success' : 'gray')
+                    ->searchable(query: fn (Builder $query, string $search): Builder => $query
+                        ->orWhereHas('context', fn (Builder $q): Builder => $q
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                        )
+                    ),
                 IconColumn::make('is_default_pair')
                     ->label('★')
                     ->tooltip('Default language + context pair')
@@ -202,6 +229,14 @@ class CollectionTranslationResource extends Resource
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('backward_compatibility')
+                    ->label('Legacy ID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('id')
+                    ->label('UUID')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ...static::timestampsColumns(),
             ])
             ->filters([

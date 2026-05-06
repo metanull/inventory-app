@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PartnerResource\RelationManagers;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Resources\PartnerResource;
+use App\Filament\Resources\PartnerTranslationResource;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Context;
 use App\Models\Language;
@@ -20,8 +21,6 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -273,13 +272,20 @@ class TranslationsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                ViewAction::make(),
-                Action::make('viewPartner')
-                    ->label('View partner')
+                Action::make('viewTranslation')
+                    ->label('View translation')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (PartnerTranslation $r): string => PartnerTranslationResource::getUrl('view', ['record' => $r])),
+                Action::make('editTranslation')
+                    ->label('Edit translation')
+                    ->icon('heroicon-o-pencil')
+                    ->url(fn (PartnerTranslation $r): string => PartnerTranslationResource::getUrl('edit', ['record' => $r]))
+                    ->visible(fn (PartnerTranslation $r): bool => auth()->user()?->can('update', $r) ?? false),
+                Action::make('viewParentPartner')
+                    ->label('View parent partner')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (PartnerTranslation $r): string => PartnerResource::getUrl('view', ['record' => $r->partner_id]))
                     ->openUrlInNewTab(),
-                EditAction::make(),
                 DeleteAction::make(),
             ]);
     }

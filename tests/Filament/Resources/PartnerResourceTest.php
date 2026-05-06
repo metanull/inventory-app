@@ -24,7 +24,6 @@ use App\Models\Project;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -224,28 +223,6 @@ class PartnerResourceTest extends TestCase
             ->assertHasNoTableActionErrors();
 
         $translation = $partner->translations()->firstOrFail();
-
-        Livewire::actingAs($user)
-            ->test(TranslationsRelationManager::class, [
-                'ownerRecord' => $partner,
-                'pageClass' => EditPartner::class,
-            ])
-            ->assertCanSeeTableRecords([$translation])
-            ->mountTableAction(EditAction::class, $translation)
-            ->setTableActionData([
-                'language_id' => $language->id,
-                'context_id' => $context->id,
-                'name' => 'Jordan Heritage Museum',
-                'description' => 'Updated description',
-            ])
-            ->callMountedTableAction()
-            ->assertHasNoTableActionErrors();
-
-        $this->assertDatabaseHas('partner_translations', [
-            'id' => $translation->id,
-            'name' => 'Jordan Heritage Museum',
-            'description' => 'Updated description',
-        ]);
 
         Livewire::actingAs($user)
             ->test(TranslationsRelationManager::class, [
