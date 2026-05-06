@@ -33,6 +33,7 @@ use App\Models\PartnerTranslation;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\View\ViewException;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -1170,5 +1171,58 @@ class TranslationNavigationTest extends TestCase
             ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()]);
         $label = $livewire->instance()->getFormSelectOptionLabel('data.partner_id');
         $this->assertEquals('Jordan Museum [partner-legacy-99]', $label);
+    }
+
+    // ── SiblingTranslationsWidget: fail-fast guards ────────────────────────────
+
+    public function test_sibling_translations_widget_throws_for_invalid_parent_type(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        // Blade wraps exceptions thrown during rendering in ViewException.
+        // Verify the cause is the expected InvalidArgumentException from the guard.
+        try {
+            Livewire::actingAs($user)
+                ->test(SiblingTranslationsWidget::class, [
+                    'parentId' => $item->id,
+                    'parentType' => 'unknown_type',
+                ]);
+            $this->fail('Expected an exception to be thrown for invalid parentType.');
+        } catch (ViewException $e) {
+            $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
+            $this->assertStringContainsString('Unsupported parentType', $e->getMessage());
+        }
+    }
+
+    public function test_sibling_translations_widget_throws_for_empty_parent_id(): void
+    {
+        $user = $this->createCrudUser();
+
+        $this->setCurrentPanel();
+
+        // Blade wraps exceptions thrown during rendering in ViewException.
+        // Verify the cause is the expected InvalidArgumentException from the guard.
+        try {
+            Livewire::actingAs($user)
+                ->test(SiblingTranslationsWidget::class, [
+                    'parentId' => '',
+                    'parentType' => 'item',
+                ]);
+            $this->fail('Expected an exception to be thrown for empty parentId.');
+        } catch (ViewException $e) {
+            $this->assertInstanceOf(\InvalidArgumentException::class, $e->getPrevious());
+            $this->assertStringContainsString('non-empty parentId', $e->getMessage());
+        }
     }
 }

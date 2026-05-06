@@ -33,10 +33,15 @@ class SiblingTranslationsWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        if ($this->parentId === '') {
+            throw new \InvalidArgumentException('SiblingTranslationsWidget requires a non-empty parentId.');
+        }
+
         return match ($this->parentType) {
+            'item' => $this->itemTable($table),
             'collection' => $this->collectionTable($table),
             'partner' => $this->partnerTable($table),
-            default => $this->itemTable($table),
+            default => throw new \InvalidArgumentException("Unsupported parentType: \"{$this->parentType}\"."),
         };
     }
 
