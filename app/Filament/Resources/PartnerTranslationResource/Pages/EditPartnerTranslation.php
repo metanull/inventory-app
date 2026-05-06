@@ -40,7 +40,7 @@ class EditPartnerTranslation extends EditRecord
     public function getWidgetData(): array
     {
         return [
-            'parentId' => $this->record->partner_id ?? '',
+            'parentId' => $this->record->partner_id ?? throw new \RuntimeException('Translation record is missing a required partner_id.'),
             'parentType' => 'partner',
         ];
     }

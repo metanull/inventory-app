@@ -40,7 +40,7 @@ class EditCollectionTranslation extends EditRecord
     public function getWidgetData(): array
     {
         return [
-            'parentId' => $this->record->collection_id ?? '',
+            'parentId' => $this->record->collection_id ?? throw new \RuntimeException('Translation record is missing a required collection_id.'),
             'parentType' => 'collection',
         ];
     }

@@ -1171,4 +1171,49 @@ class TranslationNavigationTest extends TestCase
         $label = $livewire->instance()->getFormSelectOptionLabel('data.partner_id');
         $this->assertEquals('Jordan Museum [partner-legacy-99]', $label);
     }
+
+    // ── SiblingTranslationsWidget: fail-fast guards ────────────────────────────
+
+    public function test_sibling_translations_widget_throws_for_invalid_parent_type(): void
+    {
+        $user = $this->createCrudUser();
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+        $item = Item::factory()->Object()->create(['internal_name' => 'Temple relief']);
+        ItemTranslation::factory()->create([
+            'item_id' => $item->id,
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Temple Relief EN',
+        ]);
+
+        $this->setCurrentPanel();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/Unsupported parentType/');
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => $item->id,
+                'parentType' => 'unknown_type',
+            ])
+            ->call('$refresh');
+    }
+
+    public function test_sibling_translations_widget_throws_for_empty_parent_id(): void
+    {
+        $user = $this->createCrudUser();
+
+        $this->setCurrentPanel();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/non-empty parentId/');
+
+        Livewire::actingAs($user)
+            ->test(SiblingTranslationsWidget::class, [
+                'parentId' => '',
+                'parentType' => 'item',
+            ])
+            ->call('$refresh');
+    }
 }
