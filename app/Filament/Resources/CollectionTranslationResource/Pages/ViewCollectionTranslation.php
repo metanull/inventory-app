@@ -7,9 +7,10 @@ use App\Filament\Resources\CollectionTranslationResource;
 use App\Filament\Widgets\SiblingTranslationsWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditCollectionTranslation extends EditRecord
+class ViewCollectionTranslation extends ViewRecord
 {
     protected static string $resource = CollectionTranslationResource::class;
 
@@ -26,6 +27,7 @@ class EditCollectionTranslation extends EditRecord
                     : null)
                 ->visible(fn (): bool => $this->record->collection !== null
                     && (auth()->user()?->can('view', $this->record->collection) ?? false)),
+            EditAction::make(),
             DeleteAction::make(),
         ];
     }

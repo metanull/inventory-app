@@ -527,7 +527,7 @@ class RelationManagerConventionTest extends TestCase
                 'ownerRecord' => $item,
                 'pageClass' => EditItem::class,
             ])
-            ->assertTableActionsExistInOrder(['viewItem', 'edit', 'delete']);
+            ->assertTableActionsExistInOrder(['viewTranslation', 'editTranslation', 'viewParentItem', 'delete']);
     }
 
     public function test_collection_items_relation_manager_row_actions_are_in_convention_order(): void

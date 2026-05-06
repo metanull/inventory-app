@@ -60,6 +60,10 @@ class TranslationResourceAuthorizationTest extends TestCase
             ->assertOk()
             ->assertSee('Relief of the temple');
 
+        $this->actingAs($user)->get("/admin/item-translations/{$translation->getKey()}")
+            ->assertOk()
+            ->assertSee('Relief of the temple');
+
         $this->actingAs($user)->get('/admin/item-translations/create')
             ->assertForbidden();
 
@@ -112,6 +116,10 @@ class TranslationResourceAuthorizationTest extends TestCase
             ->assertOk()
             ->assertSee('Temple Collection EN');
 
+        $this->actingAs($user)->get("/admin/collection-translations/{$translation->getKey()}")
+            ->assertOk()
+            ->assertSee('Temple Collection EN');
+
         $this->actingAs($user)->get('/admin/collection-translations/create')
             ->assertForbidden();
 
@@ -157,6 +165,10 @@ class TranslationResourceAuthorizationTest extends TestCase
             ->assertSee('Partner Translations');
 
         $this->actingAs($user)->get('/admin/partner-translations')
+            ->assertOk()
+            ->assertSee('Jordan Museum EN');
+
+        $this->actingAs($user)->get("/admin/partner-translations/{$translation->getKey()}")
             ->assertOk()
             ->assertSee('Jordan Museum EN');
 

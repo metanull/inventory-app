@@ -168,6 +168,18 @@
 			"presentation": { "reveal": "always", "panel": "shared" },
 			"problemMatcher": [],
 			"detail": "composer audit + npm audit (., spa/, scripts/importer/)"
+		},
+
+		// ── Docker dev container shell ────────────────────────────────────────────
+		{
+			"label": "docker:shell",
+			"type": "shell",
+			"command": "docker run --rm -it -v \"${workspaceFolder}:/workspaces/inventory-app\" -w /workspaces/inventory-app inventory-app-dev bash",
+			"group": "none",
+			"options": { "cwd": "${workspaceFolder}" },
+			"presentation": { "reveal": "always", "panel": "new", "focus": true },
+			"problemMatcher": [],
+			"detail": "Open an interactive bash shell in the inventory-app-dev container"
 		}
 
 	]
