@@ -197,10 +197,10 @@ ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cat ~/.inventory-db-credential
 Image-sync runs locally against the legacy images, writing to a local temporary folder. Then SCP the images to the VPS:
 ```powershell
 # 1. Run image-sync to a local temp folder
-npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
+npx tsx src/cli/import.ts image-sync --copy --target-dir Z:\mwnf\temp\ovh-images
 
 # 2. SCP images to VPS production storage
-scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
+scp -i ~/.ssh/inventory_deploy -r Z:\mwnf\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
 ```
 
 Note: The OVH target images path is `/opt/inventory/shared/storage/app/public/pictures/` (in the shared storage directory, which is symlinked into each release's `storage/app/public/pictures`).
@@ -237,6 +237,14 @@ php artisan user:assign-role havelangep@hotmail.com "Manager of Users"
 php artisan user:create havelangep@gmail.com havelangep@gmail.com
 php artisan user:email-verification havelangep@gmail.com verify
 php artisan user:assign-role havelangep@gmail.com "Regular User"
+
+php artisan user:create eva.schubert@museumwnf.net eva.schubert@museumwnf.net
+php artisan user:email-verification eva.schubert@museumwnf.net verify
+php artisan user:assign-role eva.schubert@museumwnf.net "Regular User"
+
+php artisan user:create evaplaysviolin@gmail.com evaplaysviolin@gmail.com
+php artisan user:email-verification evaplaysviolin@gmail.com verify
+php artisan user:assign-role evaplaysviolin@gmail.com "Regular User"
 
 # 4. Run the importer
 cd E:\inventory\inventory-app\scripts\importer
@@ -379,8 +387,8 @@ cd E:\inventory\inventory-app\scripts\importer
 npx tsx src/cli/import.ts import
 
 # 5. Sync images locally, then SCP to VPS
-npx tsx src/cli/import.ts image-sync --copy --target-dir E:\temp\ovh-images
-scp -i ~/.ssh/inventory_deploy -r E:\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
+npx tsx src/cli/import.ts image-sync --copy --target-dir Z:\mwnf\temp\ovh-images
+scp -i ~/.ssh/inventory_deploy -r Z:\mwnf\temp\ovh-images/* deploy@<VPS_HOST>:/opt/inventory/shared/storage/app/public/pictures/
 
 # 6. Post-import glossary resync (via SSH)
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan glossary:resync --remove-existing --force'
