@@ -33,7 +33,7 @@ class PartnerResourceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_authorized_users_can_render_all_partner_resource_pages_relation_managers_and_stats(): void
+    public function test_authorized_users_can_render_all_partner_resource_pages_and_relation_managers(): void
     {
         $user = $this->createCrudUser();
         $country = Country::factory()->create(['id' => 'jor', 'internal_name' => 'Jordan']);
@@ -89,9 +89,10 @@ class PartnerResourceTest extends TestCase
         $this->actingAs($user)->get("/admin/partners/{$partner->getKey()}")
             ->assertOk()
             ->assertSee('Jordan Museum')
+            ->assertSee('Partner')
             ->assertSee('Owned items')
             ->assertSee('Collection participations')
-            ->assertSee('1');
+            ->assertSee('Legacy links');
 
         $this->setCurrentPanel();
 

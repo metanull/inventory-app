@@ -61,7 +61,13 @@ class CollectionResourceTest extends TestCase
 
         $this->actingAs($user)->get("/admin/collections/{$collection->getKey()}")
             ->assertOk()
-            ->assertSee('Temple collection');
+            ->assertSee('Temple collection')
+            ->assertSee('Collection')
+            ->assertSee('Child collections')
+            ->assertSee('Items')
+            ->assertSee('Partners')
+            ->assertSee('Translations')
+            ->assertSee('Legacy links');
     }
 
     public function test_authorized_users_can_create_edit_and_delete_collections(): void
