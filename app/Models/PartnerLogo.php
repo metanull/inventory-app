@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PartnerLogo extends Model
+class PartnerLogo extends Model implements StreamableImageFile
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
@@ -105,5 +106,25 @@ class PartnerLogo extends Model
     public function tightenOrderingForPartner(): void
     {
         $this->tightenOrdering();
+    }
+
+    public function imageDisk(): string
+    {
+        return config('localstorage.pictures.disk');
+    }
+
+    public function imageStoragePath(): string
+    {
+        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+    }
+
+    public function imageMimeType(): ?string
+    {
+        return $this->mime_type;
+    }
+
+    public function imageDownloadFilename(): string
+    {
+        return $this->original_name ?: basename($this->path);
     }
 }

@@ -4,14 +4,8 @@ namespace App\Filament\Widgets;
 
 use App\Enums\Permission;
 use App\Models\AvailableImage;
-use App\Models\CollectionImage;
-use App\Models\ContributorImage;
 use App\Models\ImageUpload;
-use App\Models\ItemImage;
-use App\Models\PartnerImage;
-use App\Models\PartnerLogo;
-use App\Models\PartnerTranslationImage;
-use App\Models\TimelineEventImage;
+use App\Support\Images\AttachedImageRegistry;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -46,15 +40,13 @@ class StorageUsageWidget extends StatsOverviewWidget
 
     public function getManagedStorageBytes(): int
     {
-        return (int) (
-            ItemImage::query()->sum('size') +
-            CollectionImage::query()->sum('size') +
-            PartnerImage::query()->sum('size') +
-            PartnerLogo::query()->sum('size') +
-            PartnerTranslationImage::query()->sum('size') +
-            ContributorImage::query()->sum('size') +
-            TimelineEventImage::query()->sum('size')
-        );
+        $total = 0;
+
+        foreach (AttachedImageRegistry::modelClasses() as $class) {
+            $total += (int) $class::query()->sum('size');
+        }
+
+        return $total;
     }
 
     public function getAvailablePoolBytes(): int

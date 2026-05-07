@@ -527,7 +527,7 @@ Image bytes are NEVER served from a constructed `/storage/...` URL or any direct
 - `App\Http\Responses\Image\InlineImageResponse` — for inline display.
 - `App\Http\Responses\Image\DownloadImageResponse` — for `Content-Disposition: attachment` downloads.
 
-Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (currently `AvailableImage`, `ItemImage`, `CollectionImage`, `PartnerImage`). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation (config key, mime fallback, download filename rule); response classes and controllers contain zero duplication.
+Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (all pictures-backed image models — see "Attached-image contract and registry" below). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation (config key, mime fallback, download filename rule); response classes and controllers contain zero duplication.
 
 **Existing surfaces (do not touch their routes; tests pin them):**
 - `AvailableImage` — `App\Http\Controllers\AvailableImageController@view|download` (API) and `App\Http\Controllers\Web\AvailableImageController@view|download` (Web).
@@ -567,11 +567,34 @@ public function view(Item $item, ItemImage $itemImage)
 - ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any direct disk path. There is no `getUrl()` accessor on `AvailableImage`; URL conventions on the public disk are an implementation detail of the response classes, not an API for clients.
 - ❌ **NEVER** call `FileResponse::view()` / `FileResponse::download()` directly from a controller, action, page, or Filament component. Always go through `InlineImageResponse` / `DownloadImageResponse`.
 - ❌ **NEVER** duplicate the disk + directory + path + filename + mime-type resolution in a controller body. That logic lives exclusively in the model's `StreamableImageFile` methods and the two response classes.
+- ❌ **NEVER** maintain a hardcoded list of attached-image model classes outside `App\Support\Images\AttachedImageRegistry`.
 - ❌ **NEVER** route a Filament `/admin` page to a `/api/...` or `/web/...` image URL. Filament must own its own `/admin/...` view/download routes (registered in the Filament panel) returning the same response classes.
 - ❌ **NEVER** add a third low-level streaming primitive. The two response classes are the canonical boundary; extend them instead of creating siblings.
 - ✅ Each surface registers its OWN distinct named routes per model (e.g. `item-image.view` is API; the Web equivalent is `items.item-images.view`; the Filament equivalent is a separate name like `filament.admin.item-image.view`). Resolve URLs only from routes belonging to the surface that is rendering them.
 - ✅ Filament view/edit pages, gallery components, and lightboxes MUST resolve URLs from Filament's own named routes (which themselves return `InlineImageResponse` / `DownloadImageResponse`). Same for the `AvailableImage` pool.
 - ✅ Tests asserting display/download MUST hit a route on the surface under test (not a route from another surface) and assert the streamed response, not a constructed disk URL.
+
+## Attached-image contract and registry
+
+Every model that stores files under `localstorage.pictures` (i.e. any entity-owned `*Image` or image-like model) **must**:
+
+1. Implement `App\Contracts\StreamableImageFile`.
+2. Provide correct implementations of all four methods:
+   - `imageDisk()` returns `config('localstorage.pictures.disk')`.
+   - `imageStoragePath()` returns `trim(config('localstorage.pictures.directory'), '/').'/'.$this->path`.
+   - `imageMimeType()` returns `$this->mime_type`.
+   - `imageDownloadFilename()` returns `$this->original_name ?: basename($this->path)`.
+3. Be added to `App\Support\Images\AttachedImageRegistry` **in the same change**.
+4. Be covered by `StreamableImageFile` contract tests and registry completeness tests.
+
+`AttachedImageRegistry` is the **single source of truth** for all pictures-backed image models. Storage-usage reporting (`StorageUsageWidget`), orphan-file cleanup (`images:cleanup-pictures`), audit (`images:attached-registry-audit`), and any future maintenance command **must** use the registry — never a local hardcoded list.
+
+**Rules:**
+
+- ❌ **NEVER** create a pictures-backed `*Image` or image-like model without implementing `StreamableImageFile` and adding it to the registry.
+- ❌ **NEVER** hardcode a list of attached-image model classes anywhere except `AttachedImageRegistry`.
+- ✅ `AttachedImageRegistry::validate()` must pass. Tests must cover registry completeness and contract compliance.
+- ✅ Maintenance commands that need the full attached-image model set must call `AttachedImageRegistry::modelClasses()`.
 
 ## File-Specific Instructions
 
