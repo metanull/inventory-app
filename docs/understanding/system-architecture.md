@@ -2,7 +2,7 @@
 layout: default
 title: System Architecture
 parent: Understanding the Inventory
-nav_order: 5
+nav_order: 6
 ---
 
 # System Architecture
