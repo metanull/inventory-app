@@ -154,7 +154,7 @@ Image bytes are NEVER served from a constructed `/storage/...` URL or any direct
 - `App\Http\Responses\Image\InlineImageResponse` — inline display.
 - `App\Http\Responses\Image\DownloadImageResponse` — `Content-Disposition: attachment` download.
 
-Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (currently `AvailableImage`, `ItemImage`, `CollectionImage`, `PartnerImage`). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation; controllers contain zero duplication.
+Both are constructed from any model implementing `App\Contracts\StreamableImageFile` (all pictures-backed image models — see "Attached-image contract and registry" below). The four model methods (`imageDisk()`, `imageStoragePath()`, `imageMimeType()`, `imageDownloadFilename()`) own all per-model variation; controllers contain zero duplication.
 
 | Model            | API controller (`view` / `download`)                       | Web controller (`view` / `download`)                            |
 | ---------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
@@ -196,7 +196,8 @@ public function view(Item $item, ItemImage $itemImage)
 
 - ❌ **NEVER** build an image URL from `Storage::url()`, `asset('storage/images/...')`, `/storage/pictures/...`, or any other direct disk path.
 - ❌ **NEVER** call `FileResponse::view()` / `FileResponse::download()` directly from a controller, action, page, or Filament component. Always go through `InlineImageResponse` / `DownloadImageResponse`.
-- ❌ **NEVER** duplicate disk + directory + path + filename + mime-type resolution in a controller. That logic belongs only inside the four model `StreamableImageFile` methods and the two response classes.
+- ❌ **NEVER** duplicate disk + directory + path + filename + mime-type resolution in a controller. That logic belongs only inside the model `StreamableImageFile` methods and the two response classes.
+- ❌ **NEVER** maintain a local hardcoded list of attached-image model classes. Use `App\Support\Images\AttachedImageRegistry` as the single source of truth.
 - ❌ **NEVER** route a Filament `/admin` page to a `/api/...` or `/web/...` image URL. Filament must own its own `/admin/...` named routes that themselves return `InlineImageResponse` / `DownloadImageResponse`.
 - ❌ **NEVER** add a third low-level streaming primitive. The two response classes are the canonical boundary; extend them rather than create siblings.
 - ✅ Each surface registers its OWN distinct named routes per model (e.g. API `item-image.view`, Web `items.item-images.view`, Filament `filament.admin.item-image.view`). Resolve URLs only from routes belonging to the surface that is rendering them.
@@ -208,7 +209,8 @@ public function view(Item $item, ItemImage $itemImage)
 
 - Model (upload staging): `app/Models/ImageUpload.php`
 - Model (validated pool): `app/Models/AvailableImage.php`
-- Models (attached, entity-owned): `app/Models/ItemImage.php`, `app/Models/CollectionImage.php`, `app/Models/PartnerImage.php` — see `attachFromAvailableImage()` / `detachToAvailableImage()` and the `StreamableImageFile` methods.
+- Models (attached, entity-owned): `app/Models/ItemImage.php`, `app/Models/CollectionImage.php`, `app/Models/PartnerImage.php`, `app/Models/PartnerTranslationImage.php`, `app/Models/ContributorImage.php`, `app/Models/TimelineEventImage.php`, `app/Models/PartnerLogo.php` — see `attachFromAvailableImage()` / `detachToAvailableImage()` and the `StreamableImageFile` methods.
+- Attached-image registry (single source of truth for all pictures-backed model classes): `app/Support/Images/AttachedImageRegistry.php`.
 - Streamable contract: `app/Contracts/StreamableImageFile.php`.
 - Shared response classes: `app/Http/Responses/Image/InlineImageResponse.php`, `app/Http/Responses/Image/DownloadImageResponse.php`.
 - Low-level streaming helper (do not call directly from controllers): `app/Http/Responses/FileResponse.php`.
@@ -220,3 +222,25 @@ public function view(Item $item, ItemImage $itemImage)
 - Web controllers (display/download): `app/Http/Controllers/Web/{AvailableImage,ItemImage,CollectionImage,PartnerImage}Controller.php` — same shape, with optional parent-ownership guards before the `return`.
 - Display/download test trait: `tests/Api/Traits/TestsApiImageViewing.php`.
 - Event tests: `tests/Event/ImageUpload/ImageUploadTest.php`, `tests/Event/AvailableImage/AvailableImageTest.php`
+
+### Attached-image contract and registry
+
+Every model that stores files under `localstorage.pictures` (i.e. any entity-owned `*Image` or image-like model) **must**:
+
+1. Implement `App\Contracts\StreamableImageFile`.
+2. Provide correct implementations of `imageDisk()`, `imageStoragePath()`, `imageMimeType()`, and `imageDownloadFilename()` following the standard pattern:
+   - `imageDisk()` returns `config('localstorage.pictures.disk')`.
+   - `imageStoragePath()` returns `trim(config('localstorage.pictures.directory'), '/').'/'.$this->path`.
+   - `imageMimeType()` returns `$this->mime_type`.
+   - `imageDownloadFilename()` returns `$this->original_name ?: basename($this->path)`.
+3. Be added to `App\Support\Images\AttachedImageRegistry` **in the same change** as the model itself.
+4. Be covered by `StreamableImageFile` contract tests and registry completeness tests.
+
+`App\Support\Images\AttachedImageRegistry` is the **single source of truth** for the full set of pictures-backed image models. Commands, widgets, and any other code that needs this model set **must** use the registry — never maintain a local hardcoded list.
+
+**Rules:**
+
+- ❌ **NEVER** create a pictures-backed `*Image` or image-like model without implementing `StreamableImageFile` and adding it to the registry.
+- ❌ **NEVER** hardcode a list of attached-image model classes outside `AttachedImageRegistry`.
+- ✅ `AttachedImageRegistry::validate()` must pass at all times. Tests must cover registry completeness.
+- ✅ Storage-usage reporting, orphan-file cleanup, and any future maintenance command must use the registry as the source of model classes.
