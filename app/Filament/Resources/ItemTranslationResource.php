@@ -245,9 +245,9 @@ class ItemTranslationResource extends Resource
                         TranslationInfolistSchema::rtlTextEntry('location'),
                         TranslationInfolistSchema::rtlTextEntry('dimensions'),
                         TranslationInfolistSchema::rtlTextEntry('place_of_production', 'Place of production'),
-                        TranslationInfolistSchema::rtlTextEntry('holder'),
-                        TranslationInfolistSchema::rtlTextEntry('owner'),
-                        TranslationInfolistSchema::rtlTextEntry('initial_owner', 'Initial owner'),
+                        TranslationInfolistSchema::markdownEntry('holder'),
+                        TranslationInfolistSchema::markdownEntry('owner'),
+                        TranslationInfolistSchema::markdownEntry('initial_owner', 'Initial owner'),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -255,10 +255,10 @@ class ItemTranslationResource extends Resource
 
                 InfolistSection::make('Research & Provenance')
                     ->schema([
-                        TranslationInfolistSchema::rtlTextEntry('method_for_datation', 'Method for datation'),
-                        TranslationInfolistSchema::rtlTextEntry('method_for_provenance', 'Method for provenance'),
-                        TranslationInfolistSchema::rtlTextEntry('provenance'),
-                        TranslationInfolistSchema::rtlTextEntry('obtention'),
+                        TranslationInfolistSchema::markdownEntry('method_for_datation', 'Method for datation'),
+                        TranslationInfolistSchema::markdownEntry('method_for_provenance', 'Method for provenance'),
+                        TranslationInfolistSchema::markdownEntry('provenance'),
+                        TranslationInfolistSchema::markdownEntry('obtention'),
                         TranslationInfolistSchema::markdownEntry('bibliography', columnSpanFull: true),
                     ])
                     ->columns(2)

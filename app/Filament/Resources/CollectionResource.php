@@ -30,7 +30,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section as FiltersSection;
+use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
