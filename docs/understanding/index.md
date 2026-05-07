@@ -16,7 +16,8 @@ This section explains MWNF Inventory for customers, content owners, and validati
 2. [Core Model](core-model) explains the main content concepts and how they relate.
 3. [Legacy Import](legacy-import) explains how source data moves into the new model.
 4. [Validation Guide](validation-guide) gives practical checks for import review.
-5. [System Architecture](system-architecture) explains how the back-office, APIs, importer, and documentation fit together.
+5. [Legacy URL Mapping](legacy-url-mapping) explains how imported records link back to legacy public and back-office URLs.
+6. [System Architecture](system-architecture) explains how the back-office, APIs, importer, and documentation fit together.
 
 ## Current project focus
 

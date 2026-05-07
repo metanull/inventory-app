@@ -14,10 +14,11 @@ Use this guide when you compare imported Inventory records with legacy data. The
 1. Start from the Inventory record you want to validate.
 2. Find its `backward_compatibility` value.
 3. Use the value to identify the legacy source table and key values.
-4. Compare the Inventory record with the source rows.
-5. Check translations by language and context.
-6. Check images after image synchronization has run.
-7. Check relationships through Collections, Item Links, Tags, and parent-child Items.
+4. Use [Legacy URL Mapping](legacy-url-mapping) when you need to open the matching legacy public page or back-office record.
+5. Compare the Inventory record with the source rows.
+6. Check translations by language and context.
+7. Check images after image synchronization has run.
+8. Check relationships through Collections, Item Links, Tags, and parent-child Items.
 
 ## Item checks
 
