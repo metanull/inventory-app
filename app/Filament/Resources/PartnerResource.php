@@ -6,7 +6,6 @@ use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
-use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -18,6 +17,7 @@ use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipat
 use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Models\Project;
@@ -42,7 +42,6 @@ class PartnerResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
-    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -214,7 +213,6 @@ class PartnerResource extends Resource
                     ->label('Map zoom'),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
-                static::legacyLinksSection(),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('created_at')
@@ -233,6 +231,7 @@ class PartnerResource extends Resource
             CollectionParticipationsRelationManager::class,
             ImagesRelationManager::class,
             TranslationsRelationManager::class,
+            LegacyLinksRelationManager::class,
         ];
     }
 

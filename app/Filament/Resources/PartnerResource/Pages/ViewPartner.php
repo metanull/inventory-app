@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\PartnerResource\Pages;
 
 use App\Filament\Resources\PartnerResource;
-use App\Filament\Resources\PartnerResource\Widgets\PartnerStatsOverview;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -20,12 +19,13 @@ class ViewPartner extends ViewRecord
         ];
     }
 
-    protected function getHeaderWidgets(): array
+    public function hasCombinedRelationManagerTabsWithContent(): bool
     {
-        return [
-            PartnerStatsOverview::make([
-                'record' => $this->record,
-            ]),
-        ];
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Partner';
     }
 }

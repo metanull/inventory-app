@@ -6,7 +6,6 @@ use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
-use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -21,6 +20,7 @@ use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Item;
@@ -51,7 +51,6 @@ class ItemResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
-    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -469,7 +468,6 @@ class ItemResource extends Resource
                     ->label('Display order'),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
-                static::legacyLinksSection(),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('created_at')
@@ -491,6 +489,7 @@ class ItemResource extends Resource
             LinksRelationManager::class,
             TagsRelationManager::class,
             DisplayedInCollectionsRelationManager::class,
+            LegacyLinksRelationManager::class,
         ];
     }
 

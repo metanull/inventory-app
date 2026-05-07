@@ -68,7 +68,14 @@ class ItemResourceTest extends TestCase
 
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}")
             ->assertOk()
-            ->assertSee('Temple relief');
+            ->assertSee('Temple relief')
+            ->assertSee('Item')
+            ->assertSee('Child items')
+            ->assertSee('Pictures')
+            ->assertSee('Translations')
+            ->assertSee('Links')
+            ->assertSee('Displayed in')
+            ->assertSee('Legacy links');
 
         $this->actingAs($user)->get('/admin/browse-item-tree')
             ->assertOk();
