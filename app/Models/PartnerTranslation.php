@@ -201,4 +201,12 @@ class PartnerTranslation extends Model
     {
         return $query->where('context_id', $contextId);
     }
+
+    /**
+     * Get sibling translations (other translations of the same partner).
+     */
+    public function siblingTranslations(): HasMany
+    {
+        return $this->hasMany(static::class, 'partner_id', 'partner_id');
+    }
 }

@@ -8,7 +8,9 @@ use App\Filament\Resources\ItemTranslationResource\Pages\CreateItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\EditItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\ListItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\Pages\ViewItemTranslation;
+use App\Filament\Resources\ItemTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
+use App\Filament\Support\TranslationInfolistSchema;
 use App\Models\Item;
 use App\Models\ItemTranslation;
 use Filament\Forms\Components\Section;
@@ -210,6 +212,7 @@ class ItemTranslationResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('item.internal_name')
                     ->label('Item')
@@ -229,22 +232,22 @@ class ItemTranslationResource extends Resource
 
                 InfolistSection::make('Basic Text')
                     ->schema([
-                        TextEntry::make('name'),
-                        TextEntry::make('alternate_name')->label('Alternate name'),
-                        TextEntry::make('description')->columnSpanFull(),
+                        TranslationInfolistSchema::rtlTextEntry('name'),
+                        TranslationInfolistSchema::rtlTextEntry('alternate_name', 'Alternate name'),
+                        TranslationInfolistSchema::markdownEntry('description', columnSpanFull: true),
                     ])
                     ->columns(2),
 
                 InfolistSection::make('Object Details')
                     ->schema([
-                        TextEntry::make('type'),
-                        TextEntry::make('dates'),
-                        TextEntry::make('location'),
-                        TextEntry::make('dimensions'),
-                        TextEntry::make('place_of_production')->label('Place of production'),
-                        TextEntry::make('holder'),
-                        TextEntry::make('owner'),
-                        TextEntry::make('initial_owner')->label('Initial owner'),
+                        TranslationInfolistSchema::rtlTextEntry('type'),
+                        TranslationInfolistSchema::rtlTextEntry('dates'),
+                        TranslationInfolistSchema::rtlTextEntry('location'),
+                        TranslationInfolistSchema::rtlTextEntry('dimensions'),
+                        TranslationInfolistSchema::rtlTextEntry('place_of_production', 'Place of production'),
+                        TranslationInfolistSchema::markdownEntry('holder'),
+                        TranslationInfolistSchema::markdownEntry('owner'),
+                        TranslationInfolistSchema::markdownEntry('initial_owner', 'Initial owner'),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -252,11 +255,11 @@ class ItemTranslationResource extends Resource
 
                 InfolistSection::make('Research & Provenance')
                     ->schema([
-                        TextEntry::make('method_for_datation')->label('Method for datation'),
-                        TextEntry::make('method_for_provenance')->label('Method for provenance'),
-                        TextEntry::make('provenance'),
-                        TextEntry::make('obtention'),
-                        TextEntry::make('bibliography')->columnSpanFull(),
+                        TranslationInfolistSchema::markdownEntry('method_for_datation', 'Method for datation'),
+                        TranslationInfolistSchema::markdownEntry('method_for_provenance', 'Method for provenance'),
+                        TranslationInfolistSchema::markdownEntry('provenance'),
+                        TranslationInfolistSchema::markdownEntry('obtention'),
+                        TranslationInfolistSchema::markdownEntry('bibliography', columnSpanFull: true),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -405,6 +408,13 @@ class ItemTranslationResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            SiblingTranslationsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

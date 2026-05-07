@@ -4,7 +4,6 @@ namespace App\Filament\Resources\ItemTranslationResource\Pages;
 
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ItemTranslationResource;
-use App\Filament\Widgets\SiblingTranslationsWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -32,18 +31,13 @@ class ViewItemTranslation extends ViewRecord
         ];
     }
 
-    protected function getFooterWidgets(): array
+    public function hasCombinedRelationManagerTabsWithContent(): bool
     {
-        return [
-            SiblingTranslationsWidget::class,
-        ];
+        return true;
     }
 
-    public function getWidgetData(): array
+    public function getContentTabLabel(): ?string
     {
-        return [
-            'parentId' => $this->record->item_id ?? throw new \RuntimeException('Translation record is missing a required item_id.'),
-            'parentType' => 'item',
-        ];
+        return 'Translation';
     }
 }

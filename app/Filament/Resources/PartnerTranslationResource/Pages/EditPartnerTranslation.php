@@ -4,7 +4,6 @@ namespace App\Filament\Resources\PartnerTranslationResource\Pages;
 
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\PartnerTranslationResource;
-use App\Filament\Widgets\SiblingTranslationsWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -30,18 +29,13 @@ class EditPartnerTranslation extends EditRecord
         ];
     }
 
-    protected function getFooterWidgets(): array
+    public function hasCombinedRelationManagerTabsWithContent(): bool
     {
-        return [
-            SiblingTranslationsWidget::class,
-        ];
+        return true;
     }
 
-    public function getWidgetData(): array
+    public function getContentTabLabel(): ?string
     {
-        return [
-            'parentId' => $this->record->partner_id ?? throw new \RuntimeException('Translation record is missing a required partner_id.'),
-            'parentType' => 'partner',
-        ];
+        return 'Translation';
     }
 }

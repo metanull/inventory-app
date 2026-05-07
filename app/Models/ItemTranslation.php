@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -244,5 +245,13 @@ class ItemTranslation extends Model
     public function scopeForContext($query, $contextId)
     {
         return $query->where('context_id', $contextId);
+    }
+
+    /**
+     * Get sibling translations (other translations of the same item).
+     */
+    public function siblingTranslations(): HasMany
+    {
+        return $this->hasMany(static::class, 'item_id', 'item_id');
     }
 }

@@ -27,10 +27,12 @@ use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Project;
 use App\Models\Tag;
+use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
@@ -277,6 +279,32 @@ class ItemResource extends Resource
                         blank: fn (Builder $query): Builder => $query,
                     ),
             ])
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                FiltersSection::make('Translation Coverage')
+                    ->schema([
+                        $filters['has_fallback_translation'],
+                        $filters['missing_fallback_translation'],
+                        $filters['translation_language_has'],
+                        $filters['translation_language_missing'],
+                        $filters['translation_context_has'],
+                        $filters['translation_context_missing'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+                FiltersSection::make('Item Filters')
+                    ->schema([
+                        $filters['type'],
+                        $filters['partner_id'],
+                        $filters['collection'],
+                        $filters['project_id'],
+                        $filters['country_id'],
+                        $filters['tags'],
+                        $filters['top_level_only'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+            ])
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -441,41 +469,45 @@ class ItemResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('internal_name'),
-                TextEntry::make('type')
-                    ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
-                TextEntry::make('parent.internal_name')
-                    ->label('Parent')
-                    ->url(fn ($record): ?string => $record->parent
-                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
-                        : null),
-                TextEntry::make('partner.internal_name')
-                    ->label('Partner')
-                    ->url(fn ($record): ?string => $record->partner
-                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
-                        : null),
-                TextEntry::make('country.internal_name')
-                    ->label('Country')
-                    ->url(fn ($record): ?string => $record->country
-                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
-                        : null),
-                TextEntry::make('project.internal_name')
-                    ->label('Project')
-                    ->url(fn ($record): ?string => $record->project
-                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
-                        : null),
-                TextEntry::make('display_order')
-                    ->label('Display order'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('type')
+                            ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
+                        TextEntry::make('parent.internal_name')
+                            ->label('Parent')
+                            ->url(fn ($record): ?string => $record->parent
+                                ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                                : null),
+                        TextEntry::make('partner.internal_name')
+                            ->label('Partner')
+                            ->url(fn ($record): ?string => $record->partner
+                                ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                                : null),
+                        TextEntry::make('country.internal_name')
+                            ->label('Country')
+                            ->url(fn ($record): ?string => $record->country
+                                ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                                : null),
+                        TextEntry::make('project.internal_name')
+                            ->label('Project')
+                            ->url(fn ($record): ?string => $record->project
+                                ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                                : null),
+                        TextEntry::make('display_order')
+                            ->label('Display order'),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        TextEntry::make('id')
+                            ->label('UUID'),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -483,9 +515,9 @@ class ItemResource extends Resource
     {
         return [
             ChildItemsRelationManager::class,
+            TranslationsRelationManager::class,
             PicturesRelationManager::class,
             ImagesRelationManager::class,
-            TranslationsRelationManager::class,
             LinksRelationManager::class,
             TagsRelationManager::class,
             DisplayedInCollectionsRelationManager::class,
