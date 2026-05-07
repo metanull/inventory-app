@@ -9,7 +9,9 @@ use App\Filament\Resources\PartnerTranslationResource\Pages\EditPartnerTranslati
 use App\Filament\Resources\PartnerTranslationResource\Pages\ListPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\Pages\ViewPartnerTranslation;
 use App\Filament\Resources\PartnerTranslationResource\RelationManagers\ImagesRelationManager;
+use App\Filament\Resources\PartnerTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
+use App\Filament\Support\TranslationInfolistSchema;
 use App\Models\Partner;
 use App\Models\PartnerTranslation;
 use Filament\Forms\Components\Repeater;
@@ -226,6 +228,7 @@ class PartnerTranslationResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('partner.internal_name')
                     ->label('Partner')
@@ -245,18 +248,18 @@ class PartnerTranslationResource extends Resource
 
                 InfolistSection::make('Basic Information')
                     ->schema([
-                        TextEntry::make('name'),
-                        TextEntry::make('city_display')->label('City (display)'),
-                        TextEntry::make('description')->columnSpanFull(),
+                        TranslationInfolistSchema::rtlTextEntry('name'),
+                        TranslationInfolistSchema::rtlTextEntry('city_display', 'City (display)'),
+                        TranslationInfolistSchema::markdownEntry('description', columnSpanFull: true),
                     ])
                     ->columns(2),
 
                 InfolistSection::make('Address')
                     ->schema([
-                        TextEntry::make('address_line_1')->label('Address line 1'),
-                        TextEntry::make('address_line_2')->label('Address line 2'),
-                        TextEntry::make('postal_code')->label('Postal code'),
-                        TextEntry::make('address_notes')->label('Address notes')->columnSpanFull(),
+                        TranslationInfolistSchema::rtlTextEntry('address_line_1', 'Address line 1'),
+                        TranslationInfolistSchema::rtlTextEntry('address_line_2', 'Address line 2'),
+                        TranslationInfolistSchema::rtlTextEntry('postal_code', 'Postal code'),
+                        TranslationInfolistSchema::rtlTextEntry('address_notes', 'Address notes')->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -264,12 +267,12 @@ class PartnerTranslationResource extends Resource
 
                 InfolistSection::make('Contact Information')
                     ->schema([
-                        TextEntry::make('contact_name')->label('Contact name'),
+                        TranslationInfolistSchema::rtlTextEntry('contact_name', 'Contact name'),
                         TextEntry::make('contact_phone')->label('Phone'),
                         TextEntry::make('contact_email_general')->label('General email'),
                         TextEntry::make('contact_email_press')->label('Press email'),
                         TextEntry::make('contact_website')->label('Website'),
-                        TextEntry::make('contact_notes')->label('Contact notes')->columnSpanFull(),
+                        TranslationInfolistSchema::rtlTextEntry('contact_notes', 'Contact notes')->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsible()
@@ -397,6 +400,7 @@ class PartnerTranslationResource extends Resource
     {
         return [
             ImagesRelationManager::class,
+            SiblingTranslationsRelationManager::class,
         ];
     }
 

@@ -19,15 +19,18 @@ use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationM
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
+use App\Models\Country;
 use App\Models\Project;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section as FiltersSection;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -209,6 +212,43 @@ class CollectionResource extends Resource
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
                         : $query),
+                SelectFilter::make('country_id')
+                    ->label('Country')
+                    ->relationship('country', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+            ])
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                FiltersSection::make('Translation Coverage')
+                    ->schema([
+                        $filters['has_fallback_translation'],
+                        $filters['missing_fallback_translation'],
+                        $filters['translation_language_has'],
+                        $filters['translation_language_missing'],
+                        $filters['translation_context_has'],
+                        $filters['translation_context_missing'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+                FiltersSection::make('Collection Filters')
+                    ->schema([
+                        $filters['type'],
+                        $filters['parent_id'],
+                        $filters['partner'],
+                        $filters['project'],
+                        $filters['country_id'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ])
             ->actions([
                 ViewAction::make(),
@@ -313,42 +353,46 @@ class CollectionResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('internal_name'),
-                TextEntry::make('type'),
-                TextEntry::make('parent.internal_name')
-                    ->label('Parent')
-                    ->url(fn ($record): ?string => $record->parent
-                        ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
-                        : null),
-                TextEntry::make('context.internal_name')
-                    ->label('Context')
-                    ->url(fn ($record): ?string => $record->context
-                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
-                        : null),
-                TextEntry::make('language.internal_name')
-                    ->label('Language')
-                    ->url(fn ($record): ?string => $record->language
-                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
-                        : null),
-                TextEntry::make('country.internal_name')
-                    ->label('Country')
-                    ->url(fn ($record): ?string => $record->country
-                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
-                        : null),
-                TextEntry::make('latitude'),
-                TextEntry::make('longitude'),
-                TextEntry::make('map_zoom')
-                    ->label('Map zoom'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('type'),
+                        TextEntry::make('parent.internal_name')
+                            ->label('Parent')
+                            ->url(fn ($record): ?string => $record->parent
+                                ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
+                                : null),
+                        TextEntry::make('context.internal_name')
+                            ->label('Context')
+                            ->url(fn ($record): ?string => $record->context
+                                ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                                : null),
+                        TextEntry::make('language.internal_name')
+                            ->label('Language')
+                            ->url(fn ($record): ?string => $record->language
+                                ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                                : null),
+                        TextEntry::make('country.internal_name')
+                            ->label('Country')
+                            ->url(fn ($record): ?string => $record->country
+                                ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                                : null),
+                        TextEntry::make('latitude'),
+                        TextEntry::make('longitude'),
+                        TextEntry::make('map_zoom')
+                            ->label('Map zoom'),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        TextEntry::make('id')
+                            ->label('UUID'),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -356,10 +400,10 @@ class CollectionResource extends Resource
     {
         return [
             ChildCollectionsRelationManager::class,
+            TranslationsRelationManager::class,
             ItemsRelationManager::class,
             PartnersRelationManager::class,
             ImagesRelationManager::class,
-            TranslationsRelationManager::class,
             LegacyLinksRelationManager::class,
         ];
     }

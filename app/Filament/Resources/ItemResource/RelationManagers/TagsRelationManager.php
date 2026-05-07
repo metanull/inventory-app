@@ -21,16 +21,20 @@ class TagsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->defaultSort('internal_name', 'asc')
+            ->defaultSort('description', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->searchable()
+                TextColumn::make('description')
+                    ->label('Tag')
                     ->sortable()
                     ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
                         ? TagResource::getUrl('view', ['record' => $record])
                         : null),
+                TextColumn::make('internal_name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('category')
                     ->badge()
                     ->sortable(),
@@ -45,7 +49,7 @@ class TagsRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
-                    ->recordSelectSearchColumns(['internal_name']),
+                    ->recordSelectSearchColumns(['internal_name', 'description']),
             ])
             ->actions([
                 DetachAction::make(),

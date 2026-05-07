@@ -4,7 +4,6 @@ namespace App\Filament\Resources\CollectionTranslationResource\Pages;
 
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\CollectionTranslationResource;
-use App\Filament\Widgets\SiblingTranslationsWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -32,18 +31,14 @@ class ViewCollectionTranslation extends ViewRecord
         ];
     }
 
-    protected function getFooterWidgets(): array
+    public function hasCombinedRelationManagerTabsWithContent(): bool
     {
-        return [
-            SiblingTranslationsWidget::class,
-        ];
+        return true;
     }
 
-    public function getWidgetData(): array
+    public function getContentTabLabel(): ?string
     {
-        return [
-            'parentId' => $this->record->collection_id ?? throw new \RuntimeException('Translation record is missing a required collection_id.'),
-            'parentType' => 'collection',
-        ];
+        return 'Translation';
     }
 }
+

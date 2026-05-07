@@ -26,15 +26,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section as FiltersSection;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -176,6 +179,32 @@ class PartnerResource extends Resource
                     )
                     ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
                     ->searchable(),
+                TernaryFilter::make('visible')
+                    ->label('Visibility')
+                    ->trueLabel('Visible only')
+                    ->falseLabel('Hidden only'),
+            ])
+            ->filtersFormColumns(2)
+            ->filtersFormSchema(fn (array $filters): array => [
+                FiltersSection::make('Translation Coverage')
+                    ->schema([
+                        $filters['has_fallback_translation'],
+                        $filters['missing_fallback_translation'],
+                        $filters['translation_language_has'],
+                        $filters['translation_language_missing'],
+                        $filters['translation_context_has'],
+                        $filters['translation_context_missing'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+                FiltersSection::make('Partner Filters')
+                    ->schema([
+                        $filters['country_id'],
+                        $filters['project_id'],
+                        $filters['visible'],
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
             ])
             ->actions([
                 ViewAction::make(),
@@ -188,39 +217,43 @@ class PartnerResource extends Resource
     {
         return $infolist
             ->schema([
-                TextEntry::make('internal_name'),
-                TextEntry::make('type'),
-                TextEntry::make('country.internal_name')
-                    ->label('Country')
-                    ->url(fn ($record): ?string => $record->country
-                        ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
-                        : null),
-                TextEntry::make('project.internal_name')
-                    ->label('Project')
-                    ->url(fn ($record): ?string => $record->project
-                        ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
-                        : null),
-                TextEntry::make('monumentItem.internal_name')
-                    ->label('Monument item')
-                    ->url(fn ($record): ?string => $record->monumentItem
-                        ? (auth()->user()?->can('view', $record->monumentItem) ? ItemResource::getUrl('view', ['record' => $record->monumentItem]) : null)
-                        : null),
-                IconEntry::make('visible')
-                    ->boolean(),
-                TextEntry::make('latitude'),
-                TextEntry::make('longitude'),
-                TextEntry::make('map_zoom')
-                    ->label('Map zoom'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('type'),
+                        TextEntry::make('country.internal_name')
+                            ->label('Country')
+                            ->url(fn ($record): ?string => $record->country
+                                ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
+                                : null),
+                        TextEntry::make('project.internal_name')
+                            ->label('Project')
+                            ->url(fn ($record): ?string => $record->project
+                                ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
+                                : null),
+                        TextEntry::make('monumentItem.internal_name')
+                            ->label('Monument item')
+                            ->url(fn ($record): ?string => $record->monumentItem
+                                ? (auth()->user()?->can('view', $record->monumentItem) ? ItemResource::getUrl('view', ['record' => $record->monumentItem]) : null)
+                                : null),
+                        IconEntry::make('visible')
+                            ->boolean(),
+                        TextEntry::make('latitude'),
+                        TextEntry::make('longitude'),
+                        TextEntry::make('map_zoom')
+                            ->label('Map zoom'),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        TextEntry::make('id')
+                            ->label('UUID'),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -228,9 +261,9 @@ class PartnerResource extends Resource
     {
         return [
             OwnedItemsRelationManager::class,
+            TranslationsRelationManager::class,
             CollectionParticipationsRelationManager::class,
             ImagesRelationManager::class,
-            TranslationsRelationManager::class,
             LegacyLinksRelationManager::class,
         ];
     }

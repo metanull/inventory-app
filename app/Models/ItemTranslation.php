@@ -245,4 +245,12 @@ class ItemTranslation extends Model
     {
         return $query->where('context_id', $contextId);
     }
+
+    /**
+     * Get sibling translations (other translations of the same item).
+     */
+    public function siblingTranslations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(static::class, 'item_id', 'item_id');
+    }
 }

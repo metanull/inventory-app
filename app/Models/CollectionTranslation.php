@@ -197,4 +197,12 @@ class CollectionTranslation extends Model
     {
         return $query->where('context_id', $contextId);
     }
+
+    /**
+     * Get sibling translations (other translations of the same collection).
+     */
+    public function siblingTranslations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(static::class, 'collection_id', 'collection_id');
+    }
 }

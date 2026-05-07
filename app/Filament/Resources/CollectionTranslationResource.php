@@ -8,7 +8,9 @@ use App\Filament\Resources\CollectionTranslationResource\Pages\CreateCollectionT
 use App\Filament\Resources\CollectionTranslationResource\Pages\EditCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\ListCollectionTranslation;
 use App\Filament\Resources\CollectionTranslationResource\Pages\ViewCollectionTranslation;
+use App\Filament\Resources\CollectionTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
+use App\Filament\Support\TranslationInfolistSchema;
 use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use Filament\Forms\Components\Section;
@@ -147,6 +149,7 @@ class CollectionTranslationResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('collection.internal_name')
                     ->label('Collection')
@@ -166,10 +169,10 @@ class CollectionTranslationResource extends Resource
 
                 InfolistSection::make('Content')
                     ->schema([
-                        TextEntry::make('title'),
+                        TranslationInfolistSchema::rtlTextEntry('title'),
                         TextEntry::make('url'),
-                        TextEntry::make('description')->columnSpanFull(),
-                        TextEntry::make('quote')->columnSpanFull(),
+                        TranslationInfolistSchema::markdownEntry('description', columnSpanFull: true),
+                        TranslationInfolistSchema::markdownEntry('quote', columnSpanFull: true),
                     ])
                     ->columns(2),
 
@@ -289,6 +292,13 @@ class CollectionTranslationResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            SiblingTranslationsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
