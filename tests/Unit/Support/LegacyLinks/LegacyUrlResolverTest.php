@@ -102,6 +102,81 @@ class LegacyUrlResolverTest extends TestCase
         $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=thg/thg_galleries&edit=1;47&');
     }
 
+    public function test_mwnf3_object_keeps_project_link_and_adds_thematic_exhibition_participation_link(): void
+    {
+        $root = Collection::factory()->collection()->create([
+            'internal_name' => 'thg_exhibitions_root',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:exhibitions_root',
+        ]);
+        $exhibition = Collection::factory()->exhibition()->withParent($root->id)->create([
+            'internal_name' => 'exhibition_the_use_of_colours_in_art',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:thg_gallery:47',
+        ]);
+        $theme = Collection::factory()->theme()->withParent($exhibition->id)->create([
+            'backward_compatibility' => 'mwnf3_thematic_gallery:theme:47:1',
+        ]);
+        $item = Item::factory()->Object()->create(['backward_compatibility' => 'mwnf3:objects:EXHCOLOUR:uk:Mus52:1']);
+
+        $theme->attachedItems()->attach($item->id);
+
+        $links = $this->resolver->resolveFor($item)->links;
+
+        $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/database_item.php?id=object;EXHCOLOUR;uk;Mus52;1;en');
+        $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en/database-item/mwnf3/objects/EXHCOLOUR/uk/Mus52/1/en');
+        $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;EXHCOLOUR;uk;Mus52;1&');
+        $this->assertSame(1, $this->countBackofficeLinks($links));
+    }
+
+    public function test_mwnf3_object_adds_thematic_gallery_participation_link_with_gallery_host(): void
+    {
+        $root = Collection::factory()->collection()->create([
+            'internal_name' => 'thg_galleries_root',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:galleries_root',
+        ]);
+        $gallery = Collection::factory()->gallery()->withParent($root->id)->create([
+            'internal_name' => 'gallery_clothing_and_costume',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:thg_gallery:12',
+        ]);
+        $item = Item::factory()->Object()->create(['backward_compatibility' => 'mwnf3:objects:ISL:jo:Mus01:4']);
+
+        $gallery->attachedItems()->attach($item->id);
+
+        $links = $this->resolver->resolveFor($item)->links;
+
+        $this->assertPublicUrl($links, 'https://islamicart.museumwnf.org/database_item.php?id=object;ISL;jo;Mus01;4;en');
+        $this->assertPublicUrl($links, 'https://clothing.museumwnf.org/database-item/mwnf3/objects/ISL/jo/Mus01/4/en');
+        $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;ISL;jo;Mus01;4&');
+        $this->assertSame(1, $this->countBackofficeLinks($links));
+    }
+
+    public function test_mwnf3_object_adds_one_thematic_link_per_thematic_collection_participation(): void
+    {
+        $galleriesRoot = Collection::factory()->collection()->create([
+            'internal_name' => 'thg_galleries_root',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:galleries_root',
+        ]);
+        $exhibitionsRoot = Collection::factory()->collection()->create([
+            'internal_name' => 'thg_exhibitions_root',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:exhibitions_root',
+        ]);
+        $gallery = Collection::factory()->gallery()->withParent($galleriesRoot->id)->create([
+            'backward_compatibility' => 'mwnf3_thematic_gallery:thg_gallery:12',
+        ]);
+        $exhibition = Collection::factory()->exhibition()->withParent($exhibitionsRoot->id)->create([
+            'internal_name' => 'exhibition_the_use_of_colours_in_art',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:thg_gallery:47',
+        ]);
+        $item = Item::factory()->Object()->create(['backward_compatibility' => 'mwnf3:objects:EXHCOLOUR:uk:Mus52:1']);
+
+        $item->attachedToCollections()->attach([$gallery->id, $exhibition->id]);
+
+        $links = $this->resolver->resolveFor($item)->links;
+
+        $this->assertPublicUrl($links, 'https://clothing.museumwnf.org/database-item/mwnf3/objects/EXHCOLOUR/uk/Mus52/1/en');
+        $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en/database-item/mwnf3/objects/EXHCOLOUR/uk/Mus52/1/en');
+        $this->assertSame(1, $this->countBackofficeLinks($links));
+    }
+
     public function test_resolves_mwnf3_partner_with_project_context(): void
     {
         $project = Project::factory()->create(['backward_compatibility' => 'ISL']);
@@ -154,5 +229,21 @@ class LegacyUrlResolverTest extends TestCase
 
         $this->assertNotEmpty($backofficeLinks);
         $this->assertSame($expectedUrl, $backofficeLinks[0]->url);
+    }
+
+    private function assertPublicUrl(array $links, string $expectedUrl): void
+    {
+        $this->assertContains($expectedUrl, array_map(
+            fn ($link): ?string => $link->type === LegacyLinkType::PUBLIC ? $link->url : null,
+            $links,
+        ));
+    }
+
+    private function countBackofficeLinks(array $links): int
+    {
+        return count(array_filter(
+            $links,
+            fn ($link): bool => $link->type === LegacyLinkType::BACKOFFICE,
+        ));
     }
 }
