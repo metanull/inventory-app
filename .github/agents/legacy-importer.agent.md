@@ -393,6 +393,12 @@ scp -i ~/.ssh/inventory_deploy -r Z:\mwnf\temp\ovh-images/* deploy@<VPS_HOST>:/o
 # 6. Post-import glossary resync (via SSH)
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan glossary:resync --remove-existing --force'
 ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan queue:work --queue=glossary --stop-when-empty'
+
+# 7. Post-import cleanup remove temp old images from VPS (optional, but recommended to
+# 7.1 Option A (safe)
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/current && php artisan images:cleanup-pictures'
+# 7.2 Option B (force delete all files older than 7 days — use with caution)
+ssh deploy@<VPS_HOST> -i ~/.ssh/inventory_deploy 'cd /opt/inventory/shared/storage/app/public/pictures && find . -type f -mtime +7 -print0 | xargs -0 /bin/rm'
 ```
 
 **OVH paths:**
