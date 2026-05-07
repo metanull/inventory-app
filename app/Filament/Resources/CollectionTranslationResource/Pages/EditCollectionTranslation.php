@@ -39,4 +39,3 @@ class EditCollectionTranslation extends EditRecord
         return 'Translation';
     }
 }
-

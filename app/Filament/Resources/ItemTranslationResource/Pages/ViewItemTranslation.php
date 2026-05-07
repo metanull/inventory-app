@@ -41,4 +41,3 @@ class ViewItemTranslation extends ViewRecord
         return 'Translation';
     }
 }
-

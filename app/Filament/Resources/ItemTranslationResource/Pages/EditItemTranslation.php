@@ -39,4 +39,3 @@ class EditItemTranslation extends EditRecord
         return 'Translation';
     }
 }
-

@@ -205,7 +205,7 @@ class PartnerTranslation extends Model
     /**
      * Get sibling translations (other translations of the same partner).
      */
-    public function siblingTranslations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function siblingTranslations(): HasMany
     {
         return $this->hasMany(static::class, 'partner_id', 'partner_id');
     }

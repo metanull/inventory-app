@@ -41,4 +41,3 @@ class ViewCollectionTranslation extends ViewRecord
         return 'Translation';
     }
 }
-

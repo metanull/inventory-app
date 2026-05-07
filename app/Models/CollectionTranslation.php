@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -201,7 +202,7 @@ class CollectionTranslation extends Model
     /**
      * Get sibling translations (other translations of the same collection).
      */
-    public function siblingTranslations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function siblingTranslations(): HasMany
     {
         return $this->hasMany(static::class, 'collection_id', 'collection_id');
     }

@@ -75,7 +75,7 @@ class TranslationInfolistSchema
         }
 
         if ($wrapInProse) {
-            return '<div class="prose max-w-none">' . $content . '</div>';
+            return '<div class="prose max-w-none">'.$content.'</div>';
         }
 
         return $content;

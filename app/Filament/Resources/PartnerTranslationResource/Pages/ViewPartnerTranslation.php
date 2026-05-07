@@ -41,4 +41,3 @@ class ViewPartnerTranslation extends ViewRecord
         return 'Translation';
     }
 }
-

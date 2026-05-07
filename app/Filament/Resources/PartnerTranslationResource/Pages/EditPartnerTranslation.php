@@ -39,4 +39,3 @@ class EditPartnerTranslation extends EditRecord
         return 'Translation';
     }
 }
-
