@@ -20,6 +20,8 @@ class TranslationInfolistSchema
                 if (! filled($state)) {
                     return '';
                 }
+                // MarkdownService strips all HTML input (html_input='strip') and disallows
+                // unsafe links, so its output is safe to render with ->html().
                 $html = app(MarkdownService::class)->markdownToHtml($state);
 
                 return ($record?->language_id === 'ara')
