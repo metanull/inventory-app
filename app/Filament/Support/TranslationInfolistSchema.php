@@ -24,9 +24,7 @@ class TranslationInfolistSchema
                 // unsafe links, so its output is safe to render with ->html().
                 $html = app(MarkdownService::class)->markdownToHtml($state);
 
-                return ($record?->language_id === 'ara')
-                    ? '<div dir="rtl" class="text-right prose max-w-none">' . $html . '</div>'
-                    : '<div class="prose max-w-none">' . $html . '</div>';
+                return self::wrapForDirection($html, $record?->language_id, wrapInProse: true);
             });
 
         if ($label !== null) {
@@ -53,9 +51,7 @@ class TranslationInfolistSchema
                     return '';
                 }
 
-                return ($record?->language_id === 'ara')
-                    ? '<span dir="rtl" class="block text-right">' . e($state) . '</span>'
-                    : e($state);
+                return self::wrapForDirection(e($state), $record?->language_id, wrapInProse: false);
             });
 
         if ($label !== null) {
@@ -63,5 +59,25 @@ class TranslationInfolistSchema
         }
 
         return $entry;
+    }
+
+    /**
+     * Wraps the given HTML content in an appropriate direction container
+     * when the language is Arabic ('ara').
+     */
+    private static function wrapForDirection(string $content, ?string $languageId, bool $wrapInProse): string
+    {
+        if ($languageId === 'ara') {
+            $class = $wrapInProse ? 'text-right prose max-w-none' : 'block text-right';
+            $tag = $wrapInProse ? 'div' : 'span';
+
+            return "<{$tag} dir=\"rtl\" class=\"{$class}\">{$content}</{$tag}>";
+        }
+
+        if ($wrapInProse) {
+            return '<div class="prose max-w-none">' . $content . '</div>';
+        }
+
+        return $content;
     }
 }
