@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItemTranslationResource\Pages;
 
+use App\Filament\Concerns\HasFullWidthRelationManagerContentTab;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ItemTranslationResource;
 use Filament\Actions\Action;
@@ -11,6 +12,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewItemTranslation extends ViewRecord
 {
+    use HasFullWidthRelationManagerContentTab;
+
     protected static string $resource = ItemTranslationResource::class;
 
     protected function getHeaderActions(): array
