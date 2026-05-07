@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PartnerTranslationResource\Pages;
 
+use App\Filament\Concerns\HasFullWidthRelationManagerContentTab;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\PartnerTranslationResource;
 use Filament\Actions\Action;
@@ -11,6 +12,8 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewPartnerTranslation extends ViewRecord
 {
+    use HasFullWidthRelationManagerContentTab;
+
     protected static string $resource = PartnerTranslationResource::class;
 
     protected function getHeaderActions(): array
