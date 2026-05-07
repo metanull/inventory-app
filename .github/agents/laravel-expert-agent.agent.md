@@ -93,6 +93,15 @@ You are a world-class Laravel expert with deep knowledge of modern Laravel devel
 - Apply database transactions for atomic operations
 - Use soft deletes when data retention is needed: `use SoftDeletes;`
 
+### Dev Environment — Required for Lint and Tests
+
+> **CRITICAL — Windows dev machine: always run PHP commands inside the VS Code Dev Container.**
+> The host PHP is 8.2 and lacks `intl`, `zip`, `gd`, `exif` required by this codebase. Open the workspace via "Reopen in Container" (Dev Containers extension). VS Code builds `inventory-app-dev` from `.devcontainer/Dockerfile` — named volumes for `vendor/` are managed automatically.
+>
+> - ❌ **NEVER** run `php artisan test` or `vendor/bin/pint` from a Windows host terminal.
+> - ✅ Run all PHP commands from the Dev Container terminal (or the VS Code tasks, which assume an in-container shell).
+> - Rebuild the image when `Dockerfile` or `composer.lock` change: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (run from the host, then reopen in container).
+
 ### Testing
 
 - Write feature tests for HTTP endpoints in `tests/Feature/`
@@ -101,7 +110,7 @@ You are a world-class Laravel expert with deep knowledge of modern Laravel devel
 - Apply database migrations and refreshing: `use RefreshDatabase;`
 - Test validation rules, authorization policies, and edge cases
 - Before concluding backend work, validate against the CI backend matrix suites: `Unit`, `Api`, `Web`, `Configuration`, `Console`, `Event`, `Integration`
-- Prefer `php artisan test --testsuite=<Suite> --coverage --parallel --no-ansi --stop-on-failure` over a generic `php artisan test`
+- Prefer `php artisan test --testsuite=<Suite> --no-coverage --parallel --no-ansi --stop-on-failure` over a generic `php artisan test` for local no-coverage runs (Xdebug is enabled in the container for debugging; use `XDEBUG_MODE=off` or `--no-coverage` to avoid slowdowns).
 - **CRITICAL**: NEVER pipe `php artisan test` or any `composer ci-*` command through `Select-Object`, `head`, `tail`, or any output filter. Run these commands unpiped so the full output is visible. Piping hides failure details and forces the entire run to be repeated.
   - ✅ `php artisan test --testsuite=Web --no-ansi --stop-on-failure`
   - ❌ `php artisan test --testsuite=Web --no-ansi --stop-on-failure 2>&1 | Select-Object -Last 10`

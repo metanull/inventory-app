@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -42,6 +43,7 @@ class CollectionResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
+    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -340,6 +342,7 @@ class CollectionResource extends Resource
                     ->label('Map zoom'),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
+                static::legacyLinksSection(),
                 TextEntry::make('id')
                     ->label('UUID'),
                 TextEntry::make('created_at')

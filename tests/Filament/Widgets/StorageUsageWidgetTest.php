@@ -103,6 +103,22 @@ class StorageUsageWidgetTest extends TestCase
         $this->assertSame(28_000, $widget->getManagedStorageBytes());
     }
 
+    public function test_managed_storage_bytes_is_driven_by_registry(): void
+    {
+        $user = $this->createViewUser();
+        $this->actingAs($user);
+
+        // Create one record from each registry model to confirm all are summed via the registry
+        ItemImage::factory()->create(['size' => 100]);
+        PartnerLogo::factory()->create(['size' => 200]);
+
+        $widget = new StorageUsageWidget;
+
+        // The widget must reflect both models' sizes, confirming the registry drives the total
+        $total = $widget->getManagedStorageBytes();
+        $this->assertGreaterThanOrEqual(300, $total);
+    }
+
     public function test_available_pool_bytes_sums_available_images(): void
     {
         $user = $this->createViewUser();

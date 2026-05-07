@@ -33,7 +33,7 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 
 ### Mandatory Checks
 
-Runs mandatory dependency audits on every pull request. Provides the `CI Success` status check required by branch protection rules.
+Runs mandatory dependency audits and — when backend paths change — Laravel linting and the full PHP test matrix on every pull request. Provides the `CI Success` status check required by branch protection rules.
 
 **Workflow properties**
 
@@ -41,7 +41,7 @@ Runs mandatory dependency audits on every pull request. Provides the `CI Success
 | --- | --- |
 | **Workflow** | `continuous-integration.yml` |
 | **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) |
+| **Manual trigger** | Yes (`workflow_dispatch`) — backend validation always runs |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
 | **Concurrency** | Group: `ci-mandatory-${{ github.ref }}`, cancel-in-progress: `true` |
 
@@ -68,9 +68,27 @@ Runs mandatory dependency audits on every pull request. Provides the `CI Success
    - Installs SPA npm dependencies (authenticated with `GITHUB_TOKEN` for GitHub Packages)
    - Runs `npm audit --audit-level moderate`
 
-5. **ci-success** - Aggregates audit results
-   - Requires all 4 audit jobs to succeed
-   - Fails the workflow if any audit job failed or was skipped
+5. **detect-changes** - Classifies changed files
+   - Emits output `backend` (true/false)
+   - Backend is `true` when `app/`, `routes/`, `config/`, `database/`, `tests/`, `bootstrap/`, `composer.json`, `composer.lock`, `phpunit.xml`, or `artisan` change
+   - All outputs are `true` when triggered by `workflow_dispatch`
+
+6. **backend-lint** *(when `backend=true`)* - Laravel backend linting
+   - Installs PHP 8.4 with extensions and Pint
+   - Installs Composer dependencies
+   - Creates `.env` from `.env.local.example`, migrates database
+   - Runs `./vendor/bin/pint --bail`
+
+7. **backend-tests** *(when `backend=true`)* - Laravel test matrix
+   - Matrix: `Unit`, `Api`, `Web`, `Filament`, `Configuration`, `Console`, `Event`, `Integration`
+   - `fail-fast: true` — stops remaining suites on first failure
+   - Runs each suite with `--coverage --parallel --stop-on-failure`
+
+8. **ci-success** - Aggregates all mandatory check results
+   - Always requires all 4 audit jobs to succeed
+   - When `backend=true`: also requires backend lint and backend tests to succeed
+   - When `backend=false`: backend lint and tests may be skipped
+   - Fails the workflow if any required job failed
    - This job name satisfies the `CI Success` branch protection required check
 
 **Permissions**
@@ -80,11 +98,11 @@ Runs mandatory dependency audits on every pull request. Provides the `CI Success
 
 **Branch protection**
 
-The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. All 4 audits must pass before a PR can be merged.
+The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. All 4 audits must pass before a PR can be merged. When backend paths change, PHP linting and the full PHP test matrix (including `Filament`) must also pass.
 
 **Usage**
 
-This workflow runs automatically on pull requests. For manual triggering:
+This workflow runs automatically on pull requests. For manual triggering (backend validation always runs):
 
 ```
 Actions > Mandatory Checks > Run workflow
@@ -94,7 +112,7 @@ Actions > Mandatory Checks > Run workflow
 
 ### Build and Test
 
-Runs build and test jobs conditionally based on which paths changed in the pull request. Jobs are skipped when no relevant files were modified. This workflow does not provide a required status check.
+Runs build and test jobs conditionally based on which paths changed in the pull request. Jobs are skipped when no relevant files were modified. This workflow does not provide a required status check; backend linting and the full PHP test matrix are enforced as required checks by the `Mandatory Checks` workflow instead.
 
 **Workflow properties**
 

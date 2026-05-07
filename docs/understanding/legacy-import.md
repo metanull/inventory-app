@@ -90,4 +90,5 @@ Examples:
 ## Related reference
 
 - [Validation Guide](validation-guide) gives practical checks for customer review.
+- [Legacy URL Mapping](legacy-url-mapping) explains how `backward_compatibility` values map back to legacy public and back-office URLs.
 - [Importer Orientation](../collaborators/importer) gives developer-level file locations.
