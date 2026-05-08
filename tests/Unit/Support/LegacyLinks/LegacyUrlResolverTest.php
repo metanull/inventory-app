@@ -38,6 +38,18 @@ class LegacyUrlResolverTest extends TestCase
         $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;ISL;eg;Mus01;1&');
     }
 
+    public function test_resolves_mwnf3_object_with_mixed_case_project_code(): void
+    {
+        $item = Item::factory()->Object()->create(['backward_compatibility' => 'mwnf3:objects:GalEx5:uk:Mus92:2']);
+
+        $link = $this->resolver->resolveFor($item)->links[0];
+        $links = $this->resolver->resolveFor($item)->links;
+
+        $this->assertSame('https://islamicart.museumwnf.org/database_item.php?id=object;GalEx5;uk;Mus92;2;en', $link->url);
+        $this->assertSame(LegacyLinkConfidence::EXACT, $link->confidence);
+        $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;GalEx5;uk;Mus92;2&');
+    }
+
     public function test_resolves_mwnf3_monument_fixture(): void
     {
         $item = Item::factory()->Monument()->create(['backward_compatibility' => 'mwnf3:monuments:BAR:pt:Mon11:23']);
@@ -124,6 +136,27 @@ class LegacyUrlResolverTest extends TestCase
         $this->assertPublicUrl($links, 'https://islamicart.museumwnf.org/database_item.php?id=object;EXHCOLOUR;uk;Mus52;1;en');
         $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en/database-item/mwnf3/objects/EXHCOLOUR/uk/Mus52/1/en');
         $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;EXHCOLOUR;uk;Mus52;1&');
+        $this->assertSame(1, $this->countBackofficeLinks($links));
+    }
+
+    public function test_mwnf3_object_thematic_exhibition_link_uses_configured_gallery_path(): void
+    {
+        $root = Collection::factory()->collection()->create([
+            'internal_name' => 'thg_exhibitions_root',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:exhibitions_root',
+        ]);
+        $exhibition = Collection::factory()->exhibition()->withParent($root->id)->create([
+            'internal_name' => 'exhibition_lost_memories_along_the_hijaz_railway_from_istanbul_to_mecca',
+            'backward_compatibility' => 'mwnf3_thematic_gallery:thg_gallery:55',
+        ]);
+        $item = Item::factory()->Object()->create(['backward_compatibility' => 'mwnf3:objects:GalEx5:uk:Mus92:2']);
+
+        $exhibition->attachedItems()->attach($item->id);
+
+        $links = $this->resolver->resolveFor($item)->links;
+
+        $this->assertPublicUrl($links, 'https://islamicart.museumwnf.org/database_item.php?id=object;GalEx5;uk;Mus92;2;en');
+        $this->assertPublicUrl($links, 'https://upgrade-exhibitions.museumwnf.org/the_hijaz_railway/en/database-item/mwnf3/objects/GalEx5/uk/Mus92/2/en');
         $this->assertSame(1, $this->countBackofficeLinks($links));
     }
 
