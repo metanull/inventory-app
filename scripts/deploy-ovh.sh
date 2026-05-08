@@ -76,8 +76,10 @@ deploy_release() {
     rm -rf "${RELEASE_DIR}/storage"
     ln -sfn "${APP_DIR}/shared/storage" "${RELEASE_DIR}/storage"
 
-    # Ensure bootstrap/cache exists
+    # Ensure bootstrap/cache exists and is writable by www-data (PHP-FPM)
     mkdir -p "${RELEASE_DIR}/bootstrap/cache"
+    chgrp www-data "${RELEASE_DIR}/bootstrap/cache" 2>/dev/null || true
+    chmod g+w "${RELEASE_DIR}/bootstrap/cache"
 
     # If provisioning created CURRENT as a real directory, replace it.
     if [[ -d "${CURRENT}" && ! -L "${CURRENT}" ]]; then
@@ -157,9 +159,11 @@ run_migrations() {
 warm_caches() {
     cd "$CURRENT"
     info "Warming Laravel caches..."
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
+    # optimize generates config, events, routes, views, package manifest, and
+    # any framework-registered caches (e.g. Filament, blade-icons) in one pass.
+    # Pre-generating all cache files means PHP-FPM (www-data) only needs read
+    # access to bootstrap/cache at runtime — no runtime writes required.
+    php artisan optimize
 }
 
 # --- 5. Restart queue worker -------------------------------------------------
