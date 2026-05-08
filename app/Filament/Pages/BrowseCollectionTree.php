@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\Item;
 use Filament\Pages\Page;
+use Illuminate\Database\Eloquent\Builder;
 
 class BrowseCollectionTree extends Page
 {
@@ -42,6 +43,18 @@ class BrowseCollectionTree extends Page
     public string $search = '';
 
     /**
+     * Filter root collections by presence of direct child collections.
+     * Accepted values: 'all', 'with', 'without'.
+     */
+    public string $filterChildCollections = 'all';
+
+    /**
+     * Filter root collections by presence of directly attached items.
+     * Accepted values: 'all', 'with', 'without'.
+     */
+    public string $filterChildItems = 'all';
+
+    /**
      * Current pagination page for root collections (1-based).
      */
     public int $page = 1;
@@ -60,6 +73,22 @@ class BrowseCollectionTree extends Page
      * Reset pagination when the search query changes.
      */
     public function updatedSearch(): void
+    {
+        $this->page = 1;
+    }
+
+    /**
+     * Reset pagination when the child-collections filter changes.
+     */
+    public function updatedFilterChildCollections(): void
+    {
+        $this->page = 1;
+    }
+
+    /**
+     * Reset pagination when the child-items filter changes.
+     */
+    public function updatedFilterChildItems(): void
     {
         $this->page = 1;
     }
@@ -121,36 +150,11 @@ class BrowseCollectionTree extends Page
     }
 
     /**
-     * Fetch a paginated, optionally-searched page of root-level collections (no parent).
+     * Build the shared base query for root collections, applying search and filters.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Collection>
+     * @return Builder<Collection>
      */
-    public function getRoots(): \Illuminate\Database\Eloquent\Collection
-    {
-        $query = Collection::query()
-            ->whereNull('parent_id')
-            ->withCount('children')
-            ->withCount('attachedItems')
-            ->orderBy('internal_name');
-
-        if ($this->search !== '') {
-            $term = $this->search;
-            $query->where(function ($q) use ($term): void {
-                $q->where('internal_name', 'like', '%'.$term.'%')
-                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
-            });
-        }
-
-        return $query
-            ->offset(($this->page - 1) * self::PAGE_SIZE)
-            ->limit(self::PAGE_SIZE)
-            ->get();
-    }
-
-    /**
-     * Total count of root-level collections matching the current search (without loading models).
-     */
-    public function getRootCount(): int
+    private function buildRootQuery(): Builder
     {
         $query = Collection::query()->whereNull('parent_id');
 
@@ -162,7 +166,43 @@ class BrowseCollectionTree extends Page
             });
         }
 
-        return $query->count();
+        if ($this->filterChildCollections === 'with') {
+            $query->whereHas('children');
+        } elseif ($this->filterChildCollections === 'without') {
+            $query->whereDoesntHave('children');
+        }
+
+        if ($this->filterChildItems === 'with') {
+            $query->whereHas('attachedItems');
+        } elseif ($this->filterChildItems === 'without') {
+            $query->whereDoesntHave('attachedItems');
+        }
+
+        return $query;
+    }
+
+    /**
+     * Fetch a paginated, optionally-searched and filtered page of root-level collections (no parent).
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Collection>
+     */
+    public function getRoots(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->buildRootQuery()
+            ->withCount('children')
+            ->withCount('attachedItems')
+            ->orderBy('internal_name')
+            ->offset(($this->page - 1) * self::PAGE_SIZE)
+            ->limit(self::PAGE_SIZE)
+            ->get();
+    }
+
+    /**
+     * Total count of root-level collections matching the current search and filters.
+     */
+    public function getRootCount(): int
+    {
+        return $this->buildRootQuery()->count();
     }
 
     /**

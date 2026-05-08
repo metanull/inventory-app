@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AvailableImageResource\Pages;
 
+use App\Filament\Concerns\RedirectsToViewAfterSave;
 use App\Filament\Resources\AvailableImageResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class EditAvailableImage extends EditRecord
 {
+    use RedirectsToViewAfterSave;
+
     protected static string $resource = AvailableImageResource::class;
 
     protected function getHeaderActions(): array

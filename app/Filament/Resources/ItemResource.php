@@ -43,6 +43,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -280,6 +281,7 @@ class ItemResource extends Resource
                     ),
             ])
             ->filtersFormColumns(2)
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->filtersFormSchema(fn (array $filters): array => [
                 FiltersSection::make('Translation Coverage')
                     ->schema([
@@ -290,8 +292,7 @@ class ItemResource extends Resource
                         $filters['translation_context_has'],
                         $filters['translation_context_missing'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
                 FiltersSection::make('Item Filters')
                     ->schema([
                         $filters['type'],
@@ -302,8 +303,7 @@ class ItemResource extends Resource
                         $filters['tags'],
                         $filters['top_level_only'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
             ])
             ->actions([
                 ViewAction::make(),

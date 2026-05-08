@@ -17,6 +17,40 @@
             </div>
         </div>
 
+        {{-- Filters --}}
+        <div class="flex flex-wrap gap-3">
+            <div class="flex items-center gap-2">
+                <label class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Child collections:</label>
+                <select
+                    wire:model.live="filterChildCollections"
+                    class="fi-input rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                >
+                    <option value="all">All</option>
+                    <option value="with">With child collections</option>
+                    <option value="without">Without child collections</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Child items:</label>
+                <select
+                    wire:model.live="filterChildItems"
+                    class="fi-input rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm shadow-sm dark:border-white/10 dark:bg-gray-800 dark:text-white"
+                >
+                    <option value="all">All</option>
+                    <option value="with">With child items</option>
+                    <option value="without">Without child items</option>
+                </select>
+            </div>
+            @if ($filterChildCollections !== 'all' || $filterChildItems !== 'all')
+                <button
+                    wire:click="$set('filterChildCollections', 'all'); $set('filterChildItems', 'all')"
+                    class="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-600 shadow-sm hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-white/5"
+                >
+                    Reset filters
+                </button>
+            @endif
+        </div>
+
         {{-- Count / subset messaging --}}
         @if ($search !== '')
             <div class="px-1 text-sm text-gray-500 dark:text-gray-400">
