@@ -14,10 +14,14 @@ use App\Listeners\DispatchSyncSpellingToTimelineEventTranslations;
 use App\Listeners\DispatchSyncTimelineEventTranslationSpellings;
 use App\Models\ItemItemLink;
 use App\Models\ItemItemLinkTranslation;
+use App\Models\Timeline;
+use App\Models\TimelineEvent;
 use App\Models\User;
 use App\Policies\ItemItemLinkPolicy;
 use App\Policies\ItemItemLinkTranslationPolicy;
 use App\Policies\RolePolicy;
+use App\Policies\TimelineEventPolicy;
+use App\Policies\TimelinePolicy;
 use App\Policies\UserPolicy;
 use App\Services\Settings;
 use App\Support\Documentation\RuleTransformers\IncludeRuleTransformer;
@@ -149,6 +153,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(ItemItemLink::class, ItemItemLinkPolicy::class);
         Gate::policy(ItemItemLinkTranslation::class, ItemItemLinkTranslationPolicy::class);
+        Gate::policy(Timeline::class, TimelinePolicy::class);
+        Gate::policy(TimelineEvent::class, TimelineEventPolicy::class);
 
         // Register Scramble rule transformers for automatic API documentation
         Scramble::configure()

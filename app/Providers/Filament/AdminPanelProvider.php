@@ -15,6 +15,7 @@ use App\Http\Controllers\Filament\CollectionImageController as FilamentCollectio
 use App\Http\Controllers\Filament\ItemImageController as FilamentItemImageController;
 use App\Http\Controllers\Filament\PartnerImageController as FilamentPartnerImageController;
 use App\Http\Controllers\Filament\PartnerTranslationImageController as FilamentPartnerTranslationImageController;
+use App\Http\Controllers\Filament\TimelineEventImageController as FilamentTimelineEventImageController;
 use App\Http\Middleware\Filament\EnsureTwoFactorEnrolled;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
@@ -135,6 +136,11 @@ class AdminPanelProvider extends PanelProvider
                     ->name('partner-translation-image.view');
                 Route::get('/partner-translations/{partnerTranslation}/images/{partnerTranslationImage}/download', [FilamentPartnerTranslationImageController::class, 'download'])
                     ->name('partner-translation-image.download');
+
+                Route::get('/timeline-events/{timelineEvent}/images/{timelineEventImage}/view', [FilamentTimelineEventImageController::class, 'view'])
+                    ->name('timeline-event-image.view');
+                Route::get('/timeline-events/{timelineEvent}/images/{timelineEventImage}/download', [FilamentTimelineEventImageController::class, 'download'])
+                    ->name('timeline-event-image.download');
             });
 
         if (! $this->shouldUseViteTheme()) {
