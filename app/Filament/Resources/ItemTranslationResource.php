@@ -11,7 +11,6 @@ use App\Filament\Resources\ItemTranslationResource\Pages\ViewItemTranslation;
 use App\Filament\Resources\ItemTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
 use App\Filament\Support\TranslationInfolistSchema;
-use App\Models\Item;
 use App\Models\ItemTranslation;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -65,36 +64,7 @@ class ItemTranslationResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('item_id')
-                    ->label('Item')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Item $item): array => [
-                            $item->id => $item->backward_compatibility
-                                ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                                : $item->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $item = Item::find($value);
-                        if (! $item) {
-                            return (string) $value;
-                        }
-
-                        return $item->backward_compatibility
-                            ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                            : $item->internal_name;
-                    }),
+                TranslationFormSchema::itemSelectField(includeIdInSearch: true),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')

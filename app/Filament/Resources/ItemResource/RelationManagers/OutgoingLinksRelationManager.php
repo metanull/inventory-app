@@ -6,9 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\ItemItemLinkResource;
 use App\Filament\Resources\ItemResource;
-use App\Models\Context;
-use App\Models\Item;
-use Filament\Forms\Components\Select;
+use App\Filament\Support\TranslationFormSchema;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
@@ -31,47 +29,8 @@ class OutgoingLinksRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Select::make('target_id')
-                    ->label('Target item')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Item $item): array => [
-                            $item->id => $item->backward_compatibility
-                                ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                                : $item->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $item = Item::find($value);
-                        if (! $item) {
-                            return (string) $value;
-                        }
-
-                        return $item->backward_compatibility
-                            ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                            : $item->internal_name;
-                    }),
-                Select::make('context_id')
-                    ->label('Context')
-                    ->nullable()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Context::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? (string) $value),
+                TranslationFormSchema::itemSelectField(name: 'target_id', label: 'Target item'),
+                TranslationFormSchema::contextSelectField(required: false),
             ]);
     }
 

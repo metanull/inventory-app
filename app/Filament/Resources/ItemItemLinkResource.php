@@ -11,10 +11,8 @@ use App\Filament\Resources\ItemItemLinkResource\Pages\EditItemItemLink;
 use App\Filament\Resources\ItemItemLinkResource\Pages\ListItemItemLink;
 use App\Filament\Resources\ItemItemLinkResource\Pages\ViewItemItemLink;
 use App\Filament\Resources\ItemItemLinkResource\RelationManagers\TranslationsRelationManager;
-use App\Models\Context;
-use App\Models\Item;
+use App\Filament\Support\TranslationFormSchema;
 use App\Models\ItemItemLink;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
@@ -57,76 +55,9 @@ class ItemItemLinkResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('source_id')
-                    ->label('Source item')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Item $item): array => [
-                            $item->id => $item->backward_compatibility
-                                ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                                : $item->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $item = Item::find($value);
-                        if (! $item) {
-                            return (string) $value;
-                        }
-
-                        return $item->backward_compatibility
-                            ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                            : $item->internal_name;
-                    }),
-                Select::make('target_id')
-                    ->label('Target item')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Item $item): array => [
-                            $item->id => $item->backward_compatibility
-                                ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                                : $item->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $item = Item::find($value);
-                        if (! $item) {
-                            return (string) $value;
-                        }
-
-                        return $item->backward_compatibility
-                            ? "{$item->internal_name} [{$item->backward_compatibility}]"
-                            : $item->internal_name;
-                    }),
-                Select::make('context_id')
-                    ->label('Context')
-                    ->nullable()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Context::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? (string) $value),
+                TranslationFormSchema::itemSelectField(name: 'source_id', label: 'Source item'),
+                TranslationFormSchema::itemSelectField(name: 'target_id', label: 'Target item'),
+                TranslationFormSchema::contextSelectField(required: false),
             ]);
     }
 
