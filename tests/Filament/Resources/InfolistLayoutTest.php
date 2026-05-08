@@ -147,7 +147,7 @@ class InfolistLayoutTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/item-translations/{$translation->getKey()}")
             ->assertOk()
-            ->assertDontSee('Legacy &amp; Metadata', false);
+            ->assertDontSee('Legacy & Metadata');
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────────
