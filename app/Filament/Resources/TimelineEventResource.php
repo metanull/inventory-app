@@ -14,9 +14,11 @@ use App\Filament\Resources\TimelineEventResource\Pages\ViewTimelineEvent;
 use App\Filament\Resources\TimelineEventResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\TimelineEventResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\TimelineEventResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Support\ExtraJsonField;
 use App\Models\Timeline;
 use App\Models\TimelineEvent;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -117,6 +119,12 @@ class TimelineEventResource extends Resource
                     ->label('Legacy code')
                     ->maxLength(255)
                     ->nullable(),
+                Section::make('Metadata')
+                    ->schema([
+                        ExtraJsonField::formComponent(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ])
             ->columns(2);
     }
@@ -183,6 +191,12 @@ class TimelineEventResource extends Resource
                         ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('Metadata')
+                    ->schema([
+                        ExtraJsonField::infolistEntry(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

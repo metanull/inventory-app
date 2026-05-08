@@ -265,6 +265,7 @@ class ItemTranslationResource extends Resource
                 InfolistSection::make('Legacy & Metadata')
                     ->schema([
                         TextEntry::make('backward_compatibility')->label('Legacy ID'),
+                        TranslationInfolistSchema::extraEntry(),
                         TextEntry::make('id')->label('UUID'),
                         ...static::timestampsInfolistEntries(),
                     ])

@@ -12,9 +12,11 @@ use App\Filament\Resources\TimelineResource\Pages\EditTimeline;
 use App\Filament\Resources\TimelineResource\Pages\ListTimeline;
 use App\Filament\Resources\TimelineResource\Pages\ViewTimeline;
 use App\Filament\Resources\TimelineResource\RelationManagers\EventsRelationManager;
+use App\Filament\Support\ExtraJsonField;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Timeline;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -98,6 +100,12 @@ class TimelineResource extends Resource
                     ->label('Legacy code')
                     ->maxLength(255)
                     ->nullable(),
+                Section::make('Metadata')
+                    ->schema([
+                        ExtraJsonField::formComponent(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ])
             ->columns(2);
     }
@@ -145,6 +153,12 @@ class TimelineResource extends Resource
                         ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('Metadata')
+                    ->schema([
+                        ExtraJsonField::infolistEntry(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
