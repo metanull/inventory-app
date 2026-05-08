@@ -121,7 +121,7 @@ class LegacyUrlResolverTest extends TestCase
 
         $links = $this->resolver->resolveFor($item)->links;
 
-        $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/database_item.php?id=object;EXHCOLOUR;uk;Mus52;1;en');
+        $this->assertPublicUrl($links, 'https://islamicart.museumwnf.org/database_item.php?id=object;EXHCOLOUR;uk;Mus52;1;en');
         $this->assertPublicUrl($links, 'https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en/database-item/mwnf3/objects/EXHCOLOUR/uk/Mus52/1/en');
         $this->assertBackofficeUrl($links, 'https://virtual-office.museumwnf.org/?section=database/dba_objects&edit=1;EXHCOLOUR;uk;Mus52;1&');
         $this->assertSame(1, $this->countBackofficeLinks($links));
