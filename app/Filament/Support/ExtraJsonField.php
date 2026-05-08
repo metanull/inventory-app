@@ -38,18 +38,11 @@ class ExtraJsonField
                     return;
                 }
 
-                if ($state instanceof \stdClass) {
-                    $state = json_decode(json_encode($state), true);
-                } elseif (is_string($state)) {
-                    $decoded = json_decode($state, true);
-                    if (is_array($decoded)) {
-                        $state = $decoded;
-                    }
-                }
+                $decoded = static::toArray($state);
 
-                if (is_array($state)) {
+                if (is_array($decoded)) {
                     $component->state(
-                        json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                        json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
                     );
                 } elseif (is_string($state) && $state !== '') {
                     $component->state($state);
@@ -104,17 +97,8 @@ class ExtraJsonField
                     return '';
                 }
 
-                if ($state instanceof \stdClass) {
-                    $state = json_decode(json_encode($state), true);
-                } elseif (is_string($state)) {
-                    $decoded = json_decode($state, true);
-                    if ($decoded !== null) {
-                        $state = $decoded;
-                    }
-                }
-
                 $json = json_encode(
-                    $state,
+                    static::toArray($state),
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
                 );
 
@@ -123,5 +107,28 @@ class ExtraJsonField
                     .'</pre>';
             })
             ->columnSpanFull();
+    }
+
+    /**
+     * Converts a value that may contain stdClass objects (from an `object` cast) into
+     * a plain PHP array, handling arbitrarily nested structures.
+     *
+     * Returns the original value unchanged when it is already an array or a scalar.
+     */
+    private static function toArray(mixed $value): mixed
+    {
+        if (is_object($value)) {
+            // JSON round-trip is the idiomatic way to deep-convert a stdClass graph
+            // to an associative array (shallow `(array)` cast leaves nested objects intact).
+            return json_decode(json_encode($value), true);
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            return json_last_error() === JSON_ERROR_NONE ? $decoded : $value;
+        }
+
+        return $value;
     }
 }

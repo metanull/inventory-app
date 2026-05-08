@@ -51,7 +51,7 @@ class ExtraJsonFieldTest extends TestCase
 
         $timeline = Timeline::where('internal_name', 'Islamic Heritage Timeline')->first();
         $this->assertNotNull($timeline);
-        $extra = (array) $timeline->extra;
+        $extra = json_decode(json_encode($timeline->extra), true);
         $this->assertArrayHasKey('source', $extra);
         $this->assertSame('MWNF', $extra['source']);
         $this->assertTrue($extra['verified']);
@@ -74,9 +74,9 @@ class ExtraJsonFieldTest extends TestCase
 
         $timeline = Timeline::where('internal_name', 'Nested JSON Timeline')->first();
         $this->assertNotNull($timeline);
-        $extra = (array) $timeline->extra;
+        $extra = json_decode(json_encode($timeline->extra), true);
         $this->assertArrayHasKey('meta', $extra);
-        $meta = (array) $extra['meta'];
+        $meta = $extra['meta'];
         $this->assertSame('MENA', $meta['region']);
     }
 
@@ -176,7 +176,7 @@ class ExtraJsonFieldTest extends TestCase
 
         $event = TimelineEvent::where('internal_name', 'Medieval Event')->first();
         $this->assertNotNull($event);
-        $extra = (array) $event->extra;
+        $extra = json_decode(json_encode($event->extra), true);
         $this->assertArrayHasKey('period', $extra);
         $this->assertSame('medieval', $extra['period']);
     }
