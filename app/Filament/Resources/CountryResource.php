@@ -99,18 +99,14 @@ class CountryResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('id')
                     ->label('ISO code'),
                 TextEntry::make('internal_name'),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                ...static::timestampsInfolistEntries(),
             ]);
     }
 

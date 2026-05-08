@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
+use App\Filament\Concerns\HasChangeParentAction;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
@@ -31,7 +32,6 @@ use App\Models\Project;
 use App\Models\Tag;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section as InfolistSection;
@@ -39,7 +39,6 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -51,16 +50,38 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 
 class ItemResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
+    use HasChangeParentAction;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
 
     protected static ?string $model = Item::class;
+
+    protected static function changeParentModelClass(): string
+    {
+        return Item::class;
+    }
+
+    protected static function changeParentSelectLabel(): string
+    {
+        return 'New parent item';
+    }
+
+    protected static function changeParentPluralLabel(): string
+    {
+        return 'Items';
+    }
+
+    protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
+    {
+        return $query->excludingDescendantsOf($record->id);
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
@@ -89,58 +110,54 @@ class ItemResource extends Resource
     {
         return $form
             ->schema([
-                Tabs::make('item-details')
-                    ->tabs([
-                        Tabs\Tab::make('Core information')
-                            ->schema([
-                                Select::make('type')
-                                    ->options(
-                                        collect(ItemType::cases())
-                                            ->mapWithKeys(fn (ItemType $type) => [$type->value => $type->label()])
-                                            ->all()
-                                    )
-                                    ->required(),
-                                TextInput::make('internal_name')
-                                    ->required()
-                                    ->maxLength(255),
-                                TextInput::make('backward_compatibility')
-                                    ->label('Legacy code')
-                                    ->maxLength(255),
-                                Select::make('parent_id')
-                                    ->label('Parent item')
-                                    ->relationship(
-                                        name: 'parent',
-                                        titleAttribute: 'internal_name',
-                                        modifyQueryUsing: fn (Builder $query, ?Item $record): Builder => $record
-                                            ? $query->excludingDescendantsOf($record->id)
-                                            : $query,
-                                    )
-                                    ->searchable()
-                                    ->nullable(),
-                                Select::make('partner_id')
-                                    ->label('Partner')
-                                    ->relationship('partner', 'internal_name')
-                                    ->searchable()
-                                    ->nullable(),
-                                Select::make('country_id')
-                                    ->label('Country')
-                                    ->relationship('country', 'internal_name')
-                                    ->searchable()
-                                    ->nullable(),
-                                Select::make('project_id')
-                                    ->label('Project')
-                                    ->relationship('project', 'internal_name')
-                                    ->searchable()
-                                    ->nullable(),
-                                TextInput::make('display_order')
-                                    ->label('Display order')
-                                    ->numeric()
-                                    ->integer()
-                                    ->nullable(),
-                            ])
-                            ->columns(2),
+                FiltersSection::make('Core information')
+                    ->schema([
+                        Select::make('type')
+                            ->options(
+                                collect(ItemType::cases())
+                                    ->mapWithKeys(fn (ItemType $type) => [$type->value => $type->label()])
+                                    ->all()
+                            )
+                            ->required(),
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                        Select::make('parent_id')
+                            ->label('Parent item')
+                            ->relationship(
+                                name: 'parent',
+                                titleAttribute: 'internal_name',
+                                modifyQueryUsing: fn (Builder $query, ?Item $record): Builder => $record
+                                    ? $query->excludingDescendantsOf($record->id)
+                                    : $query,
+                            )
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('partner_id')
+                            ->label('Partner')
+                            ->relationship('partner', 'internal_name')
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('country_id')
+                            ->label('Country')
+                            ->relationship('country', 'internal_name')
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('project_id')
+                            ->label('Project')
+                            ->relationship('project', 'internal_name')
+                            ->searchable()
+                            ->nullable(),
+                        TextInput::make('display_order')
+                            ->label('Display order')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
                     ])
-                    ->columnSpanFull(),
+                    ->columns(2),
             ]);
     }
 
@@ -312,98 +329,11 @@ class ItemResource extends Resource
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
-                Action::make('changeParent')
-                    ->label('Change parent')
-                    ->icon('heroicon-o-arrow-uturn-up')
-                    ->form([
-                        Select::make('parent_id')
-                            ->label('New parent item')
-                            ->nullable()
-                            ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                                ->where('internal_name', 'like', "%{$search}%")
-                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
-                                ->limit(50)
-                                ->pluck('internal_name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => Item::find($value)?->internal_name ?? $value)
-                            ->searchable(),
-                    ])
-                    ->action(function (Item $record, array $data): void {
-                        try {
-                            $record->parent_id = $data['parent_id'] ?? null;
-                            $record->save();
-
-                            Notification::make()
-                                ->success()
-                                ->title('Parent updated')
-                                ->send();
-                        } catch (\RuntimeException $e) {
-                            logger()->warning('ItemResource: changeParent failed', [
-                                'item_id' => $record->id,
-                                'new_parent_id' => $data['parent_id'] ?? null,
-                                'error' => $e->getMessage(),
-                            ]);
-
-                            Notification::make()
-                                ->danger()
-                                ->title('Cannot change parent')
-                                ->body('The selected parent would create a circular hierarchy. Please choose a different parent.')
-                                ->send();
-                        }
-                    }),
+                static::changeParentAction(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
-                BulkAction::make('moveToParent')
-                    ->label('Move to parent')
-                    ->icon('heroicon-o-arrow-uturn-up')
-                    ->form([
-                        Select::make('parent_id')
-                            ->label('New parent item')
-                            ->nullable()
-                            ->getSearchResultsUsing(fn (string $search): array => Item::query()
-                                ->where('internal_name', 'like', "%{$search}%")
-                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
-                                ->limit(50)
-                                ->pluck('internal_name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => Item::find($value)?->internal_name ?? $value)
-                            ->searchable(),
-                    ])
-                    ->action(function (EloquentCollection $records, array $data): void {
-                        $errors = [];
-                        foreach ($records as $record) {
-                            try {
-                                $record->parent_id = $data['parent_id'] ?? null;
-                                $record->save();
-                            } catch (\RuntimeException $e) {
-                                logger()->warning('ItemResource: moveToParent failed', [
-                                    'item_id' => $record->id,
-                                    'new_parent_id' => $data['parent_id'] ?? null,
-                                    'error' => $e->getMessage(),
-                                ]);
-                                $errors[] = $record->internal_name;
-                            }
-                        }
-
-                        if (empty($errors)) {
-                            Notification::make()
-                                ->success()
-                                ->title('Items moved')
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->danger()
-                                ->title('Some items could not be moved')
-                                ->body('The following items would create a circular hierarchy: '.implode(', ', $errors))
-                                ->send();
-                        }
-                    })
-                    ->deselectRecordsAfterCompletion(),
+                static::moveToParentAction(),
                 BulkAction::make('attachToCollection')
                     ->label('Attach to collection')
                     ->icon('heroicon-o-archive-box')
@@ -472,6 +402,7 @@ class ItemResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
@@ -502,14 +433,8 @@ class ItemResource extends Resource
                             ->label('Display order'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
-                        TextEntry::make('id')
-                            ->label('UUID'),
-                        TextEntry::make('created_at')
-                            ->label('Created')
-                            ->dateTime(),
-                        TextEntry::make('updated_at')
-                            ->label('Updated')
-                            ->dateTime(),
+                        static::uuidInfolistEntry(),
+                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
             ]);

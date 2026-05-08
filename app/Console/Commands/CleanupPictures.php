@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\FileSize;
 use App\Support\Images\AttachedImageRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -279,7 +280,7 @@ class CleanupPictures extends Command
 
         if (! $dryRun) {
             $this->line("  Deleted:           {$deleted}");
-            $this->line('  Reclaimed:         '.$this->formatBytes($reclaimedBytes));
+            $this->line('  Reclaimed:         '.FileSize::format($reclaimedBytes));
         }
 
         if (! empty($orphans)) {
@@ -305,22 +306,5 @@ class CleanupPictures extends Command
         } else {
             $this->info("Cleanup complete. Deleted: {$deleted}, Errors: ".count($errors).'.');
         }
-    }
-
-    private function formatBytes(int $bytes): string
-    {
-        if ($bytes >= 1_073_741_824) {
-            return number_format($bytes / 1_073_741_824, 2).' GB';
-        }
-
-        if ($bytes >= 1_048_576) {
-            return number_format($bytes / 1_048_576, 2).' MB';
-        }
-
-        if ($bytes >= 1_024) {
-            return number_format($bytes / 1_024, 2).' KB';
-        }
-
-        return $bytes.' B';
     }
 }

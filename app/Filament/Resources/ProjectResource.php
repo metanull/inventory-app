@@ -123,6 +123,7 @@ class ProjectResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('internal_name'),
                 TextEntry::make('backward_compatibility')
@@ -146,14 +147,8 @@ class ProjectResource extends Resource
                     ->url(fn ($record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                static::uuidInfolistEntry(),
+                ...static::timestampsInfolistEntries(),
             ]);
     }
 

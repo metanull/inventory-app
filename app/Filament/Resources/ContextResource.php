@@ -134,6 +134,7 @@ class ContextResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('internal_name'),
                 TextEntry::make('backward_compatibility')
@@ -141,14 +142,8 @@ class ContextResource extends Resource
                 IconEntry::make('is_default')
                     ->label('Default')
                     ->boolean(),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                static::uuidInfolistEntry(),
+                ...static::timestampsInfolistEntries(),
             ]);
     }
 

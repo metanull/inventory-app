@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use App\Enums\Permission;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
+use App\Support\FileSize;
 use App\Support\Images\AttachedImageRegistry;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -25,13 +26,13 @@ class StorageUsageWidget extends StatsOverviewWidget
         $pendingBytes = $this->getPendingUploadBytes();
 
         return [
-            Stat::make('Managed Image Storage', self::formatBytes($managedBytes))
+            Stat::make('Managed Image Storage', FileSize::format($managedBytes))
                 ->description('Total across all attached image tables')
                 ->icon('heroicon-o-photo'),
-            Stat::make('Available Image Pool', self::formatBytes($availablePoolBytes))
+            Stat::make('Available Image Pool', FileSize::format($availablePoolBytes))
                 ->description('Unattached images awaiting use')
                 ->icon('heroicon-o-archive-box'),
-            Stat::make('Pending Uploads', self::formatBytes($pendingBytes))
+            Stat::make('Pending Uploads', FileSize::format($pendingBytes))
                 ->description('Private uploads awaiting processing')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('warning'),
@@ -57,22 +58,5 @@ class StorageUsageWidget extends StatsOverviewWidget
     public function getPendingUploadBytes(): int
     {
         return (int) ImageUpload::query()->sum('size');
-    }
-
-    public static function formatBytes(int $bytes): string
-    {
-        if ($bytes >= 1_073_741_824) {
-            return number_format($bytes / 1_073_741_824, 2).' GB';
-        }
-
-        if ($bytes >= 1_048_576) {
-            return number_format($bytes / 1_048_576, 2).' MB';
-        }
-
-        if ($bytes >= 1_024) {
-            return number_format($bytes / 1_024, 2).' KB';
-        }
-
-        return $bytes.' B';
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Concerns;
 
+use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Columns\TextColumn;
 
 trait HasTimestampsColumns
@@ -22,6 +23,21 @@ trait HasTimestampsColumns
                 ->dateTime()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
+        ];
+    }
+
+    /**
+     * @return array<int, TextEntry>
+     */
+    protected static function timestampsInfolistEntries(): array
+    {
+        return [
+            TextEntry::make('created_at')
+                ->label('Created')
+                ->dateTime(),
+            TextEntry::make('updated_at')
+                ->label('Updated')
+                ->dateTime(),
         ];
     }
 }
