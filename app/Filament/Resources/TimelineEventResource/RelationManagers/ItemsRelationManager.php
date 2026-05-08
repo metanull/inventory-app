@@ -55,7 +55,7 @@ class ItemsRelationManager extends RelationManager
                             ->label('Display order')
                             ->numeric()
                             ->integer()
-                            ->nullable(),
+                            ->default(0),
                     ]),
             ])
             ->actions([

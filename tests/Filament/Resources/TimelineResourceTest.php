@@ -131,7 +131,7 @@ class TimelineResourceTest extends TestCase
         Livewire::actingAs($user)
             ->test(EventsRelationManager::class, [
                 'ownerRecord' => $timeline,
-                'pageClass' => ViewTimeline::class,
+                'pageClass' => EditTimeline::class,
             ])
             ->mountTableAction('create')
             ->setTableActionData([
@@ -164,7 +164,7 @@ class TimelineResourceTest extends TestCase
         Livewire::actingAs($user)
             ->test(EventsRelationManager::class, [
                 'ownerRecord' => $timeline,
-                'pageClass' => ViewTimeline::class,
+                'pageClass' => EditTimeline::class,
             ])
             ->callTableAction(DeleteAction::class, $event)
             ->assertHasNoTableActionErrors();
