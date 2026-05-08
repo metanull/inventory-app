@@ -69,6 +69,8 @@ class CollectionResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $recordTitleAttribute = 'internal_name';
 
     public static function getGloballySearchableAttributes(): array

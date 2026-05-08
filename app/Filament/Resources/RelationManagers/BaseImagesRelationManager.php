@@ -22,6 +22,16 @@ abstract class BaseImagesRelationManager extends RelationManager
 
     protected static ?string $title = 'Images';
 
+    protected function canCreate(): bool
+    {
+        return false;
+    }
+
+    protected function canDeleteAny(): bool
+    {
+        return false;
+    }
+
     abstract protected function imageModelClass(): string;
 
     abstract protected function ownerForeignKey(): string;

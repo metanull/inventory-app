@@ -34,6 +34,8 @@ class AvailableImageResource extends Resource
 
     protected static ?string $navigationGroup = 'Images';
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'path';
 
     public static function getGloballySearchableAttributes(): array
@@ -44,6 +46,11 @@ class AvailableImageResource extends Resource
     public static function canViewAny(): bool
     {
         return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 
     public static function shouldRegisterNavigation(): bool

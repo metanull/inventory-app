@@ -22,7 +22,7 @@ class TagResourceAuthorizationTest extends TestCase
         $dashboard
             ->assertOk()
             ->assertDontSee('Tags')
-            ->assertDontSee('Shared data');
+            ->assertDontSee('Shared Data');
 
         $this->actingAs($user)->get('/admin/tags')
             ->assertForbidden();
@@ -47,7 +47,7 @@ class TagResourceAuthorizationTest extends TestCase
 
         $dashboard
             ->assertOk()
-            ->assertSee('Shared data')
+            ->assertSee('Shared Data')
             ->assertSee('Tags');
 
         $index

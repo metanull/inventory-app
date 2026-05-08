@@ -56,7 +56,7 @@ class PermissionsRelationManager extends RelationManager
                     ->action(function (array $data): void {
                         $permission = Permission::firstOrCreate([
                             'name' => $data['name'],
-                            'guard_name' => 'web',
+                            'guard_name' => config('fortify.guard', 'web'),
                         ]);
 
                         $this->getOwnerRecord()->givePermissionTo($permission);

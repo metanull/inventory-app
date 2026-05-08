@@ -43,6 +43,8 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 6;
+
     protected static ?string $recordTitleAttribute = 'internal_name';
 
     public static function getGloballySearchableAttributes(): array

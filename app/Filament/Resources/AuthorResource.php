@@ -34,7 +34,9 @@ class AuthorResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static ?string $navigationGroup = 'Shared data';
+    protected static ?string $navigationGroup = 'Shared Data';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'name';
 

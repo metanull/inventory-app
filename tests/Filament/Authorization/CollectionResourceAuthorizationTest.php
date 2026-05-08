@@ -71,7 +71,7 @@ class CollectionResourceAuthorizationTest extends TestCase
 
         $this->actingAs($user)->get('/admin')
             ->assertOk()
-            ->assertDontSee('Browse tree');
+            ->assertDontSee('Browse collection tree');
 
         $this->actingAs($user)->get('/admin/browse-collection-tree')
             ->assertForbidden();
@@ -87,7 +87,7 @@ class CollectionResourceAuthorizationTest extends TestCase
 
         $this->actingAs($user)->get('/admin')
             ->assertOk()
-            ->assertSee('Browse tree');
+            ->assertSee('Browse collection tree');
 
         $this->actingAs($user)->get('/admin/browse-collection-tree')
             ->assertOk();

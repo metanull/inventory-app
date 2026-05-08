@@ -22,7 +22,7 @@ class AuthorResourceAuthorizationTest extends TestCase
         $dashboard
             ->assertOk()
             ->assertDontSee('Authors')
-            ->assertDontSee('Shared data');
+            ->assertDontSee('Shared Data');
 
         $this->actingAs($user)->get('/admin/authors')
             ->assertForbidden();
@@ -47,7 +47,7 @@ class AuthorResourceAuthorizationTest extends TestCase
 
         $dashboard
             ->assertOk()
-            ->assertSee('Shared data')
+            ->assertSee('Shared Data')
             ->assertSee('Authors');
 
         $index

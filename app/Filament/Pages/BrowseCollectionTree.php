@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class BrowseCollectionTree extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
+    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
-    protected static ?string $navigationLabel = 'Browse tree';
+    protected static ?string $navigationLabel = 'Browse collection tree';
 
     protected static ?string $navigationGroup = 'Inventory';
 
