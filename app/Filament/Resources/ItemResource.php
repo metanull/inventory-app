@@ -68,6 +68,8 @@ class ItemResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'internal_name';
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name', 'partner.internal_name', 'country.internal_name', 'project.internal_name'];

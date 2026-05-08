@@ -71,6 +71,8 @@ class CollectionResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
+    protected static ?string $recordTitleAttribute = 'internal_name';
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['internal_name', 'backward_compatibility', 'translations.title', 'parent.internal_name', 'country.internal_name'];

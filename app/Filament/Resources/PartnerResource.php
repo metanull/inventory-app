@@ -58,6 +58,8 @@ class PartnerResource extends Resource
 
     protected static ?int $navigationSort = 5;
 
+    protected static ?string $recordTitleAttribute = 'internal_name';
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['internal_name', 'backward_compatibility', 'translations.name', 'country.internal_name', 'project.internal_name'];
