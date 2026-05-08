@@ -21,14 +21,14 @@ trait ResolvesThematicGalleryUrls
             return null;
         }
 
-        $path = config("legacy.links.thematic_galleries.{$galleryId}.path");
+        $path = $this->thematicGalleryPath($galleryId, $legacyLanguage);
 
-        if (! is_string($path) && $collection !== null && $this->isThematicExhibitionCollection($collection)) {
+        if ($path === null && $collection !== null && $this->isThematicExhibitionCollection($collection)) {
             $folder = $this->thematicExhibitionFolder($collection);
             $path = $folder === null ? null : "{$folder}/{lang}";
         }
 
-        if (! is_string($path) || trim($path) === '') {
+        if ($path === null) {
             return $baseUrl;
         }
 
@@ -118,9 +118,26 @@ trait ResolvesThematicGalleryUrls
             return "{$baseUrl}/{$databaseItemPath}";
         }
 
+        $configuredPath = $this->thematicGalleryPath($context['gallery_id'], $legacyLanguage);
+
+        if ($configuredPath !== null) {
+            return "{$baseUrl}/{$configuredPath}/{$databaseItemPath}";
+        }
+
         $folder = $this->thematicExhibitionFolder($context['gallery_collection'] ?? $collection);
 
         return $folder === null ? null : "{$baseUrl}/{$folder}/en/{$databaseItemPath}";
+    }
+
+    protected function thematicGalleryPath(string $galleryId, string $legacyLanguage): ?string
+    {
+        $path = config("legacy.links.thematic_galleries.{$galleryId}.path");
+
+        if (! is_string($path) || trim($path) === '') {
+            return null;
+        }
+
+        return trim(str_replace('{lang}', $legacyLanguage, $path), '/');
     }
 
     protected function isThematicExhibitionCollection(Collection $collection): bool

@@ -21,7 +21,7 @@ trait BuildsLegacyUrls
             return null;
         }
 
-        $host = config('legacy.links.public_hosts.projects.'.strtoupper($project));
+        $host = config('legacy.links.public_hosts.projects.'.trim($project));
 
         return is_string($host) && $host !== '' ? rtrim($host, '/') : null;
     }
@@ -42,7 +42,7 @@ trait BuildsLegacyUrls
             return null;
         }
 
-        return strtoupper(trim(explode(',', $backwardCompatibility)[0]));
+        return trim(explode(',', $backwardCompatibility)[0]);
     }
 
     protected function legacyCountryCode(?Country $country): ?string
