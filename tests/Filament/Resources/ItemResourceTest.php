@@ -12,7 +12,7 @@ use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
@@ -63,7 +63,8 @@ class ItemResourceTest extends TestCase
             ->assertSee('Child items')
             ->assertSee('Pictures')
             ->assertSee('Translations')
-            ->assertSee('Links')
+            ->assertSee('Outgoing links')
+            ->assertSee('Incoming links')
             ->assertSee('Displayed in');
 
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}")
@@ -73,7 +74,8 @@ class ItemResourceTest extends TestCase
             ->assertSee('Child items')
             ->assertSee('Pictures')
             ->assertSee('Translations')
-            ->assertSee('Links')
+            ->assertSee('Outgoing links')
+            ->assertSee('Incoming links')
             ->assertSee('Displayed in')
             ->assertSee('Legacy links');
 
@@ -313,7 +315,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(LinksRelationManager::class, [
+            ->test(OutgoingLinksRelationManager::class, [
                 'ownerRecord' => $source,
                 'pageClass' => EditItem::class,
             ])
@@ -334,7 +336,7 @@ class ItemResourceTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(LinksRelationManager::class, [
+            ->test(OutgoingLinksRelationManager::class, [
                 'ownerRecord' => $source,
                 'pageClass' => EditItem::class,
             ])
