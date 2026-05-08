@@ -562,7 +562,7 @@ class TranslationResourceTest extends TestCase
                 'bibliography' => 'Smith, J. (1900). Ancient Reliefs.',
                 'author_id' => $author->id,
                 'backward_compatibility' => 'legacy-123',
-                'extra' => ['notes' => 'Some extra notes'],
+                'extra' => '{"notes": "Some extra notes"}',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -663,7 +663,7 @@ class TranslationResourceTest extends TestCase
                 'contact_website' => 'https://www.jordanmuseum.jo',
                 'contact_notes' => 'Open Sunday–Thursday',
                 'backward_compatibility' => 'partner-legacy-42',
-                'extra' => ['type' => 'museum'],
+                'extra' => '{"type": "museum"}',
             ])
             ->call('save')
             ->assertHasNoFormErrors();
@@ -762,7 +762,7 @@ class TranslationResourceTest extends TestCase
                 'quote' => '"Art speaks where words are unable to explain." — Mathiole',
                 'url' => 'https://example.com/collections/temple',
                 'backward_compatibility' => 'coll-legacy-99',
-                'extra' => ['curator' => 'Dr. Jones'],
+                'extra' => '{"curator": "Dr. Jones"}',
             ])
             ->call('save')
             ->assertHasNoFormErrors();

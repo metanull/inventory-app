@@ -62,6 +62,14 @@ class TranslationInfolistSchema
     }
 
     /**
+     * Returns a TextEntry that pretty-prints the `extra` JSON field for infolist display.
+     */
+    public static function extraEntry(string $name = 'extra'): TextEntry
+    {
+        return ExtraJsonField::infolistEntry($name);
+    }
+
+    /**
      * Wraps the given HTML content in an appropriate direction container
      * when the language is Arabic ('ara').
      */

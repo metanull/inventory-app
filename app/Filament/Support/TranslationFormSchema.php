@@ -7,7 +7,6 @@ use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
 use App\Models\Partner;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -218,33 +217,9 @@ class TranslationFormSchema
         return static::requiredOrNullable($select, $required);
     }
 
-    public static function extraField(): KeyValue
+    public static function extraField(): Textarea
     {
-        return KeyValue::make('extra')
-            ->label('Extra metadata')
-            ->afterStateHydrated(static function (KeyValue $component, mixed $state): void {
-                if ($state instanceof \stdClass) {
-                    $state = (array) $state;
-                } elseif (is_string($state)) {
-                    $decoded = json_decode($state, true);
-                    $state = is_array($decoded) ? $decoded : [];
-                }
-
-                if (is_array($state)) {
-                    // Filament's KeyValue maps each entry to a string key/value pair.
-                    // Nested arrays or objects (which can appear when the model stores
-                    // structured JSON) must be serialised back to JSON strings so that
-                    // KeyValue can display them without a type error.
-                    $flat = array_map(
-                        static fn (mixed $v): ?string => is_array($v) || $v instanceof \stdClass
-                            ? json_encode($v)
-                            : (is_null($v) ? null : (string) $v),
-                        $state
-                    );
-                    $component->state($flat);
-                }
-            })
-            ->columnSpanFull();
+        return ExtraJsonField::formComponent();
     }
 
     /**
