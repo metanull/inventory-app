@@ -11,7 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class PicturesRelationManager extends RelationManager
+class PictureItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'children';
 

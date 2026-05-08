@@ -35,6 +35,8 @@ class CountryResource extends Resource
 
     protected static ?string $navigationGroup = 'Reference Data';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $recordTitleAttribute = 'internal_name';
 
     public static function getGloballySearchableAttributes(): array

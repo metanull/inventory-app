@@ -41,6 +41,8 @@ class TimelineResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 8;
+
     protected static ?string $recordTitleAttribute = 'internal_name';
 
     public static function getGloballySearchableAttributes(): array

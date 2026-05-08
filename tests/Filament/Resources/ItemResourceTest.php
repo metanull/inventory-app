@@ -13,7 +13,7 @@ use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\PictureItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\PartnerResource;
@@ -257,7 +257,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(PicturesRelationManager::class, [
+            ->test(PictureItemsRelationManager::class, [
                 'ownerRecord' => $parent,
                 'pageClass' => ViewItem::class,
             ])
@@ -737,7 +737,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(PicturesRelationManager::class, [
+            ->test(PictureItemsRelationManager::class, [
                 'ownerRecord' => $parent,
                 'pageClass' => ViewItem::class,
             ])
@@ -758,7 +758,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(PicturesRelationManager::class, [
+            ->test(PictureItemsRelationManager::class, [
                 'ownerRecord' => $parent,
                 'pageClass' => ViewItem::class,
             ])

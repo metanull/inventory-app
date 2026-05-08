@@ -22,7 +22,7 @@ class ContextResourceAuthorizationTest extends TestCase
         $dashboard
             ->assertOk()
             ->assertDontSee('Contexts')
-            ->assertDontSee('Shared data');
+            ->assertDontSee('Shared Data');
 
         $this->actingAs($user)->get('/admin/contexts')
             ->assertForbidden();
@@ -44,7 +44,7 @@ class ContextResourceAuthorizationTest extends TestCase
 
         $dashboard
             ->assertOk()
-            ->assertSee('Shared data')
+            ->assertSee('Shared Data')
             ->assertSee('Contexts');
 
         $index

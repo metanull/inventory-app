@@ -56,7 +56,7 @@ class PartnerResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
-    protected static ?string $recordTitleAttribute = 'internal_name';
+    protected static ?int $navigationSort = 5;
 
     public static function getGloballySearchableAttributes(): array
     {

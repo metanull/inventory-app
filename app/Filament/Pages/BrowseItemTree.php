@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class BrowseItemTree extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-queue-list';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $navigationLabel = 'Browse item tree';
 

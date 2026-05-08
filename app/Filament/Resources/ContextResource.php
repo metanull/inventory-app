@@ -40,7 +40,9 @@ class ContextResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $navigationGroup = 'Shared data';
+    protected static ?string $navigationGroup = 'Shared Data';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'internal_name';
 

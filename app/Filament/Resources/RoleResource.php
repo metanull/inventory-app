@@ -28,6 +28,8 @@ class RoleResource extends Resource
 
     protected static ?string $navigationGroup = 'Administration';
 
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function getGloballySearchableAttributes(): array

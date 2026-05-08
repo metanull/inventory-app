@@ -22,7 +22,7 @@ class GlossaryResourceAuthorizationTest extends TestCase
         $dashboard
             ->assertOk()
             ->assertDontSee('Glossaries')
-            ->assertDontSee('Shared data');
+            ->assertDontSee('Shared Data');
 
         $this->actingAs($user)->get('/admin/glossaries')
             ->assertForbidden();
@@ -44,7 +44,7 @@ class GlossaryResourceAuthorizationTest extends TestCase
 
         $dashboard
             ->assertOk()
-            ->assertSee('Shared data')
+            ->assertSee('Shared Data')
             ->assertSee('Glossaries');
 
         $index

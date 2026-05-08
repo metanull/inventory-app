@@ -18,7 +18,7 @@ use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsR
 use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\IncomingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\PictureItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
@@ -66,7 +66,7 @@ class ItemResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
-    protected static ?string $recordTitleAttribute = 'internal_name';
+    protected static ?int $navigationSort = 1;
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -518,7 +518,7 @@ class ItemResource extends Resource
         return [
             ChildItemsRelationManager::class,
             TranslationsRelationManager::class,
-            PicturesRelationManager::class,
+            PictureItemsRelationManager::class,
             ImagesRelationManager::class,
             OutgoingLinksRelationManager::class,
             IncomingLinksRelationManager::class,

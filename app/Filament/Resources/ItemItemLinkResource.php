@@ -37,6 +37,8 @@ class ItemItemLinkResource extends Resource
 
     protected static ?string $navigationGroup = 'Inventory';
 
+    protected static ?int $navigationSort = 7;
+
     protected static ?string $navigationLabel = 'Item Links';
 
     protected static ?string $recordTitleAttribute = 'id';
