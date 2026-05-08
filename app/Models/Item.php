@@ -250,6 +250,16 @@ class Item extends Model
     }
 
     /**
+     * Get all timeline events this item is associated with.
+     */
+    public function timelineEvents(): BelongsToMany
+    {
+        return $this->belongsToMany(TimelineEvent::class, 'timeline_event_item')
+            ->withPivot('display_order', 'backward_compatibility', 'extra')
+            ->withTimestamps();
+    }
+
+    /**
      * Get all collections this item is attached to via many-to-many relationship.
      */
     public function attachedToCollections(): BelongsToMany

@@ -20,6 +20,7 @@ use App\Filament\Resources\ItemResource\RelationManagers\IncomingLinksRelationMa
 use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
@@ -522,6 +523,7 @@ class ItemResource extends Resource
             OutgoingLinksRelationManager::class,
             IncomingLinksRelationManager::class,
             TagsRelationManager::class,
+            TimelineEventsRelationManager::class,
             DisplayedInCollectionsRelationManager::class,
             LegacyLinksRelationManager::class,
         ];
