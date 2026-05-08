@@ -11,7 +11,6 @@ use App\Filament\Resources\CollectionTranslationResource\Pages\ViewCollectionTra
 use App\Filament\Resources\CollectionTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
 use App\Filament\Support\TranslationInfolistSchema;
-use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -65,36 +64,7 @@ class CollectionTranslationResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('collection_id')
-                    ->label('Collection')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Collection $collection): array => [
-                            $collection->id => $collection->backward_compatibility
-                                ? "{$collection->internal_name} [{$collection->backward_compatibility}]"
-                                : $collection->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $collection = Collection::find($value);
-                        if (! $collection) {
-                            return (string) $value;
-                        }
-
-                        return $collection->backward_compatibility
-                            ? "{$collection->internal_name} [{$collection->backward_compatibility}]"
-                            : $collection->internal_name;
-                    }),
+                TranslationFormSchema::collectionSelectField(includeIdInSearch: true),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')

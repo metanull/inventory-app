@@ -12,7 +12,6 @@ use App\Filament\Resources\PartnerTranslationResource\RelationManagers\ImagesRel
 use App\Filament\Resources\PartnerTranslationResource\RelationManagers\SiblingTranslationsRelationManager;
 use App\Filament\Support\TranslationFormSchema;
 use App\Filament\Support\TranslationInfolistSchema;
-use App\Models\Partner;
 use App\Models\PartnerTranslation;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -67,36 +66,7 @@ class PartnerTranslationResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('partner_id')
-                    ->label('Partner')
-                    ->required()
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => Partner::query()
-                        ->where(fn (Builder $q): Builder => $q
-                            ->where('internal_name', 'like', "%{$search}%")
-                            ->orWhere('id', 'like', "%{$search}%")
-                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        )
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->get()
-                        ->mapWithKeys(fn (Partner $partner): array => [
-                            $partner->id => $partner->backward_compatibility
-                                ? "{$partner->internal_name} [{$partner->backward_compatibility}]"
-                                : $partner->internal_name,
-                        ])
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(function (mixed $value): string {
-                        $partner = Partner::find($value);
-                        if (! $partner) {
-                            return (string) $value;
-                        }
-
-                        return $partner->backward_compatibility
-                            ? "{$partner->internal_name} [{$partner->backward_compatibility}]"
-                            : $partner->internal_name;
-                    }),
+                TranslationFormSchema::partnerSelectField(includeIdInSearch: true),
                 Select::make('language_id')
                     ->label('Language')
                     ->relationship('language', 'internal_name')

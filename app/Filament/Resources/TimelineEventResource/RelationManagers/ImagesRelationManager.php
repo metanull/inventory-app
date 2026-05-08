@@ -2,180 +2,40 @@
 
 namespace App\Filament\Resources\TimelineEventResource\RelationManagers;
 
-use App\Models\AvailableImage;
+use App\Filament\Resources\RelationManagers\BaseImagesRelationManager;
 use App\Models\TimelineEventImage;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
 
-class ImagesRelationManager extends RelationManager
+class ImagesRelationManager extends BaseImagesRelationManager
 {
     protected static string $relationship = 'images';
 
-    protected static ?string $recordTitleAttribute = 'path';
-
-    protected static ?string $title = 'Images';
-
-    public function table(Table $table): Table
+    protected function imageModelClass(): string
     {
-        return $table
-            ->defaultSort('display_order', 'asc')
-            ->paginated([25, 50, 100])
-            ->defaultPaginationPageOption(25)
-            ->columns([
-                ImageColumn::make('preview')
-                    ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.timeline-event-image.view', [
-                        'timelineEvent' => $record->timeline_event_id,
-                        'timelineEventImage' => $record->id,
-                    ]))
-                    ->height(64)
-                    ->url(fn ($record) => route('filament.admin.timeline-event-image.view', [
-                        'timelineEvent' => $record->timeline_event_id,
-                        'timelineEventImage' => $record->id,
-                    ]))
-                    ->openUrlInNewTab()
-                    ->defaultImageUrl(null),
-                TextColumn::make('path')
-                    ->label('Filename')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('alt_text')
-                    ->label('Alt text')
-                    ->limit(50)
-                    ->toggleable(),
-                TextColumn::make('display_order')
-                    ->label('Order')
-                    ->sortable(),
-                TextColumn::make('mime_type')
-                    ->label('Type')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('size')
-                    ->label('Size (bytes)')
-                    ->numeric()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Attached')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->headerActions([
-                Action::make('attach')
-                    ->label('Attach image')
-                    ->icon('heroicon-o-paper-clip')
-                    ->form([
-                        Select::make('available_image_id')
-                            ->label('Available image')
-                            ->required()
-                            ->getSearchResultsUsing(fn (string $search): array => AvailableImage::query()
-                                ->where('path', 'like', "%{$search}%")
-                                ->orWhere('original_name', 'like', "%{$search}%")
-                                ->orWhere('comment', 'like', "%{$search}%")
-                                ->orderBy('created_at', 'desc')
-                                ->limit(50)
-                                ->get()
-                                ->mapWithKeys(fn (AvailableImage $img) => [
-                                    $img->id => $img->path.($img->comment ? ' — '.$img->comment : ''),
-                                ])
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => AvailableImage::find($value)?->path ?? $value)
-                            ->searchable(),
-                        TextInput::make('alt_text')
-                            ->label('Alt text')
-                            ->maxLength(255)
-                            ->nullable(),
-                    ])
-                    ->action(function (array $data): void {
-                        $availableImage = AvailableImage::find($data['available_image_id']);
+        return TimelineEventImage::class;
+    }
 
-                        if (! $availableImage) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Image not found')
-                                ->body('The selected image is no longer available.')
-                                ->send();
+    protected function ownerForeignKey(): string
+    {
+        return 'timeline_event_id';
+    }
 
-                            return;
-                        }
+    protected function ownerRouteParameter(): string
+    {
+        return 'timelineEvent';
+    }
 
-                        $timelineEvent = $this->getOwnerRecord();
+    protected function imageRouteParameter(): string
+    {
+        return 'timelineEventImage';
+    }
 
-                        TimelineEventImage::attachFromAvailableImage(
-                            $availableImage,
-                            $timelineEvent->id,
-                            $data['alt_text'] ?? null
-                        );
+    protected function imageViewRouteName(): string
+    {
+        return 'filament.admin.timeline-event-image.view';
+    }
 
-                        Notification::make()
-                            ->success()
-                            ->title('Image attached')
-                            ->send();
-                    }),
-            ])
-            ->actions([
-                Action::make('view_image')
-                    ->label('View image')
-                    ->icon('heroicon-o-eye')
-                    ->color('gray')
-                    ->url(fn (TimelineEventImage $record) => route('filament.admin.timeline-event-image.view', [
-                        'timelineEvent' => $record->timeline_event_id,
-                        'timelineEventImage' => $record->id,
-                    ]))
-                    ->openUrlInNewTab(),
-                Action::make('download')
-                    ->label('Download')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('gray')
-                    ->url(fn (TimelineEventImage $record) => route('filament.admin.timeline-event-image.download', [
-                        'timelineEvent' => $record->timeline_event_id,
-                        'timelineEventImage' => $record->id,
-                    ])),
-                EditAction::make()
-                    ->form([
-                        TextInput::make('alt_text')
-                            ->label('Alt text')
-                            ->maxLength(255)
-                            ->nullable(),
-                        TextInput::make('display_order')
-                            ->label('Display order')
-                            ->numeric()
-                            ->integer()
-                            ->nullable(),
-                    ]),
-                Action::make('detach')
-                    ->label('Detach')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalHeading('Detach image')
-                    ->modalDescription('This will move the image back to the available image pool. You can re-attach it later.')
-                    ->action(function (TimelineEventImage $record): void {
-                        $record->detachToAvailableImage();
-
-                        Notification::make()
-                            ->success()
-                            ->title('Image detached and returned to pool')
-                            ->send();
-                    }),
-                DeleteAction::make()
-                    ->label('Delete permanently')
-                    ->requiresConfirmation()
-                    ->modalHeading('Delete image permanently')
-                    ->modalDescription('The image file will be permanently deleted from storage and cannot be recovered. It will NOT be returned to the available image pool.')
-                    ->before(function (TimelineEventImage $record): void {
-                        Storage::disk($record->imageDisk())
-                            ->delete($record->imageStoragePath());
-                    }),
-            ]);
+    protected function imageDownloadRouteName(): string
+    {
+        return 'filament.admin.timeline-event-image.download';
     }
 }
