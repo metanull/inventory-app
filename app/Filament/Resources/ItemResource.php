@@ -16,7 +16,8 @@ use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\LinksRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\IncomingLinksRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PicturesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
@@ -518,7 +519,8 @@ class ItemResource extends Resource
             TranslationsRelationManager::class,
             PicturesRelationManager::class,
             ImagesRelationManager::class,
-            LinksRelationManager::class,
+            OutgoingLinksRelationManager::class,
+            IncomingLinksRelationManager::class,
             TagsRelationManager::class,
             DisplayedInCollectionsRelationManager::class,
             LegacyLinksRelationManager::class,
