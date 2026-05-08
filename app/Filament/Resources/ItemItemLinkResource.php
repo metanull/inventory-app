@@ -143,10 +143,16 @@ class ItemItemLinkResource extends Resource
                             ->url(fn ($record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
                         static::uuidInfolistEntry(),
                         ...static::timestampsInfolistEntries(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

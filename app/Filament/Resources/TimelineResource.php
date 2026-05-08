@@ -66,48 +66,51 @@ class TimelineResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('internal_name')
-                    ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
-                Select::make('country_id')
-                    ->label('Country')
-                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
-                    ->searchable()
-                    ->nullable(),
-                Select::make('collection_id')
-                    ->label('Collection')
-                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
-                    ->searchable()
-                    ->nullable(),
-                TextInput::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->maxLength(255)
-                    ->nullable(),
+                Section::make('Core information')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Select::make('country_id')
+                            ->label('Country')
+                            ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                                ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('id', 'like', "%{$search}%")
+                                ->orderBy('internal_name')
+                                ->limit(50)
+                                ->pluck('internal_name', 'id')
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('collection_id')
+                            ->label('Collection')
+                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                                ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orderBy('internal_name')
+                                ->limit(50)
+                                ->pluck('internal_name', 'id')
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                            ->searchable()
+                            ->nullable(),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255)
+                            ->nullable(),
+                    ])
+                    ->columns(2),
                 Section::make('Metadata')
                     ->schema([
                         ExtraJsonField::formComponent(),
                     ])
                     ->collapsible()
                     ->collapsed(),
-            ])
-            ->columns(2);
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -147,12 +150,18 @@ class TimelineResource extends Resource
                             ->label('Country'),
                         TextEntry::make('collection.internal_name')
                             ->label('Collection'),
-                        TextEntry::make('backward_compatibility')
-                            ->label('Legacy code'),
-                        static::uuidInfolistEntry(),
-                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
                 InfolistSection::make('Metadata')
                     ->schema([
                         ExtraJsonField::infolistEntry(),

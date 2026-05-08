@@ -10,6 +10,7 @@ use App\Filament\Resources\RoleResource\RelationManagers\PermissionsRelationMana
 use App\Filament\Resources\RoleResource\RelationManagers\UsersRelationManager;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -100,18 +101,28 @@ class RoleResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('name'),
-                TextEntry::make('guard_name')
-                    ->label('Guard'),
-                TextEntry::make('permissions.name')
-                    ->label('Permissions')
-                    ->badge(),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('guard_name')
+                            ->label('Guard'),
+                        TextEntry::make('permissions.name')
+                            ->label('Permissions')
+                            ->badge(),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

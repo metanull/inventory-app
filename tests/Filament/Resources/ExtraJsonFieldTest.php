@@ -326,7 +326,7 @@ class ExtraJsonFieldTest extends TestCase
         $this->assertSame(2, $decoded['nested']['level']);
     }
 
-    public function test_item_translation_view_page_shows_extra_in_legacy_metadata_section(): void
+    public function test_item_translation_view_page_shows_extra_in_extra_data_section(): void
     {
         $user = $this->createCrudUser();
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
@@ -343,7 +343,7 @@ class ExtraJsonFieldTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/item-translations/{$translation->getKey()}")
             ->assertOk()
-            ->assertSee('Legacy &amp; Metadata', false);
+            ->assertSee('Extra Data');
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────────

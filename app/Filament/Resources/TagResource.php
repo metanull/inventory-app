@@ -15,6 +15,7 @@ use App\Models\Tag;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -139,20 +140,30 @@ class TagResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('description')
-                    ->label('Tag'),
-                TextEntry::make('category')
-                    ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
-                TextEntry::make('internal_name'),
-                TextEntry::make('language.internal_name')
-                    ->label('Language')
-                    ->url(fn ($record): ?string => $record->language
-                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
-                        : null),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                static::uuidInfolistEntry(),
-                ...static::timestampsInfolistEntries(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('description')
+                            ->label('Tag'),
+                        TextEntry::make('category')
+                            ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('language.internal_name')
+                            ->label('Language')
+                            ->url(fn ($record): ?string => $record->language
+                                ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                                : null),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
@@ -291,31 +292,41 @@ class UserResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('name'),
-                TextEntry::make('email'),
-                TextEntry::make('roles.name')
-                    ->label('Roles')
-                    ->badge(),
-                IconEntry::make('email_verified_at')
-                    ->label('Email Verified')
-                    ->boolean()
-                    ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null),
-                IconEntry::make('two_factor_confirmed_at')
-                    ->label('2FA Enabled')
-                    ->boolean()
-                    ->getStateUsing(fn (User $record): bool => $record->hasEnabledTwoFactorAuthentication()),
-                TextEntry::make('approved_at')
-                    ->label('Approved')
-                    ->dateTime(),
-                TextEntry::make('suspended_at')
-                    ->label('Suspended')
-                    ->dateTime(),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Account Details')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('email'),
+                        TextEntry::make('roles.name')
+                            ->label('Roles')
+                            ->badge(),
+                        IconEntry::make('email_verified_at')
+                            ->label('Email Verified')
+                            ->boolean()
+                            ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null),
+                        IconEntry::make('two_factor_confirmed_at')
+                            ->label('2FA Enabled')
+                            ->boolean()
+                            ->getStateUsing(fn (User $record): bool => $record->hasEnabledTwoFactorAuthentication()),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('Account Status')
+                    ->schema([
+                        TextEntry::make('approved_at')
+                            ->label('Approved')
+                            ->dateTime(),
+                        TextEntry::make('suspended_at')
+                            ->label('Suspended')
+                            ->dateTime(),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
