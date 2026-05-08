@@ -11,6 +11,7 @@ trait HasBackwardCompatibilityColumn
         return TextColumn::make('backward_compatibility')
             ->label('Legacy code')
             ->searchable()
-            ->sortable();
+            ->sortable()
+            ->toggleable(isToggledHiddenByDefault: true);
     }
 }

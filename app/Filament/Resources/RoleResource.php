@@ -98,6 +98,7 @@ class RoleResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('name'),
                 TextEntry::make('guard_name')

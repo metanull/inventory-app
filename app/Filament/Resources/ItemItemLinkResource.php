@@ -105,6 +105,7 @@ class ItemItemLinkResource extends Resource
                     ->url(fn ($record): ?string => $record->context
                         ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                         : null),
+                static::uuidColumn(),
                 ...static::timestampsColumns(),
             ])
             ->filters([
@@ -123,6 +124,7 @@ class ItemItemLinkResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 InfolistSection::make('Link Details')
                     ->schema([
@@ -141,14 +143,8 @@ class ItemItemLinkResource extends Resource
                             ->url(fn ($record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
-                        TextEntry::make('id')
-                            ->label('UUID'),
-                        TextEntry::make('created_at')
-                            ->label('Created')
-                            ->dateTime(),
-                        TextEntry::make('updated_at')
-                            ->label('Updated')
-                            ->dateTime(),
+                        static::uuidInfolistEntry(),
+                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
             ]);

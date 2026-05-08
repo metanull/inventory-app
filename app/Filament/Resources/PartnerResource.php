@@ -218,6 +218,7 @@ class PartnerResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
@@ -246,14 +247,8 @@ class PartnerResource extends Resource
                             ->label('Map zoom'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
-                        TextEntry::make('id')
-                            ->label('UUID'),
-                        TextEntry::make('created_at')
-                            ->label('Created')
-                            ->dateTime(),
-                        TextEntry::make('updated_at')
-                            ->label('Updated')
-                            ->dateTime(),
+                        static::uuidInfolistEntry(),
+                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
             ]);

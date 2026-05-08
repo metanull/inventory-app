@@ -14,6 +14,7 @@ use App\Models\PartnerLogo;
 use App\Models\PartnerTranslationImage;
 use App\Models\TimelineEventImage;
 use App\Models\User;
+use App\Support\FileSize;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -63,26 +64,26 @@ class StorageUsageWidgetTest extends TestCase
 
     public function test_format_bytes_returns_bytes_label_for_small_values(): void
     {
-        $this->assertSame('0 B', StorageUsageWidget::formatBytes(0));
-        $this->assertSame('512 B', StorageUsageWidget::formatBytes(512));
-        $this->assertSame('1023 B', StorageUsageWidget::formatBytes(1023));
+        $this->assertSame('0 B', FileSize::format(0));
+        $this->assertSame('512 B', FileSize::format(512));
+        $this->assertSame('1023 B', FileSize::format(1023));
     }
 
     public function test_format_bytes_returns_kb_label(): void
     {
-        $this->assertSame('1.00 KB', StorageUsageWidget::formatBytes(1024));
-        $this->assertSame('1.50 KB', StorageUsageWidget::formatBytes(1536));
+        $this->assertSame('1.00 KB', FileSize::format(1024));
+        $this->assertSame('1.50 KB', FileSize::format(1536));
     }
 
     public function test_format_bytes_returns_mb_label(): void
     {
-        $this->assertSame('1.00 MB', StorageUsageWidget::formatBytes(1_048_576));
-        $this->assertSame('2.50 MB', StorageUsageWidget::formatBytes(2_621_440));
+        $this->assertSame('1.00 MB', FileSize::format(1_048_576));
+        $this->assertSame('2.50 MB', FileSize::format(2_621_440));
     }
 
     public function test_format_bytes_returns_gb_label(): void
     {
-        $this->assertSame('1.00 GB', StorageUsageWidget::formatBytes(1_073_741_824));
+        $this->assertSame('1.00 GB', FileSize::format(1_073_741_824));
     }
 
     public function test_managed_storage_bytes_sums_all_attached_image_tables(): void

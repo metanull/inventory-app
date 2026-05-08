@@ -266,8 +266,7 @@ class ItemTranslationResource extends Resource
                     ->schema([
                         TextEntry::make('backward_compatibility')->label('Legacy ID'),
                         TextEntry::make('id')->label('UUID'),
-                        TextEntry::make('created_at')->label('Created')->dateTime(),
-                        TextEntry::make('updated_at')->label('Updated')->dateTime(),
+                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2)
                     ->collapsible()

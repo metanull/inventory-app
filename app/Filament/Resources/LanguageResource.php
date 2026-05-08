@@ -145,6 +145,7 @@ class LanguageResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('id')
                     ->label('ISO code'),
@@ -154,12 +155,7 @@ class LanguageResource extends Resource
                 IconEntry::make('is_default')
                     ->label('Default')
                     ->boolean(),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                ...static::timestampsInfolistEntries(),
             ]);
     }
 

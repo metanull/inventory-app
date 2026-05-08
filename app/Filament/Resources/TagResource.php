@@ -137,6 +137,7 @@ class TagResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 TextEntry::make('description')
                     ->label('Tag'),
@@ -150,14 +151,8 @@ class TagResource extends Resource
                         : null),
                 TextEntry::make('backward_compatibility')
                     ->label('Legacy code'),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                static::uuidInfolistEntry(),
+                ...static::timestampsInfolistEntries(),
             ]);
     }
 

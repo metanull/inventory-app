@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
+use App\Filament\Concerns\HasChangeParentAction;
 use App\Filament\Concerns\HasInternalNameColumn;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
@@ -23,16 +24,12 @@ use App\Models\Country;
 use App\Models\Project;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
@@ -41,11 +38,12 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 
 class CollectionResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
+    use HasChangeParentAction;
     use HasInternalNameColumn;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
@@ -64,6 +62,26 @@ class CollectionResource extends Resource
     ];
 
     protected static ?string $model = Collection::class;
+
+    protected static function changeParentModelClass(): string
+    {
+        return Collection::class;
+    }
+
+    protected static function changeParentSelectLabel(): string
+    {
+        return 'New parent collection';
+    }
+
+    protected static function changeParentPluralLabel(): string
+    {
+        return 'Collections';
+    }
+
+    protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
+    {
+        return $query->excludingDescendantsOf($record->id);
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
 
@@ -92,55 +110,51 @@ class CollectionResource extends Resource
     {
         return $form
             ->schema([
-                Tabs::make('collection-details')
-                    ->tabs([
-                        Tabs\Tab::make('Core information')
-                            ->schema([
-                                TextInput::make('internal_name')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->unique(ignoreRecord: true),
-                                Select::make('type')
-                                    ->options(self::TYPE_OPTIONS)
-                                    ->required(),
-                                TextInput::make('backward_compatibility')
-                                    ->label('Legacy code')
-                                    ->maxLength(255),
-                                Select::make('language_id')
-                                    ->label('Language')
-                                    ->relationship('language', 'internal_name')
-                                    ->searchable(),
-                                Select::make('context_id')
-                                    ->label('Context')
-                                    ->relationship('context', 'internal_name')
-                                    ->searchable(),
-                                Select::make('parent_id')
-                                    ->label('Parent collection')
-                                    ->relationship(
-                                        name: 'parent',
-                                        titleAttribute: 'internal_name',
-                                        modifyQueryUsing: fn (Builder $query, ?Collection $record): Builder => $record
-                                            ? $query->excludingDescendantsOf($record->id)
-                                            : $query,
-                                    )
-                                    ->searchable()
-                                    ->nullable(),
-                                Select::make('country_id')
-                                    ->label('Country')
-                                    ->relationship('country', 'internal_name')
-                                    ->searchable(),
-                                TextInput::make('latitude')
-                                    ->numeric(),
-                                TextInput::make('longitude')
-                                    ->numeric(),
-                                TextInput::make('map_zoom')
-                                    ->label('Map zoom')
-                                    ->numeric()
-                                    ->integer(),
-                            ])
-                            ->columns(2),
+                FiltersSection::make('Core information')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        Select::make('type')
+                            ->options(self::TYPE_OPTIONS)
+                            ->required(),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                        Select::make('language_id')
+                            ->label('Language')
+                            ->relationship('language', 'internal_name')
+                            ->searchable(),
+                        Select::make('context_id')
+                            ->label('Context')
+                            ->relationship('context', 'internal_name')
+                            ->searchable(),
+                        Select::make('parent_id')
+                            ->label('Parent collection')
+                            ->relationship(
+                                name: 'parent',
+                                titleAttribute: 'internal_name',
+                                modifyQueryUsing: fn (Builder $query, ?Collection $record): Builder => $record
+                                    ? $query->excludingDescendantsOf($record->id)
+                                    : $query,
+                            )
+                            ->searchable()
+                            ->nullable(),
+                        Select::make('country_id')
+                            ->label('Country')
+                            ->relationship('country', 'internal_name')
+                            ->searchable(),
+                        TextInput::make('latitude')
+                            ->numeric(),
+                        TextInput::make('longitude')
+                            ->numeric(),
+                        TextInput::make('map_zoom')
+                            ->label('Map zoom')
+                            ->numeric()
+                            ->integer(),
                     ])
-                    ->columnSpanFull(),
+                    ->columns(2),
             ]);
     }
 
@@ -256,105 +270,18 @@ class CollectionResource extends Resource
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
-                Action::make('changeParent')
-                    ->label('Change parent')
-                    ->icon('heroicon-o-arrow-uturn-up')
-                    ->form(fn (Collection $record): array => [
-                        Select::make('parent_id')
-                            ->label('New parent collection')
-                            ->nullable()
-                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                                ->excludingDescendantsOf($record->id)
-                                ->where('internal_name', 'like', "%{$search}%")
-                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
-                                ->limit(50)
-                                ->pluck('internal_name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
-                            ->searchable(),
-                    ])
-                    ->action(function (Collection $record, array $data): void {
-                        try {
-                            $record->parent_id = $data['parent_id'] ?? null;
-                            $record->save();
-
-                            Notification::make()
-                                ->success()
-                                ->title('Parent updated')
-                                ->send();
-                        } catch (\RuntimeException $e) {
-                            logger()->warning('CollectionResource: changeParent failed', [
-                                'collection_id' => $record->id,
-                                'new_parent_id' => $data['parent_id'] ?? null,
-                                'error' => $e->getMessage(),
-                            ]);
-
-                            Notification::make()
-                                ->danger()
-                                ->title('Cannot change parent')
-                                ->body('The selected parent would create a circular hierarchy. Please choose a different parent.')
-                                ->send();
-                        }
-                    }),
+                static::changeParentAction(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
-                BulkAction::make('moveToParent')
-                    ->label('Move to parent')
-                    ->icon('heroicon-o-arrow-uturn-up')
-                    ->form([
-                        Select::make('parent_id')
-                            ->label('New parent collection')
-                            ->nullable()
-                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                                ->where('internal_name', 'like', "%{$search}%")
-                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
-                                ->limit(50)
-                                ->pluck('internal_name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
-                            ->searchable(),
-                    ])
-                    ->action(function (EloquentCollection $records, array $data): void {
-                        $errors = [];
-                        foreach ($records as $record) {
-                            try {
-                                $record->parent_id = $data['parent_id'] ?? null;
-                                $record->save();
-                            } catch (\RuntimeException $e) {
-                                logger()->warning('CollectionResource: moveToParent failed', [
-                                    'collection_id' => $record->id,
-                                    'new_parent_id' => $data['parent_id'] ?? null,
-                                    'error' => $e->getMessage(),
-                                ]);
-                                $errors[] = $record->internal_name;
-                            }
-                        }
-
-                        if (empty($errors)) {
-                            Notification::make()
-                                ->success()
-                                ->title('Collections moved')
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->danger()
-                                ->title('Some collections could not be moved')
-                                ->body('The following collections would create a circular hierarchy: '.implode(', ', $errors))
-                                ->send();
-                        }
-                    })
-                    ->deselectRecordsAfterCompletion(),
+                static::moveToParentAction(),
             ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
+            ->inlineLabel()
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
@@ -386,14 +313,8 @@ class CollectionResource extends Resource
                             ->label('Map zoom'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
-                        TextEntry::make('id')
-                            ->label('UUID'),
-                        TextEntry::make('created_at')
-                            ->label('Created')
-                            ->dateTime(),
-                        TextEntry::make('updated_at')
-                            ->label('Updated')
-                            ->dateTime(),
+                        static::uuidInfolistEntry(),
+                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
             ]);
