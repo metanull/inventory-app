@@ -36,6 +36,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -185,6 +186,7 @@ class PartnerResource extends Resource
                     ->falseLabel('Hidden only'),
             ])
             ->filtersFormColumns(2)
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->filtersFormSchema(fn (array $filters): array => [
                 FiltersSection::make('Translation Coverage')
                     ->schema([
@@ -195,16 +197,14 @@ class PartnerResource extends Resource
                         $filters['translation_context_has'],
                         $filters['translation_context_missing'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
                 FiltersSection::make('Partner Filters')
                     ->schema([
                         $filters['country_id'],
                         $filters['project_id'],
                         $filters['visible'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
             ])
             ->actions([
                 ViewAction::make(),

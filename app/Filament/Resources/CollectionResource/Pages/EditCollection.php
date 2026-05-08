@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\CollectionResource\Pages;
 
+use App\Filament\Concerns\RedirectsToViewAfterSave;
 use App\Filament\Resources\CollectionResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditCollection extends EditRecord
 {
+    use RedirectsToViewAfterSave;
+
     protected static string $resource = CollectionResource::class;
 
     protected function getHeaderActions(): array

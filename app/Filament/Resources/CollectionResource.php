@@ -37,6 +37,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -95,7 +96,8 @@ class CollectionResource extends Resource
                             ->schema([
                                 TextInput::make('internal_name')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->unique(ignoreRecord: true),
                                 Select::make('type')
                                     ->options(self::TYPE_OPTIONS)
                                     ->required(),
@@ -227,6 +229,7 @@ class CollectionResource extends Resource
                     ->searchable(),
             ])
             ->filtersFormColumns(2)
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
             ->filtersFormSchema(fn (array $filters): array => [
                 FiltersSection::make('Translation Coverage')
                     ->schema([
@@ -237,8 +240,7 @@ class CollectionResource extends Resource
                         $filters['translation_context_has'],
                         $filters['translation_context_missing'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
                 FiltersSection::make('Collection Filters')
                     ->schema([
                         $filters['type'],
@@ -247,8 +249,7 @@ class CollectionResource extends Resource
                         $filters['project'],
                         $filters['country_id'],
                     ])
-                    ->columns(2)
-                    ->columnSpanFull(),
+                    ->columns(2),
             ])
             ->actions([
                 ViewAction::make(),

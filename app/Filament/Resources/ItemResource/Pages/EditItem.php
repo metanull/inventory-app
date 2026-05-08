@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItemResource\Pages;
 
+use App\Filament\Concerns\RedirectsToViewAfterSave;
 use App\Filament\Resources\ItemResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -9,6 +10,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditItem extends EditRecord
 {
+    use RedirectsToViewAfterSave;
+
     protected static string $resource = ItemResource::class;
 
     protected function getHeaderActions(): array

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PartnerTranslationResource\Pages;
 
+use App\Filament\Concerns\RedirectsToViewAfterSave;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\PartnerTranslationResource;
 use Filament\Actions\Action;
@@ -10,6 +11,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditPartnerTranslation extends EditRecord
 {
+    use RedirectsToViewAfterSave;
+
     protected static string $resource = PartnerTranslationResource::class;
 
     protected function getHeaderActions(): array
