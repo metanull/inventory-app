@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Enums\Permission;
+use App\Filament\Concerns\HasBackwardCompatibilityColumn;
+use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasTimestampsColumns;
+use App\Filament\Concerns\HasUuidColumn;
+use App\Filament\Resources\TimelineResource\Pages\CreateTimeline;
+use App\Filament\Resources\TimelineResource\Pages\EditTimeline;
+use App\Filament\Resources\TimelineResource\Pages\ListTimeline;
+use App\Filament\Resources\TimelineResource\Pages\ViewTimeline;
+use App\Filament\Resources\TimelineResource\RelationManagers\EventsRelationManager;
+use App\Models\Collection;
+use App\Models\Country;
+use App\Models\Timeline;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+class TimelineResource extends Resource
+{
+    use HasBackwardCompatibilityColumn;
+    use HasInternalNameColumn;
+    use HasTimestampsColumns;
+    use HasUuidColumn;
+
+    protected static ?string $model = Timeline::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-clock';
+
+    protected static ?string $navigationGroup = 'Inventory';
+
+    protected static ?string $recordTitleAttribute = 'internal_name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['internal_name', 'backward_compatibility'];
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canViewAny();
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                TextInput::make('internal_name')
+                    ->required()
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true),
+                Select::make('country_id')
+                    ->label('Country')
+                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->searchable()
+                    ->nullable(),
+                Select::make('collection_id')
+                    ->label('Collection')
+                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                    ->searchable()
+                    ->nullable(),
+                TextInput::make('backward_compatibility')
+                    ->label('Legacy code')
+                    ->maxLength(255)
+                    ->nullable(),
+            ])
+            ->columns(2);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('internal_name', 'asc')
+            ->columns([
+                static::internalNameColumn(),
+                TextColumn::make('country.internal_name')
+                    ->label('Country')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('collection.internal_name')
+                    ->label('Collection')
+                    ->sortable()
+                    ->toggleable(),
+                static::backwardCompatibilityColumn(),
+                static::uuidColumn(),
+                ...static::timestampsColumns(),
+            ])
+            ->actions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+            ]);
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('country.internal_name')
+                            ->label('Country'),
+                        TextEntry::make('collection.internal_name')
+                            ->label('Collection'),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        TextEntry::make('id')
+                            ->label('UUID'),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            EventsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListTimeline::route('/'),
+            'create' => CreateTimeline::route('/create'),
+            'edit' => EditTimeline::route('/{record}/edit'),
+            'view' => ViewTimeline::route('/{record}'),
+        ];
+    }
+}
