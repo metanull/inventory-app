@@ -13,6 +13,7 @@ use App\Filament\Resources\GlossaryResource\Pages\EditGlossary;
 use App\Filament\Resources\GlossaryResource\Pages\ListGlossary;
 use App\Filament\Resources\GlossaryResource\Pages\ViewGlossary;
 use App\Filament\Resources\GlossaryResource\RelationManagers\SpellingsRelationManager;
+use App\Filament\Resources\GlossaryResource\RelationManagers\SynonymsRelationManager;
 use App\Filament\Resources\GlossaryResource\RelationManagers\TranslationsRelationManager;
 use App\Models\Glossary;
 use App\Models\Language;
@@ -193,6 +194,7 @@ class GlossaryResource extends Resource
         return [
             TranslationsRelationManager::class,
             SpellingsRelationManager::class,
+            SynonymsRelationManager::class,
         ];
     }
 

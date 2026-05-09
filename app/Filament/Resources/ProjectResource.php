@@ -13,6 +13,7 @@ use App\Filament\Resources\ProjectResource\Pages\ListProject;
 use App\Filament\Resources\ProjectResource\Pages\ViewProject;
 use App\Filament\Resources\ProjectResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\ItemsRelationManager;
+use App\Filament\Resources\ProjectResource\RelationManagers\PartnersRelationManager;
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Project;
@@ -221,6 +222,7 @@ class ProjectResource extends Resource
         return [
             ItemsRelationManager::class,
             CollectionsRelationManager::class,
+            PartnersRelationManager::class,
         ];
     }
 

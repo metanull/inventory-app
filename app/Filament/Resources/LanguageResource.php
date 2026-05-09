@@ -11,6 +11,7 @@ use App\Filament\Resources\LanguageResource\Pages\CreateLanguage;
 use App\Filament\Resources\LanguageResource\Pages\EditLanguage;
 use App\Filament\Resources\LanguageResource\Pages\ListLanguage;
 use App\Filament\Resources\LanguageResource\Pages\ViewLanguage;
+use App\Filament\Resources\LanguageResource\RelationManagers\TranslationsRelationManager;
 use App\Models\Language;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -177,6 +178,13 @@ class LanguageResource extends Resource
             'create' => CreateLanguage::route('/create'),
             'edit' => EditLanguage::route('/{record}/edit'),
             'view' => ViewLanguage::route('/{record}'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            TranslationsRelationManager::class,
         ];
     }
 }
