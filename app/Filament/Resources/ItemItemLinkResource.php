@@ -66,6 +66,7 @@ class ItemItemLinkResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
                 'source:id,internal_name,type,backward_compatibility',
                 'target:id,internal_name,type,backward_compatibility',

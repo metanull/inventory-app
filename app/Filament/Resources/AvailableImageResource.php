@@ -33,7 +33,7 @@ class AvailableImageResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-photo';
 
-    protected static ?string $navigationGroup = 'Images';
+    protected static ?string $navigationGroup = 'Available Images';
 
     protected static ?int $navigationSort = 1;
 
@@ -118,6 +118,7 @@ class AvailableImageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('preview')
