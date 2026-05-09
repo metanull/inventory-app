@@ -14,15 +14,20 @@ use App\Filament\Resources\ItemResource\Pages\CreateItem;
 use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
+use App\Filament\Resources\ItemResource\RelationManagers\ArtistsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\DocumentsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\DynastiesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\IncomingLinksRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\MediaRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PictureItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\WorkshopsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
 use App\Models\Country;
@@ -461,6 +466,11 @@ class ItemResource extends Resource
             OutgoingLinksRelationManager::class,
             IncomingLinksRelationManager::class,
             TagsRelationManager::class,
+            ArtistsRelationManager::class,
+            WorkshopsRelationManager::class,
+            DynastiesRelationManager::class,
+            MediaRelationManager::class,
+            DocumentsRelationManager::class,
             TimelineEventsRelationManager::class,
             DisplayedInCollectionsRelationManager::class,
             LegacyLinksRelationManager::class,

@@ -11,6 +11,7 @@ use App\Filament\Resources\CountryResource\Pages\CreateCountry;
 use App\Filament\Resources\CountryResource\Pages\EditCountry;
 use App\Filament\Resources\CountryResource\Pages\ListCountry;
 use App\Filament\Resources\CountryResource\Pages\ViewCountry;
+use App\Filament\Resources\CountryResource\RelationManagers\TranslationsRelationManager;
 use App\Models\Country;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -128,6 +129,13 @@ class CountryResource extends Resource
             'create' => CreateCountry::route('/create'),
             'edit' => EditCountry::route('/{record}/edit'),
             'view' => ViewCountry::route('/{record}'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            TranslationsRelationManager::class,
         ];
     }
 }
