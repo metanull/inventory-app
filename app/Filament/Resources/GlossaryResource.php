@@ -50,7 +50,7 @@ class GlossaryResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility'];
+        return ['id', 'internal_name', 'backward_compatibility'];
     }
 
     public static function canViewAny(): bool
@@ -102,6 +102,7 @@ class GlossaryResource extends Resource
                 ->label('Has translation in language')
                 ->getSearchResultsUsing(fn (string $search): array => Language::query()
                     ->where('internal_name', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%")
                     ->orderBy('internal_name')
                     ->limit(50)
                     ->pluck('internal_name', 'id')
@@ -116,6 +117,7 @@ class GlossaryResource extends Resource
                 ->label('Missing translation in language')
                 ->getSearchResultsUsing(fn (string $search): array => Language::query()
                     ->where('internal_name', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%")
                     ->orderBy('internal_name')
                     ->limit(50)
                     ->pluck('internal_name', 'id')

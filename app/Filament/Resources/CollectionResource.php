@@ -21,6 +21,7 @@ use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelat
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
 use App\Models\Country;
+use App\Models\Partner;
 use App\Models\Project;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
@@ -93,7 +94,7 @@ class CollectionResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.title', 'parent.internal_name', 'country.internal_name'];
+        return ['id', 'internal_name', 'backward_compatibility', 'translations.title', 'parent.internal_name', 'country.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -207,10 +208,29 @@ class CollectionResource extends Resource
                 SelectFilter::make('parent_id')
                     ->label('Parent')
                     ->relationship('parent', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
                     ->searchable(),
                 SelectFilter::make('partner')
                     ->label('Partner')
-                    ->relationship('partners', 'internal_name')
+                    ->getSearchResultsUsing(fn (string $search): array => Partner::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)?->internal_name ?? $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
@@ -220,6 +240,7 @@ class CollectionResource extends Resource
                     ->getSearchResultsUsing(fn (string $search): array => Project::query()
                         ->where('internal_name', 'like', "%{$search}%")
                         ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')

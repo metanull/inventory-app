@@ -136,7 +136,8 @@ class BrowseItemTree extends Page
             $term = $this->search;
             $query->where(function ($q) use ($term): void {
                 $q->where('internal_name', 'like', '%'.$term.'%')
-                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%')
+                    ->orWhere('id', 'like', '%'.$term.'%');
             });
         }
 
@@ -157,7 +158,8 @@ class BrowseItemTree extends Page
             $term = $this->search;
             $query->where(function ($q) use ($term): void {
                 $q->where('internal_name', 'like', '%'.$term.'%')
-                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%');
+                    ->orWhere('backward_compatibility', 'like', '%'.$term.'%')
+                    ->orWhere('id', 'like', '%'.$term.'%');
             });
         }
 

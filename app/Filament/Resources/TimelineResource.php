@@ -28,6 +28,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class TimelineResource extends Resource
@@ -49,7 +50,7 @@ class TimelineResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility'];
+        return ['id', 'internal_name', 'backward_compatibility'];
     }
 
     public static function canViewAny(): bool
@@ -90,6 +91,7 @@ class TimelineResource extends Resource
                             ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->where('internal_name', 'like', "%{$search}%")
                                 ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orWhere('id', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -135,6 +137,33 @@ class TimelineResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->filters([
+                SelectFilter::make('country_id')
+                    ->label('Country')
+                    ->getSearchResultsUsing(fn (string $search): array => Country::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+                SelectFilter::make('collection_id')
+                    ->label('Collection')
+                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                    ->searchable(),
             ]);
     }
 

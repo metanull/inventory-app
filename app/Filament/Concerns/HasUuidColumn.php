@@ -12,6 +12,7 @@ trait HasUuidColumn
         return TextColumn::make('id')
             ->label('UUID')
             ->copyable()
+            ->searchable()
             ->toggleable(isToggledHiddenByDefault: true);
     }
 
