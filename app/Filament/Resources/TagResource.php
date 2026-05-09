@@ -11,6 +11,7 @@ use App\Filament\Resources\TagResource\Pages\EditTag;
 use App\Filament\Resources\TagResource\Pages\ListTag;
 use App\Filament\Resources\TagResource\Pages\ViewTag;
 use App\Filament\Support\EntityColor;
+use App\Models\Language;
 use App\Models\Tag;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -56,7 +57,7 @@ class TagResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'description', 'language.internal_name'];
+        return ['id', 'internal_name', 'backward_compatibility', 'description', 'language.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -127,6 +128,18 @@ class TagResource extends Resource
             ->filters([
                 SelectFilter::make('category')
                     ->options(static::categoryOptions()),
+                SelectFilter::make('language_id')
+                    ->label('Language')
+                    ->getSearchResultsUsing(fn (string $search): array => Language::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                    ->searchable(),
             ])
             ->actions([
                 ViewAction::make(),

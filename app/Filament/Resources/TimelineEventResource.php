@@ -30,6 +30,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class TimelineEventResource extends Resource
@@ -51,7 +52,7 @@ class TimelineEventResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility'];
+        return ['id', 'internal_name', 'backward_compatibility'];
     }
 
     public static function canViewAny(): bool
@@ -76,6 +77,7 @@ class TimelineEventResource extends Resource
                             ->getSearchResultsUsing(fn (string $search): array => Timeline::query()
                                 ->where('internal_name', 'like', "%{$search}%")
                                 ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orWhere('id', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
@@ -159,6 +161,21 @@ class TimelineEventResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->filters([
+                SelectFilter::make('timeline_id')
+                    ->label('Timeline')
+                    ->getSearchResultsUsing(fn (string $search): array => Timeline::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)?->internal_name ?? $value)
+                    ->searchable(),
             ]);
     }
 

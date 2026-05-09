@@ -13,8 +13,11 @@ use App\Filament\Resources\ProjectResource\Pages\ListProject;
 use App\Filament\Resources\ProjectResource\Pages\ViewProject;
 use App\Filament\Resources\ProjectResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Resources\ProjectResource\RelationManagers\ItemsRelationManager;
+use App\Models\Context;
+use App\Models\Language;
 use App\Models\Project;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -29,6 +32,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ProjectResource extends Resource
@@ -50,7 +56,7 @@ class ProjectResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility'];
+        return ['id', 'internal_name', 'backward_compatibility'];
     }
 
     public static function canViewAny(): bool
@@ -118,6 +124,53 @@ class ProjectResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+            ])
+            ->filters([
+                TernaryFilter::make('is_enabled')
+                    ->label('Enabled')
+                    ->trueLabel('Enabled only')
+                    ->falseLabel('Disabled only'),
+                TernaryFilter::make('is_launched')
+                    ->label('Launched')
+                    ->trueLabel('Launched only')
+                    ->falseLabel('Not launched only'),
+                SelectFilter::make('context_id')
+                    ->label('Context')
+                    ->getSearchResultsUsing(fn (string $search): array => Context::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+                SelectFilter::make('language_id')
+                    ->label('Language')
+                    ->getSearchResultsUsing(fn (string $search): array => Language::query()
+                        ->where('internal_name', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
+                        ->orderBy('internal_name')
+                        ->limit(50)
+                        ->pluck('internal_name', 'id')
+                        ->all()
+                    )
+                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                    ->searchable(),
+            ])
+            ->filtersFormColumns(2)
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->filtersFormSchema(fn (array $filters): array => [
+                FiltersSection::make('Project Filters')
+                    ->schema([
+                        $filters['is_enabled'],
+                        $filters['is_launched'],
+                        $filters['context_id'],
+                        $filters['language_id'],
+                    ])
+                    ->columns(2),
             ]);
     }
 

@@ -49,7 +49,7 @@ class ContextResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility'];
+        return ['id', 'internal_name', 'backward_compatibility'];
     }
 
     public static function canViewAny(): bool

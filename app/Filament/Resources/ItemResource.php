@@ -93,7 +93,7 @@ class ItemResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name', 'partner.internal_name', 'country.internal_name', 'project.internal_name'];
+        return ['id', 'internal_name', 'backward_compatibility', 'translations.name', 'translations.alternate_name', 'partner.internal_name', 'country.internal_name', 'project.internal_name'];
     }
 
     public static function canViewAny(): bool
@@ -226,6 +226,7 @@ class ItemResource extends Resource
                     ->getSearchResultsUsing(fn (string $search): array => Partner::query()
                         ->where('internal_name', 'like', "%{$search}%")
                         ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -238,6 +239,7 @@ class ItemResource extends Resource
                     ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                         ->where('internal_name', 'like', "%{$search}%")
                         ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -254,6 +256,7 @@ class ItemResource extends Resource
                     ->getSearchResultsUsing(fn (string $search): array => Project::query()
                         ->where('internal_name', 'like', "%{$search}%")
                         ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('internal_name')
                         ->limit(50)
                         ->pluck('internal_name', 'id')
@@ -281,6 +284,7 @@ class ItemResource extends Resource
                         ->where('internal_name', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%")
                         ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%")
                         ->orderBy('description')
                         ->limit(50)
                         ->get()
@@ -344,6 +348,7 @@ class ItemResource extends Resource
                             ->getSearchResultsUsing(fn (string $search): array => Collection::query()
                                 ->where('internal_name', 'like', "%{$search}%")
                                 ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orWhere('id', 'like', "%{$search}%")
                                 ->orderBy('internal_name')
                                 ->limit(50)
                                 ->pluck('internal_name', 'id')
