@@ -144,7 +144,8 @@ class NavigationConsistencyTest extends TestCase
         }
 
         // Verify relative order: each group must appear before the next.
-        for ($i = 0; $i < count($expectedOrder) - 1; $i++) {
+        $orderCount = count($expectedOrder);
+        for ($i = 0; $i < $orderCount - 1; $i++) {
             $posA = array_search($expectedOrder[$i], $labels, true);
             $posB = array_search($expectedOrder[$i + 1], $labels, true);
             $this->assertLessThan(
