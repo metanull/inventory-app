@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
-use App\Models\Artist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
