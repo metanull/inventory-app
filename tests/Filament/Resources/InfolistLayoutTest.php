@@ -2,7 +2,6 @@
 
 namespace Tests\Filament\Resources;
 
-use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Models\Collection;
 use App\Models\Context;
