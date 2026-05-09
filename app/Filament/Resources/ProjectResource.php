@@ -20,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -125,30 +126,40 @@ class ProjectResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('internal_name'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                TextEntry::make('launch_date')
-                    ->label('Launch date')
-                    ->date(),
-                IconEntry::make('is_launched')
-                    ->label('Launched')
-                    ->boolean(),
-                IconEntry::make('is_enabled')
-                    ->label('Enabled')
-                    ->boolean(),
-                TextEntry::make('context.internal_name')
-                    ->label('Context')
-                    ->url(fn ($record): ?string => $record->context
-                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
-                        : null),
-                TextEntry::make('language.internal_name')
-                    ->label('Language')
-                    ->url(fn ($record): ?string => $record->language
-                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
-                        : null),
-                static::uuidInfolistEntry(),
-                ...static::timestampsInfolistEntries(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('internal_name'),
+                        TextEntry::make('launch_date')
+                            ->label('Launch date')
+                            ->date(),
+                        IconEntry::make('is_launched')
+                            ->label('Launched')
+                            ->boolean(),
+                        IconEntry::make('is_enabled')
+                            ->label('Enabled')
+                            ->boolean(),
+                        TextEntry::make('context.internal_name')
+                            ->label('Context')
+                            ->url(fn ($record): ?string => $record->context
+                                ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                                : null),
+                        TextEntry::make('language.internal_name')
+                            ->label('Language')
+                            ->url(fn ($record): ?string => $record->language
+                                ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                                : null),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

@@ -13,6 +13,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
@@ -81,25 +82,36 @@ class AvailableImageResource extends Resource
                     ]))
                     ->height(200)
                     ->columnSpanFull(),
-                TextEntry::make('id')
-                    ->label('UUID'),
-                TextEntry::make('path')
-                    ->label('Filename'),
-                TextEntry::make('original_name')
-                    ->label('Original name'),
-                TextEntry::make('mime_type')
-                    ->label('MIME type'),
-                TextEntry::make('size')
-                    ->label('Size (bytes)')
-                    ->numeric(),
-                TextEntry::make('comment')
-                    ->label('Comment / Alt text'),
-                TextEntry::make('created_at')
-                    ->label('Created')
-                    ->dateTime(),
-                TextEntry::make('updated_at')
-                    ->label('Updated')
-                    ->dateTime(),
+                InfolistSection::make('Image Details')
+                    ->schema([
+                        TextEntry::make('original_name')
+                            ->label('Original name'),
+                        TextEntry::make('mime_type')
+                            ->label('MIME type'),
+                        TextEntry::make('size')
+                            ->label('Size (bytes)')
+                            ->numeric(),
+                        TextEntry::make('comment')
+                            ->label('Comment / Alt text'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        TextEntry::make('id')
+                            ->label('UUID')
+                            ->copyable(),
+                        TextEntry::make('path')
+                            ->label('Filename'),
+                        TextEntry::make('created_at')
+                            ->label('Created')
+                            ->dateTime(),
+                        TextEntry::make('updated_at')
+                            ->label('Updated')
+                            ->dateTime(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

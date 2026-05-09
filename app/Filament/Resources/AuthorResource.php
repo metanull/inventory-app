@@ -14,6 +14,7 @@ use App\Filament\Resources\AuthorResource\Pages\ViewAuthor;
 use App\Models\Author;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -100,12 +101,22 @@ class AuthorResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('name'),
-                TextEntry::make('internal_name'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                static::uuidInfolistEntry(),
-                ...static::timestampsInfolistEntries(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('name'),
+                        TextEntry::make('internal_name'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

@@ -79,45 +79,49 @@ class PartnerResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('internal_name')
-                    ->required()
-                    ->maxLength(255),
-                Select::make('type')
-                    ->options([
-                        'museum' => 'Museum',
-                        'institution' => 'Institution',
-                        'individual' => 'Individual',
-                        'school' => 'School',
+                FiltersSection::make('Core information')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255),
+                        Select::make('type')
+                            ->options([
+                                'museum' => 'Museum',
+                                'institution' => 'Institution',
+                                'individual' => 'Individual',
+                                'school' => 'School',
+                            ])
+                            ->required(),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                        Select::make('country_id')
+                            ->label('Country')
+                            ->relationship('country', 'internal_name')
+                            ->searchable(),
+                        TextInput::make('latitude')
+                            ->numeric(),
+                        TextInput::make('longitude')
+                            ->numeric(),
+                        TextInput::make('map_zoom')
+                            ->numeric()
+                            ->integer(),
+                        Select::make('project_id')
+                            ->label('Project')
+                            ->relationship('project', 'internal_name')
+                            ->searchable(),
+                        Select::make('monument_item_id')
+                            ->label('Monument item')
+                            ->relationship(
+                                name: 'monumentItem',
+                                titleAttribute: 'internal_name',
+                                modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', ItemType::MONUMENT->value),
+                            )
+                            ->searchable(),
+                        Toggle::make('visible')
+                            ->default(true),
                     ])
-                    ->required(),
-                TextInput::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->maxLength(255),
-                Select::make('country_id')
-                    ->label('Country')
-                    ->relationship('country', 'internal_name')
-                    ->searchable(),
-                TextInput::make('latitude')
-                    ->numeric(),
-                TextInput::make('longitude')
-                    ->numeric(),
-                TextInput::make('map_zoom')
-                    ->numeric()
-                    ->integer(),
-                Select::make('project_id')
-                    ->label('Project')
-                    ->relationship('project', 'internal_name')
-                    ->searchable(),
-                Select::make('monument_item_id')
-                    ->label('Monument item')
-                    ->relationship(
-                        name: 'monumentItem',
-                        titleAttribute: 'internal_name',
-                        modifyQueryUsing: fn (Builder $query): Builder => $query->where('type', ItemType::MONUMENT->value),
-                    )
-                    ->searchable(),
-                Toggle::make('visible')
-                    ->default(true),
+                    ->columns(2),
             ]);
     }
 
@@ -245,12 +249,18 @@ class PartnerResource extends Resource
                         TextEntry::make('longitude'),
                         TextEntry::make('map_zoom')
                             ->label('Map zoom'),
-                        TextEntry::make('backward_compatibility')
-                            ->label('Legacy code'),
-                        static::uuidInfolistEntry(),
-                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

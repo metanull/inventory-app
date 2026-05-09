@@ -200,21 +200,25 @@ class PartnerTranslationResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('partner.internal_name')
-                    ->label('Partner')
-                    ->url(fn ($record): ?string => $record->partner
-                        ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
-                        : null),
-                TextEntry::make('language.internal_name')
-                    ->label('Language')
-                    ->url(fn ($record): ?string => $record->language
-                        ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
-                        : null),
-                TextEntry::make('context.internal_name')
-                    ->label('Context')
-                    ->url(fn ($record): ?string => $record->context
-                        ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
-                        : null),
+                InfolistSection::make('Translation For')
+                    ->schema([
+                        TextEntry::make('partner.internal_name')
+                            ->label('Partner')
+                            ->url(fn ($record): ?string => $record->partner
+                                ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
+                                : null),
+                        TextEntry::make('language.internal_name')
+                            ->label('Language')
+                            ->url(fn ($record): ?string => $record->language
+                                ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
+                                : null),
+                        TextEntry::make('context.internal_name')
+                            ->label('Context')
+                            ->url(fn ($record): ?string => $record->context
+                                ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
+                                : null),
+                    ])
+                    ->columns(2),
 
                 InfolistSection::make('Basic Information')
                     ->schema([
@@ -248,11 +252,17 @@ class PartnerTranslationResource extends Resource
                     ->collapsible()
                     ->collapsed(),
 
-                InfolistSection::make('Legacy & Metadata')
+                InfolistSection::make('Extra Data')
                     ->schema([
-                        TextEntry::make('backward_compatibility')->label('Legacy ID'),
                         TranslationInfolistSchema::extraEntry(),
-                        TextEntry::make('id')->label('UUID'),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
+
+                InfolistSection::make('System Information')
+                    ->schema([
+                        TextEntry::make('id')->label('UUID')->copyable(),
+                        TextEntry::make('backward_compatibility')->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2)

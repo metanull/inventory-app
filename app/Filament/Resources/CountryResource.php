@@ -14,6 +14,7 @@ use App\Filament\Resources\CountryResource\Pages\ViewCountry;
 use App\Models\Country;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -101,12 +102,22 @@ class CountryResource extends Resource
         return $infolist
             ->inlineLabel()
             ->schema([
-                TextEntry::make('id')
-                    ->label('ISO code'),
-                TextEntry::make('internal_name'),
-                TextEntry::make('backward_compatibility')
-                    ->label('Legacy code'),
-                ...static::timestampsInfolistEntries(),
+                InfolistSection::make('Core Information')
+                    ->schema([
+                        TextEntry::make('id')
+                            ->label('ISO code'),
+                        TextEntry::make('internal_name'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

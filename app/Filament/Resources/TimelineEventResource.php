@@ -68,65 +68,68 @@ class TimelineEventResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('timeline_id')
-                    ->label('Timeline')
-                    ->required()
-                    ->getSearchResultsUsing(fn (string $search): array => Timeline::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)?->internal_name ?? $value)
-                    ->searchable(),
-                TextInput::make('internal_name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('year_from')
-                    ->label('Year from')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
-                TextInput::make('year_to')
-                    ->label('Year to')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
-                TextInput::make('year_from_ah')
-                    ->label('Year from (AH)')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
-                TextInput::make('year_to_ah')
-                    ->label('Year to (AH)')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
-                DatePicker::make('date_from')
-                    ->label('Date from')
-                    ->nullable(),
-                DatePicker::make('date_to')
-                    ->label('Date to')
-                    ->nullable(),
-                TextInput::make('display_order')
-                    ->label('Display order')
-                    ->numeric()
-                    ->integer()
-                    ->nullable(),
-                TextInput::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->maxLength(255)
-                    ->nullable(),
+                Section::make('Core information')
+                    ->schema([
+                        Select::make('timeline_id')
+                            ->label('Timeline')
+                            ->required()
+                            ->getSearchResultsUsing(fn (string $search): array => Timeline::query()
+                                ->where('internal_name', 'like', "%{$search}%")
+                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                ->orderBy('internal_name')
+                                ->limit(50)
+                                ->pluck('internal_name', 'id')
+                                ->all()
+                            )
+                            ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)?->internal_name ?? $value)
+                            ->searchable(),
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('year_from')
+                            ->label('Year from')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                        TextInput::make('year_to')
+                            ->label('Year to')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                        TextInput::make('year_from_ah')
+                            ->label('Year from (AH)')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                        TextInput::make('year_to_ah')
+                            ->label('Year to (AH)')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                        DatePicker::make('date_from')
+                            ->label('Date from')
+                            ->nullable(),
+                        DatePicker::make('date_to')
+                            ->label('Date to')
+                            ->nullable(),
+                        TextInput::make('display_order')
+                            ->label('Display order')
+                            ->numeric()
+                            ->integer()
+                            ->nullable(),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255)
+                            ->nullable(),
+                    ])
+                    ->columns(2),
                 Section::make('Metadata')
                     ->schema([
                         ExtraJsonField::formComponent(),
                     ])
                     ->collapsible()
                     ->collapsed(),
-            ])
-            ->columns(2);
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -185,12 +188,18 @@ class TimelineEventResource extends Resource
                             ->date(),
                         TextEntry::make('display_order')
                             ->label('Display order'),
-                        TextEntry::make('backward_compatibility')
-                            ->label('Legacy code'),
-                        static::uuidInfolistEntry(),
-                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
                 InfolistSection::make('Metadata')
                     ->schema([
                         ExtraJsonField::infolistEntry(),

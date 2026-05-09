@@ -311,12 +311,18 @@ class CollectionResource extends Resource
                         TextEntry::make('longitude'),
                         TextEntry::make('map_zoom')
                             ->label('Map zoom'),
-                        TextEntry::make('backward_compatibility')
-                            ->label('Legacy code'),
-                        static::uuidInfolistEntry(),
-                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 

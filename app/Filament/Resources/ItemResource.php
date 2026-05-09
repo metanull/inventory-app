@@ -431,12 +431,18 @@ class ItemResource extends Resource
                                 : null),
                         TextEntry::make('display_order')
                             ->label('Display order'),
-                        TextEntry::make('backward_compatibility')
-                            ->label('Legacy code'),
-                        static::uuidInfolistEntry(),
-                        ...static::timestampsInfolistEntries(),
                     ])
                     ->columns(2),
+                InfolistSection::make('System Information')
+                    ->schema([
+                        static::uuidInfolistEntry(),
+                        TextEntry::make('backward_compatibility')
+                            ->label('Legacy code'),
+                        ...static::timestampsInfolistEntries(),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
