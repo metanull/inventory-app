@@ -149,7 +149,8 @@ class ExtraJsonFieldTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/timelines/{$timeline->getKey()}")
             ->assertOk()
-            ->assertSee('Metadata');
+            ->assertSee('Metadata')
+            ->assertSee('text-gray-950', false);
     }
 
     // ─── TimelineEvent ───────────────────────────────────────────────────────────
