@@ -32,6 +32,17 @@ class UserResourceTest extends TestCase
         return $user;
     }
 
+    protected function createManageOnlyUser(): User
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        $user->givePermissionTo([
+            Permission::ACCESS_ADMIN_PANEL->value,
+            Permission::MANAGE_USERS->value,
+        ]);
+
+        return $user;
+    }
+
     protected function setCurrentPanel(): void
     {
         Filament::setCurrentPanel(Filament::getPanel('admin'));
@@ -325,5 +336,78 @@ class UserResourceTest extends TestCase
         foreach ($users as $user) {
             $this->assertTrue($user->fresh()->hasRole('Reviewer'));
         }
+    }
+
+    // ── Role-assignment permission boundary ───────────────────────────────────
+
+    public function test_user_without_assign_roles_cannot_see_assign_role_row_action(): void
+    {
+        $manager = $this->createManageOnlyUser();
+        $target = User::factory()->create(['email_verified_at' => now()]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableActionHidden('assignRole', $target);
+    }
+
+    public function test_user_with_assign_roles_can_see_assign_role_row_action(): void
+    {
+        $manager = $this->createManagerUser();
+        $target = User::factory()->create(['email_verified_at' => now()]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableActionVisible('assignRole', $target);
+    }
+
+    public function test_user_without_assign_roles_cannot_see_assign_role_bulk_action(): void
+    {
+        $manager = $this->createManageOnlyUser();
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableBulkActionHidden('assignRole');
+    }
+
+    public function test_user_with_assign_roles_can_see_assign_role_bulk_action(): void
+    {
+        $manager = $this->createManagerUser();
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableBulkActionVisible('assignRole');
+    }
+
+    // ── Self-suspend protection ───────────────────────────────────────────────
+
+    public function test_suspend_row_action_is_hidden_for_self(): void
+    {
+        $manager = $this->createManagerUser();
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableActionHidden('suspend', $manager);
+    }
+
+    public function test_suspend_row_action_is_visible_for_another_user(): void
+    {
+        $manager = $this->createManagerUser();
+        $target = User::factory()->create(['suspended_at' => null]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($manager)
+            ->test(ListUser::class)
+            ->assertTableActionVisible('suspend', $target);
     }
 }
