@@ -535,11 +535,13 @@ class BrowseCollectionTreePageTest extends TestCase
 
     public function test_default_filter_child_collections_is_with(): void
     {
+        $user = $this->createViewUser();
+
         $this->setCurrentPanel();
 
-        $component = Livewire::test(BrowseCollectionTree::class);
-
-        $component->assertSet('filterChildCollections', 'with');
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->assertSet('filterChildCollections', 'with');
     }
 
     public function test_collections_without_children_are_hidden_by_default(): void

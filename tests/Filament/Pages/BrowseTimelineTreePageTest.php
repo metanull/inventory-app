@@ -3,6 +3,7 @@
 namespace Tests\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Pages\BrowseItemTree;
 use App\Filament\Pages\BrowseTimelineTree;
 use App\Filament\Resources\TimelineEventResource;
 use App\Filament\Resources\TimelineResource;
@@ -67,11 +68,13 @@ class BrowseTimelineTreePageTest extends TestCase
 
     public function test_default_filter_child_events_is_with(): void
     {
+        $user = $this->createViewUser();
+
         $this->setCurrentPanel();
 
-        $component = Livewire::test(BrowseTimelineTree::class);
-
-        $component->assertSet('filterChildEvents', 'with');
+        Livewire::actingAs($user)
+            ->test(BrowseTimelineTree::class)
+            ->assertSet('filterChildEvents', 'with');
     }
 
     public function test_timelines_without_events_are_hidden_by_default(): void
@@ -490,13 +493,13 @@ class BrowseTimelineTreePageTest extends TestCase
     public function test_page_navigation_sort_is_between_timelines_and_browse_item_tree(): void
     {
         $this->assertGreaterThan(
-            \App\Filament\Resources\TimelineEventResource::getNavigationSort(),
+            TimelineEventResource::getNavigationSort(),
             BrowseTimelineTree::getNavigationSort(),
             'BrowseTimelineTree must appear after TimelineEventResource in navigation.'
         );
 
         $this->assertLessThan(
-            \App\Filament\Pages\BrowseItemTree::getNavigationSort(),
+            BrowseItemTree::getNavigationSort(),
             BrowseTimelineTree::getNavigationSort(),
             'BrowseTimelineTree must appear before BrowseItemTree in navigation.'
         );
