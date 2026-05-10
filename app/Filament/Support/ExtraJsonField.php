@@ -102,7 +102,7 @@ class ExtraJsonField
                     JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
                 );
 
-                return '<pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-50 text-gray-950 dark:text-gray-100 p-2 rounded">'
+                return '<pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-50 text-gray-950 p-2 rounded">'
                     .e($json)
                     .'</pre>';
             })
