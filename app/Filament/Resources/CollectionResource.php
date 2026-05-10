@@ -162,6 +162,7 @@ class CollectionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
                 $query->with([
                     'parent:id,internal_name',
