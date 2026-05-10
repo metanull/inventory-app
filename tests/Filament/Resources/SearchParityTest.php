@@ -980,6 +980,7 @@ class SearchParityTest extends TestCase
 
         $page = new BrowseCollectionTree;
         $page->search = $collection->id;
+        $page->filterChildCollections = 'all';
 
         $roots = $page->getRoots();
         $ids = $roots->pluck('id')->all();

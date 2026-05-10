@@ -7,6 +7,7 @@ use App\Models\Timeline;
 use App\Models\TimelineEvent;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class BrowseTimelineTree extends Page
 {
@@ -200,9 +201,9 @@ class BrowseTimelineTree extends Page
     /**
      * Fetch a paginated, optionally-searched and filtered page of timelines.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, Timeline>
+     * @return Collection<int, Timeline>
      */
-    public function getRoots(): \Illuminate\Database\Eloquent\Collection
+    public function getRoots(): Collection
     {
         return $this->buildRootQuery()
             ->withCount('events')
@@ -223,9 +224,9 @@ class BrowseTimelineTree extends Page
     /**
      * Fetch events for a given timeline ID.
      *
-     * @return \Illuminate\Database\Eloquent\Collection<int, TimelineEvent>
+     * @return Collection<int, TimelineEvent>
      */
-    public function getEvents(string $timelineId): \Illuminate\Database\Eloquent\Collection
+    public function getEvents(string $timelineId): Collection
     {
         return TimelineEvent::query()
             ->where('timeline_id', $timelineId)
