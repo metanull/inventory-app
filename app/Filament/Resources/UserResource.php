@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Permission;
 use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUser;
@@ -81,7 +82,8 @@ class UserResource extends Resource
                 Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'name')
-                    ->preload(),
+                    ->preload()
+                    ->hidden(fn (): bool => ! auth()->user()?->hasPermissionTo(Permission::ASSIGN_ROLES->value)),
             ]);
     }
 
@@ -199,6 +201,7 @@ class UserResource extends Resource
                     ->label('Assign Role')
                     ->icon('heroicon-o-shield-check')
                     ->color('primary')
+                    ->visible(fn (): bool => auth()->user()?->hasPermissionTo(Permission::ASSIGN_ROLES->value) ?? false)
                     ->form([
                         Select::make('role_id')
                             ->label('Role')
@@ -226,7 +229,7 @@ class UserResource extends Resource
                     ->label('Approve')
                     ->icon('heroicon-o-check')
                     ->color('success')
-                    ->visible(fn (User $record): bool => $record->approved_at === null)
+                    ->visible(fn (User $record): bool => $record->approved_at === null && (auth()->user()?->can('approve', $record) ?? false))
                     ->requiresConfirmation()
                     ->action(function (User $record): void {
                         $record->forceFill(['approved_at' => now()])->save();
@@ -236,9 +239,10 @@ class UserResource extends Resource
                     ->label('Suspend')
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
-                    ->visible(fn (User $record): bool => $record->suspended_at === null)
+                    ->visible(fn (User $record): bool => $record->suspended_at === null && (auth()->user()?->can('suspend', $record) ?? false))
                     ->requiresConfirmation()
                     ->action(function (User $record): void {
+                        abort_unless(auth()->user()?->can('suspend', $record), 403);
                         $record->forceFill(['suspended_at' => now()])->save();
                         Notification::make()->success()->title('User suspended')->send();
                     }),
@@ -273,6 +277,7 @@ class UserResource extends Resource
                     ->label('Assign Role')
                     ->icon('heroicon-o-shield-check')
                     ->color('primary')
+                    ->visible(fn (): bool => auth()->user()?->hasPermissionTo(Permission::ASSIGN_ROLES->value) ?? false)
                     ->form([
                         Select::make('role_id')
                             ->label('Role')
