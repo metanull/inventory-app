@@ -297,9 +297,6 @@ class BrowseItemTreePageTest extends TestCase
             'internal_name' => 'Monument Item',
             'parent_id' => null,
             'type' => ItemType::MONUMENT->value,
-            'partner_id' => null,
-            'project_id' => null,
-            'country_id' => null,
         ]);
 
         $this->setCurrentPanel();
@@ -320,9 +317,6 @@ class BrowseItemTreePageTest extends TestCase
             'internal_name' => 'Monument Item',
             'parent_id' => null,
             'type' => ItemType::MONUMENT->value,
-            'partner_id' => null,
-            'project_id' => null,
-            'country_id' => null,
         ]);
 
         $this->setCurrentPanel();
