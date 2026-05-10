@@ -2,24 +2,24 @@
 
 namespace App\Filament\Pages;
 
-use App\Enums\ItemType;
 use App\Enums\Permission;
-use App\Models\Item;
+use App\Models\Timeline;
+use App\Models\TimelineEvent;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
-class BrowseItemTree extends Page
+class BrowseTimelineTree extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationIcon = 'heroicon-o-clock';
 
-    protected static ?string $navigationLabel = 'Browse item tree';
+    protected static ?string $navigationLabel = 'Browse timeline tree';
 
     protected static ?string $navigationGroup = 'Inventory';
 
-    protected static ?int $navigationSort = 11;
+    protected static ?int $navigationSort = 10;
 
-    protected static string $view = 'filament.pages.browse-item-tree';
+    protected static string $view = 'filament.pages.browse-timeline-tree';
 
     public static function canAccess(): bool
     {
@@ -44,37 +44,32 @@ class BrowseItemTree extends Page
     public string $search = '';
 
     /**
-     * Filter root items by type.
-     * Accepted values: 'all', or any ItemType value (e.g. 'object', 'monument').
-     */
-    public string $filterType = 'all';
-
-    /**
-     * Filter root items by presence of a project assignment.
+     * Filter timelines by presence of child events.
      * Accepted values: 'all', 'with', 'without'.
      */
-    public string $filterProject = 'all';
+    public string $filterChildEvents = 'with';
 
     /**
-     * Filter root items by presence of a country assignment.
+     * Filter timelines by presence of a country assignment.
      * Accepted values: 'all', 'with', 'without'.
      */
     public string $filterCountry = 'all';
 
     /**
-     * Current pagination page for root items (1-based).
+     * Filter timelines by presence of a collection assignment.
+     * Accepted values: 'all', 'with', 'without'.
+     */
+    public string $filterCollection = 'all';
+
+    /**
+     * Current pagination page for root timelines (1-based).
      */
     public int $page = 1;
 
     /**
-     * Number of root items shown per page.
+     * Number of timelines shown per page.
      */
     private const PAGE_SIZE = 50;
-
-    /**
-     * Maximum depth for ancestor chain traversal to prevent infinite loops.
-     */
-    private const MAX_ANCESTOR_DEPTH = 10;
 
     /**
      * Reset pagination when the search query changes.
@@ -85,17 +80,9 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Reset pagination when the type filter changes.
+     * Reset pagination when the child-events filter changes.
      */
-    public function updatedFilterType(): void
-    {
-        $this->page = 1;
-    }
-
-    /**
-     * Reset pagination when the project filter changes.
-     */
-    public function updatedFilterProject(): void
+    public function updatedFilterChildEvents(): void
     {
         $this->page = 1;
     }
@@ -104,6 +91,14 @@ class BrowseItemTree extends Page
      * Reset pagination when the country filter changes.
      */
     public function updatedFilterCountry(): void
+    {
+        $this->page = 1;
+    }
+
+    /**
+     * Reset pagination when the collection filter changes.
+     */
+    public function updatedFilterCollection(): void
     {
         $this->page = 1;
     }
@@ -165,13 +160,13 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Build the shared base query for root items, applying search and filters.
+     * Build the shared base query for timelines, applying search and filters.
      *
-     * @return Builder<Item>
+     * @return Builder<Timeline>
      */
     private function buildRootQuery(): Builder
     {
-        $query = Item::query()->whereNull('parent_id');
+        $query = Timeline::query();
 
         if ($this->search !== '') {
             $term = $this->search;
@@ -182,14 +177,10 @@ class BrowseItemTree extends Page
             });
         }
 
-        if ($this->filterType !== 'all') {
-            $query->where('type', $this->filterType);
-        }
-
-        if ($this->filterProject === 'with') {
-            $query->whereNotNull('project_id');
-        } elseif ($this->filterProject === 'without') {
-            $query->whereNull('project_id');
+        if ($this->filterChildEvents === 'with') {
+            $query->whereHas('events');
+        } elseif ($this->filterChildEvents === 'without') {
+            $query->whereDoesntHave('events');
         }
 
         if ($this->filterCountry === 'with') {
@@ -198,18 +189,24 @@ class BrowseItemTree extends Page
             $query->whereNull('country_id');
         }
 
+        if ($this->filterCollection === 'with') {
+            $query->whereNotNull('collection_id');
+        } elseif ($this->filterCollection === 'without') {
+            $query->whereNull('collection_id');
+        }
+
         return $query;
     }
 
     /**
-     * Fetch a paginated, optionally-searched and filtered page of root-level items (no parent).
+     * Fetch a paginated, optionally-searched and filtered page of timelines.
      *
-     * @return Collection<int, Item>
+     * @return Collection<int, Timeline>
      */
     public function getRoots(): Collection
     {
         return $this->buildRootQuery()
-            ->withCount('children')
+            ->withCount('events')
             ->orderBy('internal_name')
             ->offset(($this->page - 1) * self::PAGE_SIZE)
             ->limit(self::PAGE_SIZE)
@@ -217,7 +214,7 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Total count of root-level items matching the current search and filters.
+     * Total count of timelines matching the current search and filters.
      */
     public function getRootCount(): int
     {
@@ -225,15 +222,14 @@ class BrowseItemTree extends Page
     }
 
     /**
-     * Fetch direct children for a given parent ID.
+     * Fetch events for a given timeline ID.
      *
-     * @return Collection<int, Item>
+     * @return Collection<int, TimelineEvent>
      */
-    public function getChildren(string $parentId): Collection
+    public function getEvents(string $timelineId): Collection
     {
-        return Item::query()
-            ->where('parent_id', $parentId)
-            ->withCount('children')
+        return TimelineEvent::query()
+            ->where('timeline_id', $timelineId)
             ->orderBy('display_order')
             ->orderBy('internal_name')
             ->get();

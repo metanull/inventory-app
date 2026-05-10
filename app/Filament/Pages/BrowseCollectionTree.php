@@ -16,7 +16,7 @@ class BrowseCollectionTree extends Page
 
     protected static ?string $navigationGroup = 'Inventory';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 0;
 
     protected static string $view = 'filament.pages.browse-collection-tree';
 
@@ -46,7 +46,7 @@ class BrowseCollectionTree extends Page
      * Filter root collections by presence of direct child collections.
      * Accepted values: 'all', 'with', 'without'.
      */
-    public string $filterChildCollections = 'all';
+    public string $filterChildCollections = 'with';
 
     /**
      * Filter root collections by presence of directly attached items.

@@ -6,7 +6,9 @@ use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Pages\BrowseItemTree;
 use App\Filament\Resources\ItemResource;
+use App\Models\Country;
 use App\Models\Item;
+use App\Models\Project;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -280,5 +282,209 @@ class BrowseItemTreePageTest extends TestCase
             ->test(BrowseItemTree::class)
             ->assertSee('Parent Item')
             ->assertDontSee('Child Item');
+    }
+
+    // -------------------------------------------------------------------------
+    // Type filter
+    // -------------------------------------------------------------------------
+
+    public function test_filter_type_shows_only_matching_items(): void
+    {
+        $user = $this->createViewUser();
+
+        Item::factory()->Object()->create(['internal_name' => 'Object Item', 'parent_id' => null]);
+        Item::factory()->create([
+            'internal_name' => 'Monument Item',
+            'parent_id' => null,
+            'type' => ItemType::MONUMENT->value,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterType', 'object')
+            ->assertSee('Object Item')
+            ->assertDontSee('Monument Item');
+    }
+
+    public function test_filter_type_all_shows_all_items(): void
+    {
+        $user = $this->createViewUser();
+
+        Item::factory()->Object()->create(['internal_name' => 'Object Item', 'parent_id' => null]);
+        Item::factory()->create([
+            'internal_name' => 'Monument Item',
+            'parent_id' => null,
+            'type' => ItemType::MONUMENT->value,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterType', 'all')
+            ->assertSee('Object Item')
+            ->assertSee('Monument Item');
+    }
+
+    public function test_filter_type_resets_page_to_first(): void
+    {
+        $user = $this->createViewUser();
+
+        $this->seedRootItems(51);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->call('nextPage')
+            ->assertSet('page', 2)
+            ->set('filterType', 'object')
+            ->assertSet('page', 1);
+    }
+
+    // -------------------------------------------------------------------------
+    // Project filter
+    // -------------------------------------------------------------------------
+
+    public function test_filter_project_with_shows_only_items_with_project(): void
+    {
+        $user = $this->createViewUser();
+
+        $project = Project::factory()->create(['internal_name' => 'Test Project']);
+
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item With Project',
+            'parent_id' => null,
+            'project_id' => $project->id,
+        ]);
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item Without Project',
+            'parent_id' => null,
+            'project_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterProject', 'with')
+            ->assertSee('Item With Project')
+            ->assertDontSee('Item Without Project');
+    }
+
+    public function test_filter_project_without_shows_only_items_without_project(): void
+    {
+        $user = $this->createViewUser();
+
+        $project = Project::factory()->create(['internal_name' => 'Test Project']);
+
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item With Project',
+            'parent_id' => null,
+            'project_id' => $project->id,
+        ]);
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item Without Project',
+            'parent_id' => null,
+            'project_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterProject', 'without')
+            ->assertDontSee('Item With Project')
+            ->assertSee('Item Without Project');
+    }
+
+    public function test_filter_project_resets_page_to_first(): void
+    {
+        $user = $this->createViewUser();
+
+        $this->seedRootItems(51);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->call('nextPage')
+            ->assertSet('page', 2)
+            ->set('filterProject', 'without')
+            ->assertSet('page', 1);
+    }
+
+    // -------------------------------------------------------------------------
+    // Country filter
+    // -------------------------------------------------------------------------
+
+    public function test_filter_country_with_shows_only_items_with_country(): void
+    {
+        $user = $this->createViewUser();
+
+        $country = Country::factory()->create(['internal_name' => 'Egypt']);
+
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item With Country',
+            'parent_id' => null,
+            'country_id' => $country->id,
+        ]);
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item Without Country',
+            'parent_id' => null,
+            'country_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterCountry', 'with')
+            ->assertSee('Item With Country')
+            ->assertDontSee('Item Without Country');
+    }
+
+    public function test_filter_country_without_shows_only_items_without_country(): void
+    {
+        $user = $this->createViewUser();
+
+        $country = Country::factory()->create(['internal_name' => 'Egypt']);
+
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item With Country',
+            'parent_id' => null,
+            'country_id' => $country->id,
+        ]);
+        Item::factory()->Object()->create([
+            'internal_name' => 'Item Without Country',
+            'parent_id' => null,
+            'country_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->set('filterCountry', 'without')
+            ->assertDontSee('Item With Country')
+            ->assertSee('Item Without Country');
+    }
+
+    public function test_filter_country_resets_page_to_first(): void
+    {
+        $user = $this->createViewUser();
+
+        $this->seedRootItems(51);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseItemTree::class)
+            ->call('nextPage')
+            ->assertSet('page', 2)
+            ->set('filterCountry', 'without')
+            ->assertSet('page', 1);
     }
 }

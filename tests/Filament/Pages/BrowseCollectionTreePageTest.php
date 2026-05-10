@@ -108,6 +108,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->set('search', 'Egyptian')
             ->assertSee('Egyptian Gallery')
             ->assertDontSee('Bronze Age');
@@ -139,6 +140,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->set('search', 'leg-alpha')
             ->assertSee('Alpha Collection')
             ->assertDontSee('Beta Collection');
@@ -159,6 +161,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertSee('Page 1 of 2');
     }
 
@@ -181,6 +184,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertDontSee('Zzz Unique Last Collection')
             ->call('nextPage')
             ->assertSee('Page 2 of 2')
@@ -197,6 +201,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('nextPage')
             ->assertSee('Page 2 of 2')
             ->call('previousPage')
@@ -213,6 +218,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('nextPage')
             ->assertSet('page', 2)
             ->set('search', 'something')
@@ -239,6 +245,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertSee('1 root collection');
     }
 
@@ -260,6 +267,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->set('search', 'Temple')
             ->assertSee('2 results');
     }
@@ -286,6 +294,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertSee($viewUrl, false);
     }
 
@@ -312,6 +321,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertSee('3 items');
     }
 
@@ -331,6 +341,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertDontSeeText('0 items');
     }
 
@@ -356,6 +367,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertDontSee('Amulet Item')
             ->call('expand', $gallery->id)
             ->assertSee('Amulet Item');
@@ -385,6 +397,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('expand', $gallery->id)
             ->assertSee($itemViewUrl, false);
     }
@@ -416,11 +429,13 @@ class BrowseCollectionTreePageTest extends TestCase
         // Expanding gallery A reveals the item; gallery B does not show it.
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('expand', $galleryA->id)
             ->assertSee('Exclusive Item');
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('expand', $galleryB->id)
             ->assertDontSee('Exclusive Item');
     }
@@ -449,6 +464,7 @@ class BrowseCollectionTreePageTest extends TestCase
         // The item is visible in the gallery node when expanded, even though parent_id IS NULL.
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->call('expand', $gallery->id)
             ->assertSee('Pivot-Only Item');
     }
@@ -474,6 +490,7 @@ class BrowseCollectionTreePageTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
             ->assertSee('gallery_amulets_and_talismans')
             ->assertSee('45 items');
     }
@@ -510,5 +527,101 @@ class BrowseCollectionTreePageTest extends TestCase
             ->call('expand', $root->id)
             ->assertSee('gallery_amulets_and_talismans')
             ->assertDontSee('unique_amulet_member_item');
+    }
+
+    // -------------------------------------------------------------------------
+    // Default filter: filterChildCollections defaults to 'with'
+    // -------------------------------------------------------------------------
+
+    public function test_default_filter_child_collections_is_with(): void
+    {
+        $user = $this->createViewUser();
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->assertSet('filterChildCollections', 'with');
+    }
+
+    public function test_collections_without_children_are_hidden_by_default(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        // A root collection with no children.
+        Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Childless Collection',
+            'parent_id' => null,
+        ]);
+
+        // A root collection that has a child.
+        $parent = Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Parent Collection',
+            'parent_id' => null,
+        ]);
+        Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Child Collection',
+            'parent_id' => $parent->id,
+        ]);
+
+        $this->setCurrentPanel();
+
+        // Default filterChildCollections='with' → only Parent Collection is visible at root level.
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->assertDontSee('Childless Collection')
+            ->assertSee('Parent Collection');
+    }
+
+    public function test_filter_child_collections_all_shows_collections_without_children(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Leaf Collection',
+            'parent_id' => null,
+        ]);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
+            ->assertSee('Leaf Collection');
+    }
+
+    public function test_filter_child_collections_resets_page_to_first(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        // Create 52 collections each with a child so they pass the 'with' filter and page=2 is reachable.
+        for ($i = 1; $i <= 52; $i++) {
+            $parent = Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+                'internal_name' => sprintf('Parent Col %04d', $i),
+                'parent_id' => null,
+            ]);
+            Collection::factory()->withLanguage($language->id)->withContext($context->id)->create([
+                'internal_name' => sprintf('Child Col %04d', $i),
+                'parent_id' => $parent->id,
+            ]);
+        }
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->call('nextPage')
+            ->assertSet('page', 2)
+            ->set('filterChildCollections', 'all')
+            ->assertSet('page', 1);
     }
 }
