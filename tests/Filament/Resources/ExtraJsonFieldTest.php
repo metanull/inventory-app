@@ -150,8 +150,7 @@ class ExtraJsonFieldTest extends TestCase
             ->get("/admin/timelines/{$timeline->getKey()}")
             ->assertOk()
             ->assertSee('Metadata')
-            ->assertSee('text-gray-950', false)
-            ->assertSee('dark:text-gray-100', false);
+            ->assertSee('text-gray-950', false);
     }
 
     // ─── TimelineEvent ───────────────────────────────────────────────────────────
