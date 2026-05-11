@@ -19,6 +19,7 @@ use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationMana
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
+use App\Filament\Support\CollectionDisplayLabel;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Partner;
@@ -113,16 +114,9 @@ class CollectionResource extends Resource
             ->schema([
                 FiltersSection::make('Core information')
                     ->schema([
-                        TextInput::make('internal_name')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true),
                         Select::make('type')
                             ->options(self::TYPE_OPTIONS)
                             ->required(),
-                        TextInput::make('backward_compatibility')
-                            ->label('Legacy code')
-                            ->maxLength(255),
                         Select::make('language_id')
                             ->label('Language')
                             ->relationship('language', 'internal_name')
@@ -156,6 +150,19 @@ class CollectionResource extends Resource
                             ->integer(),
                     ])
                     ->columns(2),
+                FiltersSection::make('Technical identification')
+                    ->description('System metadata used for technical identification and legacy imports.')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                    ])
+                    ->columns(2)
+                    ->collapsed(fn (?Collection $record): bool => $record !== null),
             ]);
     }
 
@@ -163,16 +170,19 @@ class CollectionResource extends Resource
     {
         return $table
             ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
-            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
-                $query->with([
-                    'parent:id,internal_name',
-                    'context:id,internal_name',
-                    'language:id,internal_name',
-                ])
+            ->modifyQueryUsing(fn (Builder $query): Builder => CollectionDisplayLabel::withDisplayLabel(
+                static::withFallbackExists(
+                    $query->with([
+                        'parent:id,internal_name',
+                        'context:id,internal_name',
+                        'language:id,internal_name',
+                    ])
+                )
             ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
-                static::internalNameColumn(),
+                CollectionDisplayLabel::displayLabelColumn()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
@@ -201,6 +211,9 @@ class CollectionResource extends Resource
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+                static::internalNameColumn()
+                    ->label('Internal name')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 ...static::translationCoverageFilters(),
@@ -209,16 +222,19 @@ class CollectionResource extends Resource
                 SelectFilter::make('parent_id')
                     ->label('Parent')
                     ->relationship('parent', 'internal_name')
-                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                    ->getSearchResultsUsing(fn (string $search): array => CollectionDisplayLabel::withDisplayLabel(
+                        Collection::query()
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orderBy('internal_name')
+                            ->limit(50)
+                    )->get()->mapWithKeys(fn (Collection $c): array => [
+                        $c->id => $c->display_label !== $c->internal_name
+                            ? $c->display_label.' ['.$c->internal_name.']'
+                            : $c->internal_name,
+                    ])->all())
+                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
                     ->searchable(),
                 SelectFilter::make('partner')
                     ->label('Partner')
@@ -307,7 +323,6 @@ class CollectionResource extends Resource
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
-                        TextEntry::make('internal_name'),
                         TextEntry::make('type'),
                         TextEntry::make('parent.internal_name')
                             ->label('Parent')
@@ -338,6 +353,8 @@ class CollectionResource extends Resource
                 InfolistSection::make('System Information')
                     ->schema([
                         static::uuidInfolistEntry(),
+                        TextEntry::make('internal_name')
+                            ->label('Internal name'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),

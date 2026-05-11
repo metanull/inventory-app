@@ -137,7 +137,7 @@ class ProjectResourceTest extends TestCase
                 'pageClass' => ViewProject::class,
             ])
             ->assertTableColumnExists(
-                'internal_name',
+                'display_label',
                 fn (TextColumn $column): bool => $column->getUrl() === CollectionResource::getUrl('view', ['record' => $collection]),
                 $collection
             );

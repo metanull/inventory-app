@@ -141,19 +141,18 @@ class TranslationFormSchema
                         }
                     })
                     ->orderBy('internal_name')
-                    ->limit(50)
-                    ->get();
+                    ->limit(50);
 
-                return $query->mapWithKeys(fn (Collection $collection): array => [
-                    $collection->id => static::legacyLabel($collection->internal_name, $collection->backward_compatibility),
-                ])->all();
+                return CollectionDisplayLabel::withDisplayLabel($query)
+                    ->get()
+                    ->mapWithKeys(fn (Collection $collection): array => [
+                        $collection->id => $collection->display_label !== $collection->internal_name
+                            ? $collection->display_label.' ['.$collection->internal_name.']'
+                            : static::legacyLabel($collection->internal_name, $collection->backward_compatibility),
+                    ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                $collection = Collection::find($value);
-
-                return $collection
-                    ? static::legacyLabel($collection->internal_name, $collection->backward_compatibility)
-                    : (string) $value;
+                return CollectionDisplayLabel::resolveLabel($value) ?: (string) $value;
             });
 
         return static::requiredOrNullable($select, $required);

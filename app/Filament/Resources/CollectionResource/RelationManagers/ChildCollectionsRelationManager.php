@@ -5,6 +5,7 @@ namespace App\Filament\Resources\CollectionResource\RelationManagers;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
+use App\Filament\Support\CollectionDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -21,17 +22,17 @@ class ChildCollectionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'context:id,internal_name',
-                'language:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => CollectionDisplayLabel::withDisplayLabel(
+                $query->with([
+                    'context:id,internal_name',
+                    'language:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->searchable()
-                    ->sortable()
+                CollectionDisplayLabel::displayLabelColumn()
                     ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
                         ? CollectionResource::getUrl('view', ['record' => $record])
                         : null),
@@ -50,6 +51,11 @@ class ChildCollectionsRelationManager extends RelationManager
                     ->url(fn ($record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

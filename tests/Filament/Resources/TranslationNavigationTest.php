@@ -1060,7 +1060,10 @@ class TranslationNavigationTest extends TestCase
         $livewire = Livewire::actingAs($user)
             ->test(EditCollectionTranslation::class, ['record' => $translation->getRouteKey()]);
         $label = $livewire->instance()->getFormSelectOptionLabel('data.collection_id');
-        $this->assertEquals('Temple collection [coll-legacy-7]', $label);
+
+        // The selector now shows the resolved display label (translated title) instead of
+        // the legacy internal_name [backward_compatibility] format.
+        $this->assertEquals('Temple Collection EN', $label);
     }
 
     public function test_partner_translation_edit_page_hydrates_without_error(): void
