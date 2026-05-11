@@ -6,6 +6,9 @@ use App\Enums\Permission;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
+use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\ItemDisplayLabel;
+use App\Filament\Support\PartnerDisplayLabel;
 use App\Models\Collection;
 use App\Models\Item;
 use App\Models\Partner;
@@ -41,21 +44,24 @@ class RecentItemsWidget extends BaseWidget
     {
         return $table
             ->query(
-                fn (): Builder => Item::query()
-                    ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
-                    ->latest('updated_at')
-                    ->limit(10),
+                fn (): Builder => ItemDisplayLabel::withDisplayLabel(
+                    Item::query()
+                        ->select(['items.id', 'items.internal_name', 'items.type', 'items.backward_compatibility', 'items.updated_at'])
+                        ->latest('items.updated_at')
+                        ->limit(10)
+                ),
             )
             ->paginated(false)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Name')
-                    ->searchable(false)
-                    ->sortable(false)
+                ItemDisplayLabel::displayLabelColumn()
                     ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn ($state): ?string => $state?->label())
+                    ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
                     ->sortable(false),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
@@ -73,20 +79,23 @@ class RecentItemsWidget extends BaseWidget
     {
         return $table
             ->query(
-                fn (): Builder => Collection::query()
-                    ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
-                    ->latest('updated_at')
-                    ->limit(10),
+                fn (): Builder => CollectionDisplayLabel::withDisplayLabel(
+                    Collection::query()
+                        ->select(['collections.id', 'collections.internal_name', 'collections.type', 'collections.backward_compatibility', 'collections.updated_at'])
+                        ->latest('collections.updated_at')
+                        ->limit(10)
+                ),
             )
             ->paginated(false)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Name')
-                    ->searchable(false)
-                    ->sortable(false)
+                CollectionDisplayLabel::displayLabelColumn()
                     ->url(fn (Collection $record): string => CollectionResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
+                    ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
                     ->sortable(false),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
@@ -104,20 +113,23 @@ class RecentItemsWidget extends BaseWidget
     {
         return $table
             ->query(
-                fn (): Builder => Partner::query()
-                    ->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
-                    ->latest('updated_at')
-                    ->limit(10),
+                fn (): Builder => PartnerDisplayLabel::withDisplayLabel(
+                    Partner::query()
+                        ->select(['partners.id', 'partners.internal_name', 'partners.type', 'partners.backward_compatibility', 'partners.updated_at'])
+                        ->latest('partners.updated_at')
+                        ->limit(10)
+                ),
             )
             ->paginated(false)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Name')
-                    ->searchable(false)
-                    ->sortable(false)
+                PartnerDisplayLabel::displayLabelColumn()
                     ->url(fn (Partner $record): string => PartnerResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
+                    ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
                     ->sortable(false),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')

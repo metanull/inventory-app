@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TimelineEventResource\RelationManagers;
 
 use App\Filament\Resources\ItemResource;
+use App\Filament\Support\ItemDisplayLabel;
 use App\Models\Item;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -24,17 +25,17 @@ class ItemsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'partner:id,internal_name',
-                'project:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => ItemDisplayLabel::withDisplayLabel(
+                $query->with([
+                    'partner:id,internal_name',
+                    'project:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->searchable()
-                    ->sortable()
+                ItemDisplayLabel::displayLabelColumn()
                     ->url(fn (Item $record): ?string => auth()->user()?->can('view', $record)
                         ? ItemResource::getUrl('view', ['record' => $record])
                         : null),
@@ -45,6 +46,10 @@ class ItemsRelationManager extends RelationManager
                     ->label('Display order')
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('internal_name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
                 AttachAction::make()

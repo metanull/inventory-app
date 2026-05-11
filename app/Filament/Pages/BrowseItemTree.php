@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages;
 
-use App\Enums\ItemType;
 use App\Enums\Permission;
+use App\Filament\Support\ItemDisplayLabel;
 use App\Models\Item;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Builder;
@@ -208,12 +208,13 @@ class BrowseItemTree extends Page
      */
     public function getRoots(): Collection
     {
-        return $this->buildRootQuery()
-            ->withCount('children')
-            ->orderBy('internal_name')
-            ->offset(($this->page - 1) * self::PAGE_SIZE)
-            ->limit(self::PAGE_SIZE)
-            ->get();
+        return ItemDisplayLabel::withDisplayLabel(
+            $this->buildRootQuery()
+                ->withCount('children')
+                ->orderBy('internal_name')
+                ->offset(($this->page - 1) * self::PAGE_SIZE)
+                ->limit(self::PAGE_SIZE)
+        )->get();
     }
 
     /**
@@ -231,11 +232,12 @@ class BrowseItemTree extends Page
      */
     public function getChildren(string $parentId): Collection
     {
-        return Item::query()
-            ->where('parent_id', $parentId)
-            ->withCount('children')
-            ->orderBy('display_order')
-            ->orderBy('internal_name')
-            ->get();
+        return ItemDisplayLabel::withDisplayLabel(
+            Item::query()
+                ->where('parent_id', $parentId)
+                ->withCount('children')
+                ->orderBy('display_order')
+                ->orderBy('internal_name')
+        )->get();
     }
 }

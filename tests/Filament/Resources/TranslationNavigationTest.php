@@ -1012,7 +1012,10 @@ class TranslationNavigationTest extends TestCase
         $livewire = Livewire::actingAs($user)
             ->test(EditItemTranslation::class, ['record' => $translation->getRouteKey()]);
         $label = $livewire->instance()->getFormSelectOptionLabel('data.item_id');
-        $this->assertEquals('Temple relief [item-legacy-42]', $label);
+
+        // The selector now shows the resolved display label (translated name) instead of
+        // the legacy internal_name [backward_compatibility] format.
+        $this->assertEquals('Temple Relief EN', $label);
     }
 
     public function test_collection_translation_edit_page_hydrates_without_error(): void
@@ -1106,7 +1109,10 @@ class TranslationNavigationTest extends TestCase
         $livewire = Livewire::actingAs($user)
             ->test(EditPartnerTranslation::class, ['record' => $translation->getRouteKey()]);
         $label = $livewire->instance()->getFormSelectOptionLabel('data.partner_id');
-        $this->assertEquals('Jordan Museum [partner-legacy-99]', $label);
+
+        // The selector now shows the resolved display label (translated name) instead of
+        // the legacy internal_name [backward_compatibility] format.
+        $this->assertEquals('Jordan Museum EN', $label);
     }
 
     // ── SiblingTranslationsWidget: fail-fast guards ────────────────────────────

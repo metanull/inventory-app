@@ -89,7 +89,7 @@ class ProjectResourceTest extends TestCase
             ->assertDontSee(ContextResource::getUrl('view', ['record' => $context]));
     }
 
-    public function test_project_items_relation_manager_internal_name_links_to_item_resource(): void
+    public function test_project_items_relation_manager_display_label_links_to_item_resource(): void
     {
         $user = $this->createCrudUser();
         $project = Project::factory()->create(['internal_name' => 'Temple catalogue']);
@@ -106,7 +106,7 @@ class ProjectResourceTest extends TestCase
                 'pageClass' => ViewProject::class,
             ])
             ->assertTableColumnExists(
-                'internal_name',
+                'display_label',
                 fn (TextColumn $column): bool => $column->getUrl() === ItemResource::getUrl('view', ['record' => $item]),
                 $item
             );
