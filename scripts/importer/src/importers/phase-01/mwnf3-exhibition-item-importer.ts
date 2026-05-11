@@ -14,8 +14,8 @@
  * - 92 item references + 2 custom images
  *
  * EAV metadata (exhibition_page_images_fields):
- * - detail_justification, detail_name → stored in collection_item pivot extra
- * - item_* fields → denormalized copies, skipped
+ * - detail_justification, detail_name, item_artist, item_date, item_dynasty,
+ *   item_location, item_material, item_museum, item_name → stored in collection_item pivot extra
  *
  * Image detail annotations (exhibition_page_image_details + fields):
  * - Stored as nested array in the parent page-image's collection_item extra
@@ -31,7 +31,6 @@ import type {
   Mwnf3LegacyExhibitionPageImage,
   Mwnf3LegacyExhibitionPageImageDetail,
   Mwnf3LegacyExhibitionLevelImage,
-  Mwnf3LegacyEavField,
   Mwnf3LegacyArtintroPageImage,
 } from '../../domain/types/index.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
@@ -50,12 +49,46 @@ interface ParsedRefItem {
 }
 
 /**
- * Pivoted EAV: non-empty editorial fields only.
+ * Supported EAV field names for image placement metadata.
  */
-interface ImageEav {
-  detail_name?: Record<string, string>; // lang → text
-  detail_justification?: Record<string, string>; // lang → text
-}
+const IMAGE_EAV_FIELDS_PAGE = [
+  'detail_name',
+  'detail_justification',
+  'item_artist',
+  'item_date',
+  'item_dynasty',
+  'item_location',
+  'item_material',
+  'item_museum',
+  'item_name',
+] as const;
+
+const IMAGE_EAV_FIELDS_EXHIBITION = [
+  'item_date',
+  'item_description',
+  'item_dynasty',
+  'item_location',
+  'item_museum',
+  'item_name',
+] as const;
+
+const IMAGE_EAV_FIELDS_ARTINTRO = [
+  'detail_name',
+  'detail_justification',
+  'item_date',
+  'item_dynasty',
+  'item_location',
+  'item_museum',
+  'item_name',
+] as const;
+
+type ImageEavFieldName = string;
+
+/**
+ * Pivoted EAV: non-empty image placement metadata fields.
+ * Each supported field is a language-keyed map.
+ */
+type ImageEav = Record<ImageEavFieldName, Record<string, string>>;
 
 export class Mwnf3ExhibitionItemImporter extends BaseImporter {
   getName(): string {
@@ -155,11 +188,12 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
             picture: img.picture,
           };
 
-          // Merge EAV editorial data
+          // Merge EAV placement metadata
           const eav = imageEavMap.get(img.image_id);
           if (eav) {
-            if (eav.detail_name) extra.detail_name = eav.detail_name;
-            if (eav.detail_justification) extra.detail_justification = eav.detail_justification;
+            for (const [field, langMap] of Object.entries(eav)) {
+              extra[field] = langMap;
+            }
           }
 
           // Merge detail annotations
@@ -225,6 +259,9 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
 
     this.logInfo(`Found ${images.length} exhibition-level images`);
 
+    // Pre-load EAV placement metadata for exhibition-level images
+    const exhibitionImageEavMap = await this.loadExhibitionImageEav();
+
     for (const img of images) {
       try {
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:exhibitions:${img.exhibition_id}`;
@@ -267,15 +304,26 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
             continue;
           }
 
+          // Build extra with ordering, picture path, and EAV placement metadata
+          const extra: Record<string, unknown> = {
+            n: img.n,
+            n2: img.n2,
+            picture: img.picture,
+          };
+
+          // Merge exhibition-level EAV placement metadata
+          const exhEav = exhibitionImageEavMap.get(img.image_id);
+          if (exhEav) {
+            for (const [field, langMap] of Object.entries(exhEav)) {
+              extra[field] = langMap;
+            }
+          }
+
           await this.context.strategy.writeCollectionItem({
             collection_id: collectionId,
             item_id: itemId,
             display_order: img.n,
-            extra: {
-              n: img.n,
-              n2: img.n2,
-              picture: img.picture,
-            },
+            extra,
           });
 
           result.imported++;
@@ -321,6 +369,9 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     );
 
     this.logInfo(`Found ${images.length} artintro page images`);
+
+    // Pre-load EAV placement metadata for artintro page images
+    const artintroImageEavMap = await this.loadArtintroImageEav();
 
     for (const img of images) {
       try {
@@ -374,15 +425,26 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
           continue;
         }
 
+        // Build extra with ordering, picture path, and EAV placement metadata
+        const artintroExtra: Record<string, unknown> = {
+          n: img.n,
+          n2: img.n2,
+          picture: img.picture,
+        };
+
+        // Merge artintro EAV placement metadata
+        const artintroEav = artintroImageEavMap.get(img.image_id);
+        if (artintroEav) {
+          for (const [field, langMap] of Object.entries(artintroEav)) {
+            artintroExtra[field] = langMap;
+          }
+        }
+
         await this.context.strategy.writeCollectionItem({
           collection_id: collectionId,
           item_id: itemId,
           display_order: img.n,
-          extra: {
-            n: img.n,
-            n2: img.n2,
-            picture: img.picture,
-          },
+          extra: artintroExtra,
         });
 
         result.imported++;
@@ -449,43 +511,47 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
   }
 
   /**
-   * Load and pivot exhibition_page_images_fields EAV for editorial fields only.
-   * Returns Map<image_id, ImageEav>.
+   * Pivot EAV rows from a query result into Map<image_id, ImageEav>.
    */
-  private async loadImageEav(): Promise<Map<number, ImageEav>> {
-    const rows = await this.context.legacyDb.query<
-      Mwnf3LegacyEavField & { image_id: number; n: number; n2: number }
-    >(
-      `SELECT image_id AS entity_id, n, n2, lang_id, field, value
-       FROM ${MWNF3_SCHEMA}.exhibition_page_images_fields
-       WHERE field IN ('detail_name', 'detail_justification')
-         AND value IS NOT NULL AND value != ''
-       ORDER BY image_id, lang_id, field`
-    );
-
+  private pivotImageEav(
+    rows: Array<{ entity_id: number; lang_id: string; field: string; value: string }>
+  ): Map<number, ImageEav> {
     const map = new Map<number, ImageEav>();
     for (const row of rows) {
-      const imageId = row.entity_id;
-      if (!map.has(imageId)) {
-        map.set(imageId, {});
+      if (row.value == null || !row.value.trim()) continue;
+      if (!map.has(row.entity_id)) {
+        map.set(row.entity_id, {});
       }
-      const eav = map.get(imageId)!;
-
-      if (row.field === 'detail_name') {
-        if (!eav.detail_name) eav.detail_name = {};
-        eav.detail_name[row.lang_id] = convertHtmlToMarkdown(row.value);
-      } else if (row.field === 'detail_justification') {
-        if (!eav.detail_justification) eav.detail_justification = {};
-        eav.detail_justification[row.lang_id] = convertHtmlToMarkdown(row.value);
-      }
+      const eav = map.get(row.entity_id)!;
+      if (!eav[row.field]) eav[row.field] = {};
+      eav[row.field]![row.lang_id] = convertHtmlToMarkdown(row.value);
     }
-
-    this.logInfo(`Loaded editorial EAV for ${map.size} page images`);
     return map;
   }
 
   /**
-   * Load exhibition_page_image_details + EAV fields.
+   * Load and pivot exhibition_page_images_fields EAV for all supported placement fields.
+   * Returns Map<image_id, ImageEav>.
+   */
+  private async loadImageEav(): Promise<Map<number, ImageEav>> {
+    const fieldList = IMAGE_EAV_FIELDS_PAGE.map((f) => `'${f}'`).join(', ');
+    const rows = await this.context.legacyDb.query<
+      { entity_id: number; lang_id: string; field: string; value: string }
+    >(
+      `SELECT image_id AS entity_id, lang_id, field, value
+       FROM ${MWNF3_SCHEMA}.exhibition_page_images_fields
+       WHERE field IN (${fieldList})
+         AND value IS NOT NULL AND TRIM(value) != ''
+       ORDER BY image_id, lang_id, field`
+    );
+
+    const map = this.pivotImageEav(rows);
+    this.logInfo(`Loaded placement EAV for ${map.size} page images`);
+    return map;
+  }
+
+  /**
+   * Load exhibition_page_image_details + EAV fields (all supported placement fields).
    * Returns Map<parent_image_id, detail_annotation[]>.
    */
   private async loadImageDetails(): Promise<Map<number, Array<Record<string, unknown>>>> {
@@ -495,33 +561,18 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
        ORDER BY image_id, n, n2`
     );
 
-    // Load EAV for details
+    const detailFieldList = IMAGE_EAV_FIELDS_PAGE.map((f) => `'${f}'`).join(', ');
     const detailEavRows = await this.context.legacyDb.query<
-      Mwnf3LegacyEavField & { detail_id: number }
+      { entity_id: number; lang_id: string; field: string; value: string }
     >(
       `SELECT image_detail_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.exhibition_page_image_details_fields
-       WHERE field IN ('detail_name', 'detail_justification')
-         AND value IS NOT NULL AND value != ''
+       WHERE field IN (${detailFieldList})
+         AND value IS NOT NULL AND TRIM(value) != ''
        ORDER BY image_detail_id, lang_id, field`
     );
 
-    // Pivot detail EAV
-    const detailEav = new Map<number, ImageEav>();
-    for (const row of detailEavRows) {
-      const detailId = row.entity_id;
-      if (!detailEav.has(detailId)) {
-        detailEav.set(detailId, {});
-      }
-      const eav = detailEav.get(detailId)!;
-      if (row.field === 'detail_name') {
-        if (!eav.detail_name) eav.detail_name = {};
-        eav.detail_name[row.lang_id] = convertHtmlToMarkdown(row.value);
-      } else if (row.field === 'detail_justification') {
-        if (!eav.detail_justification) eav.detail_justification = {};
-        eav.detail_justification[row.lang_id] = convertHtmlToMarkdown(row.value);
-      }
-    }
+    const detailEav = this.pivotImageEav(detailEavRows);
 
     // Group by parent image_id
     const map = new Map<number, Array<Record<string, unknown>>>();
@@ -538,14 +589,57 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
 
       const eav = detailEav.get(d.detail_id);
       if (eav) {
-        if (eav.detail_name) annotation.detail_name = eav.detail_name;
-        if (eav.detail_justification) annotation.detail_justification = eav.detail_justification;
+        for (const [field, langMap] of Object.entries(eav)) {
+          annotation[field] = langMap;
+        }
       }
 
       map.get(d.image_id)!.push(annotation);
     }
 
     this.logInfo(`Loaded ${details.length} detail annotations across ${map.size} parent images`);
+    return map;
+  }
+
+  /**
+   * Load and pivot exhibition_images_fields EAV for all supported placement fields.
+   * Returns Map<image_id, ImageEav>.
+   */
+  private async loadExhibitionImageEav(): Promise<Map<number, ImageEav>> {
+    const fieldList = IMAGE_EAV_FIELDS_EXHIBITION.map((f) => `'${f}'`).join(', ');
+    const rows = await this.context.legacyDb.query<
+      { entity_id: number; lang_id: string; field: string; value: string }
+    >(
+      `SELECT image_id AS entity_id, lang_id, field, value
+       FROM ${MWNF3_SCHEMA}.exhibition_images_fields
+       WHERE field IN (${fieldList})
+         AND value IS NOT NULL AND TRIM(value) != ''
+       ORDER BY image_id, lang_id, field`
+    );
+
+    const map = this.pivotImageEav(rows);
+    this.logInfo(`Loaded placement EAV for ${map.size} exhibition-level images`);
+    return map;
+  }
+
+  /**
+   * Load and pivot artintro_page_images_fields EAV for all supported placement fields.
+   * Returns Map<image_id, ImageEav>.
+   */
+  private async loadArtintroImageEav(): Promise<Map<number, ImageEav>> {
+    const fieldList = IMAGE_EAV_FIELDS_ARTINTRO.map((f) => `'${f}'`).join(', ');
+    const rows = await this.context.legacyDb.query<
+      { entity_id: number; lang_id: string; field: string; value: string }
+    >(
+      `SELECT image_id AS entity_id, lang_id, field, value
+       FROM ${MWNF3_SCHEMA}.artintro_page_images_fields
+       WHERE field IN (${fieldList})
+         AND value IS NOT NULL AND TRIM(value) != ''
+       ORDER BY image_id, lang_id, field`
+    );
+
+    const map = this.pivotImageEav(rows);
+    this.logInfo(`Loaded placement EAV for ${map.size} artintro page images`);
     return map;
   }
 }
