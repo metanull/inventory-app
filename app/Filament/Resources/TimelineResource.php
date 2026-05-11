@@ -12,6 +12,7 @@ use App\Filament\Resources\TimelineResource\Pages\EditTimeline;
 use App\Filament\Resources\TimelineResource\Pages\ListTimeline;
 use App\Filament\Resources\TimelineResource\Pages\ViewTimeline;
 use App\Filament\Resources\TimelineResource\RelationManagers\EventsRelationManager;
+use App\Filament\Support\CollectionDisplayLabel;
 use App\Filament\Support\ExtraJsonField;
 use App\Models\Collection;
 use App\Models\Country;
@@ -154,16 +155,19 @@ class TimelineResource extends Resource
                     ->searchable(),
                 SelectFilter::make('collection_id')
                     ->label('Collection')
-                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                    ->getSearchResultsUsing(fn (string $search): array => CollectionDisplayLabel::withDisplayLabel(
+                        Collection::query()
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orderBy('internal_name')
+                            ->limit(50)
+                    )->get()->mapWithKeys(fn (Collection $c): array => [
+                        $c->id => $c->display_label !== $c->internal_name
+                            ? $c->display_label.' ['.$c->internal_name.']'
+                            : $c->internal_name,
+                    ])->all())
+                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
                     ->searchable(),
             ]);
     }

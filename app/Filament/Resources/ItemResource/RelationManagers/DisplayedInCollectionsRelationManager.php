@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
+use App\Filament\Support\CollectionDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -22,17 +23,17 @@ class DisplayedInCollectionsRelationManager extends RelationManager
     {
         return $table
             ->inverseRelationship('attachedItems')
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'context:id,internal_name',
-                'language:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => CollectionDisplayLabel::withDisplayLabel(
+                $query->with([
+                    'context:id,internal_name',
+                    'language:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->searchable()
-                    ->sortable()
+                CollectionDisplayLabel::displayLabelColumn()
                     ->url(fn ($record): ?string => $this->getAuthorizedUrl($record, CollectionResource::class)),
                 TextColumn::make('type')
                     ->badge()
@@ -51,6 +52,11 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                     ->url(fn ($record): ?string => $record->language
                         ? $this->getAuthorizedUrl($record->language, LanguageResource::class)
                         : null),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

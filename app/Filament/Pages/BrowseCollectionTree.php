@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Support\CollectionDisplayLabel;
 use App\Models\Collection;
 use App\Models\Item;
 use Filament\Pages\Page;
@@ -189,13 +190,14 @@ class BrowseCollectionTree extends Page
      */
     public function getRoots(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->buildRootQuery()
-            ->withCount('children')
-            ->withCount('attachedItems')
-            ->orderBy('internal_name')
-            ->offset(($this->page - 1) * self::PAGE_SIZE)
-            ->limit(self::PAGE_SIZE)
-            ->get();
+        return CollectionDisplayLabel::withDisplayLabel(
+            $this->buildRootQuery()
+                ->withCount('children')
+                ->withCount('attachedItems')
+                ->orderBy('internal_name')
+                ->offset(($this->page - 1) * self::PAGE_SIZE)
+                ->limit(self::PAGE_SIZE)
+        )->get();
     }
 
     /**
@@ -213,12 +215,13 @@ class BrowseCollectionTree extends Page
      */
     public function getChildren(string $parentId): \Illuminate\Database\Eloquent\Collection
     {
-        return Collection::query()
-            ->where('parent_id', $parentId)
-            ->withCount('children')
-            ->withCount('attachedItems')
-            ->orderBy('internal_name')
-            ->get();
+        return CollectionDisplayLabel::withDisplayLabel(
+            Collection::query()
+                ->where('parent_id', $parentId)
+                ->withCount('children')
+                ->withCount('attachedItems')
+                ->orderBy('internal_name')
+        )->get();
     }
 
     /**
@@ -263,9 +266,9 @@ class BrowseCollectionTree extends Page
         }
 
         // Fetch all ancestors in one query, then reorder to root-first using the collected order.
-        $byId = Collection::whereIn('id', $ancestorIds)
-            ->get()
-            ->keyBy('id');
+        $byId = CollectionDisplayLabel::withDisplayLabel(
+            Collection::whereIn('id', $ancestorIds)
+        )->get()->keyBy('id');
 
         // ancestorIds is leaf-to-root; reverse for root-first breadcrumb order.
         return new \Illuminate\Database\Eloquent\Collection(
