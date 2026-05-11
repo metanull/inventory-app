@@ -13,10 +13,16 @@
  *     { "contextual_descriptions": { "eng": "...", "fra": "..." } }
  *
  * Context: Uses the theme collection (ThgThemeImporter BC) for the collection_item lookup.
+ * The item is resolved to the selected picture child item via the shared resolver.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import {
+  resolvePictureItemBackwardCompatibility,
+  THEME_ITEM_SELECT_COLUMNS,
+} from './thg-theme-item-resolver.js';
+import type { LegacyThemeItem } from './thg-theme-item-resolver.js';
 
 /**
  * Legacy theme_item_i18n structure
@@ -29,34 +35,15 @@ interface LegacyThemeItemI18n {
   contextual_description: string | null;
 }
 
-/**
- * Legacy theme_item structure for item resolution
- */
-interface LegacyThemeItem {
+interface LegacyThemeItemRow extends LegacyThemeItem {
   gallery_id: number;
   theme_id: number;
   item_id: number;
-  // mwnf3 object references
-  mwnf3_object_project_id: string | null;
-  mwnf3_object_country_id: string | null;
-  mwnf3_object_partner_id: string | null;
-  mwnf3_object_item_id: number | null;
-  // mwnf3 monument references
-  mwnf3_monument_project_id: string | null;
-  mwnf3_monument_country_id: string | null;
-  mwnf3_monument_partner_id: string | null;
-  mwnf3_monument_item_id: number | null;
-  // mwnf3 monument detail references
-  mwnf3_monument_detail_project_id: string | null;
-  mwnf3_monument_detail_country_id: string | null;
-  mwnf3_monument_detail_partner_id: string | null;
-  mwnf3_monument_detail_item_id: number | null;
-  mwnf3_monument_detail_detail_id: number | null;
 }
 
 export class ThgThemeItemTranslationImporter extends BaseImporter {
   // Cache theme_item data for item resolution
-  private themeItemCache: Map<string, LegacyThemeItem> = new Map();
+  private themeItemCache: Map<string, LegacyThemeItemRow> = new Map();
 
   getName(): string {
     return 'ThgThemeItemTranslationImporter';
@@ -70,12 +57,9 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
 
       // Load theme_item data to resolve item references
       try {
-        const themeItems = await this.context.legacyDb.query<LegacyThemeItem>(
+        const themeItems = await this.context.legacyDb.query<LegacyThemeItemRow>(
           `SELECT gallery_id, theme_id, item_id,
-                  mwnf3_object_project_id, mwnf3_object_country_id, mwnf3_object_partner_id, mwnf3_object_item_id,
-                  mwnf3_monument_project_id, mwnf3_monument_country_id, mwnf3_monument_partner_id, mwnf3_monument_item_id,
-                  mwnf3_monument_detail_project_id, mwnf3_monument_detail_country_id, mwnf3_monument_detail_partner_id,
-                  mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id
+                  ${THEME_ITEM_SELECT_COLUMNS}
            FROM mwnf3_thematic_gallery.theme_item`
         );
 
@@ -148,10 +132,10 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve the item reference
-          const itemBackwardCompat = this.resolveItemReference(themeItem);
+          // Resolve to the selected picture item backward-compatibility key
+          const itemBackwardCompat = resolvePictureItemBackwardCompatibility(themeItem);
           if (!itemBackwardCompat) {
-            // Not an mwnf3 item — skip silently (SH/Explore items may not need this)
+            // Unsupported source family (Explore, Travels, etc.) — skip silently
             result.skipped++;
             this.showSkipped();
             continue;
@@ -161,7 +145,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           if (!itemId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Theme item ${groupKey}: item not found (${itemBackwardCompat}), skipping`
+              `Theme item ${groupKey}: picture item not found (${itemBackwardCompat}), skipping`
             );
             result.skipped++;
             this.showSkipped();
@@ -253,45 +237,4 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
 
     return result;
   }
-
-  /**
-   * Resolve item reference from theme_item to backward_compatibility string
-   * Returns null if not an mwnf3 item
-   */
-  private resolveItemReference(legacy: LegacyThemeItem): string | null {
-    // Check mwnf3_object reference
-    if (
-      legacy.mwnf3_object_project_id &&
-      legacy.mwnf3_object_country_id &&
-      legacy.mwnf3_object_partner_id &&
-      legacy.mwnf3_object_item_id !== null
-    ) {
-      return `mwnf3:objects:${legacy.mwnf3_object_project_id}:${legacy.mwnf3_object_country_id}:${legacy.mwnf3_object_partner_id}:${legacy.mwnf3_object_item_id}`;
-    }
-
-    // Check mwnf3_monument reference
-    if (
-      legacy.mwnf3_monument_project_id &&
-      legacy.mwnf3_monument_country_id &&
-      legacy.mwnf3_monument_partner_id &&
-      legacy.mwnf3_monument_item_id !== null
-    ) {
-      return `mwnf3:monuments:${legacy.mwnf3_monument_project_id}:${legacy.mwnf3_monument_country_id}:${legacy.mwnf3_monument_partner_id}:${legacy.mwnf3_monument_item_id}`;
-    }
-
-    // Check mwnf3_monument_detail reference
-    if (
-      legacy.mwnf3_monument_detail_project_id &&
-      legacy.mwnf3_monument_detail_country_id &&
-      legacy.mwnf3_monument_detail_partner_id &&
-      legacy.mwnf3_monument_detail_item_id !== null &&
-      legacy.mwnf3_monument_detail_detail_id !== null
-    ) {
-      return `mwnf3:monument_details:${legacy.mwnf3_monument_detail_project_id}:${legacy.mwnf3_monument_detail_country_id}:${legacy.mwnf3_monument_detail_partner_id}:${legacy.mwnf3_monument_detail_item_id}:${legacy.mwnf3_monument_detail_detail_id}`;
-    }
-
-    // Not an mwnf3 item
-    return null;
-  }
 }
-
