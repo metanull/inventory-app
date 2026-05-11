@@ -11,10 +11,10 @@
  *
  * EAV pattern: (entity_id, lang_id CHAR(2), field VARCHAR(255), value TEXT)
  * Key fields:
- * - Exhibition: exh_title, exh_description, exh_credits
+ * - Exhibition: exh_title, exh_description, exh_credits, exh_intro_header, exh_intro_text, exh_subtitle
  * - Theme: theme_title, theme_subtitle
  * - Page: page_title, page_text, page_quote
- * - Artintro: art_title, art_subtitle, art_description, art_credits, art_intro_header, art_intro_text
+ * - Artintro: art_title, art_description, art_credits, art_intro_header, art_intro_text, art_subtitle
  *
  * Dependencies:
  * - Mwnf3ExhibitionImporter (must run first to create hierarchy collections)
@@ -22,7 +22,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
-import type { Mwnf3LegacyEavField } from '../../domain/types/index.js';
+import type { Mwnf3LegacyEavField, Mwnf3LegacyExhibition } from '../../domain/types/index.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
 const MWNF3_SCHEMA = 'mwnf3';
@@ -35,8 +35,8 @@ interface PivotedFields {
 }
 
 export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
-  // Cache: exhibition_id → project_id
-  private exhibitionProjectMap: Map<number, string> | null = null;
+  // Cache: exhibition_id → full exhibition metadata
+  private exhibitionMetadataMap: Map<number, Mwnf3LegacyExhibition> | null = null;
   // Cache: theme_id → exhibition_id
   private themeExhibitionMap: Map<number, number> | null = null;
 
@@ -154,14 +154,42 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           continue;
         }
 
-        const title = fields['exh_title'] || `Exhibition ${entityId}`;
+        const rawTitle = fields['exh_title'];
+        if (!rawTitle || !rawTitle.trim()) {
+          this.logWarning(
+            `Exhibition translation ${entityId}/${legacyLang}: missing exh_title, skipping`
+          );
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         const description = fields['exh_description']
           ? convertHtmlToMarkdown(fields['exh_description'])
           : null;
 
-        // Collect remaining fields into extra
-        const extra: Record<string, string> = {};
+        // Collect fields into extra
+        const extra: Record<string, unknown> = {};
         if (fields['exh_credits']) extra.credits = convertHtmlToMarkdown(fields['exh_credits']);
+        if (fields['exh_intro_header'])
+          extra.intro_header = convertHtmlToMarkdown(fields['exh_intro_header']);
+        if (fields['exh_intro_text'])
+          extra.intro_text = convertHtmlToMarkdown(fields['exh_intro_text']);
+        if (fields['exh_subtitle']) extra.subtitle = convertHtmlToMarkdown(fields['exh_subtitle']);
+
+        // Persist exhibition list metadata from mwnf3.exhibitions
+        const meta = this.exhibitionMetadataMap?.get(entityId);
+        if (meta) {
+          const legacyExhibition: Record<string, unknown> = {};
+          if (meta.project_id) legacyExhibition.project_id = meta.project_id;
+          if (meta.n !== null) legacyExhibition.display_order = meta.n;
+          if (meta.show) legacyExhibition.show = meta.show;
+          if (meta.new_status) legacyExhibition.new_status = meta.new_status;
+          if (meta.portal_image) legacyExhibition.portal_image = meta.portal_image;
+          if (meta.exh_link) legacyExhibition.exh_link = meta.exh_link;
+          if (Object.keys(legacyExhibition).length > 0) extra.legacy_exhibition = legacyExhibition;
+        }
+
         const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
@@ -174,7 +202,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           collection_id: collectionId,
           language_id: languageId,
           context_id: contextId,
-          title: convertHtmlToMarkdown(title),
+          title: convertHtmlToMarkdown(rawTitle),
           description,
           extra: extraJson,
           backward_compatibility: backwardCompat,
@@ -429,19 +457,27 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           continue;
         }
 
-        const title = fields['art_title'] || `Art Introduction ${entityId}`;
-        const descParts: string[] = [];
-        if (fields['art_description'])
-          descParts.push(convertHtmlToMarkdown(fields['art_description']));
-        if (fields['art_intro_text'])
-          descParts.push(convertHtmlToMarkdown(fields['art_intro_text']));
-        const description = descParts.length > 0 ? descParts.join('\n\n') : null;
+        const rawArtTitle = fields['art_title'];
+        if (!rawArtTitle || !rawArtTitle.trim()) {
+          this.logWarning(
+            `Artintro translation ${entityId}/${legacyLang}: missing art_title, skipping`
+          );
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
+        const description = fields['art_description']
+          ? convertHtmlToMarkdown(fields['art_description'])
+          : null;
 
         const extra: Record<string, string> = {};
         if (fields['art_subtitle']) extra.subtitle = convertHtmlToMarkdown(fields['art_subtitle']);
         if (fields['art_credits']) extra.credits = convertHtmlToMarkdown(fields['art_credits']);
         if (fields['art_intro_header'])
           extra.intro_header = convertHtmlToMarkdown(fields['art_intro_header']);
+        if (fields['art_intro_text'])
+          extra.intro_text = convertHtmlToMarkdown(fields['art_intro_text']);
         const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 
         if (this.isDryRun || this.isSampleOnlyMode) {
@@ -454,7 +490,7 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
           collection_id: collectionId,
           language_id: languageId,
           context_id: contextId,
-          title: convertHtmlToMarkdown(title),
+          title: convertHtmlToMarkdown(rawArtTitle),
           description,
           extra: extraJson,
           backward_compatibility: backwardCompat,
@@ -665,18 +701,19 @@ export class Mwnf3ExhibitionTranslationImporter extends BaseImporter {
   }
 
   private async resolveContextForExhibition(exhibitionId: number): Promise<string | null> {
-    if (!this.exhibitionProjectMap) {
-      const rows = await this.context.legacyDb.query<{ exhibition_id: number; project_id: string }>(
-        `SELECT exhibition_id, project_id FROM ${MWNF3_SCHEMA}.exhibitions`
+    if (!this.exhibitionMetadataMap) {
+      const rows = await this.context.legacyDb.query<Mwnf3LegacyExhibition>(
+        `SELECT exhibition_id, project_id, name, n, \`show\`, new_status, portal_image, exh_link
+         FROM ${MWNF3_SCHEMA}.exhibitions`
       );
-      this.exhibitionProjectMap = new Map(rows.map((r) => [r.exhibition_id, r.project_id]));
+      this.exhibitionMetadataMap = new Map(rows.map((r) => [r.exhibition_id, r]));
     }
 
-    const projectId = this.exhibitionProjectMap.get(exhibitionId);
-    if (!projectId) return null;
+    const meta = this.exhibitionMetadataMap.get(exhibitionId);
+    if (!meta) return null;
 
     return this.getEntityUuidAsync(
-      `${MWNF3_SCHEMA}:projects:${projectId.toUpperCase()}`,
+      `${MWNF3_SCHEMA}:projects:${meta.project_id.toUpperCase()}`,
       'context'
     );
   }

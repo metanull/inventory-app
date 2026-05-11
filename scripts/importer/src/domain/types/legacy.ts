@@ -843,6 +843,7 @@ export interface Mwnf3LegacyExhibition {
   name: string;
   n: number | null;
   show: 'y' | 'n';
+  new_status: string | null;
   portal_image: string | null;
   exh_link: string | null;
 }
