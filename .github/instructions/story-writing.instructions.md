@@ -9,6 +9,10 @@ description: "Use when writing implementation stories, GitHub issue-ready storie
 - Make every story unambiguous. Do not include choices, open questions, optional approaches, or alternative implementations.
 - Align every story with the project's active rules, milestone constraints, architecture, file-specific instructions, and testing conventions that apply to the requested change.
 - Verify whether the requested behavior or related implementation already exists before writing implementation instructions.
+- When user asks to create epic/stories in GitHub, proceed in sequence to avoid race conditions. Github doesn't support "epic"/"stories" as first-class entities, so you must create the epic issue first, then create child stories that link to the epic. Do not create any child story until the epic issue is created and its URL is available to include in the child stories.
+- Stories must be self-contained and not rely on implicit references, conversations, or decisions. If the story requires information from those sources, include it in the story itself.
+- Stories must be actionable and not require further analysis or interpretation. They must not contain questions or open choices. Clarify with the user before writing the story if the request is ambiguous or contains multiple options.
+- Stories must not contain comments or statement related to the story writing process itself. They must be focused on the implementation task and not include meta-level discussion.
 
 ## Required Story Structure
 
@@ -30,6 +34,9 @@ Every story's `Definition of Done` must include:
 - Lint checks pass without warnings or errors.
 - Relevant test suites pass without warnings or errors.
 - No unrelated behavior, migrations, dependencies, or documentation are changed unless the story explicitly requires them.
+- Code is linted
+- All tests are passing
+- No warnings or errors in lint or tests
 
 ## Epics And Milestones
 
