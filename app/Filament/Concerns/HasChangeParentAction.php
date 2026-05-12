@@ -30,6 +30,29 @@ trait HasChangeParentAction
         return $query;
     }
 
+    /**
+     * Override to customise how the search results are formatted in the parent-selector
+     * dropdown. The default implementation returns internal_name keyed by ID. Resources
+     * that support translated display labels should override this to return translated labels.
+     *
+     * @return array<string, string>
+     */
+    protected static function changeParentSearchResults(Builder $query): array
+    {
+        return $query->pluck('internal_name', 'id')->all();
+    }
+
+    /**
+     * Override to customise how a selected option value is resolved back to a human-readable
+     * label in the parent-selector dropdown. The default uses internal_name.
+     */
+    protected static function changeParentOptionLabel(mixed $value): string
+    {
+        $modelClass = static::changeParentModelClass();
+
+        return $modelClass::find($value)?->internal_name ?? (string) $value;
+    }
+
     protected static function changeParentAction(): Action
     {
         $modelClass = static::changeParentModelClass();
@@ -43,17 +66,16 @@ trait HasChangeParentAction
                 Select::make('parent_id')
                     ->label(static::changeParentSelectLabel())
                     ->nullable()
-                    ->getSearchResultsUsing(fn (string $search): array => static::changeParentRowQueryScope(
-                        $modelClass::query(), $record)
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => $modelClass::find($value)?->internal_name ?? $value)
+                    ->getSearchResultsUsing(fn (string $search): array => static::changeParentSearchResults(
+                        static::changeParentRowQueryScope(
+                            $modelClass::query(), $record)
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orderBy('internal_name')
+                            ->limit(50)
+                    ))
+                    ->getOptionLabelUsing(fn ($value): string => static::changeParentOptionLabel($value))
                     ->searchable(),
             ])
             ->action(function (Model $record, array $data) use ($resourceName, $idKey): void {
@@ -95,16 +117,15 @@ trait HasChangeParentAction
                 Select::make('parent_id')
                     ->label(static::changeParentSelectLabel())
                     ->nullable()
-                    ->getSearchResultsUsing(fn (string $search): array => $modelClass::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => $modelClass::find($value)?->internal_name ?? $value)
+                    ->getSearchResultsUsing(fn (string $search): array => static::changeParentSearchResults(
+                        $modelClass::query()
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orderBy('internal_name')
+                            ->limit(50)
+                    ))
+                    ->getOptionLabelUsing(fn ($value): string => static::changeParentOptionLabel($value))
                     ->searchable(),
             ])
             ->action(function (EloquentCollection $records, array $data) use ($resourceName, $idKey, $pluralLabel): void {
