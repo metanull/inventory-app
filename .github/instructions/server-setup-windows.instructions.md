@@ -1,158 +1,116 @@
 ---
-description: "Use when: configuring the MWNF Windows production server, writing or modifying the deploy.yml workflow, editing Deploy-Application.ps1 or the InventoryApp.Deployment module, managing Apache vhosts for inventory.museumwnf.org, understanding the blue-green symlink deployment, connecting to virtual-office.museumwnf.org via PSSession, or inspecting the self-hosted GitHub Actions runner."
+description: "Use when: configuring the primary Windows production server, writing or modifying deploy.yml, editing Deploy-Application.ps1 or the InventoryApp.Deployment module, managing Apache vhosts, understanding the blue-green symlink deployment, connecting via PSSession, or inspecting the self-hosted GitHub Actions runner."
 applyTo: "scripts/Deploy-Application.ps1,scripts/InventoryApp.Deployment/**,.github/workflows/deploy.yml"
 ---
 
-# Server Setup — MWNF Windows Server (Primary Deployment)
+# Server Setup: Primary Windows Deployment
 
-The inventory-app's **primary** deployment target is the Museum With No Frontiers Windows server at `virtual-office.museumwnf.org`. A secondary deployment to an OVH VPS is documented in `server-setup-ovh.instructions.md`.
+The inventory-app has a primary Windows deployment target. Shared instructions describe the deployment model and safety rules. Contributor-specific connection details, local aliases, concrete server paths, and private URLs live in `.copilot/local/server-windows.md`.
 
-## Topology
+Before using a host, path, or private URL, read `.copilot/local/server-windows.md` first. If the file is missing or incomplete, ask the user for the missing value before executing commands or writing examples. Do not guess PSSession hosts, drive roots, inventory instance paths, log paths, or private URLs.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  virtual-office.museumwnf.org (Windows Server)              │
-│  VPN-only access                                            │
-│                                                             │
-│  Apache (XAMPP) · MariaDB · PHP 8.x                         │
-│  Self-hosted GitHub Actions runner (SVR-MWNF)               │
-│                                                             │
-│  C:\mwnf-server\                                            │
-│  ├── software\current\ → versioned installs (Apache, PHP)   │
-│  ├── apps\             → legacy apps (webhooks, etc.)        │
-│  ├── github-apps\      → inventory-app deployments           │
-│  │   ├── production\   → blue-green releases + symlink       │
-│  │   │   ├── inventory-app → staging-YYYYMMDD-HHmmss (sym)  │
-│  │   │   └── shared-storage\                                 │
-│  │   └── temp\         → full repo clone (scripts, importer) │
-│  ├── configuration\current\mwnf\ → vhost symlinks           │
-│  ├── reverse-proxy\    → Apache reverse proxy + mod_security │
-│  ├── pictures\         → museum images + cache               │
-│  └── ssl\              → TLS certificates                    │
-└─────────────────────────────────────────────────────────────┘
-```
+Use `.copilot/local/server-windows.template.md` as the collaborator-facing schema. Do not store passwords, certificates, private keys, tokens, or production `.env` contents in local config.
+
+## Required Local Config Keys
+
+- `pssession_computer_name`
+- `vpn_required`
+- `server_root`
+- `apps_root`
+- `dynapps_root`
+- `configuration_root`
+- `software_root`
+- `pictures_root`
+- `github_apps_root`
+- `inventory_production_root`
+- `inventory_temp_root`
+- `inventory_laravel_log`
+- `inventory_url`
+- `backoffice_host`
+
+## Topology Model
+
+The Windows target uses:
+
+- A server root containing versioned software, legacy apps, inventory app deployments, configuration snapshots, image storage, and TLS material.
+- A primary inventory production instance deployed from CI/CD artifacts.
+- A temp inventory instance that is a full repository clone for manual scripts such as the legacy importer.
+- A self-hosted GitHub Actions runner used by the Windows deployment workflow.
+- Apache and reverse-proxy configuration backed by symlinks.
+
+Use local config keys rather than hard-coded paths:
+
+| Area | Local config key |
+|------|------------------|
+| Server root | `server_root` |
+| Legacy apps root | `apps_root` |
+| Exhibition apps root | `dynapps_root` |
+| Configuration root | `configuration_root` |
+| Software root | `software_root` |
+| Image root | `pictures_root` |
+| GitHub-deployed apps root | `github_apps_root` |
+| Inventory production root | `inventory_production_root` |
+| Inventory temp root | `inventory_temp_root` |
+| Inventory Laravel log | `inventory_laravel_log` |
 
 ## Remote Access
 
-The server is reachable only through a dedicated VPN connection. When connected:
+The server may require VPN access. Use the configured PSSession target:
 
 ```powershell
-# Connect via PSSession (PowerShell 5+)
-$session = New-PSSession -ComputerName virtual-office.museumwnf.org
-
-# Run commands remotely
-Invoke-Command -Session $session { Get-ChildItem C:\mwnf-server\github-apps\production }
-
-# Close when done
+$session = New-PSSession -ComputerName '<pssession_computer_name>'
+Invoke-Command -Session $session { <command> }
 Remove-PSSession $session
 ```
 
-The `server-inspector` agent provides read-only inspection capabilities via this PSSession pattern.
+The `server-inspector-windows` agent provides read-only inspection capabilities through this PSSession pattern.
 
-## Two Instances on the Server
+## Two Inventory Instances
 
-| Instance | Path | Purpose |
-|----------|------|---------|
-| **Production** | `C:\mwnf-server\github-apps\production\inventory-app` (symlink) | Deployed by CI/CD, serves the web app |
-| **Temp** | `C:\mwnf-server\github-apps\temp\inventory-app` | Full repo clone for running scripts/importer |
+| Instance | Purpose |
+|----------|---------|
+| Production | Deployed artifact, serves the web app, follows the blue-green symlink pattern. |
+| Temp | Full repository clone for manual scripts and importer tasks that are absent from the production artifact. |
 
-**Warning:** The temp instance shares the same database as production. Destructive commands (`db:wipe`, `migrate:refresh`) affect live data.
+The temp instance may share the same database as production. Destructive commands affect live data and require explicit user confirmation.
 
-## Blue-Green Deployment (Symlink Swap)
+## Blue-Green Deployment Pattern
 
-The `deploy.yml` workflow uses atomic symlink swapping for zero-downtime deployment:
+The Windows deployment workflow uses atomic symlink swapping for zero-downtime deployment:
 
-```
-C:\mwnf-server\github-apps\production\
-├── inventory-app          → staging-20260415-143022  (current symlink)
-├── staging-20260415-143022\  (current release)
-├── staging-20260410-091500\  (previous release)
-├── staging-20260405-120000\  (oldest kept)
-└── shared-storage\           (persists across deployments)
-    └── app\
-        ├── private\
-        ├── public\
-        └── public\images\
-```
+1. Extract the release artifact into a timestamped staging directory under the configured production deployment root.
+2. Link persistent storage into the staged release.
+3. Rename the current production symlink to a temporary backup name.
+4. Rename the new staging symlink to the production symlink.
+5. On failure, roll back by restoring the backup symlink.
+6. Clean up the temporary backup and prune old staging directories.
 
-The swap sequence:
-1. Extract release into `staging-<timestamp>/`
-2. Symlink `staging-<timestamp>/storage/app` → `shared-storage/app`
-3. Rename current `inventory-app` symlink to `inventory-app_swap` (backup)
-4. Rename new temp symlink to `inventory-app` (atomic swap)
-5. On failure: roll back by renaming `inventory-app_swap` back
-6. Cleanup: remove `_swap` symlink, prune old staging dirs (keep last 3)
+Never bypass this pattern with direct file replacement in the production directory.
 
 ## Deployment Flow
 
-```
-Manual trigger (workflow_dispatch) with release tag
-    │
-    ▼
-deploy.yml — runs on [self-hosted, windows] (SVR-MWNF runner)
-    │
-    ├── download job
-    │   Download release asset (inventory-app.zip) from GitHub Release
-    │   Extract to runner temp, copy to staging-<timestamp>
-    │
-    ├── down job
-    │   php artisan down --retry=120
-    │
-    ├── deploy job
-    │   Setup shared storage symlink (storage/app → shared-storage/app)
-    │   Atomic symlink swap (blue-green)
-    │
-    ├── configure job
-    │   Generate .env from .env.example + GitHub Environment variables
-    │   php artisan migrate --force
-    │   php artisan permissions:sync --production
-    │   php artisan config:cache, route:cache, view:cache
-    │
-    ├── up job
-    │   php artisan up
-    │
-    └── intendance job
-        Cleanup swap symlinks
-        Prune old staging dirs (keep last 3)
-```
+The Windows deployment workflow:
 
-## GitHub Actions Runner
+1. Downloads the release asset created by the build workflow.
+2. Extracts it to the runner temp area and copies it to a staging directory.
+3. Puts Laravel into maintenance mode.
+4. Sets up shared storage symlinks.
+5. Performs the atomic symlink swap.
+6. Generates `.env` from template plus GitHub Environment variables and secrets.
+7. Runs `php artisan migrate --force`.
+8. Runs permission synchronization and Laravel cache warmup.
+9. Brings Laravel out of maintenance mode.
+10. Cleans up swap symlinks and old releases.
 
-| Property | Value |
-|----------|-------|
-| Install path | `C:\mwnf-server\software\github\actions-runner` |
-| Windows service | `actions.runner.metanull-inventory-app.SVR-MWNF` |
-| Agent name | `SVR-MWNF` |
-| Runs as | `NT AUTHORITY\NETWORK SERVICE` |
-| Scope | Repo-level self-hosted runner |
+## GitHub Environment
 
-## GitHub Environment: MWNF-SVR
+Deployment configuration belongs in the configured GitHub Environment for the Windows target.
 
-All deployment configuration is stored in the **`MWNF-SVR`** GitHub Environment (Settings → Environments).
+Use GitHub Environment variables for non-secret deployment settings such as PHP path, webserver symlink path, app name, app environment, app URL, database host, and service user.
 
-### Variables
+Use GitHub Environment secrets for production secrets such as Laravel app key and database credentials.
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `PHP_PATH` | `C:\Program Files\PHP\php.exe` | Path to PHP executable |
-| `WEBSERVER_PATH` | `C:\Apache24\htdocs\inventory-app` | Production symlink path |
-| `APP_NAME` | `inventory-app` | Application display name |
-| `APP_ENV` | `production` | Laravel environment |
-| `APP_DEBUG` | `false` | Debug mode |
-| `APP_URL` | `http://localhost` | Application URL |
-| `DB_CONNECTION` | `mysql` | Database driver |
-| `DB_HOST` | `127.0.0.1` | Database host |
-| `DB_PORT` | `3306` | Database port |
-| `APACHE_SERVICE_USER` | `SYSTEM` | Apache service user |
-
-### Secrets
-
-| Secret | Purpose |
-|--------|---------|
-| `APP_KEY` | Laravel encryption key |
-| `MARIADB_DATABASE` | Database name |
-| `MARIADB_USER` | Database username |
-| `MARIADB_SECRET` | Database password |
+Never commit production secrets to Git. Never expose internal server paths or credentials in logs; mask sensitive values.
 
 ## Deployment Module
 
@@ -160,31 +118,27 @@ The `scripts/InventoryApp.Deployment/` PowerShell module provides reusable deplo
 
 | Function | Purpose |
 |----------|---------|
-| `Test-SystemPrerequisites` | Verify PHP, paths, permissions |
-| `Test-DeploymentPackage` | Validate extracted release |
-| `New-StagingDirectory` | Create timestamped staging dir |
-| `Remove-OldStagingDirectories` | Prune old releases |
-| `New-StorageSymlink` | Link shared storage into release |
-| `Swap-WebserverSymlink` | Atomic symlink swap |
-| `Remove-SwapBackup` | Cleanup backup symlink |
-| `New-EnvironmentFile` | Generate .env from template |
-| `Invoke-LaravelSetup` | Run migrations, caches |
-| `Invoke-LaravelDown` | Maintenance mode |
-| `Deploy-Application` | Full orchestration |
+| `Test-SystemPrerequisites` | Verify PHP, paths, and permissions. |
+| `Test-DeploymentPackage` | Validate extracted release. |
+| `New-StagingDirectory` | Create timestamped staging directory. |
+| `Remove-OldStagingDirectories` | Prune old releases. |
+| `New-StorageSymlink` | Link shared storage into release. |
+| `Swap-WebserverSymlink` | Atomic symlink swap. |
+| `Remove-SwapBackup` | Cleanup backup symlink. |
+| `New-EnvironmentFile` | Generate `.env` from template. |
+| `Invoke-LaravelSetup` | Run migrations and cache commands. |
+| `Invoke-LaravelDown` | Maintenance mode. |
+| `Deploy-Application` | Full orchestration. |
 
 ## Apache Configuration
 
-- **Backend vhost**: `C:\mwnf-server\github-apps\production\inventory.museumwnf.org.conf`
-- **Vhost symlink**: `C:\mwnf-server\configuration\current\mwnf\inventory.museumwnf.org.conf`
-- **DocumentRoot**: `C:/mwnf-server/github-apps/production/inventory-app/public`
-- **Backend port**: 8443 (SSL), proxied from 443 by the reverse proxy
-- **Reverse proxy entry**: `C:\mwnf-server\reverse-proxy\Apache24\conf\extra\httpd-vhosts.conf`
+When inspecting or editing Apache paths, resolve concrete paths from `.copilot/local/server-windows.md` first. Do not hard-code a contributor's server root or private vhost paths in shared instructions.
 
 ## Forbidden
 
-- **NEVER modify Apache config, restart services, or install software in deploy scripts or workflows.** Infrastructure changes belong in manual provisioning only.
-- **NEVER run destructive database commands** (`migrate:fresh`, `migrate:refresh`, `db:wipe`) in production — only `migrate --force`.
-- **NEVER commit production secrets to Git.** Use GitHub Environment secrets/variables.
-- **NEVER bypass the blue-green symlink pattern.** Direct file replacement in the production directory breaks rollback.
-- **NEVER use the temp instance path in deploy.yml.** It is for manual script execution only.
-- **NEVER expose internal server paths or credentials in logs.** Use `::add-mask::` for sensitive values.
+- Never modify Apache config, restart services, or install software in deploy scripts or workflows. Infrastructure changes belong in manual provisioning only.
+- Never run destructive database commands (`migrate:fresh`, `migrate:refresh`, `db:wipe`) in production workflows. Use `migrate --force` only.
+- Never commit production secrets to Git. Use GitHub Environment secrets and variables.
+- Never bypass the blue-green symlink pattern.
+- Never use the temp instance path in `deploy.yml`; it is for manual script execution only.
+- Never expose internal server paths or credentials in logs.

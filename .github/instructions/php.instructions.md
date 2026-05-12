@@ -60,13 +60,13 @@ applyTo: "**/*.php"
 - Never ignore lint errors and warnings.
 - Never ignore failing tests.
 
-> **Windows dev machine — use the Dev Container for Pint and tests.**
+> **Use the Dev Container for Pint and tests when local tooling does not match CI.**
 > Open the workspace with **"Reopen in Container"** (Dev Containers extension). VS Code will build `inventory-app-dev` from `.devcontainer/Dockerfile` and all PHP 8.4 tooling runs natively inside the container — no `docker run` wrappers needed:
 > ```bash
 > vendor/bin/pint --no-ansi
 > php artisan test --testsuite=Api --coverage --parallel --no-ansi --stop-on-failure
 > ```
-> Rebuild the image after `.devcontainer/Dockerfile` or `composer.lock` changes: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (run from the host, then reopen in container).
+> Rebuild the image after `.devcontainer/Dockerfile` or `composer.lock` changes: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (run from the host, then reopen in container). Manual Docker examples that need host-specific mount paths must read `.copilot/local/php-test-runner.md` first.
 > See `.github/agents/php-test-runner.agent.md` for the full command reference.
 
 ## Web List Pages — Request-Driven Pattern (the only approved approach)

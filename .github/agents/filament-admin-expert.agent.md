@@ -38,12 +38,12 @@ Your job is to implement and review Filament-first features for /admin while kee
 
 ## Dev Environment — Required for Lint and Tests
 
-> **CRITICAL — Windows dev machine: always run PHP commands inside the VS Code Dev Container.**
-> The host PHP is 8.2 and lacks `intl`, `zip`, `gd`, `exif` required by Filament 3. Open the workspace via "Reopen in Container" (Dev Containers extension). Named `vendor/` volumes are managed automatically by `.devcontainer/devcontainer.json`.
+> **CRITICAL — use the VS Code Dev Container when local PHP tooling does not match CI.**
+> Filament 3 requires PHP 8.4-compatible tooling and extensions such as `intl`, `zip`, `gd`, and `exif`. Open the workspace via "Reopen in Container" (Dev Containers extension). Named `vendor/` volumes are managed automatically by `.devcontainer/devcontainer.json`.
 >
-> - ❌ **NEVER** run `php artisan test` or `vendor/bin/pint` from a Windows host terminal.
+> - ❌ **NEVER** run `php artisan test` or `vendor/bin/pint` from a host terminal whose PHP version/extensions do not match the Dev Container.
 > - ✅ Use `XDEBUG_MODE=off` for normal no-coverage test runs to avoid Xdebug-induced slowdowns.
-> - Rebuild the image when `Dockerfile` or `composer.lock` change: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (host, then reopen in container).
+> - Rebuild the image when `Dockerfile` or `composer.lock` change: `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` (host, then reopen in container). Manual Docker examples that need host paths must read `.copilot/local/php-test-runner.md` first.
 
 ## Tooling Preferences
 
