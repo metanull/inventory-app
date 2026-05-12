@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 use App\Enums\ItemType;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
+use App\Filament\Support\ItemDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -24,7 +25,17 @@ class PictureItemsRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->where('type', ItemType::PICTURE->value)
-                ->with(['partner:id,internal_name', 'itemImages'])
+                ->with([
+                    'translations',
+                    'collection:id,context_id',
+                    'project:id,context_id',
+                    'partner:id,internal_name',
+                    'itemImages',
+                    'parent:id,internal_name,collection_id,project_id',
+                    'parent.translations',
+                    'parent.collection:id,context_id',
+                    'parent.project:id,context_id',
+                ])
             )
             ->defaultSort('display_order', 'asc')
             ->paginated([25, 50, 100])
@@ -56,9 +67,7 @@ class PictureItemsRelationManager extends RelationManager
                     })
                     ->openUrlInNewTab()
                     ->defaultImageUrl(null),
-                TextColumn::make('internal_name')
-                    ->searchable()
-                    ->sortable()
+                ItemDisplayLabel::pictureDisplayLabelColumn()
                     ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
                         ? ItemResource::getUrl('view', ['record' => $record])
                         : null),
@@ -74,6 +83,10 @@ class PictureItemsRelationManager extends RelationManager
                 TextColumn::make('display_order')
                     ->label('Order')
                     ->sortable(),
+                TextColumn::make('internal_name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
