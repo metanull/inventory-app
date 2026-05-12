@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Services\UserPasswordResetService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class CreateUser extends Command
@@ -20,7 +22,7 @@ class CreateUser extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new user with a random secure password.';
+    protected $description = 'Create a new user and send a password-reset invitation link by email.';
 
     /**
      * Execute the console command.
@@ -29,18 +31,20 @@ class CreateUser extends Command
     {
         $username = $this->argument('username');
         $email = $this->argument('email');
-        $password = Str::random(20);
 
         $user = new User;
         $user->name = $username;
         $user->email = $email;
-        $user->password = bcrypt($password);
+        $user->password = Hash::make(Str::random(32));
+        $user->approved_at = now();
         $user->save();
+
+        app(UserPasswordResetService::class)->sendResetLink($user);
 
         $this->info('User created successfully.');
         $this->line("Username: {$username}");
         $this->line("Email: {$email}");
-        $this->line("Password: {$password}");
+        $this->line('An invitation email with a password reset link has been sent.');
 
         return Command::SUCCESS;
     }

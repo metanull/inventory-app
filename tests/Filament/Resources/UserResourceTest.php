@@ -7,9 +7,11 @@ use App\Filament\Resources\UserResource\Pages\CreateUser;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUser;
 use App\Models\User;
+use App\Notifications\AdminPasswordResetNotification;
 use Filament\Facades\Filament;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -79,12 +81,13 @@ class UserResourceTest extends TestCase
 
         $this->setCurrentPanel();
 
+        Notification::fake();
+
         Livewire::actingAs($manager)
             ->test(CreateUser::class)
             ->fillForm([
                 'name' => 'New User',
                 'email' => 'newuser@example.com',
-                'password' => 'SecurePass123!',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -93,6 +96,48 @@ class UserResourceTest extends TestCase
             'name' => 'New User',
             'email' => 'newuser@example.com',
         ]);
+    }
+
+    public function test_creating_a_user_sends_invitation_email(): void
+    {
+        $manager = $this->createManagerUser();
+
+        $this->setCurrentPanel();
+
+        Notification::fake();
+
+        Livewire::actingAs($manager)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'name' => 'Invited User',
+                'email' => 'invited@example.com',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $created = User::where('email', 'invited@example.com')->firstOrFail();
+        Notification::assertSentTo($created, AdminPasswordResetNotification::class);
+    }
+
+    public function test_creating_a_user_sets_approved_at(): void
+    {
+        $manager = $this->createManagerUser();
+
+        $this->setCurrentPanel();
+
+        Notification::fake();
+
+        Livewire::actingAs($manager)
+            ->test(CreateUser::class)
+            ->fillForm([
+                'name' => 'Auto-Approved User',
+                'email' => 'approved@example.com',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $created = User::where('email', 'approved@example.com')->firstOrFail();
+        $this->assertNotNull($created->approved_at);
     }
 
     // ── Edit ──────────────────────────────────────────────────────────────────
@@ -187,8 +232,8 @@ class UserResourceTest extends TestCase
         Livewire::actingAs($manager)
             ->test(ListUser::class)
             ->filterTable('pending_approval')
-            ->assertCanSeeTableRecords([$pending, $manager])
-            ->assertCanNotSeeTableRecords([$approved]);
+            ->assertCanSeeTableRecords([$pending])
+            ->assertCanNotSeeTableRecords([$approved, $manager]);
     }
 
     public function test_user_resource_can_filter_by_suspended(): void

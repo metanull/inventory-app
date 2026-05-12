@@ -145,6 +145,18 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return false;
         }
 
+        if (! $this->hasVerifiedEmail()) {
+            return false;
+        }
+
+        if ($this->approved_at === null) {
+            return false;
+        }
+
+        if ($this->suspended_at !== null) {
+            return false;
+        }
+
         return $this->hasPermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
     }
 }

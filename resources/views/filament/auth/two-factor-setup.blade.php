@@ -18,6 +18,11 @@
             {{ __('Continue to Dashboard') }}
         </x-filament::button>
     @else
+        <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+            <p class="font-semibold">{{ __('Two-factor authentication is required to access this panel.') }}</p>
+            <p class="mt-1">{{ __('Scan the QR code below with your authenticator app (such as Google Authenticator, Authy, or 1Password) and enter the six-digit code to complete setup.') }}</p>
+        </div>
+
         <div class="mb-4 flex justify-center">
             {!! $qrCodeSvg !!}
         </div>
