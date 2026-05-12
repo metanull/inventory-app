@@ -266,7 +266,7 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
           // Collect itemIds to process: either single resolved or all resolved candidates
           const resolvedItemIds: string[] = [];
           if (monumentResolution.mode === 'resolvedCandidates') {
-            for (const candidate of monumentResolution.resolvedCandidates!) {
+            for (const candidate of (monumentResolution.resolvedCandidates ?? [])) {
               resolvedItemIds.push(candidate.itemId);
             }
           } else if (monumentResolution.itemId) {

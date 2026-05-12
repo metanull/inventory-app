@@ -311,7 +311,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
           ],
         });
         this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
-        result.warnings!.push(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings.push(`Failed to create translation ${translationBC}: ${message}`);
       }
     }
 

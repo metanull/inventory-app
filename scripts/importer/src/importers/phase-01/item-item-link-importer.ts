@@ -625,7 +625,7 @@ export class ItemItemLinkImporter extends BaseImporter {
           this.logWarning(
             `No backward compatibility found for ${table} relation_id=${justification.relation_id}`
           );
-          result.warnings!.push(
+          result.warnings.push(
             `No backward compatibility for ${table} relation_id=${justification.relation_id}`
           );
           continue;
@@ -637,7 +637,7 @@ export class ItemItemLinkImporter extends BaseImporter {
           this.logWarning(
             `Item-item link not found for ${linkBackwardCompat}, skipping justification`
           );
-          result.warnings!.push(`Item-item link not found for ${linkBackwardCompat}`);
+          result.warnings.push(`Item-item link not found for ${linkBackwardCompat}`);
           continue;
         }
 
@@ -647,7 +647,7 @@ export class ItemItemLinkImporter extends BaseImporter {
           this.logWarning(
             `Unknown language code '${justification.lang_id}' in ${table} relation_id=${justification.relation_id}, skipping`
           );
-          result.warnings!.push(
+          result.warnings.push(
             `Unknown language '${justification.lang_id}' in ${table} relation_id=${justification.relation_id}`
           );
           continue;
@@ -682,7 +682,7 @@ export class ItemItemLinkImporter extends BaseImporter {
         this.logWarning(
           `Failed justification ${table} relation_id=${justification.relation_id} lang=${justification.lang_id}: ${message}`
         );
-        result.warnings!.push(
+        result.warnings.push(
           `Failed justification ${table} relation_id=${justification.relation_id}: ${message}`
         );
       }

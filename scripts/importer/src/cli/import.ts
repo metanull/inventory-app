@@ -1371,6 +1371,7 @@ program
             imported: 0,
             skipped: 0,
             errors: [message],
+            warnings: [],
           });
         }
       }

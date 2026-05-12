@@ -89,8 +89,10 @@ export function parseItemYear(raw: string | null | undefined): {
   value: number | null;
   warning: string | null;
 } {
-  if (!raw || !raw.trim()) return { value: null, warning: null };
-  if (!/^-?\d+$/.test(raw.trim())) {
+  if (!raw) return { value: null, warning: null };
+  const trimmed = raw.trim();
+  if (!trimmed) return { value: null, warning: null };
+  if (!/^-?\d+$/.test(trimmed)) {
     return { value: null, warning: `Non-integer year value ignored: '${raw}'` };
   }
   const n = parseInt(raw, 10);
