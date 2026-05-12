@@ -177,7 +177,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "lts/Krypton"
-          registry-url: https://npm.pkg.github.com/
 
       - name: "Setup > node > Enable Corepack"
         run: |
@@ -207,6 +206,8 @@ jobs:
           registry-url: https://npm.pkg.github.com/
 
       - name: "Setup > node > Enable Corepack"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           corepack enable
 
