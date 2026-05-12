@@ -187,7 +187,7 @@ class UserResource extends Resource
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading('Send Invitation Email')
-                    ->modalDescription('A password reset link will be sent to the user. They will be able to set their own password through the link.')
+                    ->modalDescription('A password reset link will be sent to the user. They will be able to set their own password through the link. The link expires after 60 minutes.')
                     ->action(function (User $record): void {
                         app(UserPasswordResetService::class)->sendResetLink($record);
                         Notification::make()

@@ -23,11 +23,7 @@ class PanelAccessEnforcementTest extends TestCase
 
     protected function createFullyEligibleUser(): User
     {
-        $user = User::factory()->create([
-            'email_verified_at' => now(),
-            'approved_at' => now(),
-            'suspended_at' => null,
-        ]);
+        $user = User::factory()->create();
         $user->givePermissionTo(Permission::ACCESS_ADMIN_PANEL->value);
 
         return $user;

@@ -16,8 +16,9 @@ class CreateUser extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Admin-created users are approved immediately and get a random placeholder password.
-        // The invitation email will let them set their own password.
+        // Admin-created users are approved immediately and get a random 32-character
+        // placeholder password that satisfies validation but is never exposed to the user.
+        // The invitation email lets them set their own password via a Filament reset link.
         $data['approved_at'] = now();
         $data['password'] = Hash::make(Str::random(32));
 
