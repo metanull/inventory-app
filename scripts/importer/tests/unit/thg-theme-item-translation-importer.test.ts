@@ -29,29 +29,58 @@ describe('ThgThemeItemTranslationImporter — source_bc_by_language', () => {
   const GALLERY_ID = 3;
   const THEME_ID = 5;
   const ITEM_ID = 100;
-  // mwnf3 object BC keys used by resolveItemReference
+  // mwnf3 object columns
   const OBJ_PROJECT = 'ISL';
   const OBJ_COUNTRY = 'MAR';
   const OBJ_PARTNER = 'MUS001';
-  const ITEM_BC = `mwnf3:objects:${OBJ_PROJECT}:${OBJ_COUNTRY}:${OBJ_PARTNER}:${ITEM_ID}`;
+  const OBJ_ITEM_ID = 42;
+  const OBJ_IMAGE_ID = 3;
+  // Picture item BC key (resolved by resolvePictureItemBackwardCompatibility)
+  const PICTURE_ITEM_BC = `mwnf3:objects_pictures:${OBJ_PROJECT}:${OBJ_COUNTRY}:${OBJ_PARTNER}:${OBJ_ITEM_ID}:${OBJ_IMAGE_ID}`;
 
   const BASE_THEME_ITEM = {
     gallery_id: GALLERY_ID,
     theme_id: THEME_ID,
     item_id: ITEM_ID,
+    // mwnf3 object columns (with image identity)
     mwnf3_object_project_id: OBJ_PROJECT,
     mwnf3_object_country_id: OBJ_COUNTRY,
     mwnf3_object_partner_id: OBJ_PARTNER,
-    mwnf3_object_item_id: ITEM_ID,
+    mwnf3_object_item_id: OBJ_ITEM_ID,
+    mwnf3_object_item_type: null,
+    mwnf3_object_image_id: OBJ_IMAGE_ID,
+    // mwnf3 monument (all null)
     mwnf3_monument_project_id: null,
     mwnf3_monument_country_id: null,
     mwnf3_monument_partner_id: null,
     mwnf3_monument_item_id: null,
+    mwnf3_monument_item_type: null,
+    mwnf3_monument_image_id: null,
+    // mwnf3 monument detail (all null)
     mwnf3_monument_detail_project_id: null,
     mwnf3_monument_detail_country_id: null,
     mwnf3_monument_detail_partner_id: null,
     mwnf3_monument_detail_item_id: null,
     mwnf3_monument_detail_detail_id: null,
+    mwnf3_monument_detail_image_id: null,
+    // SH object (all null)
+    sh_object_project_id: null,
+    sh_object_country_id: null,
+    sh_object_item_id: null,
+    sh_object_item_type: null,
+    sh_object_image_id: null,
+    // SH monument (all null)
+    sh_monument_project_id: null,
+    sh_monument_country_id: null,
+    sh_monument_item_id: null,
+    sh_monument_item_type: null,
+    sh_monument_image_id: null,
+    // SH monument detail (all null)
+    sh_monument_detail_project_id: null,
+    sh_monument_detail_country_id: null,
+    sh_monument_detail_item_id: null,
+    sh_monument_detail_detail_id: null,
+    sh_monument_detail_image_id: null,
   };
 
   beforeEach(() => {
@@ -66,8 +95,8 @@ describe('ThgThemeItemTranslationImporter — source_bc_by_language', () => {
       'theme-collection-uuid',
       'collection'
     );
-    // item registered with the correct BC key format
-    tracker.set(ITEM_BC, 'item-uuid', 'item');
+    // picture item registered with the picture BC key format
+    tracker.set(PICTURE_ITEM_BC, 'item-uuid', 'item');
 
     queryMock = vi.fn(async (sql: string) => {
       if (sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n')) {

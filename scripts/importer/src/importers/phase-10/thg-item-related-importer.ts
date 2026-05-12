@@ -2,7 +2,7 @@
  * THG Item Related Importer
  *
  * Imports theme_item_related entries as ItemItemLink records.
- * Creates links between items within a gallery context.
+ * Creates links between selected picture items within a gallery context.
  *
  * Legacy schema:
  * - mwnf3_thematic_gallery.theme_item_related (gallery_id, theme_id, item_id, related_item_id)
@@ -11,11 +11,16 @@
  * - item_item_links (id, source_id, target_id, context_id)
  *
  * Context: Uses the gallery's context (created by ThgGalleryContextImporter)
- * Only processes mwnf3-resolvable items.
+ * Source and target items are resolved to selected picture child items via the shared resolver.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import {
+  resolvePictureItemBackwardCompatibility,
+  THEME_ITEM_SELECT_COLUMNS,
+} from './thg-theme-item-resolver.js';
+import type { LegacyThemeItem } from './thg-theme-item-resolver.js';
 
 /**
  * Legacy theme_item_related structure
@@ -27,34 +32,15 @@ interface LegacyThemeItemRelated {
   related_item_id: number;
 }
 
-/**
- * Legacy theme_item structure for item resolution
- */
-interface LegacyThemeItem {
+interface LegacyThemeItemRow extends LegacyThemeItem {
   gallery_id: number;
   theme_id: number;
   item_id: number;
-  // mwnf3 object references
-  mwnf3_object_project_id: string | null;
-  mwnf3_object_country_id: string | null;
-  mwnf3_object_partner_id: string | null;
-  mwnf3_object_item_id: number | null;
-  // mwnf3 monument references
-  mwnf3_monument_project_id: string | null;
-  mwnf3_monument_country_id: string | null;
-  mwnf3_monument_partner_id: string | null;
-  mwnf3_monument_item_id: number | null;
-  // mwnf3 monument detail references
-  mwnf3_monument_detail_project_id: string | null;
-  mwnf3_monument_detail_country_id: string | null;
-  mwnf3_monument_detail_partner_id: string | null;
-  mwnf3_monument_detail_item_id: number | null;
-  mwnf3_monument_detail_detail_id: number | null;
 }
 
 export class ThgItemRelatedImporter extends BaseImporter {
   // Cache theme_item data for item resolution
-  private themeItemCache: Map<string, LegacyThemeItem> = new Map();
+  private themeItemCache: Map<string, LegacyThemeItemRow> = new Map();
 
   getName(): string {
     return 'ThgItemRelatedImporter';
@@ -69,12 +55,9 @@ export class ThgItemRelatedImporter extends BaseImporter {
       // Load theme_item data to resolve item references
       // Note: The legacy schema may not have this table - handle gracefully
       try {
-        const themeItems = await this.context.legacyDb.query<LegacyThemeItem>(
+        const themeItems = await this.context.legacyDb.query<LegacyThemeItemRow>(
           `SELECT gallery_id, theme_id, item_id,
-                  mwnf3_object_project_id, mwnf3_object_country_id, mwnf3_object_partner_id, mwnf3_object_item_id,
-                  mwnf3_monument_project_id, mwnf3_monument_country_id, mwnf3_monument_partner_id, mwnf3_monument_item_id,
-                  mwnf3_monument_detail_project_id, mwnf3_monument_detail_country_id, mwnf3_monument_detail_partner_id,
-                  mwnf3_monument_detail_item_id, mwnf3_monument_detail_detail_id
+                  ${THEME_ITEM_SELECT_COLUMNS}
            FROM mwnf3_thematic_gallery.theme_item`
         );
 
@@ -132,42 +115,42 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve source item reference
-          const sourceBackwardCompat = this.resolveItemReference(sourceThemeItem);
+          // Resolve source picture item reference
+          const sourceBackwardCompat = resolvePictureItemBackwardCompatibility(sourceThemeItem);
           if (!sourceBackwardCompat) {
-            // Not an mwnf3 item - skip
+            // Unsupported source family — skip silently
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Resolve target item reference
-          const targetBackwardCompat = this.resolveItemReference(targetThemeItem);
+          // Resolve target picture item reference
+          const targetBackwardCompat = resolvePictureItemBackwardCompatibility(targetThemeItem);
           if (!targetBackwardCompat) {
-            // Not an mwnf3 item - skip
+            // Unsupported source family — skip silently
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the source item ID from tracker or database (items are from earlier phases)
+          // Get the source picture item ID from tracker or database
           const sourceId = await this.getEntityUuidAsync(sourceBackwardCompat, 'item');
           if (!sourceId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Item relation ${sourceKey}: Source item not found (${sourceBackwardCompat})`
+              `Item relation ${sourceKey}: Source picture item not found (${sourceBackwardCompat})`
             );
             result.skipped++;
             this.showSkipped();
             continue;
           }
 
-          // Get the target item ID from tracker or database (items are from earlier phases)
+          // Get the target picture item ID from tracker or database
           const targetId = await this.getEntityUuidAsync(targetBackwardCompat, 'item');
           if (!targetId) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Item relation ${sourceKey}: Target item not found (${targetBackwardCompat})`
+              `Item relation ${sourceKey}: Target picture item not found (${targetBackwardCompat})`
             );
             result.skipped++;
             this.showSkipped();
@@ -265,48 +248,5 @@ export class ThgItemRelatedImporter extends BaseImporter {
     }
 
     return result;
-  }
-
-  /**
-   * Resolve item reference from theme_item to backward_compatibility string
-   * Returns null if not an mwnf3 item
-   */
-  private resolveItemReference(legacy: LegacyThemeItem): string | null {
-    // Check mwnf3_object reference
-    // Format: mwnf3:objects:PROJECT:COUNTRY:MUSEUM:NUMBER (matching object-transformer.ts)
-    if (
-      legacy.mwnf3_object_project_id &&
-      legacy.mwnf3_object_country_id &&
-      legacy.mwnf3_object_partner_id &&
-      legacy.mwnf3_object_item_id !== null
-    ) {
-      return `mwnf3:objects:${legacy.mwnf3_object_project_id}:${legacy.mwnf3_object_country_id}:${legacy.mwnf3_object_partner_id}:${legacy.mwnf3_object_item_id}`;
-    }
-
-    // Check mwnf3_monument reference
-    // Format: mwnf3:monuments:PROJECT:COUNTRY:INSTITUTION:NUMBER (matching monument-transformer.ts)
-    if (
-      legacy.mwnf3_monument_project_id &&
-      legacy.mwnf3_monument_country_id &&
-      legacy.mwnf3_monument_partner_id &&
-      legacy.mwnf3_monument_item_id !== null
-    ) {
-      return `mwnf3:monuments:${legacy.mwnf3_monument_project_id}:${legacy.mwnf3_monument_country_id}:${legacy.mwnf3_monument_partner_id}:${legacy.mwnf3_monument_item_id}`;
-    }
-
-    // Check mwnf3_monument_detail reference
-    // Format: mwnf3:monument_details:PROJECT:COUNTRY:INSTITUTION:MONUMENT:DETAIL (matching monument-detail-transformer.ts)
-    if (
-      legacy.mwnf3_monument_detail_project_id &&
-      legacy.mwnf3_monument_detail_country_id &&
-      legacy.mwnf3_monument_detail_partner_id &&
-      legacy.mwnf3_monument_detail_item_id !== null &&
-      legacy.mwnf3_monument_detail_detail_id !== null
-    ) {
-      return `mwnf3:monument_details:${legacy.mwnf3_monument_detail_project_id}:${legacy.mwnf3_monument_detail_country_id}:${legacy.mwnf3_monument_detail_partner_id}:${legacy.mwnf3_monument_detail_item_id}:${legacy.mwnf3_monument_detail_detail_id}`;
-    }
-
-    // Not an mwnf3 item
-    return null;
   }
 }
