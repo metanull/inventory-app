@@ -1,158 +1,140 @@
 ---
-description: "Use when: configuring the OVH VPS, writing or modifying OVH deployment scripts, editing deploy-ovh workflow, managing Nginx vhost for inventory, SSH access to the VPS, queue worker setup, or MySQL backup for the inventory-app on the shared OVH server."
+description: "Use when: configuring the secondary VPS deployment, writing or modifying OVH deployment scripts, editing deploy-ovh workflow, managing Nginx vhost, SSH access, queue worker setup, or MySQL backup for the inventory-app on the shared VPS server."
 applyTo: "scripts/deploy-ovh.sh,scripts/provision-inventory.sh,.github/workflows/deploy-ovh.yml"
 ---
 
-# Server Setup — OVH VPS (Secondary Deployment)
+# Server Setup: Secondary VPS Deployment
 
-The inventory-app is deployed to a shared OVH VPS as a **secondary** deployment target. The **primary** deployment is to the MWNF Windows server via the `deploy.yml` workflow and a self-hosted GitHub Actions runner.
+The inventory-app has a secondary VPS deployment target. Shared instructions describe the deployment model and safety rules. Contributor-specific host aliases, SSH key paths, account names, concrete server paths, and private access details live in `.copilot/local/server-ovh.md`.
 
-## Topology
+Before using a host, SSH account, key path, app root, log path, or Nginx path, read `.copilot/local/server-ovh.md` first. If the file is missing or incomplete, ask the user for the missing value before executing commands or writing examples. Do not guess hostnames, key paths, account names, app roots, or service names.
 
-The OVH VPS is shared with the Motivya app (separate project, out of scope). Both apps run on the same server but are fully isolated at the application level.
+Use `.copilot/local/server-ovh.template.md` as the collaborator-facing schema. Do not store passwords, private key contents, tokens, or production `.env` values in local config.
 
-```
-┌──────────────────────────────────────────────────────────┐
-│  OVH VPS Starter (France)                                │
-│  1 vCPU · 2 GB RAM · 20 GB SSD                          │
-│  Ubuntu 24.04 LTS                                        │
-│                                                          │
-│  PHP 8.4-FPM · Nginx · MySQL · Valkey                   │
-│  (installed once by motivya's provision.sh)              │
-│                                                          │
-│  ┌────────────────────┐  ┌─────────────────────────────┐ │
-│  │ Motivya            │  │ Inventory App               │ │
-│  │ motivya.metanull.eu│  │ inventory.metanull.eu       │ │
-│  │ /opt/motivya/      │  │ /opt/inventory/             │ │
-│  │ Docker Compose     │  │ Native PHP-FPM + Nginx      │ │
-│  │ Redis DB 0/1       │  │ Valkey DB 2/3               │ │
-│  │ MySQL: motivya     │  │ MySQL: inventory            │ │
-│  └────────────────────┘  └─────────────────────────────┘ │
-│                                                          │
-│  Certbot (Let's Encrypt) — auto-renewing                 │
-│  UFW firewall: 22, 80, 443 only                         │
-└──────────────────────────────────────────────────────────┘
-```
+## Required Local Config Keys
 
-**Key difference from Motivya:** Inventory-app runs natively on PHP-FPM + Nginx — there is NO Docker involved. Never suggest Docker Compose, Dockerfiles, or container-based deployment for the inventory-app.
+- `host`
+- `deploy_user`
+- `deploy_ssh_key`
+- `admin_user`
+- `admin_ssh_key`
+- `app_root`
+- `current_symlink`
+- `releases_root`
+- `shared_root`
+- `shared_env`
+- `shared_storage`
+- `shared_pictures_dir`
+- `laravel_log`
+- `queue_worker_log`
+- `backups_root`
+- `domain`
+- `nginx_vhost`
+- `queue_service`
+- `redis_db`
+- `redis_cache_db`
+- `db_credentials_path`
 
-## Domain & DNS
+## Topology Model
 
-- **Domain**: `inventory.metanull.eu` (CNAME → `metanull.eu`)
-- **SSL**: Let's Encrypt via Certbot, auto-renewing
+The VPS target is a secondary deployment. It is artifact-based and should not require git, composer, or npm on the VPS during deployment.
 
-## Two-Account Model
+The inventory app runs natively on PHP-FPM and Nginx. Never suggest Docker Compose, Dockerfiles, or container-based deployment for this target unless the project runbook changes.
 
-The VPS has exactly two user accounts:
+Use local config keys rather than hard-coded paths:
 
-| Account  | Purpose                  | SSH key                  | sudo   | Used by              |
-|----------|--------------------------|--------------------------|--------|----------------------|
-| `ubuntu` | System administration    | `~/.ssh/ubuntu`          | Yes    | Human operator only  |
-| `deploy` | Application deployment   | `~/.ssh/inventory_deploy`| **No** | CD pipeline + human  |
+| Area | Local config key |
+|------|------------------|
+| App root | `app_root` |
+| Active release symlink | `current_symlink` |
+| Releases root | `releases_root` |
+| Shared root | `shared_root` |
+| Shared `.env` | `shared_env` |
+| Shared storage | `shared_storage` |
+| Shared pictures | `shared_pictures_dir` |
+| Laravel log | `laravel_log` |
+| Queue worker log | `queue_worker_log` |
+| Backups root | `backups_root` |
+| Nginx vhost | `nginx_vhost` |
+| Queue service | `queue_service` |
 
-**Rules:**
-- `ubuntu` is NEVER used in GitHub Actions or deploy scripts — manual admin only.
-- `deploy` has NO sudo — owns `/opt/inventory/` and deploys without elevation.
-- The inventory-app uses its own SSH key (`~/.ssh/inventory_deploy`), distinct from Motivya's `~/.ssh/motivya_deploy`, to avoid mixing concerns.
+## Account Model
 
-## Application Directory
+The VPS uses two account roles:
 
-Owned by `deploy:www-data`. No root/sudo operations during deployment.
+| Account role | Purpose |
+|--------------|---------|
+| Deploy account | Application deployment and day-to-day app inspection. No sudo. Owns the configured app tree. |
+| Admin account | Human system administration only. Use only when sudo or system paths are required. |
 
-```
-/opt/inventory/
-├── current -> releases/<timestamp>/   # Symlink to active release (atomic swap)
-├── releases/                          # Timestamped release directories (keep last 5)
-├── shared/
-│   ├── .env                           # Production .env (not in Git)
-│   └── storage/                       # Laravel storage (symlinked into releases)
-│       ├── app/public/
-│       ├── framework/cache/data/
-│       ├── framework/sessions/
-│       ├── framework/views/
-│       └── logs/
-├── backups/                           # Daily MySQL dumps (14-day retention)
-└── backup-db.sh                       # Backup script (cron at 3:30 AM)
-```
+Rules:
 
-## Redis/Valkey Isolation
+- Never use the admin account in GitHub Actions or automated deployment scripts.
+- Never use sudo in deploy scripts or the deploy workflow.
+- Use the deploy account for all app-level operations under the configured app root.
+- Keep SSH private keys in local files or GitHub secrets, never in Git.
 
-Inventory-app uses Valkey DB 2 and 3 to avoid collision with Motivya (DB 0 and 1):
-- `REDIS_DB=2` — sessions, queues
-- `REDIS_CACHE_DB=3` — cache
+## Application Directory Model
+
+The app tree contains:
+
+- `current`: symlink to the active release.
+- `releases`: timestamped release directories.
+- `shared`: persistent `.env` and Laravel storage.
+- `backups`: database backup artifacts.
+- backup script and scheduled backup configuration.
+
+Use configured paths from `.copilot/local/server-ovh.md` when constructing commands.
+
+## Valkey Isolation
+
+Inventory-app uses configured Valkey DB indexes to avoid collision with other apps on the same VPS. Read `redis_db` and `redis_cache_db` from local config before inspecting or flushing anything.
 
 ## Scripts
 
 | Script | Run as | Purpose |
 |--------|--------|---------|
-| `scripts/provision-inventory.sh` | root (once) | MySQL DB/user, `/opt/inventory/` structure, Nginx vhost, SSL, queue worker systemd unit, daily backup cron |
-| `scripts/deploy-ovh.sh` | deploy (each deploy) | Extract release, symlink storage, configure `.env`, migrate, warm caches, restart queue, prune old releases, health check |
+| `scripts/provision-inventory.sh` | root/admin during one-time provisioning | Create DB/user, app structure, Nginx vhost, TLS, queue worker, and backups. |
+| `scripts/deploy-ovh.sh` | deploy account for each deploy | Extract release, link storage, configure `.env`, migrate, warm caches, restart queue, prune old releases, and health check. |
 
-Both scripts are idempotent.
+Both scripts should remain idempotent.
 
 ## Deployment Flow
 
-Deploy is **artifact-based** — no git, composer, or npm on the VPS.
+The VPS deployment flow:
 
-```
-Push to main
-    │
-    ▼
-Build workflow (build.yml) — runs on ubuntu-latest
-  → produces release.tar.gz artifact
-    │ (success)
-    ▼
-Deploy to OVH workflow (deploy-ovh.yml) — triggered by workflow_run
-  1. Download release artifact from Build run
-  2. SSH pre-checks (netcat + whoami) — fail fast
-  3. SCP release.tar.gz + deploy-ovh.sh to VPS /tmp/
-  4. SSH: bash deploy-ovh.sh /tmp/inventory-release.tar.gz
-  5. Cleanup /tmp/ files
-    │
-    ▼
-VPS: deploy-ovh.sh (runs as deploy, NO sudo)
-  1. Extract to /opt/inventory/releases/<timestamp>/
-  2. Symlink shared/storage into release
-  3. Create/symlink .env (first deploy only)
-  4. php artisan migrate --force
-  5. config:cache, route:cache, view:cache
-  6. php artisan queue:restart
-  7. Swap /opt/inventory/current symlink (atomic)
-  8. Prune old releases (keep last 5)
-  9. Health check (curl localhost with Host header)
-```
+1. Build workflow produces a release tarball artifact.
+2. Deploy workflow downloads the release artifact.
+3. Deploy workflow performs SSH pre-checks.
+4. Deploy workflow copies release artifact and deploy script to the VPS temp area.
+5. Deploy workflow runs the deploy script as the deploy account.
+6. Deploy script extracts to a timestamped release directory.
+7. Deploy script symlinks shared storage and `.env`.
+8. Deploy script runs `php artisan migrate --force` and cache warmup.
+9. Deploy script restarts the queue gracefully.
+10. Deploy script swaps the current symlink atomically.
+11. Deploy script prunes old releases and performs a health check.
 
 ## GitHub Environment Secrets
 
-Stored in the **`inventory.metanull.eu`** GitHub Environment (Settings → Environments):
+Deployment configuration belongs in the configured GitHub Environment for the VPS target.
 
-| Secret         | Value                                      | Used by           |
-|----------------|--------------------------------------------|--------------------|
-| `VPS_HOST`     | VPS IP address                             | `deploy-ovh.yml`   |
-| `VPS_SSH_KEY`  | Private SSH key for `deploy` (inventory_deploy) | `deploy-ovh.yml` |
-| `VPS_SSH_USER` | `deploy`                                   | `deploy-ovh.yml`   |
-
-Application secrets (DB password, etc.) live in `/opt/inventory/shared/.env` on the VPS — never in GitHub.
+Use GitHub Environment secrets for the VPS host, SSH key, SSH user, and production secrets required by the workflow. Application secrets such as DB password belong in the server-side shared `.env`, not in Git.
 
 ## Queue Worker
 
-Systemd service `inventory-queue.service` runs as `www-data`:
-- `php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --memory=128`
-- Logs to `/opt/inventory/shared/storage/logs/queue-worker.log`
-- Restarted gracefully via `php artisan queue:restart` after each deploy
+The queue worker is managed by systemd under the configured `queue_service` name. Logs live at the configured `queue_worker_log` path. Restart it gracefully with Laravel queue restart commands during deployment.
 
 ## Backup Strategy
 
-- **Database**: Daily mysqldump cron at 3:30 AM → `/opt/inventory/backups/inventory-YYYY-MM-DD.sql.gz`
-- **Retention**: 14 days
-- **Code**: Git is the source of truth — no code backup needed
+Database backup configuration belongs to provisioning. Keep backup scripts idempotent and write backup artifacts under the configured backup root. Do not hard-code a contributor's concrete backup path in shared instructions.
 
 ## Forbidden
 
-- **NEVER use `sudo` in deploy scripts or the deploy-ovh workflow.** `deploy` owns `/opt/inventory/` — no elevation needed.
-- **NEVER use the `ubuntu` account in GitHub secrets, workflows, or automated scripts.**
-- **NEVER install packages (`apt-get`) in deploy scripts.** Dependencies are installed once via `provision-inventory.sh`.
-- **NEVER use Docker** for the inventory-app — it runs natively on PHP-FPM + Nginx.
-- **NEVER run `migrate:fresh` or `migrate:refresh` in production** — only `migrate --force`.
-- Do NOT expose MySQL or Valkey ports to the internet — localhost only.
-- Do NOT store production secrets in Git or GitHub Secrets (except the SSH key for deploy).
+- Never use sudo in deploy scripts or the deploy workflow.
+- Never use the admin account in GitHub secrets, workflows, or automated scripts.
+- Never install packages in deploy scripts; dependencies are installed during provisioning.
+- Never use Docker for this inventory-app deployment unless the runbook changes.
+- Never run `migrate:fresh` or `migrate:refresh` in production; use `migrate --force` only.
+- Never expose MySQL or Valkey ports to the internet.
+- Never store production secrets in Git.

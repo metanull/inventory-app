@@ -159,5 +159,10 @@ VERSION
 # Custom Up/Down Commands' generated files
 public/down.lock
 
+# Contributor-local Copilot configuration
+.copilot/local/*
+!.copilot/local/README.md
+!.copilot/local/*.template.md
+
 # local git modules
 .legacy-database

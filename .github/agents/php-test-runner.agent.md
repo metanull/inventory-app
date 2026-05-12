@@ -8,6 +8,14 @@ tools: ['codebase', 'terminalCommand']
 
 You run Laravel Pint and PHPUnit/Pest tests natively inside the Dev Container, which provides PHP 8.4 with all CI-matching extensions (`intl`, `zip`, `pdo_sqlite`, `gd`, `exif`, `bcmath`, `pcntl`, `sockets`) plus Xdebug and Node.js 24.
 
+## Contributor-Local Configuration
+
+Before using the manual Docker runner examples, read `.copilot/local/php-test-runner.md` if it exists. This ignored file contains contributor-specific host workspace paths and optional Docker volume names.
+
+If the file does not exist or lacks a value required for the requested manual Docker command, ask the user for the missing value before executing. Do not guess host workspace paths.
+
+Use `.copilot/local/php-test-runner.template.md` as the collaborator-facing schema. The normal Dev Container workflow does not require contributor-local values.
+
 > **Important:** This agent assumes VS Code is running **inside the Dev Container** (opened via "Reopen in Container"). All commands below are plain shell commands — no `docker run` wrapper is needed.
 >
 > The Dev Container image is built from `.devcontainer/Dockerfile` and tagged `inventory-app-dev`. If you need to rebuild the image, run `docker build -f .devcontainer/Dockerfile -t inventory-app-dev .` from the host (outside the container).
@@ -30,10 +38,10 @@ The image uses the same named volumes as the VS Code Dev Container. Dependency v
 ```powershell
 # Bootstrap PHP dependencies into the named vendor volume (run once, or after composer.lock changes)
 docker run --rm `
-  -v "E:\inventory\inventory-app:/workspaces/inventory-app" `
-  -v inv-app-php-vendor:/workspaces/inventory-app/vendor `
-  -w /workspaces/inventory-app `
-  inventory-app-dev `
+  -v "<host_workspace_root>:<container_workspace_root>" `
+  -v <php_vendor_volume>:<container_workspace_root>/vendor `
+  -w <container_workspace_root> `
+  <devcontainer_image> `
   composer install --no-interaction
 ```
 
@@ -41,12 +49,12 @@ Then run tests with both the workspace and vendor volumes mounted, Xdebug off, a
 
 ```powershell
 docker run --rm `
-  -v "E:\inventory\inventory-app:/workspaces/inventory-app" `
-  -v inv-app-php-vendor:/workspaces/inventory-app/vendor `
+  -v "<host_workspace_root>:<container_workspace_root>" `
+  -v <php_vendor_volume>:<container_workspace_root>/vendor `
   -e DB_CONNECTION=sqlite -e DB_DATABASE=":memory:" `
   -e XDEBUG_MODE=off `
-  -w /workspaces/inventory-app `
-  inventory-app-dev `
+  -w <container_workspace_root> `
+  <devcontainer_image> `
   php artisan test --testsuite=Filament --no-coverage --parallel --no-ansi --stop-on-failure
 ```
 
