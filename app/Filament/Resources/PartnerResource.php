@@ -18,6 +18,7 @@ use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManage
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
+use App\Filament\Support\PartnerDisplayLabel;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Models\Project;
@@ -81,9 +82,6 @@ class PartnerResource extends Resource
             ->schema([
                 FiltersSection::make('Core information')
                     ->schema([
-                        TextInput::make('internal_name')
-                            ->required()
-                            ->maxLength(255),
                         Select::make('type')
                             ->options([
                                 'museum' => 'Museum',
@@ -92,9 +90,6 @@ class PartnerResource extends Resource
                                 'school' => 'School',
                             ])
                             ->required(),
-                        TextInput::make('backward_compatibility')
-                            ->label('Legacy code')
-                            ->maxLength(255),
                         Select::make('country_id')
                             ->label('Country')
                             ->relationship('country', 'internal_name')
@@ -122,6 +117,18 @@ class PartnerResource extends Resource
                             ->default(true),
                     ])
                     ->columns(2),
+                FiltersSection::make('Technical identification')
+                    ->description('System metadata used for technical identification and legacy imports.')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                    ])
+                    ->columns(2)
+                    ->collapsed(fn (?Partner $record): bool => $record !== null),
             ]);
     }
 
@@ -129,13 +136,16 @@ class PartnerResource extends Resource
     {
         return $table
             ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
-            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query->with([
-                'country:id,internal_name',
-                'project:id,internal_name',
-            ])))
+            ->modifyQueryUsing(fn (Builder $query): Builder => PartnerDisplayLabel::withDisplayLabel(
+                static::withFallbackExists($query->with([
+                    'country:id,internal_name',
+                    'project:id,internal_name',
+                ]))
+            ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
-                static::internalNameColumn(),
+                PartnerDisplayLabel::displayLabelColumn()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
@@ -158,6 +168,9 @@ class PartnerResource extends Resource
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+                static::internalNameColumn()
+                    ->label('Internal name')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 ...static::translationCoverageFilters(),
@@ -228,7 +241,6 @@ class PartnerResource extends Resource
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
-                        TextEntry::make('internal_name'),
                         TextEntry::make('type'),
                         TextEntry::make('country.internal_name')
                             ->label('Country')
@@ -256,6 +268,8 @@ class PartnerResource extends Resource
                 InfolistSection::make('System Information')
                     ->schema([
                         static::uuidInfolistEntry(),
+                        TextEntry::make('internal_name')
+                            ->label('Internal name'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),

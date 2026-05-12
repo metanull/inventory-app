@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\ProjectResource;
+use App\Filament\Support\ItemDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
@@ -26,17 +27,17 @@ class ItemsRelationManager extends RelationManager
     {
         return $table
             ->inverseRelationship('attachedToCollections')
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'partner:id,internal_name',
-                'project:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => ItemDisplayLabel::withDisplayLabel(
+                $query->with([
+                    'partner:id,internal_name',
+                    'project:id,internal_name',
+                ])
+            ))
             ->defaultSort('internal_name', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->searchable()
-                    ->sortable()
+                ItemDisplayLabel::displayLabelColumn()
                     ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
@@ -54,6 +55,10 @@ class ItemsRelationManager extends RelationManager
                     ->url(fn ($record): ?string => $record->project
                         ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                         : null),
+                TextColumn::make('internal_name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

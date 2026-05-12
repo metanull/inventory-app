@@ -2,32 +2,32 @@
 
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
+use App\Filament\Support\DynastyDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DynastiesRelationManager extends RelationManager
 {
     protected static string $relationship = 'dynasties';
 
-    protected static ?string $recordTitleAttribute = 'backward_compatibility';
+    protected static ?string $recordTitleAttribute = 'display_label';
 
     protected static ?string $title = 'Dynasties';
 
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => DynastyDisplayLabel::withDisplayLabel($query))
             ->defaultSort('from_ad', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
-                TextColumn::make('backward_compatibility')
-                    ->label('Legacy code')
-                    ->searchable()
-                    ->sortable(),
+                DynastyDisplayLabel::displayLabelColumn(),
                 TextColumn::make('from_ad')
                     ->label('From (AD)')
                     ->sortable(),
@@ -42,6 +42,11 @@ class DynastiesRelationManager extends RelationManager
                     ->label('To (AH)')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('backward_compatibility')
+                    ->label('Legacy code')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()
@@ -51,7 +56,9 @@ class DynastiesRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordSelectSearchColumns(['backward_compatibility'])
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('from_ad')),
+                    ->recordSelectOptionsQuery(fn ($query) => DynastyDisplayLabel::withDisplayLabel(
+                        $query->orderBy('from_ad')
+                    )),
             ])
             ->actions([
                 DetachAction::make(),

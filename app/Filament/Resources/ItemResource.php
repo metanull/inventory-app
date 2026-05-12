@@ -29,6 +29,8 @@ use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationM
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\WorkshopsRelationManager;
 use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
+use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\ItemDisplayLabel;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Item;
@@ -124,12 +126,6 @@ class ItemResource extends Resource
                                     ->all()
                             )
                             ->required(),
-                        TextInput::make('internal_name')
-                            ->required()
-                            ->maxLength(255),
-                        TextInput::make('backward_compatibility')
-                            ->label('Legacy code')
-                            ->maxLength(255),
                         Select::make('parent_id')
                             ->label('Parent item')
                             ->relationship(
@@ -163,6 +159,19 @@ class ItemResource extends Resource
                             ->nullable(),
                     ])
                     ->columns(2),
+                FiltersSection::make('Technical identification')
+                    ->description('System metadata used for technical identification and legacy imports.')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                        TextInput::make('backward_compatibility')
+                            ->label('Legacy code')
+                            ->maxLength(255),
+                    ])
+                    ->columns(2)
+                    ->collapsed(fn (?Item $record): bool => $record !== null),
             ]);
     }
 
@@ -170,17 +179,20 @@ class ItemResource extends Resource
     {
         return $table
             ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
-            ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists(
-                $query->with([
-                    'parent:id,internal_name',
-                    'partner:id,internal_name',
-                    'country:id,internal_name',
-                    'project:id,internal_name',
-                ])
+            ->modifyQueryUsing(fn (Builder $query): Builder => ItemDisplayLabel::withDisplayLabel(
+                static::withFallbackExists(
+                    $query->with([
+                        'parent:id,internal_name',
+                        'partner:id,internal_name',
+                        'country:id,internal_name',
+                        'project:id,internal_name',
+                    ])
+                )
             ))
             ->defaultSort('internal_name', 'asc')
             ->columns([
-                static::internalNameColumn(),
+                ItemDisplayLabel::displayLabelColumn()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
@@ -217,6 +229,9 @@ class ItemResource extends Resource
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+                static::internalNameColumn()
+                    ->label('Internal name')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 ...static::translationCoverageFilters(),
@@ -242,16 +257,19 @@ class ItemResource extends Resource
                     ->searchable(),
                 SelectFilter::make('collection')
                     ->label('Collection')
-                    ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                        ->where('internal_name', 'like', "%{$search}%")
-                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                        ->orWhere('id', 'like', "%{$search}%")
-                        ->orderBy('internal_name')
-                        ->limit(50)
-                        ->pluck('internal_name', 'id')
-                        ->all()
-                    )
-                    ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                    ->getSearchResultsUsing(fn (string $search): array => CollectionDisplayLabel::withDisplayLabel(
+                        Collection::query()
+                            ->where('internal_name', 'like', "%{$search}%")
+                            ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                            ->orWhere('id', 'like', "%{$search}%")
+                            ->orderBy('internal_name')
+                            ->limit(50)
+                    )->get()->mapWithKeys(fn (Collection $c): array => [
+                        $c->id => $c->display_label !== $c->internal_name
+                            ? $c->display_label.' ['.$c->internal_name.']'
+                            : $c->internal_name,
+                    ])->all())
+                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('attachedToCollections', fn (Builder $q): Builder => $q->where('collections.id', $data['value']))
@@ -351,16 +369,19 @@ class ItemResource extends Resource
                         Select::make('collection_id')
                             ->label('Collection')
                             ->required()
-                            ->getSearchResultsUsing(fn (string $search): array => Collection::query()
-                                ->where('internal_name', 'like', "%{$search}%")
-                                ->orWhere('backward_compatibility', 'like', "%{$search}%")
-                                ->orWhere('id', 'like', "%{$search}%")
-                                ->orderBy('internal_name')
-                                ->limit(50)
-                                ->pluck('internal_name', 'id')
-                                ->all()
-                            )
-                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)?->internal_name ?? $value)
+                            ->getSearchResultsUsing(fn (string $search): array => CollectionDisplayLabel::withDisplayLabel(
+                                Collection::query()
+                                    ->where('internal_name', 'like', "%{$search}%")
+                                    ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                    ->orWhere('id', 'like', "%{$search}%")
+                                    ->orderBy('internal_name')
+                                    ->limit(50)
+                            )->get()->mapWithKeys(fn (Collection $c): array => [
+                                $c->id => $c->display_label !== $c->internal_name
+                                    ? $c->display_label.' ['.$c->internal_name.']'
+                                    : $c->internal_name,
+                            ])->all())
+                            ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {
@@ -417,7 +438,6 @@ class ItemResource extends Resource
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
-                        TextEntry::make('internal_name'),
                         TextEntry::make('type')
                             ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
                         TextEntry::make('parent.internal_name')
@@ -447,6 +467,8 @@ class ItemResource extends Resource
                 InfolistSection::make('System Information')
                     ->schema([
                         static::uuidInfolistEntry(),
+                        TextEntry::make('internal_name')
+                            ->label('Internal name'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),

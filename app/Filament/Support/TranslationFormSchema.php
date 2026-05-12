@@ -103,19 +103,18 @@ class TranslationFormSchema
                         }
                     })
                     ->orderBy('internal_name')
-                    ->limit(50)
-                    ->get();
+                    ->limit(50);
 
-                return $query->mapWithKeys(fn (Item $item): array => [
-                    $item->id => static::legacyLabel($item->internal_name, $item->backward_compatibility),
-                ])->all();
+                return ItemDisplayLabel::withDisplayLabel($query)
+                    ->get()
+                    ->mapWithKeys(fn (Item $item): array => [
+                        $item->id => $item->display_label !== $item->internal_name
+                            ? $item->display_label.' ['.$item->internal_name.']'
+                            : static::legacyLabel($item->internal_name, $item->backward_compatibility),
+                    ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                $item = Item::find($value);
-
-                return $item
-                    ? static::legacyLabel($item->internal_name, $item->backward_compatibility)
-                    : (string) $value;
+                return ItemDisplayLabel::resolveLabel($value) ?: (string) $value;
             });
 
         return static::requiredOrNullable($select, $required);
@@ -178,19 +177,18 @@ class TranslationFormSchema
                         }
                     })
                     ->orderBy('internal_name')
-                    ->limit(50)
-                    ->get();
+                    ->limit(50);
 
-                return $query->mapWithKeys(fn (Partner $partner): array => [
-                    $partner->id => static::legacyLabel($partner->internal_name, $partner->backward_compatibility),
-                ])->all();
+                return PartnerDisplayLabel::withDisplayLabel($query)
+                    ->get()
+                    ->mapWithKeys(fn (Partner $partner): array => [
+                        $partner->id => $partner->display_label !== $partner->internal_name
+                            ? $partner->display_label.' ['.$partner->internal_name.']'
+                            : static::legacyLabel($partner->internal_name, $partner->backward_compatibility),
+                    ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                $partner = Partner::find($value);
-
-                return $partner
-                    ? static::legacyLabel($partner->internal_name, $partner->backward_compatibility)
-                    : (string) $value;
+                return PartnerDisplayLabel::resolveLabel($value) ?: (string) $value;
             });
 
         return static::requiredOrNullable($select, $required);

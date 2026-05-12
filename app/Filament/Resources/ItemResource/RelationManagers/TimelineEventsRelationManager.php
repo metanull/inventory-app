@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Filament\Resources\TimelineEventResource;
 use App\Filament\Resources\TimelineResource;
+use App\Filament\Support\TimelineEventDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -21,9 +22,11 @@ class TimelineEventsRelationManager extends RelationManager
     {
         return $table
             ->inverseRelationship('items')
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
-                'timeline:id,internal_name',
-            ]))
+            ->modifyQueryUsing(fn (Builder $query): Builder => TimelineEventDisplayLabel::withDisplayLabel(
+                $query->with([
+                    'timeline:id,internal_name',
+                ])
+            ))
             ->defaultSort('timeline.internal_name', 'asc')
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
@@ -34,10 +37,8 @@ class TimelineEventsRelationManager extends RelationManager
                     ->url(fn ($record): ?string => $record->timeline && auth()->user()?->can('view', $record->timeline)
                         ? TimelineResource::getUrl('view', ['record' => $record->timeline])
                         : null),
-                TextColumn::make('internal_name')
+                TimelineEventDisplayLabel::displayLabelColumn()
                     ->label('Event')
-                    ->searchable()
-                    ->sortable()
                     ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
                         ? TimelineEventResource::getUrl('view', ['record' => $record])
                         : null),
@@ -53,6 +54,11 @@ class TimelineEventsRelationManager extends RelationManager
                     ->label('Display order')
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Created')
                     ->dateTime()

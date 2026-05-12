@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Permission;
+use App\Filament\Support\TimelineEventDisplayLabel;
 use App\Models\Timeline;
 use App\Models\TimelineEvent;
 use Filament\Pages\Page;
@@ -228,10 +229,11 @@ class BrowseTimelineTree extends Page
      */
     public function getEvents(string $timelineId): Collection
     {
-        return TimelineEvent::query()
-            ->where('timeline_id', $timelineId)
-            ->orderBy('display_order')
-            ->orderBy('internal_name')
-            ->get();
+        return TimelineEventDisplayLabel::withDisplayLabel(
+            TimelineEvent::query()
+                ->where('timeline_id', $timelineId)
+                ->orderBy('display_order')
+                ->orderBy('internal_name')
+        )->get();
     }
 }
