@@ -214,8 +214,12 @@ describe('ExploreMonumentResolver', () => {
     });
 
     await expect(resolver.resolve(500)).resolves.toMatchObject({
-      mode: 'ambiguous',
+      mode: 'resolvedCandidates',
       itemId: null,
+      resolvedCandidates: expect.arrayContaining([
+        expect.objectContaining({ source: 'vm', itemId: 'vm-ambiguous-item-uuid' }),
+        expect.objectContaining({ source: 'travels', itemId: 'travels-ambiguous-item-uuid' }),
+      ]),
     });
 
     await expect(resolver.resolve(600)).resolves.toMatchObject({
@@ -286,6 +290,53 @@ describe('ExploreMonumentResolver', () => {
     await expect(resolver.resolve(700)).resolves.toMatchObject({
       mode: 'missing-target',
       itemId: null,
+    });
+  });
+
+  it('resolveForSource returns referenced when source matches a resolved candidate', async () => {
+    const resolver = new ExploreMonumentResolver({
+      legacyDb,
+      tracker,
+      getEntityUuid: async (backwardCompatibility, entityType) =>
+        tracker.getUuid(backwardCompatibility, entityType),
+    });
+
+    await expect(resolver.resolveForSource(200, 'vm')).resolves.toMatchObject({
+      mode: 'referenced',
+      source: 'vm',
+      itemBackwardCompatibility: 'mwnf3:monuments:IAM:eg:Mus01:5',
+      itemId: 'vm-item-uuid',
+    });
+  });
+
+  it('resolveForSource returns missing-target when requested source has no candidate', async () => {
+    const resolver = new ExploreMonumentResolver({
+      legacyDb,
+      tracker,
+      getEntityUuid: async (backwardCompatibility, entityType) =>
+        tracker.getUuid(backwardCompatibility, entityType),
+    });
+
+    await expect(resolver.resolveForSource(200, 'travels')).resolves.toMatchObject({
+      mode: 'missing-target',
+      itemId: null,
+      source: 'travels',
+    });
+  });
+
+  it('resolveForSource returns native when monument has no candidates at all', async () => {
+    tracker.set('mwnf3_explore:monument:100', 'native-item-uuid', 'item');
+    const resolver = new ExploreMonumentResolver({
+      legacyDb,
+      tracker,
+      getEntityUuid: async (backwardCompatibility, entityType) =>
+        tracker.getUuid(backwardCompatibility, entityType),
+    });
+
+    await expect(resolver.resolveForSource(100, 'vm')).resolves.toMatchObject({
+      mode: 'native',
+      source: 'native',
+      itemId: 'native-item-uuid',
     });
   });
 });

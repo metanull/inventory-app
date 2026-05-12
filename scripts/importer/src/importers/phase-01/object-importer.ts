@@ -126,8 +126,8 @@ export class ObjectImporter extends BaseImporter {
     const transformed = transformObject(group, defaultLanguageId);
 
     // Log warning if translation in default language is missing
-    if (transformed.warning) {
-      this.logWarning(transformed.warning);
+    for (const w of transformed.warnings) {
+      this.logWarning(w);
     }
 
     // Check if already imported

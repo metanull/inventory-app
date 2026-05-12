@@ -202,21 +202,21 @@ export class ThgGalleryContentImporter extends BaseImporter {
       result.imported += logoResult.imported;
       result.skipped += logoResult.skipped;
       result.errors.push(...logoResult.errors);
-      result.warnings?.push(...(logoResult.warnings ?? []));
+      result.warnings!.push(...(logoResult.warnings ?? []));
 
       this.logInfo('Importing exhibition partners as partners...');
       const partnerResult = await this.importExhibitionPartners();
       result.imported += partnerResult.imported;
       result.skipped += partnerResult.skipped;
       result.errors.push(...partnerResult.errors);
-      result.warnings?.push(...(partnerResult.warnings ?? []));
+      result.warnings!.push(...(partnerResult.warnings ?? []));
 
       this.logInfo('Importing exhibition related content as collection media...');
       const contentResult = await this.importExhibitionRelatedContent();
       result.imported += contentResult.imported;
       result.skipped += contentResult.skipped;
       result.errors.push(...contentResult.errors);
-      result.warnings?.push(...(contentResult.warnings ?? []));
+      result.warnings!.push(...(contentResult.warnings ?? []));
 
       this.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
@@ -264,7 +264,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       const message = queryError instanceof Error ? queryError.message : String(queryError);
       if (message.includes("doesn't exist") || message.includes('Table')) {
         this.logInfo(`exhibition_logo table not available: ${message}`);
-        result.warnings?.push(`exhibition_logo table not available: ${message}`);
+        result.warnings!.push(`exhibition_logo table not available: ${message}`);
         result.success = true;
         return result;
       }
@@ -277,16 +277,17 @@ export class ThgGalleryContentImporter extends BaseImporter {
       try {
         const logoPath = trimToNull(logo.logo);
         if (!logoPath) {
-          result.errors.push(
+          result.warnings!.push(
             `exhibition_logo.logo_id=${logo.logo_id}: logo path is empty, skipping`
           );
-          this.showError();
+          result.skipped++;
+          this.showSkipped();
           continue;
         }
 
         const collectionId = await this.resolveGalleryCollectionId(logo.gallery_id);
         if (!collectionId) {
-          result.warnings?.push(
+          result.warnings!.push(
             `exhibition_logo.logo_id=${logo.logo_id}: gallery collection not found for gallery_id=${logo.gallery_id}, skipping`
           );
           result.skipped++;
@@ -348,7 +349,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       const message = queryError instanceof Error ? queryError.message : String(queryError);
       if (message.includes("doesn't exist") || message.includes('Table')) {
         this.logInfo(`exhibition_partner table not available: ${message}`);
-        result.warnings?.push(`exhibition_partner table not available: ${message}`);
+        result.warnings!.push(`exhibition_partner table not available: ${message}`);
         result.success = true;
         return result;
       }
@@ -373,7 +374,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       try {
         const collectionId = await this.resolveGalleryCollectionId(partner.gallery_id);
         if (!collectionId) {
-          result.warnings?.push(
+          result.warnings!.push(
             `exhibition_partner.partner_id=${partner.partner_id}: gallery collection not found for gallery_id=${partner.gallery_id}, skipping`
           );
           result.skipped++;
@@ -383,19 +384,21 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
         const collectionType = this.galleryCollectionTypes.get(partner.gallery_id);
         if (!collectionType) {
-          result.errors.push(
+          result.warnings!.push(
             `exhibition_partner.partner_id=${partner.partner_id}: collection type not found for gallery_id=${partner.gallery_id}`
           );
-          this.showError();
+          result.skipped++;
+          this.showSkipped();
           continue;
         }
 
         const level = mapPartnerLevel(partner.category_id);
         if (!level) {
-          result.errors.push(
+          result.warnings!.push(
             `exhibition_partner.partner_id=${partner.partner_id}: unknown category_id=${partner.category_id}`
           );
-          this.showError();
+          result.skipped++;
+          this.showSkipped();
           continue;
         }
 
@@ -455,7 +458,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       const message = queryError instanceof Error ? queryError.message : String(queryError);
       if (message.includes("doesn't exist") || message.includes('Table')) {
         this.logInfo(`exhibition_related_content table not available: ${message}`);
-        result.warnings?.push(`exhibition_related_content table not available: ${message}`);
+        result.warnings!.push(`exhibition_related_content table not available: ${message}`);
         result.success = true;
         return result;
       }
@@ -478,7 +481,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       try {
         const collectionId = await this.resolveGalleryCollectionId(content.gallery_id);
         if (!collectionId) {
-          result.warnings?.push(
+          result.warnings!.push(
             `exhibition_related_content.related_content_id=${content.related_content_id}: gallery collection not found for gallery_id=${content.gallery_id}, skipping`
           );
           result.skipped++;
@@ -520,7 +523,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
          ORDER BY partner_id, language_id`
       );
     } catch {
-      result.warnings?.push('exhibition_partner_i18n table not available; partner translations skipped');
+      result.warnings!.push('exhibition_partner_i18n table not available; partner translations skipped');
       return [];
     }
   }
@@ -537,7 +540,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
          ORDER BY related_content_id, language_id`
       );
     } catch {
-      result.warnings?.push(
+      result.warnings!.push(
         'exhibition_related_content_i18n table not available; language-specific related content skipped'
       );
       return [];
@@ -565,17 +568,15 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
     const internalName = trimToNull(partner.entity_name) ?? trimToNull(partner.title);
     if (!internalName) {
-      result.errors.push(
+      result.warnings!.push(
         `exhibition_partner.partner_id=${partner.partner_id}: entity_name and title are both empty`
       );
-      this.showError();
+      result.skipped++;
+      this.showSkipped();
       return null;
     }
 
     const countryId = await this.resolveCountryId(partner.entity_country, partner.partner_id, result);
-    if (countryId === undefined) {
-      return null;
-    }
 
     const partnerData: PartnerData = {
       type: 'institution',
@@ -606,7 +607,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
     sourceCountry: string | null,
     partnerId: number,
     result: ImportResult
-  ): Promise<string | null | undefined> {
+  ): Promise<string | null> {
     const legacyCode = trimToNull(sourceCountry);
     if (!legacyCode) {
       return null;
@@ -617,11 +618,10 @@ export class ThgGalleryContentImporter extends BaseImporter {
       mappedCountryId = mapCountryCode(legacyCode);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(
+      result.warnings!.push(
         `exhibition_partner.partner_id=${partnerId}: entity_country='${legacyCode}' cannot be mapped: ${message}`
       );
-      this.showError();
-      return undefined;
+      return null;
     }
 
     const countryId = await this.getEntityUuidAsync(legacyCode, 'country');
@@ -638,19 +638,19 @@ export class ThgGalleryContentImporter extends BaseImporter {
       const sourceLabel = `exhibition_partner_i18n.partner_id=${translation.partner_id}, language_id=${translation.language_id ?? 'null'}`;
       const sourceLanguage = trimToNull(translation.language_id);
       if (!sourceLanguage) {
-        result.warnings?.push(`${sourceLabel}: language_id is empty, skipping translation`);
+        result.warnings!.push(`${sourceLabel}: language_id is empty, skipping translation`);
         continue;
       }
 
       const languageId = await this.getLanguageIdByLegacyCodeAsync(sourceLanguage);
       if (!languageId) {
-        result.warnings?.push(`${sourceLabel}: unknown language, skipping translation`);
+        result.warnings!.push(`${sourceLabel}: unknown language, skipping translation`);
         continue;
       }
 
       const name = trimToNull(translation.entity_name) ?? trimToNull(translation.title);
       if (!name) {
-        result.warnings?.push(`${sourceLabel}: entity_name and title are both empty, skipping translation`);
+        result.warnings!.push(`${sourceLabel}: entity_name and title are both empty, skipping translation`);
         continue;
       }
 
@@ -780,13 +780,13 @@ export class ThgGalleryContentImporter extends BaseImporter {
     const sourceLanguage = trimToNull(translation.language_id);
     const sourceLabel = `exhibition_related_content_i18n.related_content_id=${translation.related_content_id}, language_id=${translation.language_id ?? 'null'}`;
     if (!sourceLanguage) {
-      result.warnings?.push(`${sourceLabel}: language_id is empty, skipping related content translation`);
+      result.warnings!.push(`${sourceLabel}: language_id is empty, skipping related content translation`);
       return;
     }
 
     const languageId = await this.getLanguageIdByLegacyCodeAsync(sourceLanguage);
     if (!languageId) {
-      result.warnings?.push(`${sourceLabel}: unknown language, skipping related content translation`);
+      result.warnings!.push(`${sourceLabel}: unknown language, skipping related content translation`);
       return;
     }
 
@@ -846,21 +846,16 @@ export class ThgGalleryContentImporter extends BaseImporter {
     backwardCompatibility: string;
     result: ImportResult;
   }): Promise<void> {
-    const sourceLabel = `${parameters.sourceTable}.related_content_id=${parameters.relatedContentId}`;
-    if (parameters.typeRequired && !parameters.type) {
-      parameters.result.errors.push(
-        `${sourceLabel}: missing or unknown type_resource='${parameters.source.type_resource ?? 'null'}' for link`
-      );
-      this.showError();
-      return;
+    let resolvedType = parameters.type;
+    if (parameters.typeRequired && !resolvedType) {
+      const ext = path.extname(parameters.url).slice(1).toLowerCase();
+      resolvedType = mapContentType(ext) ?? 'document';
     }
 
-    const title = trimToNull(parameters.source.title) ?? trimToNull(parameters.source.entity_name);
-    if (!title) {
-      parameters.result.errors.push(`${sourceLabel}: title and entity_name are both empty`);
-      this.showError();
-      return;
-    }
+    const title =
+      trimToNull(parameters.source.title) ??
+      trimToNull(parameters.source.entity_name) ??
+      path.basename(parameters.url);
 
     if (await this.entityExistsAsync(parameters.backwardCompatibility, 'collection_media')) {
       parameters.result.skipped++;
@@ -872,7 +867,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
     const mediaData: CollectionMediaData = {
       collection_id: parameters.collectionId,
       language_id: parameters.languageId,
-      type: parameters.type ?? 'document',
+      type: resolvedType ?? 'document',
       title: convertHtmlToMarkdown(title),
       description: description ? convertHtmlToMarkdown(description) : null,
       url: parameters.url,

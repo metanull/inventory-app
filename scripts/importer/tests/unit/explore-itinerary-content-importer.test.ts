@@ -196,4 +196,18 @@ describe('ExploreItineraryContentImporter', () => {
       })
     );
   });
+
+  it('queries project_id, institution_id from monuments_explore_itineraries', async () => {
+    const importer = new ExploreItineraryContentImporter(context);
+    await importer.import();
+
+    const crossSchemaCall = queryMock.mock.calls.find(
+      (args: unknown[]) =>
+        (args[0] as string).includes('monuments_explore_itineraries')
+    );
+    expect(crossSchemaCall).toBeDefined();
+    const sql: string = crossSchemaCall![0] as string;
+    expect(sql).toContain('project_id');
+    expect(sql).toContain('institution_id');
+  });
 });

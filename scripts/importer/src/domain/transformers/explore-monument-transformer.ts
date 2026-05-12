@@ -23,7 +23,7 @@ export interface ExploreLegacyMonument {
 export interface TransformedExploreMonument {
   data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'>;
   backwardCompatibility: string;
-  warning: string | null;
+  warnings: string[];
   locationId: number | null;
 }
 
@@ -88,7 +88,7 @@ export function transformExploreMonument(
       map_zoom: legacy.zoom,
     },
     backwardCompatibility,
-    warning: selectedInternalName.warning,
+    warnings: selectedInternalName.warning ? [selectedInternalName.warning] : [],
     locationId: legacy.locationId,
   };
 }

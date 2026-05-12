@@ -60,6 +60,21 @@ export class ExploreMonumentThemeLinkImporter extends BaseImporter {
 
           // Resolve monument item
           const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+          if (monumentResolution.mode === 'resolvedCandidates') {
+            for (const candidate of monumentResolution.resolvedCandidates ?? []) {
+              if (!this.isDryRun && !this.isSampleOnlyMode) {
+                const linkBC2 = `mwnf3_explore:monument_theme:${link.cycleId}:${link.monumentId}:${candidate.source}`;
+                await this.context.strategy.writeCollectionItem({
+                  collection_id: collectionId,
+                  item_id: candidate.itemId,
+                  backward_compatibility: linkBC2,
+                });
+              }
+            }
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
           if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
             this.logWarning(
               `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping link`

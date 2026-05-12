@@ -36,7 +36,7 @@ export interface TransformedObject {
   data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'>;
   backwardCompatibility: string;
   countryId: string;
-  warning: string | null;
+  warnings: string[];
 }
 
 /**
@@ -78,6 +78,26 @@ export interface ExtractedArtist {
   birthdate: string | null;
   deathdate: string | null;
   periodActivity: string | null;
+}
+
+/**
+ * Parse a year value from a legacy varchar column.
+ * Only accepts integer strings in the SMALLINT range (-32768 to 32767).
+ * Returns a warning when the value is non-null but cannot be stored.
+ */
+export function parseItemYear(raw: string | null | undefined): {
+  value: number | null;
+  warning: string | null;
+} {
+  if (!raw || !raw.trim()) return { value: null, warning: null };
+  if (!/^-?\d+$/.test(raw.trim())) {
+    return { value: null, warning: `Non-integer year value ignored: '${raw}'` };
+  }
+  const n = parseInt(raw, 10);
+  if (n < -32768 || n > 32767) {
+    return { value: null, warning: `Year value ${n} out of SMALLINT range, ignored` };
+  }
+  return { value: n, warning: null };
 }
 
 /**
@@ -154,12 +174,12 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
   }
 
   // Parse start_date/end_date from selected translation (year values stored as varchar)
-  const startDate = selectedTranslation!.start_date
-    ? parseInt(selectedTranslation!.start_date, 10) || null
-    : null;
-  const endDate = selectedTranslation!.end_date
-    ? parseInt(selectedTranslation!.end_date, 10) || null
-    : null;
+  const startDateParsed = parseItemYear(selectedTranslation!.start_date);
+  const endDateParsed = parseItemYear(selectedTranslation!.end_date);
+  const warnings: string[] = [];
+  if (startDateParsed.warning) warnings.push(startDateParsed.warning);
+  if (endDateParsed.warning) warnings.push(endDateParsed.warning);
+  if (selectedInternalName.warning) warnings.push(selectedInternalName.warning);
 
   const data: Omit<ItemData, 'collection_id' | 'partner_id' | 'project_id'> = {
     type: 'object',
@@ -168,15 +188,15 @@ export function transformObject(group: ObjectGroup, defaultLanguageId: string): 
     mwnf_reference: selectedTranslation!.working_number || null,
     backward_compatibility: backwardCompatibility,
     country_id: countryId,
-    start_date: startDate,
-    end_date: endDate,
+    start_date: startDateParsed.value,
+    end_date: endDateParsed.value,
   };
 
   return {
     data,
     backwardCompatibility,
     countryId,
-    warning: selectedInternalName.warning,
+    warnings,
   };
 }
 

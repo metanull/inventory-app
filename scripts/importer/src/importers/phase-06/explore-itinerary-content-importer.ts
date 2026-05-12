@@ -73,7 +73,9 @@ interface LegacyOldItineraryMonument {
 }
 
 interface LegacyCrossSchemaLink {
+  project_id: string;
   country: string;
+  institution_id: string;
   monument_numero: number;
   itineraryId: number;
 }
@@ -260,10 +262,10 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
-        const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+        const monumentResolution = await this.monumentResolver.resolveForSource(link.monumentId, 'travels');
         if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
           this.logWarning(
-            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping`
+            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to a travels item`}, skipping`
           );
           result.skipped++;
           this.showSkipped();
@@ -497,10 +499,10 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
-        const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
+        const monumentResolution = await this.monumentResolver.resolveForSource(link.monumentId, 'travels');
         if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
           this.logWarning(
-            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping`
+            `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to a travels item`}, skipping`
           );
           result.skipped++;
           this.showSkipped();
@@ -542,16 +544,16 @@ export class ExploreItineraryContentImporter extends BaseImporter {
   private async importCrossSchemaLinks(result: ImportResult): Promise<void> {
     this.logInfo('Importing cross-schema monument-itinerary links from mwnf3...');
     const links = await this.context.legacyDb.query<LegacyCrossSchemaLink>(
-      `SELECT country, monument_numero, itineraryId
+      `SELECT project_id, country, institution_id, number AS monument_numero, itineraries_id AS itineraryId
        FROM mwnf3.monuments_explore_itineraries
-       ORDER BY itineraryId, monument_numero`
+       ORDER BY itineraries_id, number`
     );
     this.logInfo(`Found ${links.length} cross-schema monument-itinerary links`);
 
     for (const link of links) {
       try {
         // Resolve mwnf3 monument
-        const monumentBC = `mwnf3:monuments:${link.country}:${link.monument_numero}`;
+        const monumentBC = `mwnf3:monuments:${link.project_id}:${link.country}:${link.institution_id}:${link.monument_numero}`;
         const itemId = await this.getEntityUuidAsync(monumentBC, 'item');
         if (!itemId) {
           this.logWarning(`mwnf3 monument not found: ${monumentBC}, skipping`);
@@ -576,7 +578,7 @@ export class ExploreItineraryContentImporter extends BaseImporter {
           continue;
         }
 
-        const linkBC = `mwnf3:monuments_explore_itineraries:${link.country}:${link.monument_numero}:${link.itineraryId}`;
+        const linkBC = `mwnf3:monuments_explore_itineraries:${link.project_id}:${link.country}:${link.institution_id}:${link.monument_numero}:${link.itineraryId}`;
         await this.context.strategy.writeCollectionItem({
           collection_id: collectionId,
           item_id: itemId,

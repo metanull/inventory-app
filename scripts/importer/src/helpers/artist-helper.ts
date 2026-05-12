@@ -10,6 +10,7 @@ import type { ITracker } from '../core/tracker.js';
 import type { ILogger } from '../core/base-importer.js';
 import type { ArtistData } from '../core/types.js';
 import { formatBackwardCompatibility } from '../utils/backward-compatibility.js';
+import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
 export class ArtistHelper {
   private strategy: IWriteStrategy;
@@ -37,11 +38,14 @@ export class ArtistHelper {
       return null;
     }
 
-    const trimmedName = name.trim();
+    const sanitizedName = sanitizeAllStrings({ name: name.trim() }).name.trim().slice(0, 255);
+    if (!sanitizedName) {
+      return null;
+    }
     const backwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
       table: 'artists',
-      pkValues: [trimmedName],
+      pkValues: [sanitizedName],
     });
 
     // Check tracker first
@@ -58,8 +62,8 @@ export class ArtistHelper {
 
     // Create new artist
     const artistData: ArtistData = {
-      name: trimmedName,
-      internal_name: trimmedName,
+      name: sanitizedName,
+      internal_name: sanitizedName,
       place_of_birth: birthplace || null,
       place_of_death: deathplace || null,
       date_of_birth: birthdate || null,
@@ -72,15 +76,20 @@ export class ArtistHelper {
       return await this.strategy.writeArtist(artistData);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.warning(`Artist write failed for '${trimmedName}': ${message}, retrying lookup`);
+      this.logger.warning(`Artist write failed for '${sanitizedName}': ${message}, retrying lookup`);
       const retryResult = await this.strategy.findByBackwardCompatibility(
         'artists',
         backwardCompat
       );
-      if (!retryResult) {
-        this.logger.warning(`Artist retry lookup also failed for '${trimmedName}' — entity lost`);
+      if (retryResult) {
+        return retryResult;
       }
-      return retryResult;
+      const byName = await this.strategy.findArtistByName(sanitizedName);
+      if (byName) {
+        return byName.id;
+      }
+      this.logger.warning(`Artist retry lookup also failed for '${sanitizedName}' — entity lost`);
+      return null;
     }
   }
 
