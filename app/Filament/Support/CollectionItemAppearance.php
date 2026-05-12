@@ -37,7 +37,7 @@ class CollectionItemAppearance
      */
     public static function contextualTextPreviewColumn(): TextColumn
     {
-        $defaultLangId = Language::default()->value('id');
+        $defaultLangId = Language::default()?->value('id');
 
         return TextColumn::make('pivot.contextual_text_preview')
             ->label('Contextual text')
@@ -105,11 +105,11 @@ class CollectionItemAppearance
 
                 $descriptions = $record->pivot->contextualDescriptions();
                 $sources = $record->pivot->sourceBackwardCompatibilityByLanguage();
-                $allLanguages = array_unique(
+                $allLanguageIds = array_unique(
                     array_merge(array_keys($descriptions), array_keys($sources))
                 );
 
-                if ($allLanguages === []) {
+                if ($allLanguageIds === []) {
                     return [
                         TextEntry::make('no_content')
                             ->label('')
@@ -119,7 +119,7 @@ class CollectionItemAppearance
                 }
 
                 $schema = [];
-                foreach ($allLanguages as $langId) {
+                foreach ($allLanguageIds as $langId) {
                     $entries = [];
 
                     if (isset($descriptions[$langId]) && $descriptions[$langId] !== '') {

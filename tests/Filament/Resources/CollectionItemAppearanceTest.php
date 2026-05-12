@@ -67,6 +67,7 @@ class CollectionItemAppearanceTest extends TestCase
         $collection = Collection::factory()->create(['internal_name' => 'THG Collection']);
         $item = Item::factory()->Object()->create(['internal_name' => 'THG Relief']);
         Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        // Default context required so ItemDisplayLabel::withDisplayLabel() resolves without errors.
         Context::factory()->create(['internal_name' => 'Default', 'is_default' => true]);
 
         $collection->attachedItems()->attach($item->id, [
@@ -244,6 +245,7 @@ class CollectionItemAppearanceTest extends TestCase
         $context = Context::factory()->create(['internal_name' => 'Catalogue']);
         $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English']);
         $item = Item::factory()->Object()->create(['internal_name' => 'Standalone item']);
+        // A collection that exists but is NOT attached to $item — verified to be absent from the table.
         $otherCollection = Collection::factory()->create([
             'internal_name' => 'Other collection',
             'context_id' => $context->id,
