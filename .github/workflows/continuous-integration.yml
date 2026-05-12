@@ -106,6 +106,8 @@ jobs:
           registry-url: https://npm.pkg.github.com/
 
       - name: "Setup > node > Enable Corepack"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           corepack enable
 

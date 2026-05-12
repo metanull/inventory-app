@@ -55,6 +55,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -90,6 +91,22 @@ class ItemResource extends Resource
         return $query->excludingDescendantsOf($record->id);
     }
 
+    protected static function changeParentSearchResults(Builder $query): array
+    {
+        return ItemDisplayLabel::withDisplayLabel($query)
+            ->get()
+            ->mapWithKeys(fn (Item $item): array => [
+                $item->id => $item->display_label !== $item->internal_name
+                    ? $item->display_label.' ['.$item->internal_name.']'
+                    : $item->internal_name,
+            ])->all();
+    }
+
+    protected static function changeParentOptionLabel(mixed $value): string
+    {
+        return ItemDisplayLabel::resolveLabel($value) ?: (string) $value;
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $navigationGroup = 'Inventory';
@@ -97,6 +114,17 @@ class ItemResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'internal_name';
+
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
+    {
+        if ($record === null) {
+            return static::getModelLabel();
+        }
+
+        $record->loadMissing(['translations', 'collection:id,context_id', 'project:id,context_id']);
+
+        return ItemDisplayLabel::resolveForRecord($record);
+    }
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -128,13 +156,22 @@ class ItemResource extends Resource
                             ->required(),
                         Select::make('parent_id')
                             ->label('Parent item')
-                            ->relationship(
-                                name: 'parent',
-                                titleAttribute: 'internal_name',
-                                modifyQueryUsing: fn (Builder $query, ?Item $record): Builder => $record
-                                    ? $query->excludingDescendantsOf($record->id)
-                                    : $query,
-                            )
+                            ->getSearchResultsUsing(fn (string $search, ?Item $record): array => ItemDisplayLabel::withDisplayLabel(
+                                ($record
+                                    ? Item::query()->excludingDescendantsOf($record->id)
+                                    : Item::query())
+                                    ->where(fn (Builder $q) => $q
+                                        ->where('internal_name', 'like', "%{$search}%")
+                                        ->orWhere('backward_compatibility', 'like', "%{$search}%")
+                                        ->orWhere('id', 'like', "%{$search}%"))
+                                    ->orderBy('internal_name')
+                                    ->limit(50)
+                            )->get()->mapWithKeys(fn (Item $item): array => [
+                                $item->id => $item->display_label !== $item->internal_name
+                                    ? $item->display_label.' ['.$item->internal_name.']'
+                                    : $item->internal_name,
+                            ])->all())
+                            ->getOptionLabelUsing(fn ($value): string => ItemDisplayLabel::resolveLabel($value) ?: (string) $value)
                             ->searchable()
                             ->nullable(),
                         Select::make('partner_id')
@@ -182,7 +219,10 @@ class ItemResource extends Resource
             ->modifyQueryUsing(fn (Builder $query): Builder => ItemDisplayLabel::withDisplayLabel(
                 static::withFallbackExists(
                     $query->with([
-                        'parent:id,internal_name',
+                        'parent:id,internal_name,collection_id,project_id',
+                        'parent.translations',
+                        'parent.collection:id,context_id',
+                        'parent.project:id,context_id',
                         'partner:id,internal_name',
                         'country:id,internal_name',
                         'project:id,internal_name',
@@ -198,9 +238,16 @@ class ItemResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
                     ->sortable(),
-                TextColumn::make('parent.internal_name')
+                TextColumn::make('parent_display_label')
                     ->label('Parent')
-                    ->sortable()
+                    ->getStateUsing(function ($record): ?string {
+                        if (! $record->parent_id || ! $record->parent) {
+                            return null;
+                        }
+
+                        return ItemDisplayLabel::resolveForRecord($record->parent);
+                    })
+                    ->sortable(false)
                     ->toggleable()
                     ->url(fn ($record): ?string => $record->parent
                         ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
@@ -440,8 +487,11 @@ class ItemResource extends Resource
                     ->schema([
                         TextEntry::make('type')
                             ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
-                        TextEntry::make('parent.internal_name')
+                        TextEntry::make('parent_display_label')
                             ->label('Parent')
+                            ->getStateUsing(fn ($record): ?string => $record->parent_id
+                                ? ItemDisplayLabel::resolveLabel($record->parent_id)
+                                : null)
                             ->url(fn ($record): ?string => $record->parent
                                 ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
                                 : null),

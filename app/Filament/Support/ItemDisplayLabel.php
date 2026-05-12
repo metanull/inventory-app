@@ -18,6 +18,11 @@ use Illuminate\Database\Eloquent\Builder;
  *  4. First translation in the default language (any context).
  *  5. First translation in any language.
  *  6. items.internal_name.
+ *
+ * For picture child items the chain extends to the direct parent item when the
+ * picture itself has no valid translation (steps 1–5 against the parent before
+ * falling back to internal_name). The visible label is then formatted as
+ * "{resolved_title} {display_order}" when display_order is present.
  */
 class ItemDisplayLabel
 {
@@ -141,6 +146,138 @@ class ItemDisplayLabel
 
         // 5. Fallback
         return $item->internal_name;
+    }
+
+    /**
+     * Resolve the translated display label for an item without falling back to
+     * internal_name. Returns null when no valid translation exists.
+     *
+     * Follows the same 4-step translation priority as resolveForRecord() but
+     * stops before the internal_name fallback so callers can detect the
+     * absence of any translation and apply their own fallback (e.g. the
+     * parent-item chain for picture child items).
+     *
+     * @param  string|null  $defaultLangId  Pre-resolved default language ID (avoids redundant queries in loops).
+     * @param  string|null  $defaultContextId  Pre-resolved default context ID.
+     */
+    public static function resolveTranslationOnly(Item $item, ?string $defaultLangId = null, ?string $defaultContextId = null): ?string
+    {
+        $defaultLangId ??= Language::default()->value('id');
+        $defaultContextId ??= Context::default()->value('id');
+
+        $translations = $item->translations;
+
+        $ownContextId = null;
+        if ($item->collection_id && $item->collection) {
+            $ownContextId = $item->collection->context_id;
+        }
+        if (! $ownContextId && $item->project_id && $item->project) {
+            $ownContextId = $item->project->context_id;
+        }
+
+        // 1. Default language + own context (collection or project)
+        if ($ownContextId && $defaultLangId) {
+            $t = $translations->first(
+                fn ($t) => $t->language_id === $defaultLangId
+                    && $t->context_id === $ownContextId
+                    && ! empty($t->name)
+            );
+            if ($t) {
+                return $t->name;
+            }
+        }
+
+        // 2. Default language + default context
+        if ($defaultLangId && $defaultContextId) {
+            $t = $translations->first(
+                fn ($t) => $t->language_id === $defaultLangId
+                    && $t->context_id === $defaultContextId
+                    && ! empty($t->name)
+            );
+            if ($t) {
+                return $t->name;
+            }
+        }
+
+        // 3. First translation in default language (any context)
+        if ($defaultLangId) {
+            $t = $translations->first(
+                fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
+            );
+            if ($t) {
+                return $t->name;
+            }
+        }
+
+        // 4. First translation in any language
+        $t = $translations->first(fn ($t) => ! empty($t->name));
+
+        return $t?->name;
+    }
+
+    /**
+     * Resolve the visible display label for a picture child item.
+     *
+     * Extends the standard item fallback chain with a parent-item fallback:
+     *  1. Picture's own translations (steps 1–4 of the standard chain).
+     *  2. Direct parent item's translations (same 4 steps) when the picture
+     *     itself has no valid translation.
+     *  3. Picture's internal_name when neither the picture nor its parent
+     *     has any valid translation.
+     *
+     * The returned label is formatted as "{resolved_title} {display_order}"
+     * when display_order is present on the picture item.
+     *
+     * For N+1-free use in Filament tables/relation managers, eager-load:
+     *   - translations, collection:id,context_id, project:id,context_id
+     *   - parent.translations, parent.collection:id,context_id, parent.project:id,context_id
+     *
+     * @param  string|null  $defaultLangId  Pre-resolved default language ID.
+     * @param  string|null  $defaultContextId  Pre-resolved default context ID.
+     */
+    public static function resolvePictureLabel(Item $picture, ?string $defaultLangId = null, ?string $defaultContextId = null): string
+    {
+        $defaultLangId ??= Language::default()->value('id');
+        $defaultContextId ??= Context::default()->value('id');
+
+        $ownTranslation = static::resolveTranslationOnly($picture, $defaultLangId, $defaultContextId);
+
+        if ($ownTranslation !== null) {
+            $resolvedTitle = $ownTranslation;
+        } elseif ($picture->parent) {
+            $parentTranslation = static::resolveTranslationOnly($picture->parent, $defaultLangId, $defaultContextId);
+            $resolvedTitle = $parentTranslation ?? $picture->internal_name;
+        } else {
+            $resolvedTitle = $picture->internal_name;
+        }
+
+        if ($picture->display_order !== null) {
+            return "{$resolvedTitle} {$picture->display_order}";
+        }
+
+        return $resolvedTitle;
+    }
+
+    /**
+     * Return a Filament TextColumn for picture child items that resolves
+     * the translated label with parent-item fallback and display_order suffix.
+     *
+     * The column is not sortable/searchable. Keep internal_name searchable
+     * alongside it for technical look-ups.
+     *
+     * The default language and context IDs are resolved once when the column
+     * object is built and captured in the closure to prevent N+1 queries.
+     */
+    public static function pictureDisplayLabelColumn(): TextColumn
+    {
+        $defaultLangId = Language::default()->value('id');
+        $defaultContextId = Context::default()->value('id');
+
+        return TextColumn::make('picture_label')
+            ->label('Name')
+            ->getStateUsing(fn ($record): string => static::resolvePictureLabel($record, $defaultLangId, $defaultContextId))
+            ->searchable(false)
+            ->sortable(false);
     }
 
     /**

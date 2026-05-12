@@ -691,8 +691,8 @@ class ItemResourceTest extends TestCase
         Livewire::actingAs($user)
             ->test(ListItem::class)
             ->assertTableColumnExists(
-                'parent.internal_name',
-                fn (TextColumn $column): bool => $column->getUrl() === null,
+                'parent_display_label',
+                fn (TextColumn $column): bool => $column->getUrl($item) === null,
                 $item
             );
     }
