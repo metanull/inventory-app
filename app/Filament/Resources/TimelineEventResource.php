@@ -15,6 +15,7 @@ use App\Filament\Resources\TimelineEventResource\RelationManagers\ImagesRelation
 use App\Filament\Resources\TimelineEventResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\TimelineEventResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Support\ExtraJsonField;
+use App\Filament\Support\TimelineEventDisplayLabel;
 use App\Models\Timeline;
 use App\Models\TimelineEvent;
 use Filament\Forms\Components\DatePicker;
@@ -32,6 +33,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TimelineEventResource extends Resource
 {
@@ -85,9 +87,6 @@ class TimelineEventResource extends Resource
                             )
                             ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)?->internal_name ?? $value)
                             ->searchable(),
-                        TextInput::make('internal_name')
-                            ->required()
-                            ->maxLength(255),
                         TextInput::make('year_from')
                             ->label('Year from')
                             ->numeric()
@@ -119,12 +118,21 @@ class TimelineEventResource extends Resource
                             ->numeric()
                             ->integer()
                             ->nullable(),
+                    ])
+                    ->columns(2),
+                Section::make('Technical identification')
+                    ->description('System metadata used for technical identification and legacy imports.')
+                    ->schema([
+                        TextInput::make('internal_name')
+                            ->required()
+                            ->maxLength(255),
                         TextInput::make('backward_compatibility')
                             ->label('Legacy code')
                             ->maxLength(255)
                             ->nullable(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->collapsed(fn (?TimelineEvent $record): bool => $record !== null),
                 Section::make('Metadata')
                     ->schema([
                         ExtraJsonField::formComponent(),
@@ -138,9 +146,11 @@ class TimelineEventResource extends Resource
     {
         return $table
             ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->modifyQueryUsing(fn (Builder $query): Builder => TimelineEventDisplayLabel::withDisplayLabel($query))
             ->defaultSort('internal_name', 'asc')
             ->columns([
-                static::internalNameColumn(),
+                TimelineEventDisplayLabel::displayLabelColumn()
+                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 TextColumn::make('timeline.internal_name')
                     ->label('Timeline')
                     ->sortable(),
@@ -157,6 +167,9 @@ class TimelineEventResource extends Resource
                 static::backwardCompatibilityColumn(),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
+                static::internalNameColumn()
+                    ->label('Internal name')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
                 ViewAction::make(),
@@ -187,7 +200,6 @@ class TimelineEventResource extends Resource
             ->schema([
                 InfolistSection::make('Core Information')
                     ->schema([
-                        TextEntry::make('internal_name'),
                         TextEntry::make('timeline.internal_name')
                             ->label('Timeline'),
                         TextEntry::make('year_from')
@@ -211,6 +223,8 @@ class TimelineEventResource extends Resource
                 InfolistSection::make('System Information')
                     ->schema([
                         static::uuidInfolistEntry(),
+                        TextEntry::make('internal_name')
+                            ->label('Internal name'),
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),

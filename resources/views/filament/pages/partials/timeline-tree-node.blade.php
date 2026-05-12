@@ -66,8 +66,11 @@
                     href="{{ \App\Filament\Resources\TimelineEventResource::getUrl('view', ['record' => $event->id]) }}"
                     class="text-sm text-gray-700 dark:text-gray-300 hover:underline truncate block"
                 >
-                    {{ $event->internal_name }}
+                    {{ $event->display_label ?? $event->internal_name }}
                 </a>
+                @if (isset($event->display_label) && $event->display_label !== $event->internal_name)
+                    <span class="text-xs text-gray-400 dark:text-gray-500 truncate block">{{ $event->internal_name }}</span>
+                @endif
             </div>
         </div>
     @endforeach

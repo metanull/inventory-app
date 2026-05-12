@@ -6,6 +6,9 @@ use App\Enums\Permission;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
+use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\ItemDisplayLabel;
+use App\Filament\Support\PartnerDisplayLabel;
 use App\Models\Collection;
 use App\Models\Context;
 use App\Models\Item;
@@ -52,21 +55,24 @@ class MissingFallbackTranslationsWidget extends BaseWidget
     private function itemTable(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => $this->missingFallbackQuery(
-                Item::query()->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+            ->query(fn (): Builder => ItemDisplayLabel::withDisplayLabel(
+                $this->missingFallbackQuery(
+                    Item::query()->select(['items.id', 'items.internal_name', 'items.type', 'items.backward_compatibility', 'items.updated_at'])
+                )
             ))
             ->paginated([10, 25])
             ->defaultPaginationPageOption(10)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Item')
-                    ->searchable(false)
-                    ->sortable()
+                ItemDisplayLabel::displayLabelColumn()
                     ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn ($state): ?string => $state?->label())
                     ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
+                    ->sortable(),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
                     ->sortable(false),
@@ -82,20 +88,23 @@ class MissingFallbackTranslationsWidget extends BaseWidget
     private function collectionTable(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => $this->missingFallbackQuery(
-                Collection::query()->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+            ->query(fn (): Builder => CollectionDisplayLabel::withDisplayLabel(
+                $this->missingFallbackQuery(
+                    Collection::query()->select(['collections.id', 'collections.internal_name', 'collections.type', 'collections.backward_compatibility', 'collections.updated_at'])
+                )
             ))
             ->paginated([10, 25])
             ->defaultPaginationPageOption(10)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Collection')
-                    ->searchable(false)
-                    ->sortable()
+                CollectionDisplayLabel::displayLabelColumn()
                     ->url(fn (Collection $record): string => CollectionResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
+                    ->sortable(),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
                     ->sortable(false),
@@ -111,20 +120,23 @@ class MissingFallbackTranslationsWidget extends BaseWidget
     private function partnerTable(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => $this->missingFallbackQuery(
-                Partner::query()->select(['id', 'internal_name', 'type', 'backward_compatibility', 'updated_at'])
+            ->query(fn (): Builder => PartnerDisplayLabel::withDisplayLabel(
+                $this->missingFallbackQuery(
+                    Partner::query()->select(['partners.id', 'partners.internal_name', 'partners.type', 'partners.backward_compatibility', 'partners.updated_at'])
+                )
             ))
             ->paginated([10, 25])
             ->defaultPaginationPageOption(10)
             ->columns([
-                TextColumn::make('internal_name')
-                    ->label('Partner')
-                    ->searchable(false)
-                    ->sortable()
+                PartnerDisplayLabel::displayLabelColumn()
                     ->url(fn (Partner $record): string => PartnerResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(false),
+                TextColumn::make('internal_name')
+                    ->label('Internal name')
+                    ->searchable(false)
+                    ->sortable(),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
                     ->sortable(false),
