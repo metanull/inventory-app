@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
+use App\Filament\Pages\ViewCollectionItemAppearance;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\CollectionDisplayLabel;
 use App\Filament\Support\CollectionItemAppearance;
+use App\Models\Collection;
+use App\Models\Item;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -76,7 +80,16 @@ class CollectionAppearancesRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
-                CollectionItemAppearance::viewAppearanceTextAction(),
+                Action::make('view_appearance')
+                    ->label('View appearance')
+                    ->icon('heroicon-o-document-text')
+                    ->color('gray')
+                    ->url(function (Collection $record): string {
+                        /** @var Item $item */
+                        $item = $this->getOwnerRecord();
+
+                        return ViewCollectionItemAppearance::getAppearanceUrl($record, $item);
+                    }),
             ]);
     }
 

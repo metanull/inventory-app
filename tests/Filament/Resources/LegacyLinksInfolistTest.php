@@ -35,7 +35,7 @@ class LegacyLinksInfolistTest extends TestCase
             ->get("/admin/items/{$item->getRouteKey()}")
             ->assertOk()
             ->assertSee('Item')
-            ->assertSee('Legacy links');
+            ->assertSee('Links');
 
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 

@@ -45,6 +45,7 @@ use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
+use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -532,21 +533,31 @@ class ItemResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ChildItemsRelationManager::class,
-            TranslationsRelationManager::class,
-            PictureItemsRelationManager::class,
-            ImagesRelationManager::class,
-            OutgoingLinksRelationManager::class,
-            IncomingLinksRelationManager::class,
-            TagsRelationManager::class,
-            ArtistsRelationManager::class,
-            WorkshopsRelationManager::class,
-            DynastiesRelationManager::class,
-            MediaRelationManager::class,
-            DocumentsRelationManager::class,
-            TimelineEventsRelationManager::class,
-            CollectionAppearancesRelationManager::class,
-            LegacyLinksRelationManager::class,
+            RelationGroup::make('Content', [
+                ChildItemsRelationManager::class,
+                TranslationsRelationManager::class,
+                PictureItemsRelationManager::class,
+                CollectionAppearancesRelationManager::class,
+                TagsRelationManager::class,
+            ]),
+            RelationGroup::make('Media', [
+                ImagesRelationManager::class,
+                MediaRelationManager::class,
+                DocumentsRelationManager::class,
+            ]),
+            RelationGroup::make('Origin', [
+                ArtistsRelationManager::class,
+                WorkshopsRelationManager::class,
+                DynastiesRelationManager::class,
+            ]),
+            RelationGroup::make('Links', [
+                OutgoingLinksRelationManager::class,
+                IncomingLinksRelationManager::class,
+                LegacyLinksRelationManager::class,
+            ]),
+            RelationGroup::make('Timeline', [
+                TimelineEventsRelationManager::class,
+            ]),
         ];
     }
 
