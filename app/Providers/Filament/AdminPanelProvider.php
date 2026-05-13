@@ -10,6 +10,7 @@ use App\Filament\Auth\TwoFactorChallenge;
 use App\Filament\Auth\TwoFactorSetup;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\ProfilePage;
+use App\Filament\Pages\ViewCollectionItemAppearance;
 use App\Http\Controllers\Filament\AvailableImageController as FilamentAvailableImageController;
 use App\Http\Controllers\Filament\CollectionImageController as FilamentCollectionImageController;
 use App\Http\Controllers\Filament\ItemImageController as FilamentItemImageController;
@@ -120,6 +121,9 @@ class AdminPanelProvider extends PanelProvider
             ->authenticatedRoutes(function (): void {
                 Route::get('/two-factor-setup', TwoFactorSetup::class)
                     ->name('auth.two-factor-setup');
+
+                Route::get('/collections/{collection}/items/{item}/appearance', ViewCollectionItemAppearance::class)
+                    ->name('collection-item.appearance');
 
                 Route::get('/available-images/{availableImage}/view', [FilamentAvailableImageController::class, 'view'])
                     ->name('available-image.view');
