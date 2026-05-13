@@ -78,7 +78,7 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                     ->dehydrated(fn (?string $state): bool => filled($state))
-                    ->required(fn (string $operation): bool => $operation === 'create'),
+                    ->hidden(fn (string $operation): bool => $operation === 'create'),
                 Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'name')
@@ -181,20 +181,19 @@ class UserResource extends Resource
                         $record->forceFill(['email_verified_at' => null])->save();
                         Notification::make()->success()->title('Email verification cleared')->send();
                     }),
-                Action::make('generatePassword')
-                    ->label('Generate New Password')
-                    ->icon('heroicon-o-key')
+                Action::make('sendInvitation')
+                    ->label('Send Invitation')
+                    ->icon('heroicon-o-envelope')
                     ->color('warning')
                     ->requiresConfirmation()
-                    ->modalHeading('Generate New Password')
-                    ->modalDescription('A new password will be generated and emailed to the user. You will also see it once in the notification.')
+                    ->modalHeading('Send Invitation Email')
+                    ->modalDescription('A password reset link will be sent to the user. They will be able to set their own password through the link. The link expires after 60 minutes.')
                     ->action(function (User $record): void {
-                        $password = app(UserPasswordResetService::class)->generateAndEmail($record);
+                        app(UserPasswordResetService::class)->sendResetLink($record);
                         Notification::make()
                             ->success()
-                            ->title('New password generated')
-                            ->body('Password: '.$password)
-                            ->persistent()
+                            ->title('Invitation sent')
+                            ->body('A password reset link has been sent to '.$record->email.'.')
                             ->send();
                     }),
                 Action::make('assignRole')

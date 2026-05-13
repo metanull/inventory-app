@@ -3,25 +3,18 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Notifications\GeneratedPasswordNotification;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use App\Notifications\AdminPasswordResetNotification;
+use Illuminate\Support\Facades\Password;
 
 class UserPasswordResetService
 {
     /**
-     * Generate a strong random password, persist the hash, and email the plaintext to the user.
-     *
-     * @return string The plaintext password (display once to the operator).
+     * Send a Filament-native password reset link to the user.
+     * No plaintext password is generated or exposed to the administrator.
      */
-    public function generateAndEmail(User $user): string
+    public function sendResetLink(User $user): void
     {
-        $password = Str::password(16, symbols: true);
-
-        $user->forceFill(['password' => Hash::make($password)])->save();
-
-        $user->notify(new GeneratedPasswordNotification($password));
-
-        return $password;
+        $token = Password::broker(config('fortify.passwords'))->createToken($user);
+        $user->notify(new AdminPasswordResetNotification($token));
     }
 }

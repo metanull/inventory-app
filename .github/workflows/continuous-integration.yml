@@ -29,6 +29,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
+          github-token: ''
 
       - name: "Check > Composer > Validate composer.json"
         run: |
@@ -173,6 +174,7 @@ jobs:
           php-version: '8.4'
           extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
           tools: pint
+          github-token: ''
 
       - name: "Check > Composer > Check requirements"
         run: |
@@ -232,6 +234,7 @@ jobs:
           extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
           coverage: xdebug
           tools: phpunit, pest
+          github-token: ''
 
       - name: "Setup > Composer > Install Dependencies"
         run: |
