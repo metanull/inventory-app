@@ -1,0 +1,186 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use JsonException;
+use Spatie\Permission\PermissionRegistrar;
+
+class CreateAuthSnapshot extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'auth:snapshot
+                            {path? : Local disk path for the encrypted snapshot}
+                            {--force : Overwrite an existing snapshot file}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Create an encrypted snapshot of user accounts, MFA setup, role assignments, direct permissions, and API tokens.';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $path = $this->snapshotPath();
+
+        if (Storage::disk('local')->exists($path) && ! $this->option('force')) {
+            $this->error("Snapshot already exists at local disk path [{$path}]. Use --force to overwrite it.");
+
+            return Command::FAILURE;
+        }
+
+        try {
+            $payload = json_encode($this->snapshotPayload(), JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            $this->error('Unable to encode auth snapshot: '.$exception->getMessage());
+
+            return Command::FAILURE;
+        }
+
+        if (! Storage::disk('local')->put($path, Crypt::encryptString($payload))) {
+            $this->error("Unable to write auth snapshot to local disk path [{$path}].");
+
+            return Command::FAILURE;
+        }
+
+        $this->info('Auth snapshot created successfully.');
+        $this->line("Local disk path: {$path}");
+        $this->line('The snapshot is encrypted with the current Laravel APP_KEY. The APP_KEY is not stored in the snapshot.');
+
+        return Command::SUCCESS;
+    }
+
+    protected function snapshotPath(): string
+    {
+        $path = $this->argument('path');
+
+        if (is_string($path) && $path !== '') {
+            return $path;
+        }
+
+        return 'auth-snapshots/auth-snapshot-'.now()->format('Ymd-His').'.json.enc';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function snapshotPayload(): array
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        return [
+            'version' => 1,
+            'created_at' => now()->toISOString(),
+            'tables' => [
+                'users' => $this->rows('users'),
+                'role_assignments' => $this->roleAssignments(),
+                'permission_assignments' => $this->permissionAssignments(),
+                'personal_access_tokens' => $this->personalAccessTokens(),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function rows(string $table): array
+    {
+        if (! Schema::hasTable($table)) {
+            return [];
+        }
+
+        return DB::table($table)
+            ->orderBy('id')
+            ->get()
+            ->map(fn (object $row): array => (array) $row)
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function roleAssignments(): array
+    {
+        $tables = config('permission.table_names');
+        $columns = config('permission.column_names');
+        $modelKey = $columns['model_morph_key'] ?? 'model_id';
+        $roleKey = $columns['role_pivot_key'] ?? 'role_id';
+
+        if (! Schema::hasTable($tables['model_has_roles']) || ! Schema::hasTable($tables['roles'])) {
+            return [];
+        }
+
+        return DB::table($tables['model_has_roles'].' as assignment')
+            ->join($tables['roles'].' as role', 'role.id', '=', 'assignment.'.$roleKey)
+            ->where('assignment.model_type', User::class)
+            ->orderBy('assignment.'.$modelKey)
+            ->orderBy('role.name')
+            ->get([
+                'role.name as name',
+                'role.guard_name as guard_name',
+                'assignment.model_type as model_type',
+                'assignment.'.$modelKey.' as model_id',
+            ])
+            ->map(fn (object $row): array => (array) $row)
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function permissionAssignments(): array
+    {
+        $tables = config('permission.table_names');
+        $columns = config('permission.column_names');
+        $modelKey = $columns['model_morph_key'] ?? 'model_id';
+        $permissionKey = $columns['permission_pivot_key'] ?? 'permission_id';
+
+        if (! Schema::hasTable($tables['model_has_permissions']) || ! Schema::hasTable($tables['permissions'])) {
+            return [];
+        }
+
+        return DB::table($tables['model_has_permissions'].' as assignment')
+            ->join($tables['permissions'].' as permission', 'permission.id', '=', 'assignment.'.$permissionKey)
+            ->where('assignment.model_type', User::class)
+            ->orderBy('assignment.'.$modelKey)
+            ->orderBy('permission.name')
+            ->get([
+                'permission.name as name',
+                'permission.guard_name as guard_name',
+                'assignment.model_type as model_type',
+                'assignment.'.$modelKey.' as model_id',
+            ])
+            ->map(fn (object $row): array => (array) $row)
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    protected function personalAccessTokens(): array
+    {
+        if (! Schema::hasTable('personal_access_tokens')) {
+            return [];
+        }
+
+        return DB::table('personal_access_tokens')
+            ->where('tokenable_type', User::class)
+            ->orderBy('id')
+            ->get()
+            ->map(fn (object $row): array => (array) $row)
+            ->all();
+    }
+}

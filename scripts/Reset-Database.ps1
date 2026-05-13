@@ -1,26 +1,29 @@
 & {
+	function Invoke-Artisan {
+		param(
+			[Parameter(Mandatory = $true)]
+			[string[]]$Arguments
+		)
+
+		php artisan @Arguments
+		if ($LASTEXITCODE -ne 0) {
+			throw "Artisan command failed: php artisan $($Arguments -join ' ')"
+		}
+	}
+
 	Write-Warning "This will WIPE THE ENTIRE DATABASE!"
 	if ( 'I know what I do!' -eq (Read-Host -Prompt 'Type "I know what I do!" to continue...')) {
-		$Managers = @('havelangep@hotmail.com')
-		$Users = @('havelangep@hotmail.com', 'havelangep@gmail.com', 'evaplaysviolin@gmail.com', 'eva@museumwnf.net', 'management@museumwnf.net')
 		$Directory = Split-Path -Parent $PSScriptRoot
+		$SnapshotPath = 'auth-snapshots/reset-database-latest.json.enc'
 
 		if ((Resolve-Path $Directory -ErrorAction Continue)) {
 			Set-Location $Directory
-			php artisan db:wipe --force
-			php artisan migrate:refresh --force
-			php artisan db:seed --class=MinimalDatabaseSeeder --force
-			php artisan permission:sync
-
-			$Users |% {
-				php artisan user:create $_ $_
-				php artisan user:email-verification $_ verify
-				if ($Managers -contains $_) {
-					php artisan user:assign-role $_ 'Manager of Users'
-				} else {
-					php artisan user:assign-role $_ 'Regular User'
-				}
-			}
+			Invoke-Artisan @('auth:snapshot', $SnapshotPath, '--force')
+			Invoke-Artisan @('db:wipe', '--force')
+			Invoke-Artisan @('migrate', '--force')
+			Invoke-Artisan @('db:seed', '--class=MinimalDatabaseSeeder', '--force')
+			Invoke-Artisan @('permissions:sync')
+			Invoke-Artisan @('auth:restore', $SnapshotPath, '--force')
 		}
 	} else {
 		Write-Information 'Cancelled'

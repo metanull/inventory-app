@@ -176,9 +176,18 @@ php artisan permission:cache-reset
 # Seed roles and permissions (idempotent - safe for production)
 php artisan db:seed --class=RolePermissionSeeder
 
+# Create an encrypted auth snapshot before a destructive reset
+php artisan auth:snapshot auth-snapshots/pre-reset.json.enc --force
+
 # Full database reset and seed (CAUTION: Deletes all data)
 php artisan migrate:fresh --seed
+
+# Restore the snapshot after migrations and permission sync
+php artisan permissions:sync --production
+php artisan auth:restore auth-snapshots/pre-reset.json.enc --force
 ```
+
+Auth snapshots preserve user accounts, MFA setup, role assignments, direct permissions, and API tokens. The snapshot is encrypted with Laravel's current `APP_KEY`, but the `APP_KEY` is not stored in the file. Restore the snapshot only into an application that uses the same `APP_KEY`.
 
 ## Common Use Cases
 
