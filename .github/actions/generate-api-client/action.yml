@@ -25,6 +25,7 @@ runs:
         php-version: '8.4'
         extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
         tools: composer:v2
+        github-token: ''
 
     - name: "Setup > Composer > Install Dependencies"
       shell: bash
