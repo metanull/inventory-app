@@ -52,8 +52,8 @@ class AuthSnapshotCommandTest extends TestCase
     {
         Storage::fake('local');
 
-        $role = Role::create(['name' => 'Snapshot Role', 'guard_name' => 'web']);
-        $permission = Permission::create(['name' => PermissionEnum::ACCESS_ADMIN_PANEL->value, 'guard_name' => 'web']);
+        $role = Role::firstOrCreate(['name' => 'Snapshot Role', 'guard_name' => 'web']);
+        $permission = Permission::firstOrCreate(['name' => PermissionEnum::ACCESS_ADMIN_PANEL->value, 'guard_name' => 'web']);
         $user = User::factory()->create([
             'email' => 'restore-user@example.com',
             'two_factor_secret' => encrypt('JBSWY3DPEHPK3PXP'),
