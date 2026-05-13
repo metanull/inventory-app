@@ -16,7 +16,7 @@ use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ArtistsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\CollectionAppearancesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\DynastiesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\ImagesRelationManager;
@@ -545,7 +545,7 @@ class ItemResource extends Resource
             MediaRelationManager::class,
             DocumentsRelationManager::class,
             TimelineEventsRelationManager::class,
-            DisplayedInCollectionsRelationManager::class,
+            CollectionAppearancesRelationManager::class,
             LegacyLinksRelationManager::class,
         ];
     }
