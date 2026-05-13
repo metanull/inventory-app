@@ -11,7 +11,7 @@ use App\Filament\Resources\ItemResource\Pages\EditItem;
 use App\Filament\Resources\ItemResource\Pages\ListItem;
 use App\Filament\Resources\ItemResource\Pages\ViewItem;
 use App\Filament\Resources\ItemResource\RelationManagers\ChildItemsRelationManager;
-use App\Filament\Resources\ItemResource\RelationManagers\DisplayedInCollectionsRelationManager;
+use App\Filament\Resources\ItemResource\RelationManagers\CollectionAppearancesRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\OutgoingLinksRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\PictureItemsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
@@ -65,7 +65,7 @@ class ItemResourceTest extends TestCase
             ->assertSee('Translations')
             ->assertSee('Outgoing links')
             ->assertSee('Incoming links')
-            ->assertSee('Displayed in');
+            ->assertSee('Collection appearances');
 
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}")
             ->assertOk()
@@ -76,7 +76,7 @@ class ItemResourceTest extends TestCase
             ->assertSee('Translations')
             ->assertSee('Outgoing links')
             ->assertSee('Incoming links')
-            ->assertSee('Displayed in')
+            ->assertSee('Collection appearances')
             ->assertSee('Legacy links');
 
         $this->actingAs($user)->get('/admin/browse-item-tree')
@@ -782,7 +782,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(DisplayedInCollectionsRelationManager::class, [
+            ->test(CollectionAppearancesRelationManager::class, [
                 'ownerRecord' => $item,
                 'pageClass' => ViewItem::class,
             ])
@@ -804,7 +804,7 @@ class ItemResourceTest extends TestCase
         $this->setCurrentPanel();
 
         Livewire::actingAs($user)
-            ->test(DisplayedInCollectionsRelationManager::class, [
+            ->test(CollectionAppearancesRelationManager::class, [
                 'ownerRecord' => $item,
                 'pageClass' => ViewItem::class,
             ])
