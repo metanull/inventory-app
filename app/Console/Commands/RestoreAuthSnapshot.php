@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Support\AuthSnapshots\AuthSnapshotFile;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -21,7 +22,7 @@ class RestoreAuthSnapshot extends Command
      * @var string
      */
     protected $signature = 'auth:restore
-                            {path : Local disk path to the encrypted snapshot}
+                            {path : Filesystem path to the encrypted snapshot}
                             {--force : Replace existing user accounts and user-owned auth records}';
 
     /**
@@ -36,10 +37,11 @@ class RestoreAuthSnapshot extends Command
      */
     public function handle(): int
     {
-        $path = $this->argument('path');
+        $argumentPath = $this->argument('path');
+        $path = AuthSnapshotFile::resolvePath(is_string($argumentPath) ? $argumentPath : null);
 
-        if (! is_string($path) || $path === '' || ! Storage::disk('local')->exists($path)) {
-            $this->error("Auth snapshot was not found on the local disk at [{$path}].");
+        if (! File::isFile($path)) {
+            $this->error("Auth snapshot was not found at [{$path}].");
 
             return Command::FAILURE;
         }
@@ -101,10 +103,10 @@ class RestoreAuthSnapshot extends Command
     protected function readSnapshot(string $path): ?array
     {
         try {
-            $contents = Storage::disk('local')->get($path);
+            $contents = File::get($path);
 
             if (! is_string($contents)) {
-                $this->error("Unable to read auth snapshot from local disk path [{$path}].");
+                $this->error("Unable to read auth snapshot from [{$path}].");
 
                 return null;
             }
@@ -116,6 +118,8 @@ class RestoreAuthSnapshot extends Command
             $this->error('Unable to decrypt auth snapshot. Verify that this app uses the same APP_KEY that created the snapshot.');
         } catch (JsonException $exception) {
             $this->error('Unable to decode auth snapshot: '.$exception->getMessage());
+        } catch (\Throwable $exception) {
+            $this->error('Unable to read auth snapshot: '.$exception->getMessage());
         }
 
         return null;

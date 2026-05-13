@@ -3,11 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Support\AuthSnapshots\AuthSnapshotFile;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use JsonException;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -19,7 +20,7 @@ class CreateAuthSnapshot extends Command
      * @var string
      */
     protected $signature = 'auth:snapshot
-                            {path? : Local disk path for the encrypted snapshot}
+                            {path? : Filesystem path for the encrypted snapshot. Defaults to the system temp directory}
                             {--force : Overwrite an existing snapshot file}';
 
     /**
@@ -36,8 +37,8 @@ class CreateAuthSnapshot extends Command
     {
         $path = $this->snapshotPath();
 
-        if (Storage::disk('local')->exists($path) && ! $this->option('force')) {
-            $this->error("Snapshot already exists at local disk path [{$path}]. Use --force to overwrite it.");
+        if (File::exists($path) && ! $this->option('force')) {
+            $this->error("Snapshot already exists at [{$path}]. Use --force to overwrite it.");
 
             return Command::FAILURE;
         }
@@ -50,14 +51,12 @@ class CreateAuthSnapshot extends Command
             return Command::FAILURE;
         }
 
-        if (! Storage::disk('local')->put($path, Crypt::encryptString($payload))) {
-            $this->error("Unable to write auth snapshot to local disk path [{$path}].");
-
+        if (! $this->writeSnapshot($path, Crypt::encryptString($payload))) {
             return Command::FAILURE;
         }
 
         $this->info('Auth snapshot created successfully.');
-        $this->line("Local disk path: {$path}");
+        $this->line("Snapshot path: {$path}");
         $this->line('The snapshot is encrypted with the current Laravel APP_KEY. The APP_KEY is not stored in the snapshot.');
 
         return Command::SUCCESS;
@@ -67,11 +66,36 @@ class CreateAuthSnapshot extends Command
     {
         $path = $this->argument('path');
 
-        if (is_string($path) && $path !== '') {
-            return $path;
+        return AuthSnapshotFile::resolvePath(is_string($path) ? $path : null);
+    }
+
+    protected function writeSnapshot(string $path, string $contents): bool
+    {
+        try {
+            $directory = dirname($path);
+
+            File::ensureDirectoryExists($directory, 0700, true);
+
+            if (! File::isDirectory($directory) || ! File::isWritable($directory)) {
+                $this->error("Auth snapshot directory is not writable: {$directory}");
+
+                return false;
+            }
+
+            if (File::put($path, $contents, true) === false) {
+                $this->error("Unable to write auth snapshot to [{$path}].");
+
+                return false;
+            }
+
+            File::chmod($path, 0600);
+        } catch (\Throwable $exception) {
+            $this->error('Unable to write auth snapshot: '.$exception->getMessage());
+
+            return false;
         }
 
-        return 'auth-snapshots/auth-snapshot-'.now()->format('Ymd-His').'.json.enc';
+        return true;
     }
 
     /**
