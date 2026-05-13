@@ -10,11 +10,18 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 class AuthSnapshotCommandTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    }
 
     public function test_snapshot_is_encrypted_and_does_not_contain_app_key_or_plaintext_user_data(): void
     {
