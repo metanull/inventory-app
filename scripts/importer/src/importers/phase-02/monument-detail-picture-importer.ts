@@ -325,34 +325,49 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     itemExtra: Record<string, unknown>,
     _result: ImportResult
   ): Promise<void> {
+    const hasCaption = !!(translation.caption && translation.caption.trim());
+    const hasPhotographer = !!(translation.photographer && translation.photographer.trim());
+    const hasCopyright = !!(translation.copyright && translation.copyright.trim());
+
+    // Skip translation rows that carry no text or metadata content.
+    if (!hasCaption && !hasPhotographer && !hasCopyright) {
+      return;
+    }
+
     const languageId = mapLanguageCode(translation.lang_id);
 
-    // Get parent item's name in this language
-    const parentBackwardCompat = formatBackwardCompatibility({
-      schema: 'mwnf3',
-      table: 'monuments_details',
-      pkValues: [
+    let name: string;
+    if (hasCaption) {
+      name = convertHtmlToMarkdown(translation.caption!);
+    } else {
+      // Metadata-only row: resolve parent detail title for a human-readable name.
+      const parentName = await this.getParentItemName(
         translation.project_id,
         translation.country_id,
         translation.institution_id,
         translation.monument_id,
-        String(translation.detail_id),
-        translation.lang_id,
-      ],
-    });
-    const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
-    const name = parentName ? convertHtmlToMarkdown(parentName) : `Image ${translation.picture_id}`;
-
-    // Use caption as description if present (empty string if no caption, as field doesn't accept null)
-    const description =
-      translation.caption && translation.caption.trim()
-        ? convertHtmlToMarkdown(translation.caption)
-        : '';
+        translation.detail_id,
+        translation.lang_id
+      );
+      if (!parentName) {
+        throw new Error(
+          `Parent monument detail name not found for metadata-only translation ` +
+            `(project_id=${translation.project_id}, country_id=${translation.country_id}, ` +
+            `institution_id=${translation.institution_id}, monument_id=${translation.monument_id}, ` +
+            `detail_id=${translation.detail_id}, lang_id=${translation.lang_id})`
+        );
+      }
+      const parentTitle = convertHtmlToMarkdown(parentName);
+      name =
+        translation.picture_id != null
+          ? `${parentTitle} (${translation.picture_id})`
+          : parentTitle;
+    }
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
-    if (translation.copyright && translation.copyright.trim()) {
-      translationExtra.copyright = translation.copyright;
+    if (hasCopyright) {
+      translationExtra.copyright = translation.copyright!;
     }
 
     const translationData: ItemTranslationData = {
@@ -360,7 +375,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description,
+      description: '',
       alternate_name: null,
       type: null,
       holder: null,
@@ -394,8 +409,8 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     await this.context.strategy.writeItemTranslation(translationData);
 
     // Handle photographer as Artist
-    if (translation.photographer && translation.photographer.trim()) {
-      const artistId = await this.artistHelper.findOrCreate(translation.photographer.trim());
+    if (hasPhotographer) {
+      const artistId = await this.artistHelper.findOrCreate(translation.photographer!.trim());
       if (artistId) {
         await this.artistHelper.attachToItem(pictureItemId, [artistId]);
       }
@@ -403,19 +418,18 @@ export class MonumentDetailPictureImporter extends BaseImporter {
   }
 
   private async getParentItemName(
-    parentBackwardCompat: string,
-    _languageId: string
+    projectId: string,
+    countryId: string,
+    institutionId: string,
+    monumentId: number,
+    detailId: number,
+    langId: string
   ): Promise<string | null> {
-    try {
-      const params = parentBackwardCompat.split(':').slice(2);
-      const result = await this.context.legacyDb.query<{ name: string }>(
-        'SELECT name FROM mwnf3.monuments_details WHERE project_id = ? AND country_id = ? AND institution_id = ? AND monument_id = ? AND detail_id = ? AND lang_id = ?',
-        params
-      );
-      return result.length > 0 ? result[0]!.name : null;
-    } catch {
-      return null;
-    }
+    const result = await this.context.legacyDb.query<{ name: string }>(
+      'SELECT name FROM mwnf3.monuments_details WHERE project_id = ? AND country_id = ? AND institution_id = ? AND monument_id = ? AND detail_id = ? AND lang_id = ?',
+      [projectId, countryId, institutionId, monumentId, detailId, langId]
+    );
+    return result.length > 0 ? result[0]!.name : null;
   }
 
   private getMimeType(filePath: string): string {

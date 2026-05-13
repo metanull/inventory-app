@@ -323,35 +323,48 @@ export class ObjectPictureImporter extends BaseImporter {
     contextId: string,
     itemExtra: Record<string, unknown>
   ): Promise<void> {
+    const hasCaption = !!(translation.caption && translation.caption.trim());
+    const hasPhotographer = !!(translation.photographer && translation.photographer.trim());
+    const hasCopyright = !!(translation.copyright && translation.copyright.trim());
+
+    // Skip translation rows that carry no text or metadata content.
+    if (!hasCaption && !hasPhotographer && !hasCopyright) {
+      return;
+    }
+
     const languageId = mapLanguageCode(translation.lang);
 
-    // Get parent item's name in this language
-    const parentBackwardCompat = formatBackwardCompatibility({
-      schema: 'mwnf3',
-      table: 'objects',
-      pkValues: [
+    let name: string;
+    if (hasCaption) {
+      name = convertHtmlToMarkdown(translation.caption!);
+    } else {
+      // Metadata-only row: resolve parent object title for a human-readable name.
+      const parentName = await this.getParentItemName(
         translation.project_id,
         translation.country,
         translation.museum_id,
-        String(translation.number),
-        translation.lang,
-      ],
-    });
-    const parentName = await this.getParentItemName(parentBackwardCompat, languageId);
-    const name = parentName
-      ? convertHtmlToMarkdown(parentName)
-      : `Image ${translation.image_number}`;
-
-    // Use caption as description if present (empty string if no caption, as field doesn't accept null)
-    const description =
-      translation.caption && translation.caption.trim()
-        ? convertHtmlToMarkdown(translation.caption)
-        : '';
+        translation.number,
+        translation.lang
+      );
+      if (!parentName) {
+        throw new Error(
+          `Parent object name not found for metadata-only translation ` +
+            `(project_id=${translation.project_id}, country=${translation.country}, ` +
+            `museum_id=${translation.museum_id}, number=${translation.number}, ` +
+            `lang=${translation.lang})`
+        );
+      }
+      const parentTitle = convertHtmlToMarkdown(parentName);
+      name =
+        translation.image_number != null
+          ? `${parentTitle} (${translation.image_number})`
+          : parentTitle;
+    }
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
-    if (translation.copyright && translation.copyright.trim()) {
-      translationExtra.copyright = translation.copyright;
+    if (hasCopyright) {
+      translationExtra.copyright = translation.copyright!;
     }
 
     const translationData: ItemTranslationData = {
@@ -359,7 +372,7 @@ export class ObjectPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description,
+      description: '',
       alternate_name: null,
       type: null,
       holder: null,
@@ -393,8 +406,8 @@ export class ObjectPictureImporter extends BaseImporter {
     await this.context.strategy.writeItemTranslation(translationData);
 
     // Handle photographer as Artist
-    if (translation.photographer && translation.photographer.trim()) {
-      const artistId = await this.artistHelper.findOrCreate(translation.photographer.trim());
+    if (hasPhotographer) {
+      const artistId = await this.artistHelper.findOrCreate(translation.photographer!.trim());
       if (artistId) {
         await this.artistHelper.attachToItem(pictureItemId, [artistId]);
       }
@@ -402,19 +415,17 @@ export class ObjectPictureImporter extends BaseImporter {
   }
 
   private async getParentItemName(
-    parentBackwardCompat: string,
-    _languageId: string
+    projectId: string,
+    country: string,
+    museumId: string,
+    number: number,
+    lang: string
   ): Promise<string | null> {
-    try {
-      const params = parentBackwardCompat.split(':').slice(2);
-      const result = await this.context.legacyDb.query<{ name: string }>(
-        'SELECT name FROM mwnf3.objects WHERE project_id = ? AND country = ? AND museum_id = ? AND number = ? AND lang = ?',
-        params
-      );
-      return result.length > 0 ? result[0]!.name : null;
-    } catch {
-      return null;
-    }
+    const result = await this.context.legacyDb.query<{ name: string }>(
+      'SELECT name FROM mwnf3.objects WHERE project_id = ? AND country = ? AND museum_id = ? AND number = ? AND lang = ?',
+      [projectId, country, museumId, number, lang]
+    );
+    return result.length > 0 ? result[0]!.name : null;
   }
 
   private getMimeType(filePath: string): string {
