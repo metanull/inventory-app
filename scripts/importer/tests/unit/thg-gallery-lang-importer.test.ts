@@ -85,6 +85,8 @@ describe('ThgGalleryLangImporter', () => {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       writeCollectionTranslation: writeCollectionTranslationMock,
+      getCollectionTranslationByKey: vi.fn().mockResolvedValue(null),
+      setCollectionTranslationExtraByKey: vi.fn().mockResolvedValue(undefined),
     } as unknown as IWriteStrategy;
 
     context = {
@@ -262,5 +264,61 @@ describe('ThgGalleryLangImporter', () => {
 
     expect(writeCollectionTranslationMock).not.toHaveBeenCalled();
     expect(result.skipped).toBeGreaterThan(0);
+  });
+
+  it('skips writeCollectionTranslation and merges extra when translation with same key already exists', async () => {
+    const existingExtra = JSON.stringify({ thg_gallery: { status: 'A' } });
+    const getCollectionTranslationByKeyMock = vi.fn().mockResolvedValue({
+      id: 'existing-translation-uuid',
+      extra: existingExtra,
+    });
+    const setCollectionTranslationExtraByKeyMock = vi.fn().mockResolvedValue(undefined);
+
+    strategy = {
+      exists: vi.fn().mockResolvedValue(false),
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      writeCollectionTranslation: writeCollectionTranslationMock,
+      getCollectionTranslationByKey: getCollectionTranslationByKeyMock,
+      setCollectionTranslationExtraByKey: setCollectionTranslationExtraByKeyMock,
+    } as unknown as IWriteStrategy;
+
+    // Use a queryMock that returns non-null mouse_over_text so buildExtra returns non-null
+    const langWithExtra = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'en',
+            title: 'The Gallery',
+            long_title: 'The Extended Title',
+            short_text: 'A short description.',
+            mouse_over_text: 'Hover text',
+            keywords: null,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [{ gallery_id: 42, link: null, image: null, banner_image: null,
+                  banner_item: null, new_expire_date: null, landing_url: null,
+                  portal_image: null, live_date: null, homepage_image: null,
+                  homepage_item: null, has_timeline: null, has_country_timeline: null,
+                  featured: null, status: null, mwnf3_project_id: null }];
+      }
+      return [];
+    });
+
+    context = {
+      ...context,
+      strategy,
+      legacyDb: { ...legacyDb, query: langWithExtra as ILegacyDatabase['query'] },
+    };
+
+    const importer = new ThgGalleryLangImporter(context);
+    const result = await importer.import();
+
+    expect(writeCollectionTranslationMock).not.toHaveBeenCalled();
+    expect(getCollectionTranslationByKeyMock).toHaveBeenCalled();
+    expect(setCollectionTranslationExtraByKeyMock).toHaveBeenCalled();
+    expect(result.success).toBe(true);
   });
 });

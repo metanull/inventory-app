@@ -11,6 +11,7 @@ import {
   extractObjectArtists,
   parseTagString,
   planTranslations,
+  parseItemYear,
 } from '../../src/domain/transformers/object-transformer.js';
 import type { LegacyObject, ObjectGroup } from '../../src/domain/types/legacy.js';
 
@@ -445,5 +446,45 @@ describe('planTranslations', () => {
     expect(plans[0]?.descriptionField).toBe('description');
     expect(plans[1]?.contextType).toBe('epm');
     expect(plans[1]?.descriptionField).toBe('description2');
+  });
+});
+
+describe('parseItemYear', () => {
+  it('returns numeric value for valid positive year', () => {
+    expect(parseItemYear('1492')).toMatchObject({ value: 1492, warning: null });
+  });
+
+  it('returns numeric value for valid negative year', () => {
+    expect(parseItemYear('-500')).toMatchObject({ value: -500, warning: null });
+  });
+
+  it('returns null with warning for non-integer string', () => {
+    const result = parseItemYear('12th century');
+    expect(result.value).toBeNull();
+    expect(result.warning).not.toBeNull();
+  });
+
+  it('returns null with warning for out-of-range value (too large)', () => {
+    const result = parseItemYear('40000');
+    expect(result.value).toBeNull();
+    expect(result.warning).not.toBeNull();
+  });
+
+  it('returns null with warning for out-of-range value (too small)', () => {
+    const result = parseItemYear('-40000');
+    expect(result.value).toBeNull();
+    expect(result.warning).not.toBeNull();
+  });
+
+  it('returns null without warning for null/undefined input', () => {
+    expect(parseItemYear(null)).toMatchObject({ value: null, warning: null });
+    expect(parseItemYear(undefined)).toMatchObject({ value: null, warning: null });
+  });
+
+  it('returns value at SMALLINT boundary (32767)', () => {
+    expect(parseItemYear('32767')).toMatchObject({ value: 32767, warning: null });
+    const over = parseItemYear('32768');
+    expect(over.value).toBeNull();
+    expect(over.warning).not.toBeNull();
   });
 });

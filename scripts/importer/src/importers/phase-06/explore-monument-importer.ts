@@ -111,7 +111,7 @@ export class ExploreMonumentImporter extends BaseImporter {
         try {
           const backwardCompat = `mwnf3_explore:monument:${legacy.monumentId}`;
           const resolution = await this.monumentResolver.resolve(legacy.monumentId);
-          if (resolution.mode === 'missing-target' || resolution.mode === 'ambiguous') {
+          if (resolution.mode === 'missing-target') {
             throw new Error(resolution.message ?? `Unable to resolve ${backwardCompat}`);
           }
 
@@ -129,8 +129,8 @@ export class ExploreMonumentImporter extends BaseImporter {
           }
 
           const transformed = transformExploreMonument(legacy, translations, defaultLanguageId);
-          if (transformed.warning) {
-            this.logWarning(transformed.warning);
+          for (const w of transformed.warnings) {
+            this.logWarning(w);
           }
 
           // Collect sample
@@ -143,6 +143,27 @@ export class ExploreMonumentImporter extends BaseImporter {
           const collectionId = transformed.locationId
             ? await this.getLocationCollectionId(transformed.locationId)
             : null;
+
+          if (resolution.mode === 'resolvedCandidates') {
+            this.logWarning(
+              resolution.message ??
+                `Explore monument ${backwardCompat} resolves to multiple source items`
+            );
+            for (const candidate of resolution.resolvedCandidates ?? []) {
+              this.context.tracker.set(backwardCompat, candidate.itemId, 'item');
+              if (!this.isDryRun && !this.isSampleOnlyMode && collectionId) {
+                await this.context.strategy.writeCollectionItem({
+                  collection_id: collectionId,
+                  item_id: candidate.itemId,
+                  backward_compatibility: `${backwardCompat}:collection_link:${transformed.locationId}:${candidate.source}`,
+                  display_order: null,
+                });
+              }
+            }
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
 
           if (resolution.mode === 'referenced') {
             if (!resolution.itemId || !resolution.itemBackwardCompatibility) {

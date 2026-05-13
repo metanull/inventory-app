@@ -137,7 +137,7 @@ export class DynastyImporter extends BaseImporter {
             const message = error instanceof Error ? error.message : String(error);
             const warning = `Failed to create translation for dynasty ${legacy.dynasty_id}:${text.lang_id}: ${message}`;
             this.logWarning(warning);
-            result.warnings!.push(warning);
+            result.warnings.push(warning);
           }
         }
 

@@ -1163,6 +1163,21 @@ class ResilientConnection {
     }
   }
 
+  async beginTransaction(): Promise<void> {
+    if (!this.connection) {
+      await this.connect();
+    }
+    await this.connection!.beginTransaction();
+  }
+
+  async commit(): Promise<void> {
+    await this.connection!.commit();
+  }
+
+  async rollback(): Promise<void> {
+    await this.connection!.rollback();
+  }
+
   getConnection(): mysql.Connection {
     if (!this.connection) {
       throw new Error('Connection not established');
@@ -1356,6 +1371,7 @@ program
             imported: 0,
             skipped: 0,
             errors: [message],
+            warnings: [],
           });
         }
       }

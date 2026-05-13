@@ -3,7 +3,7 @@ import type { ILegacyDatabase } from '../../core/base-importer.js';
 import type { ITracker } from '../../core/tracker.js';
 
 type ReferenceSource = 'vm' | 'travels' | 'sharing-history';
-type ResolutionMode = 'native' | 'referenced' | 'missing-target' | 'ambiguous';
+type ResolutionMode = 'native' | 'referenced' | 'missing-target' | 'resolvedCandidates';
 
 interface ExploreMonumentRow {
   monumentId: number;
@@ -65,6 +65,11 @@ export interface ExploreMonumentResolution {
   itemId: string | null;
   source: ReferenceSource | 'native' | 'mixed';
   message: string | null;
+  resolvedCandidates?: Array<{
+    source: ReferenceSource;
+    itemBackwardCompatibility: string;
+    itemId: string;
+  }>;
 }
 
 interface ExploreMonumentResolverOptions {
@@ -142,17 +147,17 @@ export class ExploreMonumentResolver {
       };
     }
 
-    const resolvedCandidates: Array<StoredResolutionCandidate & { itemId: string | null }> = [];
+    const resolvedWithIds: Array<StoredResolutionCandidate & { itemId: string | null }> = [];
     for (const candidate of entry.candidates) {
       const itemId = await this.getEntityUuid(candidate.itemBackwardCompatibility, 'item');
-      resolvedCandidates.push({
+      resolvedWithIds.push({
         ...candidate,
         itemId,
       });
     }
 
-    const successfulCandidates = resolvedCandidates.filter((candidate) => candidate.itemId !== null);
-    if (successfulCandidates.length === 1 && resolvedCandidates.length === 1) {
+    const successfulCandidates = resolvedWithIds.filter((candidate) => candidate.itemId !== null);
+    if (successfulCandidates.length === 1 && resolvedWithIds.length === 1) {
       const resolvedCandidate = successfulCandidates[0]!;
       this.tracker.set(nativeBackwardCompatibility, resolvedCandidate.itemId!, 'item');
 
@@ -168,27 +173,95 @@ export class ExploreMonumentResolver {
     }
 
     if (successfulCandidates.length === 0) {
-      const missingTargets = resolvedCandidates.map((candidate) => candidate.itemBackwardCompatibility);
+      const missingTargets = resolvedWithIds.map((candidate) => candidate.itemBackwardCompatibility);
       return {
         monumentId,
         mode: 'missing-target',
         nativeBackwardCompatibility,
         itemBackwardCompatibility: null,
         itemId: null,
-        source: resolvedCandidates.length === 1 ? resolvedCandidates[0]!.source : 'mixed',
+        source: resolvedWithIds.length === 1 ? resolvedWithIds[0]!.source : 'mixed',
         message: `Explore monument ${nativeBackwardCompatibility} references missing target item(s): ${missingTargets.join(', ')}`,
       };
     }
 
-    const ambiguousTargets = successfulCandidates.map((candidate) => candidate.itemBackwardCompatibility);
+    const resolvedCandidatesList = successfulCandidates.map((c) => ({
+      source: c.source,
+      itemBackwardCompatibility: c.itemBackwardCompatibility,
+      itemId: c.itemId!,
+    }));
+    const ambiguousTargets = resolvedCandidatesList.map((c) => c.itemBackwardCompatibility);
     return {
       monumentId,
-      mode: 'ambiguous',
+      mode: 'resolvedCandidates',
       nativeBackwardCompatibility,
       itemBackwardCompatibility: null,
       itemId: null,
       source: 'mixed',
       message: `Explore monument ${nativeBackwardCompatibility} resolves to multiple source items: ${ambiguousTargets.join(', ')}`,
+      resolvedCandidates: resolvedCandidatesList,
+    };
+  }
+
+  async resolveForSource(
+    monumentId: number,
+    source: ReferenceSource
+  ): Promise<ExploreMonumentResolution> {
+    const resolutionMap = await this.getResolutionMap();
+    const entry = resolutionMap.get(monumentId);
+    const nativeBackwardCompatibility = `mwnf3_explore:monument:${monumentId}`;
+
+    if (!entry || entry.candidates.length === 0) {
+      const itemId = await this.getEntityUuid(nativeBackwardCompatibility, 'item');
+      if (itemId) {
+        this.tracker.set(nativeBackwardCompatibility, itemId, 'item');
+      }
+      return {
+        monumentId,
+        mode: 'native',
+        nativeBackwardCompatibility,
+        itemBackwardCompatibility: nativeBackwardCompatibility,
+        itemId,
+        source: 'native',
+        message: null,
+      };
+    }
+
+    const candidate = entry.candidates.find((c) => c.source === source);
+    if (!candidate) {
+      return {
+        monumentId,
+        mode: 'missing-target',
+        nativeBackwardCompatibility,
+        itemBackwardCompatibility: null,
+        itemId: null,
+        source,
+        message: `Explore monument ${nativeBackwardCompatibility} has no ${source} candidate`,
+      };
+    }
+
+    const itemId = await this.getEntityUuid(candidate.itemBackwardCompatibility, 'item');
+    if (!itemId) {
+      return {
+        monumentId,
+        mode: 'missing-target',
+        nativeBackwardCompatibility,
+        itemBackwardCompatibility: candidate.itemBackwardCompatibility,
+        itemId: null,
+        source,
+        message: `Explore monument ${nativeBackwardCompatibility} ${source} candidate not found: ${candidate.itemBackwardCompatibility}`,
+      };
+    }
+
+    this.tracker.set(nativeBackwardCompatibility, itemId, 'item');
+    return {
+      monumentId,
+      mode: 'referenced',
+      nativeBackwardCompatibility,
+      itemBackwardCompatibility: candidate.itemBackwardCompatibility,
+      itemId,
+      source,
+      message: null,
     };
   }
 

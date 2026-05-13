@@ -173,7 +173,7 @@ export class PartnerHierarchyImporter extends BaseImporter {
       `associated_museums id=${row.associated_id} has no project_id, ` +
       `assigning default legacy project ${DEFAULT_ASSOCIATED_MUSEUM_PROJECT_ID}`;
     this.logWarning(warning);
-    result.warnings!.push(warning);
+    result.warnings.push(warning);
 
     return DEFAULT_ASSOCIATED_MUSEUM_PROJECT_ID;
   }

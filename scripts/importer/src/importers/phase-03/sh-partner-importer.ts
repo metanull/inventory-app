@@ -199,7 +199,7 @@ export class ShPartnerImporter extends BaseImporter {
             const message = error instanceof Error ? error.message : String(error);
             const warning = `Failed to create translation for SH partner ${group.partner.partners_id}:${translation.lang}: ${message}`;
             this.logWarning(warning);
-            result.warnings!.push(warning);
+            result.warnings.push(warning);
           }
         }
 

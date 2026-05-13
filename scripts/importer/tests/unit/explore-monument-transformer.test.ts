@@ -25,6 +25,6 @@ describe('transformExploreMonument', () => {
     expect(result.data.latitude).toBe(31.1);
     expect(result.data.longitude).toBe(35.2);
     expect(result.locationId).toBe(9);
-    expect(result.warning).toBeNull();
+    expect(result.warnings).toEqual([]);
   });
 });

@@ -155,6 +155,28 @@ export class ThgGalleryLangImporter extends BaseImporter {
           // Build extra object
           const extra = this.buildExtra(legacy);
 
+          // Check for existing translation by (collectionId, languageId, contextId) key — idempotent update
+          const existingTranslation = await this.context.strategy.getCollectionTranslationByKey(
+            collectionId,
+            languageId,
+            contextId
+          );
+          if (existingTranslation) {
+            if (extra && !this.isDryRun && !this.isSampleOnlyMode) {
+              // Merge: new keys are added, existing keys are NOT overwritten
+              const merged = { ...extra, ...(existingTranslation.extra ?? {}) };
+              await this.context.strategy.setCollectionTranslationExtraByKey(
+                collectionId,
+                languageId,
+                contextId,
+                JSON.stringify(merged)
+              );
+            }
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           this.collectSample(
             'thg_gallery_lang',
             legacy as unknown as Record<string, unknown>,

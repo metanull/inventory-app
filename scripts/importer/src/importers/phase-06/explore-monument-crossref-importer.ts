@@ -84,10 +84,10 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const vm of vmLinks) {
         try {
-          const sourceResolution = await this.monumentResolver.resolve(vm.monumentId);
+          const sourceResolution = await this.monumentResolver.resolveForSource(vm.monumentId, 'vm');
           if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
             this.logWarning(
-              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${vm.monumentId} did not resolve to an item`}, skipping`
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${vm.monumentId} did not resolve to a vm item`}, skipping`
             );
             result.skipped++;
             this.showSkipped();
@@ -147,10 +147,10 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const tr of trLinks) {
         try {
-          const sourceResolution = await this.monumentResolver.resolve(tr.monumentId);
+          const sourceResolution = await this.monumentResolver.resolveForSource(tr.monumentId, 'travels');
           if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
             this.logWarning(
-              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${tr.monumentId} did not resolve to an item`}, skipping`
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${tr.monumentId} did not resolve to a travels item`}, skipping`
             );
             result.skipped++;
             this.showSkipped();
@@ -204,10 +204,10 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
       for (const sh of shLinks) {
         try {
-          const sourceResolution = await this.monumentResolver.resolve(sh.monumentId);
+          const sourceResolution = await this.monumentResolver.resolveForSource(sh.monumentId, 'sharing-history');
           if (!sourceResolution.itemId || !sourceResolution.itemBackwardCompatibility) {
             this.logWarning(
-              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${sh.monumentId} did not resolve to an item`}, skipping`
+              `${sourceResolution.message ?? `Explore monument mwnf3_explore:monument:${sh.monumentId} did not resolve to a sharing-history item`}, skipping`
             );
             result.skipped++;
             this.showSkipped();
@@ -255,14 +255,23 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
       // 4. exploremonument_museums → cross-check partner_id
       this.logInfo('Checking Explore monument museum associations...');
       const museumLinks = await this.context.legacyDb.query<LegacyMonumentMuseum>(
-        `SELECT monumentId, museum_id, museum_country FROM mwnf3_explore.exploremonument_museums`
+        `SELECT monumentId, museum_id, country AS museum_country FROM mwnf3_explore.exploremonument_museums`
       );
       this.logInfo(`Found ${museumLinks.length} museum associations to check`);
 
       for (const ml of museumLinks) {
         try {
           const monumentResolution = await this.monumentResolver.resolve(ml.monumentId);
-          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+
+          // Collect itemIds to process: either single resolved or all resolved candidates
+          const resolvedItemIds: string[] = [];
+          if (monumentResolution.mode === 'resolvedCandidates') {
+            for (const candidate of (monumentResolution.resolvedCandidates ?? [])) {
+              resolvedItemIds.push(candidate.itemId);
+            }
+          } else if (monumentResolution.itemId) {
+            resolvedItemIds.push(monumentResolution.itemId);
+          } else {
             this.logWarning(
               `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${ml.monumentId} did not resolve to an item`}, skipping museum check`
             );
@@ -281,29 +290,30 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
 
           if (this.isDryRun || this.isSampleOnlyMode) continue;
 
-          // Store in ItemTranslation(eng).extra.additional_explore_partners[]
-          // Only if an English translation exists for this monument
-          const existingExtra = await this.context.strategy.getItemTranslationExtra(
-            monumentResolution.itemId,
-            'eng'
-          );
-          if (existingExtra !== null) {
-            const extra = existingExtra;
-            const existing = extra.additional_explore_partners as string[] | undefined;
-            const partners = existing ?? [];
-            if (!partners.includes(partnerId)) {
-              partners.push(partnerId);
+          // Store in ItemTranslation(eng).extra.additional_explore_partners[] for each resolved item
+          for (const resolvedItemId of resolvedItemIds) {
+            const existingExtra = await this.context.strategy.getItemTranslationExtra(
+              resolvedItemId,
+              'eng'
+            );
+            if (existingExtra !== null) {
+              const extra = existingExtra;
+              const existing = extra.additional_explore_partners as string[] | undefined;
+              const partners = existing ?? [];
+              if (!partners.includes(partnerId)) {
+                partners.push(partnerId);
+              }
+              extra.additional_explore_partners = partners;
+              await this.context.strategy.setItemTranslationExtra(
+                resolvedItemId,
+                'eng',
+                JSON.stringify(extra)
+              );
+            } else {
+              this.logWarning(
+                `No English translation for monument ${ml.monumentId} (item ${resolvedItemId}), cannot store museum association`
+              );
             }
-            extra.additional_explore_partners = partners;
-            await this.context.strategy.setItemTranslationExtra(
-              monumentResolution.itemId,
-              'eng',
-              JSON.stringify(extra)
-            );
-          } else {
-            this.logWarning(
-              `No English translation for monument ${ml.monumentId}, cannot store museum association`
-            );
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);

@@ -200,5 +200,8 @@ describe('ImageSyncTool destination clearing', () => {
 
     expect(result.success).toBe(true);
     expect(logger.messages).toContain('\n=== Syncing timeline_event_images ===');
+    expect(logger.messages.some((m) => m.includes('Starting image sync table:'))).toBe(true);
+    expect(logger.messages.some((m) => m.includes('Completed image sync table '))).toBe(true);
+    expect(logger.messages.some((m) => m.includes('Completed image sync:'))).toBe(true);
   });
 });

@@ -141,6 +141,43 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
           }
 
           const monumentResolution = await this.monumentResolver.resolve(text.monumentId);
+          if (monumentResolution.mode === 'resolvedCandidates') {
+            // Write the translation for each resolved candidate
+            const languageId2 = await this.getLanguageIdByLegacyCodeAsync(text.langId);
+            if (!languageId2) {
+              this.logWarning(
+                `Unknown language code '${text.langId}' for monument ${text.monumentId}, skipping`
+              );
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+            for (const candidate of monumentResolution.resolvedCandidates ?? []) {
+              const candidateTranslationBC = `mwnf3_explore:monument:${text.monumentId}:translation:${languageId2}:${candidate.source}`;
+              if (await this.entityExistsAsync(candidateTranslationBC, 'item_translation')) continue;
+              if (!this.isDryRun && !this.isSampleOnlyMode) {
+                await this.context.strategy.writeItemTranslation({
+                  item_id: candidate.itemId,
+                  language_id: languageId2,
+                  context_id: this.exploreContextId,
+                  backward_compatibility: candidateTranslationBC,
+                  name: text.name.trim(),
+                  description: text.description ?? '',
+                  bibliography: text.related_bibliography ?? null,
+                  dates: text.date ?? null,
+                  type: text.styles ?? null,
+                  author_id: null,
+                  text_copy_editor_id: null,
+                  translator_id: null,
+                  translation_copy_editor_id: null,
+                  extra: null,
+                });
+              }
+            }
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
           if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
             this.logWarning(
               `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${text.monumentId} did not resolve to an item`}, skipping translation`

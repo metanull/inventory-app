@@ -107,6 +107,9 @@ export class ImageSyncTool {
         result.errors.push(...tableResult.errors);
       }
 
+      this.logger.info(
+        `Completed image sync: ${result.imported} synced, ${result.skipped} skipped, ${result.errors.length} errors`
+      );
       this.logger.showSummary(result.imported, result.skipped, result.errors.length);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -132,12 +135,16 @@ export class ImageSyncTool {
     let synced = 0;
     let skipped = 0;
 
+    this.logger.info(`Starting image sync table: ${tableName}`);
     const images = await this.queryImages(tableName);
     this.logger.info(`Found ${images.length} ${tableName} records with size=1 to sync`);
 
     if (images.length === 0) {
       this.logger.warning(
         `No images with size=1 found in ${tableName} — was image-sync already run?`
+      );
+      this.logger.info(
+        `Completed image sync table ${tableName}: ${synced} synced, ${skipped} skipped, ${errors.length} errors`
       );
       return { synced, skipped, errors };
     }
@@ -161,6 +168,9 @@ export class ImageSyncTool {
       }
     }
 
+    this.logger.info(
+      `Completed image sync table ${tableName}: ${synced} synced, ${skipped} skipped, ${errors.length} errors`
+    );
     this.logger.showSummary(synced, skipped, errors.length);
     return { synced, skipped, errors };
   }

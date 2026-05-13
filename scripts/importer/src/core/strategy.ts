@@ -258,6 +258,13 @@ export interface IWriteStrategy {
   writeArtist(data: ArtistData): Promise<string>;
 
   /**
+   * Find an artist by exact name match.
+   * Used by ArtistHelper for free-text artist references that have no legacy ID.
+   * @returns An object with the artist UUID or null if not found
+   */
+  findArtistByName(name: string): Promise<{ id: string } | null>;
+
+  /**
    * Write an item image record
    * @returns The item image UUID
    */
@@ -490,6 +497,27 @@ export interface IWriteStrategy {
   setCollectionTranslationExtra(
     collectionId: string,
     languageId: string,
+    extra: string
+  ): Promise<void>;
+
+  /**
+   * Find a collection_translation row by (collectionId, languageId, contextId).
+   * Returns null if not found.
+   */
+  getCollectionTranslationByKey(
+    collectionId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<{ id: string; extra: Record<string, unknown> | null } | null>;
+
+  /**
+   * Update the extra JSON on a collection_translations row identified by
+   * (collectionId, languageId, contextId).
+   */
+  setCollectionTranslationExtraByKey(
+    collectionId: string,
+    languageId: string,
+    contextId: string,
     extra: string
   ): Promise<void>;
 

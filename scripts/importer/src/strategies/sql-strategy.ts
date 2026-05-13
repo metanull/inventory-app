@@ -109,6 +109,9 @@ type DatabaseConnection = {
     sql: string,
     values?: unknown
   ): Promise<[T, import('mysql2').FieldPacket[]]>;
+  beginTransaction(): Promise<void>;
+  commit(): Promise<void>;
+  rollback(): Promise<void>;
   end(): Promise<void>;
 };
 
@@ -336,7 +339,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     Array<{ id: string; backward_compatibility: string | null; internal_name: string | null }>
   > {
     // Start transaction to ensure a consistent snapshot + atomic deletes
-    await this.db.execute('START TRANSACTION');
+    await this.db.beginTransaction();
     try {
       const [rows] = await this.db.execute<import('mysql2').RowDataPacket[]>(
         `SELECT p.id, p.backward_compatibility, p.internal_name
@@ -357,10 +360,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
         }
       }
 
-      await this.db.execute('COMMIT');
+      await this.db.commit();
       return projects;
     } catch (err) {
-      await this.db.execute('ROLLBACK');
+      await this.db.rollback();
       throw err;
     }
   }
@@ -694,6 +697,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return rows.length > 0 ? (rows[0].id as string) : null;
   }
 
+  async findArtistByName(name: string): Promise<{ id: string } | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      'SELECT id FROM artists WHERE name = ? LIMIT 1',
+      [name]
+    );
+    return rows.length > 0 ? { id: rows[0].id as string } : null;
+  }
+
   async writeAuthorTranslation(data: AuthorTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
     const id = uuidv4();
@@ -746,6 +757,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
       );
       if (existing) {
         return existing;
+      }
+      // Retry by name in case backward_compatibility doesn't match
+      const byName = await this.findArtistByName(sanitized.name ?? '');
+      if (byName) {
+        return byName.id;
       }
       // If we can't find it after the error, re-throw with context
       const message = error instanceof Error ? error.message : String(error);
@@ -1425,6 +1441,38 @@ export class SqlWriteStrategy implements IWriteStrategy {
     await this.db.execute(
       `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ?`,
       [extra, this.now, collectionId, languageId]
+    );
+  }
+
+  async getCollectionTranslationByKey(
+    collectionId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<{ id: string; extra: Record<string, unknown> | null } | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT id, extra FROM collection_translations WHERE collection_id = ? AND language_id = ? AND context_id = ? LIMIT 1`,
+      [collectionId, languageId, contextId]
+    );
+    if (rows.length === 0) return null;
+    const row = rows[0]!;
+    const raw = row.extra;
+    const extra = raw
+      ? typeof raw === 'string'
+        ? (JSON.parse(raw) as Record<string, unknown>)
+        : (raw as Record<string, unknown>)
+      : null;
+    return { id: row.id as string, extra };
+  }
+
+  async setCollectionTranslationExtraByKey(
+    collectionId: string,
+    languageId: string,
+    contextId: string,
+    extra: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ? AND context_id = ?`,
+      [extra, this.now, collectionId, languageId, contextId]
     );
   }
 

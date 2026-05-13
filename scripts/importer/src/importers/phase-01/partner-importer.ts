@@ -190,7 +190,7 @@ export class PartnerImporter extends BaseImporter {
             const message = error instanceof Error ? error.message : String(error);
             const warning = `Failed to create translation for museum ${group.key}:${translation.lang}: ${message}`;
             this.logWarning(warning);
-            result.warnings!.push(warning);
+            result.warnings.push(warning);
           }
         }
 
@@ -282,7 +282,7 @@ export class PartnerImporter extends BaseImporter {
             const message = error instanceof Error ? error.message : String(error);
             const warning = `Failed to create translation for institution ${group.key}:${translation.lang}: ${message}`;
             this.logWarning(warning);
-            result.warnings!.push(warning);
+            result.warnings.push(warning);
           }
         }
 

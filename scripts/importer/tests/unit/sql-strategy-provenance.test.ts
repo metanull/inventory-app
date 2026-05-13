@@ -17,6 +17,9 @@ function makeMockDb() {
         return [{}, []];
       }),
       end: vi.fn(async () => {}),
+      beginTransaction: vi.fn(async () => {}),
+      commit: vi.fn(async () => {}),
+      rollback: vi.fn(async () => {}),
     },
   };
 }
@@ -112,5 +115,31 @@ describe('SqlWriteStrategy.writeItemTranslation – provenance', () => {
     const values = mock.calls[0]!.values as (string | null)[];
     expect(values).toContain('Gift from donor.');
     expect(values).toContain('Egypt, probably Cairo.');
+  });
+});
+
+describe('SqlWriteStrategy.deleteProjectsWithoutItems – transaction control', () => {
+  let mock: ReturnType<typeof makeMockDb>;
+  let strategy: SqlWriteStrategy;
+
+  beforeEach(() => {
+    mock = makeMockDb();
+    strategy = new SqlWriteStrategy(
+      mock.db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+  });
+
+  it('uses native beginTransaction/commit instead of raw SQL strings', async () => {
+    mock.db.execute.mockResolvedValue([[{ id: 'project-uuid-1' }], []]);
+    await strategy.deleteProjectsWithoutItems();
+
+    expect(mock.db.beginTransaction).toHaveBeenCalledTimes(1);
+    expect(mock.db.commit).toHaveBeenCalledTimes(1);
+
+    const sqls = mock.calls.map((c) => c.sql.toUpperCase());
+    expect(sqls).not.toContain('START TRANSACTION');
+    expect(sqls).not.toContain('COMMIT');
+    expect(sqls).not.toContain('ROLLBACK');
   });
 });
