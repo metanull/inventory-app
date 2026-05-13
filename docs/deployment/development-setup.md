@@ -322,8 +322,17 @@ npm run type-check
 ### 5.3 Database Management
 
 ```bash
-# Reset database
-php artisan migrate:fresh --seed
+# Snapshot auth before a destructive reset
+php artisan auth:snapshot auth-snapshots/pre-reset.json.enc --force
+
+# Reset database and run migrations
+php artisan db:wipe --force
+php artisan migrate --force
+php artisan db:seed --class=MinimalDatabaseSeeder --force
+php artisan permissions:sync
+
+# Restore users, MFA setup, role assignments, direct permissions, and API tokens
+php artisan auth:restore auth-snapshots/pre-reset.json.enc --force
 
 # Create new migration
 php artisan make:migration create_example_table

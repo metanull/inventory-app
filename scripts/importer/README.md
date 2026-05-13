@@ -194,10 +194,15 @@ Business logic is written once in transformers:
 
 The importer is designed to run as part of a complete database initialization:
 
-1. **Wipe database** - Create or Empty the database schema (e.g. `artisan db:wipe; artisan migrate`)
-2. **Run the importer** - Import legacy data from mwnf3 database
-3. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
-4. **Done** - Database is ready with both reference and legacy data
+1. **Create auth snapshot** - Preserve user accounts, MFA setup, role assignments, direct permissions, and API tokens (`php artisan auth:snapshot auth-snapshots/pre-import.json.enc --force`)
+2. **Wipe database** - Create or empty the database schema (e.g. `php artisan db:wipe --force; php artisan migrate --force`)
+3. **Seed and sync permissions** - Run `php artisan db:seed --class=MinimalDatabaseSeeder --force` and `php artisan permissions:sync`
+4. **Restore auth snapshot** - Restore users after migrations and permission sync (`php artisan auth:restore auth-snapshots/pre-import.json.enc --force`)
+5. **Run the importer** - Import legacy data from mwnf3 database
+6. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
+7. **Done** - Database is ready with both reference and legacy data
+
+Auth snapshots are encrypted with Laravel's current `APP_KEY`; the key is not written into the snapshot file. Restore the snapshot only into an application using the same `APP_KEY`, because Fortify MFA secrets are encrypted with that key.
 
 All operations are logged to timestamped files in the `logs/` directory for later review.
 
