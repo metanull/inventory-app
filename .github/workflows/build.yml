@@ -35,6 +35,7 @@ jobs:
         php-version: '8.4'  # Let it empty so that it uses the version defined in composer.lock
         extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
         tools: pint
+        github-token: ''
 
     - name: Setup Node.js
       uses: actions/setup-node@v6

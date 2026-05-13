@@ -158,6 +158,7 @@ class Collection extends Model
     public function attachedItems(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'collection_item')
+            ->using(CollectionItem::class)
             ->withPivot('display_order', 'extra')
             ->withTimestamps();
     }

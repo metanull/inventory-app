@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\ProjectResource;
+use App\Filament\Support\CollectionItemAppearance;
 use App\Filament\Support\ItemDisplayLabel;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
@@ -32,13 +33,16 @@ class ItemsRelationManager extends RelationManager
                     'partner:id,internal_name',
                     'project:id,internal_name',
                 ])
-            ))
-            ->defaultSort('internal_name', 'asc')
+            )->orderByRaw('collection_item.display_order IS NULL, collection_item.display_order ASC')
+                ->orderBy('display_label', 'asc'))
             ->paginated([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->columns([
                 ItemDisplayLabel::displayLabelColumn()
                     ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
+                CollectionItemAppearance::displayOrderColumn(),
+                CollectionItemAppearance::contextualTextPreviewColumn(),
+                CollectionItemAppearance::contextualTextLanguagesColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
@@ -70,6 +74,7 @@ class ItemsRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['internal_name']),
             ])
             ->actions([
+                CollectionItemAppearance::viewAppearanceTextAction(),
                 DetachAction::make(),
             ])
             ->bulkActions([

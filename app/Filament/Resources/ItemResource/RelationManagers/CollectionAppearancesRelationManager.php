@@ -6,18 +6,19 @@ use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\CollectionItemAppearance;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class DisplayedInCollectionsRelationManager extends RelationManager
+class CollectionAppearancesRelationManager extends RelationManager
 {
     protected static string $relationship = 'attachedToCollections';
 
     protected static ?string $recordTitleAttribute = 'internal_name';
 
-    protected static ?string $title = 'Displayed in';
+    protected static ?string $title = 'Collection appearances';
 
     public function table(Table $table): Table
     {
@@ -27,6 +28,7 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                 $query->with([
                     'context:id,internal_name',
                     'language:id,internal_name',
+                    'parent:id,internal_name',
                 ])
             ))
             ->defaultSort('internal_name', 'asc')
@@ -38,6 +40,16 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('parent.internal_name')
+                    ->label('Parent collection')
+                    ->sortable()
+                    ->toggleable()
+                    ->url(fn ($record): ?string => $record->parent
+                        ? $this->getAuthorizedUrl($record->parent, CollectionResource::class)
+                        : null),
+                CollectionItemAppearance::displayOrderColumn(),
+                CollectionItemAppearance::contextualTextPreviewColumn(),
+                CollectionItemAppearance::contextualTextLanguagesColumn(),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
@@ -62,6 +74,9 @@ class DisplayedInCollectionsRelationManager extends RelationManager
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->actions([
+                CollectionItemAppearance::viewAppearanceTextAction(),
             ]);
     }
 
