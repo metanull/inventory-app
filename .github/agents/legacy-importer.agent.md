@@ -174,12 +174,13 @@ npm run build
 
 # Stage 4: reset local target database.
 Set-Location '<local_laravel_root>'
-php artisan auth:snapshot auth-snapshots/pre-import.json.enc --force
+$authSnapshotPath = Join-Path ([System.IO.Path]::GetTempPath()) 'inventory-auth-snapshots/pre-import.json.enc'
+php artisan auth:snapshot $authSnapshotPath --force
 php artisan db:wipe --force
 php artisan migrate --force
 php artisan db:seed --class=MinimalDatabaseSeeder --force
 php artisan permissions:sync
-php artisan auth:restore auth-snapshots/pre-import.json.enc --force
+php artisan auth:restore $authSnapshotPath --force
 
 # Stage 5: create users from the contributor-local user table only if no auth snapshot exists.
 php artisan user:create <email> <password_or_policy>
@@ -226,12 +227,13 @@ Invoke-Command -Session $session {
 # Stage 4: reset production target database using the production app instance.
 Invoke-Command -Session $session {
     Set-Location '<production_app_root>'
-    php artisan auth:snapshot auth-snapshots/pre-import.json.enc --force
+    $authSnapshotPath = Join-Path ([System.IO.Path]::GetTempPath()) 'inventory-auth-snapshots/pre-import.json.enc'
+    php artisan auth:snapshot $authSnapshotPath --force
     php artisan db:wipe --force
     php artisan migrate --force
     php artisan db:seed --class=MinimalDatabaseSeeder --force
     php artisan permissions:sync --production
-    php artisan auth:restore auth-snapshots/pre-import.json.enc --force
+    php artisan auth:restore $authSnapshotPath --force
 }
 
 # Stage 5: create users from the contributor-local user table only if no auth snapshot exists.
@@ -288,12 +290,12 @@ npm install
 npm run build
 
 # Stage 4: reset VPS target database through SSH.
-ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan auth:snapshot auth-snapshots/pre-import.json.enc --force'
+ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan auth:snapshot /tmp/inventory-auth-snapshots/pre-import.json.enc --force'
 ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan db:wipe --force'
 ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan migrate --force'
 ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan db:seed --class=MinimalDatabaseSeeder --force'
 ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan permissions:sync --production'
-ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan auth:restore auth-snapshots/pre-import.json.enc --force'
+ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan auth:restore /tmp/inventory-auth-snapshots/pre-import.json.enc --force'
 
 # Stage 5: create users from the contributor-local user table only if no auth snapshot exists.
 ssh <ovh_deploy_user>@<ovh_host> -i <ovh_deploy_ssh_key> 'cd <ovh_app_root> && php artisan user:create <email> <password_or_policy>'
