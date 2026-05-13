@@ -60,24 +60,21 @@ class ItemResourceTest extends TestCase
             ->assertOk()
             ->assertSee('Temple relief')
             ->assertSee('Core information')
-            ->assertSee('Child items')
-            ->assertSee('Pictures')
-            ->assertSee('Translations')
-            ->assertSee('Outgoing links')
-            ->assertSee('Incoming links')
-            ->assertSee('Collection appearances');
+            ->assertSee('Content')
+            ->assertSee('Media')
+            ->assertSee('Origin')
+            ->assertSee('Links')
+            ->assertSee('Timeline');
 
         $this->actingAs($user)->get("/admin/items/{$item->getKey()}")
             ->assertOk()
             ->assertSee('Temple relief')
             ->assertSee('Item')
-            ->assertSee('Child items')
-            ->assertSee('Pictures')
-            ->assertSee('Translations')
-            ->assertSee('Outgoing links')
-            ->assertSee('Incoming links')
-            ->assertSee('Collection appearances')
-            ->assertSee('Legacy links');
+            ->assertSee('Content')
+            ->assertSee('Media')
+            ->assertSee('Origin')
+            ->assertSee('Links')
+            ->assertSee('Timeline');
 
         $this->actingAs($user)->get('/admin/browse-item-tree')
             ->assertOk();

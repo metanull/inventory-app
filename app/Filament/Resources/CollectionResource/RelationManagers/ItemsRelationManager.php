@@ -3,12 +3,16 @@
 namespace App\Filament\Resources\CollectionResource\RelationManagers;
 
 use App\Enums\ItemType;
+use App\Filament\Pages\ViewCollectionItemAppearance;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\ProjectResource;
 use App\Filament\Support\CollectionItemAppearance;
 use App\Filament\Support\ItemDisplayLabel;
+use App\Models\Collection;
+use App\Models\Item;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
@@ -74,7 +78,16 @@ class ItemsRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['internal_name']),
             ])
             ->actions([
-                CollectionItemAppearance::viewAppearanceTextAction(),
+                Action::make('view_appearance')
+                    ->label('View appearance')
+                    ->icon('heroicon-o-document-text')
+                    ->color('gray')
+                    ->url(function (Item $record): string {
+                        /** @var Collection $collection */
+                        $collection = $this->getOwnerRecord();
+
+                        return ViewCollectionItemAppearance::getAppearanceUrl($collection, $record);
+                    }),
                 DetachAction::make(),
             ])
             ->bulkActions([
