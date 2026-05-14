@@ -274,19 +274,47 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
 
     // Create translations
     for (const text of group.translations) {
+      const hasCaption = !!(text.caption && text.caption.trim());
+      const hasPhotographer = !!(text.photographer && text.photographer.trim());
+      const hasCopyright = !!(text.copyright && text.copyright.trim());
+
+      // Skip translation rows that carry no text or metadata content.
+      if (!hasCaption && !hasPhotographer && !hasCopyright) {
+        continue;
+      }
+
       const languageId = mapLanguageCode(text.lang);
 
-      const translationExtra: Record<string, unknown> = {};
-      if (text.photographer) {
-        translationExtra.photographer = convertHtmlToMarkdown(text.photographer);
-      }
-      if (text.copyright) {
-        translationExtra.copyright = text.copyright;
+      let name: string;
+      if (hasCaption) {
+        name = convertHtmlToMarkdown(text.caption!);
+      } else {
+        // Metadata-only row: resolve parent detail title for a human-readable name.
+        const parentName = await this.getParentDetailName(
+          group.project_id,
+          group.country,
+          group.number,
+          group.detail_id,
+          text.lang
+        );
+        if (!parentName) {
+          throw new Error(
+            `Parent SH monument detail name not found for metadata-only translation ` +
+              `(project_id=${group.project_id}, country=${group.country}, ` +
+              `number=${group.number}, detail_id=${group.detail_id}, lang=${text.lang})`
+          );
+        }
+        const parentTitle = convertHtmlToMarkdown(parentName);
+        name = `${parentTitle} (${group.picture_id})`;
       }
 
-      // Use caption as name, empty string for description (required field)
-      const name = text.caption ? convertHtmlToMarkdown(text.caption) : `Image ${group.picture_id}`;
-      const description = ''; // Pictures use empty string
+      const translationExtra: Record<string, unknown> = {};
+      if (hasPhotographer) {
+        translationExtra.photographer = convertHtmlToMarkdown(text.photographer!);
+      }
+      if (hasCopyright) {
+        translationExtra.copyright = text.copyright!;
+      }
 
       const translationData: ItemTranslationData = {
         item_id: itemId,
@@ -294,7 +322,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
         context_id: effectiveContextId,
         backward_compatibility: this.getPictureBackwardCompatibility(group),
         name,
-        description,
+        description: '',
         alternate_name: null,
         type: null,
         holder: null,
@@ -310,6 +338,20 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     }
 
     return itemId;
+  }
+
+  private async getParentDetailName(
+    projectId: string,
+    country: string,
+    number: number,
+    detailId: number,
+    lang: string
+  ): Promise<string | null> {
+    const result = await this.context.legacyDb.query<{ name: string }>(
+      'SELECT name FROM mwnf3_sharing_history.sh_monument_detail_texts WHERE project_id = ? AND country = ? AND number = ? AND detail_id = ? AND lang = ?',
+      [projectId, country, number, detailId, lang]
+    );
+    return result.length > 0 ? result[0]!.name : null;
   }
 
   private getMimeType(filePath: string): string {

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Enums\Permission;
 use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\ItemDisplayLabel;
 use App\Models\Collection;
 use App\Models\Item;
 use Filament\Pages\Page;
@@ -231,10 +232,23 @@ class BrowseCollectionTree extends Page
      */
     public function getCollectionItems(string $collectionId): \Illuminate\Database\Eloquent\Collection
     {
-        return Item::query()
+        $query = Item::query()
             ->join('collection_item', 'items.id', '=', 'collection_item.item_id')
             ->where('collection_item.collection_id', $collectionId)
-            ->select('items.*')
+            ->select('items.*');
+
+        return ItemDisplayLabel::withDisplayLabel($query)
+            ->with([
+                'translations',
+                'collection:id,context_id',
+                'project:id,context_id',
+                'parent.translations',
+                'parent.collection:id,context_id',
+                'parent.project:id,context_id',
+            ])
+            ->orderByRaw('CASE WHEN collection_item.display_order IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('collection_item.display_order')
+            ->orderBy('display_label')
             ->orderBy('items.internal_name')
             ->get();
     }

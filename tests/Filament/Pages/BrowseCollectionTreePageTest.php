@@ -624,4 +624,104 @@ class BrowseCollectionTreePageTest extends TestCase
             ->set('filterChildCollections', 'all')
             ->assertSet('page', 1);
     }
+
+    // -------------------------------------------------------------------------
+    // Centralized item display label (Story #1298)
+    // -------------------------------------------------------------------------
+
+    public function test_expanded_collection_item_row_uses_centralized_display_label_as_primary(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        $gallery = Collection::factory()->gallery()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Label Gallery',
+            'parent_id' => null,
+        ]);
+
+        $item = Item::factory()->Object()->create([
+            'internal_name' => 'raw_internal_object_name',
+            'parent_id' => null,
+        ]);
+        $item->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Resolved Object Title',
+        ]);
+        $gallery->attachedItems()->attach($item->id);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
+            ->call('expand', $gallery->id)
+            ->assertSee('Resolved Object Title')
+            ->assertSee('raw_internal_object_name');
+    }
+
+    public function test_expanded_collection_item_row_shows_internal_name_when_no_translation_exists(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        $gallery = Collection::factory()->gallery()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Untranslated Gallery',
+            'parent_id' => null,
+        ]);
+
+        $item = Item::factory()->Object()->create([
+            'internal_name' => 'Picture 1 for bar:Mon11:30',
+            'parent_id' => null,
+        ]);
+        $gallery->attachedItems()->attach($item->id);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
+            ->call('expand', $gallery->id)
+            ->assertSee('Picture 1 for bar:Mon11:30');
+    }
+
+    public function test_expanded_collection_picture_item_display_label_differs_from_internal_name(): void
+    {
+        $user = $this->createViewUser();
+
+        $language = Language::factory()->create(['id' => 'eng', 'internal_name' => 'English', 'is_default' => true]);
+        $context = Context::factory()->create(['internal_name' => 'Catalogue', 'is_default' => true]);
+
+        $gallery = Collection::factory()->gallery()->withLanguage($language->id)->withContext($context->id)->create([
+            'internal_name' => 'Picture Gallery',
+            'parent_id' => null,
+        ]);
+
+        // Simulate a legacy-imported picture with technical internal_name but a human-readable translation.
+        $picture = Item::factory()->Picture()->create([
+            'internal_name' => 'Picture 10 for isl:Mon01:1',
+            'parent_id' => null,
+        ]);
+        $picture->translations()->create([
+            'language_id' => $language->id,
+            'context_id' => $context->id,
+            'name' => 'Mosque of Cordoba (10)',
+        ]);
+        $gallery->attachedItems()->attach($picture->id);
+
+        $this->setCurrentPanel();
+
+        Livewire::actingAs($user)
+            ->test(BrowseCollectionTree::class)
+            ->set('filterChildCollections', 'all')
+            ->call('expand', $gallery->id)
+            // Primary: resolved translation
+            ->assertSee('Mosque of Cordoba (10)')
+            // Secondary: technical internal_name shown because it differs
+            ->assertSee('Picture 10 for isl:Mon01:1');
+    }
 }
