@@ -131,11 +131,12 @@ Runs build and test jobs conditionally based on which paths changed in the pull 
 | `app/**`, `routes/**`, `config/**`, `database/**`, `tests/**`, `bootstrap/**`, `composer.json`, `composer.lock`, `phpunit.xml`, `artisan` | `backend-lint`, `backend-tests` |
 | `resources/css/**`, `resources/js/**`, `resources/views/**`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.js` | `backend-rendered-frontend-validation` |
 | `spa/**` | `spa-frontend-validation` |
+| `scripts/importer/**` | `importer-validation` |
 
 **Jobs**
 
 1. **detect-changes** - Classifies changed files using `git diff` against the PR base SHA
-   - Emits outputs: `backend`, `root-frontend`, `spa` (true/false)
+   - Emits outputs: `backend`, `root-frontend`, `spa`, `importer` (true/false)
    - All outputs are `true` when triggered by `workflow_dispatch`
 
 2. **backend-lint** *(when `backend=true`)* - Laravel backend linting
@@ -153,7 +154,12 @@ Runs build and test jobs conditionally based on which paths changed in the pull 
    - Installs Node.js lts/Krypton and root npm dependencies
    - Runs `npm run build`
 
-5. **spa-frontend-validation** *(when `spa=true`)* - SPA (Vue 3) validation
+5. **importer-validation** *(when `importer=true`)* - Importer TypeScript build and tests
+   - Installs Node.js lts/Krypton and importer npm dependencies
+   - Runs `npm run build` (TypeScript compilation)
+   - Runs `npm test` (Vitest unit tests)
+
+6. **spa-frontend-validation** *(when `spa=true`)* - SPA (Vue 3) validation
    - Installs Node.js lts/Krypton and SPA npm dependencies
    - Runs lint, build, and `npm run test:all`
 

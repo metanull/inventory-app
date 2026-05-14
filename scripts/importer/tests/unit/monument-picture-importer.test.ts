@@ -242,8 +242,8 @@ describe('MonumentPictureImporter', () => {
     await importer.import();
 
     const monumentQuery = queryMock.mock.calls.find(
-      ([sql]: [string]) =>
-        typeof sql === 'string' && sql.includes('FROM mwnf3.monuments') && !sql.includes('pictures')
+      (args) =>
+        typeof args[0] === 'string' && args[0].includes('FROM mwnf3.monuments') && !args[0].includes('pictures')
     );
     expect(monumentQuery).toBeDefined();
     const [sql] = monumentQuery as [string];
