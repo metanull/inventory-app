@@ -23,6 +23,7 @@ import {
   THEME_ITEM_SELECT_COLUMNS,
 } from './thg-theme-item-resolver.js';
 import type { LegacyThemeItem } from './thg-theme-item-resolver.js';
+import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
 /**
  * Legacy theme_item_i18n structure
@@ -173,7 +174,7 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
               continue;
             }
             if (row.contextual_description) {
-              contextualDescriptions[languageId] = row.contextual_description;
+              contextualDescriptions[languageId] = convertHtmlToMarkdown(row.contextual_description);
               sourceBcByLanguage[languageId] = `mwnf3_thematic_gallery:theme_item_i18n:${row.gallery_id}:${row.theme_id}:${row.item_id}:${row.language_id}`;
               validLanguageCount++;
             }
