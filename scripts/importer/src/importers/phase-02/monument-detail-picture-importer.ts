@@ -336,6 +336,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang_id);
 
+    const MAX_NAME_LENGTH = 255;
     let name: string;
     if (hasCaption) {
       name = convertHtmlToMarkdown(translation.caption!);
@@ -362,6 +363,13 @@ export class MonumentDetailPictureImporter extends BaseImporter {
         translation.picture_id != null
           ? `${parentTitle} (${translation.picture_id})`
           : parentTitle;
+    }
+
+    if (name.length > MAX_NAME_LENGTH) {
+      this.logWarning(
+        `monument_detail_pictures translation name truncated (${name.length} → ${MAX_NAME_LENGTH} chars) for picture ${translation.picture_id} lang ${translation.lang_id}`
+      );
+      name = name.substring(0, MAX_NAME_LENGTH);
     }
 
     // Build extra with copyright if present
@@ -426,7 +434,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     langId: string
   ): Promise<string | null> {
     const result = await this.context.legacyDb.query<{ name: string }>(
-      'SELECT name FROM mwnf3.monuments_details WHERE project_id = ? AND country_id = ? AND institution_id = ? AND monument_id = ? AND detail_id = ? AND lang_id = ?',
+      'SELECT name FROM mwnf3.monument_details WHERE project_id = ? AND country_id = ? AND institution_id = ? AND monument_id = ? AND detail_id = ? AND lang_id = ?',
       [projectId, countryId, institutionId, monumentId, detailId, langId]
     );
     return result.length > 0 ? result[0]!.name : null;

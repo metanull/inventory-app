@@ -278,8 +278,8 @@ export class ExploreMonumentCrossRefImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve museum partner
-          const partnerBC = `mwnf3:museums:${ml.museum_country}:${ml.museum_id}`;
+          // Resolve museum institution partner
+          const partnerBC = `mwnf3:institutions:${ml.museum_id}:${ml.museum_country}`;
           const partnerId = await this.getEntityUuidAsync(partnerBC, 'partner');
           if (!partnerId) {
             this.logWarning(
