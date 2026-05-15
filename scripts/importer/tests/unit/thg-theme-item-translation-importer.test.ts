@@ -5,7 +5,7 @@ import { UnifiedTracker } from '../../src/core/tracker.js';
 import type { ImportContext, ILegacyDatabase, ILogger } from '../../src/core/base-importer.js';
 import type { IWriteStrategy } from '../../src/core/strategy.js';
 
-describe('ThgThemeItemTranslationImporter — source_bc_by_language', () => {
+describe('ThgThemeItemTranslationImporter — contextual_descriptions + source_bc_by_language', () => {
   let tracker: UnifiedTracker;
   let legacyDb: ILegacyDatabase;
   let strategy: IWriteStrategy;
@@ -208,5 +208,87 @@ describe('ThgThemeItemTranslationImporter — source_bc_by_language', () => {
     const bcs = extra.source_bc_by_language as Record<string, string>;
     expect(Object.keys(bcs)).toEqual(['eng']);
     expect(bcs['fra']).toBeUndefined();
+  });
+
+  it('converts HTML contextual_description to markdown in nested JSON and preserves source provenance', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n')) {
+        return [
+          {
+            gallery_id: GALLERY_ID,
+            theme_id: THEME_ID,
+            item_id: ITEM_ID,
+            language_id: 'en',
+            contextual_description: '<i>majlis</i><br/>Prince Selim',
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item')) {
+        return [BASE_THEME_ITEM];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgThemeItemTranslationImporter(context);
+    await importer.import();
+
+    const extraArg: string = setCollectionItemExtraMock.mock.calls[0][2] as string;
+    const extra = JSON.parse(extraArg) as Record<string, unknown>;
+
+    const contextualDescriptions = extra.contextual_descriptions as Record<string, string>;
+    expect(contextualDescriptions['eng']).toContain('*majlis*');
+    expect(contextualDescriptions['eng']).toContain('\n');
+    expect(contextualDescriptions['eng']).not.toMatch(/<[A-Za-z][^>]*>/);
+
+    const bcs = extra.source_bc_by_language as Record<string, string>;
+    expect(bcs['eng']).toBe(
+      `mwnf3_thematic_gallery:theme_item_i18n:${GALLERY_ID}:${THEME_ID}:${ITEM_ID}:en`
+    );
+  });
+
+  it('preserves existing extra keys while replacing contextual_descriptions and source_bc_by_language', async () => {
+    getCollectionItemExtraMock.mockResolvedValue({
+      keep_this_key: 'keep-this-value',
+      contextual_descriptions: { eng: '<i>old html</i>' },
+      source_bc_by_language: { eng: 'old:source:bc' },
+    });
+
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n')) {
+        return [
+          {
+            gallery_id: GALLERY_ID,
+            theme_id: THEME_ID,
+            item_id: ITEM_ID,
+            language_id: 'en',
+            contextual_description: '<i>updated</i><br/>value',
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item')) {
+        return [BASE_THEME_ITEM];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgThemeItemTranslationImporter(context);
+    await importer.import();
+
+    const extraArg: string = setCollectionItemExtraMock.mock.calls[0][2] as string;
+    const extra = JSON.parse(extraArg) as Record<string, unknown>;
+
+    expect(extra.keep_this_key).toBe('keep-this-value');
+
+    const contextualDescriptions = extra.contextual_descriptions as Record<string, string>;
+    expect(contextualDescriptions['eng']).toContain('*updated*');
+    expect(contextualDescriptions['eng']).toContain('\n');
+    expect(contextualDescriptions['eng']).not.toMatch(/<[A-Za-z][^>]*>/);
+
+    const bcs = extra.source_bc_by_language as Record<string, string>;
+    expect(bcs['eng']).toBe(
+      `mwnf3_thematic_gallery:theme_item_i18n:${GALLERY_ID}:${THEME_ID}:${ITEM_ID}:en`
+    );
   });
 });
