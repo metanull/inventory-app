@@ -233,7 +233,7 @@ After=network.target mysql.service valkey-server.service
 User=www-data
 Group=www-data
 WorkingDirectory=${APP_DIR}/current
-ExecStart=/usr/bin/php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --memory=128
+ExecStart=/usr/bin/php artisan queue:work redis --queue=glossary,default --sleep=3 --tries=3 --max-time=3600 --memory=128
 Restart=always
 RestartSec=5
 StandardOutput=append:${APP_DIR}/shared/storage/logs/queue-worker.log
