@@ -361,6 +361,14 @@ export class ObjectPictureImporter extends BaseImporter {
           : parentTitle;
     }
 
+    const MAX_NAME_LENGTH = 255;
+    if (name.length > MAX_NAME_LENGTH) {
+      this.logWarning(
+        `objects_pictures translation name truncated (${name.length} → ${MAX_NAME_LENGTH} chars) for image ${translation.image_number} lang ${translation.lang}`
+      );
+      name = name.substring(0, MAX_NAME_LENGTH);
+    }
+
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
     if (hasCopyright) {

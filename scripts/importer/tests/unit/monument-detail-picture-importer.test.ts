@@ -90,7 +90,7 @@ describe('MonumentDetailPictureImporter', () => {
 
     queryMock = vi.fn(async (sql: string) => {
       if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowWithCaption];
-      if (sql.includes('FROM mwnf3.monuments_details')) return [{ name: 'Mosque Detail' }];
+      if (sql.includes('FROM mwnf3.monument_details')) return [{ name: 'Mosque Detail' }];
       return [];
     });
 
@@ -141,7 +141,7 @@ describe('MonumentDetailPictureImporter', () => {
   it('creates translation with parent title and picture_id for photographer-only rows', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowPhotographerOnly];
-      if (sql.includes('FROM mwnf3.monuments_details')) return [{ name: 'Mosque Detail' }];
+      if (sql.includes('FROM mwnf3.monument_details')) return [{ name: 'Mosque Detail' }];
       return [];
     });
     const importer = new MonumentDetailPictureImporter(context);
@@ -182,7 +182,7 @@ describe('MonumentDetailPictureImporter', () => {
   it('reports error when parent detail not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowPhotographerOnly];
-      if (sql.includes('FROM mwnf3.monuments_details')) return []; // not found
+      if (sql.includes('FROM mwnf3.monument_details')) return []; // not found
       return [];
     });
     const importer = new MonumentDetailPictureImporter(context);
@@ -192,5 +192,56 @@ describe('MonumentDetailPictureImporter', () => {
     const surfaced = [...(result.errors ?? []), ...(result.warnings ?? [])];
     expect(surfaced.length).toBeGreaterThan(0);
     expect(writeItemTranslationMock).not.toHaveBeenCalled();
+  });
+
+  it('queries mwnf3.monument_details (not monuments_details) for parent name lookup', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowPhotographerOnly];
+      if (sql.includes('FROM mwnf3.monument_details')) return [{ name: 'Mosque Detail' }];
+      return [];
+    });
+    const importer = new MonumentDetailPictureImporter(context);
+    await importer.import();
+
+    const parentLookupCall = queryMock.mock.calls.find(
+      (args: unknown[]) => (args[0] as string).includes('mwnf3.monument_details')
+    );
+    expect(parentLookupCall).toBeDefined();
+    const sql = parentLookupCall![0] as string;
+    expect(sql).toContain('FROM mwnf3.monument_details');
+    expect(sql).not.toContain('FROM mwnf3.monuments_details');
+  });
+
+  it('truncates overlong metadata-only name to 255 characters', async () => {
+    const longParentName = 'A'.repeat(260);
+    const rowLong = { ...rowPhotographerOnly, picture_id: 99 };
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowLong];
+      if (sql.includes('FROM mwnf3.monument_details')) return [{ name: longParentName }];
+      return [];
+    });
+    const importer = new MonumentDetailPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: expect.any(String) })
+    );
+    const name: string = (writeItemTranslationMock.mock.calls[0]![0] as { name: string }).name;
+    expect(name.length).toBeLessThanOrEqual(255);
+  });
+
+  it('succeeds for a picture whose parent detail was imported without a parent monument (parentless detail)', async () => {
+    // Parent monument is NOT in tracker — detail was imported with parent_id = null.
+    // The picture importer should still succeed because it looks up the detail by BC, not the monument.
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowWithCaption];
+      return [];
+    });
+    const importer = new MonumentDetailPictureImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(true);
+    expect(writeItemMock).toHaveBeenCalled();
+    expect(writeItemTranslationMock).toHaveBeenCalled();
   });
 });

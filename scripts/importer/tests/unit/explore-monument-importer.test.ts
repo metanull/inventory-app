@@ -135,4 +135,90 @@ describe('ExploreMonumentImporter', () => {
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
   });
+
+  it('logs info (not warning) when a monument resolves to multiple source candidates', async () => {
+    // Monument 500 appears in both vm and travels tables → resolvedCandidates mode
+    tracker.set('mwnf3:monuments:IAM:eg:Mus01:7', 'vm-candidate-uuid', 'item');
+    tracker.set('mwnf3_travels:monument:IAM:pt:1:I:1:c', 'travels-candidate-uuid', 'item');
+
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_explore.exploremonument_vm')) {
+        return [
+          {
+            monumentId: 500,
+            REF_monuments_project_id: 'IAM',
+            REF_monuments_country: 'eg',
+            REF_monuments_institution_id: 'Mus01',
+            REF_monuments_number: 7,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_explore.exploremonument_tr')) {
+        return [
+          {
+            monumentId: 500,
+            REF_tr_monuments_project_id: 'IAM',
+            REF_tr_monuments_country: 'pt',
+            REF_tr_monuments_itinerary_id: 'I',
+            REF_tr_monuments_location_id: '1',
+            REF_tr_monuments_number: 'c',
+            REF_tr_monuments_trail_id: 1,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_explore.exploremonument_sh')) return [];
+      if (sql.includes('FROM mwnf3_explore.exploremonumentext')) {
+        return [{ monumentId: 500, langId: 'en', name: 'Multi-candidate monument' }];
+      }
+      if (sql.includes('FROM mwnf3_explore.exploremonument')) {
+        return [
+          {
+            monumentId: 500,
+            locationId: 2,
+            title: 'Multi-candidate monument',
+            geoCoordinates: null,
+            zoom: null,
+            special_monument: null,
+            related_monument: null,
+            REF_tr_monuments_project_id: null,
+            REF_tr_monuments_country: null,
+            REF_tr_monuments_itinerary_id: null,
+            REF_tr_monuments_location_id: null,
+            REF_tr_monuments_number: null,
+            REF_tr_monuments_lang: null,
+            REF_tr_monuments_trail_id: null,
+            REF_monuments_project_id: null,
+            REF_monuments_country: null,
+            REF_monuments_institution_id: null,
+            REF_monuments_number: null,
+            REF_monuments_lang: null,
+          },
+        ];
+      }
+      return [];
+    });
+
+    context = {
+      ...context,
+      legacyDb: {
+        query: queryMock as ILegacyDatabase['query'],
+        execute: vi.fn(),
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      },
+    };
+
+    const importer = new ExploreMonumentImporter(context);
+    await importer.import();
+
+    // resolvedCandidates must NOT trigger a warning — it's expected multi-link behavior
+    expect(logger.warning).not.toHaveBeenCalledWith(
+      expect.stringContaining('resolves to multiple source items'),
+      undefined
+    );
+    // But it should be logged at info level
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('resolves to multiple source items')
+    );
+  });
 });

@@ -324,6 +324,14 @@ export class ShObjectPictureImporter extends BaseImporter {
         name = `${parentTitle} (${group.image_number})`;
       }
 
+      const MAX_NAME_LENGTH = 255;
+      if (name.length > MAX_NAME_LENGTH) {
+        this.logWarning(
+          `sh_object_images translation name truncated (${name.length} → ${MAX_NAME_LENGTH} chars) for image ${group.image_number} lang ${text.lang}`
+        );
+        name = name.substring(0, MAX_NAME_LENGTH);
+      }
+
       const translationExtra: Record<string, unknown> = { ...extra };
       if (hasPhotographer) {
         translationExtra.photographer = convertHtmlToMarkdown(text.photographer!);
@@ -363,7 +371,7 @@ export class ShObjectPictureImporter extends BaseImporter {
     lang: string
   ): Promise<string | null> {
     const result = await this.context.legacyDb.query<{ name: string }>(
-      'SELECT name FROM mwnf3_sharing_history.sh_object_texts WHERE project_id = ? AND country = ? AND number = ? AND lang = ?',
+      'SELECT name FROM mwnf3_sharing_history.sh_objects_texts WHERE project_id = ? AND country = ? AND number = ? AND lang = ?',
       [projectId, country, number, lang]
     );
     return result.length > 0 ? result[0]!.name : null;

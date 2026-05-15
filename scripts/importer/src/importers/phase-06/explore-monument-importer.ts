@@ -145,7 +145,7 @@ export class ExploreMonumentImporter extends BaseImporter {
             : null;
 
           if (resolution.mode === 'resolvedCandidates') {
-            this.logWarning(
+            this.logInfo(
               resolution.message ??
                 `Explore monument ${backwardCompat} resolves to multiple source items`
             );

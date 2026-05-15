@@ -89,7 +89,7 @@ describe('ShObjectPictureImporter', () => {
     queryMock = vi.fn(async (sql: string) => {
       if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_object_image_texts')) return [textWithCaption];
-      if (sql.includes('sh_object_texts')) return [{ name: 'SH Object Title' }];
+      if (sql.includes('sh_objects_texts')) return [{ name: 'SH Object Title' }];
       return [];
     });
 
@@ -142,7 +142,7 @@ describe('ShObjectPictureImporter', () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_object_image_texts')) return [textCopyrightOnly];
-      if (sql.includes('sh_object_texts')) return [{ name: 'SH Object Title' }];
+      if (sql.includes('sh_objects_texts')) return [{ name: 'SH Object Title' }];
       return [];
     });
     const importer = new ShObjectPictureImporter(context);
@@ -189,7 +189,7 @@ describe('ShObjectPictureImporter', () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_object_image_texts')) return [textCopyrightOnly];
-      if (sql.includes('sh_object_texts')) return []; // parent not found
+      if (sql.includes('sh_objects_texts')) return []; // parent not found
       return [];
     });
     const importer = new ShObjectPictureImporter(context);
@@ -197,5 +197,42 @@ describe('ShObjectPictureImporter', () => {
 
     expect(result.errors.length).toBeGreaterThan(0);
     expect(writeItemTranslationMock).not.toHaveBeenCalled();
+  });
+
+  it('queries sh_objects_texts (not sh_object_texts) for parent name lookup', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
+      if (sql.includes('sh_object_image_texts')) return [textCopyrightOnly];
+      if (sql.includes('sh_objects_texts')) return [{ name: 'SH Object Title' }];
+      return [];
+    });
+    const importer = new ShObjectPictureImporter(context);
+    await importer.import();
+
+    const parentLookupCall = queryMock.mock.calls.find(
+      (args: unknown[]) => (args[0] as string).includes('sh_objects_texts')
+    );
+    expect(parentLookupCall).toBeDefined();
+    const sql = parentLookupCall![0] as string;
+    expect(sql).toContain('sh_objects_texts');
+    expect(sql).not.toContain('sh_object_texts');
+  });
+
+  it('truncates overlong metadata-only name to 255 characters', async () => {
+    const longParentName = 'B'.repeat(260);
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
+      if (sql.includes('sh_object_image_texts')) return [textCopyrightOnly];
+      if (sql.includes('sh_objects_texts')) return [{ name: longParentName }];
+      return [];
+    });
+    const importer = new ShObjectPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: expect.any(String) })
+    );
+    const name: string = (writeItemTranslationMock.mock.calls[0]![0] as { name: string }).name;
+    expect(name.length).toBeLessThanOrEqual(255);
   });
 });
