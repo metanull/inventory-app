@@ -434,7 +434,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
   }
 
   private pickBestCaption(
-    translations: Array<{ lang: string; caption: string | null }>,
+    translations: Array<{ lang: string; caption: string | null | undefined }>,
     defaultLangId: string | null
   ): string | null {
     if (translations.length === 0) return null;
