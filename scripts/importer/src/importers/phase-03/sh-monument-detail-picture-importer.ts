@@ -175,6 +175,14 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
       throw new Error(`Parent SH monument detail not found: ${parentBackwardCompat}`);
     }
 
+    // Compute caption text
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    const bestCaption = this.pickBestCaption(
+      group.translations.map((t) => ({ lang: t.lang, caption: t.caption })),
+      defaultLangId
+    );
+    const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
+
     // Determine if first image
     const isFirstImage = group.picture_id === 1;
 
@@ -197,7 +205,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
       original_name: originalName,
       mime_type: mimeType,
       size: 1,
-      alt_text: group.path,
+      alt_text: captionText,
       display_order: currentDisplayOrder,
     };
     await this.context.strategy.writeItemImage(itemImageData);
@@ -210,7 +218,7 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
         original_name: originalName,
         mime_type: mimeType,
         size: 1,
-        alt_text: group.path,
+        alt_text: captionText,
         display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
@@ -352,6 +360,18 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
       [projectId, country, number, detailId, lang]
     );
     return result.length > 0 ? result[0]!.name : null;
+  }
+
+  private pickBestCaption(
+    translations: Array<{ lang: string; caption: string | null | undefined }>,
+    defaultLangId: string | null
+  ): string | null {
+    if (translations.length === 0) return null;
+    const defaultLang = defaultLangId ? defaultLangId.slice(0, 2).toLowerCase() : 'en';
+    const found =
+      translations.find((t) => t.lang === defaultLang && t.caption) ??
+      translations.find((t) => t.caption);
+    return found?.caption ?? null;
   }
 
   private getMimeType(filePath: string): string {

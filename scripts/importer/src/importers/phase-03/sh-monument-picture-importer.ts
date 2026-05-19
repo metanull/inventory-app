@@ -19,6 +19,7 @@ import type { ShLegacyMonumentImage, ShLegacyMonumentImageText } from '../../dom
 import { formatShBackwardCompatibility } from '../../domain/transformers/index.js';
 import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
 import path from 'path';
 
 interface ShPictureGroup {
@@ -32,12 +33,16 @@ interface ShPictureGroup {
 }
 
 export class ShMonumentPictureImporter extends BaseImporter {
+  private tagHelper!: TagHelper;
+
   getName(): string {
     return 'ShMonumentPictureImporter';
   }
 
   async import(): Promise<ImportResult> {
     const result = this.createResult();
+
+    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
     try {
       this.logInfo('Importing Sharing History monument pictures...');
@@ -170,6 +175,14 @@ export class ShMonumentPictureImporter extends BaseImporter {
       throw new Error(`Parent SH monument not found: ${parentBackwardCompat}`);
     }
 
+    // Compute caption text
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    const bestCaption = this.pickBestCaption(
+      group.translations.map((t) => ({ lang: t.lang, caption: t.caption })),
+      defaultLangId
+    );
+    const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
+
     // Determine if first image
     const isFirstImage = group.type === '' && group.image_number === 1;
 
@@ -192,7 +205,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
       original_name: originalName,
       mime_type: mimeType,
       size: 1,
-      alt_text: group.path,
+      alt_text: captionText,
       display_order: currentDisplayOrder,
     };
     await this.context.strategy.writeItemImage(itemImageData);
@@ -205,7 +218,7 @@ export class ShMonumentPictureImporter extends BaseImporter {
         original_name: originalName,
         mime_type: mimeType,
         size: 1,
-        alt_text: group.path,
+        alt_text: captionText,
         display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
@@ -329,6 +342,14 @@ export class ShMonumentPictureImporter extends BaseImporter {
       await this.context.strategy.writeItemTranslation(translationData);
     }
 
+    if (group.type) {
+      const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      if (tagIds.length > 0) {
+        await this.tagHelper.attachToItem(itemId, tagIds);
+      }
+    }
+
     return itemId;
   }
 
@@ -343,6 +364,18 @@ export class ShMonumentPictureImporter extends BaseImporter {
       [projectId, country, number, lang]
     );
     return result.length > 0 ? result[0]!.name : null;
+  }
+
+  private pickBestCaption(
+    translations: Array<{ lang: string; caption: string | null | undefined }>,
+    defaultLangId: string | null
+  ): string | null {
+    if (translations.length === 0) return null;
+    const defaultLang = defaultLangId ? defaultLangId.slice(0, 2).toLowerCase() : 'en';
+    const found =
+      translations.find((t) => t.lang === defaultLang && t.caption) ??
+      translations.find((t) => t.caption);
+    return found?.caption ?? null;
   }
 
   private getMimeType(filePath: string): string {

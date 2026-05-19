@@ -1,24 +1,25 @@
 /**
  * Travels Monument Picture Importer
  *
- * Imports pictures from mwnf3_travels.tr_monuments_pictures as ItemImages.
- * This is the largest travel picture table (~7000 records).
+ * Imports pictures from mwnf3_travels.tr_monuments_pictures.
+ * Creates a child Item(type='picture') for each picture, with ItemImage
+ * attached to the child. If it is the first image for the parent monument,
+ * also attaches an ItemImage to the parent monument item.
  *
  * Legacy schema:
  * - mwnf3_travels.tr_monuments_pictures (country, project_id, lang, itinerary_id, location_id, number, trail_id, image_number, path, thumb, caption, photographer, copyright, lastupdate, type)
  *   - PK: (lang, project_id, country, trail_id, itinerary_id, location_id, number, image_number, type)
  *   - Type: usually empty string
  *
- * New schema:
- * - item_images (item_id, path, original_name, mime_type, size, alt_text, display_order)
- *
  * Dependencies:
  * - TravelsMonumentImporter (must run first to create monument items)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
-import type { ImportResult, ItemImageData } from '../../core/types.js';
+import type { ImportResult, ItemData, ItemTranslationData, ItemImageData } from '../../core/types.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
 import path from 'path';
 
 /**
@@ -59,6 +60,8 @@ interface PictureGroup {
 }
 
 export class TravelsMonumentPictureImporter extends BaseImporter {
+  private tagHelper!: TagHelper;
+
   getName(): string {
     return 'TravelsMonumentPictureImporter';
   }
@@ -68,6 +71,7 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing travel monument pictures...');
+      this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
       // Query all monument pictures
       const pictures = await this.context.legacyDb.query<LegacyMonumentPicture>(
@@ -146,7 +150,7 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
     return `mwnf3_travels:monument_picture:${group.project_id}:${group.country}:${group.trail_id}:${group.itinerary_id}:${group.location_id}:${group.number}:${group.type || '_'}:${group.image_number}`;
   }
 
-  private async importPicture(group: PictureGroup, _result: ImportResult): Promise<boolean> {
+  private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
 
     // Check if already imported using path as unique identifier
@@ -157,8 +161,8 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
     // Find parent monument item
     const monumentBackwardCompat = `mwnf3_travels:monument:${group.project_id}:${group.country}:${group.trail_id}:${group.itinerary_id}:${group.location_id}:${group.number}`;
-    const itemId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
-    if (!itemId) {
+    const parentItemId = await this.getEntityUuidAsync(monumentBackwardCompat, 'item');
+    if (!parentItemId) {
       throw new Error(`Parent monument item not found: ${monumentBackwardCompat}`);
     }
 
@@ -177,54 +181,180 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
       return true;
     }
 
-    // Calculate display_order for this item
-    const displayOrderKey = `monument_picture_order:${itemId}`;
+    // Tracker-based isFirstImage
+    const firstImageKey = `first_image_attached:${parentItemId}`;
+    const firstImageAlreadyAttached = !!this.context.tracker.getMetadata(firstImageKey);
+    const isFirstImage = group.image_number === 1 && !firstImageAlreadyAttached;
+    if (isFirstImage) {
+      this.context.tracker.setMetadata(firstImageKey, '1');
+    }
+
+    // Calculate display_order for this parent
+    const displayOrderKey = `monument_picture_order:${parentItemId}`;
     const currentOrder = this.context.tracker.getMetadata(displayOrderKey);
-    const displayOrder = currentOrder ? parseInt(currentOrder, 10) + 1 : 1;
-    this.context.tracker.setMetadata(displayOrderKey, String(displayOrder));
+    const currentDisplayOrder = currentOrder ? parseInt(currentOrder, 10) + 1 : 1;
+    this.context.tracker.setMetadata(displayOrderKey, String(currentDisplayOrder));
 
-    // Get best caption (prefer English)
-    const englishTranslation = group.translations.find((t) => t.lang === 'en');
-    const primaryTranslation = englishTranslation || group.translations[0]!;
-    const caption = primaryTranslation.caption
-      ? convertHtmlToMarkdown(primaryTranslation.caption)
-      : '';
-
-    // Build alt_text with type and metadata
-    const altParts: string[] = [];
-    if (group.type) {
-      altParts.push(`[${group.type}]`);
-    }
-    if (caption) {
-      altParts.push(caption);
-    }
-    if (primaryTranslation.photographer) {
-      altParts.push(`Photo: ${primaryTranslation.photographer}`);
-    }
-    if (primaryTranslation.copyright) {
-      altParts.push(`© ${primaryTranslation.copyright}`);
-    }
+    // Compute caption text
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    const bestCaption = this.pickBestCaption(
+      group.translations.map((t) => ({ lang: t.lang, caption: t.caption || null })),
+      defaultLangId
+    );
+    const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
 
     const mimeType = this.getMimeType(group.path);
     const originalName = path.basename(group.path);
 
-    // Create ItemImage
-    const imageData: ItemImageData = {
-      item_id: itemId,
+    // Create child Item (type='picture')
+    const pictureItemId = await this.createPictureItem(group, parentItemId, defaultLangId, result);
+
+    // Create ItemImage for child Item
+    const itemImageData: ItemImageData = {
+      item_id: pictureItemId,
       path: group.path,
       original_name: originalName,
       mime_type: mimeType,
-      size: 1, // Placeholder size
-      alt_text: altParts.join(' | ') || group.path,
-      display_order: displayOrder,
+      size: 1,
+      alt_text: captionText,
+      display_order: currentDisplayOrder,
     };
+    await this.context.strategy.writeItemImage(itemImageData);
 
-    await this.context.strategy.writeItemImage(imageData);
+    // If first image, also attach to parent monument
+    if (isFirstImage) {
+      const parentImageData: ItemImageData = {
+        item_id: parentItemId,
+        path: group.path,
+        original_name: originalName,
+        mime_type: mimeType,
+        size: 1,
+        alt_text: captionText,
+        display_order: currentDisplayOrder,
+      };
+      await this.context.strategy.writeItemImage(parentImageData);
+    }
 
     // Register in tracker
-    this.registerEntity(backwardCompat, imageKey, 'image');
+    this.registerEntity(pictureItemId, backwardCompat, 'item');
 
     return true;
+  }
+
+  private async createPictureItem(
+    group: PictureGroup,
+    parentItemId: string,
+    defaultLangId: string | null,
+    result: ImportResult
+  ): Promise<string> {
+    const contextId = await this.getDefaultContextIdAsync();
+    const collectionId = this.context.tracker.getMetadata('default_collection_id');
+
+    const extra: Record<string, unknown> = {};
+    if (group.type && group.type.trim() !== '') {
+      extra.legacy_type = group.type;
+    }
+
+    const internalName = group.translations[0]?.caption
+      ? convertHtmlToMarkdown(group.translations[0].caption)
+      : `Picture ${group.image_number}`;
+
+    const itemData: ItemData = {
+      type: 'picture',
+      internal_name: internalName,
+      collection_id: collectionId ?? null,
+      partner_id: null,
+      parent_id: parentItemId,
+      country_id: null,
+      project_id: null,
+      owner_reference: null,
+      mwnf_reference: null,
+      display_order: group.image_number,
+      backward_compatibility: this.getBackwardCompatibility(group),
+    };
+
+    const pictureItemId = await this.context.strategy.writeItem(itemData);
+
+    for (const translation of group.translations) {
+      try {
+        await this.createPictureTranslation(translation, pictureItemId, contextId, extra);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const translationBC = `${this.getBackwardCompatibility(group)}:${translation.lang}`;
+        this.logWarning(`Failed to create translation ${translationBC}: ${message}`);
+        result.warnings.push(`Failed to create translation ${translationBC}: ${message}`);
+      }
+    }
+
+    if (group.type) {
+      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      if (tagIds.length > 0) {
+        await this.tagHelper.attachToItem(pictureItemId, tagIds);
+      }
+    }
+
+    return pictureItemId;
+  }
+
+  private async createPictureTranslation(
+    translation: LegacyMonumentPicture,
+    pictureItemId: string,
+    contextId: string,
+    itemExtra: Record<string, unknown>
+  ): Promise<void> {
+    const hasCaption = !!(translation.caption && translation.caption.trim());
+    const hasPhotographer = !!(translation.photographer && translation.photographer.trim());
+    const hasCopyright = !!(translation.copyright && translation.copyright.trim());
+
+    if (!hasCaption && !hasPhotographer && !hasCopyright) {
+      return;
+    }
+
+    const languageId = mapLanguageCode(translation.lang);
+
+    const name = hasCaption
+      ? convertHtmlToMarkdown(translation.caption)
+      : `Picture ${translation.image_number}`;
+
+    const translationExtra: Record<string, unknown> = { ...itemExtra };
+    if (hasPhotographer) {
+      translationExtra.photographer = convertHtmlToMarkdown(translation.photographer);
+    }
+    if (hasCopyright) {
+      translationExtra.copyright = translation.copyright;
+    }
+
+    const translationData: ItemTranslationData = {
+      item_id: pictureItemId,
+      language_id: languageId,
+      context_id: contextId,
+      backward_compatibility: `mwnf3_travels:monument_picture:${translation.project_id}:${translation.country}:${translation.trail_id}:${translation.itinerary_id}:${translation.location_id}:${translation.number}:${translation.type || '_'}:${translation.image_number}:${translation.lang}`,
+      name,
+      description: '',
+      alternate_name: null,
+      type: null,
+      holder: null,
+      owner: null,
+      initial_owner: null,
+      dates: null,
+      location: null,
+      bibliography: null,
+      extra: Object.keys(translationExtra).length > 0 ? JSON.stringify(translationExtra) : null,
+    };
+
+    await this.context.strategy.writeItemTranslation(translationData);
+  }
+
+  private pickBestCaption(
+    translations: Array<{ lang: string; caption: string | null | undefined }>,
+    defaultLangId: string | null
+  ): string | null {
+    if (translations.length === 0) return null;
+    const defaultLang = defaultLangId ? defaultLangId.slice(0, 2).toLowerCase() : 'en';
+    const found =
+      translations.find((t) => t.lang === defaultLang && t.caption) ??
+      translations.find((t) => t.caption);
+    return found?.caption ?? null;
   }
 
   private getMimeType(filePath: string): string {

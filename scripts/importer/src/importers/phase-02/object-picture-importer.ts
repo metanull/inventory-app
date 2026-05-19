@@ -24,7 +24,7 @@ import type { LegacyObjectPicture } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapLanguageCode, mapCountryCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
-import { ArtistHelper } from '../../helpers/artist-helper.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
 import path from 'path';
 
 interface PictureGroup {
@@ -39,7 +39,7 @@ interface PictureGroup {
 }
 
 export class ObjectPictureImporter extends BaseImporter {
-  private artistHelper!: ArtistHelper;
+  private tagHelper!: TagHelper;
 
   getName(): string {
     return 'ObjectPictureImporter';
@@ -49,11 +49,7 @@ export class ObjectPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.artistHelper = new ArtistHelper(
-      this.context.strategy,
-      this.context.tracker,
-      this.context.logger
-    );
+    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
 
     try {
       this.logInfo('Importing object pictures...');
@@ -178,6 +174,14 @@ export class ObjectPictureImporter extends BaseImporter {
       throw new Error(`Parent item not found: ${parentBackwardCompat}`);
     }
 
+    // Compute caption text
+    const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+    const bestCaption = this.pickBestCaption(
+      group.translations.map((t) => ({ lang: t.lang, caption: t.caption })),
+      defaultLangId
+    );
+    const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
+
     // Determine if this is the first image
     const isFirstImage = group.type === '' && group.image_number === 1;
 
@@ -200,7 +204,7 @@ export class ObjectPictureImporter extends BaseImporter {
       original_name: originalName,
       mime_type: mimeType,
       size: 1, // Fake size as required
-      alt_text: group.path,
+      alt_text: captionText,
       display_order: currentDisplayOrder,
     };
     await this.context.strategy.writeItemImage(itemImageData);
@@ -213,7 +217,7 @@ export class ObjectPictureImporter extends BaseImporter {
         original_name: originalName,
         mime_type: mimeType,
         size: 1,
-        alt_text: group.path,
+        alt_text: captionText,
         display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
@@ -314,6 +318,14 @@ export class ObjectPictureImporter extends BaseImporter {
       }
     }
 
+    if (group.type) {
+      const defaultLangId = this.context.tracker.getMetadata('default_language_id');
+      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      if (tagIds.length > 0) {
+        await this.tagHelper.attachToItem(pictureItemId, tagIds);
+      }
+    }
+
     return pictureItemId;
   }
 
@@ -371,6 +383,9 @@ export class ObjectPictureImporter extends BaseImporter {
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
+    if (hasPhotographer) {
+      translationExtra.photographer = convertHtmlToMarkdown(translation.photographer ?? '');
+    }
     if (hasCopyright) {
       translationExtra.copyright = translation.copyright!;
     }
@@ -412,14 +427,6 @@ export class ObjectPictureImporter extends BaseImporter {
     };
 
     await this.context.strategy.writeItemTranslation(translationData);
-
-    // Handle photographer as Artist
-    if (hasPhotographer) {
-      const artistId = await this.artistHelper.findOrCreate(translation.photographer!.trim());
-      if (artistId) {
-        await this.artistHelper.attachToItem(pictureItemId, [artistId]);
-      }
-    }
   }
 
   private async getParentItemName(
@@ -434,6 +441,18 @@ export class ObjectPictureImporter extends BaseImporter {
       [projectId, country, museumId, number, lang]
     );
     return result.length > 0 ? result[0]!.name : null;
+  }
+
+  private pickBestCaption(
+    translations: Array<{ lang: string; caption: string | null | undefined }>,
+    defaultLangId: string | null
+  ): string | null {
+    if (translations.length === 0) return null;
+    const defaultLang = defaultLangId ? defaultLangId.slice(0, 2).toLowerCase() : 'en';
+    const found =
+      translations.find((t) => t.lang === defaultLang && t.caption) ??
+      translations.find((t) => t.caption);
+    return found?.caption ?? null;
   }
 
   private getMimeType(filePath: string): string {
