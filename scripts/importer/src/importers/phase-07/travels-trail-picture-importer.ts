@@ -174,27 +174,12 @@ export class TravelsTrailPictureImporter extends BaseImporter {
     const displayOrder = currentOrder ? parseInt(currentOrder, 10) + 1 : 1;
     this.context.tracker.setMetadata(displayOrderKey, String(displayOrder));
 
-    // Get best caption (prefer English)
-    const englishTranslation = group.translations.find((t) => t.lang === 'en');
-    const primaryTranslation = englishTranslation || group.translations[0]!;
-    const caption = primaryTranslation.caption
-      ? convertHtmlToMarkdown(primaryTranslation.caption)
-      : '';
-
-    // Build alt_text with type and metadata
-    const altParts: string[] = [];
-    if (group.type) {
-      altParts.push(`[${group.type}]`);
-    }
-    if (caption) {
-      altParts.push(caption);
-    }
-    if (primaryTranslation.photographer) {
-      altParts.push(`Photo: ${primaryTranslation.photographer}`);
-    }
-    if (primaryTranslation.copyright) {
-      altParts.push(`© ${primaryTranslation.copyright}`);
-    }
+    // Get best caption
+    const bestCaption = this.pickBestCaption(
+      group.translations.map((t) => ({ lang: t.lang, caption: t.caption })),
+      this.context.tracker.getMetadata('default_language_id')
+    );
+    const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
 
     const mimeType = this.getMimeType(group.path);
     const originalName = path.basename(group.path);
@@ -206,7 +191,7 @@ export class TravelsTrailPictureImporter extends BaseImporter {
       original_name: originalName,
       mime_type: mimeType,
       size: 1, // Placeholder size
-      alt_text: altParts.join(' | ') || group.path,
+      alt_text: captionText,
       display_order: displayOrder,
     };
 
@@ -216,6 +201,18 @@ export class TravelsTrailPictureImporter extends BaseImporter {
     this.registerEntity(backwardCompat, imageKey, 'image');
 
     return true;
+  }
+
+  private pickBestCaption(
+    translations: Array<{ lang: string; caption: string | null }>,
+    defaultLangId: string | null
+  ): string | null {
+    if (translations.length === 0) return null;
+    const defaultLang = defaultLangId ? defaultLangId.slice(0, 2).toLowerCase() : 'en';
+    const found =
+      translations.find((t) => t.lang === defaultLang && t.caption) ??
+      translations.find((t) => t.caption);
+    return found?.caption ?? null;
   }
 
   private getMimeType(filePath: string): string {
