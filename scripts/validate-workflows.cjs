@@ -30,7 +30,9 @@ try {
   for (const f of files) {
     console.log('\n=== Validating', f, '===')
     try {
-      execSync(`npx action-validator "${f}"`, { stdio: 'inherit' })
+      execSync(`npx --yes github-actionlint --shellcheck= "${f}"`, {
+        stdio: 'inherit',
+      })
     } catch (e) {
       failed = true
       console.error('Validation failed for', f)
