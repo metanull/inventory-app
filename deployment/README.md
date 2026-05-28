@@ -24,6 +24,16 @@ This directory contains sample web server configuration files for deploying the 
 - PHP 8.2 or higher with PHP-FPM
 - SSL certificate (for production)
 
+### OVH Reference Host
+
+The current OVH host for `inventory.metanull.eu` runs this stack:
+
+- Ubuntu 25.10 (Questing Quokka)
+- Nginx 1.28.0
+- PHP 8.4.11 with PHP-FPM
+- MySQL 8.4.8
+- Valkey 8.1.6
+
 ## Installation Instructions
 
 ### Apache (Linux/Unix)
@@ -212,3 +222,4 @@ For Laravel-specific configuration questions, refer to the [Laravel Deployment D
 For web server specific issues, consult:
 - [Apache Documentation](https://httpd.apache.org/docs/)
 - [Nginx Documentation](https://nginx.org/en/docs/)
+

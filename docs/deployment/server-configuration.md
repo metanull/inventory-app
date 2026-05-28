@@ -187,7 +187,7 @@ LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
 
 # PHP-FPM configuration
 <FilesMatch \.php$>
-    SetHandler "proxy:unix:/var/run/php/php8.2-fpm.sock|fcgi://localhost"
+    SetHandler "proxy:unix:/var/run/php/php8.4-fpm.sock|fcgi://localhost"
 </FilesMatch>
 
 # Windows PHP-FPM
@@ -249,7 +249,7 @@ server {
     location ~ \.php$ {
         try_files $uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
@@ -402,11 +402,11 @@ http {
 Create a dedicated pool for the application:
 
 ```ini
-; /etc/php/8.2/fpm/pool.d/inventory-app.conf
+; /etc/php/8.4/fpm/pool.d/inventory-app.conf
 [inventory-app]
 user = www-data
 group = www-data
-listen = /var/run/php/php8.2-fpm-inventory-app.sock
+listen = /var/run/php/php8.4-fpm-inventory-app.sock
 listen.owner = www-data
 listen.group = www-data
 listen.mode = 0660
@@ -425,7 +425,7 @@ rlimit_files = 65536
 rlimit_core = 0
 
 ; Logging
-php_admin_value[error_log] = /var/log/php8.2-fpm-inventory-app.log
+php_admin_value[error_log] = /var/log/php8.4-fpm-inventory-app.log
 php_admin_flag[log_errors] = on
 
 ; Environment variables
@@ -627,7 +627,7 @@ maxretry = 10
 ### Common Issues
 
 1. **502 Bad Gateway (Nginx)**
-   - Check PHP-FPM status: `systemctl status php8.2-fpm`
+   - Check PHP-FPM status: `systemctl status php8.4-fpm`
    - Verify socket permissions
    - Check PHP-FPM logs
 
@@ -661,3 +661,4 @@ maxretry = 10
 - [Development Setup](development-setup) - Local development
 - 🔒 [Security Guide](security) - Security best practices
 - [Monitoring](monitoring) - Application monitoring
+
