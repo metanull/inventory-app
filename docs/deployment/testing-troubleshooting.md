@@ -82,7 +82,7 @@ apache2ctl configtest
 nginx -t
 
 # Test PHP-FPM
-systemctl status php8.2-fpm
+systemctl status php8.4-fpm
 ```
 
 #### Application Testing
@@ -259,7 +259,7 @@ tail -f /var/log/apache2/error.log
 tail -f /var/log/nginx/error.log
 
 # Check PHP-FPM logs
-tail -f /var/log/php8.2-fpm.log
+tail -f /var/log/php8.4-fpm.log
 ```
 
 **Common Solutions**:
@@ -290,7 +290,7 @@ php artisan view:cache
 
 ```bash
 # Check PHP-FPM status
-systemctl status php8.2-fpm
+systemctl status php8.4-fpm
 
 # Check socket permissions
 ls -la /var/run/php/
@@ -303,14 +303,14 @@ nginx -t
 
 ```bash
 # Restart PHP-FPM
-systemctl restart php8.2-fpm
+systemctl restart php8.4-fpm
 
 # Check socket path in Nginx config matches PHP-FPM
-# Nginx: fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
-# PHP-FPM: listen = /var/run/php/php8.2-fpm.sock
+# Nginx: fastcgi_pass unix:/var/run/php/php8.4-fpm.sock;
+# PHP-FPM: listen = /var/run/php/php8.4-fpm.sock
 
 # Fix socket permissions
-chown www-data:www-data /var/run/php/php8.2-fpm.sock
+chown www-data:www-data /var/run/php/php8.4-fpm.sock
 ```
 
 #### Database Connection Issues
@@ -652,3 +652,4 @@ cat .env | grep -v PASSWORD | grep -v KEY | grep -v SECRET
 - [Configuration]({{ '/deployment/configuration' | relative_url }}) - Application configuration
 - [Development Setup]({{ '/deployment/development-setup' | relative_url }}) - Development environment
 - [Server Configuration]({{ '/deployment/server-configuration' | relative_url }}) - Web server setup
+
