@@ -34,7 +34,7 @@
         "stylelint": "^17.9.1",
         "stylelint-config-standard": "^40.0.0",
         "tailwindcss": "^4.1.16",
-        "vite": "^8.0.10"
+        "vite": "^8.0.16"
     },
     "packageManager": "npm@11.6.2",
     "engines": {
