@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
+use App\Enums\Permission;
 use App\Filament\Resources\TagResource;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
@@ -9,6 +10,7 @@ use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class TagsRelationManager extends RelationManager
 {
@@ -17,6 +19,11 @@ class TagsRelationManager extends RelationManager
     protected static ?string $recordTitleAttribute = 'internal_name';
 
     protected static ?string $title = 'Tags';
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return auth()->user()?->hasPermissionTo(Permission::VIEW_DATA->value) ?? false;
+    }
 
     public function table(Table $table): Table
     {
