@@ -289,13 +289,13 @@ apt-get install -y -qq unattended-upgrades
 dpkg-reconfigure -f noninteractive unattended-upgrades
 
 # =============================================================================
-# 9. Certbot
+# 9. Certbot (wildcard *.metanull.eu preferred via OVH DNS)
 # =============================================================================
 info "Installing Certbot..."
-apt-get install -y -qq certbot
+apt-get install -y -qq certbot python3-certbot-dns-ovh
 
 # Enable auto-renewal timer
-if systemctl list-timers | grep -q certbot; then
+if systemctl list-timers 2>/dev/null | grep -q certbot; then
     info "Certbot auto-renewal timer already active."
 else
     systemctl enable --now certbot.timer 2>/dev/null || \
@@ -307,8 +307,16 @@ fi
 # =============================================================================
 info "Configuring Nginx for ${DOMAIN} (DEPLOY_MODE=${DEPLOY_MODE})..."
 NGINX_CONF="/etc/nginx/sites-available/inventory"
-SSL_CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
-SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+
+# Prefer a wildcard cert (*.metanull.eu) over a per-domain cert.
+BASE_DOMAIN=$(echo "${DOMAIN}" | awk -F. '{print $(NF-1)"."$NF}')
+if [[ -f "/etc/letsencrypt/live/${BASE_DOMAIN}/fullchain.pem" ]]; then
+    SSL_CERT="/etc/letsencrypt/live/${BASE_DOMAIN}/fullchain.pem"
+    SSL_KEY="/etc/letsencrypt/live/${BASE_DOMAIN}/privkey.pem"
+else
+    SSL_CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+    SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+fi
 
 if [[ "$DEPLOY_MODE" == "docker" ]]; then
     # Docker mode: Nginx is a reverse proxy to the app container on a loopback port.
@@ -463,18 +471,45 @@ info "Nginx configured and reloaded."
 # =============================================================================
 # 11. SSL certificate
 # =============================================================================
-if [[ ! -f "$SSL_CERT" ]]; then
-    info "Requesting SSL certificate for ${DOMAIN} (standalone mode)..."
-    systemctl stop nginx
-    if certbot certonly --standalone -d "${DOMAIN}" --agree-tos -m "${ADMIN_EMAIL}" --non-interactive; then
-        systemctl start nginx
-        info "SSL certificate obtained. Re-running to update Nginx config with HTTPS..."
-        exec "$0" "$@"
+OVH_CREDS="${OVH_CREDENTIALS_FILE:-/etc/certbot/ovh.ini}"
+WILDCARD_CERT_DIR="/etc/letsencrypt/live/${BASE_DOMAIN}"
+
+if [[ ! -f "${WILDCARD_CERT_DIR}/fullchain.pem" && ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]]; then
+    if [[ -f "${OVH_CREDS}" ]]; then
+        info "OVH credentials found — requesting wildcard certificate for *.${BASE_DOMAIN}..."
+        chmod 600 "${OVH_CREDS}"
+        if certbot certonly \
+            --dns-ovh \
+            --dns-ovh-credentials "${OVH_CREDS}" \
+            -d "*.${BASE_DOMAIN}" -d "${BASE_DOMAIN}" \
+            --agree-tos -m "${ADMIN_EMAIL}" --non-interactive; then
+            info "Wildcard SSL certificate obtained. Re-running to apply HTTPS config..."
+            exec "$0" "$@"
+        else
+            warn "Wildcard cert via OVH DNS failed — falling back to per-domain standalone cert."
+            systemctl stop nginx
+            if certbot certonly --standalone -d "${DOMAIN}" \
+                --agree-tos -m "${ADMIN_EMAIL}" --non-interactive; then
+                systemctl start nginx
+                exec "$0" "$@"
+            else
+                systemctl start nginx
+                warn "Certbot failed — site will run on HTTP only."
+            fi
+        fi
     else
-        systemctl start nginx
-        warn "Certbot failed — site will run on HTTP only until SSL is configured manually."
-        warn "Run: systemctl stop nginx && certbot certonly --standalone -d ${DOMAIN} --agree-tos -m ${ADMIN_EMAIL} && systemctl start nginx"
-        warn "Then re-run this script to update Nginx with HTTPS config."
+        warn "No OVH credentials at ${OVH_CREDS} — requesting per-domain certificate..."
+        warn "For a wildcard *.${BASE_DOMAIN} cert: create ${OVH_CREDS} with OVH API credentials and re-run."
+        systemctl stop nginx
+        if certbot certonly --standalone -d "${DOMAIN}" \
+            --agree-tos -m "${ADMIN_EMAIL}" --non-interactive; then
+            systemctl start nginx
+            info "SSL certificate obtained. Re-running to apply HTTPS config..."
+            exec "$0" "$@"
+        else
+            systemctl start nginx
+            warn "Certbot failed — site will run on HTTP only."
+        fi
     fi
 fi
 
