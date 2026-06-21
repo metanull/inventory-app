@@ -90,7 +90,7 @@ The Windows deployment workflow (`deploy.yml`) is triggered manually via `workfl
 | Consumer | `deploy-ovh.yml` (triggered automatically by `workflow_run`) |
 | How consumed | `actions/download-artifact@v8` with `run-id` from the Build run |
 
-The OVH deployment workflow (`deploy-ovh.yml`) is triggered automatically when a Build run succeeds on `main`. It downloads the tarball artifact, SCPs it to the VPS, and runs `deploy-ovh.sh` via SSH.
+The OVH deployment workflow (`deploy-ovh.yml`) is triggered automatically when a Build run succeeds on `main`. It downloads the tarball artifact, SCPs it to the VPS, and runs `deploy.sh` via SSH.
 
 ## Version & Tag Scheme
 
@@ -118,7 +118,7 @@ build.yml (ubuntu-latest)
                                    │
                                    ▼
                               deploy-ovh.yml (auto-trigger on success)
-                              → SCP + deploy-ovh.sh on OVH VPS
+                              → SCP + deploy.sh on OVH VPS
 ```
 
 ## Forbidden
