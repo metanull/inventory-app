@@ -1,11 +1,6 @@
 name: Deploy Docker to OVH VPS
 
 on:
-  workflow_run:
-    workflows: [Build Docker Image]
-    types: [completed]
-    branches: [main]
-
   workflow_dispatch:
     inputs:
       image_tag:
@@ -20,15 +15,11 @@ concurrency:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   deploy:
     name: Deploy Docker Image to OVH VPS
     runs-on: ubuntu-24.04
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
     environment:
       name: inventory.metanull.eu
       url: https://inventory.metanull.eu
@@ -39,12 +30,7 @@ jobs:
 
       - name: Determine image tag
         id: tag
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "image_tag=${{ inputs.image_tag }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "image_tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
-          fi
+        run: echo "image_tag=${{ inputs.image_tag }}" >> "$GITHUB_OUTPUT"
 
       - name: Setup SSH
         run: |
