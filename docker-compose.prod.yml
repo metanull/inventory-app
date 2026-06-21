@@ -1,0 +1,99 @@
+name: inventory
+
+services:
+  app:
+    image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
+    env_file:
+      - /opt/inventory/.env
+    environment:
+      # Override networking for Docker: service names instead of 127.0.0.1
+      DB_HOST: mysql
+      REDIS_HOST: valkey
+      TRUSTED_PROXIES: "*"
+    volumes:
+      - storage:/var/www/app/storage
+    ports:
+      - "127.0.0.1:8002:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [inventory]
+
+  worker:
+    image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --memory=128
+    env_file:
+      - /opt/inventory/.env
+    environment:
+      DB_HOST: mysql
+      REDIS_HOST: valkey
+    volumes:
+      - storage:/var/www/app/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [inventory]
+
+  scheduler:
+    image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
+    command: php artisan schedule:work
+    env_file:
+      - /opt/inventory/.env
+    environment:
+      DB_HOST: mysql
+      REDIS_HOST: valkey
+    volumes:
+      - storage:/var/www/app/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [inventory]
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-inventory}
+      MYSQL_USER: ${DB_USERNAME:-inventory}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?ERROR: DB_PASSWORD not set in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?ERROR: DB_PASSWORD not set in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks: [inventory]
+    # No ports: isolated within Docker network; host Nginx proxies to app on 8002
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      retries: 3
+    restart: unless-stopped
+    networks: [inventory]
+    # No ports: isolated within Docker network
+
+volumes:
+  mysql-data:
+    name: inventory_mysql-data
+  valkey-data:
+    name: inventory_valkey-data
+  storage:
+    name: inventory_storage
+
+networks:
+  inventory:
+    name: inventory_net

@@ -1,0 +1,98 @@
+name: Deploy Docker to OVH VPS
+
+on:
+  workflow_run:
+    workflows: [Build Docker Image]
+    types: [completed]
+    branches: [main]
+
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (SHA or "latest")'
+        required: false
+        type: string
+        default: latest
+
+concurrency:
+  group: deploy-docker-ovh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    name: Deploy Docker Image to OVH VPS
+    runs-on: ubuntu-24.04
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    environment:
+      name: inventory.metanull.eu
+      url: https://inventory.metanull.eu
+
+    steps:
+      - name: Checkout (for docker-compose.prod.yml)
+        uses: actions/checkout@v6
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "image_tag=${{ inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Check VPS connectivity
+        run: |
+          nc -z -w 10 "${{ secrets.VPS_HOST }}" 22 || \
+            { echo "::error::Cannot reach ${{ secrets.VPS_HOST }}:22"; exit 1; }
+
+      - name: Verify SSH authentication
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes \
+            "${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_HOST }}" whoami || \
+            { echo "::error::SSH auth failed — check VPS_SSH_KEY and VPS_SSH_USER"; exit 1; }
+
+      - name: Upload compose file
+        run: |
+          scp -i ~/.ssh/deploy_key docker-compose.prod.yml \
+            "${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_HOST }}:/opt/inventory/docker-compose.prod.yml"
+
+      - name: Deploy
+        env:
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_HOST }}" \
+            IMAGE_TAG="${IMAGE_TAG}" bash -s <<'REMOTE'
+            set -e
+            cd /opt/inventory
+
+            IMAGE_TAG="${IMAGE_TAG}" \
+            docker compose --env-file .env -f docker-compose.prod.yml pull
+
+            IMAGE_TAG="${IMAGE_TAG}" \
+            docker compose --env-file .env -f docker-compose.prod.yml up -d --remove-orphans
+
+            docker compose --env-file .env -f docker-compose.prod.yml \
+              exec -T app php artisan migrate --force
+
+            docker image prune -f
+            echo "Deployed IMAGE_TAG=${IMAGE_TAG}"
+          REMOTE
+
+      - name: Verify deployment
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_SSH_USER }}@${{ secrets.VPS_HOST }}" \
+            "docker compose --env-file /opt/inventory/.env \
+               -f /opt/inventory/docker-compose.prod.yml ps"

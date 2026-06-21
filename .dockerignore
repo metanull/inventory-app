@@ -1,0 +1,29 @@
+# Version control
+.git
+.github
+
+# Node modules (huge, not needed in image)
+node_modules
+spa/node_modules
+
+# Local environment secrets
+.env
+.env.*
+!.env.example
+
+# Storage framework artifacts (cleared each deploy)
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/framework/testing
+
+# Logs
+storage/logs
+
+# Tests (not needed in production image)
+tests
+phpunit.xml
+phpunit.*.xml
+
+# Dev tooling
+Makefile
