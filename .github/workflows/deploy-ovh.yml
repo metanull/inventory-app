@@ -112,7 +112,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
           scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
-            scripts/deploy-ovh.sh "${VPS_USER}@${VPS_HOST}:/tmp/inventory-deploy-ovh.sh"
+            scripts/deploy.sh "${VPS_USER}@${VPS_HOST}:/tmp/inventory-deploy.sh"
 
       - name: Run deploy script on VPS
         env:
@@ -120,7 +120,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
           ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 "${VPS_USER}@${VPS_HOST}" \
-            'bash /tmp/inventory-deploy-ovh.sh /tmp/inventory-release.tar.gz'
+            'bash /tmp/inventory-deploy.sh /tmp/inventory-release.tar.gz'
 
       - name: Cleanup
         if: always()
@@ -130,4 +130,4 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 \
             "${VPS_USER}@${VPS_HOST}" \
-            'rm -f /tmp/inventory-release.tar.gz /tmp/inventory-deploy-ovh.sh' || true
+            'rm -f /tmp/inventory-release.tar.gz /tmp/inventory-deploy.sh' || true

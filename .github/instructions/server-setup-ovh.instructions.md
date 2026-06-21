@@ -1,6 +1,6 @@
 ---
 description: "Use when: configuring the secondary VPS deployment, writing or modifying OVH deployment scripts, editing deploy-ovh workflow, managing Nginx vhost, SSH access, queue worker setup, or MySQL backup for the inventory-app on the shared VPS server."
-applyTo: "scripts/deploy-ovh.sh,scripts/provision-inventory.sh,.github/workflows/deploy-ovh.yml"
+applyTo: "scripts/deploy.sh,scripts/provision.sh,.github/workflows/deploy-ovh.yml"
 ---
 
 # Server Setup: Secondary VPS Deployment
@@ -94,8 +94,8 @@ Inventory-app uses configured Valkey DB indexes to avoid collision with other ap
 
 | Script | Run as | Purpose |
 |--------|--------|---------|
-| `scripts/provision-inventory.sh` | root/admin during one-time provisioning | Create DB/user, app structure, Nginx vhost, TLS, queue worker, and backups. |
-| `scripts/deploy-ovh.sh` | deploy account for each deploy | Extract release, link storage, configure `.env`, migrate, warm caches, restart queue, prune old releases, and health check. |
+| `scripts/provision.sh` | root/admin during one-time provisioning | Create DB/user, app structure, Nginx vhost, TLS, queue worker, and backups. |
+| `scripts/deploy.sh` | deploy account for each deploy | Extract release, link storage, configure `.env`, migrate, warm caches, restart queue, prune old releases, and health check. |
 
 Both scripts should remain idempotent.
 

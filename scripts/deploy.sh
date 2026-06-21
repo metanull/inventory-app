@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 #
-# deploy-ovh.sh — Deploy a pre-built inventory-app release to the OVH VPS
+# deploy.sh — Deploy a pre-built inventory-app release to the OVH VPS
 #
 # Usage (run as 'deploy' user):
-#   bash deploy-ovh.sh /tmp/inventory-release.tar.gz
+#   bash deploy.sh /tmp/inventory-release.tar.gz
 #
 # The archive is built by CI (build.yml) and contains the full application
 # with production vendor/ and compiled public/build/ assets.
 # No git, composer, npm, or sudo is required.
 #
-# Prerequisites (handled by provision-inventory.sh, run once as root):
+# Prerequisites (handled by provision.sh, run once as root):
 #   - PHP-FPM, Nginx, MySQL, Valkey installed (via motivya provision.sh)
 #   - /opt/inventory/ owned by deploy:www-data
 #   - /opt/inventory/shared/storage/ directory tree exists
@@ -25,11 +25,11 @@ set -euo pipefail
 # --- Configuration -----------------------------------------------------------
 APP_DIR="/opt/inventory"
 CURRENT="${APP_DIR}/current"
-PHP_VERSION="8.4"
+PHP_VERSION="8.5"
 
 # --- Arguments ---------------------------------------------------------------
 ARCHIVE="${1:-}"
-[[ -z "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Usage: deploy-ovh.sh <archive.tar.gz>"; exit 1; }
+[[ -z "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Usage: deploy.sh <archive.tar.gz>"; exit 1; }
 [[ ! -f "$ARCHIVE" ]] && { echo "[DEPLOY] ERROR: Archive not found: ${ARCHIVE}"; exit 1; }
 
 # --- Colors -------------------------------------------------------------------
@@ -48,16 +48,16 @@ preflight() {
     [[ $EUID -eq 0 ]] && error "This script must NOT be run as root. Run as '$(whoami)' or the deploy user."
 
     # Verify PHP is available
-    command -v php &>/dev/null || error "PHP not found. Run provision-inventory.sh first (as root)."
+    command -v php &>/dev/null || error "PHP not found. Run provision.sh first (as root)."
 
     # Verify tar is available
     command -v tar &>/dev/null || error "tar not found."
 
     # Verify app directory is writable
-    [[ -w "$APP_DIR" ]] || error "${APP_DIR} is not writable. Run provision-inventory.sh first."
+    [[ -w "$APP_DIR" ]] || error "${APP_DIR} is not writable. Run provision.sh first."
 
     # Verify shared storage exists
-    [[ -d "${APP_DIR}/shared/storage" ]] || error "${APP_DIR}/shared/storage missing. Run provision-inventory.sh first."
+    [[ -d "${APP_DIR}/shared/storage" ]] || error "${APP_DIR}/shared/storage missing. Run provision.sh first."
 }
 
 # --- 1. Extract release -------------------------------------------------------
@@ -105,7 +105,7 @@ configure_laravel() {
         sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' "${APP_DIR}/shared/.env"
         sed -i 's|^APP_URL=.*|APP_URL=https://inventory.metanull.eu|' "${APP_DIR}/shared/.env"
 
-        # MySQL (if credentials file exists, written by provision-inventory.sh)
+        # MySQL (if credentials file exists, written by provision.sh)
         DEPLOY_CRED_FILE="/home/deploy/.inventory-db-credentials"
         if [[ -f "$DEPLOY_CRED_FILE" ]]; then
             source "$DEPLOY_CRED_FILE"
