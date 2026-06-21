@@ -48,6 +48,11 @@ PHP_VERSION="8.5"
 TIMEZONE="Europe/Brussels"
 LOCALE="fr_BE.UTF-8"
 
+# Deployment mode: "bare-metal" (php-fpm FastCGI) or "docker" (Docker proxy_pass)
+# Set DEPLOY_MODE=docker in scripts/infra.local to switch to Docker-based deployment.
+DEPLOY_MODE="${DEPLOY_MODE:-bare-metal}"
+DOCKER_APP_PORT="8002"   # loopback port where the Docker app container listens
+
 # MySQL (generated on first run, stored in /root/.inventory-db-credentials)
 DB_NAME="inventory"
 DB_USER="inventory"
@@ -163,6 +168,33 @@ systemctl enable "php${PHP_VERSION}-fpm" nginx
 systemctl start "php${PHP_VERSION}-fpm"
 
 # =============================================================================
+# 4.5. Install Docker Engine (idempotent)
+# =============================================================================
+info "Checking Docker Engine..."
+if ! command -v docker &>/dev/null; then
+    info "Installing Docker Engine..."
+    apt-get install -y -qq ca-certificates curl gnupg
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod a+r /etc/apt/keyrings/docker.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+        > /etc/apt/sources.list.d/docker.list
+    apt-get update -qq
+    apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    systemctl enable docker
+    systemctl start docker
+    info "Docker Engine installed."
+else
+    info "Docker Engine already installed ($(docker --version | head -1))."
+fi
+
+# Deploy user must be in the docker group to run 'docker compose' over SSH
+usermod -aG docker "$DEPLOY_USER"
+info "User '${DEPLOY_USER}' is in the 'docker' group."
+
+# =============================================================================
 # 5. Install MySQL
 # =============================================================================
 info "Installing MySQL server..."
@@ -273,15 +305,71 @@ fi
 # =============================================================================
 # 10. Configure Nginx vhost
 # =============================================================================
-info "Configuring Nginx for ${DOMAIN}..."
+info "Configuring Nginx for ${DOMAIN} (DEPLOY_MODE=${DEPLOY_MODE})..."
 NGINX_CONF="/etc/nginx/sites-available/inventory"
 SSL_CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
 SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
 
-if [[ -f "$SSL_CERT" && -f "$SSL_KEY" ]]; then
-    info "SSL certificate found — configuring HTTPS."
-    cat > "$NGINX_CONF" <<NGINX
-# HTTP -> HTTPS redirect
+if [[ "$DEPLOY_MODE" == "docker" ]]; then
+    # Docker mode: Nginx is a reverse proxy to the app container on a loopback port.
+    if [[ -f "$SSL_CERT" && -f "$SSL_KEY" ]]; then
+        info "SSL certificate found — configuring HTTPS reverse proxy (Docker)."
+        cat > "$NGINX_CONF" <<NGINX
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN};
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${DOMAIN};
+
+    ssl_certificate     ${SSL_CERT};
+    ssl_certificate_key ${SSL_KEY};
+
+    client_max_body_size 20M;
+
+    location / {
+        proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header   Host \$host;
+        proxy_set_header   X-Real-IP \$remote_addr;
+        proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 60s;
+    }
+}
+NGINX
+    else
+        warn "No SSL certificate found — configuring HTTP reverse proxy (Docker)."
+        cat > "$NGINX_CONF" <<NGINX
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOMAIN};
+
+    client_max_body_size 20M;
+
+    location / {
+        proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
+        proxy_http_version 1.1;
+        proxy_set_header   Host \$host;
+        proxy_set_header   X-Real-IP \$remote_addr;
+        proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 60s;
+    }
+}
+NGINX
+    fi
+else
+    # Bare-metal mode: Nginx serves files directly and passes PHP to php-fpm.
+    if [[ -f "$SSL_CERT" && -f "$SSL_KEY" ]]; then
+        info "SSL certificate found — configuring HTTPS (bare-metal)."
+        cat > "$NGINX_CONF" <<NGINX
 server {
     listen 80;
     listen [::]:80;
@@ -289,7 +377,6 @@ server {
     return 301 https://${DOMAIN}\$request_uri;
 }
 
-# Inventory App (HTTPS)
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -326,9 +413,9 @@ server {
     }
 }
 NGINX
-else
-    warn "No SSL certificate yet — configuring HTTP only."
-    cat > "$NGINX_CONF" <<NGINX
+    else
+        warn "No SSL certificate yet — configuring HTTP only (bare-metal)."
+        cat > "$NGINX_CONF" <<NGINX
 server {
     listen 80;
     listen [::]:80;
@@ -362,6 +449,7 @@ server {
     }
 }
 NGINX
+    fi
 fi
 
 # Enable site (do not remove default — another app may rely on it)
@@ -504,11 +592,19 @@ info "  Valkey:        localhost:6379 (use REDIS_DB=2, REDIS_CACHE_DB=3)"
 info "  Queue worker:  inventory-queue.service"
 info "  Backup:        daily at 3:30 AM (14-day retention)"
 info ""
+info "  Deployment mode: ${DEPLOY_MODE}"
+info "  (Switch: set DEPLOY_MODE=docker or bare-metal in scripts/infra.local, re-run provision.sh)"
+info ""
 info "  Next steps:"
 info "  1. Verify SSH:  ssh -i ~/.ssh/inventory_deploy ${DEPLOY_USER}@<VPS_IP> whoami"
 info "  2. If SSL cert failed above, run:"
 info "     systemctl stop nginx && certbot certonly --standalone -d ${DOMAIN} --agree-tos -m ${ADMIN_EMAIL} && systemctl start nginx"
 info "     Then re-run this script to update Nginx with HTTPS config."
 info "  3. GitHub: ensure environment 'inventory.metanull.eu' has VPS_HOST, VPS_SSH_KEY, VPS_SSH_USER secrets"
+if [[ "${DEPLOY_MODE}" == "docker" ]]; then
+info "  4. Push code to main — GitHub Actions builds Docker image and deploys via docker-compose.prod.yml"
+info "     Or: IMAGE_TAG=latest docker compose --env-file /opt/inventory/.env -f /opt/inventory/docker-compose.prod.yml up -d"
+else
 info "  4. Push code to main to trigger automatic deploy via GitHub Actions."
+fi
 info ""

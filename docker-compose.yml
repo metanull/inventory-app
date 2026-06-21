@@ -1,0 +1,96 @@
+name: inventory-dev
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
+    volumes:
+      - .:/var/www/app
+      - vendor:/var/www/app/vendor
+    environment:
+      APP_NAME: Inventory
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8010
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      CACHE_STORE: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: valkey
+      REDIS_PORT: "6379"
+      REDIS_DB: "2"
+      REDIS_CACHE_DB: "3"
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_FROM_ADDRESS: noreply@inventory.test
+      MAIL_FROM_NAME: Inventory
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    networks: [inventory-dev]
+
+  web:
+    image: nginx:1.26-alpine
+    volumes:
+      - .:/var/www/app:ro
+      - .docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:8010:80"
+    depends_on:
+      - app
+    networks: [inventory-dev]
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql-dev:/var/lib/mysql
+      - .docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:3337:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks: [inventory-dev]
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    volumes:
+      - valkey-dev:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      retries: 3
+    networks: [inventory-dev]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:8026:8025"
+      - "127.0.0.1:1026:1025"
+    networks: [inventory-dev]
+
+volumes:
+  mysql-dev:
+  valkey-dev:
+  vendor:
+
+networks:
+  inventory-dev:
+    driver: bridge
