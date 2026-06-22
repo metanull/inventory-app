@@ -66,12 +66,12 @@ $ProgressParams = @{
 }
 
 Write-Progress @ProgressParams -Status "Create temp directory on server..." -PercentComplete 0
-ssh -i $SshKey $Server @"
+ssh -i $SshKey $Server (@"
 set -e
 mkdir -p $RemoteAppStorage/tmp
-"@
-if ($LASTEXITCODE -ne 0) { 
-    throw "Failed to create temp directory on server" 
+"@ -replace "\r\n", "`n")
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to create temp directory on server"
 }
 
 Write-Progress @ProgressParams -Status "Compressing images..." -PercentComplete 1
@@ -87,15 +87,15 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Progress @ProgressParams -Status "Extracting on server..." -PercentComplete 66
-ssh -i $SshKey $Server @"
+ssh -i $SshKey $Server (@"
 set -e
 mkdir -p $RemoteAppStorage/$RemoteDir
 unzip -o /${RemoteAppStorage}/tmp/inventory-images.zip -d $RemoteAppStorage/$RemoteDir
 rm ${RemoteAppStorage}/tmp/inventory-images.zip
 find $RemoteAppStorage/$RemoteDir -type f | wc -l | xargs -I{} echo "Total files on server: {}"
-"@
-if ($LASTEXITCODE -ne 0) { 
-    throw "Extraction failed" 
+"@ -replace "\r\n", "`n")
+if ($LASTEXITCODE -ne 0) {
+    throw "Extraction failed"
 }
 
 Write-Progress @ProgressParams -Status "php artisan storage:link..." -PercentComplete 90
