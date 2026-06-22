@@ -2,7 +2,7 @@ FROM ruby:3.2-alpine
 
 RUN apk add --no-cache python3 git build-base
 
-# Gems are installed here; this path is declared as a volume in docker-compose.yml
+# Gems are installed here; declared as a named volume in docker-compose.yml
 # so it survives the ./docs mount overlay and persists between container restarts.
 ENV BUNDLE_PATH=/usr/local/bundle
 
@@ -12,8 +12,11 @@ WORKDIR /workspace/docs
 COPY docs/Gemfile docs/Gemfile.lock ./
 RUN bundle install
 
+COPY .docker/docs-entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 WORKDIR /workspace
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "cd /workspace/docs && bundle exec jekyll serve --host 0.0.0.0 --watch --force_polling"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

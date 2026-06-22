@@ -86,6 +86,36 @@ services:
       - "127.0.0.1:1026:1025"
     networks: [inventory-dev]
 
+  docs-model:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
+    command: php artisan docs:model
+    volumes:
+      - .:/var/www/app
+      - vendor:/var/www/app/vendor
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      CACHE_STORE: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: valkey
+      REDIS_PORT: "6379"
+      REDIS_DB: "2"
+      REDIS_CACHE_DB: "3"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    networks: [inventory-dev]
+
   docs:
     build:
       context: .
@@ -98,6 +128,9 @@ services:
       - docs-bundle:/usr/local/bundle
     ports:
       - "127.0.0.1:4000:4000"
+    depends_on:
+      docs-model:
+        condition: service_completed_successfully
     networks: [inventory-dev]
 
 volumes:

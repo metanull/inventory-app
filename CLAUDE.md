@@ -122,8 +122,8 @@ The Filament 3 migration is **complete**. `/admin` is the primary interface for 
 ### Dev stack (`docker-compose.yml`)
 
 ```bash
-docker compose up            # Start full dev stack (app, web, mysql, valkey, mailpit)
-docker compose up docs       # Start Jekyll dev server at http://localhost:4000
+docker compose up         # Start full dev stack (app, web, mysql, valkey, mailpit)
+docker compose up docs    # Build and serve docs at http://localhost:4000 (fully automated)
 ```
 
 Services: `app` (PHP-FPM :8010), `web` (Nginx), `mysql`, `valkey`, `mailpit` (:8026), `docs` (Jekyll :4000).
@@ -387,11 +387,14 @@ The CI workflow runs `scripts/generate-commit-docs.py` and `scripts/generate-cli
 
 **Local development** (via Docker):
 ```bash
-make docs-generate   # Regenerate commit + client docs
-make docs-model      # Regenerate model docs (app container must be running)
-make docs-serve      # Start Jekyll at http://localhost:4000
-make docs            # Both in sequence
+docker compose up docs    # builds complete docs and starts Jekyll at http://localhost:4000
 ```
+
+`docker compose up docs` is all that is needed. The compose dependency chain handles everything automatically:
+1. `docs-model` (init container) — runs `php artisan docs:model` against the live MySQL instance, then exits.
+2. `docs` — starts once `docs-model` has completed successfully; its entrypoint (`.docker/docs-entrypoint.sh`) runs `generate-commit-docs.py` and `generate-client-docs.py` inside the container, then starts Jekyll.
+
+No host-side PHP, Python, or tooling required.
 
 **Front matter** — all Markdown files must include:
 ```yaml
