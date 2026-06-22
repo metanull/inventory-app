@@ -11,10 +11,11 @@
 .PARAMETER Fix
     Which fix to run. Defaults to 'all'.
 
-    all             lint-fix
-    lint-fix        PHP (Pint) + Prettier auto-format
-    npm-audit-fix   npm audit fix (safe fixes only)
-    npm-update      npm update (update packages within semver range)
+    all                 lint-fix + dependencies-fix
+    lint-fix            PHP (Pint) + Prettier auto-format
+    dependencies-fix    composer update (resolves outdated/vulnerable PHP packages, updates composer.lock)
+    npm-audit-fix       npm audit fix (safe fixes only)
+    npm-update          npm update (update packages within semver range)
 
 .EXAMPLE
     .\scripts\Invoke-Fix.ps1
@@ -25,6 +26,7 @@ param(
     [ValidateSet(
         'all',
         'lint-fix',
+        'dependencies-fix',
         'npm-audit-fix',
         'npm-update'
     )]
@@ -53,10 +55,19 @@ function Invoke-Tools {
 switch ($Fix) {
     'all' {
         & $MyInvocation.MyCommand.Definition -Fix lint-fix
+        & $MyInvocation.MyCommand.Definition -Fix dependencies-fix
     }
     'lint-fix' {
         Invoke-App @('vendor/bin/pint', '--no-interaction', '--ansi')
         Invoke-Tools @('npx', 'prettier', '--write', '--ignore-unknown', '--log-level', 'warn', './resources/**')
+    }
+    'dependencies-fix' {
+        docker compose run --rm --no-deps --user root `
+            -e COMPOSER_ALLOW_SUPERUSER=1 `
+            -e COMPOSER_HOME=/tmp/composer-home `
+            -e COMPOSER_CACHE_DIR=/tmp/composer-cache `
+            app composer update --no-scripts --with-dependencies --no-interaction --no-progress --ansi
+        if ($LASTEXITCODE -ne 0) { throw "Fix failed: composer update" }
     }
     'npm-audit-fix' {
         Invoke-Tools @('npm', 'audit', 'fix')

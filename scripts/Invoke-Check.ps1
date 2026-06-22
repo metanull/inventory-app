@@ -105,9 +105,10 @@ switch ($Check) {
     'test-event'         { Invoke-PhpTest 'Event' }
     'test-integration'   { Invoke-App @('php', 'artisan', 'test', '--testsuite', 'Integration', '--compact', '--no-ansi', '--stop-on-failure') }
     'test-all'           { Invoke-App @('php', 'artisan', 'test', '--compact', '--parallel', '--no-ansi', '--stop-on-failure') }
-    'npm-audit'          { Invoke-Tools @('npm', 'audit', '--audit-level', 'high') }
+    'npm-audit'          { Invoke-Tools @('npm', 'audit', '--audit-level', 'moderate') }
     'dependencies' {
+        Invoke-App @('composer', 'validate', '--with-dependencies', '--strict', '--ansi')
         Invoke-App @('composer', 'audit', '--format=summary')
-        Invoke-Tools @('npm', 'audit', '--audit-level', 'high')
+        Invoke-Tools @('npm', 'audit', '--audit-level', 'moderate')
     }
 }
