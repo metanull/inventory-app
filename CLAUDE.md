@@ -391,7 +391,7 @@ docker compose up docs    # builds complete docs and starts Jekyll at http://loc
 ```
 
 `docker compose up docs` is all that is needed. The compose dependency chain handles everything automatically:
-1. `docs-model` (init container) — runs `php artisan docs:model` against the live MySQL instance, then exits.
+1. `docs-model` (init container) — runs `php artisan docs:models` against the live MySQL instance, then exits.
 2. `docs` — starts once `docs-model` has completed successfully; its entrypoint (`.docker/docs-entrypoint.sh`) runs `generate-commit-docs.py` and `generate-client-docs.py` inside the container, then starts Jekyll.
 
 No host-side PHP, Python, or tooling required.

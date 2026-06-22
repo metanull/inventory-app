@@ -3,7 +3,7 @@
     Generate Laravel model documentation.
 
 .DESCRIPTION
-    This script generates documentation for all Laravel models using the `php artisan docs:model` command.
+    This script generates documentation for all Laravel models using the `php artisan docs:models` command.
     The documentation is automatically generated from model definitions and database schemas.
 
 .PARAMETER Force
@@ -32,7 +32,7 @@ Write-Host "📚 Generating Laravel Model Documentation..." -ForegroundColor Cya
 Write-Host ""
 
 # Build the command
-$commandArgs = @("artisan", "docs:model")
+$commandArgs = @("artisan", "docs:models")
 if ($Force) {
     $commandArgs += "--force"
     Write-Host "  Mode: Force regeneration" -ForegroundColor Gray
@@ -43,7 +43,7 @@ $commandArgs += "--ansi"
 
 Write-Host "  Output: docs/_model/" -ForegroundColor Gray
 Write-Host ""
-Write-Host "Running: php artisan docs:model $(if ($Force) { '--force' } else { '' }) --ansi" -ForegroundColor Gray
+Write-Host "Running: php artisan docs:models $(if ($Force) { '--force' } else { '' }) --ansi" -ForegroundColor Gray
 Write-Host ""
 
 try {
@@ -56,7 +56,7 @@ try {
         Write-Host "✅ Model documentation generated successfully!" -ForegroundColor Green
         Write-Host "   Output: docs/_model/" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "💡 Tip: Run 'php artisan docs:model --force' to regenerate all documentation" -ForegroundColor DarkGray
+        Write-Host "💡 Tip: Run 'php artisan docs:models --force' to regenerate all documentation" -ForegroundColor DarkGray
     } else {
         Write-Host ""
         Write-Host "❌ Model documentation generation failed with exit code: $exitCode" -ForegroundColor Red

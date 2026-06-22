@@ -90,7 +90,7 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile.dev
-    command: php artisan docs:model
+    command: ["/bin/sh", "-c", "[ -f vendor/autoload.php ] || composer install --no-interaction --quiet && php artisan docs:models --force"]
     volumes:
       - .:/var/www/app
       - vendor:/var/www/app/vendor
