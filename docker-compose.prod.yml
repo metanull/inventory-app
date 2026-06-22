@@ -4,7 +4,7 @@ services:
   app:
     image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
     env_file:
-      - /opt/inventory/.env
+      - .env
     environment:
       # Override networking for Docker: service names instead of 127.0.0.1
       DB_HOST: mysql
@@ -26,7 +26,7 @@ services:
     image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
     command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --memory=128
     env_file:
-      - /opt/inventory/.env
+      - .env
     environment:
       DB_HOST: mysql
       REDIS_HOST: valkey
@@ -44,7 +44,7 @@ services:
     image: ghcr.io/metanull/inventory-app:${IMAGE_TAG:-latest}
     command: php artisan schedule:work
     env_file:
-      - /opt/inventory/.env
+      - .env
     environment:
       DB_HOST: mysql
       REDIS_HOST: valkey
