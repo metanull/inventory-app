@@ -24,6 +24,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.4",
         "laravel/pint": "^1.26.0",
         "laravel/sail": "^1.46",
@@ -94,6 +95,9 @@
         ],
         "ci-lint:dirty": [
             ".\\vendor\\bin\\pint --no-interaction --ansi --dirty"
+        ],
+        "ci-static-analysis": [
+            "@php vendor/bin/phpstan analyse --memory-limit=512M --ansi"
         ],
         "ci-test": [
             "@php artisan test --testsuite=Unit --compact --parallel --ansi",

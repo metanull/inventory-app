@@ -116,6 +116,14 @@ services:
       - "127.0.0.1:1026:1025"
     networks: [inventory-dev]
 
+  tools:
+    image: node:24-alpine
+    working_dir: /var/www/app
+    profiles: [tools]
+    volumes:
+      - .:/var/www/app
+    networks: [inventory-dev]
+
   docs-model:
     build:
       context: .
