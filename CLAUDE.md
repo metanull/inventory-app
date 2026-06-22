@@ -123,7 +123,7 @@ The Filament 3 migration is **complete**. `/admin` is the primary interface for 
 
 ```bash
 docker compose up         # Start full dev stack (app, web, mysql, valkey, mailpit)
-docker compose up docs    # Build and serve docs at http://localhost:4000 (fully automated)
+docker compose up docs    # Build and serve docs at http://localhost:4000/inventory-app/ (fully automated)
 ```
 
 Services: `app` (PHP-FPM :8010), `web` (Nginx), `mysql`, `valkey`, `mailpit` (:8026), `docs` (Jekyll :4000).
@@ -387,7 +387,7 @@ The CI workflow runs `scripts/generate-commit-docs.py` and `scripts/generate-cli
 
 **Local development** (via Docker):
 ```bash
-docker compose up docs    # builds complete docs and starts Jekyll at http://localhost:4000
+docker compose up docs    # builds complete docs and starts Jekyll at http://localhost:4000/inventory-app/
 ```
 
 `docker compose up docs` is all that is needed. The compose dependency chain handles everything automatically:
