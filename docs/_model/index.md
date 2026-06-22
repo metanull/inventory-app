@@ -76,6 +76,22 @@ title: Generated Model Documentation
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `place_of_birth` | varchar | Unknown | Unknown |  |
+| `place_of_death` | varchar | Unknown | Unknown |  |
+| `date_of_birth` | varchar | Unknown | Unknown |  |
+| `date_of_death` | varchar | Unknown | Unknown |  |
+| `period_of_activity` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -116,6 +132,21 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `firstname` | varchar | Unknown | Unknown |  |
+| `lastname` | varchar | Unknown | Unknown |  |
+| `givenname` | varchar | Unknown | Unknown |  |
+| `originalname` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -155,6 +186,20 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `author_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `curriculum` | text | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -203,6 +248,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `comment` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -238,6 +296,25 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `type` | enum | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `parent_id` | char | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `latitude` | decimal | Unknown | Unknown |  |
+| `longitude` | decimal | Unknown | Unknown |  |
+| `map_zoom` | int | Unknown | Unknown |  |
+| `country_id` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -323,6 +400,21 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -371,6 +463,17 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `collection_id` | char | Unknown | Unknown |  |
+| `item_id` | char | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -411,6 +514,23 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `type` | enum | Unknown | Unknown |  |
+| `title` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `url` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -466,6 +586,23 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `title` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `quote` | text | Unknown | Unknown |  |
+| `url` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -519,6 +656,17 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+| `is_default` | tinyint | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -559,6 +707,20 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `category` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `visible` | tinyint | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -604,6 +766,21 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `contributor_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -643,6 +820,23 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `contributor_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `link` | varchar | Unknown | Unknown |  |
+| `alt_text` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -685,6 +879,16 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -719,6 +923,19 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `country_id` | varchar | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -764,6 +981,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `from_ah` | int | Unknown | Unknown |  |
+| `to_ah` | int | Unknown | Unknown |  |
+| `from_ad` | int | Unknown | Unknown |  |
+| `to_ad` | int | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -808,6 +1038,28 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `dynasty_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `also_known_as` | varchar | Unknown | Unknown |  |
+| `area` | text | Unknown | Unknown |  |
+| `history` | text | Unknown | Unknown |  |
+| `date_description_ah` | varchar | Unknown | Unknown |  |
+| `date_description_ad` | varchar | Unknown | Unknown |  |
+| `author_id` | char | Unknown | Unknown |  |
+| `text_copy_editor_id` | char | Unknown | Unknown |  |
+| `translator_id` | char | Unknown | Unknown |  |
+| `translation_copy_editor_id` | char | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -857,6 +1109,16 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -894,6 +1156,17 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `glossary_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `spelling` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -939,6 +1212,17 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `glossary_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `definition` | text | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -977,6 +1261,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `extension` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1006,6 +1303,30 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `partner_id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `type` | enum | Unknown | Unknown |  |
+| `parent_id` | char | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+| `country_id` | varchar | Unknown | Unknown |  |
+| `project_id` | char | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `owner_reference` | varchar | Unknown | Unknown |  |
+| `mwnf_reference` | varchar | Unknown | Unknown |  |
+| `start_date` | smallint | Unknown | Unknown |  |
+| `end_date` | smallint | Unknown | Unknown |  |
+| `latitude` | decimal | Unknown | Unknown |  |
+| `longitude` | decimal | Unknown | Unknown |  |
+| `map_zoom` | int | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1088,6 +1409,24 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `item_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `title` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1129,6 +1468,21 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `item_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1178,6 +1532,18 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `source_id` | char | Unknown | Unknown |  |
+| `target_id` | char | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1223,6 +1589,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `item_item_link_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `reciprocal_description` | text | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1261,6 +1640,23 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `item_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `type` | enum | Unknown | Unknown |  |
+| `title` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `url` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1303,6 +1699,39 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `item_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `alternate_name` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `type` | varchar | Unknown | Unknown |  |
+| `holder` | text | Unknown | Unknown |  |
+| `owner` | text | Unknown | Unknown |  |
+| `initial_owner` | text | Unknown | Unknown |  |
+| `dates` | text | Unknown | Unknown |  |
+| `location` | text | Unknown | Unknown |  |
+| `dimensions` | text | Unknown | Unknown |  |
+| `place_of_production` | text | Unknown | Unknown |  |
+| `method_for_datation` | text | Unknown | Unknown |  |
+| `method_for_provenance` | text | Unknown | Unknown |  |
+| `provenance` | text | Unknown | Unknown |  |
+| `obtention` | text | Unknown | Unknown |  |
+| `bibliography` | text | Unknown | Unknown |  |
+| `author_id` | char | Unknown | Unknown |  |
+| `text_copy_editor_id` | char | Unknown | Unknown |  |
+| `translator_id` | char | Unknown | Unknown |  |
+| `translation_copy_editor_id` | char | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1361,6 +1790,17 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+| `is_default` | tinyint | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1405,6 +1845,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `display_language_id` | varchar | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1448,6 +1901,24 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `type` | enum | Unknown | Unknown |  |
+| `latitude` | decimal | Unknown | Unknown |  |
+| `longitude` | decimal | Unknown | Unknown |  |
+| `map_zoom` | int | Unknown | Unknown |  |
+| `project_id` | char | Unknown | Unknown |  |
+| `monument_item_id` | char | Unknown | Unknown |  |
+| `visible` | tinyint | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+| `country_id` | varchar | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1506,6 +1977,22 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `partner_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | text | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1546,6 +2033,22 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `partner_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `logo_type` | varchar | Unknown | Unknown |  |
+| `alt_text` | text | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1591,6 +2094,34 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `partner_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `city_display` | varchar | Unknown | Unknown |  |
+| `address_line_1` | varchar | Unknown | Unknown |  |
+| `address_line_2` | varchar | Unknown | Unknown |  |
+| `postal_code` | varchar | Unknown | Unknown |  |
+| `address_notes` | text | Unknown | Unknown |  |
+| `contact_name` | varchar | Unknown | Unknown |  |
+| `contact_email_general` | varchar | Unknown | Unknown |  |
+| `contact_email_press` | varchar | Unknown | Unknown |  |
+| `contact_phone` | varchar | Unknown | Unknown |  |
+| `contact_website` | varchar | Unknown | Unknown |  |
+| `contact_notes` | text | Unknown | Unknown |  |
+| `contact_emails` | json | Unknown | Unknown |  |
+| `contact_phones` | json | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1645,6 +2176,21 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `partner_translation_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | text | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1684,6 +2230,21 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `launch_date` | date | Unknown | Unknown |  |
+| `is_launched` | tinyint | Unknown | Unknown |  |
+| `is_enabled` | tinyint | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+| `context_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1742,6 +2303,18 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | Yes |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | bigint | Unknown | Unknown |  |
+| `key` | varchar | Unknown | Unknown |  |
+| `value` | text | Unknown | Unknown |  |
+| `type` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1777,6 +2350,19 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `category` | varchar | Unknown | Unknown |  |
+| `language_id` | char | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `description` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1823,6 +2409,19 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `country_id` | varchar | Unknown | Unknown |  |
+| `collection_id` | char | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1865,6 +2464,25 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `timeline_id` | char | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `year_from` | int | Unknown | Unknown |  |
+| `year_to` | int | Unknown | Unknown |  |
+| `year_from_ah` | int | Unknown | Unknown |  |
+| `year_to_ah` | int | Unknown | Unknown |  |
+| `date_from` | date | Unknown | Unknown |  |
+| `date_to` | date | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -1919,6 +2537,21 @@ const UPDATED_AT = 'updated_at';
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
 
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `timeline_event_id` | char | Unknown | Unknown |  |
+| `path` | varchar | Unknown | Unknown |  |
+| `original_name` | varchar | Unknown | Unknown |  |
+| `mime_type` | varchar | Unknown | Unknown |  |
+| `size` | bigint | Unknown | Unknown |  |
+| `alt_text` | varchar | Unknown | Unknown |  |
+| `display_order` | int | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
 ### Fillable Fields
 
 ```php
@@ -1958,6 +2591,23 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `timeline_event_id` | char | Unknown | Unknown |  |
+| `language_id` | varchar | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `description` | text | Unknown | Unknown |  |
+| `date_from_description` | varchar | Unknown | Unknown |  |
+| `date_to_description` | varchar | Unknown | Unknown |  |
+| `date_from_ah_description` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -2005,6 +2655,26 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | Auto-incrementing Integer |
 | **Incrementing** | Yes |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | bigint | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `email` | varchar | Unknown | Unknown |  |
+| `email_verified_at` | timestamp | Unknown | Unknown |  |
+| `approved_at` | timestamp | Unknown | Unknown |  |
+| `suspended_at` | timestamp | Unknown | Unknown |  |
+| `password` | varchar | Unknown | Unknown |  |
+| `two_factor_secret` | text | Unknown | Unknown |  |
+| `two_factor_recovery_codes` | text | Unknown | Unknown |  |
+| `two_factor_confirmed_at` | timestamp | Unknown | Unknown |  |
+| `remember_token` | varchar | Unknown | Unknown |  |
+| `current_team_id` | bigint | Unknown | Unknown |  |
+| `profile_photo_path` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
@@ -2058,6 +2728,17 @@ const UPDATED_AT = 'updated_at';
 | **Key Type** | String (UUID) |
 | **Incrementing** | No |
 | **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `id` | char | Unknown | Unknown |  |
+| `name` | varchar | Unknown | Unknown |  |
+| `internal_name` | varchar | Unknown | Unknown |  |
+| `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
