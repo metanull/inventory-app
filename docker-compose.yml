@@ -86,10 +86,25 @@ services:
       - "127.0.0.1:1026:1025"
     networks: [inventory-dev]
 
+  docs:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.docs
+    volumes:
+      - ./docs:/workspace/docs
+      - ./api-client:/workspace/api-client:ro
+      - ./scripts:/workspace/scripts:ro
+      - ./.git:/workspace/.git:ro
+      - docs-bundle:/usr/local/bundle
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks: [inventory-dev]
+
 volumes:
   mysql-dev:
   valkey-dev:
   vendor:
+  docs-bundle:
 
 networks:
   inventory-dev:

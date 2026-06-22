@@ -1,0 +1,19 @@
+FROM ruby:3.2-alpine
+
+RUN apk add --no-cache python3 git build-base
+
+# Gems are installed here; this path is declared as a volume in docker-compose.yml
+# so it survives the ./docs mount overlay and persists between container restarts.
+ENV BUNDLE_PATH=/usr/local/bundle
+
+WORKDIR /workspace/docs
+
+# Pre-install gems during image build to speed up first container start
+COPY docs/Gemfile docs/Gemfile.lock ./
+RUN bundle install
+
+WORKDIR /workspace
+
+EXPOSE 4000
+
+CMD ["sh", "-c", "cd /workspace/docs && bundle exec jekyll serve --host 0.0.0.0 --watch --force_polling"]
