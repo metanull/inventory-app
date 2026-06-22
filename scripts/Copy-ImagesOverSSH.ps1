@@ -91,7 +91,7 @@ ssh -i $SshKey $Server @"
 set -e
 mkdir -p $RemoteAppStorage/$RemoteDir
 unzip -o /${RemoteAppStorage}/tmp/inventory-images.zip -d $RemoteAppStorage/$RemoteDir
-rm /${RemoteAppStorage}/tmp/inventory-images.zip
+rm ${RemoteAppStorage}/tmp/inventory-images.zip
 find $RemoteAppStorage/$RemoteDir -type f | wc -l | xargs -I{} echo "Total files on server: {}"
 "@
 if ($LASTEXITCODE -ne 0) { 
@@ -99,7 +99,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Progress @ProgressParams -Status "php artisan storage:link..." -PercentComplete 90
-ssh -i $SshKey $Server "cd $RemoteAppRoot && php artisan storage:link"
+ssh -i $SshKey $Server "cd $RemoteAppRoot && php artisan storage:link 2>&1 >/dev/null"
 
 Write-Progress @ProgressParams -Status "Cleaning up..." -PercentComplete 99
 Remove-Item $Archive -Force
