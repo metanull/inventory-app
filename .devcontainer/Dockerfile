@@ -1,83 +1,38 @@
-# Dev / CI image — PHP 8.4 + Node.js 24 (LTS/Krypton) + Xdebug
-#
-# Serves two purposes:
-#   1. VS Code Dev Container  — open the workspace "in container", all tooling
-#      (php, composer, node, npm, artisan, pest, pint, vite) runs inside.
-#   2. Direct test/lint runner — same image used by CI-equivalent docker commands.
-#
-# Build:  docker build -f .devcontainer/Dockerfile -t inventory-app-dev .
-# Run tests outside VS Code (requires the named vendor volume to exist — create it once with
-# `docker run --rm -v "${PWD}:/workspaces/inventory-app" -v inv-app-php-vendor:/workspaces/inventory-app/vendor
-#  -w /workspaces/inventory-app inventory-app-dev composer install --no-interaction`):
-#
-#   docker run --rm \
-#     -v "${PWD}:/workspaces/inventory-app" \
-#     -v inv-app-php-vendor:/workspaces/inventory-app/vendor \
-#     -e DB_CONNECTION=sqlite -e DB_DATABASE=:memory: \
-#     -e XDEBUG_MODE=off \
-#     inventory-app-dev \
-#     php artisan test --testsuite=Api --no-coverage --no-ansi
-#
-# NOTE: The workspace is mounted read-write so artisan can write bootstrap/cache.
-# The vendor/ volume keeps compiled autoload files on the fast Linux FS.
+FROM php:8.5-fpm-alpine
 
-FROM php:8.4-cli-bookworm
+ADD --chmod=0755 \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+    /usr/local/bin/
 
-# ── System packages ───────────────────────────────────────────────────────────
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libicu-dev \
-        libzip-dev \
-        libsqlite3-dev \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-        libexif-dev \
-        unzip \
-        git \
-        curl \
-        sudo \
-        procps \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+RUN install-php-extensions \
+        pdo_sqlite \
         intl \
         zip \
-        pdo_sqlite \
         gd \
         exif \
         bcmath \
         pcntl \
         sockets \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+        xdebug \
+    && apk add --no-cache git curl unzip nodejs npm sudo \
+    && rm -rf /var/cache/apk/*
 
-# ── Xdebug ────────────────────────────────────────────────────────────────────
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 COPY .devcontainer/xdebug.ini /usr/local/etc/php/conf.d/zz-xdebug.ini
 
-# ── Node.js 24.x (LTS/Krypton) ───────────────────────────────────────────────
-RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# ── Composer ──────────────────────────────────────────────────────────────────
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# ── PHP tuning ────────────────────────────────────────────────────────────────
 RUN echo 'memory_limit = 512M' > /usr/local/etc/php/conf.d/zz-memory.ini
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# ── Non-root user (VS Code Dev Container convention) ─────────────────────────
 ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
 
-RUN groupadd --gid ${USER_GID} ${USERNAME} \
-    && useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} \
-    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/${USERNAME} \
+RUN addgroup -g ${USER_GID} ${USERNAME} \
+    && adduser -u ${USER_UID} -G ${USERNAME} -s /bin/sh -D ${USERNAME} \
+    && mkdir -p /etc/sudoers.d \
+    && echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} \
     && chmod 0440 /etc/sudoers.d/${USERNAME} \
     && mkdir -p /workspaces/inventory-app/vendor \
                 /workspaces/inventory-app/node_modules \
@@ -89,6 +44,4 @@ WORKDIR /workspaces/inventory-app
 
 USER ${USERNAME}
 
-# Keep the container alive when used as a Dev Container.
-# Overridden at runtime when used as a one-shot test runner.
 CMD ["sleep", "infinity"]

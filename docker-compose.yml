@@ -1,6 +1,38 @@
 name: inventory-dev
 
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
+    command: ["/bin/sh", "-c", "[ -f vendor/autoload.php ] || composer install --no-interaction --quiet && php artisan migrate --force"]
+    volumes:
+      - .:/var/www/app
+      - vendor:/var/www/app/vendor
+    environment:
+      APP_NAME: Inventory
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8010
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      CACHE_STORE: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: valkey
+      REDIS_PORT: "6379"
+      REDIS_DB: "2"
+      REDIS_CACHE_DB: "3"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    networks: [inventory-dev]
+
   app:
     build:
       context: .
@@ -33,10 +65,8 @@ services:
       MAIL_FROM_ADDRESS: noreply@inventory.test
       MAIL_FROM_NAME: Inventory
     depends_on:
-      mysql:
-        condition: service_healthy
-      valkey:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks: [inventory-dev]
 
   web:
@@ -86,10 +116,64 @@ services:
       - "127.0.0.1:1026:1025"
     networks: [inventory-dev]
 
+  tools:
+    image: node:24-alpine
+    working_dir: /var/www/app
+    profiles: [tools]
+    volumes:
+      - .:/var/www/app
+    networks: [inventory-dev]
+
+  docs-model:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.dev
+    command: ["/bin/sh", "-c", "[ -f vendor/autoload.php ] || composer install --no-interaction --quiet && php artisan docs:models --force"]
+    volumes:
+      - .:/var/www/app
+      - vendor:/var/www/app/vendor
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      CACHE_STORE: redis
+      REDIS_CLIENT: phpredis
+      REDIS_HOST: valkey
+      REDIS_PORT: "6379"
+      REDIS_DB: "2"
+      REDIS_CACHE_DB: "3"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks: [inventory-dev]
+
+  docs:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.docs
+    volumes:
+      - ./docs:/workspace/docs
+      - ./api-client:/workspace/api-client:ro
+      - ./scripts:/workspace/scripts:ro
+      - ./.git:/workspace/.git:ro
+      - docs-bundle:/usr/local/bundle
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      docs-model:
+        condition: service_completed_successfully
+    networks: [inventory-dev]
+
 volumes:
   mysql-dev:
   valkey-dev:
   vendor:
+  docs-bundle:
 
 networks:
   inventory-dev:
