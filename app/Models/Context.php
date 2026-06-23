@@ -77,9 +77,9 @@ class Context extends Model
     }
 
     // Clear all defaults
-    public static function clearDefault()
+    public static function clearDefault(): void
     {
-        return DB::transaction(function () {
+        DB::transaction(function () {
             // Set all rows' 'default' column to false (or 0)
             self::query()->update(['is_default' => false]);
         });

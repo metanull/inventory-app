@@ -166,8 +166,8 @@ class SearchableSelect extends Component
             : 'focus:border-indigo-500 focus:ring-indigo-500';
 
         return view('livewire.searchable-select', [
-            'options' => $this->options,
-            'selectedOption' => $this->selectedOption,
+            'options' => $this->getOptionsProperty(),
+            'selectedOption' => $this->getSelectedOptionProperty(),
             'focusClasses' => $focusClasses,
         ]);
     }

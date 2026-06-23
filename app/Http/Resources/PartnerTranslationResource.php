@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\PartnerTranslation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin PartnerTranslation */
 class PartnerTranslationResource extends JsonResource
 {
     /**

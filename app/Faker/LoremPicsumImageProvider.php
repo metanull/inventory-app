@@ -58,9 +58,7 @@ class LoremPicsumImageProvider extends Base
             $url = "https://picsum.photos/{$width}/{$height}.jpg";
         }
         $queryParams = array_merge(['random' => rand()], $options);
-        if (! empty($queryParams)) {
-            $url .= '?'.http_build_query($queryParams);
-        }
+        $url .= '?'.http_build_query($queryParams);
 
         return $url;
     }

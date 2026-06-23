@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\Artist;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Artist */
 class ArtistResource extends JsonResource
 {
     /**

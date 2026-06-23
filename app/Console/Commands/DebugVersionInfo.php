@@ -95,7 +95,6 @@ class DebugVersionInfo extends Command
         $this->newLine();
         $this->info('3. Testing config fallbacks:');
         $this->line("   config('app.version'): ".(config('app.version') ?? 'NULL'));
-        $this->line("   env('APP_VERSION'): ".(env('APP_VERSION') ?? 'NULL'));
 
         $this->newLine();
         $this->info('=== End Debug ===');

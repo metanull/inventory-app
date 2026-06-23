@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\Timeline;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Timeline */
 class TimelineResource extends JsonResource
 {
     /**

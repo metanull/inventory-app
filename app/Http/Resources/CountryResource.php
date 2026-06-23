@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\Country;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Country */
 class CountryResource extends JsonResource
 {
     /**

@@ -84,4 +84,6 @@ return [
     ],
 
     'extensions' => [],
+
+    'enabled' => env('API_DOCS_ENABLED', false),
 ];

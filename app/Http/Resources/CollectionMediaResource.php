@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\CollectionMedia;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin CollectionMedia */
 class CollectionMediaResource extends JsonResource
 {
     /**

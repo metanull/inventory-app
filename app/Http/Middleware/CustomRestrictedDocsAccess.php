@@ -13,10 +13,8 @@ class CustomRestrictedDocsAccess
             return $next($request);
         }
 
-        // Check if API documentation is explicitly enabled via environment variable
-        // Handle boolean-like values properly (true, "true", "1", 1)
-        $apiDocsEnabled = env('API_DOCS_ENABLED', false);
-        if (filter_var($apiDocsEnabled, FILTER_VALIDATE_BOOLEAN)) {
+        // Check if API documentation is explicitly enabled via config
+        if (config('scramble.enabled', false)) {
             return $next($request);
         }
 

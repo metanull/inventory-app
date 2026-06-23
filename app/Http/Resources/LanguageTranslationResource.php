@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\LanguageTranslation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin LanguageTranslation */
 class LanguageTranslationResource extends JsonResource
 {
     /**

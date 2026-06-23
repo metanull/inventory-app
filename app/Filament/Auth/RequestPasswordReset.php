@@ -36,7 +36,7 @@ class RequestPasswordReset extends SimplePage
             return;
         }
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     public function form(Form $form): Form
@@ -81,7 +81,7 @@ class RequestPasswordReset extends SimplePage
             return;
         }
 
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         $user = User::query()->where('email', $data['email'])->first();
 
@@ -95,7 +95,7 @@ class RequestPasswordReset extends SimplePage
             ->success()
             ->send();
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     /**

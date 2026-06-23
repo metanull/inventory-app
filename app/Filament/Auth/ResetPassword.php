@@ -38,7 +38,7 @@ class ResetPassword extends SimplePage
 
         $this->token = $token;
 
-        $this->form->fill([
+        $this->getForm('form')?->fill([
             'email' => request()->query('email', ''),
         ]);
     }
@@ -84,7 +84,7 @@ class ResetPassword extends SimplePage
 
     public function submit(): void
     {
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         $user = User::where('email', $data['email'])->first();
 

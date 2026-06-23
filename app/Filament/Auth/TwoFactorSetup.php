@@ -87,7 +87,7 @@ class TwoFactorSetup extends SimplePage
 
     public function confirm(): void
     {
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         /** @var User $user */
         $user = Auth::guard(Filament::getAuthGuard())->user();

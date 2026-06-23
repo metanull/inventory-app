@@ -349,7 +349,7 @@ class ItemController extends Controller
     {
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
-        $items = Item::children()->with($with)->get();
+        $items = Item::query()->children()->with($with)->get();
 
         return ItemResource::collection($items);
     }

@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\Tag;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Tag */
 class TagResource extends JsonResource
 {
     /**

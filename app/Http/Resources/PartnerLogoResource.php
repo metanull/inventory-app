@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\PartnerLogo;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin PartnerLogo */
 class PartnerLogoResource extends JsonResource
 {
     /**

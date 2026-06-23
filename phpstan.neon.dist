@@ -7,6 +7,9 @@ parameters:
 
     level: 5
 
+    databaseMigrationsPath:
+        - database/migrations
+
     ignoreErrors:
 
     excludePaths:

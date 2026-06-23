@@ -53,7 +53,7 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     public function form(Form $form): Form
@@ -177,7 +177,7 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         $method = $data['method'] ?? 'totp';
 

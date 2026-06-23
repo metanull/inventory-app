@@ -158,6 +158,14 @@ class Item extends Model
     }
 
     /**
+     * Scope to all items that are children (have a parent).
+     */
+    public function scopeChildren(Builder $query): Builder
+    {
+        return $query->whereNotNull('parent_id');
+    }
+
+    /**
      * Get a query builder scoped to this item's siblings (same parent_id).
      *
      * @return Builder<static>

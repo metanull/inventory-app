@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\DynastyTranslation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin DynastyTranslation */
 class DynastyTranslationResource extends JsonResource
 {
     /**

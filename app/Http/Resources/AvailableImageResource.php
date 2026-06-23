@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\AvailableImage;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin AvailableImage */
 class AvailableImageResource extends JsonResource
 {
     /**

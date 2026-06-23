@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use App\Models\Context;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Context */
 class ContextResource extends JsonResource
 {
     /**
