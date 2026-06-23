@@ -19,25 +19,25 @@ class ProjectResource extends JsonResource
         // return parent::toArray($request);
         return [
             // The unique identifier (GUID)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // A name for this resource, for internal use only.
-            'internal_name' => $this->internal_name,
+            'internal_name' => $this->resource->internal_name,
             // The Id(s) of matching resource in the legacy system (if any).
-            'backward_compatibility' => $this->backward_compatibility,
+            'backward_compatibility' => $this->resource->backward_compatibility,
             // Launch date of the project, nullable
-            'launch_date' => $this->launch_date,
+            'launch_date' => $this->resource->launch_date,
             // Indicates if the project has been launched already
-            'is_launched' => $this->is_launched,
+            'is_launched' => $this->resource->is_launched,
             // Indicates if the project is enabled (active)
-            'is_enabled' => $this->is_enabled,
+            'is_enabled' => $this->resource->is_enabled,
             // The default context used within the project (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
             // The default language used within the project (LanguageResource)
             'language' => new LanguageResource($this->whenLoaded('language')),
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

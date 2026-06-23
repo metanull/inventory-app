@@ -18,21 +18,21 @@ class AvailableImageResource extends JsonResource
     {
         return [
             // The unique identifier (GUID)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // The path to the picture file
-            'path' => $this->path,
+            'path' => $this->resource->path,
             // The original filename as uploaded
-            'original_name' => $this->original_name,
+            'original_name' => $this->resource->original_name,
             // The MIME type of the file
-            'mime_type' => $this->mime_type,
+            'mime_type' => $this->resource->mime_type,
             // The size of the processed file in bytes
-            'size' => $this->size,
+            'size' => $this->resource->size,
             // A user defined comment associated with the file
-            'comment' => $this->comment,
+            'comment' => $this->resource->comment,
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

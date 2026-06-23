@@ -18,21 +18,21 @@ class ImageUploadResource extends JsonResource
     {
         return [
             // The unique identifier (GUID)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // The path to the picture file
-            'path' => $this->path,
+            'path' => $this->resource->path,
             // The original name of the uploaded file
-            'name' => $this->name,
+            'name' => $this->resource->name,
             // The file extension of the uploaded file
-            'extension' => $this->extension,
+            'extension' => $this->resource->extension,
             // The MIME type of the uploaded file
-            'mime_type' => $this->mime_type,
+            'mime_type' => $this->resource->mime_type,
             // The size of the uploaded file in bytes
-            'size' => $this->size,
+            'size' => $this->resource->size,
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }
