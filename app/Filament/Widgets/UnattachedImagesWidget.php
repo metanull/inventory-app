@@ -36,7 +36,7 @@ class UnattachedImagesWidget extends BaseWidget
             ->columns([
                 ImageColumn::make('path')
                     ->label('Preview')
-                    ->disk('public')
+                    ->getStateUsing(fn (AvailableImage $record): string => route('filament.admin.available-image.view', ['availableImage' => $record->id]))
                     ->height(40)
                     ->width(40),
                 TextColumn::make('original_name')

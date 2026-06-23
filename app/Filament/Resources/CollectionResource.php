@@ -6,6 +6,7 @@ use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasChangeParentAction;
 use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -18,7 +19,6 @@ use App\Filament\Resources\CollectionResource\RelationManagers\ImagesRelationMan
 use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
-use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Filament\Support\CollectionDisplayLabel;
 use App\Models\Collection;
 use App\Models\Country;
@@ -48,6 +48,7 @@ class CollectionResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasChangeParentAction;
     use HasInternalNameColumn;
+    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -410,6 +411,7 @@ class CollectionResource extends Resource
                     ->columns(2)
                     ->collapsible()
                     ->collapsed(),
+                static::legacyLinksSection(),
             ]);
     }
 
@@ -421,7 +423,6 @@ class CollectionResource extends Resource
             ItemsRelationManager::class,
             PartnersRelationManager::class,
             ImagesRelationManager::class,
-            LegacyLinksRelationManager::class,
         ];
     }
 

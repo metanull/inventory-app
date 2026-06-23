@@ -7,6 +7,7 @@ use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasChangeParentAction;
 use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -28,7 +29,6 @@ use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\WorkshopsRelationManager;
-use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Filament\Support\CollectionDisplayLabel;
 use App\Filament\Support\ItemDisplayLabel;
 use App\Models\Collection;
@@ -66,6 +66,7 @@ class ItemResource extends Resource
     use HasBackwardCompatibilityColumn;
     use HasChangeParentAction;
     use HasInternalNameColumn;
+    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -527,6 +528,7 @@ class ItemResource extends Resource
                     ->columns(2)
                     ->collapsible()
                     ->collapsed(),
+                static::legacyLinksSection(),
             ]);
     }
 
@@ -553,7 +555,6 @@ class ItemResource extends Resource
             RelationGroup::make('Links', [
                 OutgoingLinksRelationManager::class,
                 IncomingLinksRelationManager::class,
-                LegacyLinksRelationManager::class,
             ]),
             RelationGroup::make('Timeline', [
                 TimelineEventsRelationManager::class,

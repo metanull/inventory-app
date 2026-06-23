@@ -1,13 +1,7 @@
-@props(['model', 'entity'])
+@props(['model', 'entity', 'images'])
 
 @php
-    // Convert entity to singular camelCase for relationship name
-    // e.g., 'partner-translations' -> 'partnerTranslation' -> 'partnerTranslationImages'
     $entitySingular = \Illuminate\Support\Str::singular($entity);
-    $imagesRelation = \Illuminate\Support\Str::camel($entitySingular) . 'Images';
-    $images = $model->$imagesRelation()->orderBy('display_order')->get();
-    // Route prefix uses entity (plural) + entitySingular-images
-    // e.g., 'partner-translations' + 'partner-translation-images' = 'partner-translations.partner-translation-images'
     $routePrefix = $entity . '.' . $entitySingular . '-images';
 @endphp
 

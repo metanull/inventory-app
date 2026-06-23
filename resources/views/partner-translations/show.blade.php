@@ -67,7 +67,7 @@
         </x-display.description-list>
 
         {{-- Images Section --}}
-        <x-entity.translation-images-section :model="$partnerTranslation" entity="partner-translations" />
+        <x-entity.translation-images-section :model="$partnerTranslation" entity="partner-translations" :images="$images" />
 
         <!-- System Properties -->
         <x-system-properties 
