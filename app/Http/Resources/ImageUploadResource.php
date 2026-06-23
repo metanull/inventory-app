@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ImageUpload;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin ImageUpload */
+/** @extends JsonResource<ImageUpload> */
 class ImageUploadResource extends JsonResource
 {
     /**
@@ -16,7 +16,6 @@ class ImageUploadResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\ImageUpload $this */
         return [
             // The unique identifier (GUID)
             'id' => $this->id,

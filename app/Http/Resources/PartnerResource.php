@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Partner;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Partner */
+/** @extends JsonResource<Partner> */
 class PartnerResource extends JsonResource
 {
     /**
@@ -16,7 +16,6 @@ class PartnerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\Partner $this */
         return [
             // The unique identifier (GUID)
             'id' => $this->id,

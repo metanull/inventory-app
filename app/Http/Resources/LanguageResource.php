@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Language;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Language */
+/** @extends JsonResource<Language> */
 class LanguageResource extends JsonResource
 {
     /**
@@ -16,7 +16,6 @@ class LanguageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\Language $this */
         return [
             // The unique identifier (ISO 639-1 code)
             'id' => $this->id,

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Context;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Context */
+/** @extends JsonResource<Context> */
 class ContextResource extends JsonResource
 {
     /**
@@ -16,7 +16,6 @@ class ContextResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\Context $this */
         return [
             // The unique identifier (GUID)
             'id' => $this->id,

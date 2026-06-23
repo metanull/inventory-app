@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Country;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin Country */
+/** @extends JsonResource<Country> */
 class CountryResource extends JsonResource
 {
     /**
@@ -16,7 +16,6 @@ class CountryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var \App\Models\Country $this */
         return [
             // The unique identifier (ISO 3166-1 alpha-3 code)
             'id' => $this->id,
