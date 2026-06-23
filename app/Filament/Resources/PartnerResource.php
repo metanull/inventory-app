@@ -6,6 +6,7 @@ use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Concerns\HasBackwardCompatibilityColumn;
 use App\Filament\Concerns\HasInternalNameColumn;
+use App\Filament\Concerns\HasLegacyLinksInfolistSection;
 use App\Filament\Concerns\HasTimestampsColumns;
 use App\Filament\Concerns\HasTranslationCoverageFilters;
 use App\Filament\Concerns\HasUuidColumn;
@@ -17,7 +18,6 @@ use App\Filament\Resources\PartnerResource\RelationManagers\CollectionParticipat
 use App\Filament\Resources\PartnerResource\RelationManagers\ImagesRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\OwnedItemsRelationManager;
 use App\Filament\Resources\PartnerResource\RelationManagers\TranslationsRelationManager;
-use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Filament\Support\PartnerDisplayLabel;
 use App\Models\Country;
 use App\Models\Partner;
@@ -47,6 +47,7 @@ class PartnerResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
     use HasInternalNameColumn;
+    use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
     use HasTranslationCoverageFilters;
     use HasUuidColumn;
@@ -277,6 +278,7 @@ class PartnerResource extends Resource
                     ->columns(2)
                     ->collapsible()
                     ->collapsed(),
+                static::legacyLinksSection(),
             ]);
     }
 
@@ -287,7 +289,6 @@ class PartnerResource extends Resource
             TranslationsRelationManager::class,
             CollectionParticipationsRelationManager::class,
             ImagesRelationManager::class,
-            LegacyLinksRelationManager::class,
         ];
     }
 

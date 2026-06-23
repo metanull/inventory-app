@@ -4,18 +4,12 @@ namespace Tests\Filament\Resources;
 
 use App\Enums\ItemType;
 use App\Enums\Permission;
-use App\Filament\Resources\CollectionResource\Pages\ViewCollection;
-use App\Filament\Resources\ItemResource\Pages\ViewItem;
-use App\Filament\Resources\PartnerResource\Pages\ViewPartner;
-use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use App\Models\Collection;
 use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Project;
 use App\Models\User;
-use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Livewire;
 use Tests\TestCase;
 
 class LegacyLinksInfolistTest extends TestCase
@@ -34,16 +28,6 @@ class LegacyLinksInfolistTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/items/{$item->getRouteKey()}")
             ->assertOk()
-            ->assertSee('Item')
-            ->assertSee('Links');
-
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
-
-        Livewire::actingAs($user)
-            ->test(LegacyLinksRelationManager::class, [
-                'ownerRecord' => $item,
-                'pageClass' => ViewItem::class,
-            ])
             ->assertSee('Legacy links')
             ->assertSee('Legacy object page')
             ->assertSee('islamicart.museumwnf.org')
@@ -62,16 +46,6 @@ class LegacyLinksInfolistTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/collections/{$collection->getRouteKey()}")
             ->assertOk()
-            ->assertSee('Collection')
-            ->assertSee('Legacy links');
-
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
-
-        Livewire::actingAs($user)
-            ->test(LegacyLinksRelationManager::class, [
-                'ownerRecord' => $collection,
-                'pageClass' => ViewCollection::class,
-            ])
             ->assertSee('Legacy links')
             ->assertSee('Travels trail page')
             ->assertSee('travels.museumwnf.org')
@@ -92,16 +66,6 @@ class LegacyLinksInfolistTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/partners/{$partner->getRouteKey()}")
             ->assertOk()
-            ->assertSee('Partner')
-            ->assertSee('Legacy links');
-
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
-
-        Livewire::actingAs($user)
-            ->test(LegacyLinksRelationManager::class, [
-                'ownerRecord' => $partner,
-                'pageClass' => ViewPartner::class,
-            ])
             ->assertSee('Legacy links')
             ->assertSee('Legacy partner page')
             ->assertSee('islamicart.museumwnf.org')
@@ -120,16 +84,6 @@ class LegacyLinksInfolistTest extends TestCase
         $this->actingAs($user)
             ->get("/admin/partners/{$partner->getRouteKey()}")
             ->assertOk()
-            ->assertSee('Partner')
-            ->assertSee('Legacy links');
-
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
-
-        Livewire::actingAs($user)
-            ->test(LegacyLinksRelationManager::class, [
-                'ownerRecord' => $partner,
-                'pageClass' => ViewPartner::class,
-            ])
             ->assertSee('Legacy links')
             ->assertSee('Requires lookup')
             ->assertSee('The partner legacy URL needs a project code');

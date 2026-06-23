@@ -17,7 +17,6 @@ use App\Filament\Resources\ItemResource\RelationManagers\TagsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TimelineEventsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Resources\ItemResource\RelationManagers\WorkshopsRelationManager;
-use App\Filament\Resources\RelationManagers\LegacyLinksRelationManager;
 use Filament\Resources\RelationManagers\RelationGroup;
 use Tests\TestCase;
 
@@ -134,7 +133,7 @@ class ItemRelationGroupsTest extends TestCase
         $managers = $linksGroup->getManagers();
 
         $this->assertSame(
-            [OutgoingLinksRelationManager::class, IncomingLinksRelationManager::class, LegacyLinksRelationManager::class],
+            [OutgoingLinksRelationManager::class, IncomingLinksRelationManager::class],
             $managers
         );
     }
@@ -167,7 +166,6 @@ class ItemRelationGroupsTest extends TestCase
             DynastiesRelationManager::class,
             OutgoingLinksRelationManager::class,
             IncomingLinksRelationManager::class,
-            LegacyLinksRelationManager::class,
             TimelineEventsRelationManager::class,
         ];
 

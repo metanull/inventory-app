@@ -74,8 +74,9 @@ class PartnerTranslationController extends Controller
     public function show(PartnerTranslation $partnerTranslation): View
     {
         $partnerTranslation->load(['partner', 'language', 'context']);
+        $images = $partnerTranslation->partnerTranslationImages()->orderBy('display_order')->get();
 
-        return view('partner-translations.show', compact('partnerTranslation'));
+        return view('partner-translations.show', compact('partnerTranslation', 'images'));
     }
 
     /**
