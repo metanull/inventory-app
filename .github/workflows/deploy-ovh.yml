@@ -34,7 +34,7 @@ jobs:
 
     steps:
       - name: Checkout code (for deploy script)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Determine artifact source
         id: source
