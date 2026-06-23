@@ -16,6 +16,7 @@ class CountryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\Country $this */
         return [
             // The unique identifier (ISO 3166-1 alpha-3 code)
             'id' => $this->id,

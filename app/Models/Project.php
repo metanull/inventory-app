@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property \Illuminate\Support\Carbon|null $launch_date
+ * @property bool $is_launched
+ * @property bool $is_enabled
+ */
 class Project extends Model
 {
     use HasFactory;

@@ -16,6 +16,7 @@ class LanguageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\Language $this */
         return [
             // The unique identifier (ISO 639-1 code)
             'id' => $this->id,

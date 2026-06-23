@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property bool $is_default
+ */
 class Language extends Model
 {
     use HasFactory;

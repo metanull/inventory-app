@@ -16,6 +16,7 @@ class PartnerResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\Partner $this */
         return [
             // The unique identifier (GUID)
             'id' => $this->id,
@@ -38,7 +39,7 @@ class PartnerResource extends JsonResource
             'images' => PartnerImageResource::collection($this->whenLoaded('partnerImages')),
             'collections' => CollectionResource::collection($this->whenLoaded('collections')),
             // Visibility
-            'visible' => $this->visible,
+            'visible' => $this->resource->visible,
             // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
             // The date of last modification of the resource (managed by the system)

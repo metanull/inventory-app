@@ -13,6 +13,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property \App\Enums\ItemType $type
+ * @property string|null $parent_id
+ * @property int|null $display_order
+ * @property int|null $start_date
+ * @property int|null $end_date
+ */
 class Item extends Model
 {
     use HasDisplayOrder;
@@ -155,14 +164,6 @@ class Item extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Item::class, 'parent_id')->orderBy('display_order');
-    }
-
-    /**
-     * Scope to all items that are children (have a parent).
-     */
-    public function scopeChildren(Builder $query): Builder
-    {
-        return $query->whereNotNull('parent_id');
     }
 
     /**

@@ -16,6 +16,7 @@ class ContextResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\Context $this */
         return [
             // The unique identifier (GUID)
             'id' => $this->id,

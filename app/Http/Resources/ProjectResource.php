@@ -16,6 +16,7 @@ class ProjectResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var \App\Models\Project $this */
         // return parent::toArray($request);
         return [
             // The unique identifier (GUID)

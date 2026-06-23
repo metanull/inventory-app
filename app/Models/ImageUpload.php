@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string|null $path
+ * @property string|null $name
+ * @property string|null $extension
+ * @property string|null $mime_type
+ * @property int|null $size
+ */
 class ImageUpload extends Model
 {
     use HasFactory;
