@@ -208,13 +208,16 @@ class BrowseItemTree extends Page
      */
     public function getRoots(): Collection
     {
-        return ItemDisplayLabel::withDisplayLabel(
+        /** @var Collection<int, Item> $result */
+        $result = ItemDisplayLabel::withDisplayLabel(
             $this->buildRootQuery()
                 ->withCount('children')
                 ->orderBy('internal_name')
                 ->offset(($this->page - 1) * self::PAGE_SIZE)
                 ->limit(self::PAGE_SIZE)
         )->get();
+
+        return $result;
     }
 
     /**
@@ -232,12 +235,15 @@ class BrowseItemTree extends Page
      */
     public function getChildren(string $parentId): Collection
     {
-        return ItemDisplayLabel::withDisplayLabel(
+        /** @var Collection<int, Item> $result */
+        $result = ItemDisplayLabel::withDisplayLabel(
             Item::query()
                 ->where('parent_id', $parentId)
                 ->withCount('children')
                 ->orderBy('display_order')
                 ->orderBy('internal_name')
         )->get();
+
+        return $result;
     }
 }

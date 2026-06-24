@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ */
 class TimelineEvent extends Model
 {
     use HasDisplayOrder;
@@ -59,7 +62,10 @@ class TimelineEvent extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('timeline_id', $this->timeline_id);
+        /** @var Builder<static> $query */
+        $query = static::where('timeline_id', $this->timeline_id);
+
+        return $query;
     }
 
     /**
@@ -71,7 +77,7 @@ class TimelineEvent extends Model
     }
 
     /**
-     * Get the translations for this event.
+     * @return HasMany<TimelineEventTranslation, $this>
      */
     public function translations(): HasMany
     {

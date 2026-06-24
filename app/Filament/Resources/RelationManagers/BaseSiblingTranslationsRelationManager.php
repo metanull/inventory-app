@@ -4,6 +4,8 @@ namespace App\Filament\Resources\RelationManagers;
 
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
+use App\Models\Context;
+use App\Models\Language;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
@@ -37,7 +39,7 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
                 ->with(['language:id,internal_name,is_default', 'context:id,internal_name,is_default'])
-                ->where('id', '!=', $this->ownerRecord->id)
+                ->where('id', '!=', $this->ownerRecord->getKey())
                 ->orderBy('updated_at', 'desc')
             )
             ->paginated(false)
@@ -45,21 +47,48 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->badge()
-                    ->color(fn (Model $r): string => $r->language?->is_default ? 'success' : 'gray')
-                    ->url(fn (Model $r): ?string => $r->language
-                        ? (auth()->user()?->can('view', $r->language) ? LanguageResource::getUrl('view', ['record' => $r->language]) : null)
-                        : null),
+                    ->color(function (Model $r): string {
+                        /** @var Language|null $lang */
+                        $lang = $r->language;
+
+                        return $lang?->is_default ? 'success' : 'gray';
+                    })
+                    ->url(function (Model $r): ?string {
+                        /** @var Language|null $lang */
+                        $lang = $r->language;
+
+                        return $lang
+                            ? (auth()->user()?->can('view', $lang) ? LanguageResource::getUrl('view', ['record' => $lang]) : null)
+                            : null;
+                    }),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->badge()
-                    ->color(fn (Model $r): string => $r->context?->is_default ? 'success' : 'gray')
-                    ->url(fn (Model $r): ?string => $r->context
-                        ? (auth()->user()?->can('view', $r->context) ? ContextResource::getUrl('view', ['record' => $r->context]) : null)
-                        : null),
+                    ->color(function (Model $r): string {
+                        /** @var Context|null $ctx */
+                        $ctx = $r->context;
+
+                        return $ctx?->is_default ? 'success' : 'gray';
+                    })
+                    ->url(function (Model $r): ?string {
+                        /** @var Context|null $ctx */
+                        $ctx = $r->context;
+
+                        return $ctx
+                            ? (auth()->user()?->can('view', $ctx) ? ContextResource::getUrl('view', ['record' => $ctx]) : null)
+                            : null;
+                    }),
                 IconColumn::make('is_default_pair')
                     ->label('★')
                     ->tooltip('Default language + context pair')
-                    ->getStateUsing(fn (Model $r): bool => (bool) ($r->language?->is_default && $r->context?->is_default))
+                    ->getStateUsing(function (Model $r): bool {
+                        /** @var Language|null $lang */
+                        $lang = $r->language;
+                        /** @var Context|null $ctx */
+                        $ctx = $r->context;
+
+                        return (bool) ($lang?->is_default && $ctx?->is_default);
+                    })
                     ->trueIcon('heroicon-s-star')
                     ->falseIcon('heroicon-o-minus')
                     ->trueColor('warning')
@@ -73,7 +102,7 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                 TextColumn::make('id')
                     ->label('UUID')
                     ->limit(8)
-                    ->tooltip(fn (Model $r): string => $r->id)
+                    ->tooltip(fn (Model $r): string => (string) $r->getKey())
                     ->fontFamily('mono'),
             ])
             ->actions([

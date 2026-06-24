@@ -51,8 +51,11 @@ class CollectionMedia extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('collection_id', $this->collection_id)
+        /** @var Builder<static> $query */
+        $query = static::where('collection_id', $this->collection_id)
             ->where('type', $this->type);
+
+        return $query;
     }
 
     /**

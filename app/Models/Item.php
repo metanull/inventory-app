@@ -14,13 +14,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 /**
+ * @property string $id
  * @property string $internal_name
  * @property string|null $backward_compatibility
  * @property \App\Enums\ItemType $type
  * @property string|null $parent_id
+ * @property string $collection_id
+ * @property string|null $project_id
  * @property int|null $display_order
  * @property int|null $start_date
  * @property int|null $end_date
+ * @property string|null $display_label
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class Item extends Model
 {
@@ -136,6 +142,8 @@ class Item extends Model
 
     /**
      * The project associated with the Item.
+     *
+     * @return BelongsTo<Project, $this>
      */
     public function project(): BelongsTo
     {
@@ -144,6 +152,8 @@ class Item extends Model
 
     /**
      * The collection that contains this item.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -173,9 +183,12 @@ class Item extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return $this->parent_id
+        /** @var Builder<static> $query */
+        $query = $this->parent_id
             ? static::where('parent_id', $this->parent_id)
             : static::whereNull('parent_id');
+
+        return $query;
     }
 
     /**
@@ -236,6 +249,8 @@ class Item extends Model
 
     /**
      * Get all translations for this item.
+     *
+     * @return HasMany<ItemTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -244,6 +259,8 @@ class Item extends Model
 
     /**
      * Get all outgoing links (where this item is the source).
+     *
+     * @return HasMany<ItemItemLink, $this>
      */
     public function outgoingLinks(): HasMany
     {
@@ -252,6 +269,8 @@ class Item extends Model
 
     /**
      * Get all incoming links (where this item is the target).
+     *
+     * @return HasMany<ItemItemLink, $this>
      */
     public function incomingLinks(): HasMany
     {
@@ -284,10 +303,10 @@ class Item extends Model
      */
     public function getDefaultTranslation(string $languageId): ?ItemTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        /** @var Builder<ItemTranslation> $query */
+        $query = $this->translations();
+
+        return $query->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -295,10 +314,10 @@ class Item extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?ItemTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        /** @var Builder<ItemTranslation> $query */
+        $query = $this->translations();
+
+        return $query->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

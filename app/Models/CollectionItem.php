@@ -38,7 +38,7 @@ class CollectionItem extends Pivot
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'collection_id',

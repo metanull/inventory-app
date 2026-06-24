@@ -13,6 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $timeline_event_id
+ * @property string $language_id
+ * @property string|null $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class TimelineEventTranslation extends Model
 {
     use HasFactory, HasJsonFields, HasUuids;

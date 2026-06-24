@@ -41,6 +41,7 @@ final class ItemIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\Item> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         if ($search === null) {
@@ -59,6 +60,7 @@ final class ItemIndexQuery
         });
     }
 
+    /** @param Builder<\App\Models\Item> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;

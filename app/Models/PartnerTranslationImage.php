@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,14 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class PartnerTranslationImage extends Model implements StreamableImageFile
+class PartnerTranslationImage extends Model implements StreamableImageFile, DetachableImage
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'partner_translation_id',
@@ -76,7 +77,10 @@ class PartnerTranslationImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('partner_translation_id', $this->partner_translation_id);
+        /** @var Builder<static> $query */
+        $query = static::where('partner_translation_id', $this->partner_translation_id);
+
+        return $query;
     }
 
     /**
@@ -94,7 +98,8 @@ class PartnerTranslationImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerTranslationId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $partnerTranslationId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $partnerTranslationId, $altText) {
             $displayOrder = static::getNextDisplayOrderForPartnerTranslation($partnerTranslationId);
 
             // Move file from available storage to pictures storage
@@ -127,6 +132,8 @@ class PartnerTranslationImage extends Model implements StreamableImageFile
 
             return $partnerTranslationImage;
         });
+
+        return $result;
     }
 
     /**
@@ -163,6 +170,8 @@ class PartnerTranslationImage extends Model implements StreamableImageFile
 
             return $availableImage;
         });
+
+        return $result;
     }
 
     public function imageDisk(): string

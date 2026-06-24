@@ -14,10 +14,10 @@ class CustomDownCommand extends DownCommand
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         // Call parent implementation to execute standard Laravel maintenance mode
-        parent::handle();
+        $result = parent::handle();
 
         // Create lock file in public directory for SPA access
         try {
@@ -35,5 +35,7 @@ class CustomDownCommand extends DownCommand
         } catch (\Exception $e) {
             $this->components->warn('Failed to create public lock file: '.$e->getMessage());
         }
+
+        return $result;
     }
 }

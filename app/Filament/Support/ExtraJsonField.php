@@ -115,7 +115,7 @@ class ExtraJsonField
      *
      * Returns the original value unchanged when it is already an array or a scalar.
      */
-    private static function toArray(mixed $value): mixed
+    protected static function toArray(mixed $value): mixed
     {
         if (is_object($value)) {
             // JSON round-trip is the idiomatic way to deep-convert a stdClass graph

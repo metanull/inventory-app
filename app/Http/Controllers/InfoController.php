@@ -79,9 +79,9 @@ class InfoController extends Controller
      * Simple endpoint that returns just the version information
      * for deployment tracking and API compatibility checks.
      *
-     * @return JsonResponse Version information
+     * @return VersionResource Version information
      */
-    public function version()
+    public function version(): VersionResource
     {
         // If a deployment has produced a VERSION file at repo root, return its content as-is.
         $versionPath = base_path('VERSION');

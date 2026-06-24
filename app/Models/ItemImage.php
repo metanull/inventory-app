@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,14 +14,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class ItemImage extends Model implements StreamableImageFile
+class ItemImage extends Model implements StreamableImageFile, DetachableImage
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'item_id',
@@ -78,6 +79,8 @@ class ItemImage extends Model implements StreamableImageFile
         return $query->whereHas('tags', function (Builder $query) use ($tagInternalName) {
             $query->where('tags.internal_name', $tagInternalName);
         });
+
+        return $result;
     }
 
     /**
@@ -90,6 +93,8 @@ class ItemImage extends Model implements StreamableImageFile
         return $query->whereDoesntHave('tags', function (Builder $query) use ($tagInternalName) {
             $query->where('tags.internal_name', $tagInternalName);
         });
+
+        return $result;
     }
 
     /**
@@ -109,7 +114,10 @@ class ItemImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('item_id', $this->item_id);
+        /** @var Builder<static> $query */
+        $query = static::where('item_id', $this->item_id);
+
+        return $query;
     }
 
     /**
@@ -127,7 +135,8 @@ class ItemImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $itemId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $itemId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $itemId, $altText) {
             $displayOrder = static::getNextDisplayOrderForItem($itemId);
 
             // Move file from available storage to pictures storage
@@ -160,6 +169,8 @@ class ItemImage extends Model implements StreamableImageFile
 
             return $itemImage;
         });
+
+        return $result;
     }
 
     /**
@@ -196,6 +207,8 @@ class ItemImage extends Model implements StreamableImageFile
 
             return $availableImage;
         });
+
+        return $result;
     }
 
     public function imageDisk(): string

@@ -50,6 +50,7 @@ class ShowUser extends Command
         } else {
             $this->info('Assigned Roles:');
             foreach ($user->roles as $role) {
+                /** @var \Spatie\Permission\Models\Role $role */
                 $this->line("  • {$role->name}");
             }
 

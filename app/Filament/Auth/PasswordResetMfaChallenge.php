@@ -126,7 +126,7 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        $user = User::find($userId);
+        $user = User::find((int) $userId);
 
         if (! $user) {
             $this->clearPasswordResetSession();
@@ -191,7 +191,7 @@ class PasswordResetMfaChallenge extends SimplePage
             ]);
         }
 
-        $user = User::find($userId);
+        $user = User::find((int) $userId);
 
         if (! $user) {
             $this->clearPasswordResetSession();

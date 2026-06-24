@@ -47,7 +47,7 @@ class TranslationsRelationManager extends RelationManager
                         table: 'item_item_link_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, $get, $record): Unique => $rule
-                            ->where('item_item_link_id', $this->ownerRecord->id)
+                            ->where('item_item_link_id', $this->ownerItemItemLink()->id)
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )
@@ -123,5 +123,13 @@ class TranslationsRelationManager extends RelationManager
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    private function ownerItemItemLink(): \App\Models\ItemItemLink
+    {
+        /** @var \App\Models\ItemItemLink $record */
+        $record = $this->ownerRecord;
+
+        return $record;
     }
 }

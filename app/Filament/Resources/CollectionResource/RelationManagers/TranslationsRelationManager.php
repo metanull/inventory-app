@@ -37,7 +37,7 @@ class TranslationsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        $ownerRecord = $this->ownerRecord;
+        $ownerRecord = $this->ownerCollection();
 
         return $form
             ->schema([
@@ -172,13 +172,13 @@ class TranslationsRelationManager extends RelationManager
                         'language_id' => Language::default()->first()?->id,
                         'context_id' => Context::default()->first()?->id,
                     ])
-                    ->visible(fn (): bool => ! $this->ownerRecord->translations()
+                    ->visible(fn (): bool => ! $this->ownerCollection()->translations()
                         ->whereHas('language', fn ($q) => $q->where('is_default', true))
                         ->whereHas('context', fn ($q) => $q->where('is_default', true))
                         ->exists()
                     )
                     ->action(function (array $data): void {
-                        $exists = $this->ownerRecord->translations()
+                        $exists = $this->ownerCollection()->translations()
                             ->where('language_id', $data['language_id'])
                             ->where('context_id', $data['context_id'])
                             ->exists();
@@ -192,7 +192,7 @@ class TranslationsRelationManager extends RelationManager
                             return;
                         }
 
-                        $this->ownerRecord->translations()->create($data);
+                        $this->ownerCollection()->translations()->create($data);
 
                         Notification::make()
                             ->success()
@@ -217,5 +217,13 @@ class TranslationsRelationManager extends RelationManager
                     ->openUrlInNewTab(),
                 DeleteAction::make(),
             ]);
+    }
+
+    private function ownerCollection(): \App\Models\Collection
+    {
+        /** @var \App\Models\Collection $record */
+        $record = $this->ownerRecord;
+
+        return $record;
     }
 }

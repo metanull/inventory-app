@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionsRelationManager extends RelationManager
 {
@@ -59,7 +60,9 @@ class PermissionsRelationManager extends RelationManager
                             'guard_name' => config('fortify.guard', 'web'),
                         ]);
 
-                        $this->getOwnerRecord()->givePermissionTo($permission);
+                        /** @var Role $role */
+                        $role = $this->getOwnerRecord();
+                        $role->givePermissionTo($permission);
 
                         Notification::make()->success()->title('Permission created and attached')->send();
                     }),

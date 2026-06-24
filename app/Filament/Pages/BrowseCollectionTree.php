@@ -191,7 +191,8 @@ class BrowseCollectionTree extends Page
      */
     public function getRoots(): \Illuminate\Database\Eloquent\Collection
     {
-        return CollectionDisplayLabel::withDisplayLabel(
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Collection> $result */
+        $result = CollectionDisplayLabel::withDisplayLabel(
             $this->buildRootQuery()
                 ->withCount('children')
                 ->withCount('attachedItems')
@@ -199,6 +200,8 @@ class BrowseCollectionTree extends Page
                 ->offset(($this->page - 1) * self::PAGE_SIZE)
                 ->limit(self::PAGE_SIZE)
         )->get();
+
+        return $result;
     }
 
     /**
@@ -216,13 +219,16 @@ class BrowseCollectionTree extends Page
      */
     public function getChildren(string $parentId): \Illuminate\Database\Eloquent\Collection
     {
-        return CollectionDisplayLabel::withDisplayLabel(
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Collection> $result */
+        $result = CollectionDisplayLabel::withDisplayLabel(
             Collection::query()
                 ->where('parent_id', $parentId)
                 ->withCount('children')
                 ->withCount('attachedItems')
                 ->orderBy('internal_name')
         )->get();
+
+        return $result;
     }
 
     /**
@@ -237,7 +243,8 @@ class BrowseCollectionTree extends Page
             ->where('collection_item.collection_id', $collectionId)
             ->select('items.*');
 
-        return ItemDisplayLabel::withDisplayLabel($query)
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Item> $result */
+        $result = ItemDisplayLabel::withDisplayLabel($query)
             ->with([
                 'translations',
                 'collection:id,context_id',
@@ -251,6 +258,8 @@ class BrowseCollectionTree extends Page
             ->orderBy('display_label')
             ->orderBy('items.internal_name')
             ->get();
+
+        return $result;
     }
 
     /**
@@ -280,15 +289,20 @@ class BrowseCollectionTree extends Page
         }
 
         // Fetch all ancestors in one query, then reorder to root-first using the collected order.
-        $byId = CollectionDisplayLabel::withDisplayLabel(
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Collection> $fetched */
+        $fetched = CollectionDisplayLabel::withDisplayLabel(
             Collection::whereIn('id', $ancestorIds)
-        )->get()->keyBy('id');
+        )->get();
+        $byId = $fetched->keyBy('id');
 
         // ancestorIds is leaf-to-root; reverse for root-first breadcrumb order.
-        return new \Illuminate\Database\Eloquent\Collection(
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Collection> $result */
+        $result = new \Illuminate\Database\Eloquent\Collection(
             array_filter(
                 array_map(fn (string $id) => $byId->get($id), array_reverse($ancestorIds))
             )
         );
+
+        return $result;
     }
 }

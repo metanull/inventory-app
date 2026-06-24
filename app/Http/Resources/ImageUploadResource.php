@@ -4,10 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use App\Models\ImageUpload;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\BaseJsonResource;
 
-/** @extends JsonResource<ImageUpload> */
-class ImageUploadResource extends JsonResource
+/** @extends BaseJsonResource<ImageUpload> */
+class ImageUploadResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.

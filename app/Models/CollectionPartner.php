@@ -31,17 +31,12 @@ class CollectionPartner extends Pivot
      */
     public $incrementing = false;
 
-    /**
-     * The primary key for the model.
-     *
-     * @var string[]
-     */
     protected $primaryKey = ['collection_id', 'collection_type', 'partner_id'];
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'collection_id',

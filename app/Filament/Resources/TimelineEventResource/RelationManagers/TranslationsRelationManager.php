@@ -26,7 +26,7 @@ class TranslationsRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        $ownerRecord = $this->ownerRecord;
+        $ownerRecord = $this->ownerTimelineEvent();
 
         return $form
             ->schema([
@@ -106,5 +106,13 @@ class TranslationsRelationManager extends RelationManager
                 EditAction::make(),
                 DeleteAction::make(),
             ]);
+    }
+
+    private function ownerTimelineEvent(): \App\Models\TimelineEvent
+    {
+        /** @var \App\Models\TimelineEvent $record */
+        $record = $this->ownerRecord;
+
+        return $record;
     }
 }

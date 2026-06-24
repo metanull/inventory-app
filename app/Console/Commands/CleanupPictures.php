@@ -119,6 +119,7 @@ class CleanupPictures extends Command
         foreach (AttachedImageRegistry::modelClasses() as $class) {
             $class::query()->chunkById(500, function ($records) use (&$keepSet) {
                 foreach ($records as $record) {
+                    /** @var \Illuminate\Database\Eloquent\Model&\App\Contracts\StreamableImageFile $record */
                     $storagePath = $record->imageStoragePath();
                     $keepSet[$storagePath] = true;
                 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,14 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class PartnerImage extends Model implements StreamableImageFile
+class PartnerImage extends Model implements StreamableImageFile, DetachableImage
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'partner_id',
@@ -78,7 +79,10 @@ class PartnerImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('partner_id', $this->partner_id);
+        /** @var Builder<static> $query */
+        $query = static::where('partner_id', $this->partner_id);
+
+        return $query;
     }
 
     /**
@@ -96,7 +100,8 @@ class PartnerImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $partnerId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $partnerId, $altText) {
             $displayOrder = static::getNextDisplayOrderForPartner($partnerId);
 
             // Move file from available storage to pictures storage
@@ -129,6 +134,8 @@ class PartnerImage extends Model implements StreamableImageFile
 
             return $partnerImage;
         });
+
+        return $result;
     }
 
     /**
@@ -165,6 +172,8 @@ class PartnerImage extends Model implements StreamableImageFile
 
             return $availableImage;
         });
+
+        return $result;
     }
 
     public function imageDisk(): string

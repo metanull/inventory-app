@@ -95,7 +95,7 @@ class ContextResource extends Resource
                 TernaryFilter::make('is_default')
                     ->label('Default')
                     ->queries(
-                        true: fn (Builder $query): Builder => $query->default(),
+                        true: fn (Builder $query): Builder => $query->where('is_default', true),
                         false: fn (Builder $query): Builder => $query->where('is_default', false),
                         blank: fn (Builder $query): Builder => $query,
                     ),

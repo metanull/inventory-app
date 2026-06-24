@@ -38,11 +38,13 @@ final class CollectionIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\Collection> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\Collection> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;

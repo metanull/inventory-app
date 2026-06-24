@@ -211,7 +211,7 @@ class SyncLegacyImages extends Command
                 } catch (\Throwable $e) {
                     $errors++;
                     $this->newLine();
-                    $this->error("  {$image->id}: {$e->getMessage()}");
+                    $this->error("  {$image->getKey()}: {$e->getMessage()}");
                 }
 
                 $bar->advance();

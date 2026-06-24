@@ -80,7 +80,7 @@ trait HasChangeParentAction
             ])
             ->action(function (Model $record, array $data) use ($resourceName, $idKey): void {
                 try {
-                    $record->parent_id = $data['parent_id'] ?? null;
+                    $record->setAttribute('parent_id', $data['parent_id'] ?? null);
                     $record->save();
 
                     Notification::make()
@@ -89,7 +89,7 @@ trait HasChangeParentAction
                         ->send();
                 } catch (\RuntimeException $e) {
                     logger()->warning($resourceName.': changeParent failed', [
-                        $idKey => $record->id,
+                        $idKey => $record->getKey(),
                         'new_parent_id' => $data['parent_id'] ?? null,
                         'error' => $e->getMessage(),
                     ]);
@@ -132,15 +132,15 @@ trait HasChangeParentAction
                 $errors = [];
                 foreach ($records as $record) {
                     try {
-                        $record->parent_id = $data['parent_id'] ?? null;
+                        $record->setAttribute('parent_id', $data['parent_id'] ?? null);
                         $record->save();
                     } catch (\RuntimeException $e) {
                         logger()->warning($resourceName.': moveToParent failed', [
-                            $idKey => $record->id,
+                            $idKey => $record->getKey(),
                             'new_parent_id' => $data['parent_id'] ?? null,
                             'error' => $e->getMessage(),
                         ]);
-                        $errors[] = $record->internal_name;
+                        $errors[] = $record->getAttribute('internal_name');
                     }
                 }
 

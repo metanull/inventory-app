@@ -15,19 +15,27 @@ class EditCollectionTranslation extends EditRecord
 
     protected static string $resource = CollectionTranslationResource::class;
 
+    private function translationRecord(): \App\Models\CollectionTranslation
+    {
+        /** @var \App\Models\CollectionTranslation $record */
+        $record = $this->getRecord();
+
+        return $record;
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('viewParentCollection')
                 ->label('View parent collection')
                 ->icon('heroicon-o-rectangle-stack')
-                ->url(fn (): ?string => $this->record->collection
-                    ? (auth()->user()?->can('view', $this->record->collection)
-                        ? CollectionResource::getUrl('view', ['record' => $this->record->collection])
+                ->url(fn (): ?string => $this->translationRecord()->collection
+                    ? (auth()->user()?->can('view', $this->translationRecord()->collection)
+                        ? CollectionResource::getUrl('view', ['record' => $this->translationRecord()->collection])
                         : null)
                     : null)
-                ->visible(fn (): bool => $this->record->collection !== null
-                    && (auth()->user()?->can('view', $this->record->collection) ?? false)),
+                ->visible(fn (): bool => $this->translationRecord()->collection !== null
+                    && (auth()->user()?->can('view', $this->translationRecord()->collection) ?? false)),
             DeleteAction::make(),
         ];
     }

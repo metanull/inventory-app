@@ -27,6 +27,11 @@ class TimelineEventDisplayLabel
      * The helper ensures `timeline_events.*` is preserved in the column list
      * when no explicit SELECT has been issued yet.
      */
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     * @param Builder<TModel> $query
+     * @return Builder<TModel>
+     */
     public static function withDisplayLabel(Builder $query): Builder
     {
         $defaultLangId = Language::default()->value('id') ?? '';

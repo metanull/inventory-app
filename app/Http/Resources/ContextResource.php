@@ -4,10 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use App\Models\Context;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\BaseJsonResource;
 
-/** @extends JsonResource<Context> */
-class ContextResource extends JsonResource
+/** @extends BaseJsonResource<Context> */
+class ContextResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.

@@ -19,6 +19,14 @@ use Illuminate\Support\Facades\DB;
  *
  * Represents language and context-specific translations for Items.
  * Supports internationalization and contextualization of Item content.
+ *
+ * @property string $item_id
+ * @property string $language_id
+ * @property string $context_id
+ * @property string|null $name
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class ItemTranslation extends Model
 {
@@ -86,7 +94,7 @@ class ItemTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'item_id',
@@ -145,25 +153,19 @@ class ItemTranslation extends Model
         );
     }
 
-    /**
-     * Get the item that owns the translation.
-     */
+    /** @return BelongsTo<Item, $this> */
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
     }
 
-    /**
-     * Get the language of the translation.
-     */
+    /** @return BelongsTo<Language, $this> */
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class);
     }
 
-    /**
-     * Get the context of the translation.
-     */
+    /** @return BelongsTo<Context, $this> */
     public function context(): BelongsTo
     {
         return $this->belongsTo(Context::class);
@@ -211,12 +213,10 @@ class ItemTranslation extends Model
     }
 
     /**
-     * Scope a query to only include translations for the default context.
-     *
-     * @param  Builder  $query
-     * @return Builder
+     * @param Builder<static> $query
+     * @return Builder<static>
      */
-    public function scopeDefaultContext($query)
+    public function scopeDefaultContext(Builder $query): Builder
     {
         return $query->whereHas('context', function ($query) {
             $query->where('is_default', true);
@@ -224,25 +224,19 @@ class ItemTranslation extends Model
     }
 
     /**
-     * Scope a query to only include translations for a specific language.
-     *
-     * @param  Builder  $query
-     * @param  string  $languageId
-     * @return Builder
+     * @param Builder<static> $query
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }
 
     /**
-     * Scope a query to only include translations for a specific context.
-     *
-     * @param  Builder  $query
-     * @param  string  $contextId
-     * @return Builder
+     * @param Builder<static> $query
+     * @return Builder<static>
      */
-    public function scopeForContext($query, $contextId)
+    public function scopeForContext(Builder $query, string $contextId): Builder
     {
         return $query->where('context_id', $contextId);
     }

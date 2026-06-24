@@ -35,7 +35,7 @@ class Context extends Model
         return ['id'];
     }
 
-    public function scopeDefault($query)
+    public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }

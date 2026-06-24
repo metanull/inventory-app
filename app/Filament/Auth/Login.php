@@ -40,6 +40,7 @@ class Login extends \Filament\Pages\Auth\Login
             $this->throwFailureValidationException();
         }
 
+        /** @var \App\Models\User $user */
         $remember = (bool) ($data['remember'] ?? false);
 
         if (

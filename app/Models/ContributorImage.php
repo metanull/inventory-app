@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class ContributorImage extends Model implements StreamableImageFile
+class ContributorImage extends Model implements StreamableImageFile, DetachableImage
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
@@ -51,7 +52,10 @@ class ContributorImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('contributor_id', $this->contributor_id);
+        /** @var Builder<static> $query */
+        $query = static::where('contributor_id', $this->contributor_id);
+
+        return $query;
     }
 
     /**
@@ -59,7 +63,8 @@ class ContributorImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $contributorId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $contributorId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $contributorId, $altText) {
             $displayOrder = static::getNextDisplayOrderFor(['contributor_id' => $contributorId]);
 
             // Move file from available storage to pictures storage
@@ -92,6 +97,8 @@ class ContributorImage extends Model implements StreamableImageFile
 
             return $contributorImage;
         });
+
+        return $result;
     }
 
     /**
@@ -127,6 +134,8 @@ class ContributorImage extends Model implements StreamableImageFile
 
             return $availableImage;
         });
+
+        return $result;
     }
 
     public function imageDisk(): string

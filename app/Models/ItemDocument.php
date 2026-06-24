@@ -49,7 +49,10 @@ class ItemDocument extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('item_id', $this->item_id);
+        /** @var Builder<static> $query */
+        $query = static::where('item_id', $this->item_id);
+
+        return $query;
     }
 
     /**

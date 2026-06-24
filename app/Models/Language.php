@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\DB;
  * @property string $internal_name
  * @property string|null $backward_compatibility
  * @property bool $is_default
+ * @property bool $disabled
  */
 class Language extends Model
 {
@@ -31,7 +33,7 @@ class Language extends Model
         return $query->where('id', 'eng');
     }
 
-    public function scopeDefault($query)
+    public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }

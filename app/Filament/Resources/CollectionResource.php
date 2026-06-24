@@ -84,7 +84,10 @@ class CollectionResource extends Resource
 
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        return $query->excludingDescendantsOf($record->id);
+        /** @var Builder<\App\Models\Collection> $q */
+        $q = $query;
+
+        return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
     protected static function changeParentSearchResults(Builder $query): array

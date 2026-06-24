@@ -17,7 +17,7 @@ class PartnerLogo extends Model implements StreamableImageFile
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'partner_id',
@@ -75,7 +75,10 @@ class PartnerLogo extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('partner_id', $this->partner_id);
+        /** @var Builder<static> $query */
+        $query = static::where('partner_id', $this->partner_id);
+
+        return $query;
     }
 
     /**

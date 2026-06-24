@@ -86,7 +86,7 @@ class Glossary extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'internal_name',
@@ -113,6 +113,8 @@ class Glossary extends Model
 
     /**
      * Get the spellings for this glossary entry.
+     *
+     * @return HasMany<GlossarySpelling, $this>
      */
     public function spellings(): HasMany
     {

@@ -17,6 +17,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * Represents a collection of museum items with translation and partner support.
  * Collections organize items and provide context for display purposes.
+ *
+ * @property string $id
+ * @property string $internal_name
+ * @property string $type
+ * @property string|null $parent_id
+ * @property string|null $context_id
+ * @property string|null $backward_compatibility
+ * @property string|null $display_label
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class Collection extends Model
 {
@@ -44,7 +54,7 @@ class Collection extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'internal_name',
@@ -91,13 +101,18 @@ class Collection extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return $this->parent_id
+        /** @var Builder<static> $query */
+        $query = $this->parent_id
             ? static::where('parent_id', $this->parent_id)
             : static::whereNull('parent_id');
+
+        return $query;
     }
 
     /**
      * Get all translations for this collection.
+     *
+     * @return HasMany<CollectionTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -130,6 +145,8 @@ class Collection extends Model
 
     /**
      * Get the parent collection (for hierarchical organization).
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function parent(): BelongsTo
     {
@@ -276,10 +293,10 @@ class Collection extends Model
      */
     public function getDefaultTranslation(string $languageId): ?CollectionTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        /** @var Builder<CollectionTranslation> $query */
+        $query = $this->translations();
+
+        return $query->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -287,10 +304,10 @@ class Collection extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?CollectionTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        /** @var Builder<CollectionTranslation> $query */
+        $query = $this->translations();
+
+        return $query->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

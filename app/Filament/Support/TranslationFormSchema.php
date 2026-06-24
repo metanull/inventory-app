@@ -233,12 +233,12 @@ class TranslationFormSchema
         ];
     }
 
-    private static function requiredOrNullable(Select $select, bool $required): Select
+    protected static function requiredOrNullable(Select $select, bool $required): Select
     {
         return $required ? $select->required() : $select->nullable();
     }
 
-    private static function legacyLabel(string $internalName, ?string $backwardCompatibility): string
+    protected static function legacyLabel(string $internalName, ?string $backwardCompatibility): string
     {
         return $backwardCompatibility
             ? "{$internalName} [{$backwardCompatibility}]"

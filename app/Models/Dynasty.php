@@ -39,7 +39,7 @@ class Dynasty extends Model
     }
 
     /**
-     * Get the translations for this dynasty.
+     * @return HasMany<DynastyTranslation, $this>
      */
     public function translations(): HasMany
     {

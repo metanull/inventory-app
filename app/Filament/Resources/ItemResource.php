@@ -90,7 +90,10 @@ class ItemResource extends Resource
 
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        return $query->excludingDescendantsOf($record->id);
+        /** @var Builder<\App\Models\Item> $q */
+        $q = $query;
+
+        return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
     protected static function changeParentSearchResults(Builder $query): array
@@ -365,9 +368,14 @@ class ItemResource extends Resource
                         ->all()
                     )
                     ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find($value)) ? "{$tag->description} [{$tag->internal_name}]" : $value)
-                    ->query(fn (Builder $query, array $data): Builder => ! empty($data['values'])
-                        ? $query->withAnyTags($data['values'])
-                        : $query),
+                    ->query(function (Builder $query, array $data): Builder {
+                        /** @var Builder<\App\Models\Item> $q */
+                        $q = $query;
+
+                        return ! empty($data['values'])
+                            ? $q->withAnyTags($data['values'])
+                            : $q;
+                    }),
                 TernaryFilter::make('top_level_only')
                     ->label('Hierarchy')
                     ->trueLabel('Top-level only')
@@ -436,6 +444,7 @@ class ItemResource extends Resource
                     ->action(function (EloquentCollection $records, array $data): void {
                         $collectionId = $data['collection_id'];
                         foreach ($records as $record) {
+                            /** @var \App\Models\Item $record */
                             $record->attachedToCollections()->syncWithoutDetaching([$collectionId]);
                         }
 
@@ -468,6 +477,7 @@ class ItemResource extends Resource
                     ->action(function (EloquentCollection $records, array $data): void {
                         $tagId = $data['tag_id'];
                         foreach ($records as $record) {
+                            /** @var \App\Models\Item $record */
                             $record->tags()->syncWithoutDetaching([$tagId]);
                         }
 

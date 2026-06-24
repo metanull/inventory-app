@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ */
 class ItemItemLink extends Model
 {
     use HasFactory;
@@ -17,7 +20,7 @@ class ItemItemLink extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'source_id',
@@ -37,6 +40,8 @@ class ItemItemLink extends Model
 
     /**
      * The source item of the link (the item initiating the link).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function source(): BelongsTo
     {
@@ -45,6 +50,8 @@ class ItemItemLink extends Model
 
     /**
      * The target item of the link (the item receiving the link).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function target(): BelongsTo
     {

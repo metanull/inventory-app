@@ -15,19 +15,27 @@ class EditItemTranslation extends EditRecord
 
     protected static string $resource = ItemTranslationResource::class;
 
+    private function translationRecord(): \App\Models\ItemTranslation
+    {
+        /** @var \App\Models\ItemTranslation $record */
+        $record = $this->getRecord();
+
+        return $record;
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             Action::make('viewParentItem')
                 ->label('View parent item')
                 ->icon('heroicon-o-archive-box')
-                ->url(fn (): ?string => $this->record->item
-                    ? (auth()->user()?->can('view', $this->record->item)
-                        ? ItemResource::getUrl('view', ['record' => $this->record->item])
+                ->url(fn (): ?string => $this->translationRecord()->item
+                    ? (auth()->user()?->can('view', $this->translationRecord()->item)
+                        ? ItemResource::getUrl('view', ['record' => $this->translationRecord()->item])
                         : null)
                     : null)
-                ->visible(fn (): bool => $this->record->item !== null
-                    && (auth()->user()?->can('view', $this->record->item) ?? false)),
+                ->visible(fn (): bool => $this->translationRecord()->item !== null
+                    && (auth()->user()?->can('view', $this->translationRecord()->item) ?? false)),
             DeleteAction::make(),
         ];
     }

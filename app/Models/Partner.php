@@ -11,13 +11,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property string $id
  * @property string $internal_name
  * @property string|null $backward_compatibility
  * @property string $type
+ * @property string|null $project_id
  * @property string|null $latitude
  * @property string|null $longitude
  * @property int $map_zoom
  * @property bool $visible
+ * @property string|null $display_label
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class Partner extends Model
 {
@@ -67,6 +72,8 @@ class Partner extends Model
 
     /**
      * Get the items belonging to this partner.
+     *
+     * @return HasMany<Item, $this>
      */
     public function items(): HasMany
     {
@@ -83,6 +90,8 @@ class Partner extends Model
 
     /**
      * Get the project this partner is associated with.
+     *
+     * @return BelongsTo<Project, $this>
      */
     public function project(): BelongsTo
     {
@@ -99,6 +108,8 @@ class Partner extends Model
 
     /**
      * Get the translations for this partner.
+     *
+     * @return HasMany<PartnerTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -148,10 +159,10 @@ class Partner extends Model
      */
     public function getDefaultTranslation(string $languageId): ?PartnerTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        /** @var Builder<PartnerTranslation> $query */
+        $query = $this->translations();
+
+        return $query->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -159,10 +170,10 @@ class Partner extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?PartnerTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        /** @var Builder<PartnerTranslation> $query */
+        $query = $this->translations();
+
+        return $query->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

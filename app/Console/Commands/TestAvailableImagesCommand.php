@@ -35,10 +35,9 @@ class TestAvailableImagesCommand extends Command
 
         foreach ($images as $image) {
             $this->line("- ID: {$image->id}");
-            $this->line("  Internal Name: {$image->internal_name}");
             $this->line("  Original Name: {$image->original_name}");
-            $this->line("  File Path: {$image->file_path}");
-            $this->line("  File Size: {$image->file_size} bytes");
+            $this->line("  Path: {$image->path}");
+            $this->line("  Size: {$image->size} bytes");
             $this->line("  MIME Type: {$image->mime_type}");
             $this->line("  Created: {$image->created_at}");
             $this->line('');

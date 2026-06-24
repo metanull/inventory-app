@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class TimelineEventImage extends Model implements StreamableImageFile
+class TimelineEventImage extends Model implements StreamableImageFile, DetachableImage
 {
     use HasDisplayOrder, HasFactory, HasUuids;
 
@@ -48,7 +49,10 @@ class TimelineEventImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('timeline_event_id', $this->timeline_event_id);
+        /** @var Builder<static> $query */
+        $query = static::where('timeline_event_id', $this->timeline_event_id);
+
+        return $query;
     }
 
     /**
@@ -64,7 +68,8 @@ class TimelineEventImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $timelineEventId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $timelineEventId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $timelineEventId, $altText) {
             $displayOrder = static::getNextDisplayOrderFor(['timeline_event_id' => $timelineEventId]);
 
             $availableDisk = config('localstorage.available.images.disk');
@@ -95,6 +100,8 @@ class TimelineEventImage extends Model implements StreamableImageFile
 
             return $image;
         });
+
+        return $result;
     }
 
     /**
@@ -129,6 +136,8 @@ class TimelineEventImage extends Model implements StreamableImageFile
 
             return $availableImage;
         });
+
+        return $result;
     }
 
     public function imageDisk(): string

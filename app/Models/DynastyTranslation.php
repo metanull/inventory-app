@@ -15,6 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * Represents language-specific translations for Dynasties.
  * Contains translated dynasty names, areas, and historical descriptions.
+ *
+ * @property string $dynasty_id
+ * @property string $language_id
+ * @property string|null $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class DynastyTranslation extends Model
 {
@@ -30,7 +36,7 @@ class DynastyTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'dynasty_id',

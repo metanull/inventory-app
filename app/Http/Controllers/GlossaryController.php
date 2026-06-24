@@ -86,9 +86,9 @@ class GlossaryController extends Controller
     /**
      * Attach a synonym to the glossary entry.
      *
-     * @return GlossaryResource
+     * @return GlossaryResource|\Illuminate\Http\JsonResponse
      */
-    public function attachSynonym(AttachGlossarySynonymRequest $request, Glossary $glossary)
+    public function attachSynonym(AttachGlossarySynonymRequest $request, Glossary $glossary): GlossaryResource|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
         $synonymId = $validated['synonym_id'];

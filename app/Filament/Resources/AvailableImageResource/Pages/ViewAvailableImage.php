@@ -18,6 +18,7 @@ class ViewAvailableImage extends ViewRecord
             EditAction::make(),
             DeleteAction::make()
                 ->before(function (): void {
+                    /** @var \App\Models\AvailableImage $record */
                     $record = $this->getRecord();
                     $disk = $record->imageDisk();
                     $path = $record->imageStoragePath();

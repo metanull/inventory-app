@@ -4,10 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use App\Models\Partner;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\BaseJsonResource;
 
-/** @extends JsonResource<Partner> */
-class PartnerResource extends JsonResource
+/** @extends BaseJsonResource<Partner> */
+class PartnerResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.
