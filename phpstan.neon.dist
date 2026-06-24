@@ -12,4 +12,7 @@ parameters:
 
     ignoreErrors:
 
+    stubFiles:
+        - phpstan-stubs/spatie-permission.php
+
     excludePaths:
