@@ -303,10 +303,7 @@ class Item extends Model
      */
     public function getDefaultTranslation(string $languageId): ?ItemTranslation
     {
-        /** @var Builder<ItemTranslation> $query */
-        $query = $this->translations();
-
-        return $query->defaultContext()->forLanguage($languageId)->first();
+        return $this->translations()->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -314,10 +311,7 @@ class Item extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?ItemTranslation
     {
-        /** @var Builder<ItemTranslation> $query */
-        $query = $this->translations();
-
-        return $query->forLanguage($languageId)->forContext($contextId)->first();
+        return $this->translations()->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

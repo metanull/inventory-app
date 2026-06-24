@@ -31,8 +31,6 @@ class CollectionPartner extends Pivot
      */
     public $incrementing = false;
 
-    protected $primaryKey = ['collection_id', 'collection_type', 'partner_id'];
-
     /**
      * The attributes that are mass assignable.
      *

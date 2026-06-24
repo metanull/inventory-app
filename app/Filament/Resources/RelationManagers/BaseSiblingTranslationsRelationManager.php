@@ -48,16 +48,14 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                     ->label('Language')
                     ->badge()
                     ->color(function (Model $r): string {
-                        /** @var Language|null $lang */
-                        $lang = $r->language;
+                        $lang = $r->getRelation('language');
 
-                        return $lang?->is_default ? 'success' : 'gray';
+                        return ($lang instanceof Language && $lang->is_default) ? 'success' : 'gray';
                     })
                     ->url(function (Model $r): ?string {
-                        /** @var Language|null $lang */
-                        $lang = $r->language;
+                        $lang = $r->getRelation('language');
 
-                        return $lang
+                        return ($lang instanceof Language)
                             ? (auth()->user()?->can('view', $lang) ? LanguageResource::getUrl('view', ['record' => $lang]) : null)
                             : null;
                     }),
@@ -65,16 +63,14 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                     ->label('Context')
                     ->badge()
                     ->color(function (Model $r): string {
-                        /** @var Context|null $ctx */
-                        $ctx = $r->context;
+                        $ctx = $r->getRelation('context');
 
-                        return $ctx?->is_default ? 'success' : 'gray';
+                        return ($ctx instanceof Context && $ctx->is_default) ? 'success' : 'gray';
                     })
                     ->url(function (Model $r): ?string {
-                        /** @var Context|null $ctx */
-                        $ctx = $r->context;
+                        $ctx = $r->getRelation('context');
 
-                        return $ctx
+                        return ($ctx instanceof Context)
                             ? (auth()->user()?->can('view', $ctx) ? ContextResource::getUrl('view', ['record' => $ctx]) : null)
                             : null;
                     }),
@@ -82,12 +78,10 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                     ->label('★')
                     ->tooltip('Default language + context pair')
                     ->getStateUsing(function (Model $r): bool {
-                        /** @var Language|null $lang */
-                        $lang = $r->language;
-                        /** @var Context|null $ctx */
-                        $ctx = $r->context;
+                        $lang = $r->getRelation('language');
+                        $ctx = $r->getRelation('context');
 
-                        return (bool) ($lang?->is_default && $ctx?->is_default);
+                        return ($lang instanceof Language && $ctx instanceof Context && $lang->is_default && $ctx->is_default);
                     })
                     ->trueIcon('heroicon-s-star')
                     ->falseIcon('heroicon-o-minus')

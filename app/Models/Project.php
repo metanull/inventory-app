@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $launch_date
  * @property bool $is_launched
  * @property bool $is_enabled
+ * @property string|null $context_id
  */
 class Project extends Model
 {

@@ -293,10 +293,7 @@ class Collection extends Model
      */
     public function getDefaultTranslation(string $languageId): ?CollectionTranslation
     {
-        /** @var Builder<CollectionTranslation> $query */
-        $query = $this->translations();
-
-        return $query->defaultContext()->forLanguage($languageId)->first();
+        return $this->translations()->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -304,10 +301,7 @@ class Collection extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?CollectionTranslation
     {
-        /** @var Builder<CollectionTranslation> $query */
-        $query = $this->translations();
-
-        return $query->forLanguage($languageId)->forContext($contextId)->first();
+        return $this->translations()->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

@@ -31,16 +31,16 @@ class TranslationSectionData
             ->values();
 
         if (! $groupByContext) {
-            /** @var string|null $noLabel */
-            $noLabel = null;
-
-            return collect([
+            /** @var \Illuminate\Support\Collection<int, array{label: string|null, is_default: bool, translations: \Illuminate\Support\Collection<int, mixed>}> $result */
+            $result = collect([
                 [
-                    'label' => $noLabel,
+                    'label' => null,
                     'is_default' => false,
                     'translations' => $sortedTranslations,
                 ],
             ]);
+
+            return $result;
         }
 
         $defaultContextId = Context::query()
@@ -67,10 +67,10 @@ class TranslationSectionData
             })
             ->sortBy('sort_key')
             ->values()
-            ->map(function (array $group): array {
-                unset($group['sort_key']);
-
-                return $group;
-            });
+            ->map(fn (array $group): array => [
+                'label'        => $group['label'],
+                'is_default'   => $group['is_default'],
+                'translations' => $group['translations'],
+            ]);
     }
 }
