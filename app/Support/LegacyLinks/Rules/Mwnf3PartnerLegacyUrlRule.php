@@ -20,6 +20,10 @@ class Mwnf3PartnerLegacyUrlRule implements LegacyUrlRule
 
     public function resolve(Model $record, LegacyReference $reference, string $legacyLanguage): array
     {
+        if (! $record instanceof Partner) {
+            return [];
+        }
+
         if (! in_array($reference->table, ['museums', 'institutions'], true) || ! $reference->hasParts(2)) {
             return [];
         }

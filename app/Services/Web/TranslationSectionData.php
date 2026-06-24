@@ -26,7 +26,7 @@ class TranslationSectionData
             ->sortBy(fn ($translation): string => sprintf(
                 '%d-%s',
                 $translation->language_id === $defaultLanguageId ? 0 : 1,
-                $translation->language?->internal_name ?? $translation->language_id
+                $translation->language->internal_name ?? $translation->language_id
             ))
             ->values();
 
@@ -52,13 +52,13 @@ class TranslationSectionData
                 $isDefaultContext = $context?->id === $defaultContextId;
 
                 return [
-                    'label' => $context?->internal_name ?? 'No Context',
+                    'label' => $context !== null ? $context->internal_name : 'No Context',
                     'is_default' => $isDefaultContext,
                     'translations' => $group->values(),
                     'sort_key' => sprintf(
                         '%d-%s',
                         $isDefaultContext ? 0 : ($contextKey === '__none__' ? 2 : 1),
-                        $context?->internal_name ?? 'zzz'
+                        $context !== null ? $context->internal_name : 'zzz'
                     ),
                 ];
             })

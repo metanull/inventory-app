@@ -43,16 +43,12 @@ class ManageEmailVerification extends Command
             return Command::FAILURE;
         }
 
-        switch ($action) {
-            case 'verify':
-                return $this->verifyUser($user);
-            case 'unverify':
-                return $this->unverifyUser($user);
-            case 'status':
-                return $this->showStatus($user);
-        }
-
-        return Command::FAILURE;
+        return match ($action) {
+            'verify' => $this->verifyUser($user),
+            'unverify' => $this->unverifyUser($user),
+            'status' => $this->showStatus($user),
+            default => Command::FAILURE,
+        };
     }
 
     /**

@@ -21,6 +21,10 @@ class ThematicGalleryLegacyUrlRule implements LegacyUrlRule
 
     public function resolve(Model $record, LegacyReference $reference, string $legacyLanguage): array
     {
+        if (! $record instanceof Collection) {
+            return [];
+        }
+
         return match ($reference->table) {
             'thg_gallery' => $this->resolveGallery($record, $reference, $legacyLanguage),
             'theme' => $this->resolveTheme($reference, $legacyLanguage),

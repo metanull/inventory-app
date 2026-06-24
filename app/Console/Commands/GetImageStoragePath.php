@@ -87,6 +87,7 @@ class GetImageStoragePath extends Command
                 config('localstorage.pictures.disk'),
                 config('localstorage.pictures.directory'),
             ],
+            default => throw new \InvalidArgumentException("Unsupported image storage type: {$type}"),
         };
     }
 }

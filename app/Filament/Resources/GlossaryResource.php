@@ -108,7 +108,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? $value)
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereHas('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
@@ -123,7 +123,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? $value)
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereDoesntHave('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))

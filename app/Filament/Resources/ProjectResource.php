@@ -147,7 +147,7 @@ class ProjectResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)->internal_name ?? $value)
                     ->searchable(),
                 SelectFilter::make('language_id')
                     ->label('Language')
@@ -159,7 +159,7 @@ class ProjectResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? $value)
                     ->searchable(),
             ])
             ->filtersFormColumns(2)

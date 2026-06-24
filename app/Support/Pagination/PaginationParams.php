@@ -31,12 +31,6 @@ class PaginationParams
             ]);
         }
 
-        if ($perPage < 1 || $perPage > $maxPerPage) {
-            throw ValidationException::withMessages([
-                'per_page' => ["per_page must be between 1 and {$maxPerPage}."],
-            ]);
-        }
-
         return [
             'page' => $page,
             'per_page' => $perPage,

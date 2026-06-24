@@ -134,8 +134,6 @@ class ContributorImage extends Model implements StreamableImageFile, DetachableI
 
             return $availableImage;
         });
-
-        return $result;
     }
 
     public function imageDisk(): string

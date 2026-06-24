@@ -136,8 +136,6 @@ class TimelineEventImage extends Model implements StreamableImageFile, Detachabl
 
             return $availableImage;
         });
-
-        return $result;
     }
 
     public function imageDisk(): string

@@ -137,6 +137,8 @@ class Collection extends Model
 
     /**
      * Get the country associated with this collection.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {

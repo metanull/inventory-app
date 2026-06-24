@@ -47,10 +47,6 @@ class Item extends Model
      */
     public function delete()
     {
-        if (is_null($this->getKeyName())) {
-            throw new \LogicException('No primary key defined on model.');
-        }
-
         // If the model doesn't exist, nothing to delete
         if (! $this->exists) {
             return false;
@@ -162,6 +158,8 @@ class Item extends Model
 
     /**
      * The parent item (for hierarchical relationships).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function parent(): BelongsTo
     {
@@ -170,6 +168,8 @@ class Item extends Model
 
     /**
      * The child items (for hierarchical relationships).
+     *
+     * @return HasMany<Item, $this>
      */
     public function children(): HasMany
     {
@@ -289,6 +289,8 @@ class Item extends Model
 
     /**
      * Get all collections this item is attached to via many-to-many relationship.
+     *
+     * @return BelongsToMany<Collection, $this>
      */
     public function attachedToCollections(): BelongsToMany
     {

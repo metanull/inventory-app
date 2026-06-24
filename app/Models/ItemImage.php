@@ -79,8 +79,6 @@ class ItemImage extends Model implements StreamableImageFile, DetachableImage
         return $query->whereHas('tags', function (Builder $query) use ($tagInternalName) {
             $query->where('tags.internal_name', $tagInternalName);
         });
-
-        return $result;
     }
 
     /**
@@ -93,8 +91,6 @@ class ItemImage extends Model implements StreamableImageFile, DetachableImage
         return $query->whereDoesntHave('tags', function (Builder $query) use ($tagInternalName) {
             $query->where('tags.internal_name', $tagInternalName);
         });
-
-        return $result;
     }
 
     /**
@@ -207,8 +203,6 @@ class ItemImage extends Model implements StreamableImageFile, DetachableImage
 
             return $availableImage;
         });
-
-        return $result;
     }
 
     public function imageDisk(): string

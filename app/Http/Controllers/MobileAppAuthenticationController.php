@@ -10,7 +10,6 @@ use App\Http\Resources\MessageResource;
 use App\Http\Resources\TwoFactorChallengeResource;
 use App\Http\Resources\TwoFactorStatusResource;
 use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,7 +36,7 @@ class MobileAppAuthenticationController extends Controller
         }
 
         // Check if email verification is required
-        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             throw ValidationException::withMessages([
                 'email' => ['Your email address is not verified.'],
             ]);

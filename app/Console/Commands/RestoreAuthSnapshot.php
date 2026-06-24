@@ -37,8 +37,7 @@ class RestoreAuthSnapshot extends Command
      */
     public function handle(): int
     {
-        $argumentPath = $this->argument('path');
-        $path = AuthSnapshotFile::resolvePath(is_string($argumentPath) ? $argumentPath : null);
+        $path = AuthSnapshotFile::resolvePath((string) $this->argument('path'));
 
         if (! File::isFile($path)) {
             $this->error("Auth snapshot was not found at [{$path}].");
@@ -104,13 +103,6 @@ class RestoreAuthSnapshot extends Command
     {
         try {
             $contents = File::get($path);
-
-            if (! is_string($contents)) {
-                $this->error("Unable to read auth snapshot from [{$path}].");
-
-                return null;
-            }
-
             $decrypted = Crypt::decryptString($contents);
 
             return json_decode($decrypted, true, 512, JSON_THROW_ON_ERROR);

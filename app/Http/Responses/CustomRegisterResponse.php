@@ -2,7 +2,6 @@
 
 namespace App\Http\Responses;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +20,7 @@ class CustomRegisterResponse implements RegisterResponseContract
 
         if ($user) {
             // Check email verification first
-            if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            if (! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }
         }

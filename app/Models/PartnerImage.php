@@ -172,8 +172,6 @@ class PartnerImage extends Model implements StreamableImageFile, DetachableImage
 
             return $availableImage;
         });
-
-        return $result;
     }
 
     public function imageDisk(): string

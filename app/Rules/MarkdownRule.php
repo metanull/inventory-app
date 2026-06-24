@@ -43,8 +43,6 @@ class MarkdownRule implements ValidationRule
             foreach ($errors as $error) {
                 $fail($error);
             }
-        } catch (\Exception $e) {
-            $fail('The :attribute contains invalid Markdown formatting.');
         }
     }
 }

@@ -82,6 +82,8 @@ class Partner extends Model
 
     /**
      * The country of the partner.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {

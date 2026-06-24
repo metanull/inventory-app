@@ -98,6 +98,7 @@ class ItemResource extends Resource
 
     protected static function changeParentSearchResults(Builder $query): array
     {
+        /** @var Builder<\App\Models\Item> $query */
         return ItemDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Item $item): array => [
@@ -124,6 +125,10 @@ class ItemResource extends Resource
     {
         if ($record === null) {
             return static::getModelLabel();
+        }
+
+        if (! $record instanceof Item) {
+            return (string) $record->getKey();
         }
 
         $record->loadMissing(['translations', 'collection:id,context_id', 'project:id,context_id']);
@@ -305,7 +310,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)->internal_name ?? $value)
                     ->searchable(),
                 SelectFilter::make('collection')
                     ->label('Collection')
@@ -338,7 +343,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)->internal_name ?? $value)
                     ->searchable(),
                 SelectFilter::make('country_id')
                     ->label('Country')
@@ -351,7 +356,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
                     ->searchable(),
                 SelectFilter::make('tags')
                     ->label('Tag')

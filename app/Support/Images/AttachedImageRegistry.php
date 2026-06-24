@@ -96,14 +96,6 @@ class AttachedImageRegistry
             if (! class_exists($class)) {
                 throw new \RuntimeException("AttachedImageRegistry: class does not exist: {$class}");
             }
-
-            if (! is_subclass_of($class, Model::class)) {
-                throw new \RuntimeException("AttachedImageRegistry: {$class} does not extend Illuminate\\Database\\Eloquent\\Model");
-            }
-
-            if (! is_subclass_of($class, StreamableImageFile::class)) {
-                throw new \RuntimeException("AttachedImageRegistry: {$class} does not implement App\\Contracts\\StreamableImageFile");
-            }
         }
     }
 }

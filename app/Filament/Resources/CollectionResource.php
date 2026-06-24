@@ -92,6 +92,7 @@ class CollectionResource extends Resource
 
     protected static function changeParentSearchResults(Builder $query): array
     {
+        /** @var Builder<\App\Models\Collection> $query */
         return CollectionDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Collection $collection): array => [
@@ -118,6 +119,10 @@ class CollectionResource extends Resource
     {
         if ($record === null) {
             return static::getModelLabel();
+        }
+
+        if (! $record instanceof Collection) {
+            return (string) $record->getKey();
         }
 
         $record->loadMissing(['translations']);
@@ -296,7 +301,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)->internal_name ?? $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
@@ -312,7 +317,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)->internal_name ?? $value)
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
@@ -328,7 +333,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
                     ->searchable(),
             ])
             ->filtersFormColumns(2)

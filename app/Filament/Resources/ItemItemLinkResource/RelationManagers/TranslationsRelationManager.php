@@ -42,7 +42,7 @@ class TranslationsRelationManager extends RelationManager
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? (string) $value)
+                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? (string) $value)
                     ->unique(
                         table: 'item_item_link_translations',
                         column: 'language_id',

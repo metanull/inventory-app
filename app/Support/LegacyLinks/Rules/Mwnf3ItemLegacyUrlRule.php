@@ -21,6 +21,10 @@ class Mwnf3ItemLegacyUrlRule implements LegacyUrlRule
 
     public function resolve(Model $record, LegacyReference $reference, string $legacyLanguage): array
     {
+        if (! $record instanceof Item) {
+            return [];
+        }
+
         return match ($reference->table) {
             'objects' => $this->resolveDatabaseItem($record, $reference, 'object', 'database/dba_objects', $legacyLanguage, 4),
             'monuments' => $this->resolveDatabaseItem($record, $reference, 'monument', 'database/dba_monuments', $legacyLanguage, 4),

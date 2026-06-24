@@ -8,7 +8,6 @@ use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse as FilamentLoginResponse;
 use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Laravel\Fortify\Features;
@@ -58,7 +57,7 @@ class Login extends \Filament\Pages\Auth\Login
 
         $guard->login($user, $remember);
 
-        if (($user instanceof MustVerifyEmail) && ! $user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             $this->redirectRoute('verification.notice');
 
             return null;

@@ -65,7 +65,7 @@ class CleanupPictures extends Command
             // Apply --older-than filter
             if ($olderThan !== null) {
                 $lastModified = Storage::disk($disk)->lastModified($file);
-                if ($lastModified === null || $lastModified > $olderThan->timestamp) {
+                if ($lastModified > $olderThan->timestamp) {
                     $skipped++;
 
                     continue;

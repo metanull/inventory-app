@@ -80,7 +80,7 @@ class TranslationFormSchema
                 ->pluck('name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v);
+            ->getOptionLabelUsing(fn ($v): string => Author::find($v)->name ?? $v);
     }
 
     public static function itemSelectField(
@@ -209,7 +209,7 @@ class TranslationFormSchema
                 ->pluck('internal_name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? (string) $value);
+            ->getOptionLabelUsing(fn ($value): string => Context::find($value)->internal_name ?? (string) $value);
 
         return static::requiredOrNullable($select, $required);
     }

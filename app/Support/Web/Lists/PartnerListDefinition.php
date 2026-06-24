@@ -39,7 +39,7 @@ final class PartnerListDefinition extends ListDefinition
     {
         return array_filter([
             'country_id' => $this->normalizeNullableString($input['country_id'] ?? null),
-        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     private function normalizeNullableString(mixed $value): ?string

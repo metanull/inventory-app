@@ -170,8 +170,6 @@ class PartnerTranslationImage extends Model implements StreamableImageFile, Deta
 
             return $availableImage;
         });
-
-        return $result;
     }
 
     public function imageDisk(): string

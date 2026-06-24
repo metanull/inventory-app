@@ -72,11 +72,6 @@ class BrowseItemTree extends Page
     private const PAGE_SIZE = 50;
 
     /**
-     * Maximum depth for ancestor chain traversal to prevent infinite loops.
-     */
-    private const MAX_ANCESTOR_DEPTH = 10;
-
-    /**
      * Reset pagination when the search query changes.
      */
     public function updatedSearch(): void
