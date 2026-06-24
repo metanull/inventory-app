@@ -290,7 +290,7 @@ class Item extends Model
     /**
      * Get all collections this item is attached to via many-to-many relationship.
      *
-     * @return BelongsToMany<Collection, $this>
+     * @return BelongsToMany<Collection, $this, CollectionItem>
      */
     public function attachedToCollections(): BelongsToMany
     {
