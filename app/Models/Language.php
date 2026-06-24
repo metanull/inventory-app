@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $backward_compatibility
  * @property bool $is_default
  * @property bool $disabled
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  */
 class Language extends Model
 {

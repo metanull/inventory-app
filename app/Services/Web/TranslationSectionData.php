@@ -10,7 +10,7 @@ class TranslationSectionData
 {
     /**
      * @param  Collection<int, mixed>  $translations
-     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, mixed>}>
+     * @return Collection<int, mixed>
      */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
@@ -31,16 +31,13 @@ class TranslationSectionData
             ->values();
 
         if (! $groupByContext) {
-            /** @var \Illuminate\Support\Collection<int, array{label: string|null, is_default: bool, translations: \Illuminate\Support\Collection<int, mixed>}> $result */
-            $result = collect([
+            return collect([
                 [
                     'label' => null,
                     'is_default' => false,
                     'translations' => $sortedTranslations,
                 ],
             ]);
-
-            return $result;
         }
 
         $defaultContextId = Context::query()
