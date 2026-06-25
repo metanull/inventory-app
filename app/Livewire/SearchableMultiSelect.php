@@ -151,7 +151,7 @@ class SearchableMultiSelect extends Component
      * Candidate options for the dropdown (excludes already-selected ids).
      */
     /**
-     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
+     * @return Collection<int, mixed>
      */
     public function getOptionsProperty()
     {
@@ -164,9 +164,12 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->modelClass) {
-            return $this->resolveOptionsQuery()
+            /** @var Collection<int, mixed> $results */
+            $results = $this->resolveOptionsQuery()
                 ->whereNotIn('id', $this->selectedIds)
                 ->get();
+
+            return $results;
         }
 
         return collect();

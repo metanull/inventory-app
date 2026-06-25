@@ -35,7 +35,7 @@ trait OptionsLookup
     public function resolveOptionsQuery(): Builder
     {
         if ($this->modelClass === null) {
-            throw new \InvalidArgumentException('Model class is not set on '.static::class);
+            throw new InvalidArgumentException('Model class is not set on '.static::class);
         }
 
         $query = $this->modelClass::query();
@@ -143,7 +143,7 @@ trait OptionsLookup
      */
     protected function applyFilter(Builder $query): void
     {
-        $filterColumn = $this->filterColumn ?? throw new \InvalidArgumentException('Filter column is not set on '.static::class);
+        $filterColumn = $this->filterColumn ?? throw new InvalidArgumentException('Filter column is not set on '.static::class);
         $filterOperator = $this->filterOperator ?? '=';
 
         match (strtoupper($filterOperator)) {

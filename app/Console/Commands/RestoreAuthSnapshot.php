@@ -67,9 +67,13 @@ class RestoreAuthSnapshot extends Command
         $tablesRaw = $payload['tables'] ?? [];
         $tables = is_array($tablesRaw) ? $tablesRaw : [];
 
+        /** @var array<int, array<string, mixed>> $usersRows */
         $usersRows = is_array($tables['users'] ?? null) ? $tables['users'] : [];
+        /** @var array<int, array<string, mixed>> $roleAssignments */
         $roleAssignments = is_array($tables['role_assignments'] ?? null) ? $tables['role_assignments'] : [];
+        /** @var array<int, array<string, mixed>> $permissionAssignments */
         $permissionAssignments = is_array($tables['permission_assignments'] ?? null) ? $tables['permission_assignments'] : [];
+        /** @var array<int, array<string, mixed>> $tokenRows */
         $tokenRows = is_array($tables['personal_access_tokens'] ?? null) ? $tables['personal_access_tokens'] : [];
 
         try {
@@ -113,7 +117,12 @@ class RestoreAuthSnapshot extends Command
             $decrypted = Crypt::decryptString($contents);
             $decoded = json_decode($decrypted, true, 512, JSON_THROW_ON_ERROR);
 
-            return is_array($decoded) ? $decoded : null;
+            if (! is_array($decoded)) {
+                return null;
+            }
+
+            /** @var array<string, mixed> $decoded */
+            return $decoded;
         } catch (DecryptException) {
             $this->error('Unable to decrypt auth snapshot. Verify that this app uses the same APP_KEY that created the snapshot.');
         } catch (JsonException $exception) {
@@ -195,7 +204,8 @@ class RestoreAuthSnapshot extends Command
                 ->first();
 
             if ($role === null) {
-                throw new \RuntimeException("Role [{$assignment['name']}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
+                $roleName = is_string($assignment['name']) ? $assignment['name'] : '';
+                throw new \RuntimeException("Role [{$roleName}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
             }
 
             DB::table($modelHasRolesTable)->insert([
@@ -231,7 +241,8 @@ class RestoreAuthSnapshot extends Command
                 ->first();
 
             if ($permission === null) {
-                throw new \RuntimeException("Permission [{$assignment['name']}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
+                $permName = is_string($assignment['name']) ? $assignment['name'] : '';
+                throw new \RuntimeException("Permission [{$permName}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
             }
 
             DB::table($modelHasPermissionsTable)->insert([

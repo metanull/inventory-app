@@ -67,7 +67,7 @@ final class ListInputNormalizer
 
     private function normalizePerPage(mixed $value): int
     {
-        $options = array_map(intval(...), Config::array('interface.pagination.per_page_options', []));
+        $options = array_map(fn (mixed $v): int => is_numeric($v) ? (int) $v : 0, Config::array('interface.pagination.per_page_options', []));
         $default = Config::integer('interface.pagination.default_per_page');
         $perPage = filter_var($value, FILTER_VALIDATE_INT);
 

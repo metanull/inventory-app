@@ -219,7 +219,7 @@ class PasswordResetMfaChallenge extends SimplePage
             }
         } elseif ($code !== '') {
             $provider = app(TwoFactorAuthenticationProvider::class);
-            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
+            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret ?? '');
             $secret = is_string($secretRaw) ? $secretRaw : '';
             $verified = $provider->verify($secret, $code);
         } elseif ($emailCode !== '') {

@@ -51,7 +51,7 @@ class AttachedRegistryAudit extends Command
                     $rowCount++;
                     $path = $record->getAttribute('path');
 
-                    if (empty($path)) {
+                    if (! is_string($path) || $path === '') {
                         $keyRaw = $record->getKey();
                         $emptyPaths[] = is_scalar($keyRaw) ? (string) $keyRaw : '';
 

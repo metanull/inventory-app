@@ -25,7 +25,7 @@ class IndexTimelineEventRequest extends FormRequest
         ];
     }
 
-    /** @return array<string, mixed> */
+    /** @return array{page:int, per_page:int} */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);

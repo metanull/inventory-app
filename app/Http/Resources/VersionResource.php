@@ -8,7 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for application version information.
  */
-/** @extends JsonResource<array<string, mixed>> */
 class VersionResource extends JsonResource
 {
     /**
@@ -18,13 +17,15 @@ class VersionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'repository' => $this->resource['repository'] ?? null,
-            'build_timestamp' => $this->resource['build_timestamp'] ?? null,
-            'repository_url' => $this->resource['repository_url'] ?? null,
-            'api_client_version' => $this->resource['api_client_version'] ?? null,
-            'app_version' => $this->resource['app_version'] ?? '1.0.0-dev',
-            'commit_sha' => $this->resource['commit_sha'] ?? null,
+            'repository' => $data['repository'] ?? null,
+            'build_timestamp' => $data['build_timestamp'] ?? null,
+            'repository_url' => $data['repository_url'] ?? null,
+            'api_client_version' => $data['api_client_version'] ?? null,
+            'app_version' => $data['app_version'] ?? '1.0.0-dev',
+            'commit_sha' => $data['commit_sha'] ?? null,
         ];
     }
 }

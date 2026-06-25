@@ -13,12 +13,12 @@ use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Contributor;
 use App\Models\ContributorImage;
-use Illuminate\Support\Facades\Config;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 class ContributorImageController extends Controller
 {

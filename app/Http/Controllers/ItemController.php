@@ -144,7 +144,9 @@ class ItemController extends Controller
             $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
             /** @var array<int, mixed> $attachIds */
             $attachIds = is_array($validated['attach']) ? $validated['attach'] : [];
-            $tagsToAttach = array_diff($attachIds, $existingTagIds);
+            $attachStrIds = array_map(fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $attachIds);
+            $existingStrIds = array_map(fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $existingTagIds);
+            $tagsToAttach = array_diff($attachStrIds, $existingStrIds);
 
             if (! empty($tagsToAttach)) {
                 $item->tags()->attach($tagsToAttach);
@@ -212,7 +214,9 @@ class ItemController extends Controller
         $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
         /** @var array<int, mixed> $tagIds */
         $tagIds = is_array($validated['tag_ids'] ?? null) ? $validated['tag_ids'] : [];
-        $tagsToAttach = array_diff($tagIds, $existingTagIds);
+        $tagStrIds = array_map(fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $tagIds);
+        $existingStrIds = array_map(fn (mixed $v): string => is_scalar($v) ? (string) $v : '', $existingTagIds);
+        $tagsToAttach = array_diff($tagStrIds, $existingStrIds);
 
         if (! empty($tagsToAttach)) {
             $item->tags()->attach($tagsToAttach);

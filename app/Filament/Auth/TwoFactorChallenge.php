@@ -204,7 +204,7 @@ class TwoFactorChallenge extends SimplePage
             }
         } elseif ($code !== '') {
             $provider = app(TwoFactorAuthenticationProvider::class);
-            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
+            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret ?? '');
             $verified = $provider->verify(is_string($secretRaw) ? $secretRaw : '', $code);
         } elseif ($emailCode !== '') {
             $verified = app(EmailTwoFactorCodeService::class)->verify($user, $emailCode);

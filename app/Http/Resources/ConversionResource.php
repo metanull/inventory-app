@@ -8,7 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for conversion responses (markdown to HTML, HTML to markdown, etc.).
  */
-/** @extends JsonResource<array<string, mixed>> */
 class ConversionResource extends JsonResource
 {
     /**
@@ -18,24 +17,26 @@ class ConversionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         $result = [
-            'success' => $this->resource['success'] ?? true,
+            'success' => $data['success'] ?? true,
         ];
 
-        if (isset($this->resource['message'])) {
-            $result['message'] = $this->resource['message'];
+        if (isset($data['message'])) {
+            $result['message'] = $data['message'];
         }
 
-        if (isset($this->resource['data'])) {
-            $result['data'] = $this->resource['data'];
+        if (isset($data['data'])) {
+            $result['data'] = $data['data'];
         }
 
-        if (isset($this->resource['error'])) {
-            $result['error'] = $this->resource['error'];
+        if (isset($data['error'])) {
+            $result['error'] = $data['error'];
         }
 
-        if (isset($this->resource['errors'])) {
-            $result['errors'] = $this->resource['errors'];
+        if (isset($data['errors'])) {
+            $result['errors'] = $data['errors'];
         }
 
         return $result;

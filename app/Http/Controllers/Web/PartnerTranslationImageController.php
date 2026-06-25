@@ -9,13 +9,13 @@ use App\Http\Requests\Web\StorePartnerTranslationImageRequest;
 use App\Http\Requests\Web\UpdatePartnerTranslationImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
-use Illuminate\Support\Facades\Config;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Services\Web\PartnerTranslationImageIndexQuery;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 
 class PartnerTranslationImageController extends Controller
 {

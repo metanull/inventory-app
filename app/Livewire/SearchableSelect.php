@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Livewire\Support\OptionsLookup;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\View\View;
@@ -76,7 +75,7 @@ class SearchableSelect extends Component
         mixed $scopes = null,
         ?int $perPage = null
     ): void {
-        $this->selectedId = old($name, $selectedId);
+        $this->selectedId = old($name, is_string($selectedId) || is_array($selectedId) ? $selectedId : null);
         $this->name = $name;
         $this->staticOptions = $staticOptions;
         $this->modelClass = $modelClass;
@@ -128,7 +127,7 @@ class SearchableSelect extends Component
     }
 
     /**
-     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
+     * @return Collection<int, mixed>
      */
     public function getOptionsProperty()
     {
@@ -139,7 +138,10 @@ class SearchableSelect extends Component
 
         // Dynamic DB query mode
         if ($this->modelClass) {
-            return $this->resolveOptionsQuery()->get();
+            /** @var Collection<int, mixed> $results */
+            $results = $this->resolveOptionsQuery()->get();
+
+            return $results;
         }
 
         return collect();

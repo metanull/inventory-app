@@ -270,7 +270,7 @@ class GenerateModelDocumentation extends Command
                     if (! empty($relations)) {
                         $content[] = "#### {$type}";
                         foreach ($relations as $relation) {
-                            $relatedModel = isset($relation['related']) ? class_basename($relation['related']) : 'Unknown';
+                            $relatedModel = class_basename($relation['related']);
                             $relatedAnchor = strtolower(str_replace('\\', '-', $relatedModel));
                             $content[] = "- **`{$relation['method']}()`**: {$relation['type']} [{$relatedModel}](#{$relatedAnchor})";
                         }

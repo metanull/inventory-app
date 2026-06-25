@@ -8,7 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for generic operation success responses.
  */
-/** @extends JsonResource<array<string, mixed>> */
 class OperationSuccessResource extends JsonResource
 {
     /**
@@ -18,9 +17,11 @@ class OperationSuccessResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'success' => $this->resource['success'] ?? true,
-            'message' => $this->resource['message'] ?? 'Operation completed successfully',
+            'success' => $data['success'] ?? true,
+            'message' => $data['message'] ?? 'Operation completed successfully',
         ];
     }
 }

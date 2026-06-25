@@ -31,7 +31,7 @@ abstract class IndexListRequest extends FormRequest
             ListQueryParameters::SORT => ['sometimes', 'string', Rule::in(array_keys($definition->sorts()))],
             ListQueryParameters::DIRECTION => ['sometimes', 'string', Rule::in(ListQueryParameters::directions())],
             ListQueryParameters::PAGE => ['sometimes', 'integer', 'min:1'],
-            ListQueryParameters::PER_PAGE => ['sometimes', 'integer', Rule::in(array_map(intval(...), Config::array('interface.pagination.per_page_options', [])))],
+            ListQueryParameters::PER_PAGE => ['sometimes', 'integer', Rule::in(array_map(fn (mixed $v): int => is_numeric($v) ? (int) $v : 0, Config::array('interface.pagination.per_page_options', [])))],
         ], $this->filterRules($definition));
     }
 

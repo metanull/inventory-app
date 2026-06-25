@@ -8,6 +8,10 @@ use Illuminate\Support\Collection;
 
 class TranslationSectionData
 {
+    /**
+     * @param  Collection<int, mixed>  $translations
+     * @return Collection<int, mixed>
+     */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
         if ($translations->isEmpty()) {

@@ -251,8 +251,15 @@ class ItemDisplayLabel
      */
     public static function resolvePictureLabel(Item $picture, ?string $defaultLangId = null, ?string $defaultContextId = null): string
     {
-        $defaultLangId ??= Language::default()->value('id');
-        $defaultContextId ??= Context::default()->value('id');
+        if ($defaultLangId === null) {
+            $rawLang = Language::default()->value('id');
+            $defaultLangId = is_string($rawLang) ? $rawLang : null;
+        }
+
+        if ($defaultContextId === null) {
+            $rawCtx = Context::default()->value('id');
+            $defaultContextId = is_string($rawCtx) ? $rawCtx : null;
+        }
 
         $ownTranslation = static::resolveTranslationOnly($picture, $defaultLangId, $defaultContextId);
 

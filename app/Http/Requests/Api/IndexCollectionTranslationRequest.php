@@ -28,7 +28,7 @@ class IndexCollectionTranslationRequest extends FormRequest
     /**
      * Get validated pagination parameters.
      *
-     * @return array<string, mixed>
+     * @return array{page:int, per_page:int}
      */
     public function getPaginationParams(): array
     {
