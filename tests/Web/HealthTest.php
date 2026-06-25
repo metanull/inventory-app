@@ -2,10 +2,12 @@
 
 namespace Tests\Web;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class HealthTest extends TestCase
 {
+    use RefreshDatabase;
     public function test_the_application_redirects_to_web_route_by_default(): void
     {
         $response = $this->get(route('root'));
