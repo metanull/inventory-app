@@ -9,36 +9,26 @@ use Spatie\Permission\Exceptions\PermissionAlreadyExists;
 
 abstract class TestCase extends BaseTestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        // The RefreshDatabase trait will handle migrations and database state.
-
-        // Ensure all permissions exist for testing
-        $this->ensurePermissionsExist();
-    }
-
-    protected function tearDown(): void
-    {
-        // The RefreshDatabase trait will handle database rollbacks.
-
-        parent::tearDown();
+        // Seed permissions only for test classes that opted into a real database
+        // via the RefreshDatabase trait. Tests that do not touch the DB (HTTP
+        // response tests, pure-service tests, etc.) should not declare
+        // RefreshDatabase and will skip this step entirely.
+        if (in_array(RefreshDatabase::class, class_uses_recursive(static::class))) {
+            $this->ensurePermissionsExist();
+        }
     }
 
     /**
      * Ensure all application permissions exist in the database.
-     * This is needed for permission middleware to work in tests.
-     *
-     * Note: This method is idempotent and safe to call multiple times.
-     * It will not create duplicate permissions.
+     * Called automatically when the concrete test class uses RefreshDatabase.
      */
     protected function ensurePermissionsExist(): void
     {
         foreach (Permission::cases() as $permission) {
-            // Check if permission already exists to avoid exceptions
             $exists = \Spatie\Permission\Models\Permission::where('name', $permission->value)
                 ->where('guard_name', 'web')
                 ->exists();
@@ -50,9 +40,8 @@ abstract class TestCase extends BaseTestCase
                         'guard_name' => 'web',
                     ]);
                 } catch (PermissionAlreadyExists $e) {
-                    // Permission was created by another test running in parallel, this is fine
+                    // Created by a parallel worker between the exists() check and create()
                 } catch (\Exception $e) {
-                    // Unexpected exception, rethrow
                     throw $e;
                 }
             }
