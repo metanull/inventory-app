@@ -58,7 +58,9 @@ class AvailableImageController extends Controller
      */
     public function destroy(AvailableImage $availableImage): Response
     {
-        Storage::delete($availableImage->path);
+        if ($availableImage->path !== null) {
+            Storage::delete($availableImage->path);
+        }
         $availableImage->delete();
 
         return response()->noContent();

@@ -36,7 +36,9 @@ class Login extends \Filament\Pages\Auth\Login
             $this->throwFailureValidationException();
         }
 
-        if (! ($user instanceof FilamentUser) || ! $user->canAccessPanel(Filament::getCurrentPanel())) {
+        $panel = Filament::getCurrentPanel();
+
+        if (! ($user instanceof FilamentUser) || ! $panel || ! $user->canAccessPanel($panel)) {
             $this->throwFailureValidationException();
         }
 
@@ -51,7 +53,7 @@ class Login extends \Filament\Pages\Auth\Login
             session()->put('filament.admin.2fa.user_id', $user->getKey());
             session()->put('filament.admin.2fa.remember', $remember);
 
-            $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-challenge'));
+            $this->redirect($panel->route('auth.two-factor-challenge'));
 
             return null;
         }
@@ -65,7 +67,7 @@ class Login extends \Filament\Pages\Auth\Login
         }
 
         if (Features::enabled(Features::twoFactorAuthentication()) && is_null($user->two_factor_confirmed_at)) {
-            $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-setup'));
+            $this->redirect($panel->route('auth.two-factor-setup'));
 
             return null;
         }
@@ -75,7 +77,7 @@ class Login extends \Filament\Pages\Auth\Login
 
     protected function getForgotPasswordUrl(): ?string
     {
-        return Filament::getCurrentPanel()->route('auth.password.request');
+        return Filament::getCurrentPanel()?->route('auth.password.request');
     }
 
     protected function getPasswordFormComponent(): Component

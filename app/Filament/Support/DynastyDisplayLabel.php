@@ -79,7 +79,7 @@ class DynastyDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return (string) $t->name;
             }
         }
 

@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\AvailableImageEvent;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -35,6 +36,12 @@ class AvailableImageListener
     {
         $file = $event->availableImage;
 
+        if ($file->path === null) {
+            Log::error('AvailableImage has no path.', ['id' => $file->id]);
+
+            return;
+        }
+
         // Get disk and directory where uploaded images are stored
         $uploadDisk = config('localstorage.uploads.images.disk');
         $uploadeDir = trim(config('localstorage.uploads.images.directory'), '/');
@@ -46,10 +53,13 @@ class AvailableImageListener
         $filename = basename($file->path);
 
         // Move the file from the source disk to the destination disk
-        Storage::disk($finalDisk)->writeStream(
-            $finalDir.'/'.$filename,
-            Storage::disk($uploadDisk)->readStream($uploadeDir.'/'.$filename)
-        );
+        $readStream = Storage::disk($uploadDisk)->readStream($uploadeDir.'/'.$filename);
+        if ($readStream === null) {
+            Log::error('Failed to open read stream for available image.', ['filename' => $filename]);
+
+            return;
+        }
+        Storage::disk($finalDisk)->writeStream($finalDir.'/'.$filename, $readStream);
         // Delete the file from the source disk
         Storage::disk($uploadDisk)->delete($uploadeDir.'/'.$filename);
 

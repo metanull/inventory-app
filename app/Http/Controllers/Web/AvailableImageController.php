@@ -85,7 +85,7 @@ class AvailableImageController extends Controller
     {
         // Delete the physical file from storage
         $disk = Storage::disk(config('localstorage.available.images.disk'));
-        if ($disk->exists($availableImage->path)) {
+        if ($availableImage->path !== null && $disk->exists($availableImage->path)) {
             $disk->delete($availableImage->path);
         }
 

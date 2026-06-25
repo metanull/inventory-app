@@ -12,7 +12,7 @@ class ViewItemImageRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('view-data');
+        return $this->user()?->can('view-data') ?? false;
     }
 
     /**

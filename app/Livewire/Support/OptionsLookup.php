@@ -34,6 +34,10 @@ trait OptionsLookup
      */
     public function resolveOptionsQuery(): Builder
     {
+        if ($this->modelClass === null) {
+            throw new \InvalidArgumentException('Model class is not set on '.static::class);
+        }
+
         $query = $this->modelClass::query();
 
         if ($this->filterColumn && $this->filterValue !== null) {
@@ -137,10 +141,13 @@ trait OptionsLookup
      */
     protected function applyFilter(Builder $query): void
     {
-        match (strtoupper($this->filterOperator)) {
-            'IN' => $query->whereIn($this->filterColumn, (array) $this->filterValue),
-            'NOT IN' => $query->whereNotIn($this->filterColumn, (array) $this->filterValue),
-            default => $query->where($this->filterColumn, $this->filterOperator, $this->filterValue),
+        $filterColumn = $this->filterColumn ?? throw new \InvalidArgumentException('Filter column is not set on '.static::class);
+        $filterOperator = $this->filterOperator ?? '=';
+
+        match (strtoupper($filterOperator)) {
+            'IN' => $query->whereIn($filterColumn, (array) $this->filterValue),
+            'NOT IN' => $query->whereNotIn($filterColumn, (array) $this->filterValue),
+            default => $query->where($filterColumn, $filterOperator, $this->filterValue),
         };
     }
 

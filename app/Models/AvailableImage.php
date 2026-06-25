@@ -69,6 +69,6 @@ class AvailableImage extends Model implements StreamableImageFile
 
     public function imageDownloadFilename(): string
     {
-        return $this->original_name ?: basename($this->path);
+        return $this->original_name ?: basename($this->path ?? '');
     }
 }

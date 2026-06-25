@@ -107,7 +107,7 @@ class ResetPassword extends SimplePage
             session()->put('filament.admin.password_reset.token', $this->token);
 
             $this->redirect(
-                Filament::getCurrentPanel()->route('auth.password.reset.mfa')
+                Filament::getCurrentPanel()?->route('auth.password.reset.mfa') ?? '/'
             );
 
             return;

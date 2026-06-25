@@ -16,11 +16,10 @@ class UserPermissionsController extends Controller
      */
     public function index(IndexUserPermissionsRequest $request): UserPermissionsResource
     {
-        $permissions = $request->user()
-            ->getAllPermissions()
-            ->pluck('name')
-            ->values()
-            ->toArray();
+        $user = $request->user();
+        $permissions = $user !== null
+            ? $user->getAllPermissions()->pluck('name')->values()->toArray()
+            : [];
 
         return new UserPermissionsResource([
             'permissions' => $permissions,

@@ -42,6 +42,12 @@ class ImageUploadListener
     {
         $file = $event->imageUpload;
 
+        if ($file->path === null) {
+            Log::error('ImageUpload has no path.', ['id' => $file->id]);
+
+            return;
+        }
+
         // Get disk and directory config for the uploaded images
         $uploadDisk = config('localstorage.uploads.images.disk');
 

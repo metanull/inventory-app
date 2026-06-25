@@ -98,7 +98,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return (string) $t->title;
             }
         }
 
@@ -110,7 +110,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return (string) $t->title;
             }
         }
 
@@ -120,7 +120,7 @@ class CollectionDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return (string) $t->title;
             }
         }
 

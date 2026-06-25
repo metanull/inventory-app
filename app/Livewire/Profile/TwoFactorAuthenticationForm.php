@@ -44,7 +44,7 @@ class TwoFactorAuthenticationForm extends Component
     public function mount(): void
     {
         if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm') &&
-            is_null(Auth::user()->two_factor_confirmed_at)) {
+            is_null(Auth::user()?->two_factor_confirmed_at)) {
             app(DisableTwoFactorAuthentication::class)(Auth::user());
         }
     }
@@ -78,7 +78,7 @@ class TwoFactorAuthenticationForm extends Component
             $this->ensurePasswordIsConfirmed();
         }
 
-        $confirm(Auth::user(), $this->code);
+        $confirm(Auth::user(), (string) $this->code);
 
         $this->showingQrCode = false;
         $this->showingConfirmation = false;

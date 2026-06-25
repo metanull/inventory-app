@@ -40,8 +40,8 @@ class ShowUser extends Command
         $this->line("ID: {$user->id}");
         $this->line("Name: {$user->name}");
         $this->line("Email: {$user->email}");
-        $this->line("Created: {$user->created_at->format('Y-m-d H:i:s')}");
-        $this->line("Updated: {$user->updated_at->format('Y-m-d H:i:s')}");
+        $this->line("Created: {$user->created_at?->format('Y-m-d H:i:s')}");
+        $this->line("Updated: {$user->updated_at?->format('Y-m-d H:i:s')}");
 
         $this->newLine();
 

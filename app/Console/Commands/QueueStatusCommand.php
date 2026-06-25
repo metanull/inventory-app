@@ -60,7 +60,7 @@ class QueueStatusCommand extends Command
                 $this->line("- ID: <fg=yellow>{$upload->id}</>");
                 $this->line("  Path: {$upload->path}");
                 $this->line("  Name: {$upload->name}");
-                $this->line('  Size: '.number_format($upload->size).' bytes');
+                $this->line('  Size: '.number_format((int) $upload->size).' bytes');
                 $this->line("  Created: {$upload->created_at}");
                 $this->line("  Updated: {$upload->updated_at}");
                 $this->newLine();

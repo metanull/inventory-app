@@ -28,7 +28,7 @@ trait HasJsonFields
      */
     protected function normalizedJson(string $field): array
     {
-        return $this->getJsonNormalizer()->normalize($this->{$field});
+        return $this->getJsonNormalizer()->normalize($this->{$field}) ?? [];
     }
 
     /**

@@ -83,10 +83,11 @@ class TimelineEventImage extends Model implements DetachableImage, StreamableIma
 
             $filename = $availableImage->path;
 
-            Storage::disk($picturesDisk)->writeStream(
-                $picturesDir.'/'.$filename,
-                Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename)
-            );
+            $readStream = Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename);
+            if ($readStream === null) {
+                throw new \RuntimeException("Failed to open read stream for image: {$filename}");
+            }
+            Storage::disk($picturesDisk)->writeStream($picturesDir.'/'.$filename, $readStream);
             Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
             $image = Model::unguarded(fn () => static::create([
@@ -121,10 +122,11 @@ class TimelineEventImage extends Model implements DetachableImage, StreamableIma
 
             $filename = $this->path;
 
-            Storage::disk($availableDisk)->writeStream(
-                $availableDir.'/'.$filename,
-                Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename)
-            );
+            $readStream = Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename);
+            if ($readStream === null) {
+                throw new \RuntimeException("Failed to open read stream for image: {$filename}");
+            }
+            Storage::disk($availableDisk)->writeStream($availableDir.'/'.$filename, $readStream);
             Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
             $availableImage = Model::unguarded(fn () => AvailableImage::create([

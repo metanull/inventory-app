@@ -54,7 +54,7 @@ class TwoFactorSetup extends SimplePage
         }
 
         $this->qrCodeSvg = $user->twoFactorQrCodeSvg();
-        $this->setupKey = decrypt($user->two_factor_secret);
+        $this->setupKey = decrypt((string) $user->two_factor_secret);
     }
 
     public function form(Form $form): Form

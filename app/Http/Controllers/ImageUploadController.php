@@ -111,7 +111,9 @@ class ImageUploadController extends Controller
      */
     public function destroy(ImageUpload $imageUpload): Response
     {
-        Storage::delete($imageUpload->path);
+        if ($imageUpload->path !== null) {
+            Storage::delete($imageUpload->path);
+        }
         $imageUpload->delete();
 
         return response()->noContent();

@@ -25,7 +25,7 @@ class UpdateCountryTranslationRequest extends FormRequest
         $uniqueRule = Rule::unique('country_translations')
             ->where('country_id', $this->input('country_id'))
             ->where('language_id', $this->input('language_id'))
-            ->ignore($countryTranslation->id);
+            ->ignore($countryTranslation?->id);
 
         return [
             'id' => ['prohibited'],

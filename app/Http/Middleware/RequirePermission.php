@@ -22,6 +22,10 @@ class RequirePermission
 
         $user = Auth::user();
 
+        if ($user === null) {
+            return $this->redirectToLogin($request);
+        }
+
         // Check if user has the required permission using Spatie's method
         // Note: Users can have permissions directly or through roles - feature-based authorization
         if (! $user->hasPermissionTo($permission)) {

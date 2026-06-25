@@ -24,7 +24,7 @@ class Setting extends Model
             return $default;
         }
 
-        return static::castValue($setting->value, $setting->type);
+        return static::castValue($setting->value ?? '', $setting->type);
     }
 
     /**

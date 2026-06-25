@@ -58,7 +58,7 @@ class ListUsers extends Command
                 $user->name,
                 $user->email,
                 $roles,
-                $user->created_at->format('Y-m-d H:i'),
+                $user->created_at?->format('Y-m-d H:i') ?? '',
             ];
         }
 

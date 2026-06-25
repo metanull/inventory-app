@@ -133,16 +133,16 @@ class MarkdownService
         // Only preprocess if there are HTML tags present outside of code blocks
         if ($this->containsHtmlOutsideCodeBlocks($normalizedMarkdown)) {
             // Remove script tags and their content completely before processing
-            $normalizedMarkdown = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $normalizedMarkdown);
-            $normalizedMarkdown = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $normalizedMarkdown);
+            $normalizedMarkdown = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $normalizedMarkdown) ?? $normalizedMarkdown;
+            $normalizedMarkdown = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $normalizedMarkdown) ?? $normalizedMarkdown;
 
             // Remove other HTML tags but preserve spacing, avoiding code blocks
             $normalizedMarkdown = $this->removeHtmlTagsOutsideCodeBlocks($normalizedMarkdown);
 
             // Clean up excessive whitespace but be careful with markdown structure
-            $normalizedMarkdown = preg_replace('/[ \t]+/', ' ', $normalizedMarkdown); // Only horizontal whitespace
-            $normalizedMarkdown = preg_replace('/\n +/', "\n", $normalizedMarkdown); // Remove leading spaces on lines
-            $normalizedMarkdown = preg_replace('/ +\n/', "\n", $normalizedMarkdown); // Remove trailing spaces on lines
+            $normalizedMarkdown = preg_replace('/[ \t]+/', ' ', $normalizedMarkdown) ?? $normalizedMarkdown; // Only horizontal whitespace
+            $normalizedMarkdown = preg_replace('/\n +/', "\n", $normalizedMarkdown) ?? $normalizedMarkdown; // Remove leading spaces on lines
+            $normalizedMarkdown = preg_replace('/ +\n/', "\n", $normalizedMarkdown) ?? $normalizedMarkdown; // Remove trailing spaces on lines
         }
 
         return $this->markdownConverter->convert($normalizedMarkdown)->getContent();
@@ -154,8 +154,8 @@ class MarkdownService
     private function containsHtmlOutsideCodeBlocks(string $markdown): bool
     {
         // Remove code blocks temporarily
-        $withoutCodeBlocks = preg_replace('/```[\s\S]*?```/', '', $markdown);
-        $withoutInlineCode = preg_replace('/`[^`]*`/', '', $withoutCodeBlocks);
+        $withoutCodeBlocks = preg_replace('/```[\s\S]*?```/', '', $markdown) ?? $markdown;
+        $withoutInlineCode = preg_replace('/`[^`]*`/', '', $withoutCodeBlocks) ?? $withoutCodeBlocks;
 
         return (bool) preg_match('/<[^>]+>/', (string) $withoutInlineCode);
     }
@@ -256,16 +256,16 @@ class MarkdownService
     private function sanitizeHtml(string $html): string
     {
         // Remove dangerous attributes
-        $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        $html = preg_replace('/\s*style\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        $html = preg_replace('/\s*class\s*=\s*["\'][^"\']*["\']/i', '', $html);
+        $html = preg_replace('/\s*on\w+\s*=\s*["\'][^"\']*["\']/i', '', $html) ?? $html;
+        $html = preg_replace('/\s*style\s*=\s*["\'][^"\']*["\']/i', '', $html) ?? $html;
+        $html = preg_replace('/\s*class\s*=\s*["\'][^"\']*["\']/i', '', $html) ?? $html;
 
         // Remove script and style tags completely
-        $html = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $html);
-        $html = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $html);
+        $html = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $html) ?? $html;
+        $html = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $html) ?? $html;
 
         // Clean up excessive whitespace
-        $html = preg_replace('/\s+/', ' ', $html);
+        $html = preg_replace('/\s+/', ' ', $html) ?? $html;
         $html = trim($html);
 
         return $html;

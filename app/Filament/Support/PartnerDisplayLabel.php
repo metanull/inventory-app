@@ -103,7 +103,7 @@ class PartnerDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return (string) $t->name;
             }
         }
 
@@ -115,7 +115,7 @@ class PartnerDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return (string) $t->name;
             }
         }
 
@@ -125,7 +125,7 @@ class PartnerDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return (string) $t->name;
             }
         }
 

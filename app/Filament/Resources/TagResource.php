@@ -108,7 +108,7 @@ class TagResource extends Resource
                     ->sortable(),
                 TextColumn::make('category')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised')
+                    ->formatStateUsing(fn (?string $state): string => $state !== null ? (static::categoryOptions()[$state] ?? 'Uncategorised') : 'Uncategorised')
                     ->color(fn (Tag $record): array => EntityColor::palette($record->category ?? 'tags'))
                     ->sortable(),
                 TextColumn::make('internal_name')
@@ -159,7 +159,7 @@ class TagResource extends Resource
                         TextEntry::make('description')
                             ->label('Tag'),
                         TextEntry::make('category')
-                            ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
+                            ->formatStateUsing(fn (?string $state): string => $state !== null ? (static::categoryOptions()[$state] ?? 'Uncategorised') : 'Uncategorised'),
                         TextEntry::make('internal_name'),
                         TextEntry::make('language.internal_name')
                             ->label('Language')

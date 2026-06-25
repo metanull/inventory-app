@@ -126,7 +126,7 @@ class MobileAppAuthenticationController extends Controller
         // Verify TOTP code
         $verified = false;
         try {
-            $decryptedSecret = decrypt($user->two_factor_secret);
+            $decryptedSecret = decrypt((string) $user->two_factor_secret);
             $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
         } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid code
@@ -231,7 +231,7 @@ class MobileAppAuthenticationController extends Controller
 
         // Verify TOTP
         try {
-            $decryptedSecret = decrypt($user->two_factor_secret);
+            $decryptedSecret = decrypt((string) $user->two_factor_secret);
             if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
                 return true;
             }

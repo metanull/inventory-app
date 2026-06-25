@@ -241,7 +241,7 @@ class UserResource extends Resource
                     ->visible(fn (User $record): bool => $record->suspended_at === null && (auth()->user()?->can('suspend', $record) ?? false))
                     ->requiresConfirmation()
                     ->action(function (User $record): void {
-                        abort_unless(auth()->user()?->can('suspend', $record), 403);
+                        abort_unless(auth()->user()?->can('suspend', $record) ?? false, 403);
                         $record->forceFill(['suspended_at' => now()])->save();
                         Notification::make()->success()->title('User suspended')->send();
                     }),

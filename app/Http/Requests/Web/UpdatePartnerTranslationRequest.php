@@ -72,7 +72,7 @@ class UpdatePartnerTranslationRequest extends FormRequest
             $exists = PartnerTranslation::where('partner_id', $this->partner_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)
-                ->where('id', '!=', $partnerTranslation->id)
+                ->where('id', '!=', $partnerTranslation?->id)
                 ->exists();
 
             if ($exists) {
