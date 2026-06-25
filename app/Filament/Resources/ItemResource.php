@@ -101,12 +101,11 @@ class ItemResource extends Resource
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<Item>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array
     {
-        /** @var Builder<Item> $query */
         return ItemDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Item $item): array => [

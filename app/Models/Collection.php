@@ -372,7 +372,7 @@ class Collection extends Model
     /**
      * Get partners by level.
      *
-     * @return BelongsToMany<Partner, $this>
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function partnersByLevel(PartnerLevel $level): BelongsToMany
     {
@@ -382,7 +382,7 @@ class Collection extends Model
     /**
      * Get direct partners (level: partner).
      *
-     * @return BelongsToMany<Partner, $this>
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function directPartners(): BelongsToMany
     {
@@ -392,7 +392,7 @@ class Collection extends Model
     /**
      * Get associated partners (level: associated_partner).
      *
-     * @return BelongsToMany<Partner, $this>
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function associatedPartners(): BelongsToMany
     {

@@ -95,12 +95,11 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<Collection>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array
     {
-        /** @var Builder<Collection> $query */
         return CollectionDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Collection $collection): array => [
