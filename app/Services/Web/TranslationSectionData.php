@@ -10,6 +10,7 @@ class TranslationSectionData
 {
     /**
      * @template TTranslation
+     *
      * @param  Collection<int, TTranslation>  $translations
      * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}>
      */
@@ -35,9 +36,12 @@ class TranslationSectionData
             ->values();
 
         if (! $groupByContext) {
+            /** @var string|null $label */
+            $label = null;
+
             return collect([
                 [
-                    'label' => null,
+                    'label' => $label,
                     'is_default' => false,
                     'translations' => $sortedTranslations,
                 ],
@@ -58,9 +62,11 @@ class TranslationSectionData
                 $firstItem = $group->first();
                 $context = is_object($firstItem) ? $firstItem->context : null;
                 $isDefaultContext = $context?->id === $defaultContextId;
+                /** @var string|null $label */
+                $label = $context !== null ? $context->internal_name : 'No Context';
 
                 return [
-                    'label' => $context !== null ? $context->internal_name : 'No Context',
+                    'label' => $label,
                     'is_default' => $isDefaultContext,
                     'translations' => $group->values(),
                     'sort_key' => sprintf(
