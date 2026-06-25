@@ -142,7 +142,9 @@ class ItemController extends Controller
         if (isset($validated['attach'])) {
             // Only attach tags that aren't already attached to avoid duplicates
             $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
-            $tagsToAttach = array_diff($validated['attach'], $existingTagIds);
+            /** @var array<int, mixed> $attachIds */
+            $attachIds = is_array($validated['attach']) ? $validated['attach'] : [];
+            $tagsToAttach = array_diff($attachIds, $existingTagIds);
 
             if (! empty($tagsToAttach)) {
                 $item->tags()->attach($tagsToAttach);
@@ -208,7 +210,9 @@ class ItemController extends Controller
 
         // Only attach tags that aren't already attached
         $existingTagIds = $item->tags()->pluck('tags.id')->toArray();
-        $tagsToAttach = array_diff($validated['tag_ids'], $existingTagIds);
+        /** @var array<int, mixed> $tagIds */
+        $tagIds = is_array($validated['tag_ids'] ?? null) ? $validated['tag_ids'] : [];
+        $tagsToAttach = array_diff($tagIds, $existingTagIds);
 
         if (! empty($tagsToAttach)) {
             $item->tags()->attach($tagsToAttach);
@@ -260,7 +264,9 @@ class ItemController extends Controller
 
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
-        $items = Item::withAllTags($validated['tags'])->with($with)->get();
+        /** @var array<int, mixed> $tags */
+        $tags = is_array($validated['tags'] ?? null) ? $validated['tags'] : [];
+        $items = Item::withAllTags($tags)->with($with)->get();
 
         return ItemResource::collection($items);
     }
@@ -274,7 +280,9 @@ class ItemController extends Controller
 
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
-        $items = Item::withAnyTags($validated['tags'])->with($with)->get();
+        /** @var array<int, mixed> $tags */
+        $tags = is_array($validated['tags'] ?? null) ? $validated['tags'] : [];
+        $items = Item::withAnyTags($tags)->with($with)->get();
 
         return ItemResource::collection($items);
     }

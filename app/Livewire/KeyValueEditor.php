@@ -52,7 +52,7 @@ class KeyValueEditor extends Component
         foreach ($data as $key => $value) {
             $result[] = [
                 'key' => $key,
-                'value' => is_array($value) ? json_encode($value) : $value,
+                'value' => is_array($value) ? (string) json_encode($value) : (is_scalar($value) ? (string) $value : ''),
             ];
         }
 

@@ -16,6 +16,7 @@ use Filament\Pages\Auth\EditProfile;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\HtmlString;
@@ -388,7 +389,9 @@ class ProfilePage extends EditProfile
             return;
         }
 
-        DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))
+        $sessionConnection = config('session.connection');
+        $sessionTable = config('session.table');
+        DB::connection(is_string($sessionConnection) ? $sessionConnection : null)->table(is_string($sessionTable) ? $sessionTable : 'sessions')
             ->where('user_id', Auth::guard(Filament::getAuthGuard())->id())
             ->where('id', '!=', request()->session()->getId())
             ->delete();

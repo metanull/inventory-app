@@ -55,7 +55,8 @@ class PartnerImageController extends Controller
     public function store(StorePartnerImageRequest $request, Partner $partner): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         PartnerImage::attachFromAvailableImage($availableImage, $partner->id);
 

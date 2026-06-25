@@ -97,7 +97,9 @@ class ItemResource extends Resource
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        return $query->excludingDescendantsOf((string) $record->getKey());
+        $key = $record->getKey();
+
+        return $query->excludingDescendantsOf(is_scalar($key) ? (string) $key : '');
     }
 
     /**
@@ -117,7 +119,7 @@ class ItemResource extends Resource
 
     protected static function changeParentOptionLabel(mixed $value): string
     {
-        return ItemDisplayLabel::resolveLabel($value) ?: (string) $value;
+        return ItemDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : '');
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
@@ -135,7 +137,9 @@ class ItemResource extends Resource
         }
 
         if (! $record instanceof Item) {
-            return (string) $record->getKey();
+            $key = $record->getKey();
+
+            return is_scalar($key) ? (string) $key : '';
         }
 
         $record->loadMissing(['translations', 'collection:id,context_id', 'project:id,context_id']);
@@ -188,7 +192,7 @@ class ItemResource extends Resource
                                     ? $item->display_label.' ['.$item->internal_name.']'
                                     : $item->internal_name,
                             ])->all())
-                            ->getOptionLabelUsing(fn ($value): string => ItemDisplayLabel::resolveLabel($value) ?: (string) $value)
+                            ->getOptionLabelUsing(fn ($value): string => ItemDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                             ->searchable()
                             ->nullable(),
                         Select::make('partner_id')
@@ -379,7 +383,7 @@ class ItemResource extends Resource
                         ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find((string) $value)) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (string) $value)
+                    ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find(is_scalar($value) ? (string) $value : '')) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (is_scalar($value) ? (string) $value : ''))
                     ->query(function (Builder $query, array $data): Builder {
                         /** @var Builder<Item> $q */
                         $q = $query;
@@ -450,7 +454,7 @@ class ItemResource extends Resource
                                     ? $c->display_label.' ['.$c->internal_name.']'
                                     : $c->internal_name,
                             ])->all())
-                            ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
+                            ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {
@@ -483,7 +487,7 @@ class ItemResource extends Resource
                                 ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find((string) $value)) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (string) $value)
+                            ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find(is_scalar($value) ? (string) $value : '')) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (is_scalar($value) ? (string) $value : ''))
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {

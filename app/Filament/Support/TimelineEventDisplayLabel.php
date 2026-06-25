@@ -78,7 +78,7 @@ class TimelineEventDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -109,7 +109,7 @@ class TimelineEventDisplayLabel
 
         $event = TimelineEvent::find($value);
         if (! $event instanceof TimelineEvent) {
-            return (string) $value;
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $event->load('translations');

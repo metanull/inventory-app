@@ -139,7 +139,8 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail((string) $validated['item_id']);
+        $itemIdRaw = $validated['item_id'] ?? null;
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->attachItem($item);
 
         $collection->refresh();
@@ -156,7 +157,8 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail((string) $validated['item_id']);
+        $itemIdRaw = $validated['item_id'] ?? null;
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->detachItem($item);
 
         $collection->refresh();
@@ -173,7 +175,9 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $collection->attachItems($validated['item_ids']);
+        /** @var array<int, string> $itemIds */
+        $itemIds = is_array($validated['item_ids'] ?? null) ? $validated['item_ids'] : [];
+        $collection->attachItems($itemIds);
 
         $collection->refresh();
         $includes = $request->getIncludeParams();
@@ -189,7 +193,9 @@ class CollectionController extends Controller
     {
         $validated = $request->validated();
 
-        $collection->detachItems($validated['item_ids']);
+        /** @var array<int, string> $itemIds */
+        $itemIds = is_array($validated['item_ids'] ?? null) ? $validated['item_ids'] : [];
+        $collection->detachItems($itemIds);
 
         $collection->refresh();
         $includes = $request->getIncludeParams();

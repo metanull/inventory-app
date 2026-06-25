@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
@@ -125,7 +126,7 @@ class GenerateModelDocumentation extends Command
         $content[] = '## Overview';
         $content[] = '';
         $content[] = '- ** Total Models:** '.count($models);
-        $content[] = '- ** Database Connection:** '.config('database.default');
+        $content[] = '- ** Database Connection:** '.Config::string('database.default');
         $content[] = '- ** Laravel Version:** '.app()->version();
         $content[] = '';
 
@@ -253,7 +254,7 @@ class GenerateModelDocumentation extends Command
                 $content[] = '';
                 $content[] = '```php';
                 foreach ($constants as $name => $value) {
-                    $valueStr = is_string($value) ? "'{$value}'" : (is_bool($value) ? ($value ? 'true' : 'false') : $value);
+                    $valueStr = is_string($value) ? "'{$value}'" : (is_bool($value) ? ($value ? 'true' : 'false') : (is_scalar($value) ? (string) $value : 'null'));
                     $content[] = "const {$name} = {$valueStr};";
                 }
                 $content[] = '```';
@@ -300,7 +301,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Get column details from database schema
      *
-     * @return array<string, mixed>
+     * @return array{type: string, nullable: string, default: string, extra: string}
      */
     private function getColumnDetails(string $tableName, string $columnName): array
     {
@@ -329,7 +330,7 @@ class GenerateModelDocumentation extends Command
      * Get model relationships using reflection
      *
      * @param  ReflectionClass<object>  $reflection
-     * @return array<string, mixed>
+     * @return array<string, list<array{method: string, type: string, related: string}>>
      */
     private function getModelRelationships(Model $model, ReflectionClass $reflection): array
     {

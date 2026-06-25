@@ -16,8 +16,10 @@ class StoreDynastyTranslationRequest extends FormRequest
     public function rules(): array
     {
         $uniqueRule = Rule::unique('dynasty_translations')
-            ->where('dynasty_id', $this->input('dynasty_id'))
-            ->where('language_id', $this->input('language_id'));
+            ->where(fn ($q) => $q
+                ->where('dynasty_id', $this->input('dynasty_id'))
+                ->where('language_id', $this->input('language_id'))
+            );
 
         return [
             'id' => ['prohibited'],

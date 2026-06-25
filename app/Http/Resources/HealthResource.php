@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for health check information.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class HealthResource extends JsonResource
 {
     /**

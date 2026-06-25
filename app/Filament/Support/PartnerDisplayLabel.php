@@ -103,7 +103,7 @@ class PartnerDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -115,7 +115,7 @@ class PartnerDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -125,7 +125,7 @@ class PartnerDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -156,7 +156,7 @@ class PartnerDisplayLabel
 
         $partner = Partner::find($value);
         if (! $partner instanceof Partner) {
-            return (string) $value;
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $partner->load(['translations', 'project:id,context_id']);

@@ -59,8 +59,9 @@ class UpdateUserPassword implements UpdatesUserPasswords
         // Verify TOTP
         try {
             $totpProvider = app(TwoFactorAuthenticationProvider::class);
-            $decryptedSecret = decrypt((string) $user->two_factor_secret);
-            $isValid = $totpProvider->verify($decryptedSecret, $code);
+            $rawSecret = $user->two_factor_secret;
+            $decrypted = decrypt(is_string($rawSecret) ? $rawSecret : '');
+            $isValid = $totpProvider->verify(is_string($decrypted) ? $decrypted : '', $code);
         } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid code
             $isValid = false;

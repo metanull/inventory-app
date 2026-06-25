@@ -125,10 +125,12 @@ abstract class BaseImagesRelationManager extends RelationManager
                         }
 
                         $modelClass = $this->imageModelClass();
+                        $ownerKey = $this->getOwnerRecord()->getKey();
+                        $altTextRaw = $data['alt_text'] ?? null;
                         $modelClass::attachFromAvailableImage(
                             $availableImage,
-                            (string) $this->getOwnerRecord()->getKey(),
-                            $data['alt_text'] ?? null
+                            is_scalar($ownerKey) ? (string) $ownerKey : '',
+                            is_string($altTextRaw) ? $altTextRaw : null
                         );
 
                         Notification::make()
@@ -195,9 +197,12 @@ abstract class BaseImagesRelationManager extends RelationManager
      */
     protected function imageRouteParameters(Model $record): array
     {
+        $ownerAttr = $record->getAttribute($this->ownerForeignKey());
+        $imageKey = $record->getKey();
+
         return [
-            $this->ownerRouteParameter() => (string) $record->getAttribute($this->ownerForeignKey()),
-            $this->imageRouteParameter() => (string) $record->getKey(),
+            $this->ownerRouteParameter() => is_scalar($ownerAttr) ? (string) $ownerAttr : '',
+            $this->imageRouteParameter() => is_scalar($imageKey) ? (string) $imageKey : '',
         ];
     }
 }

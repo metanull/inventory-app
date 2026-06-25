@@ -21,19 +21,23 @@ class ItemItemLinkController extends Controller
 
         // Apply filters from request if provided
         if ($request->has('source_id')) {
-            $query->fromSource($request->input('source_id'));
+            $sourceId = $request->input('source_id');
+            $query->fromSource(is_string($sourceId) ? $sourceId : '');
         }
 
         if ($request->has('target_id')) {
-            $query->toTarget($request->input('target_id'));
+            $targetId = $request->input('target_id');
+            $query->toTarget(is_string($targetId) ? $targetId : '');
         }
 
         if ($request->has('context_id')) {
-            $query->inContext($request->input('context_id'));
+            $contextId = $request->input('context_id');
+            $query->inContext(is_string($contextId) ? $contextId : '');
         }
 
         if ($request->has('item_id')) {
-            $query->involvingItem($request->input('item_id'));
+            $itemId = $request->input('item_id');
+            $query->involvingItem(is_string($itemId) ? $itemId : '');
         }
 
         $pagination = $request->getPaginationParams();

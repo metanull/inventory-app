@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Livewire\Support\OptionsLookup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
@@ -88,7 +89,7 @@ class SearchableSelect extends Component
         $this->filterColumn = $filterColumn;
         $this->filterOperator = $filterOperator;
         $this->filterValue = $filterValue;
-        $this->perPage = $perPage ?? (int) config('interface.searchable_select.per_page', 50);
+        $this->perPage = $perPage ?? Config::integer('interface.searchable_select.per_page');
 
         if ($scopes !== null) {
             $this->scopes = $this->normalizeScopes($scopes, $this->modelClass);
@@ -99,7 +100,7 @@ class SearchableSelect extends Component
             $rawOpts = $this->staticOptions;
             $staticCollection = collect($rawOpts);
             $count = count($staticCollection);
-            $max = (int) config('interface.searchable_select.static_options_max', 50);
+            $max = Config::integer('interface.searchable_select.static_options_max');
             if ($count > $max) {
                 throw new InvalidArgumentException(
                     "SearchableSelect received {$count} staticOptions but the configured maximum is {$max}. Use dynamic mode (modelClass + scope) for growable entities."
@@ -162,7 +163,7 @@ class SearchableSelect extends Component
             return $options->first(function ($option) {
                 $value = is_object($option)
                     ? ($option->{$this->valueField} ?? null)
-                    : ($option[$this->valueField] ?? null);
+                    : (is_array($option) ? ($option[$this->valueField] ?? null) : null);
 
                 return $value == $this->selectedId;
             });
@@ -178,9 +179,12 @@ class SearchableSelect extends Component
 
     public function render(): View
     {
-        $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
-        $focusClasses = $colors
-            ? "focus:border-{$colors['base']} focus:ring-{$colors['base']}"
+        $colorsRaw = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
+        $colors = is_array($colorsRaw) ? $colorsRaw : null;
+        $baseRaw = $colors !== null ? ($colors['base'] ?? null) : null;
+        $base = is_string($baseRaw) ? $baseRaw : '';
+        $focusClasses = ($base !== '')
+            ? "focus:border-{$base} focus:ring-{$base}"
             : 'focus:border-indigo-500 focus:ring-indigo-500';
 
         return view('livewire.searchable-select', [

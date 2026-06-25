@@ -8,6 +8,7 @@ use App\Http\Resources\ItemDocumentResource;
 use App\Http\Responses\FileResponse;
 use App\Models\Item;
 use App\Models\ItemDocument;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -97,8 +98,8 @@ class ItemDocumentController extends Controller
      */
     public function download(ItemDocument $itemDocument): Responsable
     {
-        $disk = config('localstorage.documents.disk');
-        $directory = trim(config('localstorage.documents.directory'), '/');
+        $disk = Config::string('localstorage.documents.disk');
+        $directory = trim(Config::string('localstorage.documents.directory'), '/');
         $filename = $itemDocument->original_name ?: basename($itemDocument->path);
 
         $storagePath = $directory.'/'.$itemDocument->path;

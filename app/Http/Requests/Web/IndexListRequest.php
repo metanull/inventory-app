@@ -7,6 +7,7 @@ use App\Support\Web\Lists\ListInputNormalizer;
 use App\Support\Web\Lists\ListQueryParameters;
 use App\Support\Web\Lists\ListState;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
 
 abstract class IndexListRequest extends FormRequest
@@ -30,7 +31,7 @@ abstract class IndexListRequest extends FormRequest
             ListQueryParameters::SORT => ['sometimes', 'string', Rule::in(array_keys($definition->sorts()))],
             ListQueryParameters::DIRECTION => ['sometimes', 'string', Rule::in(ListQueryParameters::directions())],
             ListQueryParameters::PAGE => ['sometimes', 'integer', 'min:1'],
-            ListQueryParameters::PER_PAGE => ['sometimes', 'integer', Rule::in(array_map('intval', (array) config('interface.pagination.per_page_options')))],
+            ListQueryParameters::PER_PAGE => ['sometimes', 'integer', Rule::in(array_map(intval(...), Config::array('interface.pagination.per_page_options', [])))],
         ], $this->filterRules($definition));
     }
 
@@ -51,12 +52,18 @@ abstract class IndexListRequest extends FormRequest
             }
         }
 
+        $searchRaw = $validated[ListQueryParameters::SEARCH] ?? null;
+        $sortRaw = $validated[ListQueryParameters::SORT] ?? null;
+        $directionRaw = $validated[ListQueryParameters::DIRECTION] ?? null;
+        $pageRaw = $validated[ListQueryParameters::PAGE] ?? null;
+        $perPageRaw = $validated[ListQueryParameters::PER_PAGE] ?? null;
+
         return new ListState(
-            search: $validated[ListQueryParameters::SEARCH] ?? null,
-            sort: $validated[ListQueryParameters::SORT] ?? $definition->defaultSort(),
-            direction: $validated[ListQueryParameters::DIRECTION] ?? $definition->defaultDirection(),
-            page: $validated[ListQueryParameters::PAGE] ?? 1,
-            perPage: $validated[ListQueryParameters::PER_PAGE] ?? (int) config('interface.pagination.default_per_page'),
+            search: is_string($searchRaw) ? $searchRaw : null,
+            sort: is_string($sortRaw) ? $sortRaw : $definition->defaultSort(),
+            direction: is_string($directionRaw) ? $directionRaw : $definition->defaultDirection(),
+            page: is_int($pageRaw) ? $pageRaw : 1,
+            perPage: is_int($perPageRaw) ? $perPageRaw : Config::integer('interface.pagination.default_per_page'),
             filters: $filters,
         );
     }

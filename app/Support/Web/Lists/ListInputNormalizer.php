@@ -2,6 +2,8 @@
 
 namespace App\Support\Web\Lists;
 
+use Illuminate\Support\Facades\Config;
+
 final class ListInputNormalizer
 {
     /**
@@ -65,8 +67,8 @@ final class ListInputNormalizer
 
     private function normalizePerPage(mixed $value): int
     {
-        $options = array_map('intval', (array) config('interface.pagination.per_page_options'));
-        $default = (int) config('interface.pagination.default_per_page');
+        $options = array_map(intval(...), Config::array('interface.pagination.per_page_options', []));
+        $default = Config::integer('interface.pagination.default_per_page');
         $perPage = filter_var($value, FILTER_VALIDATE_INT);
 
         return is_int($perPage) && in_array($perPage, $options, true)

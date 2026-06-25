@@ -38,7 +38,7 @@ class IncludeRule implements ValidationRule
         }
 
         $allowed = $this->getAllowed();
-        $parts = array_filter(array_map('trim', explode(',', (string) $value)));
+        $parts = array_filter(array_map('trim', explode(',', is_string($value) ? $value : '')));
         $invalid = array_diff($parts, $allowed);
 
         if (! empty($invalid)) {

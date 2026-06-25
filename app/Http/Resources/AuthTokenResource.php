@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for authentication token response with user information.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class AuthTokenResource extends JsonResource
 {
     /**

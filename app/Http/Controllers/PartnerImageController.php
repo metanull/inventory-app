@@ -136,8 +136,10 @@ class PartnerImageController extends Controller
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
-        $partnerImage = PartnerImage::attachFromAvailableImage($availableImage, $partner->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $partnerImage = PartnerImage::attachFromAvailableImage($availableImage, $partner->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {

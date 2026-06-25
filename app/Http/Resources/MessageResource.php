@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for simple message responses.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class MessageResource extends JsonResource
 {
     /**

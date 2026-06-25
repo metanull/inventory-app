@@ -74,8 +74,10 @@ class CollectionTranslationResource extends Resource
                         table: 'collection_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?CollectionTranslation $record): Unique => $rule
-                            ->where('collection_id', $get('collection_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn ($q) => $q
+                                ->where('collection_id', $get('collection_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )

@@ -23,8 +23,10 @@ class UpdateLanguageTranslationRequest extends FormRequest
         $languageTranslation = $this->route('languageTranslation');
 
         $uniqueRule = Rule::unique('language_translations')
-            ->where('language_id', $this->input('language_id'))
-            ->where('display_language_id', $this->input('display_language_id'))
+            ->where(fn ($q) => $q
+                ->where('language_id', $this->input('language_id'))
+                ->where('display_language_id', $this->input('display_language_id'))
+            )
             ->ignore($languageTranslation?->id);
 
         return [

@@ -13,6 +13,7 @@ use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\Contributor;
 use App\Models\ContributorImage;
+use Illuminate\Support\Facades\Config;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Contracts\Support\Responsable;
@@ -131,8 +132,10 @@ class ContributorImageController extends Controller
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
-        $contributorImage = ContributorImage::attachFromAvailableImage($availableImage, $contributor->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $contributorImage = ContributorImage::attachFromAvailableImage($availableImage, $contributor->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -161,8 +164,8 @@ class ContributorImageController extends Controller
      */
     public function download(ContributorImage $contributorImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $contributorImage->original_name ?: basename($contributorImage->path);
 
         $storagePath = $directory.'/'.$contributorImage->path;
@@ -180,8 +183,8 @@ class ContributorImageController extends Controller
      */
     public function view(ContributorImage $contributorImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         $storagePath = $directory.'/'.$contributorImage->path;
 

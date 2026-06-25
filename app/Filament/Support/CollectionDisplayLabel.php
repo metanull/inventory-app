@@ -98,7 +98,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return (string) $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
@@ -110,7 +110,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return (string) $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
@@ -120,7 +120,7 @@ class CollectionDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->title)
             );
             if ($t) {
-                return (string) $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
@@ -151,7 +151,7 @@ class CollectionDisplayLabel
 
         $collection = Collection::find($value);
         if (! $collection instanceof Collection) {
-            return (string) $value;
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $collection->load('translations');

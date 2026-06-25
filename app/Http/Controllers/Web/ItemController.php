@@ -110,9 +110,11 @@ class ItemController extends Controller
             'tag_id' => ['required', 'exists:tags,id'],
         ]);
 
+        $tagIdRaw = $request->input('tag_id');
+        $tagId = is_string($tagIdRaw) ? $tagIdRaw : '';
         // Attach the tag if not already attached
-        if (! $item->tags()->where('tag_id', $request->tag_id)->exists()) {
-            $item->tags()->attach($request->tag_id);
+        if (! $item->tags()->where('tag_id', $tagId)->exists()) {
+            $item->tags()->attach($tagId);
             $message = 'Tag attached successfully';
         } else {
             $message = 'Tag is already attached to this item';
@@ -141,8 +143,11 @@ class ItemController extends Controller
             'parent_id' => ['required', 'exists:items,id'],
         ]);
 
+        $parentIdRaw = $request->input('parent_id');
+        $parentId = is_string($parentIdRaw) ? $parentIdRaw : '';
+
         // Prevent item from being its own parent
-        if ($request->parent_id === $item->id) {
+        if ($parentId === $item->id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'An item cannot be its own parent'])
                 ->withInput();
@@ -151,7 +156,7 @@ class ItemController extends Controller
         // Prevent circular references by checking if the potential parent
         // has this item anywhere in its ancestry chain
         /** @var Item $potentialParent */
-        $potentialParent = Item::findOrFail((string) $request->input('parent_id'));
+        $potentialParent = Item::findOrFail($parentId);
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $item->id) {
@@ -166,7 +171,7 @@ class ItemController extends Controller
             $ancestor = $next;
         }
 
-        $item->update(['parent_id' => $request->input('parent_id')]);
+        $item->update(['parent_id' => $parentId]);
 
         return redirect()->route('items.show', $item)
             ->with('success', 'Parent set successfully');
@@ -186,15 +191,18 @@ class ItemController extends Controller
             'child_id' => ['required', 'exists:items,id'],
         ]);
 
+        $childIdRaw = $request->input('child_id');
+        $childId = is_string($childIdRaw) ? $childIdRaw : '';
+
         // Prevent item from being its own child
-        if ($request->child_id === $item->id) {
+        if ($childId === $item->id) {
             return redirect()->back()
                 ->withErrors(['child_id' => 'An item cannot be its own child'])
                 ->withInput();
         }
 
         /** @var Item $child */
-        $child = Item::findOrFail((string) $request->input('child_id'));
+        $child = Item::findOrFail($childId);
 
         // Check if already a child (idempotent)
         if ($child->parent_id === $item->id) {

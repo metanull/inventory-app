@@ -16,9 +16,11 @@ class StorePartnerTranslationRequest extends FormRequest
     public function rules(): array
     {
         $uniqueRule = Rule::unique('partner_translations')
-            ->where('partner_id', $this->input('partner_id'))
-            ->where('language_id', $this->input('language_id'))
-            ->where('context_id', $this->input('context_id'));
+            ->where(fn ($q) => $q
+                ->where('partner_id', $this->input('partner_id'))
+                ->where('language_id', $this->input('language_id'))
+                ->where('context_id', $this->input('context_id'))
+            );
 
         return [
             'id' => ['prohibited'],

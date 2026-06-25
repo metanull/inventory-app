@@ -40,7 +40,9 @@ class UpdateItemItemLinkTranslationRequest extends FormRequest
                 'size:3',
                 'exists:languages,id',
                 Rule::unique('item_item_link_translations')
-                    ->where('item_item_link_id', $this->input('item_item_link_id'))
+                    ->where(fn ($q) => $q
+                        ->where('item_item_link_id', $this->input('item_item_link_id'))
+                    )
                     ->ignore($translationId),
             ],
             'description' => ['nullable', 'string'],

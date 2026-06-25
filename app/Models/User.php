@@ -130,7 +130,12 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             return [];
         }
 
-        return json_decode(decrypt($this->two_factor_recovery_codes), true) ?? [];
+        $decrypted = decrypt($this->two_factor_recovery_codes);
+        $codes = is_string($decrypted) ? json_decode($decrypted, true) : null;
+        /** @var array<int, string> $result */
+        $result = is_array($codes) ? $codes : [];
+
+        return $result;
     }
 
     /**

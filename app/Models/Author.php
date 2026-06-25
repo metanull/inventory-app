@@ -52,7 +52,7 @@ class Author extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getInternalNameAttribute(mixed $value): ?string
+    public function getInternalNameAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -68,7 +68,7 @@ class Author extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getBackwardCompatibilityAttribute(mixed $value): ?string
+    public function getBackwardCompatibilityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }

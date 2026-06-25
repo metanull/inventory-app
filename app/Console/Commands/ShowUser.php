@@ -59,7 +59,7 @@ class ShowUser extends Command
             $this->info('Permissions (via roles):');
             $permissions = $user->getAllPermissions()->pluck('name')->unique()->sort();
             foreach ($permissions as $permission) {
-                $this->line("  • {$permission}");
+                $this->line('  • '.(is_string($permission) ? $permission : ''));
             }
         }
 

@@ -81,7 +81,8 @@ final class ItemIndexQuery
         }
 
         if (! empty($filters['tags'])) {
-            $query->withAllTags($filters['tags']);
+            $tagsFilter = $filters['tags'];
+            $query->withAllTags(is_array($tagsFilter) ? $tagsFilter : []);
         }
 
         if ($parentId !== null) {

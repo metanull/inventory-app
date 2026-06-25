@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -76,10 +77,10 @@ class TimelineEventImage extends Model implements DetachableImage, StreamableIma
         $result = DB::transaction(function () use ($availableImage, $timelineEventId, $altText) {
             $displayOrder = static::getNextDisplayOrderFor(['timeline_event_id' => $timelineEventId]);
 
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
 
             $filename = $availableImage->path;
 
@@ -115,10 +116,10 @@ class TimelineEventImage extends Model implements DetachableImage, StreamableIma
     public function detachToAvailableImage(): AvailableImage
     {
         return $this->getConnection()->transaction(function () {
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
 
             $filename = $this->path;
 
@@ -146,12 +147,12 @@ class TimelineEventImage extends Model implements DetachableImage, StreamableIma
 
     public function imageDisk(): string
     {
-        return config('localstorage.pictures.disk');
+        return Config::string('localstorage.pictures.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.pictures.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

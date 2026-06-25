@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use App\Models\User;
 use App\Services\Filament\Auth\EmailTwoFactorCodeService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -106,15 +107,15 @@ class TwoFactorChallenge extends SimplePage
     public function sendEmailCode(): void
     {
         $loginId = session('filament.admin.2fa.user_id');
+        $loginId = is_string($loginId) ? $loginId : '';
 
-        if (! $loginId) {
+        if ($loginId === '') {
             $this->redirect(Filament::getLoginUrl());
 
             return;
         }
 
-        $userModel = config('auth.providers.users.model');
-        $user = $userModel::find($loginId);
+        $user = User::find($loginId);
 
         if (! $user) {
             session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember', 'filament.admin.2fa.email_challenge_id']);
@@ -139,7 +140,8 @@ class TwoFactorChallenge extends SimplePage
 
     public function submit(): void
     {
-        $loginId = session('filament.admin.2fa.user_id');
+        $loginIdRaw = session('filament.admin.2fa.user_id');
+        $loginId = is_string($loginIdRaw) ? $loginIdRaw : '';
         $limiterKey = 'two-factor:'.$loginId;
         $maxAttempts = app()->environment('testing') ? 50 : 5;
 
@@ -163,11 +165,15 @@ class TwoFactorChallenge extends SimplePage
 
         $data = $this->getForm('form')?->getState() ?? [];
 
-        $method = $data['method'] ?? 'totp';
+        $methodRaw = $data['method'] ?? 'totp';
+        $method = is_string($methodRaw) ? $methodRaw : 'totp';
 
-        $code = $method === 'totp' ? trim((string) ($data['code'] ?? '')) : '';
-        $recoveryCode = $method === 'recovery' ? trim((string) ($data['recovery_code'] ?? '')) : '';
-        $emailCode = $method === 'email' ? trim((string) ($data['email_code'] ?? '')) : '';
+        $codeRaw = $data['code'] ?? null;
+        $code = $method === 'totp' ? trim(is_string($codeRaw) ? $codeRaw : '') : '';
+        $recoveryCodeRaw = $data['recovery_code'] ?? null;
+        $recoveryCode = $method === 'recovery' ? trim(is_string($recoveryCodeRaw) ? $recoveryCodeRaw : '') : '';
+        $emailCodeRaw = $data['email_code'] ?? null;
+        $emailCode = $method === 'email' ? trim(is_string($emailCodeRaw) ? $emailCodeRaw : '') : '';
 
         if ($code === '' && $recoveryCode === '' && $emailCode === '') {
             throw ValidationException::withMessages([
@@ -175,8 +181,7 @@ class TwoFactorChallenge extends SimplePage
             ]);
         }
 
-        $userModel = config('auth.providers.users.model');
-        $user = $userModel::find($loginId);
+        $user = User::find($loginId);
 
         if (! $user) {
             session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.remember', 'filament.admin.2fa.email_challenge_id']);
@@ -199,8 +204,8 @@ class TwoFactorChallenge extends SimplePage
             }
         } elseif ($code !== '') {
             $provider = app(TwoFactorAuthenticationProvider::class);
-            $secret = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
-            $verified = $provider->verify($secret, $code);
+            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
+            $verified = $provider->verify(is_string($secretRaw) ? $secretRaw : '', $code);
         } elseif ($emailCode !== '') {
             $verified = app(EmailTwoFactorCodeService::class)->verify($user, $emailCode);
         }
@@ -216,7 +221,8 @@ class TwoFactorChallenge extends SimplePage
         RateLimiter::clear($limiterKey);
 
         $guard = Auth::guard(Filament::getAuthGuard());
-        $guard->login($user, session()->pull('filament.admin.2fa.remember', false));
+        $remember = session()->pull('filament.admin.2fa.remember', false);
+        $guard->login($user, is_bool($remember) ? $remember : false);
 
         session()->regenerate();
         session()->forget(['filament.admin.2fa.user_id', 'filament.admin.2fa.email_challenge_id']);

@@ -94,8 +94,9 @@ class QueueStatusCommand extends Command
                 $this->line('  Created at: '.date('Y-m-d H:i:s', $job->created_at));
 
                 if ($this->option('detailed')) {
-                    $payload = json_decode($job->payload, true);
-                    if ($payload && isset($payload['displayName'])) {
+                    $payloadStr = is_string($job->payload) ? $job->payload : '';
+                    $payload = json_decode($payloadStr, true);
+                    if (is_array($payload) && is_string($payload['displayName'] ?? null)) {
                         $this->line("  Job Type: {$payload['displayName']}");
                     }
                 }

@@ -74,8 +74,10 @@ class ItemTranslationResource extends Resource
                         table: 'item_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?ItemTranslation $record): Unique => $rule
-                            ->where('item_id', $get('item_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn ($q) => $q
+                                ->where('item_id', $get('item_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )

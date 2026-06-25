@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 
 class PartnerLogo extends Model implements StreamableImageFile
 {
@@ -117,12 +118,12 @@ class PartnerLogo extends Model implements StreamableImageFile
 
     public function imageDisk(): string
     {
-        return config('localstorage.pictures.disk');
+        return Config::string('localstorage.pictures.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.pictures.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

@@ -16,9 +16,11 @@ class UpdateAuthorTranslationRequest extends FormRequest
     public function rules(): array
     {
         $uniqueRule = Rule::unique('author_translations')
-            ->where('author_id', $this->input('author_id'))
-            ->where('language_id', $this->input('language_id'))
-            ->where('context_id', $this->input('context_id'))
+            ->where(fn ($q) => $q
+                ->where('author_id', $this->input('author_id'))
+                ->where('language_id', $this->input('language_id'))
+                ->where('context_id', $this->input('context_id'))
+            )
             ->ignore($this->route('authorTranslation'));
 
         return [

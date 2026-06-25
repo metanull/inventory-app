@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 
 class RequestPasswordReset extends SimplePage
@@ -86,7 +87,7 @@ class RequestPasswordReset extends SimplePage
         $user = User::query()->where('email', $data['email'])->first();
 
         if ($user) {
-            $token = Password::broker(config('fortify.passwords'))->createToken($user);
+            $token = Password::broker(Config::string('fortify.passwords'))->createToken($user);
             $user->notify(new AdminPasswordResetNotification($token));
         }
 

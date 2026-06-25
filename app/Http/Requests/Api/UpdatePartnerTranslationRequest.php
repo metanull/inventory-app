@@ -23,9 +23,11 @@ class UpdatePartnerTranslationRequest extends FormRequest
         $partnerTranslation = $this->route('partnerTranslation');
 
         $uniqueRule = Rule::unique('partner_translations')
-            ->where('partner_id', $this->input('partner_id'))
-            ->where('language_id', $this->input('language_id'))
-            ->where('context_id', $this->input('context_id'))
+            ->where(fn ($q) => $q
+                ->where('partner_id', $this->input('partner_id'))
+                ->where('language_id', $this->input('language_id'))
+                ->where('context_id', $this->input('context_id'))
+            )
             ->ignore($partnerTranslation?->id);
 
         return [

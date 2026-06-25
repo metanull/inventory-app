@@ -13,6 +13,7 @@ use App\Services\Web\AvailableImageIndexQuery;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
@@ -84,7 +85,7 @@ class AvailableImageController extends Controller
     public function destroy(AvailableImage $availableImage): RedirectResponse
     {
         // Delete the physical file from storage
-        $disk = Storage::disk(config('localstorage.available.images.disk'));
+        $disk = Storage::disk(Config::string('localstorage.available.images.disk'));
         if ($availableImage->path !== null && $disk->exists($availableImage->path)) {
             $disk->delete($availableImage->path);
         }

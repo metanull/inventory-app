@@ -79,7 +79,7 @@ class DynastyDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -110,7 +110,7 @@ class DynastyDisplayLabel
 
         $dynasty = Dynasty::find($value);
         if (! $dynasty instanceof Dynasty) {
-            return (string) $value;
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $dynasty->load('translations');

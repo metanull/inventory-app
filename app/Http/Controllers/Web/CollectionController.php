@@ -121,7 +121,8 @@ class CollectionController extends Controller
             'item_id' => ['required', 'exists:items,id'],
         ]);
 
-        $item = Item::findOrFail((string) $request->input('item_id'));
+        $itemIdRaw = $request->input('item_id');
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->attachItem($item);
 
         return redirect()->route('collections.show', $collection)
@@ -142,14 +143,17 @@ class CollectionController extends Controller
             'parent_id' => ['required', 'exists:collections,id'],
         ]);
 
-        if ($request->parent_id === $collection->id) {
+        $parentIdRaw = $request->input('parent_id');
+        $parentId = is_string($parentIdRaw) ? $parentIdRaw : '';
+
+        if ($parentId === $collection->id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'A collection cannot be its own parent'])
                 ->withInput();
         }
 
         /** @var Collection $potentialParent */
-        $potentialParent = Collection::findOrFail((string) $request->input('parent_id'));
+        $potentialParent = Collection::findOrFail($parentId);
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $collection->id) {
@@ -164,7 +168,7 @@ class CollectionController extends Controller
             $ancestor = $next;
         }
 
-        $collection->update(['parent_id' => $request->parent_id]);
+        $collection->update(['parent_id' => $parentId]);
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Parent collection set successfully');

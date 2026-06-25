@@ -13,6 +13,7 @@ use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
+use Illuminate\Support\Facades\Config;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Contracts\Support\Responsable;
@@ -135,8 +136,10 @@ class PartnerTranslationImageController extends Controller
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
-        $partnerTranslationImage = PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $partnerTranslationImage = PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -165,8 +168,8 @@ class PartnerTranslationImageController extends Controller
      */
     public function download(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerTranslationImage->original_name ?: basename($partnerTranslationImage->path);
 
         // Prepend directory to path
@@ -185,8 +188,8 @@ class PartnerTranslationImageController extends Controller
      */
     public function view(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;

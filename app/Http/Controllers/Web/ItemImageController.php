@@ -55,7 +55,8 @@ class ItemImageController extends Controller
     public function store(StoreItemImageRequest $request, Item $item): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         ItemImage::attachFromAvailableImage($availableImage, $item->id);
 

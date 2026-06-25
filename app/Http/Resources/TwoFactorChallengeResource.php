@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for two-factor authentication challenge response.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class TwoFactorChallengeResource extends JsonResource
 {
     /**

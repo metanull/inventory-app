@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Config;
 
 class StoreImageUploadRequest extends FormRequest
 {
@@ -14,18 +15,15 @@ class StoreImageUploadRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        // Get image upload rules from configuration
-        $imageUploadRules = [
-            'mime' => config('localstorage.uploads.images.mime', 'jpeg,png,jpg'),
-            'max_size' => config('localstorage.uploads.images.max_size', 20480),
-        ];
+        $mime = Config::string('localstorage.uploads.images.mime', 'jpeg,png,jpg');
+        $maxSize = Config::integer('localstorage.uploads.images.max_size', 20480);
 
         return [
             'file' => [
                 'required',
                 'image',
-                "mimes:{$imageUploadRules['mime']}",
-                "max:{$imageUploadRules['max_size']}",
+                "mimes:{$mime}",
+                "max:{$maxSize}",
             ],
         ];
     }

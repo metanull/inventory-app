@@ -25,15 +25,26 @@ class JsonNormalizationService
         }
 
         if (is_array($value)) {
-            return $value;
+            /** @var array<string, mixed> $typed */
+            $typed = $value;
+
+            return $typed;
         }
 
         if (is_object($value)) {
-            return json_decode((string) json_encode($value), true) ?? [];
+            $decoded = json_decode((string) json_encode($value), true);
+            /** @var array<string, mixed> $typed */
+            $typed = is_array($decoded) ? $decoded : [];
+
+            return $typed;
         }
 
         if (is_string($value)) {
-            return json_decode($value, true) ?? [];
+            $decoded = json_decode($value, true);
+            /** @var array<string, mixed> $typed */
+            $typed = is_array($decoded) ? $decoded : [];
+
+            return $typed;
         }
 
         return [];

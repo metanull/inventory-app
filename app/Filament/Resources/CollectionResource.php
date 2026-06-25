@@ -91,7 +91,9 @@ class CollectionResource extends Resource
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        return $query->excludingDescendantsOf((string) $record->getKey());
+        $key = $record->getKey();
+
+        return $query->excludingDescendantsOf(is_scalar($key) ? (string) $key : '');
     }
 
     /**
@@ -111,7 +113,7 @@ class CollectionResource extends Resource
 
     protected static function changeParentOptionLabel(mixed $value): string
     {
-        return CollectionDisplayLabel::resolveLabel($value) ?: (string) $value;
+        return CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : '');
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
@@ -129,7 +131,9 @@ class CollectionResource extends Resource
         }
 
         if (! $record instanceof Collection) {
-            return (string) $record->getKey();
+            $key = $record->getKey();
+
+            return is_scalar($key) ? (string) $key : '';
         }
 
         $record->loadMissing(['translations']);
@@ -186,7 +190,7 @@ class CollectionResource extends Resource
                                     ? $c->display_label.' ['.$c->internal_name.']'
                                     : $c->internal_name,
                             ])->all())
-                            ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
+                            ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                             ->searchable()
                             ->nullable(),
                         Select::make('country_id')

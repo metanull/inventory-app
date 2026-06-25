@@ -64,7 +64,9 @@ trait OptionsLookup
     public function applyScopes(Builder $query): Builder
     {
         if ($this->scopes) {
-            foreach ($this->scopes as $scopeEntry) {
+            /** @var list<array{scope: string, args: list<mixed>}> $scopes */
+            $scopes = $this->scopes;
+            foreach ($scopes as $scopeEntry) {
                 $query->{$scopeEntry['scope']}(...$scopeEntry['args']);
             }
         }
@@ -123,9 +125,9 @@ trait OptionsLookup
             $options = $options->filter(function ($option) use ($search) {
                 $displayValue = is_object($option)
                     ? ($option->{$this->displayField} ?? '')
-                    : ($option[$this->displayField] ?? '');
+                    : (is_array($option) ? ($option[$this->displayField] ?? '') : '');
 
-                return stripos($displayValue, $search) !== false;
+                return stripos(is_scalar($displayValue) ? (string) $displayValue : '', $search) !== false;
             });
         }
 

@@ -59,7 +59,7 @@ class ExtraJsonField
                     return $state;
                 }
 
-                $decoded = json_decode((string) $state, true);
+                $decoded = json_decode(is_scalar($state) ? (string) $state : '', true);
 
                 return is_array($decoded) ? $decoded : null;
             })
@@ -70,7 +70,7 @@ class ExtraJsonField
                             return;
                         }
 
-                        json_decode((string) $value);
+                        json_decode(is_scalar($value) ? (string) $value : '');
 
                         if (json_last_error() !== JSON_ERROR_NONE) {
                             $fail('The extra metadata must be valid JSON.');

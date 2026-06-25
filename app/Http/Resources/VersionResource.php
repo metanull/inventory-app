@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for application version information.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class VersionResource extends JsonResource
 {
     /**

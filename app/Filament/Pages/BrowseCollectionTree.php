@@ -277,7 +277,7 @@ class BrowseCollectionTree extends Page
 
         for ($depth = 0; $depth < self::MAX_ANCESTOR_DEPTH; $depth++) {
             $parentId = Collection::where('id', $currentId)->value('parent_id');
-            if ($parentId === null) {
+            if (! is_string($parentId)) {
                 break;
             }
             $ancestorIds[] = $parentId;

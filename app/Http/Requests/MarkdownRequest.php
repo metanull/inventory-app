@@ -67,13 +67,15 @@ class MarkdownRequest extends FormRequest
         $rules = [];
 
         foreach ($fields as $field => $required) {
-            // If numeric key, field name is the value and it's required by default
             if (is_numeric($field)) {
-                $field = $required;
-                $required = true;
+                $fieldName = is_string($required) ? $required : '';
+                $isRequired = true;
+            } else {
+                $fieldName = (string) $field;
+                $isRequired = is_bool($required) ? $required : true;
             }
 
-            $rules = array_merge($rules, self::getMarkdownFieldRules($field, $required));
+            $rules = array_merge($rules, self::getMarkdownFieldRules($fieldName, $isRequired));
         }
 
         return $rules;

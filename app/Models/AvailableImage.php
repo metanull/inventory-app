@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 
 /**
  * @property string|null $path
@@ -54,12 +55,12 @@ class AvailableImage extends Model implements StreamableImageFile
 
     public function imageDisk(): string
     {
-        return config('localstorage.available.images.disk');
+        return Config::string('localstorage.available.images.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.available.images.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.available.images.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

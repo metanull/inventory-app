@@ -62,7 +62,7 @@ class Artist extends Model
     }
 
     // Accessors and Mutators to ensure null values instead of empty strings
-    public function getPlaceOfBirthAttribute(mixed $value): ?string
+    public function getPlaceOfBirthAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -72,7 +72,7 @@ class Artist extends Model
         $this->attributes['place_of_birth'] = $value === '' ? null : $value;
     }
 
-    public function getPlaceOfDeathAttribute(mixed $value): ?string
+    public function getPlaceOfDeathAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -82,7 +82,7 @@ class Artist extends Model
         $this->attributes['place_of_death'] = $value === '' ? null : $value;
     }
 
-    public function getDateOfBirthAttribute(mixed $value): ?string
+    public function getDateOfBirthAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -92,7 +92,7 @@ class Artist extends Model
         $this->attributes['date_of_birth'] = $value === '' ? null : $value;
     }
 
-    public function getDateOfDeathAttribute(mixed $value): ?string
+    public function getDateOfDeathAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -102,7 +102,7 @@ class Artist extends Model
         $this->attributes['date_of_death'] = $value === '' ? null : $value;
     }
 
-    public function getPeriodOfActivityAttribute(mixed $value): ?string
+    public function getPeriodOfActivityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -112,7 +112,7 @@ class Artist extends Model
         $this->attributes['period_of_activity'] = $value === '' ? null : $value;
     }
 
-    public function getBackwardCompatibilityAttribute(mixed $value): ?string
+    public function getBackwardCompatibilityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }

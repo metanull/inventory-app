@@ -10,6 +10,7 @@ use App\Http\Resources\OperationSuccessResource;
 use App\Http\Resources\PartnerLogoResource;
 use App\Http\Responses\FileResponse;
 use App\Models\PartnerLogo;
+use Illuminate\Support\Facades\Config;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Contracts\Support\Responsable;
@@ -130,8 +131,8 @@ class PartnerLogoController extends Controller
      */
     public function download(PartnerLogo $partnerLogo): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerLogo->original_name ?: basename($partnerLogo->path);
 
         // Prepend directory to path
@@ -150,8 +151,8 @@ class PartnerLogoController extends Controller
      */
     public function view(PartnerLogo $partnerLogo): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerLogo->path;

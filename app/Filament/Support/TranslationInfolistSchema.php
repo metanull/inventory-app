@@ -23,8 +23,9 @@ class TranslationInfolistSchema
                 // MarkdownService strips all HTML input (html_input='strip') and disallows
                 // unsafe links, so its output is safe to render with ->html().
                 $html = app(MarkdownService::class)->markdownToHtml($state);
+                $langId = is_object($record) && is_string($record->language_id ?? null) ? $record->language_id : null;
 
-                return self::wrapForDirection($html, $record?->language_id, wrapInProse: true);
+                return self::wrapForDirection($html, $langId, wrapInProse: true);
             });
 
         if ($label !== null) {
@@ -50,8 +51,9 @@ class TranslationInfolistSchema
                 if (! filled($state)) {
                     return '';
                 }
+                $langId = is_object($record) && is_string($record->language_id ?? null) ? $record->language_id : null;
 
-                return self::wrapForDirection(e($state), $record?->language_id, wrapInProse: false);
+                return self::wrapForDirection(e($state), $langId, wrapInProse: false);
             });
 
         if ($label !== null) {

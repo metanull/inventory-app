@@ -3,12 +3,13 @@
 namespace App\Filament\Support;
 
 use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\Config;
 
 class EntityColor
 {
     public static function token(string $entity): string
     {
-        return config("app_entities.colors.{$entity}", 'gray');
+        return Config::string("app_entities.colors.{$entity}", 'gray');
     }
 
     /**

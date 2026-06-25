@@ -507,7 +507,7 @@ class Item extends Model
     }
 
     // Accessors and Mutators to ensure null values instead of empty strings
-    public function getOwnerReferenceAttribute(mixed $value): ?string
+    public function getOwnerReferenceAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -517,7 +517,7 @@ class Item extends Model
         $this->attributes['owner_reference'] = $value === '' ? null : $value;
     }
 
-    public function getMwnfReferenceAttribute(mixed $value): ?string
+    public function getMwnfReferenceAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -590,7 +590,7 @@ class Item extends Model
 
         for ($depth = 0; $depth < $maxDepth; $depth++) {
             $parentId = static::where('id', $currentId)->value('parent_id');
-            if ($parentId === null) {
+            if (! is_string($parentId)) {
                 break;
             }
             $excludeIds[] = $parentId;

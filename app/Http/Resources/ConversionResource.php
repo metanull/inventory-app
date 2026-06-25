@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for conversion responses (markdown to HTML, HTML to markdown, etc.).
  */
+/** @extends JsonResource<array<string, mixed>> */
 class ConversionResource extends JsonResource
 {
     /**

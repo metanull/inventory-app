@@ -8,6 +8,7 @@ use App\Support\Images\AttachedImageRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class CleanupPictures extends Command
@@ -31,8 +32,8 @@ class CleanupPictures extends Command
             return Command::FAILURE;
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $doDelete = $this->option('delete') === true;
         $force = $this->option('force') === true;
         $json = $this->option('json') === true;

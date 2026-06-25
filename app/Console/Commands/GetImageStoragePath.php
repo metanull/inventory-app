@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class GetImageStoragePath extends Command
@@ -70,22 +71,22 @@ class GetImageStoragePath extends Command
     /**
      * Get storage configuration for the specified type.
      *
-     * @return array{0: string|null, 1: string|null}
+     * @return array{0: string, 1: string}
      */
     private function getStorageConfig(string $type): array
     {
         return match ($type) {
             'uploads' => [
-                config('localstorage.uploads.images.disk'),
-                config('localstorage.uploads.images.directory'),
+                Config::string('localstorage.uploads.images.disk'),
+                Config::string('localstorage.uploads.images.directory'),
             ],
             'available' => [
-                config('localstorage.available.images.disk'),
-                config('localstorage.available.images.directory'),
+                Config::string('localstorage.available.images.disk'),
+                Config::string('localstorage.available.images.directory'),
             ],
             'pictures' => [
-                config('localstorage.pictures.disk'),
-                config('localstorage.pictures.directory'),
+                Config::string('localstorage.pictures.disk'),
+                Config::string('localstorage.pictures.directory'),
             ],
             default => throw new \InvalidArgumentException("Unsupported image storage type: {$type}"),
         };

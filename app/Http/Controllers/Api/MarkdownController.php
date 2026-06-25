@@ -65,7 +65,8 @@ class MarkdownController extends Controller
         }
 
         try {
-            $html = $this->markdownService->markdownToHtml($request->input('markdown'));
+            $inputRaw = $request->input('markdown');
+            $html = $this->markdownService->markdownToHtml(is_string($inputRaw) ? $inputRaw : '');
 
             return new ConversionResource([
                 'success' => true,
@@ -138,7 +139,8 @@ class MarkdownController extends Controller
         }
 
         try {
-            $markdown = $this->markdownService->htmlToMarkdown($request->input('html'));
+            $htmlRaw = $request->input('html');
+            $markdown = $this->markdownService->htmlToMarkdown(is_string($htmlRaw) ? $htmlRaw : '');
 
             return new ConversionResource([
                 'success' => true,
@@ -273,8 +275,8 @@ class MarkdownController extends Controller
             );
         }
 
-        $content = $request->input('content');
-        $isMarkdown = $this->markdownService->isMarkdown($content);
+        $contentRaw = $request->input('content');
+        $isMarkdown = $this->markdownService->isMarkdown(is_string($contentRaw) ? $contentRaw : '');
 
         return new ConversionResource([
             'success' => true,

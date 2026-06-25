@@ -33,6 +33,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
@@ -67,9 +68,9 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-user-circle')
                     ->url(fn () => ProfilePage::getUrl()),
             ])
-            ->authGuard((string) config('fortify.guard'))
-            ->authPasswordBroker((string) config('fortify.passwords'))
-            ->brandName((string) config('app.name'))
+            ->authGuard(Config::string('fortify.guard'))
+            ->authPasswordBroker(Config::string('fortify.passwords'))
+            ->brandName(Config::string('app.name'))
             ->brandLogo($this->brandLogo(self::LIGHT_LOGO_CLASSES))
             ->darkModeBrandLogo($this->brandLogo(self::DARK_LOGO_CLASSES))
             ->brandLogoHeight('2rem')

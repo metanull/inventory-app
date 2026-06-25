@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for two-factor authentication status information.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class TwoFactorStatusResource extends JsonResource
 {
     /**

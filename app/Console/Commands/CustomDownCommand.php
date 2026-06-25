@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Foundation\Console\DownCommand;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -21,8 +22,8 @@ class CustomDownCommand extends DownCommand
 
         // Create lock file in public directory for SPA access
         try {
-            $disk = Storage::disk(config('maintenance.public_lock_disk'));
-            $filename = config('maintenance.public_lock_file');
+            $disk = Storage::disk(Config::string('maintenance.public_lock_disk'));
+            $filename = Config::string('maintenance.public_lock_file');
 
             $content = (string) json_encode([
                 'timestamp' => now()->toIso8601String(),

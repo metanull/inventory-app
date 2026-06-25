@@ -57,7 +57,7 @@ trait HasChangeParentAction
     {
         $modelClass = static::changeParentModelClass();
 
-        return $modelClass::find($value)?->internal_name ?? (string) $value;
+        return $modelClass::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : '');
     }
 
     protected static function changeParentAction(): Action
@@ -147,7 +147,8 @@ trait HasChangeParentAction
                             'new_parent_id' => $data['parent_id'] ?? null,
                             'error' => $e->getMessage(),
                         ]);
-                        $errors[] = $record->getAttribute('internal_name');
+                        $nameRaw = $record->getAttribute('internal_name');
+                        $errors[] = is_scalar($nameRaw) ? (string) $nameRaw : '';
                     }
                 }
 

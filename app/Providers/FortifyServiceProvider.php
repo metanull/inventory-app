@@ -77,7 +77,8 @@ class FortifyServiceProvider extends ServiceProvider
         );
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $inputRaw = $request->input(Fortify::username());
+            $throttleKey = Str::transliterate(Str::lower(is_string($inputRaw) ? $inputRaw : '').'|'.$request->ip());
 
             // Allow more attempts in testing environment
             $maxAttempts = app()->environment('testing') ? 50 : 5;

@@ -32,10 +32,13 @@ class InfoController extends Controller
     {
         $healthChecks = $this->performHealthChecks();
 
+        $versionResource = $this->version();
+        $versionData = is_array($versionResource->resource) ? $versionResource->resource : [];
+
         $info = [
             'application' => [
                 'name' => config('app.name'),
-                'version' => $this->version()->resource['app_version'] ?? '1.0.0-dev',
+                'version' => $versionData['app_version'] ?? '1.0.0-dev',
                 'environment' => config('app.env'),
             ],
             'health' => [

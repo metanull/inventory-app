@@ -16,8 +16,10 @@ class StoreLanguageTranslationRequest extends FormRequest
     public function rules(): array
     {
         $uniqueRule = Rule::unique('language_translations')
-            ->where('language_id', $this->input('language_id'))
-            ->where('display_language_id', $this->input('display_language_id'));
+            ->where(fn ($q) => $q
+                ->where('language_id', $this->input('language_id'))
+                ->where('display_language_id', $this->input('display_language_id'))
+            );
 
         return [
             'id' => ['prohibited'],

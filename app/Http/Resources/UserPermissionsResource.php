@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for user permissions information.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class UserPermissionsResource extends JsonResource
 {
     /**

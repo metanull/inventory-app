@@ -255,6 +255,7 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records): void {
+                        /** @var Collection<int, User> $records */
                         $records->each(fn (User $user) => $user->forceFill(['approved_at' => now()])->save());
                         Notification::make()->success()->title('Users approved')->send();
                     }),
@@ -265,6 +266,7 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records): void {
+                        /** @var Collection<int, User> $records */
                         /** @var User $authUser */
                         $authUser = auth()->user();
                         $records
@@ -285,7 +287,9 @@ class UserResource extends Resource
                     ])
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records, array $data): void {
-                        $role = Role::findById((int) $data['role_id']);
+                        /** @var Collection<int, User> $records */
+                        $roleIdRaw = $data['role_id'] ?? null;
+                        $role = Role::findById(is_numeric($roleIdRaw) ? (int) $roleIdRaw : 0);
                         $records->each(fn (User $user) => $user->syncRoles([$role]));
                         Notification::make()->success()->title('Role assigned')->send();
                     }),

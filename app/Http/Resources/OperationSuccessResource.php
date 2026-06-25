@@ -8,6 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * Resource for generic operation success responses.
  */
+/** @extends JsonResource<array<string, mixed>> */
 class OperationSuccessResource extends JsonResource
 {
     /**

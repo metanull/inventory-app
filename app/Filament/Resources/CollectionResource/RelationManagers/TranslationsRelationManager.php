@@ -47,9 +47,10 @@ class TranslationsRelationManager extends RelationManager
                         table: 'collection_translations',
                         column: 'language_id',
                         modifyRuleUsing: function (Unique $rule, Get $get) use ($ownerRecord): Unique {
-                            return $rule
+                            return $rule->where(fn ($q) => $q
                                 ->where('collection_id', $ownerRecord->id)
-                                ->where('context_id', $get('context_id') ?? '');
+                                ->where('context_id', $get('context_id'))
+                            );
                         },
                         ignoreRecord: true,
                     )

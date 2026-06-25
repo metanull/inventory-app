@@ -6,6 +6,7 @@ use App\Events\AvailableImageEvent;
 use App\Events\ImageUploadEvent;
 use App\Models\AvailableImage;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -49,7 +50,7 @@ class ImageUploadListener
         }
 
         // Get disk and directory config for the uploaded images
-        $uploadDisk = config('localstorage.uploads.images.disk');
+        $uploadDisk = Config::string('localstorage.uploads.images.disk');
 
         // Check if the file exists on the upload disk
         if (! Storage::disk($uploadDisk)->exists($file->path)) {
@@ -82,8 +83,8 @@ class ImageUploadListener
             $image = $manager->read($fileContents);
 
             // If we get here, the image is valid
-            $targetWidth = config('localstorage.available.images.max_width');
-            $targetHeight = config('localstorage.available.images.max_height');
+            $targetWidth = Config::integer('localstorage.available.images.max_width');
+            $targetHeight = Config::integer('localstorage.available.images.max_height');
 
             $width = $image->width();
             $height = $image->height();
@@ -94,14 +95,14 @@ class ImageUploadListener
             $doResize = true;
             if ($width > $targetWidth && $height > $targetHeight) {
                 if ($width / $height > $targetWidth / $targetHeight) {
-                    $targetHeight = round($targetWidth / $aspectRatio);
+                    $targetHeight = (int) round($targetWidth / $aspectRatio);
                 } else {
-                    $targetWidth = round($targetHeight * $aspectRatio);
+                    $targetWidth = (int) round($targetHeight * $aspectRatio);
                 }
             } elseif ($width > $targetWidth) {
-                $targetHeight = round($targetWidth / $aspectRatio);
+                $targetHeight = (int) round($targetWidth / $aspectRatio);
             } elseif ($height > $targetHeight) {
-                $targetWidth = round($targetHeight * $aspectRatio);
+                $targetWidth = (int) round($targetHeight * $aspectRatio);
             } else {
                 $doResize = false;
             }
@@ -116,8 +117,8 @@ class ImageUploadListener
             }
 
             // Move the file from uploads to available images directory
-            $availableImageDisk = config('localstorage.available.images.disk');
-            $availableImageDirectory = config('localstorage.available.images.directory');
+            $availableImageDisk = Config::string('localstorage.available.images.disk');
+            $availableImageDirectory = Config::string('localstorage.available.images.directory');
 
             // Get just the filename (without directory)
             $filename = basename($file->path);

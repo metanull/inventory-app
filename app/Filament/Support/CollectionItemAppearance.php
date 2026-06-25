@@ -37,7 +37,8 @@ class CollectionItemAppearance
      */
     public static function contextualTextPreviewColumn(): TextColumn
     {
-        $defaultLangId = Language::default()->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
 
         return TextColumn::make('pivot.contextual_text_preview')
             ->label('Contextual text')

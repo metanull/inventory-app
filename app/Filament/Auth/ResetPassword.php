@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -94,16 +95,19 @@ class ResetPassword extends SimplePage
             ]);
         }
 
-        $tokenRepository = Password::broker(config('fortify.passwords'))->getRepository();
+        $tokenRepository = Password::broker(Config::string('fortify.passwords'))->getRepository();
         if (! $tokenRepository->exists($user, $this->token)) {
             throw ValidationException::withMessages([
                 'data.email' => [__('This password reset token is invalid or has expired.')],
             ]);
         }
 
+        $passwordRaw = $data['password'] ?? null;
+        $password = is_string($passwordRaw) ? $passwordRaw : '';
+
         if ($user->hasEnabledTwoFactorAuthentication()) {
             session()->put('filament.admin.password_reset.user_id', $user->id);
-            session()->put('filament.admin.password_reset.password_hash', Hash::make($data['password']));
+            session()->put('filament.admin.password_reset.password_hash', Hash::make($password));
             session()->put('filament.admin.password_reset.token', $this->token);
 
             $this->redirect(
@@ -113,12 +117,12 @@ class ResetPassword extends SimplePage
             return;
         }
 
-        $this->applyPasswordReset($user, $data['password']);
+        $this->applyPasswordReset($user, $password);
     }
 
     protected function applyPasswordReset(User $user, string $password): void
     {
-        $status = Password::broker(config('fortify.passwords'))->reset(
+        $status = Password::broker(Config::string('fortify.passwords'))->reset(
             ['email' => $user->email, 'password' => $password, 'password_confirmation' => $password, 'token' => $this->token],
             function (User $user, string $password) {
                 $user->forceFill(['password' => Hash::make($password)])->save();

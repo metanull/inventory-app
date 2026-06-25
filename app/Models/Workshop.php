@@ -59,7 +59,7 @@ class Workshop extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getBackwardCompatibilityAttribute(mixed $value): ?string
+    public function getBackwardCompatibilityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }

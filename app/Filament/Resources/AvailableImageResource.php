@@ -25,6 +25,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageResource extends Resource
@@ -170,11 +171,11 @@ class AvailableImageResource extends Resource
                         FileUpload::make('file')
                             ->label('Image file')
                             ->disk('local')
-                            ->directory(config('localstorage.uploads.images.directory', 'image_uploads'))
+                            ->directory(Config::string('localstorage.uploads.images.directory'))
                             ->visibility('private')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-                            ->maxSize((int) config('localstorage.uploads.images.max_size', 20480))
+                            ->maxSize(Config::integer('localstorage.uploads.images.max_size'))
                             ->required(),
                     ])
                     ->action(function (array $data): void {

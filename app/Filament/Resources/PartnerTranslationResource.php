@@ -76,8 +76,10 @@ class PartnerTranslationResource extends Resource
                         table: 'partner_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?PartnerTranslation $record): Unique => $rule
-                            ->where('partner_id', $get('partner_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn ($q) => $q
+                                ->where('partner_id', $get('partner_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )

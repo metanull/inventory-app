@@ -35,8 +35,10 @@ class StoreItemItemLinkRequest extends FormRequest
                 'uuid',
                 'exists:contexts,id',
                 Rule::unique('item_item_links')
-                    ->where('source_id', $sourceItemId)
-                    ->where('target_id', $this->input('target_id')),
+                    ->where(fn ($q) => $q
+                        ->where('source_id', $sourceItemId)
+                        ->where('target_id', $this->input('target_id'))
+                    ),
             ],
         ];
     }

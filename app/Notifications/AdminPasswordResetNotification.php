@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
 class AdminPasswordResetNotification extends ResetPassword
 {
@@ -11,9 +12,13 @@ class AdminPasswordResetNotification extends ResetPassword
      */
     protected function resetUrl($notifiable): string
     {
+        $email = $notifiable instanceof CanResetPassword
+            ? $notifiable->getEmailForPasswordReset()
+            : '';
+
         return route('filament.admin.auth.password.reset', [
             'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
+            'email' => $email,
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Requests\Web\StorePartnerTranslationImageRequest;
 use App\Http\Requests\Web\UpdatePartnerTranslationImageRequest;
 use App\Http\Responses\FileResponse;
 use App\Models\AvailableImage;
+use Illuminate\Support\Facades\Config;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Services\Web\PartnerTranslationImageIndexQuery;
@@ -56,7 +57,8 @@ class PartnerTranslationImageController extends Controller
     public function store(StorePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id);
 
@@ -167,8 +169,8 @@ class PartnerTranslationImageController extends Controller
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerTranslationImage->original_name ?: basename($partnerTranslationImage->path);
 
         // Prepend directory to path
@@ -192,8 +194,8 @@ class PartnerTranslationImageController extends Controller
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;

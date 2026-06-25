@@ -24,7 +24,10 @@ class Setting extends Model
             return $default;
         }
 
-        return static::castValue($setting->value ?? '', $setting->type);
+        $valueRaw = $setting->getAttribute('value');
+        $typeRaw = $setting->getAttribute('type');
+
+        return static::castValue(is_string($valueRaw) ? $valueRaw : '', is_string($typeRaw) ? $typeRaw : 'string');
     }
 
     /**
@@ -66,7 +69,7 @@ class Setting extends Model
         return match ($type) {
             'boolean' => $value ? 'true' : 'false',
             'json' => (string) json_encode($value),
-            default => (string) $value,
+            default => is_scalar($value) ? (string) $value : '',
         };
     }
 }

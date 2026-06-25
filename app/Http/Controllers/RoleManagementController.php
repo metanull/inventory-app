@@ -148,12 +148,15 @@ class RoleManagementController extends Controller
 
         $action = $validated['action'];
 
+        $permIdRaw = $validated['permission_id'] ?? null;
+        $permId = is_int($permIdRaw) ? $permIdRaw : (is_string($permIdRaw) ? $permIdRaw : '');
+
         if ($action === 'add') {
-            $permission = Permission::findById($validated['permission_id']);
+            $permission = Permission::findById($permId);
             $role->givePermissionTo($permission->name);
             $message = 'Permission added successfully.';
         } elseif ($action === 'remove') {
-            $permission = Permission::findById($validated['permission_id']);
+            $permission = Permission::findById($permId);
             $role->revokePermissionTo($permission->name);
             $message = 'Permission removed successfully.';
         } else { // sync

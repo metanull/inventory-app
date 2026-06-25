@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -107,10 +108,10 @@ class PartnerTranslationImage extends Model implements DetachableImage, Streamab
             $displayOrder = static::getNextDisplayOrderForPartnerTranslation($partnerTranslationId);
 
             // Move file from available storage to pictures storage
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
 
             $filename = $availableImage->path; // Already just filename
 
@@ -148,10 +149,10 @@ class PartnerTranslationImage extends Model implements DetachableImage, Streamab
     {
         return $this->getConnection()->transaction(function () {
             // Move file from pictures storage back to available storage
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
 
             $filename = $this->path; // Already just filename
 
@@ -180,12 +181,12 @@ class PartnerTranslationImage extends Model implements DetachableImage, Streamab
 
     public function imageDisk(): string
     {
-        return config('localstorage.pictures.disk');
+        return Config::string('localstorage.pictures.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.pictures.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

@@ -39,7 +39,7 @@ class DebugVersionInfo extends Command
                         if (is_array($buildTimestamp) && isset($buildTimestamp['value'])) {
                             // Parse .NET DateTime format: "/Date(1757794373908)/"
                             $value = $buildTimestamp['value'];
-                            if (preg_match('/\/Date\((\d+)\)\//', $value, $matches)) {
+                            if (is_string($value) && preg_match('/\/Date\((\d+)\)\//', $value, $matches)) {
                                 $timestamp = intval($matches[1]) / 1000; // Convert milliseconds to seconds
                                 $date = new \DateTime;
                                 $date->setTimestamp($timestamp);
@@ -94,7 +94,8 @@ class DebugVersionInfo extends Command
 
         $this->newLine();
         $this->info('3. Testing config fallbacks:');
-        $this->line("   config('app.version'): ".(config('app.version') ?? 'NULL'));
+        $appVersion = config('app.version');
+        $this->line("   config('app.version'): ".(is_scalar($appVersion) ? (string) $appVersion : 'NULL'));
 
         $this->newLine();
         $this->info('=== End Debug ===');

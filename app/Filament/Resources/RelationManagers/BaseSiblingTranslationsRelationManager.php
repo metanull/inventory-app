@@ -96,7 +96,7 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                 TextColumn::make('id')
                     ->label('UUID')
                     ->limit(8)
-                    ->tooltip(fn (Model $r): string => (string) $r->getKey())
+                    ->tooltip(fn (Model $r): string => is_scalar($r->getKey()) ? (string) $r->getKey() : '')
                     ->fontFamily('mono'),
             ])
             ->actions([

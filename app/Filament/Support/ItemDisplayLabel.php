@@ -42,8 +42,10 @@ class ItemDisplayLabel
      */
     public static function withDisplayLabel(Builder $query): Builder
     {
-        $defaultLangId = Language::default()->value('id') ?? '';
-        $defaultContextId = Context::default()->value('id') ?? '';
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : '';
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : '';
 
         if (is_null($query->getQuery()->columns)) {
             $query->getQuery()->columns = ['items.*'];
@@ -96,8 +98,10 @@ class ItemDisplayLabel
      */
     public static function resolveForRecord(Item $item): string
     {
-        $defaultLangId = Language::default()->value('id');
-        $defaultContextId = Context::default()->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : null;
 
         $translations = $item->translations;
 
@@ -118,7 +122,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -130,7 +134,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -140,7 +144,7 @@ class ItemDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -189,7 +193,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -201,7 +205,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -211,14 +215,18 @@ class ItemDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return (string) $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
 
-        return $t?->name;
+        if (! $t) {
+            return null;
+        }
+
+        return is_scalar($t->name) ? (string) $t->name : null;
     }
 
     /**
@@ -276,8 +284,10 @@ class ItemDisplayLabel
      */
     public static function pictureDisplayLabelColumn(): TextColumn
     {
-        $defaultLangId = Language::default()->value('id');
-        $defaultContextId = Context::default()->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : null;
 
         return TextColumn::make('picture_label')
             ->label('Name')
@@ -303,7 +313,7 @@ class ItemDisplayLabel
 
         $item = Item::find($value);
         if (! $item instanceof Item) {
-            return (string) $value;
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $item->load(['translations', 'collection:id,context_id', 'project:id,context_id']);
