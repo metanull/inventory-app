@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PartnerImage extends Model implements StreamableImageFile, DetachableImage
 {
+    /** @use HasFactory<\Database\Factories\PartnerImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
@@ -56,6 +57,8 @@ class PartnerImage extends Model implements StreamableImageFile, DetachableImage
 
     /**
      * Get the partner this image belongs to.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {

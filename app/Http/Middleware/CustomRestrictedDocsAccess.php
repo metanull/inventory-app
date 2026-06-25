@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Gate;
 
 class CustomRestrictedDocsAccess
 {
-    public function handle($request, \Closure $next)
+    public function handle(\Illuminate\Http\Request $request, \Closure $next): mixed
     {
         // Allow access in local and testing environments
         if (app()->environment(['local', 'testing'])) {

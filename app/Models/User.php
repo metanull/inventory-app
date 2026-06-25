@@ -31,6 +31,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     use HasApiTokens;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
     use HasRoles;
@@ -116,6 +117,8 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     /**
      * Get the user's two factor authentication recovery codes.
      * Override Fortify's method to handle null values gracefully.
+     *
+     * @return array<int, string>
      */
     public function recoveryCodes(): array
     {

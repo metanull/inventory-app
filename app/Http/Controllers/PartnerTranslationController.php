@@ -16,7 +16,7 @@ class PartnerTranslationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerTranslationRequest $request)
+    public function index(IndexPartnerTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class PartnerTranslationController extends Controller
      *
      * @return PartnerTranslationResource
      */
-    public function store(StorePartnerTranslationRequest $request)
+    public function store(StorePartnerTranslationRequest $request): PartnerTranslationResource
     {
         $validated = $request->validated();
         $partnerTranslation = PartnerTranslation::create($validated);
@@ -51,7 +51,7 @@ class PartnerTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerTranslationRequest $request, PartnerTranslation $partnerTranslation)
+    public function show(ShowPartnerTranslationRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationResource
     {
         $includes = $request->getIncludeParams();
         $partnerTranslation->load($includes);
@@ -64,7 +64,7 @@ class PartnerTranslationController extends Controller
      *
      * @return PartnerTranslationResource
      */
-    public function update(UpdatePartnerTranslationRequest $request, PartnerTranslation $partnerTranslation)
+    public function update(UpdatePartnerTranslationRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationResource
     {
         $validated = $request->validated();
         $partnerTranslation->update($validated);
@@ -78,7 +78,7 @@ class PartnerTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerTranslation $partnerTranslation)
+    public function destroy(PartnerTranslation $partnerTranslation): \Illuminate\Http\Response
     {
         $partnerTranslation->delete();
 

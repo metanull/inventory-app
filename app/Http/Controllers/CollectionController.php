@@ -93,7 +93,7 @@ class CollectionController extends Controller
     /**
      * Get collections by type.
      */
-    public function byType(Request $request, string $type)
+    public function byType(Request $request, string $type): AnonymousResourceCollection
     {
         $request->validate([
             'type' => 'required|in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location',
@@ -137,11 +137,11 @@ class CollectionController extends Controller
      *
      * @return CollectionResource
      */
-    public function attachItem(AttachItemCollectionRequest $request, Collection $collection)
+    public function attachItem(AttachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail($validated['item_id']);
+        $item = Item::findOrFail((string) $validated['item_id']);
         $collection->attachItem($item);
 
         $collection->refresh();
@@ -156,11 +156,11 @@ class CollectionController extends Controller
      *
      * @return CollectionResource
      */
-    public function detachItem(DetachItemCollectionRequest $request, Collection $collection)
+    public function detachItem(DetachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail($validated['item_id']);
+        $item = Item::findOrFail((string) $validated['item_id']);
         $collection->detachItem($item);
 
         $collection->refresh();
@@ -175,7 +175,7 @@ class CollectionController extends Controller
      *
      * @return CollectionResource
      */
-    public function attachItems(AttachItemsCollectionRequest $request, Collection $collection)
+    public function attachItems(AttachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
@@ -193,7 +193,7 @@ class CollectionController extends Controller
      *
      * @return CollectionResource
      */
-    public function detachItems(DetachItemsCollectionRequest $request, Collection $collection)
+    public function detachItems(DetachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 

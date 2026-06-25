@@ -59,6 +59,8 @@ class CollectionItem extends Pivot
 
     /**
      * Get the collection that owns the pivot.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -67,6 +69,8 @@ class CollectionItem extends Pivot
 
     /**
      * Get the item that owns the pivot.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {

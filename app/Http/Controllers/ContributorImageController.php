@@ -21,7 +21,7 @@ class ContributorImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorImageRequest $request)
+    public function index(IndexContributorImageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -42,7 +42,7 @@ class ContributorImageController extends Controller
      *
      * @return ContributorImageResource
      */
-    public function store(StoreContributorImageRequest $request)
+    public function store(StoreContributorImageRequest $request): ContributorImageResource
     {
         $validated = $request->validated();
         $contributorImage = ContributorImage::create($validated);
@@ -56,7 +56,7 @@ class ContributorImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContributorImageRequest $request, ContributorImage $contributorImage)
+    public function show(ShowContributorImageRequest $request, ContributorImage $contributorImage): ContributorImageResource
     {
         $includes = $request->getIncludeParams();
         $contributorImage->load($includes);
@@ -69,7 +69,7 @@ class ContributorImageController extends Controller
      *
      * @return ContributorImageResource
      */
-    public function update(UpdateContributorImageRequest $request, ContributorImage $contributorImage)
+    public function update(UpdateContributorImageRequest $request, ContributorImage $contributorImage): ContributorImageResource
     {
         $validated = $request->validated();
         $contributorImage->update($validated);
@@ -83,7 +83,7 @@ class ContributorImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorImage $contributorImage)
+    public function destroy(ContributorImage $contributorImage): \Illuminate\Http\Response
     {
         $contributorImage->delete();
 
@@ -93,7 +93,7 @@ class ContributorImageController extends Controller
     /**
      * Move contributor image up in display order.
      */
-    public function moveUp(ContributorImage $contributorImage)
+    public function moveUp(ContributorImage $contributorImage): ContributorImageResource
     {
         $contributorImage->moveUp();
         $contributorImage->refresh();
@@ -104,7 +104,7 @@ class ContributorImageController extends Controller
     /**
      * Move contributor image down in display order.
      */
-    public function moveDown(ContributorImage $contributorImage)
+    public function moveDown(ContributorImage $contributorImage): ContributorImageResource
     {
         $contributorImage->moveDown();
         $contributorImage->refresh();
@@ -115,7 +115,7 @@ class ContributorImageController extends Controller
     /**
      * Tighten ordering for all images of the contributor.
      */
-    public function tightenOrdering(ContributorImage $contributorImage)
+    public function tightenOrdering(ContributorImage $contributorImage): OperationSuccessResource
     {
         $contributorImage->tightenOrdering();
 
@@ -130,11 +130,11 @@ class ContributorImageController extends Controller
      *
      * @return ContributorImageResource
      */
-    public function attachFromAvailable(AttachFromAvailableContributorImageRequest $request, Contributor $contributor)
+    public function attachFromAvailable(AttachFromAvailableContributorImageRequest $request, Contributor $contributor): ContributorImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
         $contributorImage = ContributorImage::attachFromAvailableImage($availableImage, $contributor->id, $validated['alt_text'] ?? null);
 
         $includes = $request->getIncludeParams();
@@ -148,7 +148,7 @@ class ContributorImageController extends Controller
     /**
      * Detach a contributor image and convert it back to available image.
      */
-    public function detachToAvailable(ContributorImage $contributorImage)
+    public function detachToAvailable(ContributorImage $contributorImage): OperationSuccessResource
     {
         $availableImage = $contributorImage->detachToAvailableImage();
 
@@ -162,7 +162,7 @@ class ContributorImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(ContributorImage $contributorImage)
+    public function download(ContributorImage $contributorImage): \Illuminate\Contracts\Support\Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');
@@ -181,7 +181,7 @@ class ContributorImageController extends Controller
     /**
      * Returns the image file for direct viewing.
      */
-    public function view(ContributorImage $contributorImage)
+    public function view(ContributorImage $contributorImage): \Illuminate\Contracts\Support\Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');

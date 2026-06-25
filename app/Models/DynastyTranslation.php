@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class DynastyTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\DynastyTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -76,6 +77,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -86,6 +89,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the dynasty that owns the translation.
+     *
+     * @return BelongsTo<Dynasty, $this>
      */
     public function dynasty(): BelongsTo
     {
@@ -94,6 +99,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -102,6 +109,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the author of the translation.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function author(): BelongsTo
     {
@@ -110,6 +119,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the text copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function textCopyEditor(): BelongsTo
     {
@@ -118,6 +129,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the translator.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translator(): BelongsTo
     {
@@ -126,6 +139,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the translation copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translationCopyEditor(): BelongsTo
     {
@@ -135,11 +150,11 @@ class DynastyTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  Builder  $query
+     * @param  Builder<static>  $query
      * @param  string  $languageId
-     * @return Builder
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }

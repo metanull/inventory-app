@@ -12,8 +12,12 @@ class UpdateCountryTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var \App\Models\CountryTranslation|null $countryTranslation */
         $countryTranslation = $this->route('countryTranslation');
 
         $uniqueRule = Rule::unique('country_translations')

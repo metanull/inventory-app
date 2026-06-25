@@ -38,6 +38,7 @@ final class CollectionTranslationIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\CollectionTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('collection_translations.collection_id', $state->filters['collection_id']);
@@ -51,11 +52,13 @@ final class CollectionTranslationIndexQuery
         }
     }
 
+    /** @param Builder<\App\Models\CollectionTranslation> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\CollectionTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

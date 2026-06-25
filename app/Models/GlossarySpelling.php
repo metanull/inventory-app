@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class GlossarySpelling extends Model
 {
+    /** @use HasFactory<\Database\Factories\GlossarySpellingFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -104,6 +105,8 @@ class GlossarySpelling extends Model
 
     /**
      * Get the glossary that owns this spelling.
+     *
+     * @return BelongsTo<Glossary, $this>
      */
     public function glossary(): BelongsTo
     {
@@ -112,6 +115,8 @@ class GlossarySpelling extends Model
 
     /**
      * Get the language of this spelling.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -120,6 +125,8 @@ class GlossarySpelling extends Model
 
     /**
      * Get the item translations linked to this spelling.
+     *
+     * @return BelongsToMany<ItemTranslation, $this>
      */
     public function itemTranslations(): BelongsToMany
     {
@@ -129,6 +136,8 @@ class GlossarySpelling extends Model
 
     /**
      * Get the collection translations linked to this spelling.
+     *
+     * @return BelongsToMany<CollectionTranslation, $this>
      */
     public function collectionTranslations(): BelongsToMany
     {
@@ -138,6 +147,8 @@ class GlossarySpelling extends Model
 
     /**
      * Get the timeline event translations linked to this spelling.
+     *
+     * @return BelongsToMany<TimelineEventTranslation, $this>
      */
     public function timelineEventTranslations(): BelongsToMany
     {
@@ -148,11 +159,11 @@ class GlossarySpelling extends Model
     /**
      * Scope a query to only include spellings for a specific language.
      *
-     * @param  Builder  $query
+     * @param  Builder<static>  $query
      * @param  string  $languageId
-     * @return Builder
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }
@@ -160,11 +171,11 @@ class GlossarySpelling extends Model
     /**
      * Scope a query to search for a specific spelling.
      *
-     * @param  Builder  $query
+     * @param  Builder<static>  $query
      * @param  string  $spelling
-     * @return Builder
+     * @return Builder<static>
      */
-    public function scopeForSpelling($query, $spelling)
+    public function scopeForSpelling(Builder $query, string $spelling): Builder
     {
         return $query->where('spelling', $spelling);
     }

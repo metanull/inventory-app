@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CollectionMedia extends Model
 {
+    /** @use HasFactory<\Database\Factories\CollectionMediaFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $table = 'collection_media';
@@ -60,6 +61,8 @@ class CollectionMedia extends Model
 
     /**
      * Get the collection this media belongs to.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -68,6 +71,8 @@ class CollectionMedia extends Model
 
     /**
      * Get the language of this media.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

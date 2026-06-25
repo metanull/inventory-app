@@ -37,7 +37,7 @@ class UserManagementController extends Controller
     /**
      * Show the form for creating a new user.
      */
-    public function create()
+    public function create(): View
     {
         $roles = Role::all();
 
@@ -47,7 +47,7 @@ class UserManagementController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(StoreUserManagementRequest $request)
+    public function store(StoreUserManagementRequest $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
 
@@ -78,7 +78,7 @@ class UserManagementController extends Controller
     /**
      * Display the specified user.
      */
-    public function show(User $user)
+    public function show(User $user): View
     {
         $user->load('roles.permissions');
 
@@ -88,7 +88,7 @@ class UserManagementController extends Controller
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user)
+    public function edit(User $user): View
     {
         $roles = Role::all();
         $user->load('roles');
@@ -100,7 +100,7 @@ class UserManagementController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(UpdateUserManagementRequest $request, User $user)
+    public function update(UpdateUserManagementRequest $request, User $user): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
 
@@ -149,7 +149,7 @@ class UserManagementController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user)
+    public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')

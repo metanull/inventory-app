@@ -155,7 +155,7 @@ class MarkdownService
         $withoutCodeBlocks = preg_replace('/```[\s\S]*?```/', '', $markdown);
         $withoutInlineCode = preg_replace('/`[^`]*`/', '', $withoutCodeBlocks);
 
-        return preg_match('/<[^>]+>/', $withoutInlineCode);
+        return (bool) preg_match('/<[^>]+>/', (string) $withoutInlineCode);
     }
 
     /**
@@ -165,6 +165,9 @@ class MarkdownService
     {
         // Split on code blocks to preserve them
         $parts = preg_split('/```[\s\S]*?```/', $markdown, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
+        if ($parts === false) {
+            return $markdown;
+        }
 
         $result = '';
         for ($i = 0; $i < count($parts); $i++) {

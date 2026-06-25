@@ -38,6 +38,7 @@ abstract class ListDefinition
     }
 
     /**
+     * @param  array<string, mixed>  $input
      * @return array<string, mixed>
      */
     public function normalizeFilters(array $input): array
@@ -53,6 +54,9 @@ abstract class ListDefinition
         return [];
     }
 
+    /**
+     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     */
     public function applySearch(Builder $query, ?string $search): void
     {
         if ($search === null) {

@@ -25,7 +25,7 @@ class ImportProductionData extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         if (! app()->environment('production') && ! $this->option('force')) {
             $this->error('This command should only be run in production environment.');

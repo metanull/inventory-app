@@ -15,7 +15,7 @@ class AvailableImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAvailableImageRequest $request)
+    public function index(IndexAvailableImageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -35,7 +35,7 @@ class AvailableImageController extends Controller
      *
      * @return AvailableImageResource
      */
-    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage)
+    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage): AvailableImageResource
     {
         $validated = $request->validated();
         $availableImage->update($validated);
@@ -47,7 +47,7 @@ class AvailableImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AvailableImage $availableImage)
+    public function show(AvailableImage $availableImage): AvailableImageResource
     {
         return new AvailableImageResource($availableImage);
     }
@@ -55,7 +55,7 @@ class AvailableImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AvailableImage $availableImage)
+    public function destroy(AvailableImage $availableImage): \Illuminate\Http\Response
     {
         Storage::delete($availableImage->path);
         $availableImage->delete();
@@ -66,7 +66,7 @@ class AvailableImageController extends Controller
     /**
      * Download the file to the caller.
      */
-    public function download(AvailableImage $availableImage)
+    public function download(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
     {
         return new DownloadImageResponse($availableImage);
     }
@@ -74,7 +74,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(AvailableImage $availableImage)
+    public function view(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
     {
         return new InlineImageResponse($availableImage);
     }

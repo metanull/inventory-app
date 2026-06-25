@@ -152,6 +152,8 @@ class SyncPermissions extends Command
 
     /**
      * Get role definitions.
+     *
+     * @return array<int, array{name: string, description: string, permissions: array<int, string>}>
      */
     protected function getRoleDefinitions(bool $includeVisitor = false): array
     {

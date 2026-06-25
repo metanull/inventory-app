@@ -45,7 +45,7 @@ class LoremPicsumImageProvider extends Base
      * @param  int  $height  Height of the image
      * @param  int|null  $id  Optional image ID to fetch a specific image
      * @param  string|null  $seed  Optional seed for random image generation
-     * @param  array  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
+     * @param  array<string, mixed>  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
      * @return string The generated image URL
      */
     public function imageUrl(int $width = 640, int $height = 480, ?int $id = null, ?string $seed = null, ?array $options = []): string
@@ -72,7 +72,7 @@ class LoremPicsumImageProvider extends Base
      * @param  string|null  $directory  Directory to save the image in
      * @param  int|null  $id  Optional image ID to fetch a specific image
      * @param  string|null  $seed  Optional seed for random image generation
-     * @param  array  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
+     * @param  array<string, mixed>  $options  Additional query parameters to append to the URL. See https://picsum.photos/ for available options.
      * @return string The path where the image is stored (relative to the disk root)
      *
      * @throws RequestException If the HTTP request to fetch the image fails
@@ -101,6 +101,7 @@ class LoremPicsumImageProvider extends Base
             // Generate a valid 1x1 PNG image for testing
             $image = imagecreate(1, 1);
             $white = imagecolorallocate($image, 255, 255, 255);
+            assert($white !== false);
             imagefill($image, 0, 0, $white);
 
             ob_start();
@@ -108,7 +109,7 @@ class LoremPicsumImageProvider extends Base
             $content = ob_get_clean();
             imagedestroy($image);
 
-            return $content;
+            return (string) $content;
         }
 
         // Try to download from remote URL first

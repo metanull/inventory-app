@@ -16,7 +16,7 @@ class PartnerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerRequest $request)
+    public function index(IndexPartnerRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class PartnerController extends Controller
      *
      * @return PartnerResource
      */
-    public function store(StorePartnerRequest $request)
+    public function store(StorePartnerRequest $request): PartnerResource
     {
         $validated = $request->validated();
         $partner = Partner::create($validated);
@@ -51,7 +51,7 @@ class PartnerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerRequest $request, Partner $partner)
+    public function show(ShowPartnerRequest $request, Partner $partner): PartnerResource
     {
         $includes = $request->getIncludeParams();
         $partner->load($includes);
@@ -64,7 +64,7 @@ class PartnerController extends Controller
      *
      * @return PartnerResource
      */
-    public function update(UpdatePartnerRequest $request, Partner $partner)
+    public function update(UpdatePartnerRequest $request, Partner $partner): PartnerResource
     {
         $validated = $request->validated();
         $partner->update($validated);
@@ -78,7 +78,7 @@ class PartnerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Partner $partner)
+    public function destroy(Partner $partner): \Illuminate\Http\Response
     {
         $partner->delete();
 

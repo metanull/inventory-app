@@ -297,11 +297,11 @@ class ItemDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $item = Item::find($value);
-        if (! $item) {
+        if (! $item instanceof Item) {
             return (string) $value;
         }
 

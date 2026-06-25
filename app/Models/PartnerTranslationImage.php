@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PartnerTranslationImage extends Model implements StreamableImageFile, DetachableImage
 {
+    /** @use HasFactory<\Database\Factories\PartnerTranslationImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
@@ -54,6 +55,8 @@ class PartnerTranslationImage extends Model implements StreamableImageFile, Deta
 
     /**
      * Get the partner translation this image belongs to.
+     *
+     * @return BelongsTo<PartnerTranslation, $this>
      */
     public function partnerTranslation(): BelongsTo
     {

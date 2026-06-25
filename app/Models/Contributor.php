@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contributor extends Model
 {
+    /** @use HasFactory<\Database\Factories\ContributorFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -28,6 +29,9 @@ class Contributor extends Model
         'visible' => 'boolean',
     ];
 
+    /**
+     * @return array<int, string>
+     */
     public function uniqueIds(): array
     {
         return ['id'];
@@ -48,6 +52,8 @@ class Contributor extends Model
 
     /**
      * Get the collection this contributor belongs to.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -56,6 +62,8 @@ class Contributor extends Model
 
     /**
      * Get the translations for this contributor.
+     *
+     * @return HasMany<ContributorTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -64,6 +72,8 @@ class Contributor extends Model
 
     /**
      * Get the images for this contributor.
+     *
+     * @return HasMany<ContributorImage, $this>
      */
     public function contributorImages(): HasMany
     {

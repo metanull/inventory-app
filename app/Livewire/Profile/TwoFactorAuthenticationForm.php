@@ -138,7 +138,7 @@ class TwoFactorAuthenticationForm extends Component
     /**
      * Get the current user of the application.
      */
-    public function getUserProperty()
+    public function getUserProperty(): ?\Illuminate\Contracts\Auth\Authenticatable
     {
         return Auth::user();
     }
@@ -154,7 +154,7 @@ class TwoFactorAuthenticationForm extends Component
     /**
      * Render the component.
      */
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         return view('profile.two-factor-authentication-form');
     }

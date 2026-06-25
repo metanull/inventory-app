@@ -28,6 +28,8 @@ trait OptionsLookup
      * Applies the optional filter column, named scopes, and prefix-first
      * LIKE search, then limits the result set to $perPage rows. The caller
      * is responsible for calling ->get() on the returned builder.
+     *
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
      */
     public function resolveOptionsQuery(): Builder
     {
@@ -50,6 +52,9 @@ trait OptionsLookup
      *
      * Iterates over the normalised $scopes array (array<int, array{scope: string, args: array}>)
      * and calls each scope method on the query, forwarding any args.
+     *
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
      */
     public function applyScopes(Builder $query): Builder
     {
@@ -71,6 +76,9 @@ trait OptionsLookup
      *   - Secondary ORDER BY displayField ASC
      * When $search is empty:
      *   - ORDER BY displayField ASC only
+     *
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
      */
     public function applySearch(Builder $query, string $search): Builder
     {
@@ -95,9 +103,12 @@ trait OptionsLookup
      *
      * Performs a case-insensitive substring match against displayField.
      * No database queries are issued.
+     *
+     * @return \Illuminate\Support\Collection<int, mixed>
      */
     public function resolveStaticOptions(): Collection
     {
+        /** @var \Illuminate\Support\Collection<int, mixed> $options */
         $options = collect($this->staticOptions);
 
         $search = trim($this->search);
@@ -118,6 +129,8 @@ trait OptionsLookup
      * Apply the filter column/operator/value constraint to the query.
      *
      * Supports IN, NOT IN, and any standard comparison operator.
+     *
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
      */
     protected function applyFilter(Builder $query): void
     {
@@ -138,6 +151,7 @@ trait OptionsLookup
      *   array<int, array{scope: string, args: array}>  → fully specified
      *
      * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
+     * @return array<string, mixed>
      */
     protected function normalizeScopes(mixed $scopes, ?string $modelClass): array
     {

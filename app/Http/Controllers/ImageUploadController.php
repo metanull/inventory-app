@@ -17,7 +17,7 @@ class ImageUploadController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         return ImageUploadResource::collection(ImageUpload::all());
     }
@@ -25,7 +25,7 @@ class ImageUploadController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreImageUploadRequest $request)
+    public function store(StoreImageUploadRequest $request): ImageUploadResource
     {
         $validated = $request->validated();
 
@@ -34,7 +34,7 @@ class ImageUploadController extends Controller
         $storagePath = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
 
         // Store only filename in database (no directory)
-        $validated['path'] = basename($storagePath);
+        $validated['path'] = basename((string) $storagePath);
 
         $imageUpload = ImageUpload::create($validated);
         $imageUpload->refresh();
@@ -53,7 +53,7 @@ class ImageUploadController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ImageUpload $imageUpload)
+    public function show(ImageUpload $imageUpload): ImageUploadResource
     {
         return new ImageUploadResource($imageUpload);
     }
@@ -64,7 +64,7 @@ class ImageUploadController extends Controller
      * Returns the processing status. If processing is complete, returns the AvailableImage details.
      * If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
      */
-    public function status(string $id)
+    public function status(string $id): ImageUploadStatusResource|\Illuminate\Http\JsonResponse
     {
         // First check if the ImageUpload still exists (processing not complete)
         $imageUpload = ImageUpload::find($id);
@@ -106,7 +106,7 @@ class ImageUploadController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ImageUpload $imageUpload)
+    public function destroy(ImageUpload $imageUpload): \Illuminate\Http\Response
     {
         Storage::delete($imageUpload->path);
         $imageUpload->delete();

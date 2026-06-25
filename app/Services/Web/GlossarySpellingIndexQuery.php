@@ -35,16 +35,19 @@ final class GlossarySpellingIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\GlossarySpelling> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('glossary_spellings.glossary_id', $state->filters['glossary_id']);
     }
 
+    /** @param Builder<\App\Models\GlossarySpelling> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\GlossarySpelling> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

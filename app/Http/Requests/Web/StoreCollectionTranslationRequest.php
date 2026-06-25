@@ -43,7 +43,7 @@ class StoreCollectionTranslationRequest extends FormRequest
     /**
      * Add uniqueness validation for the combination of collection_id, language_id, and context_id.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             $exists = CollectionTranslation::where('collection_id', $this->collection_id)

@@ -35,16 +35,19 @@ final class ItemImageIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\ItemImage> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('item_images.item_id', $state->filters['item_id']);
     }
 
+    /** @param Builder<\App\Models\ItemImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\ItemImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

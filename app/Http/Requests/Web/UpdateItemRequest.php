@@ -11,6 +11,9 @@ class UpdateItemRequest extends FormRequest
         return $this->user() !== null; // Additional policy checks can be added later
     }
 
+    /**
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
@@ -33,10 +36,11 @@ class UpdateItemRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator)
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             // Prevent circular references
+            /** @var \App\Models\Item|null $item */
             $item = $this->route('item');
             $parentId = $this->input('parent_id');
 

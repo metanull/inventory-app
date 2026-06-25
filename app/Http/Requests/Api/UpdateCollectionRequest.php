@@ -23,6 +23,7 @@ class UpdateCollectionRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \App\Models\Collection|null $collection */
         $collection = $this->route('collection');
 
         return [

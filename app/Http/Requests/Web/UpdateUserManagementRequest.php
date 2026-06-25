@@ -26,9 +26,12 @@ class UpdateUserManagementRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \App\Models\User|null $user */
+        $user = $this->route('user');
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user')?->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
             'roles' => ['array'],
             'roles.*' => ['exists:roles,id'],
             'verify_email' => ['nullable', 'boolean'],
@@ -40,7 +43,7 @@ class UpdateUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             $user = $this->route('user');

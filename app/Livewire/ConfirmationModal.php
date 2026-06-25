@@ -22,6 +22,7 @@ class ConfirmationModal extends Component
 
     public string $method = 'DELETE';
 
+    /** @var array<string, string> */
     protected $listeners = ['confirm-action' => 'showConfirmation'];
 
     public function showConfirmation(
@@ -69,7 +70,7 @@ class ConfirmationModal extends Component
         $this->method = 'DELETE';
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         return view('livewire.confirmation-modal');
     }

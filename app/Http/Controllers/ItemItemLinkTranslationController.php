@@ -17,7 +17,7 @@ class ItemItemLinkTranslationController extends Controller
     /**
      * Display a listing of item-item link translations
      */
-    public function index(IndexItemItemLinkTranslationRequest $request)
+    public function index(IndexItemItemLinkTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $query = ItemItemLinkTranslation::query();
 
@@ -42,7 +42,7 @@ class ItemItemLinkTranslationController extends Controller
      *
      * @return ItemItemLinkTranslationResource
      */
-    public function store(StoreItemItemLinkTranslationRequest $request)
+    public function store(StoreItemItemLinkTranslationRequest $request): ItemItemLinkTranslationResource
     {
         $data = $request->validated();
         $translation = ItemItemLinkTranslation::create($data);
@@ -55,7 +55,7 @@ class ItemItemLinkTranslationController extends Controller
     /**
      * Display the specified item-item link translation
      */
-    public function show(ShowItemItemLinkTranslationRequest $request, ItemItemLinkTranslation $itemItemLinkTranslation)
+    public function show(ShowItemItemLinkTranslationRequest $request, ItemItemLinkTranslation $itemItemLinkTranslation): ItemItemLinkTranslationResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -70,7 +70,7 @@ class ItemItemLinkTranslationController extends Controller
      *
      * @return ItemItemLinkTranslationResource
      */
-    public function update(UpdateItemItemLinkTranslationRequest $request, ItemItemLinkTranslation $itemItemLinkTranslation)
+    public function update(UpdateItemItemLinkTranslationRequest $request, ItemItemLinkTranslation $itemItemLinkTranslation): ItemItemLinkTranslationResource
     {
         $data = $request->validated();
         $itemItemLinkTranslation->update($data);
@@ -83,7 +83,7 @@ class ItemItemLinkTranslationController extends Controller
     /**
      * Remove the specified item-item link translation
      */
-    public function destroy(ItemItemLinkTranslation $itemItemLinkTranslation)
+    public function destroy(ItemItemLinkTranslation $itemItemLinkTranslation): \Illuminate\Http\Response
     {
         $itemItemLinkTranslation->delete();
 

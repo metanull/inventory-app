@@ -66,6 +66,8 @@ class CollectionPartner extends Pivot
 
     /**
      * Get the collection that owns the pivot.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -74,6 +76,8 @@ class CollectionPartner extends Pivot
 
     /**
      * Get the partner that owns the pivot.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {

@@ -13,7 +13,7 @@ class ItemItemLinkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexItemItemLinkRequest $request)
+    public function index(IndexItemItemLinkRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $query = ItemItemLink::query();
 
@@ -50,7 +50,7 @@ class ItemItemLinkController extends Controller
      *
      * @return ItemItemLinkResource
      */
-    public function store(StoreItemItemLinkRequest $request)
+    public function store(StoreItemItemLinkRequest $request): ItemItemLinkResource
     {
         $validated = $request->validated();
         $link = ItemItemLink::create($validated);
@@ -62,7 +62,7 @@ class ItemItemLinkController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ItemItemLink $link)
+    public function show(ItemItemLink $link): ItemItemLinkResource
     {
         return new ItemItemLinkResource($link);
     }
@@ -72,7 +72,7 @@ class ItemItemLinkController extends Controller
      *
      * @return ItemItemLinkResource
      */
-    public function update(UpdateItemItemLinkRequest $request, ItemItemLink $link)
+    public function update(UpdateItemItemLinkRequest $request, ItemItemLink $link): ItemItemLinkResource
     {
         $validated = $request->validated();
         $link->update($validated);
@@ -84,7 +84,7 @@ class ItemItemLinkController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ItemItemLink $link)
+    public function destroy(ItemItemLink $link): \Illuminate\Http\Response
     {
         $link->delete();
 

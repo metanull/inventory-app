@@ -27,6 +27,10 @@ final class AvailableImageListDefinition extends ListDefinition
         return ['available_images.path', 'available_images.comment'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return [];

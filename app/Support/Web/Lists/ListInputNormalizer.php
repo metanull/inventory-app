@@ -5,6 +5,7 @@ namespace App\Support\Web\Lists;
 final class ListInputNormalizer
 {
     /**
+     * @param  array<string, mixed>  $input
      * @return array<string, mixed>
      */
     public function normalize(array $input, ListDefinition $definition): array

@@ -181,6 +181,9 @@ class TagResource extends Resource
             ]);
     }
 
+    /**
+     * @return Builder<\App\Models\Tag>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('language');

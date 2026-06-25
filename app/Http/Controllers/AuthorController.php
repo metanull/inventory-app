@@ -16,7 +16,7 @@ class AuthorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAuthorRequest $request)
+    public function index(IndexAuthorRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class AuthorController extends Controller
      *
      * @return AuthorResource
      */
-    public function store(StoreAuthorRequest $request)
+    public function store(StoreAuthorRequest $request): AuthorResource
     {
         $validated = $request->validated();
         $author = Author::create($validated);
@@ -51,7 +51,7 @@ class AuthorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowAuthorRequest $request, Author $author)
+    public function show(ShowAuthorRequest $request, Author $author): AuthorResource
     {
         $includes = $request->getIncludeParams();
         $author->load($includes);
@@ -64,7 +64,7 @@ class AuthorController extends Controller
      *
      * @return AuthorResource
      */
-    public function update(UpdateAuthorRequest $request, Author $author)
+    public function update(UpdateAuthorRequest $request, Author $author): AuthorResource
     {
         $validated = $request->validated();
         $author->update($validated);
@@ -78,7 +78,7 @@ class AuthorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Author $author)
+    public function destroy(Author $author): \Illuminate\Http\Response
     {
         $author->delete();
 

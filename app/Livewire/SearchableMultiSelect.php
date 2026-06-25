@@ -24,6 +24,7 @@ class SearchableMultiSelect extends Component
     use OptionsLookup;
 
     #[Modelable]
+    /** @var array<int, string|int> */
     public array $selectedIds = [];
 
     public string $search = '';
@@ -32,6 +33,7 @@ class SearchableMultiSelect extends Component
 
     public string $name = '';
 
+    /** @var mixed */
     public $staticOptions = null;
 
     public ?string $modelClass = null;
@@ -48,16 +50,21 @@ class SearchableMultiSelect extends Component
 
     public ?string $filterOperator = '!=';
 
+    /** @var mixed */
     public $filterValue = null;
 
+    /** @var mixed */
     public $scopes = null;
 
     public int $perPage = 50;
 
+    /**
+     * @param array<int, string|int> $selectedIds
+     */
     public function mount(
         array $selectedIds = [],
         string $name = '',
-        $staticOptions = null,
+        mixed $staticOptions = null,
         ?string $modelClass = null,
         string $displayField = 'internal_name',
         string $placeholder = 'Select...',
@@ -65,8 +72,8 @@ class SearchableMultiSelect extends Component
         ?string $entity = null,
         ?string $filterColumn = null,
         ?string $filterOperator = '!=',
-        $filterValue = null,
-        $scopes = null,
+        mixed $filterValue = null,
+        mixed $scopes = null,
         ?int $perPage = null
     ): void {
         $this->selectedIds = $selectedIds;
@@ -87,7 +94,9 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            $count = count(collect($this->staticOptions));
+            /** @var \Illuminate\Support\Collection<int, mixed> $staticCollection */
+            $staticCollection = collect($this->staticOptions);
+            $count = count($staticCollection);
             $max = (int) config('interface.searchable_select.static_options_max', 50);
             if ($count > $max) {
                 throw new InvalidArgumentException(
@@ -136,6 +145,9 @@ class SearchableMultiSelect extends Component
     /**
      * Candidate options for the dropdown (excludes already-selected ids).
      */
+    /**
+     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     */
     public function getOptionsProperty()
     {
         if ($this->staticOptions !== null) {
@@ -158,6 +170,8 @@ class SearchableMultiSelect extends Component
     /**
      * Currently selected options — queried by id so we never store model instances
      * in component state.
+     *
+     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
      */
     public function getSelectedOptionsProperty()
     {
@@ -166,7 +180,10 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            return collect($this->staticOptions)->filter(function ($option) {
+            /** @var \Illuminate\Support\Collection<int, mixed> $allOptions */
+            $allOptions = collect($this->staticOptions);
+
+            return $allOptions->filter(function ($option) {
                 $value = is_object($option) ? ($option->id ?? null) : ($option['id'] ?? null);
 
                 return in_array((string) $value, $this->selectedIds, true);
@@ -180,7 +197,7 @@ class SearchableMultiSelect extends Component
         return collect();
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
         $focusClasses = $colors

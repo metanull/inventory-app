@@ -88,7 +88,7 @@ class InfoController extends Controller
         if (file_exists($versionPath)) {
             try {
                 $raw = @file_get_contents($versionPath);
-                $decoded = @json_decode($raw, true);
+                $decoded = @json_decode((string) $raw, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                     return new VersionResource($decoded);
                 }
@@ -101,7 +101,7 @@ class InfoController extends Controller
         return new VersionResource([
             'repository' => null,
             'build_timestamp' => [
-                'value' => '/Date('.(now()->timestamp * 1000).')/',
+                'value' => '/Date('.((int) now()->timestamp * 1000).')/',
                 'DisplayHint' => 2,
                 'DateTime' => now()->format('l j F Y H:i:s'),
             ],
@@ -118,7 +118,7 @@ class InfoController extends Controller
      * Checks the health of key application dependencies including
      * database connectivity and cache functionality.
      *
-     * @return array Health check results with overall status
+     * @return array<string, mixed> Health check results with overall status
      */
     private function performHealthChecks(): array
     {

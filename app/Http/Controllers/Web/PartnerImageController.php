@@ -41,7 +41,7 @@ class PartnerImageController extends Controller
     /**
      * Show form to attach available image to partner.
      */
-    public function create(Partner $partner)
+    public function create(Partner $partner): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -54,7 +54,7 @@ class PartnerImageController extends Controller
     public function store(StorePartnerImageRequest $request, Partner $partner): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
 
         PartnerImage::attachFromAvailableImage($availableImage, $partner->id);
 
@@ -65,7 +65,7 @@ class PartnerImageController extends Controller
     /**
      * Show form to edit partner image.
      */
-    public function edit(Partner $partner, PartnerImage $partnerImage)
+    public function edit(Partner $partner, PartnerImage $partnerImage): View
     {
         // Ensure the image belongs to the partner
         if ($partnerImage->partner_id !== $partner->id) {
@@ -158,7 +158,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Partner $partner, PartnerImage $partnerImage)
+    public function download(Partner $partner, PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);
@@ -170,7 +170,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Partner $partner, PartnerImage $partnerImage)
+    public function view(Partner $partner, PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);

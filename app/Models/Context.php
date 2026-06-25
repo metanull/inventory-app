@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Context extends Model
 {
+    /** @use HasFactory<\Database\Factories\ContextFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -37,6 +38,10 @@ class Context extends Model
         return ['id'];
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
@@ -47,6 +52,7 @@ class Context extends Model
     ];
 
     // Mark a single row as the default
+    /** @return static */
     public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -67,6 +73,7 @@ class Context extends Model
     }
 
     // Unmark a single row as the default
+    /** @return static */
     public function unsetDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -95,7 +102,9 @@ class Context extends Model
     /**
      * Scope to exclude contexts with the given IDs.
      *
+     * @param  Builder<static>  $query
      * @param  array<int, string>  $ids
+     * @return Builder<static>
      */
     public function scopeExcludingIds(Builder $query, array $ids): Builder
     {

@@ -25,7 +25,7 @@ class BailCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $process = new Process([base_path('vendor/bin/pint'), '--bail', '--no-interaction', '--ansi']);
         $process->run();

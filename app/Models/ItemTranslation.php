@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
  */
 class ItemTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\ItemTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -141,6 +142,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -169,6 +172,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the author of the translation.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function author(): BelongsTo
     {
@@ -177,6 +182,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the text copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function textCopyEditor(): BelongsTo
     {
@@ -185,6 +192,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the translator.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translator(): BelongsTo
     {
@@ -193,6 +202,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the translation copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translationCopyEditor(): BelongsTo
     {
@@ -201,6 +212,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the glossary spellings linked to this item translation.
+     *
+     * @return BelongsToMany<GlossarySpelling, $this>
      */
     public function spellings(): BelongsToMany
     {
@@ -239,6 +252,8 @@ class ItemTranslation extends Model
 
     /**
      * Get sibling translations (other translations of the same item).
+     *
+     * @return HasMany<ItemTranslation, $this>
      */
     public function siblingTranslations(): HasMany
     {

@@ -42,7 +42,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Show form to attach available image to partner translation.
      */
-    public function create(PartnerTranslation $partnerTranslation)
+    public function create(PartnerTranslation $partnerTranslation): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -55,7 +55,7 @@ class PartnerTranslationImageController extends Controller
     public function store(StorePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
 
         PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id);
 
@@ -66,7 +66,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Show form to edit partner translation image.
      */
-    public function edit(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function edit(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): View
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
@@ -159,7 +159,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
@@ -184,7 +184,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {

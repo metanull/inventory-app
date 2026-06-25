@@ -16,7 +16,7 @@ class LanguageTranslationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexLanguageTranslationRequest $request)
+    public function index(IndexLanguageTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class LanguageTranslationController extends Controller
      *
      * @return LanguageTranslationResource
      */
-    public function store(StoreLanguageTranslationRequest $request)
+    public function store(StoreLanguageTranslationRequest $request): LanguageTranslationResource
     {
         $validated = $request->validated();
         $languageTranslation = LanguageTranslation::create($validated);
@@ -51,7 +51,7 @@ class LanguageTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowLanguageTranslationRequest $request, LanguageTranslation $languageTranslation)
+    public function show(ShowLanguageTranslationRequest $request, LanguageTranslation $languageTranslation): LanguageTranslationResource
     {
         $includes = $request->getIncludeParams();
         $languageTranslation->load($includes);
@@ -64,7 +64,7 @@ class LanguageTranslationController extends Controller
      *
      * @return LanguageTranslationResource
      */
-    public function update(UpdateLanguageTranslationRequest $request, LanguageTranslation $languageTranslation)
+    public function update(UpdateLanguageTranslationRequest $request, LanguageTranslation $languageTranslation): LanguageTranslationResource
     {
         $validated = $request->validated();
         $languageTranslation->update($validated);
@@ -78,7 +78,7 @@ class LanguageTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LanguageTranslation $languageTranslation)
+    public function destroy(LanguageTranslation $languageTranslation): \Illuminate\Http\Response
     {
         $languageTranslation->delete();
 

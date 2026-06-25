@@ -88,6 +88,10 @@ class ItemResource extends Resource
         return 'Items';
     }
 
+    /**
+     * @param Builder<\App\Models\Item> $query
+     * @return Builder<\App\Models\Item>
+     */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
         /** @var Builder<\App\Models\Item> $q */
@@ -96,6 +100,10 @@ class ItemResource extends Resource
         return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
+    /**
+     * @param Builder<\App\Models\Item> $query
+     * @return array<string, string>
+     */
     protected static function changeParentSearchResults(Builder $query): array
     {
         /** @var Builder<\App\Models\Item> $query */
@@ -372,7 +380,7 @@ class ItemResource extends Resource
                         ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find($value)) ? "{$tag->description} [{$tag->internal_name}]" : $value)
+                    ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find((string) $value)) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (string) $value)
                     ->query(function (Builder $query, array $data): Builder {
                         /** @var Builder<\App\Models\Item> $q */
                         $q = $query;
@@ -476,7 +484,7 @@ class ItemResource extends Resource
                                 ->mapWithKeys(fn (Tag $tag): array => [$tag->id => "{$tag->description} [{$tag->internal_name}]"])
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find($value)) ? "{$tag->description} [{$tag->internal_name}]" : $value)
+                            ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find((string) $value)) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (string) $value)
                             ->searchable(),
                     ])
                     ->action(function (EloquentCollection $records, array $data): void {

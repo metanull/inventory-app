@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ItemItemLink extends Model
 {
+    /** @use HasFactory<\Database\Factories\ItemItemLinkFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -60,6 +61,8 @@ class ItemItemLink extends Model
 
     /**
      * The context in which the link exists.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {
@@ -68,6 +71,8 @@ class ItemItemLink extends Model
 
     /**
      * Get all translations for this link.
+     *
+     * @return HasMany<ItemItemLinkTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -77,7 +82,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by source item.
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $source  The source Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeFromSource(Builder $query, $source): Builder
     {
@@ -89,7 +96,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by target item.
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $target  The target Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeToTarget(Builder $query, $target): Builder
     {
@@ -101,7 +110,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by context.
      *
+     * @param  Builder<static>  $query
      * @param  string|Context  $context  The Context ID or Context model instance
+     * @return Builder<static>
      */
     public function scopeInContext(Builder $query, $context): Builder
     {
@@ -113,7 +124,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links involving a specific item (as either source or target).
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $item  The Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeInvolvingItem(Builder $query, $item): Builder
     {

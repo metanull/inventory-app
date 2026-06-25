@@ -33,11 +33,13 @@ final class GlossaryIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\Glossary> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\Glossary> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);
@@ -50,6 +52,9 @@ final class GlossaryIndexQuery
             ->orderBy('glossaries.id');
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function mapEagerLoads(): array
     {
         return array_map(

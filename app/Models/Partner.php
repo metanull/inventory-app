@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Partner extends Model
 {
+    /** @use HasFactory<\Database\Factories\PartnerFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -102,6 +103,8 @@ class Partner extends Model
 
     /**
      * Get the monument item this partner is linked to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function monumentItem(): BelongsTo
     {
@@ -120,6 +123,8 @@ class Partner extends Model
 
     /**
      * Get the images for this partner.
+     *
+     * @return HasMany<PartnerImage, $this>
      */
     public function partnerImages(): HasMany
     {
@@ -128,6 +133,8 @@ class Partner extends Model
 
     /**
      * Get the logos for this partner.
+     *
+     * @return HasMany<PartnerLogo, $this>
      */
     public function partnerLogos(): HasMany
     {
@@ -136,6 +143,8 @@ class Partner extends Model
 
     /**
      * Get the collections this partner is associated with.
+     *
+     * @return BelongsToMany<Collection, $this>
      */
     public function collections(): BelongsToMany
     {
@@ -148,10 +157,10 @@ class Partner extends Model
     /**
      * Scope a query to only include visible partners.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeVisible($query)
+    public function scopeVisible(Builder $query): Builder
     {
         return $query->where('visible', true);
     }

@@ -62,9 +62,10 @@ class UpdateItemTranslationRequest extends FormRequest
      * Add uniqueness validation for the combination of item_id, language_id, and context_id.
      * Exclude the current translation from the uniqueness check.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
+            /** @var \App\Models\ItemTranslation|null $itemTranslation */
             $itemTranslation = $this->route('item_translation');
 
             if (! $itemTranslation) {

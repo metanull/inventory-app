@@ -34,11 +34,13 @@ final class TagIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\Tag> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\Tag> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

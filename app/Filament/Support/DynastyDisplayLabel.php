@@ -104,11 +104,11 @@ class DynastyDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $dynasty = Dynasty::find($value);
-        if (! $dynasty) {
+        if (! $dynasty instanceof Dynasty) {
             return (string) $value;
         }
 

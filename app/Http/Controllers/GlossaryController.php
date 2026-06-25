@@ -16,7 +16,7 @@ class GlossaryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossaryRequest $request)
+    public function index(IndexGlossaryRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class GlossaryController extends Controller
      *
      * @return GlossaryResource
      */
-    public function store(StoreGlossaryRequest $request)
+    public function store(StoreGlossaryRequest $request): GlossaryResource
     {
         $validated = $request->validated();
         $glossary = Glossary::create($validated);
@@ -49,7 +49,7 @@ class GlossaryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowGlossaryRequest $request, Glossary $glossary)
+    public function show(ShowGlossaryRequest $request, Glossary $glossary): GlossaryResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -64,7 +64,7 @@ class GlossaryController extends Controller
      *
      * @return GlossaryResource
      */
-    public function update(UpdateGlossaryRequest $request, Glossary $glossary)
+    public function update(UpdateGlossaryRequest $request, Glossary $glossary): GlossaryResource
     {
         $validated = $request->validated();
         $glossary->update($validated);
@@ -76,7 +76,7 @@ class GlossaryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Glossary $glossary)
+    public function destroy(Glossary $glossary): \Illuminate\Http\Response
     {
         $glossary->delete();
 
@@ -115,7 +115,7 @@ class GlossaryController extends Controller
      *
      * @return GlossaryResource
      */
-    public function detachSynonym(DetachGlossarySynonymRequest $request, Glossary $glossary)
+    public function detachSynonym(DetachGlossarySynonymRequest $request, Glossary $glossary): GlossaryResource
     {
         $validated = $request->validated();
         $synonymId = $validated['synonym_id'];

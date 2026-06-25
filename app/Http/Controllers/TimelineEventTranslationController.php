@@ -14,7 +14,7 @@ class TimelineEventTranslationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTimelineEventTranslationRequest $request)
+    public function store(StoreTimelineEventTranslationRequest $request): TimelineEventTranslationResource
     {
         $validated = $request->validated();
         $translation = TimelineEventTranslation::create($validated);
@@ -28,7 +28,7 @@ class TimelineEventTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(TimelineEventTranslation $timelineEventTranslation)
+    public function show(TimelineEventTranslation $timelineEventTranslation): TimelineEventTranslationResource
     {
         return new TimelineEventTranslationResource($timelineEventTranslation);
     }
@@ -36,7 +36,7 @@ class TimelineEventTranslationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTimelineEventTranslationRequest $request, TimelineEventTranslation $timelineEventTranslation)
+    public function update(UpdateTimelineEventTranslationRequest $request, TimelineEventTranslation $timelineEventTranslation): TimelineEventTranslationResource
     {
         $validated = $request->validated();
         $timelineEventTranslation->update($validated);
@@ -50,7 +50,7 @@ class TimelineEventTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEventTranslation $timelineEventTranslation)
+    public function destroy(TimelineEventTranslation $timelineEventTranslation): \Illuminate\Http\Response
     {
         $timelineEventTranslation->delete();
 

@@ -150,11 +150,11 @@ class PartnerDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $partner = Partner::find($value);
-        if (! $partner) {
+        if (! $partner instanceof Partner) {
             return (string) $value;
         }
 

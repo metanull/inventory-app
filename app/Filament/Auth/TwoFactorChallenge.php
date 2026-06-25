@@ -188,6 +188,7 @@ class TwoFactorChallenge extends SimplePage
         $verified = false;
 
         if ($recoveryCode !== '') {
+            /** @var \Illuminate\Support\Collection<int, string> $recoveryCodes */
             $recoveryCodes = collect($user->recoveryCodes());
             $matched = $recoveryCodes->first(fn ($rc) => hash_equals($rc, $recoveryCode));
 

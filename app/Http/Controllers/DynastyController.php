@@ -16,7 +16,7 @@ class DynastyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexDynastyRequest $request)
+    public function index(IndexDynastyRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class DynastyController extends Controller
      *
      * @return DynastyResource
      */
-    public function store(StoreDynastyRequest $request)
+    public function store(StoreDynastyRequest $request): DynastyResource
     {
         $validated = $request->validated();
         $dynasty = Dynasty::create($validated);
@@ -51,7 +51,7 @@ class DynastyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowDynastyRequest $request, Dynasty $dynasty)
+    public function show(ShowDynastyRequest $request, Dynasty $dynasty): DynastyResource
     {
         $includes = $request->getIncludeParams();
         $dynasty->load($includes);
@@ -64,7 +64,7 @@ class DynastyController extends Controller
      *
      * @return DynastyResource
      */
-    public function update(UpdateDynastyRequest $request, Dynasty $dynasty)
+    public function update(UpdateDynastyRequest $request, Dynasty $dynasty): DynastyResource
     {
         $validated = $request->validated();
         $dynasty->update($validated);
@@ -78,7 +78,7 @@ class DynastyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Dynasty $dynasty)
+    public function destroy(Dynasty $dynasty): \Illuminate\Http\Response
     {
         $dynasty->delete();
 

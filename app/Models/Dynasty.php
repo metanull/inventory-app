@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Dynasty extends Model
 {
+    /** @use HasFactory<\Database\Factories\DynastyFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -48,6 +49,8 @@ class Dynasty extends Model
 
     /**
      * Get the items associated with this dynasty.
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {

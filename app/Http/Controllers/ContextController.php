@@ -16,7 +16,7 @@ class ContextController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContextRequest $request)
+    public function index(IndexContextRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class ContextController extends Controller
      *
      * @return ContextResource
      */
-    public function store(StoreContextRequest $request)
+    public function store(StoreContextRequest $request): ContextResource
     {
         $validated = $request->validated();
         $context = Context::create($validated);
@@ -49,7 +49,7 @@ class ContextController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContextRequest $request, Context $context)
+    public function show(ShowContextRequest $request, Context $context): ContextResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -64,7 +64,7 @@ class ContextController extends Controller
      *
      * @return ContextResource
      */
-    public function update(UpdateContextRequest $request, Context $context)
+    public function update(UpdateContextRequest $request, Context $context): ContextResource
     {
         $validated = $request->validated();
         $context->update($validated);
@@ -76,7 +76,7 @@ class ContextController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Context $context)
+    public function destroy(Context $context): \Illuminate\Http\Response
     {
         $context->delete();
 
@@ -88,7 +88,7 @@ class ContextController extends Controller
      *
      * @return ContextResource
      */
-    public function setDefault(SetDefaultContextRequest $request, Context $context)
+    public function setDefault(SetDefaultContextRequest $request, Context $context): ContextResource
     {
         $validated = $request->validated();
 
@@ -105,7 +105,7 @@ class ContextController extends Controller
     /**
      * Clear the default flag from any context.
      */
-    public function clearDefault()
+    public function clearDefault(): MessageResource
     {
         Context::clearDefault();
 
@@ -115,7 +115,7 @@ class ContextController extends Controller
     /**
      * Get the default context.
      */
-    public function getDefault()
+    public function getDefault(): ContextResource|\Illuminate\Http\JsonResponse
     {
         $context = Context::default()->first();
         if (! $context) {

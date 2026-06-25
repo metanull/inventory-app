@@ -102,6 +102,9 @@ class AppServiceProvider extends ServiceProvider
             if (file_exists($versionPath)) {
                 try {
                     $content = file_get_contents($versionPath);
+                    if ($content === false) {
+                        throw new \RuntimeException("Cannot read {$versionPath}");
+                    }
 
                     // Remove UTF-8 BOM if present
                     if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
@@ -125,6 +128,9 @@ class AppServiceProvider extends ServiceProvider
                 if (file_exists($packagePath)) {
                     try {
                         $packageContent = file_get_contents($packagePath);
+                        if ($packageContent === false) {
+                            throw new \RuntimeException("Cannot read {$packagePath}");
+                        }
                         $packageData = json_decode($packageContent, true);
                         if (json_last_error() === JSON_ERROR_NONE && is_array($packageData) && isset($packageData['version'])) {
                             $info['app_version'] = $packageData['version'];

@@ -34,6 +34,7 @@ final class GlossaryTranslationIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\GlossaryTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('glossary_translations.glossary_id', $state->filters['glossary_id']);
@@ -43,6 +44,7 @@ final class GlossaryTranslationIndexQuery
         }
     }
 
+    /** @param Builder<\App\Models\GlossaryTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

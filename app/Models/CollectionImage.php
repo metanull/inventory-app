@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CollectionImage extends Model implements StreamableImageFile, DetachableImage
 {
+    /** @use HasFactory<\Database\Factories\CollectionImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
@@ -55,6 +56,8 @@ class CollectionImage extends Model implements StreamableImageFile, DetachableIm
 
     /**
      * Get the collection this image belongs to.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -63,6 +66,8 @@ class CollectionImage extends Model implements StreamableImageFile, DetachableIm
 
     /**
      * Get the tags associated with this collection image.
+     *
+     * @return BelongsToMany<Tag, $this>
      */
     public function tags(): BelongsToMany
     {
@@ -72,7 +77,9 @@ class CollectionImage extends Model implements StreamableImageFile, DetachableIm
     /**
      * Scope to get collection images that have a specific tag.
      *
+     * @param  Builder<static>  $query
      * @param  string  $tagInternalName  The tag's internal_name
+     * @return Builder<static>
      */
     public function scopeWithTag(Builder $query, string $tagInternalName): Builder
     {
@@ -84,7 +91,9 @@ class CollectionImage extends Model implements StreamableImageFile, DetachableIm
     /**
      * Scope to get collection images that do not have a specific tag.
      *
+     * @param  Builder<static>  $query
      * @param  string  $tagInternalName  The tag's internal_name
+     * @return Builder<static>
      */
     public function scopeWithoutTag(Builder $query, string $tagInternalName): Builder
     {

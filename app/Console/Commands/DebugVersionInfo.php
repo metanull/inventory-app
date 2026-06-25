@@ -11,7 +11,7 @@ class DebugVersionInfo extends Command
 
     protected $description = 'Debug version information loading';
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('=== Laravel Application Version Debug ===');
         $this->newLine();

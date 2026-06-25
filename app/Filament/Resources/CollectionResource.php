@@ -82,6 +82,10 @@ class CollectionResource extends Resource
         return 'Collections';
     }
 
+    /**
+     * @param Builder<\App\Models\Collection> $query
+     * @return Builder<\App\Models\Collection>
+     */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
         /** @var Builder<\App\Models\Collection> $q */
@@ -90,6 +94,10 @@ class CollectionResource extends Resource
         return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
+    /**
+     * @param Builder<\App\Models\Collection> $query
+     * @return array<string, string>
+     */
     protected static function changeParentSearchResults(Builder $query): array
     {
         /** @var Builder<\App\Models\Collection> $query */

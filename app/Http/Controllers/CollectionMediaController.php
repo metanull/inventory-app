@@ -13,7 +13,7 @@ class CollectionMediaController extends Controller
     /**
      * Display a listing of collection media for a specific collection.
      */
-    public function index(Collection $collection)
+    public function index(Collection $collection): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $collectionMedia = $collection->collectionMedia()->orderBy('type')->orderBy('display_order')->get();
 
@@ -23,7 +23,7 @@ class CollectionMediaController extends Controller
     /**
      * Store a newly created collection media.
      */
-    public function store(StoreCollectionMediaRequest $request, Collection $collection)
+    public function store(StoreCollectionMediaRequest $request, Collection $collection): CollectionMediaResource
     {
         $validated = $request->validated();
         $validated['collection_id'] = $collection->id;
@@ -40,7 +40,7 @@ class CollectionMediaController extends Controller
     /**
      * Display the specified collection media.
      */
-    public function show(CollectionMedia $collectionMedia)
+    public function show(CollectionMedia $collectionMedia): CollectionMediaResource
     {
         return new CollectionMediaResource($collectionMedia);
     }
@@ -48,7 +48,7 @@ class CollectionMediaController extends Controller
     /**
      * Update the specified collection media.
      */
-    public function update(UpdateCollectionMediaRequest $request, CollectionMedia $collectionMedia)
+    public function update(UpdateCollectionMediaRequest $request, CollectionMedia $collectionMedia): CollectionMediaResource
     {
         $validated = $request->validated();
         $collectionMedia->update($validated);
@@ -60,7 +60,7 @@ class CollectionMediaController extends Controller
     /**
      * Move collection media up in display order.
      */
-    public function moveUp(CollectionMedia $collectionMedia)
+    public function moveUp(CollectionMedia $collectionMedia): CollectionMediaResource
     {
         $collectionMedia->moveUp();
         $collectionMedia->refresh();
@@ -71,7 +71,7 @@ class CollectionMediaController extends Controller
     /**
      * Move collection media down in display order.
      */
-    public function moveDown(CollectionMedia $collectionMedia)
+    public function moveDown(CollectionMedia $collectionMedia): CollectionMediaResource
     {
         $collectionMedia->moveDown();
         $collectionMedia->refresh();
@@ -82,7 +82,7 @@ class CollectionMediaController extends Controller
     /**
      * Remove the specified collection media.
      */
-    public function destroy(CollectionMedia $collectionMedia)
+    public function destroy(CollectionMedia $collectionMedia): \Illuminate\Http\Response
     {
         $collectionMedia->delete();
 

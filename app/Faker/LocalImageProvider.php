@@ -25,6 +25,8 @@ class LocalImageProvider extends Base
 {
     /**
      * Array of available local seed images
+     *
+     * @var array<int, string>
      */
     protected static array $seedImages = [
         'alan_haverty.jpg',
@@ -93,7 +95,7 @@ class LocalImageProvider extends Base
      * @param  string  $disk  Storage disk to save the image
      * @param  string|null  $directory  Directory to save the image in
      * @param  string|null  $seed  Optional seed for deterministic image selection
-     * @param  array  $options  Additional options (ignored for compatibility)
+     * @param  array<string, mixed>  $options  Additional options (ignored for compatibility)
      * @return string The path where the image is stored (relative to the disk root)
      *
      * @throws \RuntimeException If the source image cannot be found or copied

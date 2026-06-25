@@ -16,7 +16,7 @@ class TagController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexTagRequest $request)
+    public function index(IndexTagRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
         $paginator = Tag::query()->paginate(
@@ -34,7 +34,7 @@ class TagController extends Controller
      *
      * @return TagResource
      */
-    public function store(StoreTagRequest $request)
+    public function store(StoreTagRequest $request): TagResource
     {
         $validated = $request->validated();
         $tag = Tag::create($validated);
@@ -46,7 +46,7 @@ class TagController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowTagRequest $request, Tag $tag)
+    public function show(ShowTagRequest $request, Tag $tag): TagResource
     {
         return new TagResource($tag);
     }
@@ -56,7 +56,7 @@ class TagController extends Controller
      *
      * @return TagResource
      */
-    public function update(UpdateTagRequest $request, Tag $tag)
+    public function update(UpdateTagRequest $request, Tag $tag): TagResource
     {
         $validated = $request->validated();
         $tag->update($validated);
@@ -68,7 +68,7 @@ class TagController extends Controller
     /**
      * Get tags for a specific item.
      */
-    public function forItem(IndexTagForItemRequest $request, Item $item)
+    public function forItem(IndexTagForItemRequest $request, Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
         $paginator = Tag::forItem($item)->paginate(
@@ -84,7 +84,7 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag)
+    public function destroy(Tag $tag): \Illuminate\Http\Response
     {
         $tag->delete();
 

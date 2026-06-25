@@ -85,7 +85,7 @@ class AttachedRegistryAudit extends Command
         }
 
         if ($this->option('json')) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'registry_valid' => true,
                 'has_issues' => $hasIssues,
                 'models' => $results,

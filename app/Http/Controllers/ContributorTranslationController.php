@@ -16,7 +16,7 @@ class ContributorTranslationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorTranslationRequest $request)
+    public function index(IndexContributorTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class ContributorTranslationController extends Controller
      *
      * @return ContributorTranslationResource
      */
-    public function store(StoreContributorTranslationRequest $request)
+    public function store(StoreContributorTranslationRequest $request): ContributorTranslationResource
     {
         $validated = $request->validated();
         $contributorTranslation = ContributorTranslation::create($validated);
@@ -51,7 +51,7 @@ class ContributorTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContributorTranslationRequest $request, ContributorTranslation $contributorTranslation)
+    public function show(ShowContributorTranslationRequest $request, ContributorTranslation $contributorTranslation): ContributorTranslationResource
     {
         $includes = $request->getIncludeParams();
         $contributorTranslation->load($includes);
@@ -64,7 +64,7 @@ class ContributorTranslationController extends Controller
      *
      * @return ContributorTranslationResource
      */
-    public function update(UpdateContributorTranslationRequest $request, ContributorTranslation $contributorTranslation)
+    public function update(UpdateContributorTranslationRequest $request, ContributorTranslation $contributorTranslation): ContributorTranslationResource
     {
         $validated = $request->validated();
         $contributorTranslation->update($validated);
@@ -78,7 +78,7 @@ class ContributorTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorTranslation $contributorTranslation)
+    public function destroy(ContributorTranslation $contributorTranslation): \Illuminate\Http\Response
     {
         $contributorTranslation->delete();
 

@@ -36,7 +36,7 @@ class RoleManagementController extends Controller
     /**
      * Show the form for creating a new role.
      */
-    public function create()
+    public function create(): View
     {
         $permissions = Permission::all();
 
@@ -46,7 +46,7 @@ class RoleManagementController extends Controller
     /**
      * Store a newly created role.
      */
-    public function store(StoreRoleManagementRequest $request)
+    public function store(StoreRoleManagementRequest $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
 
@@ -68,7 +68,7 @@ class RoleManagementController extends Controller
     /**
      * Display the specified role.
      */
-    public function show(Role $role)
+    public function show(Role $role): View
     {
         $role->load('permissions', 'users');
 
@@ -78,7 +78,7 @@ class RoleManagementController extends Controller
     /**
      * Show the form for editing the specified role.
      */
-    public function edit(Role $role)
+    public function edit(Role $role): View
     {
         $permissions = Permission::all();
         $role->load('permissions');
@@ -89,7 +89,7 @@ class RoleManagementController extends Controller
     /**
      * Update the specified role.
      */
-    public function update(UpdateRoleManagementRequest $request, Role $role)
+    public function update(UpdateRoleManagementRequest $request, Role $role): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
 
@@ -113,7 +113,7 @@ class RoleManagementController extends Controller
     /**
      * Remove the specified role.
      */
-    public function destroy(Role $role)
+    public function destroy(Role $role): \Illuminate\Http\RedirectResponse
     {
         // Check if role has users assigned
         if ($role->users()->count() > 0) {
@@ -130,7 +130,7 @@ class RoleManagementController extends Controller
     /**
      * Show the permissions management page for a role.
      */
-    public function permissions(Role $role)
+    public function permissions(Role $role): View
     {
         $role->load('permissions', 'users');
         $permissions = Permission::all();
@@ -141,7 +141,7 @@ class RoleManagementController extends Controller
     /**
      * Update the permissions for a role.
      */
-    public function updatePermissions(UpdatePermissionsRoleManagementRequest $request, Role $role)
+    public function updatePermissions(UpdatePermissionsRoleManagementRequest $request, Role $role): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validated();
 

@@ -20,7 +20,7 @@ class ItemImageController extends Controller
     /**
      * Display a listing of item images for a specific item.
      */
-    public function index(IndexItemImageRequest $request, Item $item)
+    public function index(IndexItemImageRequest $request, Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $itemImages = $item->itemImages()->orderBy('display_order');
@@ -35,7 +35,7 @@ class ItemImageController extends Controller
     /**
      * Store a newly created item image.
      */
-    public function store(StoreItemImageRequest $request, Item $item)
+    public function store(StoreItemImageRequest $request, Item $item): ItemImageResource
     {
         $validated = $request->validated();
         $validated['item_id'] = $item->id;
@@ -49,7 +49,7 @@ class ItemImageController extends Controller
     /**
      * Display the specified item image.
      */
-    public function show(ShowItemImageRequest $request, ItemImage $itemImage)
+    public function show(ShowItemImageRequest $request, ItemImage $itemImage): ItemImageResource
     {
         $includes = $request->getIncludeParams();
 
@@ -63,7 +63,7 @@ class ItemImageController extends Controller
     /**
      * Update the specified item image.
      */
-    public function update(UpdateItemImageRequest $request, ItemImage $itemImage)
+    public function update(UpdateItemImageRequest $request, ItemImage $itemImage): ItemImageResource
     {
         $validated = $request->validated();
         $itemImage->update($validated);
@@ -79,7 +79,7 @@ class ItemImageController extends Controller
     /**
      * Move item image up in display order.
      */
-    public function moveUp(ItemImage $itemImage)
+    public function moveUp(ItemImage $itemImage): ItemImageResource
     {
         $itemImage->moveUp();
 
@@ -92,7 +92,7 @@ class ItemImageController extends Controller
     /**
      * Move item image down in display order.
      */
-    public function moveDown(ItemImage $itemImage)
+    public function moveDown(ItemImage $itemImage): ItemImageResource
     {
         $itemImage->moveDown();
 
@@ -105,7 +105,7 @@ class ItemImageController extends Controller
     /**
      * Tighten ordering for all images of the item.
      */
-    public function tightenOrdering(ItemImage $itemImage)
+    public function tightenOrdering(ItemImage $itemImage): OperationSuccessResource
     {
         $itemImage->tightenOrderingForItem();
 
@@ -120,11 +120,11 @@ class ItemImageController extends Controller
      *
      * @return ItemImageResource
      */
-    public function attachFromAvailable(AttachFromAvailableItemImageRequest $request, Item $item)
+    public function attachFromAvailable(AttachFromAvailableItemImageRequest $request, Item $item): ItemImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
         $itemImage = ItemImage::attachFromAvailableImage($availableImage, $item->id, $validated['alt_text'] ?? null);
 
         $includes = $request->getIncludeParams();
@@ -138,7 +138,7 @@ class ItemImageController extends Controller
     /**
      * Detach an item image and convert it back to available image.
      */
-    public function detachToAvailable(ItemImage $itemImage)
+    public function detachToAvailable(ItemImage $itemImage): OperationSuccessResource
     {
         $availableImage = $itemImage->detachToAvailableImage();
 
@@ -152,7 +152,7 @@ class ItemImageController extends Controller
     /**
      * Remove the specified item image.
      */
-    public function destroy(ItemImage $itemImage)
+    public function destroy(ItemImage $itemImage): \Illuminate\Http\Response
     {
         $itemImage->delete();
 
@@ -162,7 +162,7 @@ class ItemImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(ItemImage $itemImage)
+    public function download(ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
     {
         return new DownloadImageResponse($itemImage);
     }
@@ -170,7 +170,7 @@ class ItemImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(ItemImage $itemImage)
+    public function view(ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
     {
         return new InlineImageResponse($itemImage);
     }

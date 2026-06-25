@@ -150,7 +150,8 @@ class ItemController extends Controller
 
         // Prevent circular references by checking if the potential parent
         // has this item anywhere in its ancestry chain
-        $potentialParent = Item::findOrFail($request->parent_id);
+        /** @var \App\Models\Item $potentialParent */
+        $potentialParent = Item::findOrFail((string) $request->input('parent_id'));
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $item->id) {
@@ -158,13 +159,14 @@ class ItemController extends Controller
                     ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
                     ->withInput();
             }
-            $ancestor = Item::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Item::find($ancestor->parent_id);
+            if (! $next instanceof Item) {
                 break;
             }
+            $ancestor = $next;
         }
 
-        $item->update(['parent_id' => $request->parent_id]);
+        $item->update(['parent_id' => $request->input('parent_id')]);
 
         return redirect()->route('items.show', $item)
             ->with('success', 'Parent set successfully');
@@ -191,7 +193,8 @@ class ItemController extends Controller
                 ->withInput();
         }
 
-        $child = Item::findOrFail($request->child_id);
+        /** @var \App\Models\Item $child */
+        $child = Item::findOrFail((string) $request->input('child_id'));
 
         // Check if already a child (idempotent)
         if ($child->parent_id === $item->id) {
@@ -207,10 +210,11 @@ class ItemController extends Controller
                     ->withErrors(['child_id' => 'Cannot create circular child relationship'])
                     ->withInput();
             }
-            $ancestor = Item::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Item::find($ancestor->parent_id);
+            if (! $next instanceof Item) {
                 break;
             }
+            $ancestor = $next;
         }
 
         $child->update(['parent_id' => $item->id]);
@@ -233,6 +237,9 @@ class ItemController extends Controller
             ->with('success', 'Child relationship removed successfully');
     }
 
+    /**
+     * @return array<int, array{label: string, url: string}>
+     */
     private function buildAncestorBreadcrumbs(Item $item): array
     {
         $breadcrumbs = [];

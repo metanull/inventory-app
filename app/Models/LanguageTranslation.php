@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LanguageTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\LanguageTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -61,6 +62,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -71,6 +74,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the language being translated.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -79,6 +84,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the language this translation is displayed in.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function displayLanguage(): BelongsTo
     {
@@ -88,11 +95,11 @@ class LanguageTranslation extends Model
     /**
      * Scope a query to only include translations displayed in a specific language.
      *
-     * @param  Builder  $query
+     * @param  Builder<static>  $query
      * @param  string  $displayLanguageId
-     * @return Builder
+     * @return Builder<static>
      */
-    public function scopeForDisplayLanguage($query, $displayLanguageId)
+    public function scopeForDisplayLanguage(Builder $query, string $displayLanguageId): Builder
     {
         return $query->where('display_language_id', $displayLanguageId);
     }

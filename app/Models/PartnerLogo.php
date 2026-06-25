@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PartnerLogo extends Model implements StreamableImageFile
 {
+    /** @use HasFactory<\Database\Factories\PartnerLogoFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
@@ -52,6 +53,8 @@ class PartnerLogo extends Model implements StreamableImageFile
 
     /**
      * Get the partner this logo belongs to.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {

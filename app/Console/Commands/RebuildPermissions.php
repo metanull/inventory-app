@@ -26,7 +26,7 @@ class RebuildPermissions extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         if (! $this->option('force')) {
             if (! $this->confirm('This will clear all existing roles and permissions. Do you want to continue?')) {

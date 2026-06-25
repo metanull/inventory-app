@@ -38,6 +38,7 @@ final class PartnerTranslationIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\PartnerTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('partner_translations.partner_id', $state->filters['partner_id']);
@@ -51,11 +52,13 @@ final class PartnerTranslationIndexQuery
         }
     }
 
+    /** @param Builder<\App\Models\PartnerTranslation> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\PartnerTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

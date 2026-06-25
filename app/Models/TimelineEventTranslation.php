@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
  */
 class TimelineEventTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\TimelineEventTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -102,6 +103,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -112,6 +115,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the timeline event that owns the translation.
+     *
+     * @return BelongsTo<TimelineEvent, $this>
      */
     public function timelineEvent(): BelongsTo
     {
@@ -120,6 +125,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -128,6 +135,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the glossary spellings linked to this timeline event translation.
+     *
+     * @return BelongsToMany<GlossarySpelling, $this>
      */
     public function spellings(): BelongsToMany
     {
@@ -137,6 +146,9 @@ class TimelineEventTranslation extends Model
 
     /**
      * Scope a query to only include translations for a specific language.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
     {

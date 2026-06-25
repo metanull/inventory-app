@@ -35,16 +35,19 @@ final class PartnerTranslationImageIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('partner_translation_images.partner_translation_id', $state->filters['partner_translation_id']);
     }
 
+    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

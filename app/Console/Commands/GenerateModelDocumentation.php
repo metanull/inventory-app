@@ -28,7 +28,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $outputPath = base_path('docs/_model/index.md');
 
@@ -67,6 +67,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get all model classes from the app/Models directory
+     *
+     * @return array<int, string>
      */
     private function getAllModels(): array
     {
@@ -100,6 +102,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Generate the complete documentation
+     *
+     * @param array<int, string> $models
      */
     private function generateDocumentation(array $models): string
     {
@@ -152,6 +156,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Generate documentation for a single model
+     *
+     * @return array<string, mixed>
      */
     private function generateModelDocumentation(string $modelClass): array
     {
@@ -162,6 +168,7 @@ class GenerateModelDocumentation extends Command
         try {
             /** @var Model $model */
             $model = new $modelClass;
+            /** @var class-string $modelClass */
             $reflection = new ReflectionClass($modelClass);
 
             // Model header
@@ -292,6 +299,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get column details from database schema
+     *
+     * @return array<string, mixed>
      */
     private function getColumnDetails(string $tableName, string $columnName): array
     {
@@ -318,6 +327,9 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get model relationships using reflection
+     *
+     * @param ReflectionClass<object> $reflection
+     * @return array<string, mixed>
      */
     private function getModelRelationships(Model $model, ReflectionClass $reflection): array
     {
@@ -398,6 +410,9 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get model scopes using reflection
+     *
+     * @param ReflectionClass<object> $reflection
+     * @return array<string, mixed>
      */
     private function getModelScopes(ReflectionClass $reflection): array
     {

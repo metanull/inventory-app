@@ -68,6 +68,10 @@ class GlossaryResource extends Resource
      * Glossary translations are language-only (no context_id column).
      * Override the shared withFallbackExists to check only the default language.
      */
+    /**
+     * @param Builder<\App\Models\Glossary> $query
+     * @return Builder<\App\Models\Glossary>
+     */
     protected static function withFallbackExists(Builder $query): Builder
     {
         return $query->withExists([
@@ -79,6 +83,9 @@ class GlossaryResource extends Resource
     /**
      * Glossary translations are language-only (no context_id column).
      * Override to exclude context-based filters that would produce SQL errors.
+     */
+    /**
+     * @return array<int, \Filament\Tables\Filters\BaseFilter>
      */
     protected static function translationCoverageFilters(): array
     {

@@ -16,7 +16,7 @@ class AuthorTranslationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAuthorTranslationRequest $request)
+    public function index(IndexAuthorTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class AuthorTranslationController extends Controller
      *
      * @return AuthorTranslationResource
      */
-    public function store(StoreAuthorTranslationRequest $request)
+    public function store(StoreAuthorTranslationRequest $request): AuthorTranslationResource
     {
         $validated = $request->validated();
         $authorTranslation = AuthorTranslation::create($validated);
@@ -51,7 +51,7 @@ class AuthorTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowAuthorTranslationRequest $request, AuthorTranslation $authorTranslation)
+    public function show(ShowAuthorTranslationRequest $request, AuthorTranslation $authorTranslation): AuthorTranslationResource
     {
         $includes = $request->getIncludeParams();
         $authorTranslation->load($includes);
@@ -64,7 +64,7 @@ class AuthorTranslationController extends Controller
      *
      * @return AuthorTranslationResource
      */
-    public function update(UpdateAuthorTranslationRequest $request, AuthorTranslation $authorTranslation)
+    public function update(UpdateAuthorTranslationRequest $request, AuthorTranslation $authorTranslation): AuthorTranslationResource
     {
         $validated = $request->validated();
         $authorTranslation->update($validated);
@@ -78,7 +78,7 @@ class AuthorTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AuthorTranslation $authorTranslation)
+    public function destroy(AuthorTranslation $authorTranslation): \Illuminate\Http\Response
     {
         $authorTranslation->delete();
 

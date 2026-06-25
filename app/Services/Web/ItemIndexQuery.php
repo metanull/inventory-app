@@ -94,6 +94,7 @@ final class ItemIndexQuery
         }
     }
 
+    /** @param Builder<\App\Models\Item> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

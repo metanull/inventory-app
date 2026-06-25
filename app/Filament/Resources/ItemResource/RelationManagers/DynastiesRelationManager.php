@@ -56,9 +56,12 @@ class DynastiesRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordSelectSearchColumns(['backward_compatibility'])
-                    ->recordSelectOptionsQuery(fn ($query) => DynastyDisplayLabel::withDisplayLabel(
-                        $query->orderBy('from_ad')
-                    )),
+                    ->recordSelectOptionsQuery(function ($query) {
+                        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Dynasty> $query */
+                        return DynastyDisplayLabel::withDisplayLabel(
+                            $query->orderBy('from_ad')
+                        );
+                    }),
             ])
             ->actions([
                 DetachAction::make(),

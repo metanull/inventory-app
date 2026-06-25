@@ -53,7 +53,7 @@ class GetImageStoragePath extends Command
         $fullPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $fullPath);
 
         if ($this->option('json')) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'type' => $type,
                 'disk' => $disk,
                 'directory' => $directory,

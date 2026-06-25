@@ -6,6 +6,7 @@ use Livewire\Component;
 
 class KeyValueEditor extends Component
 {
+    /** @var array<int, array{key: string, value: string}> */
     public array $pairs = [];
 
     public string $componentName = '';
@@ -35,6 +36,10 @@ class KeyValueEditor extends Component
         }
     }
 
+    /**
+     * @param array<string, mixed>|null $data
+     * @return array<int, array{key: string, value: string}>
+     */
     public function jsonToArray(?array $data): array
     {
         if (! $data) {
@@ -52,7 +57,7 @@ class KeyValueEditor extends Component
         return $result;
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         return view('livewire.key-value-editor');
     }

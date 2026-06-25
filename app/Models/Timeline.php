@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timeline extends Model
 {
+    /** @use HasFactory<\Database\Factories\TimelineFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -37,6 +38,8 @@ class Timeline extends Model
 
     /**
      * Get the country for this timeline.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -45,6 +48,8 @@ class Timeline extends Model
 
     /**
      * Get the collection associated with this timeline.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -53,6 +58,8 @@ class Timeline extends Model
 
     /**
      * Get the events for this timeline.
+     *
+     * @return HasMany<TimelineEvent, $this>
      */
     public function events(): HasMany
     {

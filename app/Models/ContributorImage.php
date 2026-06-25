@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ContributorImage extends Model implements StreamableImageFile, DetachableImage
 {
+    /** @use HasFactory<\Database\Factories\ContributorImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -32,6 +33,9 @@ class ContributorImage extends Model implements StreamableImageFile, DetachableI
         'display_order' => 'integer',
     ];
 
+    /**
+     * @return array<int, string>
+     */
     public function uniqueIds(): array
     {
         return ['id'];
@@ -39,6 +43,8 @@ class ContributorImage extends Model implements StreamableImageFile, DetachableI
 
     /**
      * Get the contributor this image belongs to.
+     *
+     * @return BelongsTo<Contributor, $this>
      */
     public function contributor(): BelongsTo
     {

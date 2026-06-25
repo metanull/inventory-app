@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemDocument extends Model
 {
+    /** @use HasFactory<\Database\Factories\ItemDocumentFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -57,6 +58,8 @@ class ItemDocument extends Model
 
     /**
      * Get the item this document belongs to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {
@@ -65,6 +68,8 @@ class ItemDocument extends Model
 
     /**
      * Get the language of this document.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

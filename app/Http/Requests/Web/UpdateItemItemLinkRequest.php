@@ -12,10 +12,17 @@ class UpdateItemItemLinkRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
-        $sourceItemId = $this->route('item')?->id;
-        $linkId = $this->route('itemItemLink')?->id;
+        /** @var \App\Models\Item|null $item */
+        $item = $this->route('item');
+        $sourceItemId = $item?->id;
+        /** @var \App\Models\ItemItemLink|null $itemItemLink */
+        $itemItemLink = $this->route('itemItemLink');
+        $linkId = $itemItemLink?->id;
 
         return [
             'target_id' => [

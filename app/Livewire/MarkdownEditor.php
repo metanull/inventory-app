@@ -65,7 +65,7 @@ class MarkdownEditor extends Component
         return app(MarkdownService::class)->markdownToHtml($this->content);
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         return view('livewire.markdown-editor');
     }

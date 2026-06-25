@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TimelineEvent extends Model
 {
     use HasDisplayOrder;
+    /** @use HasFactory<\Database\Factories\TimelineEventFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -70,6 +71,8 @@ class TimelineEvent extends Model
 
     /**
      * Get the timeline that owns this event.
+     *
+     * @return BelongsTo<Timeline, $this>
      */
     public function timeline(): BelongsTo
     {
@@ -86,6 +89,8 @@ class TimelineEvent extends Model
 
     /**
      * Get the images for this event.
+     *
+     * @return HasMany<TimelineEventImage, $this>
      */
     public function images(): HasMany
     {
@@ -94,6 +99,8 @@ class TimelineEvent extends Model
 
     /**
      * Get the items associated with this event.
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {

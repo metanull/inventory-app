@@ -54,7 +54,7 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexItemRequest $request)
+    public function index(IndexItemRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
@@ -74,7 +74,7 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreItemRequest $request)
+    public function store(StoreItemRequest $request): ItemResource
     {
         $validated = $request->validated();
         $item = Item::create($validated);
@@ -100,7 +100,7 @@ class ItemController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowItemRequest $request, Item $item)
+    public function show(ShowItemRequest $request, Item $item): ItemResource
     {
         $includes = $request->getIncludeParams();
         $item->load($this->expandIncludes($includes));
@@ -111,7 +111,7 @@ class ItemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateItemRequest $request, Item $item)
+    public function update(UpdateItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
         $item->update($validated);
@@ -133,7 +133,7 @@ class ItemController extends Controller
      * @param  Item  $item  - The item to update tags for
      * @return ItemResource - Updated item with current tag associations
      */
-    public function updateTags(UpdateTagsItemRequest $request, Item $item)
+    public function updateTags(UpdateTagsItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
 
@@ -166,7 +166,7 @@ class ItemController extends Controller
      *
      * @return ItemResource
      */
-    public function attachTag(AttachTagItemRequest $request, Item $item)
+    public function attachTag(AttachTagItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
 
@@ -188,7 +188,7 @@ class ItemController extends Controller
      *
      * @return ItemResource
      */
-    public function detachTag(DetachTagItemRequest $request, Item $item)
+    public function detachTag(DetachTagItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
 
@@ -207,7 +207,7 @@ class ItemController extends Controller
      *
      * @return ItemResource
      */
-    public function attachTags(AttachTagsItemRequest $request, Item $item)
+    public function attachTags(AttachTagsItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
 
@@ -232,7 +232,7 @@ class ItemController extends Controller
      *
      * @return ItemResource
      */
-    public function detachTags(DetachTagsItemRequest $request, Item $item)
+    public function detachTags(DetachTagsItemRequest $request, Item $item): ItemResource
     {
         $validated = $request->validated();
 
@@ -251,7 +251,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function forTag(ForTagItemRequest $request, Tag $tag)
+    public function forTag(ForTagItemRequest $request, Tag $tag): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
@@ -265,7 +265,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function withAllTags(WithAllTagsItemRequest $request)
+    public function withAllTags(WithAllTagsItemRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
 
@@ -281,7 +281,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function withAnyTags(WithAnyTagsItemRequest $request)
+    public function withAnyTags(WithAnyTagsItemRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
 
@@ -297,7 +297,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function byType(ByTypeItemRequest $request, string $type)
+    public function byType(ByTypeItemRequest $request, string $type): AnonymousResourceCollection
     {
         $request->validated();
 
@@ -331,7 +331,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function parents(ParentsItemRequest $request)
+    public function parents(ParentsItemRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
@@ -345,7 +345,7 @@ class ItemController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function children(ChildrenItemRequest $request)
+    public function children(ChildrenItemRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $with = $this->expandIncludes($includes);
@@ -357,7 +357,7 @@ class ItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Item $item)
+    public function destroy(Item $item): \Illuminate\Http\Response
     {
         $item->delete();
 

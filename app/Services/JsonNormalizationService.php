@@ -29,7 +29,7 @@ class JsonNormalizationService
         }
 
         if (is_object($value)) {
-            return json_decode(json_encode($value), true) ?? [];
+            return json_decode((string) json_encode($value), true) ?? [];
         }
 
         if (is_string($value)) {

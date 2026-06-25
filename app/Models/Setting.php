@@ -65,7 +65,7 @@ class Setting extends Model
     {
         return match ($type) {
             'boolean' => $value ? 'true' : 'false',
-            'json' => json_encode($value),
+            'json' => (string) json_encode($value),
             default => (string) $value,
         };
     }

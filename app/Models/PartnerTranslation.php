@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
  */
 class PartnerTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\PartnerTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -91,6 +92,8 @@ class PartnerTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -157,6 +160,8 @@ class PartnerTranslation extends Model
 
     /**
      * Get the images for this partner translation.
+     *
+     * @return HasMany<PartnerTranslationImage, $this>
      */
     public function partnerTranslationImages(): HasMany
     {
@@ -194,6 +199,8 @@ class PartnerTranslation extends Model
 
     /**
      * Get sibling translations (other translations of the same partner).
+     *
+     * @return HasMany<PartnerTranslation, $this>
      */
     public function siblingTranslations(): HasMany
     {

@@ -19,7 +19,7 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexProjectRequest $request)
+    public function index(IndexProjectRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -39,7 +39,7 @@ class ProjectController extends Controller
      *
      * @return ProjectResource
      */
-    public function store(StoreProjectRequest $request)
+    public function store(StoreProjectRequest $request): ProjectResource
     {
         $validated = $request->validated();
         $project = Project::create($validated);
@@ -54,7 +54,7 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowProjectRequest $request, Project $project)
+    public function show(ShowProjectRequest $request, Project $project): ProjectResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -69,7 +69,7 @@ class ProjectController extends Controller
      *
      * @return ProjectResource
      */
-    public function update(UpdateProjectRequest $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project): ProjectResource
     {
         $validated = $request->validated();
         $project->update($validated);
@@ -84,7 +84,7 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project)
+    public function destroy(Project $project): \Illuminate\Http\Response
     {
         $project->delete();
 
@@ -96,7 +96,7 @@ class ProjectController extends Controller
      *
      * @return ProjectResource
      */
-    public function setEnabled(SetEnabledProjectRequest $request, Project $project)
+    public function setEnabled(SetEnabledProjectRequest $request, Project $project): ProjectResource
     {
         $validated = $request->validated();
 
@@ -113,7 +113,7 @@ class ProjectController extends Controller
      *
      * @return ProjectResource
      */
-    public function setLaunched(SetLaunchedProjectRequest $request, Project $project)
+    public function setLaunched(SetLaunchedProjectRequest $request, Project $project): ProjectResource
     {
         $validated = $request->validated();
 
@@ -130,7 +130,7 @@ class ProjectController extends Controller
      * - is_launched is true
      * - current date >= launch_date
      */
-    public function enabled(Request $request)
+    public function enabled(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
         $query = Project::visible();

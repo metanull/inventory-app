@@ -35,7 +35,7 @@ class StoreUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             // Check if any of the roles being assigned have sensitive permissions

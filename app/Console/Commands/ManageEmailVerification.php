@@ -46,8 +46,7 @@ class ManageEmailVerification extends Command
         return match ($action) {
             'verify' => $this->verifyUser($user),
             'unverify' => $this->unverifyUser($user),
-            'status' => $this->showStatus($user),
-            default => Command::FAILURE,
+            default => $this->showStatus($user),
         };
     }
 

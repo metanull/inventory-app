@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Glossary extends Model
 {
+    /** @use HasFactory<\Database\Factories\GlossaryFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -101,6 +102,8 @@ class Glossary extends Model
 
     /**
      * Get the translations for this glossary entry.
+     *
+     * @return HasMany<GlossaryTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -119,6 +122,8 @@ class Glossary extends Model
 
     /**
      * Get the synonyms for this glossary entry.
+     *
+     * @return BelongsToMany<Glossary, $this>
      */
     public function synonyms(): BelongsToMany
     {
@@ -128,6 +133,8 @@ class Glossary extends Model
 
     /**
      * Get the reverse synonyms for this glossary entry.
+     *
+     * @return BelongsToMany<Glossary, $this>
      */
     public function reverseSynonyms(): BelongsToMany
     {

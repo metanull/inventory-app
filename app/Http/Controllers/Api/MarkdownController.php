@@ -46,7 +46,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function markdownToHtml(Request $request)
+    public function markdownToHtml(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -105,7 +105,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function htmlToMarkdown(Request $request)
+    public function htmlToMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'html' => [
@@ -178,7 +178,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function validateMarkdown(Request $request)
+    public function validateMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -218,7 +218,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function getAllowedElements()
+    public function getAllowedElements(): ConversionResource
     {
         return new ConversionResource([
             'success' => true,
@@ -235,7 +235,7 @@ class MarkdownController extends Controller
      * Generates an HTML preview of Markdown content for display purposes.
      * This is essentially the same as markdownToHtml but with a different semantic meaning.
      */
-    public function previewMarkdown(Request $request)
+    public function previewMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
     {
         return $this->markdownToHtml($request);
     }
@@ -255,7 +255,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function isMarkdown(Request $request)
+    public function isMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'content' => ['required', 'string'],

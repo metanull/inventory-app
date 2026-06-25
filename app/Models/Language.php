@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Language extends Model
 {
+    /** @use HasFactory<\Database\Factories\LanguageFactory> */
     use HasFactory;
 
     public $incrementing = false; // Disable auto-incrementing
@@ -30,11 +31,19 @@ class Language extends Model
         'is_default',
     ];
 
-    public function scopeEnglish($query)
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeEnglish(Builder $query): Builder
     {
         return $query->where('id', 'eng');
     }
 
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
     public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
@@ -45,6 +54,7 @@ class Language extends Model
     ];
 
     // Mark a single row as the default
+    /** @return static */
     public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -65,6 +75,7 @@ class Language extends Model
     }
 
     // Unmark a single row as the default
+    /** @return static */
     public function unsetDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -92,8 +103,10 @@ class Language extends Model
 
     /**
      * Get the translations for this language (how this language is named in other languages).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<LanguageTranslation, $this>
      */
-    public function translations()
+    public function translations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LanguageTranslation::class, 'language_id');
     }

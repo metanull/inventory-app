@@ -34,11 +34,13 @@ final class ItemItemLinkIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\ItemItemLink> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('item_item_links.source_id', $state->filters['item_id']);
     }
 
+    /** @param Builder<\App\Models\ItemItemLink> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

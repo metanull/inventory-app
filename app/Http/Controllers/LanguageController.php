@@ -16,7 +16,7 @@ class LanguageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexLanguageRequest $request)
+    public function index(IndexLanguageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
 
@@ -36,7 +36,7 @@ class LanguageController extends Controller
      *
      * @return LanguageResource
      */
-    public function store(StoreLanguageRequest $request)
+    public function store(StoreLanguageRequest $request): LanguageResource
     {
         $validated = $request->validated();
         $language = Language::create($validated);
@@ -48,7 +48,7 @@ class LanguageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowLanguageRequest $request, Language $language)
+    public function show(ShowLanguageRequest $request, Language $language): LanguageResource
     {
         return new LanguageResource($language);
     }
@@ -58,7 +58,7 @@ class LanguageController extends Controller
      *
      * @return LanguageResource
      */
-    public function update(UpdateLanguageRequest $request, Language $language)
+    public function update(UpdateLanguageRequest $request, Language $language): LanguageResource
     {
         $validated = $request->validated();
         $language->update($validated);
@@ -70,7 +70,7 @@ class LanguageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Language $language)
+    public function destroy(Language $language): \Illuminate\Http\Response
     {
         $language->delete();
 
@@ -82,7 +82,7 @@ class LanguageController extends Controller
      *
      * @return LanguageResource
      */
-    public function setDefault(SetDefaultLanguageRequest $request, Language $language)
+    public function setDefault(SetDefaultLanguageRequest $request, Language $language): LanguageResource
     {
         $validated = $request->validated();
 
@@ -99,7 +99,7 @@ class LanguageController extends Controller
     /**
      * Clear the default flag from any language.
      */
-    public function clearDefault()
+    public function clearDefault(): MessageResource
     {
         Language::clearDefault();
 
@@ -109,7 +109,7 @@ class LanguageController extends Controller
     /**
      * Get the default Language.
      */
-    public function getDefault()
+    public function getDefault(): LanguageResource|\Illuminate\Http\JsonResponse
     {
         $language = Language::default()->first();
         if (! $language) {
@@ -125,7 +125,7 @@ class LanguageController extends Controller
     /**
      * Get the english Language.
      */
-    public function getEnglish()
+    public function getEnglish(): LanguageResource|\Illuminate\Http\JsonResponse
     {
         $language = Language::english()->first();
         if (! $language) {

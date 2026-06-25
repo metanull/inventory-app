@@ -26,7 +26,7 @@ class TestAvailableImagesCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('=== Testing AvailableImage Model ===');
 
@@ -52,7 +52,7 @@ class TestAvailableImagesCommand extends Command
         $data = $resource->toArray($request);
 
         $this->info('Resource data structure:');
-        $this->line(json_encode($data, JSON_PRETTY_PRINT));
+        $this->line((string) json_encode($data, JSON_PRETTY_PRINT));
 
         return 0;
     }

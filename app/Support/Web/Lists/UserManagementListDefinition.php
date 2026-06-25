@@ -31,6 +31,10 @@ final class UserManagementListDefinition extends ListDefinition
         return ['users.name', 'users.email'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         $role = $this->normalizeNullableString($input['role'] ?? null);

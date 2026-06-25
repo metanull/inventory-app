@@ -16,7 +16,7 @@ class CountryTranslationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexCountryTranslationRequest $request)
+    public function index(IndexCountryTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -37,7 +37,7 @@ class CountryTranslationController extends Controller
      *
      * @return CountryTranslationResource
      */
-    public function store(StoreCountryTranslationRequest $request)
+    public function store(StoreCountryTranslationRequest $request): CountryTranslationResource
     {
         $validated = $request->validated();
         $countryTranslation = CountryTranslation::create($validated);
@@ -51,7 +51,7 @@ class CountryTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowCountryTranslationRequest $request, CountryTranslation $countryTranslation)
+    public function show(ShowCountryTranslationRequest $request, CountryTranslation $countryTranslation): CountryTranslationResource
     {
         $includes = $request->getIncludeParams();
         $countryTranslation->load($includes);
@@ -64,7 +64,7 @@ class CountryTranslationController extends Controller
      *
      * @return CountryTranslationResource
      */
-    public function update(UpdateCountryTranslationRequest $request, CountryTranslation $countryTranslation)
+    public function update(UpdateCountryTranslationRequest $request, CountryTranslation $countryTranslation): CountryTranslationResource
     {
         $validated = $request->validated();
         $countryTranslation->update($validated);
@@ -78,7 +78,7 @@ class CountryTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CountryTranslation $countryTranslation)
+    public function destroy(CountryTranslation $countryTranslation): \Illuminate\Http\Response
     {
         $countryTranslation->delete();
 

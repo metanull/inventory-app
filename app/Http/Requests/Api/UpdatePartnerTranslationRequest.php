@@ -12,8 +12,12 @@ class UpdatePartnerTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var \App\Models\PartnerTranslation|null $partnerTranslation */
         $partnerTranslation = $this->route('partnerTranslation');
 
         $uniqueRule = Rule::unique('partner_translations')

@@ -10,7 +10,7 @@ class WorkshopController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): void
     {
         //
     }
@@ -18,7 +18,7 @@ class WorkshopController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -26,7 +26,7 @@ class WorkshopController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -34,7 +34,7 @@ class WorkshopController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Workshop $workshop)
+    public function show(Workshop $workshop): void
     {
         //
     }
@@ -42,7 +42,7 @@ class WorkshopController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Workshop $workshop)
+    public function edit(Workshop $workshop): void
     {
         //
     }
@@ -50,7 +50,7 @@ class WorkshopController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Workshop $workshop)
+    public function update(Request $request, Workshop $workshop): void
     {
         //
     }
@@ -58,7 +58,7 @@ class WorkshopController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Workshop $workshop)
+    public function destroy(Workshop $workshop): void
     {
         //
     }

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AvailableImage extends Model implements StreamableImageFile
 {
+    /** @use HasFactory<\Database\Factories\AvailableImageFactory> */
     use HasFactory;
     use HasUuids;
 

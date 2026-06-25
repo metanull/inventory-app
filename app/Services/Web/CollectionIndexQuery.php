@@ -64,6 +64,7 @@ final class CollectionIndexQuery
         $query->roots();
     }
 
+    /** @param Builder<\App\Models\Collection> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

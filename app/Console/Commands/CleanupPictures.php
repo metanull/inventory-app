@@ -255,7 +255,7 @@ class CleanupPictures extends Command
         $orphanCount = count($orphans);
 
         if ($json) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'dry_run' => $dryRun,
                 'disk' => $disk,
                 'scanned' => $totalScanned,

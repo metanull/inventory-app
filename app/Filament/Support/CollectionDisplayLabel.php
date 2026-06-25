@@ -145,11 +145,11 @@ class CollectionDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $collection = Collection::find($value);
-        if (! $collection) {
+        if (! $collection instanceof Collection) {
             return (string) $value;
         }
 

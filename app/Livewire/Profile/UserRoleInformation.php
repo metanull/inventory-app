@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class UserRoleInformation extends Component
 {
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $user = Auth::user();
         $roles = $user->roles()->get();

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class GlossaryTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\GlossaryTranslationFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -47,6 +48,8 @@ class GlossaryTranslation extends Model
 
     /**
      * Get the glossary that owns this translation.
+     *
+     * @return BelongsTo<Glossary, $this>
      */
     public function glossary(): BelongsTo
     {
@@ -55,6 +58,8 @@ class GlossaryTranslation extends Model
 
     /**
      * Get the language of this translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -64,11 +69,11 @@ class GlossaryTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  Builder  $query
+     * @param  Builder<static>  $query
      * @param  string  $languageId
-     * @return Builder
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }

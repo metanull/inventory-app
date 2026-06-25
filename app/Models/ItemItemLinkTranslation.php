@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ItemItemLinkTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\ItemItemLinkTranslationFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -51,6 +52,8 @@ class ItemItemLinkTranslation extends Model
 
     /**
      * The item-item link that owns this translation.
+     *
+     * @return BelongsTo<ItemItemLink, $this>
      */
     public function itemItemLink(): BelongsTo
     {
@@ -59,6 +62,8 @@ class ItemItemLinkTranslation extends Model
 
     /**
      * The language of this translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -68,7 +73,9 @@ class ItemItemLinkTranslation extends Model
     /**
      * Scope to filter translations by item-item link.
      *
+     * @param  Builder<static>  $query
      * @param  string|ItemItemLink  $link  The ItemItemLink ID or model instance
+     * @return Builder<static>
      */
     public function scopeForLink(Builder $query, $link): Builder
     {
@@ -80,7 +87,9 @@ class ItemItemLinkTranslation extends Model
     /**
      * Scope to filter translations by language.
      *
+     * @param  Builder<static>  $query
      * @param  string|Language  $language  The Language ID or model instance
+     * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, $language): Builder
     {

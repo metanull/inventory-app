@@ -24,7 +24,7 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request)
+    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
 
@@ -104,7 +104,7 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request)
+    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
 
@@ -165,7 +165,7 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function two_factor_status(TwoFactorStatusMobileAppAuthenticationRequest $request)
+    public function two_factor_status(TwoFactorStatusMobileAppAuthenticationRequest $request): TwoFactorStatusResource
     {
         $validated = $request->validated();
 
@@ -189,7 +189,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Return a 2FA challenge response.
      */
-    protected function requireTwoFactorAuthentication(User $user)
+    protected function requireTwoFactorAuthentication(User $user): \Illuminate\Http\JsonResponse
     {
         return response()->json(
             (new TwoFactorChallengeResource([
@@ -205,7 +205,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Revoke all the token for the current user.
      */
-    public function wipe_tokens(Request $request)
+    public function wipe_tokens(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
     {
         if (! $request->user()) {
             return response()->json(

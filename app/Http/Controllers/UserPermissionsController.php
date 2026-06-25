@@ -14,7 +14,7 @@ class UserPermissionsController extends Controller
      * This is a read-only endpoint for UI clients to determine what features
      * to show to the user.
      */
-    public function index(IndexUserPermissionsRequest $request)
+    public function index(IndexUserPermissionsRequest $request): UserPermissionsResource
     {
         $permissions = $request->user()
             ->getAllPermissions()

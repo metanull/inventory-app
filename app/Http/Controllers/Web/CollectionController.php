@@ -121,7 +121,7 @@ class CollectionController extends Controller
             'item_id' => ['required', 'exists:items,id'],
         ]);
 
-        $item = Item::findOrFail($request->item_id);
+        $item = Item::findOrFail((string) $request->input('item_id'));
         $collection->attachItem($item);
 
         return redirect()->route('collections.show', $collection)
@@ -148,7 +148,8 @@ class CollectionController extends Controller
                 ->withInput();
         }
 
-        $potentialParent = Collection::findOrFail($request->parent_id);
+        /** @var \App\Models\Collection $potentialParent */
+        $potentialParent = Collection::findOrFail((string) $request->input('parent_id'));
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $collection->id) {
@@ -156,10 +157,11 @@ class CollectionController extends Controller
                     ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
                     ->withInput();
             }
-            $ancestor = Collection::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Collection::find($ancestor->parent_id);
+            if (! $next instanceof Collection) {
                 break;
             }
+            $ancestor = $next;
         }
 
         $collection->update(['parent_id' => $request->parent_id]);
@@ -199,6 +201,9 @@ class CollectionController extends Controller
         return $redirect->with('success', $message);
     }
 
+    /**
+     * @return array<int, array{label: string, url: string}>
+     */
     private function buildAncestorBreadcrumbs(Collection $collection): array
     {
         $breadcrumbs = [];

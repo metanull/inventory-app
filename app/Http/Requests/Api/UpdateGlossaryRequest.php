@@ -11,11 +11,17 @@ class UpdateGlossaryRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var \App\Models\Glossary $glossary */
+        $glossary = $this->route('glossary');
+
         return [
             'id' => ['prohibited'],
-            'internal_name' => ['required', 'string', 'unique:glossaries,internal_name,'.$this->route('glossary')->id],
+            'internal_name' => ['required', 'string', 'unique:glossaries,internal_name,'.$glossary->id],
             'backward_compatibility' => ['nullable', 'string'],
         ];
     }

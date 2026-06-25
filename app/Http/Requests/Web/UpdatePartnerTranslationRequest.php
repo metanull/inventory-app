@@ -61,9 +61,10 @@ class UpdatePartnerTranslationRequest extends FormRequest
      * Add uniqueness validation for the combination of partner_id, language_id, and context_id
      * except for the current record being updated.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
+            /** @var \App\Models\PartnerTranslation|null $partnerTranslation */
             $partnerTranslation = $this->route('partner_translation');
 
             $exists = PartnerTranslation::where('partner_id', $this->partner_id)

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class TimelineEventImage extends Model implements StreamableImageFile, DetachableImage
 {
+    /** @use HasFactory<\Database\Factories\TimelineEventImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -57,6 +58,8 @@ class TimelineEventImage extends Model implements StreamableImageFile, Detachabl
 
     /**
      * Get the timeline event this image belongs to.
+     *
+     * @return BelongsTo<TimelineEvent, $this>
      */
     public function timelineEvent(): BelongsTo
     {

@@ -44,9 +44,10 @@ class UpdateCollectionTranslationRequest extends FormRequest
      * Add uniqueness validation for the combination of collection_id, language_id, and context_id.
      * Exclude the current translation from the uniqueness check.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
+            /** @var \App\Models\CollectionTranslation|null $collectionTranslation */
             $collectionTranslation = $this->route('collection_translation');
 
             if (! $collectionTranslation) {

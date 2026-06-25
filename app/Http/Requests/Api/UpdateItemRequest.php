@@ -43,10 +43,11 @@ class UpdateItemRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator)
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             // Prevent circular references
+            /** @var \App\Models\Item|null $item */
             $item = $this->route('item');
             $parentId = $this->input('parent_id');
 

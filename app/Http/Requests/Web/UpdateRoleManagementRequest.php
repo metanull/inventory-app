@@ -23,8 +23,11 @@ class UpdateRoleManagementRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \Spatie\Permission\Models\Role|null $role */
+        $role = $this->route('role');
+
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($this->route('role')?->id)],
+            'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role?->id)],
             'description' => ['nullable', 'string', 'max:500'],
             'permissions' => ['array'],
             'permissions.*' => ['exists:permissions,id'],

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Workshop extends Model
 {
+    /** @use HasFactory<\Database\Factories\WorkshopFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -36,6 +37,8 @@ class Workshop extends Model
 
     /**
      * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
      */
     public function uniqueIds(): array
     {
@@ -44,6 +47,8 @@ class Workshop extends Model
 
     /**
      * Items created by this workshop
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {
@@ -53,7 +58,7 @@ class Workshop extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getBackwardCompatibilityAttribute($value): ?string
+    public function getBackwardCompatibilityAttribute(mixed $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -61,7 +66,7 @@ class Workshop extends Model
     /**
      * Mutator to ensure null values instead of empty strings
      */
-    public function setBackwardCompatibilityAttribute($value): void
+    public function setBackwardCompatibilityAttribute(mixed $value): void
     {
         $this->attributes['backward_compatibility'] = $value === '' ? null : $value;
     }

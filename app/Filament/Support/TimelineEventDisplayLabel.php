@@ -103,11 +103,11 @@ class TimelineEventDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $event = TimelineEvent::find($value);
-        if (! $event) {
+        if (! $event instanceof TimelineEvent) {
             return (string) $value;
         }
 

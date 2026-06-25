@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Country extends Model
 {
+    /** @use HasFactory<\Database\Factories\CountryFactory> */
     use HasFactory;
 
     public $incrementing = false; // Disable auto-incrementing
@@ -28,6 +29,8 @@ class Country extends Model
 
     /**
      * Get the items belonging to this country.
+     *
+     * @return HasMany<Item, $this>
      */
     public function items(): HasMany
     {
@@ -36,6 +39,8 @@ class Country extends Model
 
     /**
      * Get the partners belonging to this country.
+     *
+     * @return HasMany<Partner, $this>
      */
     public function partners(): HasMany
     {
@@ -44,6 +49,8 @@ class Country extends Model
 
     /**
      * Get the translations for this country.
+     *
+     * @return HasMany<CountryTranslation, $this>
      */
     public function translations(): HasMany
     {

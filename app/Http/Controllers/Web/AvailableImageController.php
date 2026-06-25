@@ -45,7 +45,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(AvailableImage $availableImage)
+    public function view(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
     {
         return new InlineImageResponse($availableImage);
     }
@@ -53,7 +53,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the file to the caller for download.
      */
-    public function download(AvailableImage $availableImage)
+    public function download(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
     {
         return new DownloadImageResponse($availableImage);
     }

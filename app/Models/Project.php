@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Project extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -49,6 +51,8 @@ class Project extends Model
 
     /**
      * The context associated with the Project.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {
@@ -57,6 +61,8 @@ class Project extends Model
 
     /**
      * The language associated with the Project.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -65,6 +71,8 @@ class Project extends Model
 
     /**
      * Get the items associated with the Project.
+     *
+     * @return HasMany<Item, $this>
      */
     public function items(): HasMany
     {
@@ -73,6 +81,8 @@ class Project extends Model
 
     /**
      * Get the partners associated with the Project.
+     *
+     * @return HasMany<Partner, $this>
      */
     public function partners(): HasMany
     {
@@ -81,6 +91,8 @@ class Project extends Model
 
     /**
      * Get the collections associated with the Project through its items.
+     *
+     * @return BelongsToMany<Collection, $this>
      */
     public function collections(): BelongsToMany
     {
@@ -101,37 +113,53 @@ class Project extends Model
 
     /**
      * Scope a query to only include enabled projects.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeIsEnabled($query)
+    public function scopeIsEnabled(Builder $query): Builder
     {
         return $query->where('is_enabled', true);
     }
 
     /**
      * Scope a query to only include launched projects.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeIsLaunched($query)
+    public function scopeIsLaunched(Builder $query): Builder
     {
         return $query->where('is_launched', true);
     }
 
     /**
      * Scope a query to only include projects with launch_date passed.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeIsLaunchDatePassed($query)
+    public function scopeIsLaunchDatePassed(Builder $query): Builder
     {
         return $query->whereDate('launch_date', '<=', now());
     }
 
     /**
      * Scope a query to only include visible projects (enabled, launched, and launch_date passed).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeVisible($query)
+    public function scopeVisible(Builder $query): Builder
     {
         return $query->isEnabled()->isLaunched()->isLaunchDatePassed();
     }
 
-    public function scopeEnabled($query)
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeEnabled(Builder $query): Builder
     {
         return $query->where('is_enabled', true)
             ->where('is_launched', true);

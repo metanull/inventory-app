@@ -12,6 +12,7 @@ class SearchableSelect extends Component
     use OptionsLookup;
 
     #[Modelable]
+    /** @var mixed */
     public $selectedId = '';
 
     public string $search = '';
@@ -21,6 +22,7 @@ class SearchableSelect extends Component
     // Configuration props
     public string $name = '';
 
+    /** @var mixed */
     public $staticOptions = null; // For static options (e.g., type dropdown with 2 items)
 
     public ?string $modelClass = null; // For dynamic DB queries (e.g., items with 1000+ records)
@@ -41,20 +43,23 @@ class SearchableSelect extends Component
 
     public ?string $filterOperator = '!='; // Optional: operator for filter (e.g., '!=', '<>', 'IN', 'NOT IN')
 
+    /** @var mixed */
     public $filterValue = null; // Optional: value(s) to filter (e.g., '123' or ['123', '456'])
 
+    /** @var mixed */
     public $scopes = null; // Optional: named Eloquent scope(s) applied to dynamic queries
 
     public int $perPage = 50; // Maximum options returned by a dynamic query
 
+    /** @var array<string, array<string, mixed>> */
     protected $queryString = [
         'search' => ['except' => ''],
     ];
 
     public function mount(
-        $selectedId = '',
+        mixed $selectedId = '',
         string $name = '',
-        $staticOptions = null,
+        mixed $staticOptions = null,
         ?string $modelClass = null,
         string $displayField = 'internal_name',
         string $valueField = 'id',
@@ -64,8 +69,8 @@ class SearchableSelect extends Component
         bool $required = false,
         ?string $filterColumn = null,
         ?string $filterOperator = '!=',
-        $filterValue = null,
-        $scopes = null,
+        mixed $filterValue = null,
+        mixed $scopes = null,
         ?int $perPage = null
     ): void {
         $this->selectedId = old($name, $selectedId);
@@ -88,7 +93,9 @@ class SearchableSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            $count = count(collect($this->staticOptions));
+            /** @var \Illuminate\Support\Collection<int, mixed> $staticCollection */
+            $staticCollection = collect($this->staticOptions);
+            $count = count($staticCollection);
             $max = (int) config('interface.searchable_select.static_options_max', 50);
             if ($count > $max) {
                 throw new InvalidArgumentException(
@@ -103,7 +110,7 @@ class SearchableSelect extends Component
         $this->open = true;
     }
 
-    public function selectOption($id): void
+    public function selectOption(mixed $id): void
     {
         $this->selectedId = $id;
         $this->search = '';
@@ -116,6 +123,9 @@ class SearchableSelect extends Component
         $this->search = '';
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     */
     public function getOptionsProperty()
     {
         // Static options mode: filter provided options
@@ -131,6 +141,9 @@ class SearchableSelect extends Component
         return collect();
     }
 
+    /**
+     * @return mixed
+     */
     public function getSelectedOptionProperty()
     {
         if (! $this->selectedId) {
@@ -139,6 +152,7 @@ class SearchableSelect extends Component
 
         // Static options mode
         if ($this->staticOptions !== null) {
+            /** @var \Illuminate\Support\Collection<int, mixed> $options */
             $options = collect($this->staticOptions);
 
             return $options->first(function ($option) {
@@ -158,7 +172,7 @@ class SearchableSelect extends Component
         return null;
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
         $focusClasses = $colors

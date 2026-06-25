@@ -24,7 +24,7 @@ class CustomDownCommand extends DownCommand
             $disk = Storage::disk(config('maintenance.public_lock_disk'));
             $filename = config('maintenance.public_lock_file');
 
-            $content = json_encode([
+            $content = (string) json_encode([
                 'timestamp' => now()->toIso8601String(),
                 'message' => 'Application is currently under maintenance',
             ]);

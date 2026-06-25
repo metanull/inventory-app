@@ -60,7 +60,7 @@ class StorePartnerTranslationRequest extends FormRequest
     /**
      * Add uniqueness validation for the combination of partner_id, language_id, and context_id.
      */
-    public function withValidator($validator): void
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
     {
         $validator->after(function ($validator) {
             $exists = PartnerTranslation::where('partner_id', $this->partner_id)

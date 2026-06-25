@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemMedia extends Model
 {
+    /** @use HasFactory<\Database\Factories\ItemMediaFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $table = 'item_media';
@@ -60,6 +61,8 @@ class ItemMedia extends Model
 
     /**
      * Get the item this media belongs to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {
@@ -68,6 +71,8 @@ class ItemMedia extends Model
 
     /**
      * Get the language of this media.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

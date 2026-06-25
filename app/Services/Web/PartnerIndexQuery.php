@@ -35,11 +35,13 @@ final class PartnerIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<\App\Models\Partner> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<\App\Models\Partner> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;
@@ -49,6 +51,7 @@ final class PartnerIndexQuery
         }
     }
 
+    /** @param Builder<\App\Models\Partner> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

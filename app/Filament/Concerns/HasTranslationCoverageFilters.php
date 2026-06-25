@@ -35,6 +35,10 @@ trait HasTranslationCoverageFilters
      * Adds a withExists() sub-query to the table query that populates the
      * has_fallback_translation virtual boolean attribute on each result row.
      */
+    /**
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     */
     protected static function withFallbackExists(Builder $query): Builder
     {
         return $query->withExists([
@@ -49,6 +53,9 @@ trait HasTranslationCoverageFilters
      *
      * All closures use $query as the outer parameter name to satisfy Filament's
      * named-injection resolver (see HasTranslationCoverageFilters memory note).
+     */
+    /**
+     * @return array<int, \Filament\Tables\Filters\BaseFilter>
      */
     protected static function translationCoverageFilters(): array
     {

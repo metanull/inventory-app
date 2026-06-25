@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
  */
 class CollectionTranslation extends Model
 {
+    /** @use HasFactory<\Database\Factories\CollectionTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -125,6 +126,8 @@ class CollectionTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -153,6 +156,8 @@ class CollectionTranslation extends Model
 
     /**
      * Get the glossary spellings linked to this collection translation.
+     *
+     * @return BelongsToMany<GlossarySpelling, $this>
      */
     public function spellings(): BelongsToMany
     {
@@ -191,6 +196,8 @@ class CollectionTranslation extends Model
 
     /**
      * Get sibling translations (other translations of the same collection).
+     *
+     * @return HasMany<CollectionTranslation, $this>
      */
     public function siblingTranslations(): HasMany
     {

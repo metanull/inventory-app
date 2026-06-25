@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 class Item extends Model
 {
     use HasDisplayOrder;
+    /** @use HasFactory<\Database\Factories\ItemFactory> */
     use HasFactory;
     use HasUuids;
 
@@ -122,6 +123,8 @@ class Item extends Model
 
     /**
      * The partner owning or responsible for the Item.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {
@@ -130,6 +133,8 @@ class Item extends Model
 
     /**
      * The country of the Item.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -193,6 +198,8 @@ class Item extends Model
 
     /**
      * The item images attached to this item.
+     *
+     * @return HasMany<ItemImage, $this>
      */
     public function itemImages(): HasMany
     {
@@ -201,6 +208,8 @@ class Item extends Model
 
     /**
      * The media (audio/video URLs) attached to this item.
+     *
+     * @return HasMany<ItemMedia, $this>
      */
     public function itemMedia(): HasMany
     {
@@ -209,6 +218,8 @@ class Item extends Model
 
     /**
      * The documents attached to this item.
+     *
+     * @return HasMany<ItemDocument, $this>
      */
     public function itemDocuments(): HasMany
     {
@@ -217,6 +228,8 @@ class Item extends Model
 
     /**
      * The tags that belong to this item.
+     *
+     * @return BelongsToMany<Tag, $this>
      */
     public function tags(): BelongsToMany
     {
@@ -225,6 +238,8 @@ class Item extends Model
 
     /**
      * Artists associated with this item
+     *
+     * @return BelongsToMany<Artist, $this>
      */
     public function artists(): BelongsToMany
     {
@@ -233,6 +248,8 @@ class Item extends Model
 
     /**
      * Workshops associated with this item
+     *
+     * @return BelongsToMany<Workshop, $this>
      */
     public function workshops(): BelongsToMany
     {
@@ -241,6 +258,8 @@ class Item extends Model
 
     /**
      * Dynasties associated with this item
+     *
+     * @return BelongsToMany<Dynasty, $this>
      */
     public function dynasties(): BelongsToMany
     {
@@ -279,6 +298,8 @@ class Item extends Model
 
     /**
      * Get all timeline events this item is associated with.
+     *
+     * @return BelongsToMany<TimelineEvent, $this>
      */
     public function timelineEvents(): BelongsToMany
     {
@@ -333,6 +354,9 @@ class Item extends Model
 
     /**
      * Scope to get only object items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeObjects(Builder $query): Builder
     {
@@ -341,6 +365,9 @@ class Item extends Model
 
     /**
      * Scope to get only monument items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeMonuments(Builder $query): Builder
     {
@@ -349,6 +376,9 @@ class Item extends Model
 
     /**
      * Scope to get only detail items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeDetails(Builder $query): Builder
     {
@@ -357,6 +387,9 @@ class Item extends Model
 
     /**
      * Scope to get only picture items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopePictures(Builder $query): Builder
     {
@@ -365,6 +398,9 @@ class Item extends Model
 
     /**
      * Scope to get parent items (items with no parent).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeParents(Builder $query): Builder
     {
@@ -373,6 +409,9 @@ class Item extends Model
 
     /**
      * Scope to get child items (items with a parent).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeChildren(Builder $query): Builder
     {
@@ -382,7 +421,9 @@ class Item extends Model
     /**
      * Scope to get items for a specific tag.
      *
+     * @param  Builder<static>  $query
      * @param  string|Tag  $tag  The tag ID or Tag model instance
+     * @return Builder<static>
      */
     public function scopeForTag(Builder $query, $tag): Builder
     {
@@ -396,7 +437,9 @@ class Item extends Model
     /**
      * Scope to get items that have ALL of the specified tags (AND condition).
      *
-     * @param  array  $tags  Array of tag IDs or Tag model instances
+     * @param  Builder<static>  $query
+     * @param  array<int, mixed>  $tags  Array of tag IDs or Tag model instances
+     * @return Builder<static>
      */
     public function scopeWithAllTags(Builder $query, array $tags): Builder
     {
@@ -416,7 +459,9 @@ class Item extends Model
     /**
      * Scope to get items that have ANY of the specified tags (OR condition).
      *
-     * @param  array  $tags  Array of tag IDs or Tag model instances
+     * @param  Builder<static>  $query
+     * @param  array<int, mixed>  $tags  Array of tag IDs or Tag model instances
+     * @return Builder<static>
      */
     public function scopeWithAnyTags(Builder $query, array $tags): Builder
     {
@@ -458,22 +503,22 @@ class Item extends Model
     }
 
     // Accessors and Mutators to ensure null values instead of empty strings
-    public function getOwnerReferenceAttribute($value): ?string
+    public function getOwnerReferenceAttribute(mixed $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setOwnerReferenceAttribute($value): void
+    public function setOwnerReferenceAttribute(mixed $value): void
     {
         $this->attributes['owner_reference'] = $value === '' ? null : $value;
     }
 
-    public function getMwnfReferenceAttribute($value): ?string
+    public function getMwnfReferenceAttribute(mixed $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setMwnfReferenceAttribute($value): void
+    public function setMwnfReferenceAttribute(mixed $value): void
     {
         $this->attributes['mwnf_reference'] = $value === '' ? null : $value;
     }
@@ -481,7 +526,9 @@ class Item extends Model
     /**
      * Scope to exclude items with the given IDs.
      *
+     * @param  Builder<static>  $query
      * @param  array<int, string>  $ids
+     * @return Builder<static>
      */
     public function scopeExcludingIds(Builder $query, array $ids): Builder
     {
@@ -493,7 +540,9 @@ class Item extends Model
      * Prevents a descendant from being set as the item's own parent.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $itemId  UUID of the item whose descendants to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingDescendantsOf(Builder $query, string $itemId): Builder
     {
@@ -525,7 +574,9 @@ class Item extends Model
      * Prevents an ancestor from being set as a child of the item.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $itemId  UUID of the item whose ancestors to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingAncestorsOf(Builder $query, string $itemId): Builder
     {

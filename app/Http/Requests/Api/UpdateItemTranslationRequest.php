@@ -23,6 +23,7 @@ class UpdateItemTranslationRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var \App\Models\ItemTranslation|null $itemTranslation */
         $itemTranslation = $this->route('itemTranslation');
 
         // Only apply uniqueness validation if updating the unique key fields
