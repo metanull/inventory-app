@@ -11,7 +11,7 @@ class TranslationSectionData
     /**
      * @template TTranslation
      * @param  Collection<int, TTranslation>  $translations
-     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, mixed>}>
+     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}>
      */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
