@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
 use App\Services\Web\CollectionImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -158,7 +159,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Collection $collection, CollectionImage $collectionImage): \Illuminate\Contracts\Support\Responsable
+    public function download(Collection $collection, CollectionImage $collectionImage): Responsable
     {
         if ($collectionImage->collection_id !== $collection->id) {
             abort(404);
@@ -170,7 +171,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Collection $collection, CollectionImage $collectionImage): \Illuminate\Contracts\Support\Responsable
+    public function view(Collection $collection, CollectionImage $collectionImage): Responsable
     {
         if ($collectionImage->collection_id !== $collection->id) {
             abort(404);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ConversionResource;
 use App\Rules\MarkdownRule;
 use App\Services\MarkdownService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -46,7 +47,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function markdownToHtml(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
+    public function markdownToHtml(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -105,7 +106,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function htmlToMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
+    public function htmlToMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'html' => [
@@ -178,7 +179,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function validateMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
+    public function validateMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -235,7 +236,7 @@ class MarkdownController extends Controller
      * Generates an HTML preview of Markdown content for display purposes.
      * This is essentially the same as markdownToHtml but with a different semantic meaning.
      */
-    public function previewMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
+    public function previewMarkdown(Request $request): ConversionResource|JsonResponse
     {
         return $this->markdownToHtml($request);
     }
@@ -255,7 +256,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function isMarkdown(Request $request): ConversionResource|\Illuminate\Http\JsonResponse
+    public function isMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'content' => ['required', 'string'],

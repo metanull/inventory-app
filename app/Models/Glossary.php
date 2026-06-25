@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\GlossaryFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Glossary extends Model
 {
-    /** @use HasFactory<\Database\Factories\GlossaryFactory> */
+    /** @use HasFactory<GlossaryFactory> */
     use HasFactory, HasUuids;
 
     /**

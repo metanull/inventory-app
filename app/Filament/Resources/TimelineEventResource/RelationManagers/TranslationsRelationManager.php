@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TimelineEventResource\RelationManagers;
 
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Language;
+use App\Models\TimelineEvent;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -108,9 +109,9 @@ class TranslationsRelationManager extends RelationManager
             ]);
     }
 
-    private function ownerTimelineEvent(): \App\Models\TimelineEvent
+    private function ownerTimelineEvent(): TimelineEvent
     {
-        /** @var \App\Models\TimelineEvent $record */
+        /** @var TimelineEvent $record */
         $record = $this->ownerRecord;
 
         return $record;

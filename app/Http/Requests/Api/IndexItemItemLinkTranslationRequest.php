@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
@@ -25,6 +25,7 @@ class IndexItemItemLinkTranslationRequest extends FormRequest
 
     /**
      * Get validated pagination parameters.
+     *
      * @return array<string, mixed>
      */
     public function getPaginationParams(): array

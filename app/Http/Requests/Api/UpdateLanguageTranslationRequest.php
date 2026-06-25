@@ -1,7 +1,9 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
+use App\Models\LanguageTranslation;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,12 +15,11 @@ class UpdateLanguageTranslationRequest extends FormRequest
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\LanguageTranslation|null $languageTranslation */
+        /** @var LanguageTranslation|null $languageTranslation */
         $languageTranslation = $this->route('languageTranslation');
 
         $uniqueRule = Rule::unique('language_translations')

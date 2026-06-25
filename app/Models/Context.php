@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
+use Database\Factories\ContextFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $internal_name
  * @property string|null $backward_compatibility
  * @property bool $is_default
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Context extends Model
 {
-    /** @use HasFactory<\Database\Factories\ContextFactory> */
+    /** @use HasFactory<ContextFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [

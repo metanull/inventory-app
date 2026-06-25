@@ -3,6 +3,7 @@
 namespace App\Livewire\Support;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -29,7 +30,7 @@ trait OptionsLookup
      * LIKE search, then limits the result set to $perPage rows. The caller
      * is responsible for calling ->get() on the returned builder.
      *
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @return Builder<Model>
      */
     public function resolveOptionsQuery(): Builder
     {
@@ -53,8 +54,8 @@ trait OptionsLookup
      * Iterates over the normalised $scopes array (array<int, array{scope: string, args: array}>)
      * and calls each scope method on the query, forwarding any args.
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function applyScopes(Builder $query): Builder
     {
@@ -77,8 +78,8 @@ trait OptionsLookup
      * When $search is empty:
      *   - ORDER BY displayField ASC only
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function applySearch(Builder $query, string $search): Builder
     {
@@ -104,13 +105,13 @@ trait OptionsLookup
      * Performs a case-insensitive substring match against displayField.
      * No database queries are issued.
      *
-     * @return \Illuminate\Support\Collection<int, mixed>
+     * @return Collection<int, mixed>
      */
     public function resolveStaticOptions(): Collection
     {
         /** @var array<int, mixed> $rawOpts */
         $rawOpts = $this->staticOptions;
-        /** @var \Illuminate\Support\Collection<int, mixed> $options */
+        /** @var Collection<int, mixed> $options */
         $options = collect($rawOpts);
 
         $search = trim($this->search);
@@ -132,7 +133,7 @@ trait OptionsLookup
      *
      * Supports IN, NOT IN, and any standard comparison operator.
      *
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @param  Builder<Model>  $query
      */
     protected function applyFilter(Builder $query): void
     {
@@ -152,8 +153,9 @@ trait OptionsLookup
      *   array<int, string>                             → multiple scopes, no args
      *   array<int, array{scope: string, args: array}>  → fully specified
      *
-     * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
      * @return list<array{scope: string, args: list<mixed>}>
+     *
+     * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
      */
     protected function normalizeScopes(mixed $scopes, ?string $modelClass): array
     {

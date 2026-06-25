@@ -47,7 +47,7 @@ class TranslationSectionData
         return $sortedTranslations
             ->groupBy(fn ($translation): string => $translation->context_id ?? '__none__')
             ->map(function (Collection $group, string $contextKey) use ($defaultContextId): array {
-                /** @var \App\Models\Context|null $context */
+                /** @var Context|null $context */
                 $context = $group->first()?->context;
                 $isDefaultContext = $context?->id === $defaultContextId;
 
@@ -65,8 +65,8 @@ class TranslationSectionData
             ->sortBy('sort_key')
             ->values()
             ->map(fn (array $group): array => [
-                'label'        => $group['label'],
-                'is_default'   => $group['is_default'],
+                'label' => $group['label'],
+                'is_default' => $group['is_default'],
                 'translations' => $group['translations'],
             ]);
     }

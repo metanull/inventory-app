@@ -83,24 +83,24 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\App\Models\Collection>
+     * @param  Builder<Model>  $query
+     * @return Builder<Collection>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        /** @var Builder<\App\Models\Collection> $q */
+        /** @var Builder<Collection> $q */
         $q = $query;
 
         return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @param  Builder<Model>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array
     {
-        /** @var Builder<\App\Models\Collection> $query */
+        /** @var Builder<Collection> $query */
         return CollectionDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Collection $collection): array => [

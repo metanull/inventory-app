@@ -13,7 +13,7 @@ final class ItemItemLinkIndexQuery
 {
     public function __construct(private readonly ItemItemLinkListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\ItemItemLink> */
+    /** @return LengthAwarePaginator<int, ItemItemLink> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = ItemItemLink::query()
@@ -35,13 +35,13 @@ final class ItemItemLinkIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\ItemItemLink> $query */
+    /** @param Builder<ItemItemLink> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('item_item_links.source_id', $state->filters['item_id']);
     }
 
-    /** @param Builder<\App\Models\ItemItemLink> $query */
+    /** @param Builder<ItemItemLink> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

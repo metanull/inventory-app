@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Database\Factories\ImageUploadFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string|null $path
@@ -12,13 +14,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $extension
  * @property string|null $mime_type
  * @property int|null $size
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ImageUpload extends Model
 {
-    /** @use HasFactory<\Database\Factories\ImageUploadFactory> */
+    /** @use HasFactory<ImageUploadFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [

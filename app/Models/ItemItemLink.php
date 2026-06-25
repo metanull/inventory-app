@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ItemItemLinkFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,8 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class ItemItemLink extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemItemLinkFactory> */
+    /** @use HasFactory<ItemItemLinkFactory> */
     use HasFactory;
+
     use HasUuids;
 
     /**

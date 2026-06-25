@@ -16,13 +16,16 @@ use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerImageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexPartnerImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -40,8 +43,6 @@ class PartnerImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerImageResource
      */
     public function store(StorePartnerImageRequest $request): PartnerImageResource
     {
@@ -67,8 +68,6 @@ class PartnerImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerImageResource
      */
     public function update(UpdatePartnerImageRequest $request, PartnerImage $partnerImage): PartnerImageResource
     {
@@ -84,7 +83,7 @@ class PartnerImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerImage $partnerImage): \Illuminate\Http\Response
+    public function destroy(PartnerImage $partnerImage): Response
     {
         $partnerImage->delete();
 
@@ -132,8 +131,6 @@ class PartnerImageController extends Controller
 
     /**
      * Attach an available image to a partner.
-     *
-     * @return PartnerImageResource
      */
     public function attachFromAvailable(AttachFromAvailablePartnerImageRequest $request, Partner $partner): PartnerImageResource
     {
@@ -167,7 +164,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
+    public function download(PartnerImage $partnerImage): Responsable
     {
         return new DownloadImageResponse($partnerImage);
     }
@@ -175,7 +172,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
+    public function view(PartnerImage $partnerImage): Responsable
     {
         return new InlineImageResponse($partnerImage);
     }

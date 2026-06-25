@@ -8,6 +8,8 @@ use App\Http\Requests\Api\StoreItemTranslationRequest;
 use App\Http\Requests\Api\UpdateItemTranslationRequest;
 use App\Http\Resources\ItemTranslationResource;
 use App\Models\ItemTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 /**
  * @tags Item Translations
@@ -17,7 +19,7 @@ class ItemTranslationController extends Controller
     /**
      * Display a listing of item translations
      */
-    public function index(IndexItemTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexItemTranslationRequest $request): AnonymousResourceCollection
     {
         $query = ItemTranslation::query();
 
@@ -48,8 +50,6 @@ class ItemTranslationController extends Controller
 
     /**
      * Store a newly created item translation
-     *
-     * @return ItemTranslationResource
      */
     public function store(StoreItemTranslationRequest $request): ItemTranslationResource
     {
@@ -76,8 +76,6 @@ class ItemTranslationController extends Controller
 
     /**
      * Update the specified item translation
-     *
-     * @return ItemTranslationResource
      */
     public function update(UpdateItemTranslationRequest $request, ItemTranslation $itemTranslation): ItemTranslationResource
     {
@@ -92,7 +90,7 @@ class ItemTranslationController extends Controller
     /**
      * Remove the specified item translation
      */
-    public function destroy(ItemTranslation $itemTranslation): \Illuminate\Http\Response
+    public function destroy(ItemTranslation $itemTranslation): Response
     {
         $itemTranslation->delete();
 

@@ -9,6 +9,7 @@ use App\Filament\Resources\PartnerTranslationResource;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Context;
 use App\Models\Language;
+use App\Models\Partner;
 use App\Models\PartnerTranslation;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
@@ -290,9 +291,9 @@ class TranslationsRelationManager extends RelationManager
             ]);
     }
 
-    private function ownerPartner(): \App\Models\Partner
+    private function ownerPartner(): Partner
     {
-        /** @var \App\Models\Partner $record */
+        /** @var Partner $record */
         $record = $this->ownerRecord;
 
         return $record;

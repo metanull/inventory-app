@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\DynastyTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * DynastyTranslation Model
@@ -19,12 +21,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $dynasty_id
  * @property string $language_id
  * @property string|null $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class DynastyTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\DynastyTranslationFactory> */
+    /** @use HasFactory<DynastyTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -151,7 +153,6 @@ class DynastyTranslation extends Model
      * Scope a query to only include translations for a specific language.
      *
      * @param  Builder<static>  $query
-     * @param  string  $languageId
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder

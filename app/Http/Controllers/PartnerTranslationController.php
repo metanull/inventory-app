@@ -10,13 +10,15 @@ use App\Http\Resources\PartnerTranslationResource;
 use App\Models\PartnerTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexPartnerTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class PartnerTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerTranslationResource
      */
     public function store(StorePartnerTranslationRequest $request): PartnerTranslationResource
     {
@@ -61,8 +61,6 @@ class PartnerTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerTranslationResource
      */
     public function update(UpdatePartnerTranslationRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationResource
     {
@@ -78,7 +76,7 @@ class PartnerTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerTranslation $partnerTranslation): \Illuminate\Http\Response
+    public function destroy(PartnerTranslation $partnerTranslation): Response
     {
         $partnerTranslation->delete();
 

@@ -14,13 +14,16 @@ use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CollectionImageController extends Controller
 {
     /**
      * Display a listing of collection images for a specific collection.
      */
-    public function index(IndexCollectionImageRequest $request, Collection $collection): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexCollectionImageRequest $request, Collection $collection): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $collectionImages = $collection->collectionImages()->orderBy('display_order');
@@ -117,8 +120,6 @@ class CollectionImageController extends Controller
 
     /**
      * Attach an available image to a collection.
-     *
-     * @return CollectionImageResource
      */
     public function attachFromAvailable(AttachFromAvailableCollectionImageRequest $request, Collection $collection): CollectionImageResource
     {
@@ -152,7 +153,7 @@ class CollectionImageController extends Controller
     /**
      * Remove the specified collection image.
      */
-    public function destroy(CollectionImage $collectionImage): \Illuminate\Http\Response
+    public function destroy(CollectionImage $collectionImage): Response
     {
         $collectionImage->delete();
 
@@ -162,7 +163,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(CollectionImage $collectionImage): \Illuminate\Contracts\Support\Responsable
+    public function download(CollectionImage $collectionImage): Responsable
     {
         return new DownloadImageResponse($collectionImage);
     }
@@ -170,7 +171,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(CollectionImage $collectionImage): \Illuminate\Contracts\Support\Responsable
+    public function view(CollectionImage $collectionImage): Responsable
     {
         return new InlineImageResponse($collectionImage);
     }

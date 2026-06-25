@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\LanguageTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LanguageTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\LanguageTranslationFactory> */
+    /** @use HasFactory<LanguageTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -96,7 +97,6 @@ class LanguageTranslation extends Model
      * Scope a query to only include translations displayed in a specific language.
      *
      * @param  Builder<static>  $query
-     * @param  string  $displayLanguageId
      * @return Builder<static>
      */
     public function scopeForDisplayLanguage(Builder $query, string $displayLanguageId): Builder

@@ -103,7 +103,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Generate the complete documentation
      *
-     * @param array<int, string> $models
+     * @param  array<int, string>  $models
      */
     private function generateDocumentation(array $models): string
     {
@@ -328,7 +328,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Get model relationships using reflection
      *
-     * @param ReflectionClass<object> $reflection
+     * @param  ReflectionClass<object>  $reflection
      * @return array<string, mixed>
      */
     private function getModelRelationships(Model $model, ReflectionClass $reflection): array
@@ -411,7 +411,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Get model scopes using reflection
      *
-     * @param ReflectionClass<object> $reflection
+     * @param  ReflectionClass<object>  $reflection
      * @return list<string>
      */
     private function getModelScopes(ReflectionClass $reflection): array

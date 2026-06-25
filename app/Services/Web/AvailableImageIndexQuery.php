@@ -13,7 +13,7 @@ final class AvailableImageIndexQuery
 {
     public function __construct(private readonly AvailableImageListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\AvailableImage> */
+    /** @return LengthAwarePaginator<int, AvailableImage> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = AvailableImage::query()
@@ -32,13 +32,13 @@ final class AvailableImageIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\AvailableImage> $query */
+    /** @param Builder<AvailableImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\AvailableImage> $query */
+    /** @param Builder<AvailableImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

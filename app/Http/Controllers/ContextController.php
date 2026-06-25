@@ -10,13 +10,16 @@ use App\Http\Requests\Api\UpdateContextRequest;
 use App\Http\Resources\ContextResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Context;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContextController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContextRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexContextRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +37,6 @@ class ContextController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContextResource
      */
     public function store(StoreContextRequest $request): ContextResource
     {
@@ -61,8 +62,6 @@ class ContextController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContextResource
      */
     public function update(UpdateContextRequest $request, Context $context): ContextResource
     {
@@ -76,7 +75,7 @@ class ContextController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Context $context): \Illuminate\Http\Response
+    public function destroy(Context $context): Response
     {
         $context->delete();
 
@@ -85,8 +84,6 @@ class ContextController extends Controller
 
     /**
      * Set or unset a context as the default one.
-     *
-     * @return ContextResource
      */
     public function setDefault(SetDefaultContextRequest $request, Context $context): ContextResource
     {
@@ -115,7 +112,7 @@ class ContextController extends Controller
     /**
      * Get the default context.
      */
-    public function getDefault(): ContextResource|\Illuminate\Http\JsonResponse
+    public function getDefault(): ContextResource|JsonResponse
     {
         $context = Context::default()->first();
         if (! $context) {

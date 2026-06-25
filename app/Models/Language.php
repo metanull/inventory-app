@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use Database\Factories\LanguageFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -12,12 +15,12 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $backward_compatibility
  * @property bool $is_default
  * @property bool $disabled
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Language extends Model
 {
-    /** @use HasFactory<\Database\Factories\LanguageFactory> */
+    /** @use HasFactory<LanguageFactory> */
     use HasFactory;
 
     public $incrementing = false; // Disable auto-incrementing
@@ -104,9 +107,9 @@ class Language extends Model
     /**
      * Get the translations for this language (how this language is named in other languages).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<LanguageTranslation, $this>
+     * @return HasMany<LanguageTranslation, $this>
      */
-    public function translations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function translations(): HasMany
     {
         return $this->hasMany(LanguageTranslation::class, 'language_id');
     }

@@ -89,24 +89,24 @@ class ItemResource extends Resource
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\App\Models\Item>
+     * @param  Builder<Model>  $query
+     * @return Builder<Item>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        /** @var Builder<\App\Models\Item> $q */
+        /** @var Builder<Item> $q */
         $q = $query;
 
         return $q->excludingDescendantsOf((string) $record->getKey());
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
+     * @param  Builder<Model>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array
     {
-        /** @var Builder<\App\Models\Item> $query */
+        /** @var Builder<Item> $query */
         return ItemDisplayLabel::withDisplayLabel($query)
             ->get()
             ->mapWithKeys(fn (Item $item): array => [
@@ -382,7 +382,7 @@ class ItemResource extends Resource
                     )
                     ->getOptionLabelUsing(fn ($value): string => ($tag = Tag::find((string) $value)) instanceof Tag ? "{$tag->description} [{$tag->internal_name}]" : (string) $value)
                     ->query(function (Builder $query, array $data): Builder {
-                        /** @var Builder<\App\Models\Item> $q */
+                        /** @var Builder<Item> $q */
                         $q = $query;
 
                         return ! empty($data['values'])
@@ -457,7 +457,7 @@ class ItemResource extends Resource
                     ->action(function (EloquentCollection $records, array $data): void {
                         $collectionId = $data['collection_id'];
                         foreach ($records as $record) {
-                            /** @var \App\Models\Item $record */
+                            /** @var Item $record */
                             $record->attachedToCollections()->syncWithoutDetaching([$collectionId]);
                         }
 
@@ -490,7 +490,7 @@ class ItemResource extends Resource
                     ->action(function (EloquentCollection $records, array $data): void {
                         $tagId = $data['tag_id'];
                         foreach ($records as $record) {
-                            /** @var \App\Models\Item $record */
+                            /** @var Item $record */
                             $record->tags()->syncWithoutDetaching([$tagId]);
                         }
 

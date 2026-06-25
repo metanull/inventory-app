@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use App\Models\TimelineEventImage;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /** @mixin TimelineEventImage */

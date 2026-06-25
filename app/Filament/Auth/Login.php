@@ -2,6 +2,7 @@
 
 namespace App\Filament\Auth;
 
+use App\Models\User;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Component;
@@ -39,7 +40,7 @@ class Login extends \Filament\Pages\Auth\Login
             $this->throwFailureValidationException();
         }
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $remember = (bool) ($data['remember'] ?? false);
 
         if (

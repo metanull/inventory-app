@@ -3,6 +3,9 @@
 namespace App\Livewire;
 
 use App\Livewire\Support\OptionsLookup;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -59,7 +62,7 @@ class SearchableMultiSelect extends Component
     public int $perPage = 50;
 
     /**
-     * @param array<int, string|int> $selectedIds
+     * @param  array<int, string|int>  $selectedIds
      */
     public function mount(
         array $selectedIds = [],
@@ -147,7 +150,7 @@ class SearchableMultiSelect extends Component
      * Candidate options for the dropdown (excludes already-selected ids).
      */
     /**
-     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
      */
     public function getOptionsProperty()
     {
@@ -172,7 +175,7 @@ class SearchableMultiSelect extends Component
      * Currently selected options — queried by id so we never store model instances
      * in component state.
      *
-     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
      */
     public function getSelectedOptionsProperty()
     {
@@ -199,7 +202,7 @@ class SearchableMultiSelect extends Component
         return collect();
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
         $focusClasses = $colors

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\CollectionTranslationResource\Pages;
 
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\CollectionTranslationResource;
+use App\Models\CollectionTranslation;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -13,9 +14,9 @@ class ViewCollectionTranslation extends ViewRecord
 {
     protected static string $resource = CollectionTranslationResource::class;
 
-    private function translationRecord(): \App\Models\CollectionTranslation
+    private function translationRecord(): CollectionTranslation
     {
-        /** @var \App\Models\CollectionTranslation $record */
+        /** @var CollectionTranslation $record */
         $record = $this->getRecord();
 
         return $record;

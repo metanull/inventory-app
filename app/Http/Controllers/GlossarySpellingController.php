@@ -8,13 +8,15 @@ use App\Http\Requests\Api\StoreGlossarySpellingRequest;
 use App\Http\Requests\Api\UpdateGlossarySpellingRequest;
 use App\Http\Resources\GlossarySpellingResource;
 use App\Models\GlossarySpelling;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class GlossarySpellingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossarySpellingRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexGlossarySpellingRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -32,8 +34,6 @@ class GlossarySpellingController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return GlossarySpellingResource
      */
     public function store(StoreGlossarySpellingRequest $request): GlossarySpellingResource
     {
@@ -59,8 +59,6 @@ class GlossarySpellingController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return GlossarySpellingResource
      */
     public function update(UpdateGlossarySpellingRequest $request, GlossarySpelling $glossarySpelling): GlossarySpellingResource
     {
@@ -74,7 +72,7 @@ class GlossarySpellingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GlossarySpelling $glossarySpelling): \Illuminate\Http\Response
+    public function destroy(GlossarySpelling $glossarySpelling): Response
     {
         $glossarySpelling->delete();
 

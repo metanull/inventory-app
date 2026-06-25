@@ -2,9 +2,8 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use App\Models\Project;
-use App\Http\Resources\BaseJsonResource;
+use Illuminate\Http\Request;
 
 /** @extends BaseJsonResource<Project> */
 class ProjectResource extends BaseJsonResource

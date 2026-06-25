@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,21 +10,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $internal_name
  * @property string|null $backward_compatibility
- * @property \Illuminate\Support\Carbon|null $launch_date
+ * @property Carbon|null $launch_date
  * @property bool $is_launched
  * @property bool $is_enabled
  * @property string|null $context_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Project extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProjectFactory> */
+    /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.

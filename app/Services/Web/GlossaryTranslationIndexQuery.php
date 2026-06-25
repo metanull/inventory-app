@@ -13,7 +13,7 @@ final class GlossaryTranslationIndexQuery
 {
     public function __construct(private readonly GlossaryTranslationListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\GlossaryTranslation> */
+    /** @return LengthAwarePaginator<int, GlossaryTranslation> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = GlossaryTranslation::query()
@@ -35,7 +35,7 @@ final class GlossaryTranslationIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\GlossaryTranslation> $query */
+    /** @param Builder<GlossaryTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('glossary_translations.glossary_id', $state->filters['glossary_id']);
@@ -45,7 +45,7 @@ final class GlossaryTranslationIndexQuery
         }
     }
 
-    /** @param Builder<\App\Models\GlossaryTranslation> $query */
+    /** @param Builder<GlossaryTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

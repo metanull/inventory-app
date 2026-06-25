@@ -10,13 +10,15 @@ use App\Http\Resources\AuthorTranslationResource;
 use App\Models\AuthorTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class AuthorTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAuthorTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexAuthorTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class AuthorTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return AuthorTranslationResource
      */
     public function store(StoreAuthorTranslationRequest $request): AuthorTranslationResource
     {
@@ -61,8 +61,6 @@ class AuthorTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return AuthorTranslationResource
      */
     public function update(UpdateAuthorTranslationRequest $request, AuthorTranslation $authorTranslation): AuthorTranslationResource
     {
@@ -78,7 +76,7 @@ class AuthorTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AuthorTranslation $authorTranslation): \Illuminate\Http\Response
+    public function destroy(AuthorTranslation $authorTranslation): Response
     {
         $authorTranslation->delete();
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\ContributorTranslationFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ContributorTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ContributorTranslationFactory> */
+    /** @use HasFactory<ContributorTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     protected $fillable = [

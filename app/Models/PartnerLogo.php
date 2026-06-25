@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\PartnerLogoFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PartnerLogo extends Model implements StreamableImageFile
 {
-    /** @use HasFactory<\Database\Factories\PartnerLogoFactory> */
+    /** @use HasFactory<PartnerLogoFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**

@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
+use App\Models\ItemTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,10 +22,9 @@ class UpdateItemTranslationRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\ItemTranslation|null $itemTranslation */
+        /** @var ItemTranslation|null $itemTranslation */
         $itemTranslation = $this->route('itemTranslation');
 
         // Only apply uniqueness validation if updating the unique key fields

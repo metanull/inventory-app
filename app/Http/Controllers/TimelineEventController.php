@@ -10,13 +10,15 @@ use App\Http\Resources\TimelineEventResource;
 use App\Models\TimelineEvent;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TimelineEventController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexTimelineEventRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexTimelineEventRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -74,7 +76,7 @@ class TimelineEventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEvent $timelineEvent): \Illuminate\Http\Response
+    public function destroy(TimelineEvent $timelineEvent): Response
     {
         $timelineEvent->delete();
 

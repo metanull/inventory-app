@@ -10,13 +10,15 @@ use App\Http\Requests\Api\UpdateTagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Item;
 use App\Models\Tag;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TagController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexTagRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexTagRequest $request): AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
         $paginator = Tag::query()->paginate(
@@ -31,8 +33,6 @@ class TagController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return TagResource
      */
     public function store(StoreTagRequest $request): TagResource
     {
@@ -53,8 +53,6 @@ class TagController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return TagResource
      */
     public function update(UpdateTagRequest $request, Tag $tag): TagResource
     {
@@ -68,7 +66,7 @@ class TagController extends Controller
     /**
      * Get tags for a specific item.
      */
-    public function forItem(IndexTagForItemRequest $request, Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function forItem(IndexTagForItemRequest $request, Item $item): AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
         $paginator = Tag::forItem($item)->paginate(
@@ -84,7 +82,7 @@ class TagController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag): \Illuminate\Http\Response
+    public function destroy(Tag $tag): Response
     {
         $tag->delete();
 

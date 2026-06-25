@@ -1,7 +1,9 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Web;
 
+use App\Models\Glossary;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGlossaryRequest extends FormRequest
@@ -12,12 +14,11 @@ class UpdateGlossaryRequest extends FormRequest
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\Glossary $glossary */
+        /** @var Glossary $glossary */
         $glossary = $this->route('glossary');
 
         return [

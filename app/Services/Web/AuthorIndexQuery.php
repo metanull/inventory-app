@@ -13,7 +13,7 @@ final class AuthorIndexQuery
 {
     public function __construct(private readonly AuthorListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Author> */
+    /** @return LengthAwarePaginator<int, Author> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Author::query()->select([
@@ -32,13 +32,13 @@ final class AuthorIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\Author> $query */
+    /** @param Builder<Author> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\Author> $query */
+    /** @param Builder<Author> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

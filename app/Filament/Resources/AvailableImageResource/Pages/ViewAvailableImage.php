@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AvailableImageResource\Pages;
 
 use App\Filament\Resources\AvailableImageResource;
+use App\Models\AvailableImage;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -18,7 +19,7 @@ class ViewAvailableImage extends ViewRecord
             EditAction::make(),
             DeleteAction::make()
                 ->before(function (): void {
-                    /** @var \App\Models\AvailableImage $record */
+                    /** @var AvailableImage $record */
                     $record = $this->getRecord();
                     $disk = $record->imageDisk();
                     $path = $record->imageStoragePath();

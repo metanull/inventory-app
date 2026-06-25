@@ -1,9 +1,11 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Item;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateItemRequest extends FormRequest
 {
@@ -20,7 +22,6 @@ class UpdateItemRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
         return [
@@ -44,11 +45,11 @@ class UpdateItemRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             // Prevent circular references
-            /** @var \App\Models\Item|null $item */
+            /** @var Item|null $item */
             $item = $this->route('item');
             $parentId = $this->input('parent_id');
 

@@ -13,7 +13,7 @@ final class PartnerTranslationImageIndexQuery
 {
     public function __construct(private readonly PartnerTranslationImageListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\PartnerTranslationImage> */
+    /** @return LengthAwarePaginator<int, PartnerTranslationImage> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = PartnerTranslationImage::query()
@@ -36,19 +36,19 @@ final class PartnerTranslationImageIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
+    /** @param Builder<PartnerTranslationImage> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('partner_translation_images.partner_translation_id', $state->filters['partner_translation_id']);
     }
 
-    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
+    /** @param Builder<PartnerTranslationImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\PartnerTranslationImage> $query */
+    /** @param Builder<PartnerTranslationImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

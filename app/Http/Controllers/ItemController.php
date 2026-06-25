@@ -23,6 +23,7 @@ use App\Models\Tag;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemController extends Controller
 {
@@ -163,8 +164,6 @@ class ItemController extends Controller
 
     /**
      * Attach a single tag to an item.
-     *
-     * @return ItemResource
      */
     public function attachTag(AttachTagItemRequest $request, Item $item): ItemResource
     {
@@ -185,8 +184,6 @@ class ItemController extends Controller
 
     /**
      * Detach a single tag from an item.
-     *
-     * @return ItemResource
      */
     public function detachTag(DetachTagItemRequest $request, Item $item): ItemResource
     {
@@ -204,8 +201,6 @@ class ItemController extends Controller
 
     /**
      * Attach multiple tags to an item.
-     *
-     * @return ItemResource
      */
     public function attachTags(AttachTagsItemRequest $request, Item $item): ItemResource
     {
@@ -229,8 +224,6 @@ class ItemController extends Controller
 
     /**
      * Detach multiple tags from an item.
-     *
-     * @return ItemResource
      */
     public function detachTags(DetachTagsItemRequest $request, Item $item): ItemResource
     {
@@ -248,8 +241,6 @@ class ItemController extends Controller
 
     /**
      * Get items for a specific tag.
-     *
-     * @return AnonymousResourceCollection
      */
     public function forTag(ForTagItemRequest $request, Tag $tag): AnonymousResourceCollection
     {
@@ -262,8 +253,6 @@ class ItemController extends Controller
 
     /**
      * Get items that have ALL of the specified tags (AND condition).
-     *
-     * @return AnonymousResourceCollection
      */
     public function withAllTags(WithAllTagsItemRequest $request): AnonymousResourceCollection
     {
@@ -278,8 +267,6 @@ class ItemController extends Controller
 
     /**
      * Get items that have ANY of the specified tags (OR condition).
-     *
-     * @return AnonymousResourceCollection
      */
     public function withAnyTags(WithAnyTagsItemRequest $request): AnonymousResourceCollection
     {
@@ -294,8 +281,6 @@ class ItemController extends Controller
 
     /**
      * Get items by type.
-     *
-     * @return AnonymousResourceCollection
      */
     public function byType(ByTypeItemRequest $request, string $type): AnonymousResourceCollection
     {
@@ -328,8 +313,6 @@ class ItemController extends Controller
 
     /**
      * Get parent items (items with no parent).
-     *
-     * @return AnonymousResourceCollection
      */
     public function parents(ParentsItemRequest $request): AnonymousResourceCollection
     {
@@ -342,8 +325,6 @@ class ItemController extends Controller
 
     /**
      * Get child items (items with a parent).
-     *
-     * @return AnonymousResourceCollection
      */
     public function children(ChildrenItemRequest $request): AnonymousResourceCollection
     {
@@ -357,7 +338,7 @@ class ItemController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Item $item): \Illuminate\Http\Response
+    public function destroy(Item $item): Response
     {
         $item->delete();
 

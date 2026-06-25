@@ -10,13 +10,15 @@ use App\Http\Resources\LanguageTranslationResource;
 use App\Models\LanguageTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class LanguageTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexLanguageTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexLanguageTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class LanguageTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return LanguageTranslationResource
      */
     public function store(StoreLanguageTranslationRequest $request): LanguageTranslationResource
     {
@@ -61,8 +61,6 @@ class LanguageTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return LanguageTranslationResource
      */
     public function update(UpdateLanguageTranslationRequest $request, LanguageTranslation $languageTranslation): LanguageTranslationResource
     {
@@ -78,7 +76,7 @@ class LanguageTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LanguageTranslation $languageTranslation): \Illuminate\Http\Response
+    public function destroy(LanguageTranslation $languageTranslation): Response
     {
         $languageTranslation->delete();
 

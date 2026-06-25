@@ -5,9 +5,11 @@ namespace App\Filament\Concerns;
 use App\Models\Context;
 use App\Models\Language;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 trait HasTranslationCoverageFilters
 {
@@ -36,8 +38,8 @@ trait HasTranslationCoverageFilters
      * has_fallback_translation virtual boolean attribute on each result row.
      */
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     protected static function withFallbackExists(Builder $query): Builder
     {
@@ -55,7 +57,7 @@ trait HasTranslationCoverageFilters
      * named-injection resolver (see HasTranslationCoverageFilters memory note).
      */
     /**
-     * @return array<int, \Filament\Tables\Filters\BaseFilter>
+     * @return array<int, BaseFilter>
      */
     protected static function translationCoverageFilters(): array
     {

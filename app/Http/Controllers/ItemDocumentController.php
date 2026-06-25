@@ -8,13 +8,16 @@ use App\Http\Resources\ItemDocumentResource;
 use App\Http\Responses\FileResponse;
 use App\Models\Item;
 use App\Models\ItemDocument;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemDocumentController extends Controller
 {
     /**
      * Display a listing of item documents for a specific item.
      */
-    public function index(Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(Item $item): AnonymousResourceCollection
     {
         $itemDocuments = $item->itemDocuments()->orderBy('display_order')->get();
 
@@ -82,7 +85,7 @@ class ItemDocumentController extends Controller
     /**
      * Remove the specified item document.
      */
-    public function destroy(ItemDocument $itemDocument): \Illuminate\Http\Response
+    public function destroy(ItemDocument $itemDocument): Response
     {
         $itemDocument->delete();
 
@@ -92,7 +95,7 @@ class ItemDocumentController extends Controller
     /**
      * Returns the document file for download.
      */
-    public function download(ItemDocument $itemDocument): \Illuminate\Contracts\Support\Responsable
+    public function download(ItemDocument $itemDocument): Responsable
     {
         $disk = config('localstorage.documents.disk');
         $directory = trim(config('localstorage.documents.directory'), '/');

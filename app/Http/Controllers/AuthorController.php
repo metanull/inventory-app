@@ -10,13 +10,15 @@ use App\Http\Resources\AuthorResource;
 use App\Models\Author;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class AuthorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAuthorRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexAuthorRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class AuthorController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return AuthorResource
      */
     public function store(StoreAuthorRequest $request): AuthorResource
     {
@@ -61,8 +61,6 @@ class AuthorController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return AuthorResource
      */
     public function update(UpdateAuthorRequest $request, Author $author): AuthorResource
     {
@@ -78,7 +76,7 @@ class AuthorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Author $author): \Illuminate\Http\Response
+    public function destroy(Author $author): Response
     {
         $author->delete();
 

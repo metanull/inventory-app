@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TimelineFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,8 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timeline extends Model
 {
-    /** @use HasFactory<\Database\Factories\TimelineFactory> */
+    /** @use HasFactory<TimelineFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [

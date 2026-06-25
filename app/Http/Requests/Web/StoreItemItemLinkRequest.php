@@ -1,7 +1,9 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Web;
 
+use App\Models\Item;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,12 +15,11 @@ class StoreItemItemLinkRequest extends FormRequest
     }
 
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\Item|null $item */
+        /** @var Item|null $item */
         $item = $this->route('item');
         $sourceItemId = $item?->id;
 

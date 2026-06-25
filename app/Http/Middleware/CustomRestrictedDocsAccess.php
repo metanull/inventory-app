@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class CustomRestrictedDocsAccess
 {
-    public function handle(\Illuminate\Http\Request $request, \Closure $next): mixed
+    public function handle(Request $request, \Closure $next): mixed
     {
         // Allow access in local and testing environments
         if (app()->environment(['local', 'testing'])) {

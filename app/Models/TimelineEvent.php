@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDisplayOrder;
+use Database\Factories\TimelineEventFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,8 +18,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TimelineEvent extends Model
 {
     use HasDisplayOrder;
-    /** @use HasFactory<\Database\Factories\TimelineEventFactory> */
+
+    /** @use HasFactory<TimelineEventFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Component;
 
 class KeyValueEditor extends Component
@@ -38,7 +39,7 @@ class KeyValueEditor extends Component
     }
 
     /**
-     * @param array<string, mixed>|null $data
+     * @param  array<string, mixed>|null  $data
      * @return array<int, array{key: string, value: string}>
      */
     public function jsonToArray(?array $data): array
@@ -58,7 +59,7 @@ class KeyValueEditor extends Component
         return $result;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.key-value-editor');
     }

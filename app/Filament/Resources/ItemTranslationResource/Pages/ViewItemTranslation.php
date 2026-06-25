@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ItemTranslationResource\Pages;
 
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ItemTranslationResource;
+use App\Models\ItemTranslation;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -13,9 +14,9 @@ class ViewItemTranslation extends ViewRecord
 {
     protected static string $resource = ItemTranslationResource::class;
 
-    private function translationRecord(): \App\Models\ItemTranslation
+    private function translationRecord(): ItemTranslation
     {
-        /** @var \App\Models\ItemTranslation $record */
+        /** @var ItemTranslation $record */
         $record = $this->getRecord();
 
         return $record;

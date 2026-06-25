@@ -13,13 +13,15 @@ use App\Models\Project;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ProjectController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexProjectRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexProjectRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -36,8 +38,6 @@ class ProjectController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ProjectResource
      */
     public function store(StoreProjectRequest $request): ProjectResource
     {
@@ -66,8 +66,6 @@ class ProjectController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ProjectResource
      */
     public function update(UpdateProjectRequest $request, Project $project): ProjectResource
     {
@@ -84,7 +82,7 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Project $project): \Illuminate\Http\Response
+    public function destroy(Project $project): Response
     {
         $project->delete();
 
@@ -93,8 +91,6 @@ class ProjectController extends Controller
 
     /**
      * Toggle Enable/disable on a project.
-     *
-     * @return ProjectResource
      */
     public function setEnabled(SetEnabledProjectRequest $request, Project $project): ProjectResource
     {
@@ -110,8 +106,6 @@ class ProjectController extends Controller
      * Toggle Launched/not-launched on a project.
      * Important: It is independant from the `launch_date` value. It is an idicator showing that
      * the project is to be considered 'laucnhed' as soon as the launch date it reached.
-     *
-     * @return ProjectResource
      */
     public function setLaunched(SetLaunchedProjectRequest $request, Project $project): ProjectResource
     {
@@ -130,7 +124,7 @@ class ProjectController extends Controller
      * - is_launched is true
      * - current date >= launch_date
      */
-    public function enabled(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function enabled(Request $request): AnonymousResourceCollection
     {
         $includes = IncludeParser::fromRequest($request, AllowList::for('project'));
         $query = Project::visible();

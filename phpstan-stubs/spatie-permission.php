@@ -5,9 +5,7 @@ namespace Spatie\Permission\Models;
 /**
  * @property string|null $description
  */
-class Permission
-{
-}
+class Permission {}
 
 /**
  * @property string $name
@@ -16,7 +14,5 @@ class Permission
 class Role
 {
     /** @param string|Permission ...$permissions */
-    public function givePermissionTo(mixed ...$permissions): static
-    {
-    }
+    public function givePermissionTo(mixed ...$permissions): static {}
 }

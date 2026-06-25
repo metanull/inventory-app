@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
+use App\Models\CollectionTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,10 +22,9 @@ class UpdateCollectionTranslationRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\CollectionTranslation|null $collectionTranslation */
+        /** @var CollectionTranslation|null $collectionTranslation */
         $collectionTranslation = $this->route('collectionTranslation');
 
         // Only apply uniqueness validation if updating the unique key fields

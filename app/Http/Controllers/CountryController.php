@@ -10,13 +10,15 @@ use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexCountryRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexCountryRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class CountryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return CountryResource
      */
     public function store(StoreCountryRequest $request): CountryResource
     {
@@ -61,8 +61,6 @@ class CountryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return CountryResource
      */
     public function update(UpdateCountryRequest $request, Country $country): CountryResource
     {
@@ -78,7 +76,7 @@ class CountryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Country $country): \Illuminate\Http\Response
+    public function destroy(Country $country): Response
     {
         $country->delete();
 

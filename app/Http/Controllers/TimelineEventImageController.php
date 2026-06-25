@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TimelineEventImageResource;
 use App\Models\TimelineEventImage;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TimelineEventImageController extends Controller
 {
@@ -54,7 +55,7 @@ class TimelineEventImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEventImage $timelineEventImage): \Illuminate\Http\Response
+    public function destroy(TimelineEventImage $timelineEventImage): Response
     {
         $timelineEventImage->delete();
 

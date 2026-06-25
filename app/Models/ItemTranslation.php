@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\ItemTranslationSaved;
 use App\Traits\HasJsonFields;
+use Database\Factories\ItemTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -25,12 +27,12 @@ use Illuminate\Support\Facades\DB;
  * @property string $context_id
  * @property string|null $name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ItemTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemTranslationFactory> */
+    /** @use HasFactory<ItemTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -222,7 +224,7 @@ class ItemTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeDefaultContext(Builder $query): Builder
@@ -233,7 +235,7 @@ class ItemTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
@@ -242,7 +244,7 @@ class ItemTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeForContext(Builder $query, string $contextId): Builder

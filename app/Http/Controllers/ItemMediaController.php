@@ -7,13 +7,15 @@ use App\Http\Requests\Api\UpdateItemMediaRequest;
 use App\Http\Resources\ItemMediaResource;
 use App\Models\Item;
 use App\Models\ItemMedia;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemMediaController extends Controller
 {
     /**
      * Display a listing of item media for a specific item.
      */
-    public function index(Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(Item $item): AnonymousResourceCollection
     {
         $itemMedia = $item->itemMedia()->orderBy('type')->orderBy('display_order')->get();
 
@@ -82,7 +84,7 @@ class ItemMediaController extends Controller
     /**
      * Remove the specified item media.
      */
-    public function destroy(ItemMedia $itemMedia): \Illuminate\Http\Response
+    public function destroy(ItemMedia $itemMedia): Response
     {
         $itemMedia->delete();
 

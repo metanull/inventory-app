@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ItemType;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ItemFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,13 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $id
  * @property string $internal_name
  * @property string|null $backward_compatibility
- * @property \App\Enums\ItemType $type
+ * @property ItemType $type
  * @property string|null $parent_id
  * @property string $collection_id
  * @property string|null $project_id
@@ -25,14 +27,16 @@ use Illuminate\Support\Facades\DB;
  * @property int|null $start_date
  * @property int|null $end_date
  * @property string|null $display_label
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Item extends Model
 {
     use HasDisplayOrder;
-    /** @use HasFactory<\Database\Factories\ItemFactory> */
+
+    /** @use HasFactory<ItemFactory> */
     use HasFactory;
+
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.

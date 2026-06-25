@@ -8,6 +8,8 @@ use App\Http\Requests\Api\StoreItemItemLinkTranslationRequest;
 use App\Http\Requests\Api\UpdateItemItemLinkTranslationRequest;
 use App\Http\Resources\ItemItemLinkTranslationResource;
 use App\Models\ItemItemLinkTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 /**
  * @tags Item Item Link Translations
@@ -17,7 +19,7 @@ class ItemItemLinkTranslationController extends Controller
     /**
      * Display a listing of item-item link translations
      */
-    public function index(IndexItemItemLinkTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexItemItemLinkTranslationRequest $request): AnonymousResourceCollection
     {
         $query = ItemItemLinkTranslation::query();
 
@@ -39,8 +41,6 @@ class ItemItemLinkTranslationController extends Controller
 
     /**
      * Store a newly created item-item link translation
-     *
-     * @return ItemItemLinkTranslationResource
      */
     public function store(StoreItemItemLinkTranslationRequest $request): ItemItemLinkTranslationResource
     {
@@ -67,8 +67,6 @@ class ItemItemLinkTranslationController extends Controller
 
     /**
      * Update the specified item-item link translation
-     *
-     * @return ItemItemLinkTranslationResource
      */
     public function update(UpdateItemItemLinkTranslationRequest $request, ItemItemLinkTranslation $itemItemLinkTranslation): ItemItemLinkTranslationResource
     {
@@ -83,7 +81,7 @@ class ItemItemLinkTranslationController extends Controller
     /**
      * Remove the specified item-item link translation
      */
-    public function destroy(ItemItemLinkTranslation $itemItemLinkTranslation): \Illuminate\Http\Response
+    public function destroy(ItemItemLinkTranslation $itemItemLinkTranslation): Response
     {
         $itemItemLinkTranslation->delete();
 

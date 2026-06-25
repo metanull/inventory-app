@@ -134,8 +134,6 @@ class CollectionController extends Controller
 
     /**
      * Attach an item to a collection via many-to-many relationship.
-     *
-     * @return CollectionResource
      */
     public function attachItem(AttachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
@@ -153,8 +151,6 @@ class CollectionController extends Controller
 
     /**
      * Detach an item from a collection.
-     *
-     * @return CollectionResource
      */
     public function detachItem(DetachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
@@ -172,8 +168,6 @@ class CollectionController extends Controller
 
     /**
      * Attach multiple items to a collection.
-     *
-     * @return CollectionResource
      */
     public function attachItems(AttachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {
@@ -190,8 +184,6 @@ class CollectionController extends Controller
 
     /**
      * Detach multiple items from a collection.
-     *
-     * @return CollectionResource
      */
     public function detachItems(DetachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -21,13 +23,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $map_zoom
  * @property bool $visible
  * @property string|null $display_label
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Partner extends Model
 {
-    /** @use HasFactory<\Database\Factories\PartnerFactory> */
+    /** @use HasFactory<PartnerFactory> */
     use HasFactory;
+
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.

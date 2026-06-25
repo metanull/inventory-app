@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\AuthorTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class AuthorTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\AuthorTranslationFactory> */
+    /** @use HasFactory<AuthorTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -120,7 +121,6 @@ class AuthorTranslation extends Model
      * Scope a query to only include translations for a specific language.
      *
      * @param  Builder<static>  $query
-     * @param  string  $languageId
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
@@ -132,7 +132,6 @@ class AuthorTranslation extends Model
      * Scope a query to only include translations for a specific context.
      *
      * @param  Builder<static>  $query
-     * @param  string  $contextId
      * @return Builder<static>
      */
     public function scopeForContext(Builder $query, string $contextId): Builder

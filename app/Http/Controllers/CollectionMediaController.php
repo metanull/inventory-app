@@ -7,13 +7,15 @@ use App\Http\Requests\Api\UpdateCollectionMediaRequest;
 use App\Http\Resources\CollectionMediaResource;
 use App\Models\Collection;
 use App\Models\CollectionMedia;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CollectionMediaController extends Controller
 {
     /**
      * Display a listing of collection media for a specific collection.
      */
-    public function index(Collection $collection): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(Collection $collection): AnonymousResourceCollection
     {
         $collectionMedia = $collection->collectionMedia()->orderBy('type')->orderBy('display_order')->get();
 
@@ -82,7 +84,7 @@ class CollectionMediaController extends Controller
     /**
      * Remove the specified collection media.
      */
-    public function destroy(CollectionMedia $collectionMedia): \Illuminate\Http\Response
+    public function destroy(CollectionMedia $collectionMedia): Response
     {
         $collectionMedia->delete();
 

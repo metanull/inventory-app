@@ -13,7 +13,7 @@ final class CollectionTranslationIndexQuery
 {
     public function __construct(private readonly CollectionTranslationListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\CollectionTranslation> */
+    /** @return LengthAwarePaginator<int, CollectionTranslation> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = CollectionTranslation::query()
@@ -39,7 +39,7 @@ final class CollectionTranslationIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\CollectionTranslation> $query */
+    /** @param Builder<CollectionTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('collection_translations.collection_id', $state->filters['collection_id']);
@@ -53,13 +53,13 @@ final class CollectionTranslationIndexQuery
         }
     }
 
-    /** @param Builder<\App\Models\CollectionTranslation> $query */
+    /** @param Builder<CollectionTranslation> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\CollectionTranslation> $query */
+    /** @param Builder<CollectionTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

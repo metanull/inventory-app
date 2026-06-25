@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Collection;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -21,10 +22,9 @@ class UpdateCollectionRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\Collection|null $collection */
+        /** @var Collection|null $collection */
         $collection = $this->route('collection');
 
         return [

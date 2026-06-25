@@ -15,13 +15,16 @@ use App\Models\Contributor;
 use App\Models\ContributorImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContributorImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorImageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexContributorImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -39,8 +42,6 @@ class ContributorImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorImageResource
      */
     public function store(StoreContributorImageRequest $request): ContributorImageResource
     {
@@ -66,8 +67,6 @@ class ContributorImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorImageResource
      */
     public function update(UpdateContributorImageRequest $request, ContributorImage $contributorImage): ContributorImageResource
     {
@@ -83,7 +82,7 @@ class ContributorImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorImage $contributorImage): \Illuminate\Http\Response
+    public function destroy(ContributorImage $contributorImage): Response
     {
         $contributorImage->delete();
 
@@ -127,8 +126,6 @@ class ContributorImageController extends Controller
 
     /**
      * Attach an available image to a contributor.
-     *
-     * @return ContributorImageResource
      */
     public function attachFromAvailable(AttachFromAvailableContributorImageRequest $request, Contributor $contributor): ContributorImageResource
     {
@@ -162,7 +159,7 @@ class ContributorImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(ContributorImage $contributorImage): \Illuminate\Contracts\Support\Responsable
+    public function download(ContributorImage $contributorImage): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');
@@ -181,7 +178,7 @@ class ContributorImageController extends Controller
     /**
      * Returns the image file for direct viewing.
      */
-    public function view(ContributorImage $contributorImage): \Illuminate\Contracts\Support\Responsable
+    public function view(ContributorImage $contributorImage): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');

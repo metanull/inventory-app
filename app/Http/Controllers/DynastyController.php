@@ -10,13 +10,15 @@ use App\Http\Resources\DynastyResource;
 use App\Models\Dynasty;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class DynastyController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexDynastyRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexDynastyRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class DynastyController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return DynastyResource
      */
     public function store(StoreDynastyRequest $request): DynastyResource
     {
@@ -61,8 +61,6 @@ class DynastyController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return DynastyResource
      */
     public function update(UpdateDynastyRequest $request, Dynasty $dynasty): DynastyResource
     {
@@ -78,7 +76,7 @@ class DynastyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Dynasty $dynasty): \Illuminate\Http\Response
+    public function destroy(Dynasty $dynasty): Response
     {
         $dynasty->delete();
 

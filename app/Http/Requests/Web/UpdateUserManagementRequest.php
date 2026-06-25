@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Web;
 
@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
 
 class UpdateUserManagementRequest extends FormRequest
@@ -24,10 +25,9 @@ class UpdateUserManagementRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \App\Models\User|null $user */
+        /** @var User|null $user */
         $user = $this->route('user');
 
         return [
@@ -44,7 +44,7 @@ class UpdateUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             $user = $this->route('user');

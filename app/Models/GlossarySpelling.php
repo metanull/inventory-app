@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\SpellingSaved;
+use Database\Factories\GlossarySpellingFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  */
 class GlossarySpelling extends Model
 {
-    /** @use HasFactory<\Database\Factories\GlossarySpellingFactory> */
+    /** @use HasFactory<GlossarySpellingFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -160,7 +161,6 @@ class GlossarySpelling extends Model
      * Scope a query to only include spellings for a specific language.
      *
      * @param  Builder<static>  $query
-     * @param  string  $languageId
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
@@ -172,7 +172,6 @@ class GlossarySpelling extends Model
      * Scope a query to search for a specific spelling.
      *
      * @param  Builder<static>  $query
-     * @param  string  $spelling
      * @return Builder<static>
      */
     public function scopeForSpelling(Builder $query, string $spelling): Builder

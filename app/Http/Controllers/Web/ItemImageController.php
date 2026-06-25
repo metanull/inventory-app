@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
 use App\Services\Web\ItemImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -158,7 +159,7 @@ class ItemImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Item $item, ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
+    public function download(Item $item, ItemImage $itemImage): Responsable
     {
         if ($itemImage->item_id !== $item->id) {
             abort(404);
@@ -170,7 +171,7 @@ class ItemImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Item $item, ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
+    public function view(Item $item, ItemImage $itemImage): Responsable
     {
         if ($itemImage->item_id !== $item->id) {
             abort(404);

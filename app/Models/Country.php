@@ -2,19 +2,21 @@
 
 namespace App\Models;
 
+use Database\Factories\CountryFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $internal_name
  * @property string|null $backward_compatibility
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Country extends Model
 {
-    /** @use HasFactory<\Database\Factories\CountryFactory> */
+    /** @use HasFactory<CountryFactory> */
     use HasFactory;
 
     public $incrementing = false; // Disable auto-incrementing

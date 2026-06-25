@@ -8,6 +8,7 @@ use App\Filament\Resources\ItemTranslationResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
 use App\Models\Context;
+use App\Models\Item;
 use App\Models\ItemTranslation;
 use App\Models\Language;
 use Filament\Forms\Components\Section;
@@ -278,9 +279,9 @@ class TranslationsRelationManager extends RelationManager
             ]);
     }
 
-    private function ownerItem(): \App\Models\Item
+    private function ownerItem(): Item
     {
-        /** @var \App\Models\Item $record */
+        /** @var Item $record */
         $record = $this->ownerRecord;
 
         return $record;

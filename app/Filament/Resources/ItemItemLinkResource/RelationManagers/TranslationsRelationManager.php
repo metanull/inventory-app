@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ItemItemLinkResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
+use App\Models\ItemItemLink;
 use App\Models\Language;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -125,9 +126,9 @@ class TranslationsRelationManager extends RelationManager
             ]);
     }
 
-    private function ownerItemItemLink(): \App\Models\ItemItemLink
+    private function ownerItemItemLink(): ItemItemLink
     {
-        /** @var \App\Models\ItemItemLink $record */
+        /** @var ItemItemLink $record */
         $record = $this->ownerRecord;
 
         return $record;

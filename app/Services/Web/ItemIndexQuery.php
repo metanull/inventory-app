@@ -13,7 +13,7 @@ final class ItemIndexQuery
 {
     public function __construct(private readonly ItemListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Item> */
+    /** @return LengthAwarePaginator<int, Item> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Item::query()
@@ -42,7 +42,7 @@ final class ItemIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\Item> $query */
+    /** @param Builder<Item> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         if ($search === null) {
@@ -61,7 +61,7 @@ final class ItemIndexQuery
         });
     }
 
-    /** @param Builder<\App\Models\Item> $query */
+    /** @param Builder<Item> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;
@@ -95,7 +95,7 @@ final class ItemIndexQuery
         }
     }
 
-    /** @param Builder<\App\Models\Item> $query */
+    /** @param Builder<Item> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

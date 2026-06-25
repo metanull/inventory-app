@@ -150,7 +150,7 @@ class ItemController extends Controller
 
         // Prevent circular references by checking if the potential parent
         // has this item anywhere in its ancestry chain
-        /** @var \App\Models\Item $potentialParent */
+        /** @var Item $potentialParent */
         $potentialParent = Item::findOrFail((string) $request->input('parent_id'));
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
@@ -193,7 +193,7 @@ class ItemController extends Controller
                 ->withInput();
         }
 
-        /** @var \App\Models\Item $child */
+        /** @var Item $child */
         $child = Item::findOrFail((string) $request->input('child_id'));
 
         // Check if already a child (idempotent)
@@ -334,7 +334,7 @@ class ItemController extends Controller
         return Country::query()->select('id', 'internal_name')->find($countryId);
     }
 
-    /** @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> */
+    /** @return EloquentCollection<int, Tag> */
     private function resolveSelectedTags(ListState $listState): EloquentCollection
     {
         $selectedTagIds = $listState->filters['tags'] ?? [];

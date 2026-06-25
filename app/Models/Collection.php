@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PartnerLevel;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Collection Model
@@ -25,12 +27,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $context_id
  * @property string|null $backward_compatibility
  * @property string|null $display_label
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Collection extends Model
 {
-    /** @use HasFactory<\Database\Factories\CollectionFactory> */
+    /** @use HasFactory<CollectionFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     // Type constants

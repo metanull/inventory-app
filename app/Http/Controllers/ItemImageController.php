@@ -14,13 +14,16 @@ use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemImageController extends Controller
 {
     /**
      * Display a listing of item images for a specific item.
      */
-    public function index(IndexItemImageRequest $request, Item $item): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexItemImageRequest $request, Item $item): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $itemImages = $item->itemImages()->orderBy('display_order');
@@ -117,8 +120,6 @@ class ItemImageController extends Controller
 
     /**
      * Attach an available image to an item.
-     *
-     * @return ItemImageResource
      */
     public function attachFromAvailable(AttachFromAvailableItemImageRequest $request, Item $item): ItemImageResource
     {
@@ -152,7 +153,7 @@ class ItemImageController extends Controller
     /**
      * Remove the specified item image.
      */
-    public function destroy(ItemImage $itemImage): \Illuminate\Http\Response
+    public function destroy(ItemImage $itemImage): Response
     {
         $itemImage->delete();
 
@@ -162,7 +163,7 @@ class ItemImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
+    public function download(ItemImage $itemImage): Responsable
     {
         return new DownloadImageResponse($itemImage);
     }
@@ -170,7 +171,7 @@ class ItemImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(ItemImage $itemImage): \Illuminate\Contracts\Support\Responsable
+    public function view(ItemImage $itemImage): Responsable
     {
         return new InlineImageResponse($itemImage);
     }

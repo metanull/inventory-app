@@ -1,10 +1,11 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Web;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class UpdateRoleManagementRequest extends FormRequest
 {
@@ -21,10 +22,9 @@ class UpdateRoleManagementRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
-        /** @var \Spatie\Permission\Models\Role|null $role */
+        /** @var Role|null $role */
         $role = $this->route('role');
 
         return [

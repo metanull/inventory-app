@@ -10,13 +10,15 @@ use App\Http\Resources\CountryTranslationResource;
 use App\Models\CountryTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CountryTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexCountryTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexCountryTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class CountryTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return CountryTranslationResource
      */
     public function store(StoreCountryTranslationRequest $request): CountryTranslationResource
     {
@@ -61,8 +61,6 @@ class CountryTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return CountryTranslationResource
      */
     public function update(UpdateCountryTranslationRequest $request, CountryTranslation $countryTranslation): CountryTranslationResource
     {
@@ -78,7 +76,7 @@ class CountryTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CountryTranslation $countryTranslation): \Illuminate\Http\Response
+    public function destroy(CountryTranslation $countryTranslation): Response
     {
         $countryTranslation->delete();
 

@@ -10,13 +10,15 @@ use App\Http\Resources\DynastyTranslationResource;
 use App\Models\DynastyTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class DynastyTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexDynastyTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexDynastyTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class DynastyTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return DynastyTranslationResource
      */
     public function store(StoreDynastyTranslationRequest $request): DynastyTranslationResource
     {
@@ -61,8 +61,6 @@ class DynastyTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return DynastyTranslationResource
      */
     public function update(UpdateDynastyTranslationRequest $request, DynastyTranslation $dynastyTranslation): DynastyTranslationResource
     {
@@ -78,7 +76,7 @@ class DynastyTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DynastyTranslation $dynastyTranslation): \Illuminate\Http\Response
+    public function destroy(DynastyTranslation $dynastyTranslation): Response
     {
         $dynastyTranslation->delete();
 

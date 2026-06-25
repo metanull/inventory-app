@@ -182,7 +182,7 @@ class TagResource extends Resource
     }
 
     /**
-     * @return Builder<\App\Models\Tag>
+     * @return Builder<Tag>
      */
     public static function getEloquentQuery(): Builder
     {

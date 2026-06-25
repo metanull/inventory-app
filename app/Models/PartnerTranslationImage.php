@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\PartnerTranslationImageFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class PartnerTranslationImage extends Model implements StreamableImageFile, DetachableImage
+class PartnerTranslationImage extends Model implements DetachableImage, StreamableImageFile
 {
-    /** @use HasFactory<\Database\Factories\PartnerTranslationImageFactory> */
+    /** @use HasFactory<PartnerTranslationImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**

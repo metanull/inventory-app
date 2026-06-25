@@ -10,13 +10,15 @@ use App\Http\Resources\ContributorResource;
 use App\Models\Contributor;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContributorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexContributorRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class ContributorController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorResource
      */
     public function store(StoreContributorRequest $request): ContributorResource
     {
@@ -61,8 +61,6 @@ class ContributorController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorResource
      */
     public function update(UpdateContributorRequest $request, Contributor $contributor): ContributorResource
     {
@@ -78,7 +76,7 @@ class ContributorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Contributor $contributor): \Illuminate\Http\Response
+    public function destroy(Contributor $contributor): Response
     {
         $contributor->delete();
 

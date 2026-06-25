@@ -10,6 +10,7 @@ use App\Http\Responses\Image\DownloadImageResponse;
 use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Services\Web\AvailableImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
@@ -45,7 +46,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
+    public function view(AvailableImage $availableImage): Responsable
     {
         return new InlineImageResponse($availableImage);
     }
@@ -53,7 +54,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the file to the caller for download.
      */
-    public function download(AvailableImage $availableImage): \Illuminate\Contracts\Support\Responsable
+    public function download(AvailableImage $availableImage): Responsable
     {
         return new DownloadImageResponse($availableImage);
     }

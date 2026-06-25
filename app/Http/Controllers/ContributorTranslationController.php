@@ -10,13 +10,15 @@ use App\Http\Resources\ContributorTranslationResource;
 use App\Models\ContributorTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContributorTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexContributorTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class ContributorTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorTranslationResource
      */
     public function store(StoreContributorTranslationRequest $request): ContributorTranslationResource
     {
@@ -61,8 +61,6 @@ class ContributorTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorTranslationResource
      */
     public function update(UpdateContributorTranslationRequest $request, ContributorTranslation $contributorTranslation): ContributorTranslationResource
     {
@@ -78,7 +76,7 @@ class ContributorTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorTranslation $contributorTranslation): \Illuminate\Http\Response
+    public function destroy(ContributorTranslation $contributorTranslation): Response
     {
         $contributorTranslation->delete();
 

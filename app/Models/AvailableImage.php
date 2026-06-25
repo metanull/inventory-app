@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Contracts\StreamableImageFile;
+use Database\Factories\AvailableImageFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string|null $path
@@ -13,13 +15,14 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $mime_type
  * @property int|null $size
  * @property string|null $comment
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class AvailableImage extends Model implements StreamableImageFile
 {
-    /** @use HasFactory<\Database\Factories\AvailableImageFactory> */
+    /** @use HasFactory<AvailableImageFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [

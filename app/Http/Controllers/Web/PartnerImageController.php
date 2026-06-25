@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Services\Web\PartnerImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -158,7 +159,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Partner $partner, PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
+    public function download(Partner $partner, PartnerImage $partnerImage): Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);
@@ -170,7 +171,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Partner $partner, PartnerImage $partnerImage): \Illuminate\Contracts\Support\Responsable
+    public function view(Partner $partner, PartnerImage $partnerImage): Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);

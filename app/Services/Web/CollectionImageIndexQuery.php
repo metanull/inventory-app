@@ -13,7 +13,7 @@ final class CollectionImageIndexQuery
 {
     public function __construct(private readonly CollectionImageListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\CollectionImage> */
+    /** @return LengthAwarePaginator<int, CollectionImage> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = CollectionImage::query()
@@ -36,19 +36,19 @@ final class CollectionImageIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\CollectionImage> $query */
+    /** @param Builder<CollectionImage> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('collection_images.collection_id', $state->filters['collection_id']);
     }
 
-    /** @param Builder<\App\Models\CollectionImage> $query */
+    /** @param Builder<CollectionImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\CollectionImage> $query */
+    /** @param Builder<CollectionImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

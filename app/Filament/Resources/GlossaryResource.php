@@ -26,6 +26,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -69,8 +70,8 @@ class GlossaryResource extends Resource
      * Override the shared withFallbackExists to check only the default language.
      */
     /**
-     * @param Builder<\App\Models\Glossary> $query
-     * @return Builder<\App\Models\Glossary>
+     * @param  Builder<Glossary>  $query
+     * @return Builder<Glossary>
      */
     protected static function withFallbackExists(Builder $query): Builder
     {
@@ -85,7 +86,7 @@ class GlossaryResource extends Resource
      * Override to exclude context-based filters that would produce SQL errors.
      */
     /**
-     * @return array<int, \Filament\Tables\Filters\BaseFilter>
+     * @return array<int, BaseFilter>
      */
     protected static function translationCoverageFilters(): array
     {

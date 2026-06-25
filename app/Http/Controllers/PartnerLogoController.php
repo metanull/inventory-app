@@ -12,13 +12,16 @@ use App\Http\Responses\FileResponse;
 use App\Models\PartnerLogo;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerLogoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerLogoRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexPartnerLogoRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -36,8 +39,6 @@ class PartnerLogoController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerLogoResource
      */
     public function store(StorePartnerLogoRequest $request): PartnerLogoResource
     {
@@ -63,8 +64,6 @@ class PartnerLogoController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerLogoResource
      */
     public function update(UpdatePartnerLogoRequest $request, PartnerLogo $partnerLogo): PartnerLogoResource
     {
@@ -80,7 +79,7 @@ class PartnerLogoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerLogo $partnerLogo): \Illuminate\Http\Response
+    public function destroy(PartnerLogo $partnerLogo): Response
     {
         $partnerLogo->delete();
 
@@ -129,7 +128,7 @@ class PartnerLogoController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerLogo $partnerLogo): \Illuminate\Contracts\Support\Responsable
+    public function download(PartnerLogo $partnerLogo): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');
@@ -149,7 +148,7 @@ class PartnerLogoController extends Controller
     /**
      * Returns the logo file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerLogo $partnerLogo): \Illuminate\Contracts\Support\Responsable
+    public function view(PartnerLogo $partnerLogo): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');

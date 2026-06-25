@@ -9,6 +9,7 @@ use App\Http\Requests\Web\UpdatePermissionsRoleManagementRequest;
 use App\Http\Requests\Web\UpdateRoleManagementRequest;
 use App\Services\Web\RoleManagementIndexQuery;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -46,7 +47,7 @@ class RoleManagementController extends Controller
     /**
      * Store a newly created role.
      */
-    public function store(StoreRoleManagementRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(StoreRoleManagementRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -89,7 +90,7 @@ class RoleManagementController extends Controller
     /**
      * Update the specified role.
      */
-    public function update(UpdateRoleManagementRequest $request, Role $role): \Illuminate\Http\RedirectResponse
+    public function update(UpdateRoleManagementRequest $request, Role $role): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -113,7 +114,7 @@ class RoleManagementController extends Controller
     /**
      * Remove the specified role.
      */
-    public function destroy(Role $role): \Illuminate\Http\RedirectResponse
+    public function destroy(Role $role): RedirectResponse
     {
         // Check if role has users assigned
         if ($role->users()->count() > 0) {
@@ -141,7 +142,7 @@ class RoleManagementController extends Controller
     /**
      * Update the permissions for a role.
      */
-    public function updatePermissions(UpdatePermissionsRoleManagementRequest $request, Role $role): \Illuminate\Http\RedirectResponse
+    public function updatePermissions(UpdatePermissionsRoleManagementRequest $request, Role $role): RedirectResponse
     {
         $validated = $request->validated();
 

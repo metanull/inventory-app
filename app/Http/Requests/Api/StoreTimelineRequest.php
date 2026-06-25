@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,7 +15,6 @@ class StoreTimelineRequest extends FormRequest
     /**
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
         return [

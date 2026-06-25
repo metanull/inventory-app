@@ -15,13 +15,16 @@ use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerTranslationImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerTranslationImageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexPartnerTranslationImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -39,8 +42,6 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerTranslationImageResource
      */
     public function store(StorePartnerTranslationImageRequest $request): PartnerTranslationImageResource
     {
@@ -66,8 +67,6 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerTranslationImageResource
      */
     public function update(UpdatePartnerTranslationImageRequest $request, PartnerTranslationImage $partnerTranslationImage): PartnerTranslationImageResource
     {
@@ -83,7 +82,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerTranslationImage $partnerTranslationImage): \Illuminate\Http\Response
+    public function destroy(PartnerTranslationImage $partnerTranslationImage): Response
     {
         $partnerTranslationImage->delete();
 
@@ -131,8 +130,6 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Attach an available image to a partner translation.
-     *
-     * @return PartnerTranslationImageResource
      */
     public function attachFromAvailable(AttachFromAvailablePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationImageResource
     {
@@ -166,7 +163,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
+    public function download(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');
@@ -186,7 +183,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
+    public function view(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         $disk = config('localstorage.pictures.disk');
         $directory = trim(config('localstorage.pictures.directory'), '/');

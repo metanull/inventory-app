@@ -3,6 +3,9 @@
 namespace App\Livewire;
 
 use App\Livewire\Support\OptionsLookup;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -124,7 +127,7 @@ class SearchableSelect extends Component
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model>
+     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
      */
     public function getOptionsProperty()
     {
@@ -173,7 +176,7 @@ class SearchableSelect extends Component
         return null;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
         $focusClasses = $colors

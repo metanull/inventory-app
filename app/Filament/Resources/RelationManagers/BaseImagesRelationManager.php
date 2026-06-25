@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Contracts\DetachableImage;
+use App\Contracts\StreamableImageFile;
 use App\Models\AvailableImage;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -167,7 +169,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                     ->modalHeading('Detach image')
                     ->modalDescription('This will move the image back to the available image pool. You can re-attach it later.')
                     ->action(function (Model $record): void {
-                        /** @var Model&\App\Contracts\StreamableImageFile&\App\Contracts\DetachableImage $record */
+                        /** @var Model&StreamableImageFile&DetachableImage $record */
                         $record->detachToAvailableImage();
 
                         Notification::make()
@@ -181,7 +183,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                     ->modalHeading('Delete image permanently')
                     ->modalDescription('The image file will be permanently deleted from storage and cannot be recovered. It will NOT be returned to the available image pool.')
                     ->before(function (Model $record): void {
-                        /** @var Model&\App\Contracts\StreamableImageFile $record */
+                        /** @var Model&StreamableImageFile $record */
                         Storage::disk($record->imageDisk())
                             ->delete($record->imageStoragePath());
                     }),

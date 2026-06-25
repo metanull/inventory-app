@@ -8,13 +8,15 @@ use App\Http\Requests\Api\StoreGlossaryTranslationRequest;
 use App\Http\Requests\Api\UpdateGlossaryTranslationRequest;
 use App\Http\Resources\GlossaryTranslationResource;
 use App\Models\GlossaryTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class GlossaryTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossaryTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexGlossaryTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -32,8 +34,6 @@ class GlossaryTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return GlossaryTranslationResource
      */
     public function store(StoreGlossaryTranslationRequest $request): GlossaryTranslationResource
     {
@@ -59,8 +59,6 @@ class GlossaryTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return GlossaryTranslationResource
      */
     public function update(UpdateGlossaryTranslationRequest $request, GlossaryTranslation $glossaryTranslation): GlossaryTranslationResource
     {
@@ -74,7 +72,7 @@ class GlossaryTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GlossaryTranslation $glossaryTranslation): \Illuminate\Http\Response
+    public function destroy(GlossaryTranslation $glossaryTranslation): Response
     {
         $glossaryTranslation->delete();
 

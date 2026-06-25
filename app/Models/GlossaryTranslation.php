@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\GlossaryTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class GlossaryTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\GlossaryTranslationFactory> */
+    /** @use HasFactory<GlossaryTranslationFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -70,7 +71,6 @@ class GlossaryTranslation extends Model
      * Scope a query to only include translations for a specific language.
      *
      * @param  Builder<static>  $query
-     * @param  string  $languageId
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Component;
 
 class ConfirmationModal extends Component
@@ -70,7 +71,7 @@ class ConfirmationModal extends Component
         $this->method = 'DELETE';
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.confirmation-modal');
     }

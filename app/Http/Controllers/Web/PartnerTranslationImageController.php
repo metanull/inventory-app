@@ -12,6 +12,7 @@ use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Services\Web\PartnerTranslationImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -159,7 +160,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
+    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
@@ -184,7 +185,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): \Illuminate\Contracts\Support\Responsable
+    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {

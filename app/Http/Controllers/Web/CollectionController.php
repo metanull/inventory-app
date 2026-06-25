@@ -148,7 +148,7 @@ class CollectionController extends Controller
                 ->withInput();
         }
 
-        /** @var \App\Models\Collection $potentialParent */
+        /** @var Collection $potentialParent */
         $potentialParent = Collection::findOrFail((string) $request->input('parent_id'));
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {

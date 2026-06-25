@@ -9,6 +9,7 @@ use App\Http\Requests\Web\UpdateUserManagementRequest;
 use App\Models\User;
 use App\Services\Web\UserManagementIndexQuery;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -47,7 +48,7 @@ class UserManagementController extends Controller
     /**
      * Store a newly created user.
      */
-    public function store(StoreUserManagementRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(StoreUserManagementRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -100,7 +101,7 @@ class UserManagementController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(UpdateUserManagementRequest $request, User $user): \Illuminate\Http\RedirectResponse
+    public function update(UpdateUserManagementRequest $request, User $user): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -149,7 +150,7 @@ class UserManagementController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user): \Illuminate\Http\RedirectResponse
+    public function destroy(User $user): RedirectResponse
     {
         if ($user->id === Auth::id()) {
             return redirect()->route('admin.users.index')

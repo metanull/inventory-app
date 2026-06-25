@@ -10,6 +10,9 @@ use App\Http\Resources\ImageUploadStatusResource;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
 use App\Models\ItemImage;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
@@ -17,7 +20,7 @@ class ImageUploadController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         return ImageUploadResource::collection(ImageUpload::all());
     }
@@ -64,7 +67,7 @@ class ImageUploadController extends Controller
      * Returns the processing status. If processing is complete, returns the AvailableImage details.
      * If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
      */
-    public function status(string $id): ImageUploadStatusResource|\Illuminate\Http\JsonResponse
+    public function status(string $id): ImageUploadStatusResource|JsonResponse
     {
         // First check if the ImageUpload still exists (processing not complete)
         $imageUpload = ImageUpload::find($id);
@@ -106,7 +109,7 @@ class ImageUploadController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ImageUpload $imageUpload): \Illuminate\Http\Response
+    public function destroy(ImageUpload $imageUpload): Response
     {
         Storage::delete($imageUpload->path);
         $imageUpload->delete();

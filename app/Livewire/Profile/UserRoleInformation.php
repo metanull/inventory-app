@@ -3,11 +3,12 @@
 namespace App\Livewire\Profile;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class UserRoleInformation extends Component
 {
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $user = Auth::user();
         $roles = $user->roles()->get();

@@ -8,6 +8,8 @@ use App\Http\Requests\Api\StoreCollectionTranslationRequest;
 use App\Http\Requests\Api\UpdateCollectionTranslationRequest;
 use App\Http\Resources\CollectionTranslationResource;
 use App\Models\CollectionTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 /**
  * @tags Collection Translations
@@ -17,7 +19,7 @@ class CollectionTranslationController extends Controller
     /**
      * Display a listing of collection translations
      */
-    public function index(IndexCollectionTranslationRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexCollectionTranslationRequest $request): AnonymousResourceCollection
     {
         $query = CollectionTranslation::query();
 
@@ -77,7 +79,7 @@ class CollectionTranslationController extends Controller
     /**
      * Remove the specified collection translation
      */
-    public function destroy(CollectionTranslation $collectionTranslation): \Illuminate\Http\Response
+    public function destroy(CollectionTranslation $collectionTranslation): Response
     {
         $collectionTranslation->delete();
 

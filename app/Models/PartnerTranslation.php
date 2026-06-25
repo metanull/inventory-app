@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\PartnerTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,12 +25,12 @@ use Illuminate\Support\Facades\DB;
  * @property string $context_id
  * @property string|null $name
  * @property string|null $description
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class PartnerTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\PartnerTranslationFactory> */
+    /** @use HasFactory<PartnerTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -169,7 +171,7 @@ class PartnerTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeDefaultContext(Builder $query): Builder
@@ -180,7 +182,7 @@ class PartnerTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
@@ -189,7 +191,7 @@ class PartnerTranslation extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return Builder<static>
      */
     public function scopeForContext(Builder $query, string $contextId): Builder

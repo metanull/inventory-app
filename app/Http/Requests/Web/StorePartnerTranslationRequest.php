@@ -5,6 +5,7 @@ namespace App\Http\Requests\Web;
 use App\Http\Requests\Traits\PreparesPairsForValidation;
 use App\Models\PartnerTranslation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StorePartnerTranslationRequest extends FormRequest
 {
@@ -61,7 +62,7 @@ class StorePartnerTranslationRequest extends FormRequest
     /**
      * Add uniqueness validation for the combination of partner_id, language_id, and context_id.
      */
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             $exists = PartnerTranslation::where('partner_id', $this->partner_id)

@@ -11,7 +11,9 @@ use App\Http\Resources\TwoFactorChallengeResource;
 use App\Http\Resources\TwoFactorStatusResource;
 use App\Models\User;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
@@ -24,7 +26,7 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request): \Illuminate\Http\JsonResponse
+    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -104,7 +106,7 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request): \Illuminate\Http\JsonResponse
+    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -189,7 +191,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Return a 2FA challenge response.
      */
-    protected function requireTwoFactorAuthentication(User $user): \Illuminate\Http\JsonResponse
+    protected function requireTwoFactorAuthentication(User $user): JsonResponse
     {
         return response()->json(
             (new TwoFactorChallengeResource([
@@ -205,7 +207,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Revoke all the token for the current user.
      */
-    public function wipe_tokens(Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+    public function wipe_tokens(Request $request): JsonResponse|Response
     {
         if (! $request->user()) {
             return response()->json(

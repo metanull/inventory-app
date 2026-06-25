@@ -7,13 +7,15 @@ use App\Http\Requests\Api\StoreItemItemLinkRequest;
 use App\Http\Requests\Api\UpdateItemItemLinkRequest;
 use App\Http\Resources\ItemItemLinkResource;
 use App\Models\ItemItemLink;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemItemLinkController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexItemItemLinkRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexItemItemLinkRequest $request): AnonymousResourceCollection
     {
         $query = ItemItemLink::query();
 
@@ -47,8 +49,6 @@ class ItemItemLinkController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ItemItemLinkResource
      */
     public function store(StoreItemItemLinkRequest $request): ItemItemLinkResource
     {
@@ -69,8 +69,6 @@ class ItemItemLinkController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ItemItemLinkResource
      */
     public function update(UpdateItemItemLinkRequest $request, ItemItemLink $link): ItemItemLinkResource
     {
@@ -84,7 +82,7 @@ class ItemItemLinkController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ItemItemLink $link): \Illuminate\Http\Response
+    public function destroy(ItemItemLink $link): Response
     {
         $link->delete();
 

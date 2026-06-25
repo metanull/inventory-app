@@ -1,10 +1,11 @@
-﻿<?php
+<?php
 
 namespace App\Http\Requests\Web;
 
 use App\Enums\Permission;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
 
 class StoreUserManagementRequest extends FormRequest
@@ -22,7 +23,6 @@ class StoreUserManagementRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    
     public function rules(): array
     {
         return [
@@ -36,7 +36,7 @@ class StoreUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
             // Check if any of the roles being assigned have sensitive permissions

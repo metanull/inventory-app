@@ -7,6 +7,7 @@ use App\Filament\Resources\CollectionTranslationResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
+use App\Models\Collection;
 use App\Models\CollectionTranslation;
 use App\Models\Context;
 use App\Models\Language;
@@ -219,9 +220,9 @@ class TranslationsRelationManager extends RelationManager
             ]);
     }
 
-    private function ownerCollection(): \App\Models\Collection
+    private function ownerCollection(): Collection
     {
-        /** @var \App\Models\Collection $record */
+        /** @var Collection $record */
         $record = $this->ownerRecord;
 
         return $record;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ArtistFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Artist extends Model
 {
-    /** @use HasFactory<\Database\Factories\ArtistFactory> */
+    /** @use HasFactory<ArtistFactory> */
     use HasFactory, HasUuids;
 
     /**

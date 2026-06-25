@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TimelineEventTranslationSaved;
 use App\Traits\HasJsonFields;
+use Database\Factories\TimelineEventTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,18 +12,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $timeline_event_id
  * @property string $language_id
  * @property string|null $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class TimelineEventTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\TimelineEventTranslationFactory> */
+    /** @use HasFactory<TimelineEventTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**

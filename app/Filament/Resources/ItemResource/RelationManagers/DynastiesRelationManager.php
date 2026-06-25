@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Filament\Support\DynastyDisplayLabel;
+use App\Models\Dynasty;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
@@ -57,7 +58,7 @@ class DynastiesRelationManager extends RelationManager
                 AttachAction::make()
                     ->recordSelectSearchColumns(['backward_compatibility'])
                     ->recordSelectOptionsQuery(function ($query) {
-                        /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Dynasty> $query */
+                        /** @var Builder<Dynasty> $query */
                         return DynastyDisplayLabel::withDisplayLabel(
                             $query->orderBy('from_ad')
                         );

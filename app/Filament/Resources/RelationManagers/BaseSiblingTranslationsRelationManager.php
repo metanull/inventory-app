@@ -81,7 +81,7 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                         $lang = $r->getRelation('language');
                         $ctx = $r->getRelation('context');
 
-                        return ($lang instanceof Language && $ctx instanceof Context && $lang->is_default && $ctx->is_default);
+                        return $lang instanceof Language && $ctx instanceof Context && $lang->is_default && $ctx->is_default;
                     })
                     ->trueIcon('heroicon-s-star')
                     ->falseIcon('heroicon-o-minus')

@@ -8,6 +8,7 @@ use App\Http\Resources\TimelineEventTranslationResource;
 use App\Models\TimelineEventTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Response;
 
 class TimelineEventTranslationController extends Controller
 {
@@ -50,7 +51,7 @@ class TimelineEventTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEventTranslation $timelineEventTranslation): \Illuminate\Http\Response
+    public function destroy(TimelineEventTranslation $timelineEventTranslation): Response
     {
         $timelineEventTranslation->delete();
 

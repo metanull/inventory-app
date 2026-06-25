@@ -13,7 +13,7 @@ final class ProjectIndexQuery
 {
     public function __construct(private readonly ProjectListDefinition $definition) {}
 
-    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Project> */
+    /** @return LengthAwarePaginator<int, Project> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Project::query()->select([
@@ -34,13 +34,13 @@ final class ProjectIndexQuery
             ->withQueryString();
     }
 
-    /** @param Builder<\App\Models\Project> $query */
+    /** @param Builder<Project> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
-    /** @param Builder<\App\Models\Project> $query */
+    /** @param Builder<Project> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

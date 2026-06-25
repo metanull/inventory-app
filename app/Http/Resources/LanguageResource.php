@@ -2,9 +2,8 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use App\Models\Language;
-use App\Http\Resources\BaseJsonResource;
+use Illuminate\Http\Request;
 
 /** @extends BaseJsonResource<Language> */
 class LanguageResource extends BaseJsonResource

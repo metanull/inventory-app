@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ItemItemLinkTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,8 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ItemItemLinkTranslation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemItemLinkTranslationFactory> */
+    /** @use HasFactory<ItemItemLinkTranslationFactory> */
     use HasFactory;
+
     use HasUuids;
 
     /**

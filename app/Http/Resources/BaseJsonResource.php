@@ -7,8 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @template TModel of Model
+ *
  * @property TModel $resource
  */
-abstract class BaseJsonResource extends JsonResource
-{
-}
+abstract class BaseJsonResource extends JsonResource {}

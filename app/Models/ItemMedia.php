@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ItemMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemMedia extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemMediaFactory> */
+    /** @use HasFactory<ItemMediaFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $table = 'item_media';

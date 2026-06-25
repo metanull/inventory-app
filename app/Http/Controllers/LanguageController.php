@@ -10,13 +10,16 @@ use App\Http\Requests\Api\UpdateLanguageRequest;
 use App\Http\Resources\LanguageResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Language;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class LanguageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexLanguageRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexLanguageRequest $request): AnonymousResourceCollection
     {
         $pagination = $request->getPaginationParams();
 
@@ -33,8 +36,6 @@ class LanguageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return LanguageResource
      */
     public function store(StoreLanguageRequest $request): LanguageResource
     {
@@ -55,8 +56,6 @@ class LanguageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return LanguageResource
      */
     public function update(UpdateLanguageRequest $request, Language $language): LanguageResource
     {
@@ -70,7 +69,7 @@ class LanguageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Language $language): \Illuminate\Http\Response
+    public function destroy(Language $language): Response
     {
         $language->delete();
 
@@ -79,8 +78,6 @@ class LanguageController extends Controller
 
     /**
      * Set or unset a Language as the default one.
-     *
-     * @return LanguageResource
      */
     public function setDefault(SetDefaultLanguageRequest $request, Language $language): LanguageResource
     {
@@ -109,7 +106,7 @@ class LanguageController extends Controller
     /**
      * Get the default Language.
      */
-    public function getDefault(): LanguageResource|\Illuminate\Http\JsonResponse
+    public function getDefault(): LanguageResource|JsonResponse
     {
         $language = Language::default()->first();
         if (! $language) {
@@ -125,7 +122,7 @@ class LanguageController extends Controller
     /**
      * Get the english Language.
      */
-    public function getEnglish(): LanguageResource|\Illuminate\Http\JsonResponse
+    public function getEnglish(): LanguageResource|JsonResponse
     {
         $language = Language::english()->first();
         if (! $language) {

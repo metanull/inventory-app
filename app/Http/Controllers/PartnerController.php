@@ -10,13 +10,15 @@ use App\Http\Resources\PartnerResource;
 use App\Models\Partner;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerRequest $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(IndexPartnerRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,8 +36,6 @@ class PartnerController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerResource
      */
     public function store(StorePartnerRequest $request): PartnerResource
     {
@@ -61,8 +61,6 @@ class PartnerController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerResource
      */
     public function update(UpdatePartnerRequest $request, Partner $partner): PartnerResource
     {
@@ -78,7 +76,7 @@ class PartnerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Partner $partner): \Illuminate\Http\Response
+    public function destroy(Partner $partner): Response
     {
         $partner->delete();
 

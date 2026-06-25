@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Permission;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
@@ -19,20 +21,22 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $name
  * @property string $email
  * @property string $password
- * @property \Illuminate\Support\Carbon|null $email_verified_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $two_factor_secret
- * @property \Illuminate\Support\Carbon|null $two_factor_confirmed_at
+ * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $two_factor_recovery_codes
- * @property \Illuminate\Support\Carbon|null $approved_at
- * @property \Illuminate\Support\Carbon|null $suspended_at
+ * @property Carbon|null $approved_at
+ * @property Carbon|null $suspended_at
  */
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     use HasApiTokens;
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use HasRoles;
     use MustVerifyEmailTrait;

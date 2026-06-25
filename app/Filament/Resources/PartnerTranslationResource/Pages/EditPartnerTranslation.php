@@ -5,6 +5,7 @@ namespace App\Filament\Resources\PartnerTranslationResource\Pages;
 use App\Filament\Concerns\RedirectsToViewAfterSave;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Resources\PartnerTranslationResource;
+use App\Models\PartnerTranslation;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -15,9 +16,9 @@ class EditPartnerTranslation extends EditRecord
 
     protected static string $resource = PartnerTranslationResource::class;
 
-    private function translationRecord(): \App\Models\PartnerTranslation
+    private function translationRecord(): PartnerTranslation
     {
-        /** @var \App\Models\PartnerTranslation $record */
+        /** @var PartnerTranslation $record */
         $record = $this->getRecord();
 
         return $record;
