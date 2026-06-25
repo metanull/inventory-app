@@ -9,8 +9,9 @@ use Illuminate\Support\Collection;
 class TranslationSectionData
 {
     /**
-     * @param  Collection<int, mixed>  $translations
-     * @return Collection<int, mixed>
+     * @template TTranslation
+     * @param  Collection<int, TTranslation>  $translations
+     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, mixed>}>
      */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {

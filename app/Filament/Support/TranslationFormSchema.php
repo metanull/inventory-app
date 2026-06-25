@@ -80,7 +80,7 @@ class TranslationFormSchema
                 ->pluck('name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($v): string => Author::query()->find($v)?->name ?? (is_scalar($v) ? (string) $v : ''));
+            ->getOptionLabelUsing(fn (mixed $v): string => Author::query()->whereKey($v)->first()?->name ?? (is_scalar($v) ? (string) $v : ''));
     }
 
     public static function itemSelectField(
@@ -209,7 +209,7 @@ class TranslationFormSchema
                 ->pluck('internal_name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($value): string => Context::query()->find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''));
+            ->getOptionLabelUsing(fn (mixed $value): string => Context::query()->whereKey($value)->first()?->internal_name ?? (is_scalar($value) ? (string) $value : ''));
 
         return static::requiredOrNullable($select, $required);
     }
