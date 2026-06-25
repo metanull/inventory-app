@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Mail;
 
 class TestMailInfrastructure extends Command
@@ -26,9 +27,15 @@ class TestMailInfrastructure extends Command
      */
     public function handle(): int
     {
-        $recipient = $this->argument('recipient');
+        $recipientRaw = $this->argument('recipient');
+        if (! is_string($recipientRaw)) {
+            $this->error('Recipient must be a string.');
+
+            return Command::FAILURE;
+        }
+        $recipient = $recipientRaw;
         try {
-            Mail::raw('This is a test email from your Laravel deployment.', function ($message) use ($recipient) {
+            Mail::raw('This is a test email from your Laravel deployment.', function (Message $message) use ($recipient): void {
                 $message->to($recipient)
                     ->subject('Laravel Mail Test');
             });

@@ -204,6 +204,7 @@ class GenerateModelDocumentation extends Command
                 $content[] = '| Column | Type | Nullable | Default | Extra |';
                 $content[] = '|--------|------|----------|---------|-------|';
 
+                /** @var list<string> $columns */
                 $columns = Schema::getColumnListing($tableName);
                 foreach ($columns as $column) {
                     $columnDetails = $this->getColumnDetails($tableName, $column);
@@ -242,7 +243,8 @@ class GenerateModelDocumentation extends Command
                 $content[] = '| Attribute | Cast Type |';
                 $content[] = '|-----------|-----------|';
                 foreach ($casts as $attribute => $castType) {
-                    $content[] = "| `{$attribute}` | `{$castType}` |";
+                    $castTypeStr = is_scalar($castType) ? (string) $castType : '';
+                    $content[] = "| `{$attribute}` | `{$castTypeStr}` |";
                 }
                 $content[] = '';
             }

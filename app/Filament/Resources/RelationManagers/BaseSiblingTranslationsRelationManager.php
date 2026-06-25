@@ -7,6 +7,7 @@ use App\Filament\Resources\LanguageResource;
 use App\Models\Context;
 use App\Models\Language;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -22,6 +23,8 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
 
     /**
      * Returns the FQCN of the translation Filament resource (e.g. ItemTranslationResource::class).
+     *
+     * @return class-string<\Filament\Resources\Resource>
      */
     abstract protected static function translationResource(): string;
 
@@ -103,11 +106,11 @@ abstract class BaseSiblingTranslationsRelationManager extends RelationManager
                 Action::make('viewTranslation')
                     ->label('View')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (Model $r): string => $resource::getUrl('view', ['record' => $r])),
+                    ->url(fn (Model $r): string => (string) $resource::getUrl('view', ['record' => $r])),
                 Action::make('editTranslation')
                     ->label('Edit')
                     ->icon('heroicon-o-pencil')
-                    ->url(fn (Model $r): string => $resource::getUrl('edit', ['record' => $r]))
+                    ->url(fn (Model $r): string => (string) $resource::getUrl('edit', ['record' => $r]))
                     ->visible(fn (Model $r): bool => auth()->user()?->can('update', $r) ?? false),
             ]);
     }

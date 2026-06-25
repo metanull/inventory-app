@@ -48,7 +48,7 @@ class UpdateCollectionTranslationRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             /** @var CollectionTranslation|null $collectionTranslation */
             $collectionTranslation = $this->route('collection_translation');
 

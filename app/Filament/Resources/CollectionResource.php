@@ -24,6 +24,7 @@ use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Models\Project;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -226,7 +227,7 @@ class CollectionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Collection $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => CollectionDisplayLabel::withDisplayLabel(
                 static::withFallbackExists(
                     $query->with([
@@ -240,14 +241,14 @@ class CollectionResource extends Resource
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 CollectionDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
+                    ->url(fn (Collection $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
                 TextColumn::make('parent_display_label')
                     ->label('Parent')
-                    ->getStateUsing(function ($record): ?string {
+                    ->getStateUsing(function (Collection $record): ?string {
                         if (! $record->parent_id || ! $record->parent) {
                             return null;
                         }
@@ -256,21 +257,21 @@ class CollectionResource extends Resource
                     })
                     ->sortable(false)
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->parent
+                    ->url(fn (Collection $record): ?string => $record->parent
                         ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
                         : null),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->context
+                    ->url(fn (Collection $record): ?string => $record->context
                         ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                         : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (Collection $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 static::backwardCompatibilityColumn(),
@@ -299,7 +300,7 @@ class CollectionResource extends Resource
                             ? $c->display_label.' ['.$c->internal_name.']'
                             : $c->internal_name,
                     ])->all())
-                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('partner')
                     ->label('Partner')
@@ -312,7 +313,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Partner::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
@@ -328,7 +329,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Project::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
@@ -344,32 +345,35 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
             ])
             ->filtersFormColumns(2)
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormSchema(fn (array $filters): array => [
-                FiltersSection::make('Translation Coverage')
-                    ->schema([
-                        $filters['has_fallback_translation'],
-                        $filters['missing_fallback_translation'],
-                        $filters['translation_language_has'],
-                        $filters['translation_language_missing'],
-                        $filters['translation_context_has'],
-                        $filters['translation_context_missing'],
-                    ])
-                    ->columns(2),
-                FiltersSection::make('Collection Filters')
-                    ->schema([
-                        $filters['type'],
-                        $filters['parent_id'],
-                        $filters['partner'],
-                        $filters['project'],
-                        $filters['country_id'],
-                    ])
-                    ->columns(2),
-            ])
+            ->filtersFormSchema(function (array $filters): array {
+                /** @var array<string, Component> $filters */
+                return [
+                    FiltersSection::make('Translation Coverage')
+                        ->schema([
+                            $filters['has_fallback_translation'],
+                            $filters['missing_fallback_translation'],
+                            $filters['translation_language_has'],
+                            $filters['translation_language_missing'],
+                            $filters['translation_context_has'],
+                            $filters['translation_context_missing'],
+                        ])
+                        ->columns(2),
+                    FiltersSection::make('Collection Filters')
+                        ->schema([
+                            $filters['type'],
+                            $filters['parent_id'],
+                            $filters['partner'],
+                            $filters['project'],
+                            $filters['country_id'],
+                        ])
+                        ->columns(2),
+                ];
+            })
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -391,25 +395,25 @@ class CollectionResource extends Resource
                         TextEntry::make('type'),
                         TextEntry::make('parent_display_label')
                             ->label('Parent')
-                            ->getStateUsing(fn ($record): ?string => $record->parent_id
+                            ->getStateUsing(fn (Collection $record): ?string => $record->parent_id
                                 ? CollectionDisplayLabel::resolveLabel($record->parent_id)
                                 : null)
-                            ->url(fn ($record): ?string => $record->parent
+                            ->url(fn (Collection $record): ?string => $record->parent
                                 ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
                                 : null),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (Collection $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (Collection $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                         TextEntry::make('country.internal_name')
                             ->label('Country')
-                            ->url(fn ($record): ?string => $record->country
+                            ->url(fn (Collection $record): ?string => $record->country
                                 ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                                 : null),
                         TextEntry::make('latitude'),

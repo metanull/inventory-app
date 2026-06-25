@@ -4,11 +4,13 @@ namespace App\Filament\Resources\ItemItemLinkResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
 use App\Models\ItemItemLink;
+use App\Models\ItemItemLinkTranslation;
 use App\Models\Language;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -43,11 +45,11 @@ class TranslationsRelationManager extends RelationManager
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? (string) $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->unique(
                         table: 'item_item_link_translations',
                         column: 'language_id',
-                        modifyRuleUsing: fn (Unique $rule, $get, $record): Unique => $rule
+                        modifyRuleUsing: fn (Unique $rule, Get $get, ?ItemItemLinkTranslation $record): Unique => $rule
                             ->where('item_item_link_id', $this->ownerItemItemLink()->id)
                             ->ignore($record?->id),
                         ignoreRecord: true,
@@ -81,18 +83,18 @@ class TranslationsRelationManager extends RelationManager
                     ->label('Language')
                     ->sortable()
                     ->badge()
-                    ->color(fn ($record): string => $record->language?->is_default ? 'success' : 'gray')
-                    ->url(fn ($record): ?string => $record->language
+                    ->color(fn (ItemItemLinkTranslation $record): string => $record->language?->is_default ? 'success' : 'gray')
+                    ->url(fn (ItemItemLinkTranslation $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('description')
                     ->label('Description')
                     ->limit(60)
-                    ->tooltip(fn ($record): ?string => strlen((string) $record->description) > 60 ? $record->description : null),
+                    ->tooltip(fn (ItemItemLinkTranslation $record): ?string => strlen((string) $record->description) > 60 ? $record->description : null),
                 TextColumn::make('reciprocal_description')
                     ->label('Reciprocal description')
                     ->limit(60)
-                    ->tooltip(fn ($record): ?string => strlen((string) $record->reciprocal_description) > 60 ? $record->reciprocal_description : null),
+                    ->tooltip(fn (ItemItemLinkTranslation $record): ?string => strlen((string) $record->reciprocal_description) > 60 ? $record->reciprocal_description : null),
                 TextColumn::make('backward_compatibility')
                     ->label('Legacy code')
                     ->toggleable(isToggledHiddenByDefault: true),

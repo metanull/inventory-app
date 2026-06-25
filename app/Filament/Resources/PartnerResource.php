@@ -22,6 +22,7 @@ use App\Filament\Support\PartnerDisplayLabel;
 use App\Models\Country;
 use App\Models\Partner;
 use App\Models\Project;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -136,7 +137,7 @@ class PartnerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Partner $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => PartnerDisplayLabel::withDisplayLabel(
                 static::withFallbackExists($query->with([
                     'country:id,internal_name',
@@ -146,7 +147,7 @@ class PartnerResource extends Resource
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 PartnerDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
+                    ->url(fn (Partner $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
@@ -154,13 +155,13 @@ class PartnerResource extends Resource
                 TextColumn::make('country.internal_name')
                     ->label('Country')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->country
+                    ->url(fn (Partner $record): ?string => $record->country
                         ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                         : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->project
+                    ->url(fn (Partner $record): ?string => $record->project
                         ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                         : null),
                 IconColumn::make('visible')
@@ -186,7 +187,7 @@ class PartnerResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('project_id')
                     ->label('Project')
@@ -200,7 +201,7 @@ class PartnerResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Project::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 TernaryFilter::make('visible')
                     ->label('Visibility')
@@ -209,25 +210,28 @@ class PartnerResource extends Resource
             ])
             ->filtersFormColumns(2)
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormSchema(fn (array $filters): array => [
-                FiltersSection::make('Translation Coverage')
-                    ->schema([
-                        $filters['has_fallback_translation'],
-                        $filters['missing_fallback_translation'],
-                        $filters['translation_language_has'],
-                        $filters['translation_language_missing'],
-                        $filters['translation_context_has'],
-                        $filters['translation_context_missing'],
-                    ])
-                    ->columns(2),
-                FiltersSection::make('Partner Filters')
-                    ->schema([
-                        $filters['country_id'],
-                        $filters['project_id'],
-                        $filters['visible'],
-                    ])
-                    ->columns(2),
-            ])
+            ->filtersFormSchema(function (array $filters): array {
+                /** @var array<string, Component> $filters */
+                return [
+                    FiltersSection::make('Translation Coverage')
+                        ->schema([
+                            $filters['has_fallback_translation'],
+                            $filters['missing_fallback_translation'],
+                            $filters['translation_language_has'],
+                            $filters['translation_language_missing'],
+                            $filters['translation_context_has'],
+                            $filters['translation_context_missing'],
+                        ])
+                        ->columns(2),
+                    FiltersSection::make('Partner Filters')
+                        ->schema([
+                            $filters['country_id'],
+                            $filters['project_id'],
+                            $filters['visible'],
+                        ])
+                        ->columns(2),
+                ];
+            })
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -245,17 +249,17 @@ class PartnerResource extends Resource
                         TextEntry::make('type'),
                         TextEntry::make('country.internal_name')
                             ->label('Country')
-                            ->url(fn ($record): ?string => $record->country
+                            ->url(fn (Partner $record): ?string => $record->country
                                 ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                                 : null),
                         TextEntry::make('project.internal_name')
                             ->label('Project')
-                            ->url(fn ($record): ?string => $record->project
+                            ->url(fn (Partner $record): ?string => $record->project
                                 ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                                 : null),
                         TextEntry::make('monumentItem.internal_name')
                             ->label('Monument item')
-                            ->url(fn ($record): ?string => $record->monumentItem
+                            ->url(fn (Partner $record): ?string => $record->monumentItem
                                 ? (auth()->user()?->can('view', $record->monumentItem) ? ItemResource::getUrl('view', ['record' => $record->monumentItem]) : null)
                                 : null),
                         IconEntry::make('visible')

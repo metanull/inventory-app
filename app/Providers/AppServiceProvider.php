@@ -173,10 +173,9 @@ class AppServiceProvider extends ServiceProvider
             ]);
 
         Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
-            $openApi->secure(
-                // SecurityScheme::apiKey('query', 'api_token')
-                SecurityScheme::http('bearer')
-            );
+            /** @var SecurityScheme $scheme */
+            $scheme = SecurityScheme::http('bearer');
+            $openApi->secure($scheme);
         });
     }
 }

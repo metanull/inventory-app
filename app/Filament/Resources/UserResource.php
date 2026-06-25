@@ -90,7 +90,7 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (User $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('name', 'asc')
             ->columns([
                 TextColumn::make('name')
@@ -134,7 +134,7 @@ class UserResource extends Resource
                     ->label('Role')
                     ->options(fn (): array => Role::query()->orderBy('name')->pluck('name', 'name')->toArray())
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
-                        ? $query->whereHas('roles', fn (Builder $q) => $q->where('name', $data['value']))
+                        ? $query->whereHas('roles', fn (Builder $q): Builder => $q->where('name', $data['value']))
                         : $query),
                 Filter::make('two_factor_enabled')
                     ->label('2FA Enabled')
@@ -208,7 +208,8 @@ class UserResource extends Resource
                             ->required(),
                     ])
                     ->action(function (User $record, array $data): void {
-                        $role = Role::findById((int) $data['role_id']);
+                        $roleId = $data['role_id'] ?? null;
+                        $role = Role::findById(is_numeric($roleId) ? (int) $roleId : 0);
                         $record->syncRoles([$role]);
                         Notification::make()->success()->title('Role assigned')->send();
                     }),

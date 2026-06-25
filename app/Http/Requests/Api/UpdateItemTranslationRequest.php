@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\ItemTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,7 +34,7 @@ class UpdateItemTranslationRequest extends FormRequest
         // Build where clauses for unique constraint check
         // Use existing values if not being updated
         if ($this->has('language_id') || $this->has('context_id')) {
-            $uniqueRule->where(function ($query) use ($itemTranslation) {
+            $uniqueRule->where(function (Builder $query) use ($itemTranslation) {
                 $query->where('language_id', $this->input('language_id', $itemTranslation?->language_id))
                     ->where('context_id', $this->input('context_id', $itemTranslation?->context_id));
             });

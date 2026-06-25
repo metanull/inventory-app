@@ -84,7 +84,7 @@ class TimelineResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
+                            ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                             ->searchable()
                             ->nullable(),
                         Select::make('collection_id')
@@ -98,7 +98,7 @@ class TimelineResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => Collection::find($value)->internal_name ?? $value)
+                            ->getOptionLabelUsing(fn (mixed $value): string => Collection::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                             ->searchable()
                             ->nullable(),
                         TextInput::make('backward_compatibility')
@@ -119,7 +119,7 @@ class TimelineResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Timeline $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
@@ -151,7 +151,7 @@ class TimelineResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('collection_id')
                     ->label('Collection')
@@ -167,7 +167,7 @@ class TimelineResource extends Resource
                             ? $c->display_label.' ['.$c->internal_name.']'
                             : $c->internal_name,
                     ])->all())
-                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
             ]);
     }

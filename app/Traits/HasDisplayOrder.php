@@ -22,8 +22,7 @@ trait HasDisplayOrder
      */
     protected static function bootHasDisplayOrder(): void
     {
-        static::deleted(function ($model) {
-            // Get any remaining sibling to call tightenOrdering
+        static::deleted(function (self $model): void {
             $remaining = $model->getSiblingsQuery()->first();
             if ($remaining) {
                 $remaining->tightenOrdering();

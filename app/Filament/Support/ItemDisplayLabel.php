@@ -298,7 +298,7 @@ class ItemDisplayLabel
 
         return TextColumn::make('picture_label')
             ->label('Name')
-            ->getStateUsing(fn ($record): string => static::resolvePictureLabel($record, $defaultLangId, $defaultContextId))
+            ->getStateUsing(fn (Item $record): string => static::resolvePictureLabel($record, $defaultLangId, $defaultContextId))
             ->searchable(false)
             ->sortable(false);
     }

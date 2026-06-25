@@ -4,6 +4,7 @@ namespace App\Http\Requests\Web;
 
 use App\Models\Item;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,7 +36,7 @@ class StoreItemItemLinkRequest extends FormRequest
                 'uuid',
                 'exists:contexts,id',
                 Rule::unique('item_item_links')
-                    ->where(fn ($q) => $q
+                    ->where(fn (Builder $q) => $q
                         ->where('source_id', $sourceItemId)
                         ->where('target_id', $this->input('target_id'))
                     ),

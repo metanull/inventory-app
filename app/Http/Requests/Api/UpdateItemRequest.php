@@ -47,7 +47,7 @@ class UpdateItemRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             // Prevent circular references
             /** @var Item|null $item */
             $item = $this->route('item');

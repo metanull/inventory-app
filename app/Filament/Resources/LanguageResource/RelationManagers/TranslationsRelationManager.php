@@ -4,6 +4,7 @@ namespace App\Filament\Resources\LanguageResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
 use App\Models\Language;
+use App\Models\LanguageTranslation;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -38,7 +39,7 @@ class TranslationsRelationManager extends RelationManager
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 TextInput::make('name')
                     ->required()
@@ -57,7 +58,7 @@ class TranslationsRelationManager extends RelationManager
                 TextColumn::make('displayLanguage.internal_name')
                     ->label('Display language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->displayLanguage
+                    ->url(fn (LanguageTranslation $record): ?string => $record->displayLanguage
                         ? (auth()->user()?->can('view', $record->displayLanguage) ? LanguageResource::getUrl('view', ['record' => $record->displayLanguage]) : null)
                         : null),
                 TextColumn::make('name')

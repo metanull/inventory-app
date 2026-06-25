@@ -6,6 +6,7 @@ use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\CollectionDisplayLabel;
+use App\Models\Collection;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -33,7 +34,7 @@ class ChildCollectionsRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 CollectionDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                    ->url(fn (Collection $record): ?string => auth()->user()?->can('view', $record)
                         ? CollectionResource::getUrl('view', ['record' => $record])
                         : null),
                 TextColumn::make('type')
@@ -42,13 +43,13 @@ class ChildCollectionsRelationManager extends RelationManager
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->context
+                    ->url(fn (Collection $record): ?string => $record->context
                         ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                         : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (Collection $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('internal_name')

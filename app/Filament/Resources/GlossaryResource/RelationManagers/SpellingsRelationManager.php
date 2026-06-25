@@ -4,6 +4,7 @@ namespace App\Filament\Resources\GlossaryResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
+use App\Models\GlossarySpelling;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -43,7 +44,7 @@ class SpellingsRelationManager extends RelationManager
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (GlossarySpelling $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('spelling')

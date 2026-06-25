@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 
 /**
+ * @property string $id
  * @property string|null $path
  * @property string|null $original_name
  * @property string|null $mime_type

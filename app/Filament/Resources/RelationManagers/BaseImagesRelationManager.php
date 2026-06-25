@@ -104,7 +104,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                                 ])
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => AvailableImage::find($value)->path ?? (string) $value)
+                            ->getOptionLabelUsing(fn (mixed $value): string => AvailableImage::find($value)?->path ?? (is_scalar($value) ? (string) $value : ''))
                             ->searchable(),
                         TextInput::make('alt_text')
                             ->label('Alt text')

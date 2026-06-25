@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
+use App\Models\ItemDocument;
 use App\Support\FileSize;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\DeleteAction;
@@ -45,7 +46,7 @@ class DocumentsRelationManager extends RelationManager
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (ItemDocument $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('display_order')

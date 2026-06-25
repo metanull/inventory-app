@@ -47,7 +47,7 @@ class StoreCollectionTranslationRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             $exists = CollectionTranslation::where('collection_id', $this->collection_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)

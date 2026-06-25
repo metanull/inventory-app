@@ -70,7 +70,9 @@ abstract class IndexListRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $normalized = app(ListInputNormalizer::class)->normalize($this->query(), $this->definition());
+        /** @var array<string, mixed> $queryData */
+        $queryData = $this->query();
+        $normalized = app(ListInputNormalizer::class)->normalize($queryData, $this->definition());
 
         $this->merge(array_filter($normalized, static fn (mixed $value): bool => $value !== null && $value !== []));
     }
@@ -104,6 +106,6 @@ abstract class IndexListRequest extends FormRequest
      */
     private function normalizeRuleSet(mixed $rules): array
     {
-        return is_array($rules) ? $rules : [$rules];
+        return is_array($rules) ? array_values($rules) : [$rules];
     }
 }

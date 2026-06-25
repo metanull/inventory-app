@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Item;
 use App\Models\ItemTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -77,7 +78,7 @@ class ItemTranslationResource extends JsonResource
             'updated_at' => $this->updated_at,
 
             // The item relationship (ItemResource)
-            'item' => new ItemResource($this->whenLoaded('item', fn ($item) => $item->withoutRelations())),
+            'item' => new ItemResource($this->whenLoaded('item', fn (Item $item): Item => $item->withoutRelations())),
             // The language relationship (LanguageResource)
             'language' => new LanguageResource($this->whenLoaded('language')),
             // The context relationship (ContextResource)

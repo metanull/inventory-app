@@ -71,10 +71,11 @@ class RequestPasswordReset extends SimplePage
         try {
             $this->rateLimit(5);
         } catch (TooManyRequestsException $exception) {
+            $seconds = is_numeric($exception->secondsUntilAvailable) ? (int) $exception->secondsUntilAvailable : 0;
             Notification::make()
                 ->title(__('filament-panels::pages/auth/login.notifications.throttled.title', [
-                    'seconds' => $exception->secondsUntilAvailable,
-                    'minutes' => (int) ceil($exception->secondsUntilAvailable / 60),
+                    'seconds' => $seconds,
+                    'minutes' => (int) ceil($seconds / 60),
                 ]))
                 ->danger()
                 ->send();

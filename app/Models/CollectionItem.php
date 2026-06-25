@@ -84,7 +84,10 @@ class CollectionItem extends Pivot
      */
     public function contextualDescriptions(): array
     {
-        return (array) ($this->extra['contextual_descriptions'] ?? []);
+        $extra = is_array($this->extra) ? $this->extra : [];
+
+        /** @var array<string, string> */
+        return (array) ($extra['contextual_descriptions'] ?? []);
     }
 
     /**
@@ -116,7 +119,10 @@ class CollectionItem extends Pivot
      */
     public function sourceBackwardCompatibilityByLanguage(): array
     {
-        return (array) ($this->extra['source_bc_by_language'] ?? []);
+        $extra = is_array($this->extra) ? $this->extra : [];
+
+        /** @var array<string, string> */
+        return (array) ($extra['source_bc_by_language'] ?? []);
     }
 
     /**

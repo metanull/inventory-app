@@ -78,7 +78,7 @@ class AvailableImageResource extends Resource
             ->schema([
                 ImageEntry::make('preview')
                     ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                    ->getStateUsing(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->height(200)
@@ -119,16 +119,16 @@ class AvailableImageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (AvailableImage $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('preview')
                     ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                    ->getStateUsing(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->height(64)
-                    ->url(fn ($record) => route('filament.admin.available-image.view', [
+                    ->url(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->openUrlInNewTab()
@@ -179,7 +179,8 @@ class AvailableImageResource extends Resource
                             ->required(),
                     ])
                     ->action(function (array $data): void {
-                        $path = $data['file'];
+                        $fileRaw = $data['file'] ?? null;
+                        $path = is_string($fileRaw) ? $fileRaw : '';
 
                         $imageUpload = ImageUpload::create([
                             'path' => $path,

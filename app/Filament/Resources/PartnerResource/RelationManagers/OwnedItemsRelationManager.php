@@ -7,6 +7,7 @@ use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\ProjectResource;
 use App\Filament\Support\ItemDisplayLabel;
+use App\Models\Item;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -34,7 +35,7 @@ class OwnedItemsRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 ItemDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
+                    ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
@@ -42,13 +43,13 @@ class OwnedItemsRelationManager extends RelationManager
                 TextColumn::make('project.internal_name')
                     ->label('Project')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->project
+                    ->url(fn (Item $record): ?string => $record->project
                         ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                         : null),
                 TextColumn::make('collection.internal_name')
                     ->label('Collection')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->collection
+                    ->url(fn (Item $record): ?string => $record->collection
                         ? (auth()->user()?->can('view', $record->collection) ? CollectionResource::getUrl('view', ['record' => $record->collection]) : null)
                         : null),
                 TextColumn::make('internal_name')

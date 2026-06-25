@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 use App\Filament\Resources\TimelineEventResource;
 use App\Filament\Resources\TimelineResource;
 use App\Filament\Support\TimelineEventDisplayLabel;
+use App\Models\TimelineEvent;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -34,12 +35,12 @@ class TimelineEventsRelationManager extends RelationManager
                 TextColumn::make('timeline.internal_name')
                     ->label('Timeline')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->timeline && auth()->user()?->can('view', $record->timeline)
+                    ->url(fn (TimelineEvent $record): ?string => $record->timeline && auth()->user()?->can('view', $record->timeline)
                         ? TimelineResource::getUrl('view', ['record' => $record->timeline])
                         : null),
                 TimelineEventDisplayLabel::displayLabelColumn()
                     ->label('Event')
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                    ->url(fn (TimelineEvent $record): ?string => auth()->user()?->can('view', $record)
                         ? TimelineEventResource::getUrl('view', ['record' => $record])
                         : null),
                 TextColumn::make('year_from')

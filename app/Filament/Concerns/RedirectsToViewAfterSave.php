@@ -6,6 +6,6 @@ trait RedirectsToViewAfterSave
 {
     protected function getRedirectUrl(): string
     {
-        return $this->getResource()::getUrl('view', ['record' => $this->getRecord()]);
+        return (string) $this->getResource()::getUrl('view', ['record' => $this->getRecord()]);
     }
 }

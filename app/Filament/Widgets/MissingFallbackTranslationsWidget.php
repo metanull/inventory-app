@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\ItemType;
 use App\Enums\Permission;
 use App\Filament\Resources\CollectionResource;
 use App\Filament\Resources\ItemResource;
@@ -73,7 +74,7 @@ class MissingFallbackTranslationsWidget extends BaseWidget
                     ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
-                    ->formatStateUsing(fn ($state): ?string => $state?->label())
+                    ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
                     ->sortable(false),
                 TextColumn::make('internal_name')
                     ->label('Internal name')

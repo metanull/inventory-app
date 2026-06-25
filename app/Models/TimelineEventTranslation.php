@@ -32,7 +32,7 @@ class TimelineEventTranslation extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($timelineEventTranslation) {
+        static::saved(function (TimelineEventTranslation $timelineEventTranslation): void {
             event(new TimelineEventTranslationSaved($timelineEventTranslation));
         });
     }

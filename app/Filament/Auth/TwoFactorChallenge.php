@@ -94,7 +94,7 @@ class TwoFactorChallenge extends SimplePage
                                 ->label(__('Send code to my email'))
                                 ->color('gray')
                                 ->outlined()
-                                ->action(fn ($livewire) => $livewire->sendEmailCode()),
+                                ->action(fn (TwoFactorChallenge $livewire) => $livewire->sendEmailCode()),
                         ])
                             ->hidden(fn (Get $get): bool => $get('method') !== 'email')
                             ->columnSpanFull(),

@@ -9,6 +9,7 @@ use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SynonymsRelationManager extends RelationManager
 {
@@ -43,7 +44,7 @@ class SynonymsRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordSelectSearchColumns(['internal_name', 'backward_compatibility'])
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('internal_name')),
+                    ->recordSelectOptionsQuery(fn (Builder $query): Builder => $query->orderBy('internal_name')),
             ])
             ->actions([
                 DetachAction::make(),

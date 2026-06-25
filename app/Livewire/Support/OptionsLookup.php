@@ -38,7 +38,9 @@ trait OptionsLookup
             throw new InvalidArgumentException('Model class is not set on '.static::class);
         }
 
-        $query = $this->modelClass::query();
+        /** @var class-string<Model> $modelClass */
+        $modelClass = $this->modelClass;
+        $query = $modelClass::query();
 
         if ($this->filterColumn && $this->filterValue !== null) {
             $this->applyFilter($query);

@@ -25,10 +25,13 @@ class DebugVersionInfo extends Command
 
             if (is_callable($versionInfo)) {
                 $this->info('   ✓ app_version_info is callable');
-                $result = $versionInfo();
+                $rawResult = $versionInfo();
+                /** @var array<string, mixed> $result */
+                $result = is_array($rawResult) ? $rawResult : [];
                 $this->info('   ✓ Callback executed successfully');
 
                 // Process the result to include formatted datetime like app-footer.blade.php
+                /** @var array<string, mixed> $processedResult */
                 $processedResult = $result;
                 if (isset($result['build_timestamp'])) {
                     $buildTimestamp = $result['build_timestamp'];
@@ -60,12 +63,19 @@ class DebugVersionInfo extends Command
                     }
                 }
 
-                $this->table(['Key', 'Value'], array_map(function ($key, $value) {
+                $this->table(['Key', 'Value'], array_map(function (mixed $key, mixed $value): array {
+                    $keyStr = is_scalar($key) ? (string) $key : '';
                     if (is_array($value)) {
-                        $value = json_encode($value);
+                        $valStr = (string) json_encode($value);
+                    } elseif (is_null($value)) {
+                        $valStr = 'NULL';
+                    } elseif (is_scalar($value)) {
+                        $valStr = (string) $value;
+                    } else {
+                        $valStr = '?';
                     }
 
-                    return [$key, $value ?? 'NULL'];
+                    return [$keyStr, $valStr];
                 }, array_keys($processedResult), array_values($processedResult)));
             } else {
                 $this->error('   ✗ app_version_info is not callable');

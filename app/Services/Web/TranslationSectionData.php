@@ -17,7 +17,7 @@ class TranslationSectionData
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
         if ($translations->isEmpty()) {
-            return collect();
+            return collect([]);
         }
 
         $defaultLanguageId = Language::query()
@@ -78,10 +78,13 @@ class TranslationSectionData
             })
             ->sortBy('sort_key')
             ->values()
-            ->map(fn (array $group): array => [
-                'label' => $group['label'],
-                'is_default' => $group['is_default'],
-                'translations' => $group['translations'],
-            ]);
+            ->map(function (array $group): array {
+                /** @var array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>, sort_key: string} $group */
+                return [
+                    'label' => $group['label'],
+                    'is_default' => $group['is_default'],
+                    'translations' => $group['translations'],
+                ];
+            });
     }
 }

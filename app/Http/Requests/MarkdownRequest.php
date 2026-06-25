@@ -93,10 +93,10 @@ class MarkdownRequest extends FormRequest
         $rules = [
             'string',
             'max:65535', // TEXT field limit
-            function ($attribute, $value, $fail) {
+            function (string $attribute, mixed $value, \Closure $fail): void {
                 $markdownService = app(MarkdownService::class);
                 try {
-                    $markdownService->validateHtml($value);
+                    $markdownService->validateHtml(is_string($value) ? $value : '');
                 } catch (ValidationException $e) {
                     $errors = $e->validator->errors()->all();
                     foreach ($errors as $error) {

@@ -37,6 +37,7 @@ use App\Models\Item;
 use App\Models\Partner;
 use App\Models\Project;
 use App\Models\Tag;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -236,7 +237,7 @@ class ItemResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Item $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => ItemDisplayLabel::withDisplayLabel(
                 static::withFallbackExists(
                     $query->with([
@@ -253,7 +254,7 @@ class ItemResource extends Resource
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 ItemDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
+                    ->url(fn (Item $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 static::fallbackTranslationColumn(),
                 TextColumn::make('type')
                     ->badge()
@@ -261,7 +262,7 @@ class ItemResource extends Resource
                     ->sortable(),
                 TextColumn::make('parent_display_label')
                     ->label('Parent')
-                    ->getStateUsing(function ($record): ?string {
+                    ->getStateUsing(function (Item $record): ?string {
                         if (! $record->parent_id || ! $record->parent) {
                             return null;
                         }
@@ -270,28 +271,28 @@ class ItemResource extends Resource
                     })
                     ->sortable(false)
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->parent
+                    ->url(fn (Item $record): ?string => $record->parent
                         ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
                         : null),
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->partner
+                    ->url(fn (Item $record): ?string => $record->partner
                         ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
                         : null),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->country
+                    ->url(fn (Item $record): ?string => $record->country
                         ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                         : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->project
+                    ->url(fn (Item $record): ?string => $record->project
                         ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                         : null),
                 static::backwardCompatibilityColumn(),
@@ -321,7 +322,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Partner::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Partner::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('collection')
                     ->label('Collection')
@@ -337,7 +338,7 @@ class ItemResource extends Resource
                             ? $c->display_label.' ['.$c->internal_name.']'
                             : $c->internal_name,
                     ])->all())
-                    ->getOptionLabelUsing(fn ($value): string => CollectionDisplayLabel::resolveLabel($value) ?: (string) $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : ''))
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('attachedToCollections', fn (Builder $q): Builder => $q->where('collections.id', $data['value']))
@@ -354,7 +355,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Project::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Project::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('country_id')
                     ->label('Country')
@@ -367,7 +368,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Country::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
                 SelectFilter::make('tags')
                     ->label('Tag')
@@ -388,9 +389,12 @@ class ItemResource extends Resource
                         /** @var Builder<Item> $q */
                         $q = $query;
 
-                        return ! empty($data['values'])
-                            ? $q->withAnyTags($data['values'])
-                            : $q;
+                        /** @var array<int, mixed> $tagValues */
+                        $tagValues = is_array($data['values'] ?? null) ? $data['values'] : [];
+
+                        return ! empty($tagValues)
+                                ? $q->withAnyTags($tagValues)
+                                : $q;
                     }),
                 TernaryFilter::make('top_level_only')
                     ->label('Hierarchy')
@@ -404,29 +408,32 @@ class ItemResource extends Resource
             ])
             ->filtersFormColumns(2)
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormSchema(fn (array $filters): array => [
-                FiltersSection::make('Translation Coverage')
-                    ->schema([
-                        $filters['has_fallback_translation'],
-                        $filters['missing_fallback_translation'],
-                        $filters['translation_language_has'],
-                        $filters['translation_language_missing'],
-                        $filters['translation_context_has'],
-                        $filters['translation_context_missing'],
-                    ])
-                    ->columns(2),
-                FiltersSection::make('Item Filters')
-                    ->schema([
-                        $filters['type'],
-                        $filters['partner_id'],
-                        $filters['collection'],
-                        $filters['project_id'],
-                        $filters['country_id'],
-                        $filters['tags'],
-                        $filters['top_level_only'],
-                    ])
-                    ->columns(2),
-            ])
+            ->filtersFormSchema(function (array $filters): array {
+                /** @var array<string, Component> $filters */
+                return [
+                    FiltersSection::make('Translation Coverage')
+                        ->schema([
+                            $filters['has_fallback_translation'],
+                            $filters['missing_fallback_translation'],
+                            $filters['translation_language_has'],
+                            $filters['translation_language_missing'],
+                            $filters['translation_context_has'],
+                            $filters['translation_context_missing'],
+                        ])
+                        ->columns(2),
+                    FiltersSection::make('Item Filters')
+                        ->schema([
+                            $filters['type'],
+                            $filters['partner_id'],
+                            $filters['collection'],
+                            $filters['project_id'],
+                            $filters['country_id'],
+                            $filters['tags'],
+                            $filters['top_level_only'],
+                        ])
+                        ->columns(2),
+                ];
+            })
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -517,25 +524,25 @@ class ItemResource extends Resource
                             ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label()),
                         TextEntry::make('parent_display_label')
                             ->label('Parent')
-                            ->getStateUsing(fn ($record): ?string => $record->parent_id
+                            ->getStateUsing(fn (Item $record): ?string => $record->parent_id
                                 ? ItemDisplayLabel::resolveLabel($record->parent_id)
                                 : null)
-                            ->url(fn ($record): ?string => $record->parent
+                            ->url(fn (Item $record): ?string => $record->parent
                                 ? (auth()->user()?->can('view', $record->parent) ? static::getUrl('view', ['record' => $record->parent]) : null)
                                 : null),
                         TextEntry::make('partner.internal_name')
                             ->label('Partner')
-                            ->url(fn ($record): ?string => $record->partner
+                            ->url(fn (Item $record): ?string => $record->partner
                                 ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
                                 : null),
                         TextEntry::make('country.internal_name')
                             ->label('Country')
-                            ->url(fn ($record): ?string => $record->country
+                            ->url(fn (Item $record): ?string => $record->country
                                 ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                                 : null),
                         TextEntry::make('project.internal_name')
                             ->label('Project')
-                            ->url(fn ($record): ?string => $record->project
+                            ->url(fn (Item $record): ?string => $record->project
                                 ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                                 : null),
                         TextEntry::make('display_order')

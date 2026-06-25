@@ -65,7 +65,7 @@ class UpdatePartnerTranslationRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             /** @var PartnerTranslation|null $partnerTranslation */
             $partnerTranslation = $this->route('partner_translation');
 

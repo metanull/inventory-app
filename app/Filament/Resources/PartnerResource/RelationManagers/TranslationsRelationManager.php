@@ -48,7 +48,7 @@ class TranslationsRelationManager extends RelationManager
                         table: 'partner_translations',
                         column: 'language_id',
                         modifyRuleUsing: function (Unique $rule, Get $get) use ($ownerRecord): Unique {
-                            return $rule->where(fn ($q) => $q
+                            return $rule->where(fn (\Illuminate\Database\Query\Builder $q) => $q
                                 ->where('partner_id', $ownerRecord->id)
                                 ->where('context_id', $get('context_id'))
                             );
@@ -246,11 +246,12 @@ class TranslationsRelationManager extends RelationManager
                         'context_id' => Context::default()->first()?->id,
                     ])
                     ->visible(fn (): bool => ! $this->ownerPartner()->translations()
-                        ->whereHas('language', fn ($q) => $q->where('is_default', true))
-                        ->whereHas('context', fn ($q) => $q->where('is_default', true))
+                        ->whereHas('language', fn (Builder $q): Builder => $q->where('is_default', true))
+                        ->whereHas('context', fn (Builder $q): Builder => $q->where('is_default', true))
                         ->exists()
                     )
                     ->action(function (array $data): void {
+                        /** @var array<string, mixed> $data */
                         $exists = $this->ownerPartner()->translations()
                             ->where('language_id', $data['language_id'])
                             ->where('context_id', $data['context_id'])

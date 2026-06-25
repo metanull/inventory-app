@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,7 @@ class UpdateAuthorTranslationRequest extends FormRequest
     public function rules(): array
     {
         $uniqueRule = Rule::unique('author_translations')
-            ->where(fn ($q) => $q
+            ->where(fn (Builder $q) => $q
                 ->where('author_id', $this->input('author_id'))
                 ->where('language_id', $this->input('language_id'))
                 ->where('context_id', $this->input('context_id'))

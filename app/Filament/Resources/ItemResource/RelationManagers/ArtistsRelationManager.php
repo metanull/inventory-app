@@ -8,6 +8,7 @@ use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\DetachBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ArtistsRelationManager extends RelationManager
 {
@@ -48,7 +49,7 @@ class ArtistsRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordSelectSearchColumns(['name', 'internal_name'])
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('internal_name')),
+                    ->recordSelectOptionsQuery(fn (Builder $query): Builder => $query->orderBy('internal_name')),
             ])
             ->actions([
                 DetachAction::make(),

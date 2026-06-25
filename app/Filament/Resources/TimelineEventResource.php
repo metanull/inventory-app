@@ -85,7 +85,7 @@ class TimelineEventResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)->internal_name ?? $value)
+                            ->getOptionLabelUsing(fn (mixed $value): string => Timeline::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                             ->searchable(),
                         TextInput::make('year_from')
                             ->label('Year from')
@@ -145,12 +145,12 @@ class TimelineEventResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (TimelineEvent $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => TimelineEventDisplayLabel::withDisplayLabel($query))
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 TimelineEventDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
+                    ->url(fn (TimelineEvent $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null),
                 TextColumn::make('timeline.internal_name')
                     ->label('Timeline')
                     ->sortable(),
@@ -188,7 +188,7 @@ class TimelineEventResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Timeline::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Timeline::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
             ]);
     }

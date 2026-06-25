@@ -134,7 +134,7 @@ class SearchableMultiSelect extends Component
     public function removeOption(string $id): void
     {
         $this->selectedIds = array_values(
-            array_filter($this->selectedIds, fn ($existing) => $existing !== $id)
+            array_filter($this->selectedIds, fn (string|int $existing): bool => $existing !== $id)
         );
     }
 
@@ -200,7 +200,10 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->modelClass) {
-            return $this->modelClass::whereIn('id', $this->selectedIds)->get();
+            /** @var class-string<Model> $modelClass */
+            $modelClass = $this->modelClass;
+
+            return $modelClass::whereIn('id', $this->selectedIds)->get();
         }
 
         return collect();

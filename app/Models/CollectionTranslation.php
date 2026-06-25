@@ -40,7 +40,7 @@ class CollectionTranslation extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($collectionTranslation) {
+        static::saved(function (CollectionTranslation $collectionTranslation): void {
             event(new CollectionTranslationSaved($collectionTranslation));
         });
     }

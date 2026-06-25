@@ -47,7 +47,7 @@ class TranslationsRelationManager extends RelationManager
                         table: 'item_translations',
                         column: 'language_id',
                         modifyRuleUsing: function (Unique $rule, Get $get) use ($ownerRecord): Unique {
-                            return $rule->where(fn ($q) => $q
+                            return $rule->where(fn (\Illuminate\Database\Query\Builder $q) => $q
                                 ->where('item_id', $ownerRecord->id)
                                 ->where('context_id', $get('context_id'))
                             );
@@ -239,6 +239,7 @@ class TranslationsRelationManager extends RelationManager
                         ->exists()
                     )
                     ->action(function (array $data): void {
+                        /** @var array<string, mixed> $data */
                         $exists = $this->ownerItem()->translations()
                             ->where('language_id', $data['language_id'])
                             ->where('context_id', $data['context_id'])

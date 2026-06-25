@@ -52,8 +52,10 @@ class CleanupPictures extends Command
         $keepSet = $this->buildKeepSet();
 
         // List files on disk
+        /** @var list<string> $allFiles */
         $allFiles = Storage::disk($disk)->allFiles($directory);
 
+        /** @var list<string> $orphans */
         $orphans = [];
         $referenced = 0;
         $skipped = 0;

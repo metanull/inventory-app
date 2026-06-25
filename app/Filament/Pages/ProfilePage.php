@@ -113,10 +113,13 @@ class ProfilePage extends EditProfile
                 $user = $this->getUser();
 
                 try {
+                    $currentPassword = $data['current_password'] ?? '';
+                    $password = $data['password'] ?? '';
+                    $passwordConfirmation = $data['password_confirmation'] ?? '';
                     app(UpdateUserPassword::class)->update($user, [
-                        'current_password' => $data['current_password'],
-                        'password' => $data['password'],
-                        'password_confirmation' => $data['password_confirmation'],
+                        'current_password' => is_string($currentPassword) ? $currentPassword : '',
+                        'password' => is_string($password) ? $password : '',
+                        'password_confirmation' => is_string($passwordConfirmation) ? $passwordConfirmation : '',
                     ]);
                 } catch (ValidationException $e) {
                     $errors = collect($e->errors())->flatten()->implode(' ');
@@ -187,7 +190,8 @@ class ProfilePage extends EditProfile
 
                 if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm')) {
                     try {
-                        app(ConfirmTwoFactorAuthentication::class)($user, $data['totp_code'] ?? '');
+                        $totpCode = $data['totp_code'] ?? '';
+                        app(ConfirmTwoFactorAuthentication::class)($user, is_string($totpCode) ? $totpCode : '');
                     } catch (ValidationException $e) {
                         app(DisableTwoFactorAuthentication::class)($user);
 
@@ -289,7 +293,9 @@ class ProfilePage extends EditProfile
                 /** @var User $user */
                 $user = $this->getUser();
 
-                if (! Hash::check($data['password'], $user->getAuthPassword())) {
+                $passwordRaw = $data['password'] ?? '';
+                $password = is_string($passwordRaw) ? $passwordRaw : '';
+                if (! Hash::check($password, $user->getAuthPassword())) {
                     Notification::make()
                         ->danger()
                         ->title('The provided password does not match your current password.')
@@ -299,7 +305,7 @@ class ProfilePage extends EditProfile
                 }
 
                 $guard = Auth::guard(Filament::getAuthGuard());
-                $guard->logoutOtherDevices($data['password']);
+                $guard->logoutOtherDevices($password);
 
                 $this->deleteOtherSessionRecords();
 
@@ -331,7 +337,9 @@ class ProfilePage extends EditProfile
                 /** @var User $user */
                 $user = $this->getUser();
 
-                if (! Hash::check($data['password'], $user->getAuthPassword())) {
+                $deletePasswordRaw = $data['password'] ?? '';
+                $deletePassword = is_string($deletePasswordRaw) ? $deletePasswordRaw : '';
+                if (! Hash::check($deletePassword, $user->getAuthPassword())) {
                     Notification::make()
                         ->danger()
                         ->title('The provided password does not match your current password.')

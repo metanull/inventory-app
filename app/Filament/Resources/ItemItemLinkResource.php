@@ -66,7 +66,7 @@ class ItemItemLinkResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (ItemItemLink $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
                 'source:id,internal_name,type,backward_compatibility',
                 'target:id,internal_name,type,backward_compatibility',
@@ -80,30 +80,30 @@ class ItemItemLinkResource extends Resource
                     ->label('Source item')
                     ->sortable()
                     ->searchable()
-                    ->url(fn ($record): ?string => $record->source
+                    ->url(fn (ItemItemLink $record): ?string => $record->source
                         ? (auth()->user()?->can('view', $record->source) ? ItemResource::getUrl('view', ['record' => $record->source]) : null)
                         : null),
                 TextColumn::make('source.type')
                     ->label('Source type')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state instanceof ItemType ? $state->label() : (string) $state)
+                    ->formatStateUsing(fn (mixed $state): string => $state instanceof ItemType ? $state->label() : (is_scalar($state) ? (string) $state : ''))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('target.internal_name')
                     ->label('Target item')
                     ->sortable()
                     ->searchable()
-                    ->url(fn ($record): ?string => $record->target
+                    ->url(fn (ItemItemLink $record): ?string => $record->target
                         ? (auth()->user()?->can('view', $record->target) ? ItemResource::getUrl('view', ['record' => $record->target]) : null)
                         : null),
                 TextColumn::make('target.type')
                     ->label('Target type')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state instanceof ItemType ? $state->label() : (string) $state)
+                    ->formatStateUsing(fn (mixed $state): string => $state instanceof ItemType ? $state->label() : (is_scalar($state) ? (string) $state : ''))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->context
+                    ->url(fn (ItemItemLink $record): ?string => $record->context
                         ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                         : null),
                 static::uuidColumn(),
@@ -131,17 +131,17 @@ class ItemItemLinkResource extends Resource
                     ->schema([
                         TextEntry::make('source.internal_name')
                             ->label('Source item')
-                            ->url(fn ($record): ?string => $record->source
+                            ->url(fn (ItemItemLink $record): ?string => $record->source
                                 ? (auth()->user()?->can('view', $record->source) ? ItemResource::getUrl('view', ['record' => $record->source]) : null)
                                 : null),
                         TextEntry::make('target.internal_name')
                             ->label('Target item')
-                            ->url(fn ($record): ?string => $record->target
+                            ->url(fn (ItemItemLink $record): ?string => $record->target
                                 ? (auth()->user()?->can('view', $record->target) ? ItemResource::getUrl('view', ['record' => $record->target]) : null)
                                 : null),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (ItemItemLink $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                     ])

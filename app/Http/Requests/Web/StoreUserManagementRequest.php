@@ -38,7 +38,7 @@ class StoreUserManagementRequest extends FormRequest
      */
     public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             // Check if any of the roles being assigned have sensitive permissions
             if ($this->has('roles') && is_array($this->roles)) {
                 $roles = Role::whereIn('id', $this->roles)->get();

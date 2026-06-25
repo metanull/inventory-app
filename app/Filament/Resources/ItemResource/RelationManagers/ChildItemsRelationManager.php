@@ -7,6 +7,7 @@ use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Support\ItemDisplayLabel;
+use App\Models\Item;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -35,7 +36,7 @@ class ChildItemsRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 ItemDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
+                    ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 TextColumn::make('type')
                     ->badge()
                     ->formatStateUsing(fn (?ItemType $state): ?string => $state?->label())
@@ -43,13 +44,13 @@ class ChildItemsRelationManager extends RelationManager
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->partner
+                    ->url(fn (Item $record): ?string => $record->partner
                         ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
                         : null),
                 TextColumn::make('country.internal_name')
                     ->label('Country')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->country
+                    ->url(fn (Item $record): ?string => $record->country
                         ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                         : null),
                 TextColumn::make('display_order')

@@ -3,6 +3,7 @@
 namespace App\Services\Web;
 
 use App\Models\Collection;
+use Illuminate\Database\Eloquent\Builder;
 
 class CollectionShowPageData
 {
@@ -17,11 +18,11 @@ class CollectionShowPageData
             'context',
             'language',
             'parent',
-            'children' => fn ($query) => $query->orderBy('display_order'),
+            'children' => fn (Builder $query): Builder => $query->orderBy('display_order'),
             'translations.context',
             'translations.language',
-            'attachedItems.itemImages' => fn ($query) => $query->orderBy('display_order'),
-            'collectionImages' => fn ($query) => $query->orderBy('display_order'),
+            'attachedItems.itemImages' => fn (Builder $query): Builder => $query->orderBy('display_order'),
+            'collectionImages' => fn (Builder $query): Builder => $query->orderBy('display_order'),
         ]);
 
         return [

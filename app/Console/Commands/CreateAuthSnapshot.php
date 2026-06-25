@@ -127,11 +127,14 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table($table)
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($table)
             ->orderBy('id')
             ->get()
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -152,7 +155,8 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table($modelHasRolesTable.' as assignment')
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($modelHasRolesTable.' as assignment')
             ->join($rolesTable.' as role', 'role.id', '=', 'assignment.'.$roleKey)
             ->where('assignment.model_type', User::class)
             ->orderBy('assignment.'.$modelKey)
@@ -165,6 +169,8 @@ class CreateAuthSnapshot extends Command
             ])
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -185,7 +191,8 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table($modelHasPermissionsTable.' as assignment')
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($modelHasPermissionsTable.' as assignment')
             ->join($permissionsTable.' as permission', 'permission.id', '=', 'assignment.'.$permissionKey)
             ->where('assignment.model_type', User::class)
             ->orderBy('assignment.'.$modelKey)
@@ -198,6 +205,8 @@ class CreateAuthSnapshot extends Command
             ])
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -209,11 +218,14 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table('personal_access_tokens')
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table('personal_access_tokens')
             ->where('tokenable_type', User::class)
             ->orderBy('id')
             ->get()
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RoleResource\RelationManagers;
 
+use App\Models\User;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -32,7 +33,7 @@ class UsersRelationManager extends RelationManager
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
-                    ->getStateUsing(fn ($record): bool => $record->email_verified_at !== null),
+                    ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null),
             ]);
     }
 }

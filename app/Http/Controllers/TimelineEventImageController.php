@@ -22,6 +22,7 @@ class TimelineEventImageController extends Controller
      */
     public function update(Request $request, TimelineEventImage $timelineEventImage): TimelineEventImageResource
     {
+        /** @var array<string, mixed> $validated */
         $validated = $request->validate([
             'alt_text' => ['nullable', 'string', 'max:255'],
         ]);

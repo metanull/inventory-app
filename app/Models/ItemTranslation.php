@@ -40,7 +40,7 @@ class ItemTranslation extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($itemTranslation) {
+        static::saved(function (ItemTranslation $itemTranslation): void {
             event(new ItemTranslationSaved($itemTranslation));
         });
     }

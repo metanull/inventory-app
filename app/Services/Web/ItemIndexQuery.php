@@ -82,7 +82,7 @@ final class ItemIndexQuery
 
         if (! empty($filters['tags'])) {
             $tagsFilter = $filters['tags'];
-            $query->withAllTags(is_array($tagsFilter) ? $tagsFilter : []);
+            $query->withAllTags(is_array($tagsFilter) ? array_values($tagsFilter) : []);
         }
 
         if ($parentId !== null) {

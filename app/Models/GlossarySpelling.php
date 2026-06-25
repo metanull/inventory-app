@@ -27,7 +27,7 @@ class GlossarySpelling extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($spelling) {
+        static::saved(function (GlossarySpelling $spelling): void {
             event(new SpellingSaved($spelling));
         });
     }

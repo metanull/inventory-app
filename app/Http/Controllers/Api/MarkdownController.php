@@ -114,9 +114,9 @@ class MarkdownController extends Controller
                 'required',
                 'string',
                 'max:65535',
-                function ($attribute, $value, $fail) {
+                function (string $attribute, mixed $value, \Closure $fail): void {
                     try {
-                        $this->markdownService->validateHtml($value);
+                        $this->markdownService->validateHtml(is_string($value) ? $value : '');
                     } catch (ValidationException $e) {
                         $errors = $e->validator->errors()->all();
                         foreach ($errors as $error) {

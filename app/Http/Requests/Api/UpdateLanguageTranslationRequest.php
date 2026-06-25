@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\LanguageTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UpdateLanguageTranslationRequest extends FormRequest
         $languageTranslation = $this->route('languageTranslation');
 
         $uniqueRule = Rule::unique('language_translations')
-            ->where(fn ($q) => $q
+            ->where(fn (Builder $q) => $q
                 ->where('language_id', $this->input('language_id'))
                 ->where('display_language_id', $this->input('display_language_id'))
             )

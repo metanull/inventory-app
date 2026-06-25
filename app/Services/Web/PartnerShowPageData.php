@@ -3,6 +3,7 @@
 namespace App\Services\Web;
 
 use App\Models\Partner;
+use Illuminate\Database\Eloquent\Builder;
 
 class PartnerShowPageData
 {
@@ -17,7 +18,7 @@ class PartnerShowPageData
             'country',
             'project',
             'monumentItem',
-            'partnerImages' => fn ($query) => $query->orderBy('display_order'),
+            'partnerImages' => fn (Builder $query): Builder => $query->orderBy('display_order'),
             'translations.context',
             'translations.language',
         ]);

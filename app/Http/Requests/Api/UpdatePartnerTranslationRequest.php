@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\PartnerTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UpdatePartnerTranslationRequest extends FormRequest
         $partnerTranslation = $this->route('partnerTranslation');
 
         $uniqueRule = Rule::unique('partner_translations')
-            ->where(fn ($q) => $q
+            ->where(fn (Builder $q) => $q
                 ->where('partner_id', $this->input('partner_id'))
                 ->where('language_id', $this->input('language_id'))
                 ->where('context_id', $this->input('context_id'))

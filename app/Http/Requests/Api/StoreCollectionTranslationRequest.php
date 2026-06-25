@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,7 +30,7 @@ class StoreCollectionTranslationRequest extends FormRequest
                 'required',
                 'uuid',
                 'exists:collections,id',
-                Rule::unique('collection_translations')->where(function ($query) {
+                Rule::unique('collection_translations')->where(function (Builder $query) {
                     return $query->where('language_id', $this->input('language_id'))
                         ->where('context_id', $this->input('context_id'));
                 }),

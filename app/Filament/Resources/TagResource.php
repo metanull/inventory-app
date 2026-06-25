@@ -97,7 +97,7 @@ class TagResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Tag $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('description', 'asc')
             ->columns([
                 TextColumn::make('description')
@@ -120,7 +120,7 @@ class TagResource extends Resource
                     ->label('Language')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (Tag $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 static::uuidColumn(),
@@ -139,7 +139,7 @@ class TagResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
                     ->searchable(),
             ])
             ->actions([
