@@ -11,10 +11,13 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @template TModel of Model
+ */
 trait HasChangeParentAction
 {
     /**
-     * @return class-string<Model>
+     * @return class-string<TModel>
      */
     abstract protected static function changeParentModelClass(): string;
 
@@ -24,6 +27,9 @@ trait HasChangeParentAction
 
     /**
      * Override to restrict the search query for the row action (e.g., excluding descendants).
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
@@ -35,6 +41,7 @@ trait HasChangeParentAction
      * dropdown. The default implementation returns internal_name keyed by ID. Resources
      * that support translated display labels should override this to return translated labels.
      *
+     * @param  Builder<TModel>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array

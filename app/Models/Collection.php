@@ -402,7 +402,7 @@ class Collection extends Model
     /**
      * Get minor contributors (level: minor_contributor).
      *
-     * @return BelongsToMany<Partner, $this>
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function minorContributors(): BelongsToMany
     {

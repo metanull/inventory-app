@@ -46,7 +46,10 @@ use Illuminate\Database\Eloquent\Model;
 class CollectionResource extends Resource
 {
     use HasBackwardCompatibilityColumn;
+
+    /** @use HasChangeParentAction<Collection> */
     use HasChangeParentAction;
+
     use HasInternalNameColumn;
     use HasLegacyLinksInfolistSection;
     use HasTimestampsColumns;
@@ -83,15 +86,12 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param  Builder<Model>  $query
+     * @param  Builder<Collection>  $query
      * @return Builder<Collection>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
-        /** @var Builder<Collection> $q */
-        $q = $query;
-
-        return $q->excludingDescendantsOf((string) $record->getKey());
+        return $query->excludingDescendantsOf((string) $record->getKey());
     }
 
     /**
