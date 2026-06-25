@@ -127,7 +127,7 @@ class CollectionDisplayLabel
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->title));
         if ($t) {
-            return $t->title;
+            return (string) $t->title;
         }
 
         // 5. Fallback

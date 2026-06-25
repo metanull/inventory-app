@@ -132,7 +132,7 @@ class PartnerDisplayLabel
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
         if ($t) {
-            return $t->name;
+            return (string) $t->name;
         }
 
         // 5. Fallback

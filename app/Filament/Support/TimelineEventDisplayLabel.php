@@ -85,7 +85,7 @@ class TimelineEventDisplayLabel
         // 2. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
         if ($t) {
-            return $t->name;
+            return (string) $t->name;
         }
 
         // 3. Fallback
