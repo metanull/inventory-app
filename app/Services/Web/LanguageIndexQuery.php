@@ -13,6 +13,7 @@ final class LanguageIndexQuery
 {
     public function __construct(private readonly LanguageListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Language> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Language::query()->select([

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,6 +15,7 @@ class IndexItemRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -26,6 +27,7 @@ class IndexItemRequest extends FormRequest
 
     /**
      * Get validated pagination parameters.
+     * @return array<string, mixed>
      */
     public function getPaginationParams(): array
     {

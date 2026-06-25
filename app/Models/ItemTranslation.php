@@ -257,6 +257,6 @@ class ItemTranslation extends Model
      */
     public function siblingTranslations(): HasMany
     {
-        return $this->hasMany(static::class, 'item_id', 'item_id');
+        return $this->hasMany(self::class, 'item_id', 'item_id');
     }
 }

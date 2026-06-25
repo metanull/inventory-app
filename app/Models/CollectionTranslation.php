@@ -201,6 +201,6 @@ class CollectionTranslation extends Model
      */
     public function siblingTranslations(): HasMany
     {
-        return $this->hasMany(static::class, 'collection_id', 'collection_id');
+        return $this->hasMany(self::class, 'collection_id', 'collection_id');
     }
 }

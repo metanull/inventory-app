@@ -13,6 +13,7 @@ final class TagIndexQuery
 {
     public function __construct(private readonly TagListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Tag> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Tag::query()

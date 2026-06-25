@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Web;
 
@@ -15,6 +15,7 @@ class StoreItemItemLinkRequest extends FormRequest
     /**
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         /** @var \App\Models\Item|null $item */

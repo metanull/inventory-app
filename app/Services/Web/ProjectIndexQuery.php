@@ -13,6 +13,7 @@ final class ProjectIndexQuery
 {
     public function __construct(private readonly ProjectListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Project> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Project::query()->select([

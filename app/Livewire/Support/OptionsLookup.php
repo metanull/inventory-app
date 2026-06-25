@@ -108,8 +108,10 @@ trait OptionsLookup
      */
     public function resolveStaticOptions(): Collection
     {
+        /** @var array<int, mixed> $rawOpts */
+        $rawOpts = $this->staticOptions;
         /** @var \Illuminate\Support\Collection<int, mixed> $options */
-        $options = collect($this->staticOptions);
+        $options = collect($rawOpts);
 
         $search = trim($this->search);
         if ($search !== '') {
@@ -151,7 +153,7 @@ trait OptionsLookup
      *   array<int, array{scope: string, args: array}>  → fully specified
      *
      * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
-     * @return array<string, mixed>
+     * @return list<array{scope: string, args: list<mixed>}>
      */
     protected function normalizeScopes(mixed $scopes, ?string $modelClass): array
     {

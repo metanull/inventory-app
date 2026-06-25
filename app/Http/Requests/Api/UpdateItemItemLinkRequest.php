@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -22,6 +22,7 @@ class UpdateItemItemLinkRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         $link = $this->route('itemItemLink');

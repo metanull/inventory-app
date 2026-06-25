@@ -11,6 +11,7 @@ class StoreItemRequest extends FormRequest
         return $this->user() !== null; // Additional policy checks can be added later
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [

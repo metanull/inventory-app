@@ -55,7 +55,8 @@ abstract class ListDefinition
     }
 
     /**
-     * @param  Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     * @param  Builder<TModel>  $query
      */
     public function applySearch(Builder $query, ?string $search): void
     {

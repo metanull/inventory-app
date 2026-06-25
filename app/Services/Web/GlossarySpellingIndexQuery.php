@@ -13,6 +13,7 @@ final class GlossarySpellingIndexQuery
 {
     public function __construct(private readonly GlossarySpellingListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\GlossarySpelling> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = GlossarySpelling::query()

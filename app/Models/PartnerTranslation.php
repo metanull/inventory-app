@@ -204,6 +204,6 @@ class PartnerTranslation extends Model
      */
     public function siblingTranslations(): HasMany
     {
-        return $this->hasMany(static::class, 'partner_id', 'partner_id');
+        return $this->hasMany(self::class, 'partner_id', 'partner_id');
     }
 }

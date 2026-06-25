@@ -11,6 +11,7 @@ class KeyValueEditor extends Component
 
     public string $componentName = '';
 
+    /** @param array<string, mixed>|null $initialData */
     public function mount(?array $initialData = null, string $componentName = 'extra'): void
     {
         $this->componentName = $componentName;

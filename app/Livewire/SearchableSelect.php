@@ -12,8 +12,7 @@ class SearchableSelect extends Component
     use OptionsLookup;
 
     #[Modelable]
-    /** @var mixed */
-    public $selectedId = '';
+    public mixed $selectedId = '';
 
     public string $search = '';
 
@@ -93,8 +92,9 @@ class SearchableSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            /** @var \Illuminate\Support\Collection<int, mixed> $staticCollection */
-            $staticCollection = collect($this->staticOptions);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $staticCollection = collect($rawOpts);
             $count = count($staticCollection);
             $max = (int) config('interface.searchable_select.static_options_max', 50);
             if ($count > $max) {
@@ -152,8 +152,9 @@ class SearchableSelect extends Component
 
         // Static options mode
         if ($this->staticOptions !== null) {
-            /** @var \Illuminate\Support\Collection<int, mixed> $options */
-            $options = collect($this->staticOptions);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $options = collect($rawOpts);
 
             return $options->first(function ($option) {
                 $value = is_object($option)

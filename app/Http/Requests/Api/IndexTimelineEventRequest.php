@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,6 +15,7 @@ class IndexTimelineEventRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,6 +25,7 @@ class IndexTimelineEventRequest extends FormRequest
         ];
     }
 
+    /** @return array<string, mixed> */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);

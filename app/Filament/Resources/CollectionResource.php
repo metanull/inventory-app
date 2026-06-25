@@ -83,7 +83,7 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param Builder<\App\Models\Collection> $query
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
      * @return Builder<\App\Models\Collection>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
@@ -95,7 +95,7 @@ class CollectionResource extends Resource
     }
 
     /**
-     * @param Builder<\App\Models\Collection> $query
+     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -21,6 +21,7 @@ class UpdateCollectionRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         /** @var \App\Models\Collection|null $collection */

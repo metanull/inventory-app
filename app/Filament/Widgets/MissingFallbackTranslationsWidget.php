@@ -43,8 +43,9 @@ class MissingFallbackTranslationsWidget extends BaseWidget
     }
 
     /**
-     * @param Builder<\Illuminate\Database\Eloquent\Model> $query
-     * @return Builder<\Illuminate\Database\Eloquent\Model>
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     * @param Builder<TModel> $query
+     * @return Builder<TModel>
      */
     private function missingFallbackQuery(Builder $query): Builder
     {

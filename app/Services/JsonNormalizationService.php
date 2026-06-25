@@ -16,7 +16,7 @@ class JsonNormalizationService
      *
      * @param  mixed  $value  The value to normalize (string, object, array, null)
      * @param  bool  $emptyAsArray  Whether to return empty array for null/empty values
-     * @return array|null The normalized array or null based on $emptyAsArray
+     * @return array<string, mixed>|null The normalized array or null based on $emptyAsArray
      */
     public function normalize($value, bool $emptyAsArray = true): ?array
     {

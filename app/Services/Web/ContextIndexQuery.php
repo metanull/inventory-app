@@ -13,6 +13,7 @@ final class ContextIndexQuery
 {
     public function __construct(private readonly ContextListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Context> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Context::query()->select([

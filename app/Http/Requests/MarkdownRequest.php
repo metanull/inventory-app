@@ -41,7 +41,7 @@ class MarkdownRequest extends FormRequest
      *
      * @param  string  $fieldName  The name of the field containing Markdown
      * @param  bool  $required  Whether the field is required
-     * @return array The validation rules for the field
+     * @return array<string, array<int, mixed>>
      */
     public static function getMarkdownFieldRules(string $fieldName, bool $required = true): array
     {
@@ -59,8 +59,8 @@ class MarkdownRequest extends FormRequest
     /**
      * Get validation rules for multiple Markdown fields
      *
-     * @param  array  $fields  Array of field names or field => required pairs
-     * @return array The validation rules for all fields
+     * @param  array<int|string, mixed>  $fields  Array of field names or field => required pairs
+     * @return array<string, array<int, mixed>>
      */
     public static function getMultipleMarkdownFieldRules(array $fields): array
     {
@@ -84,7 +84,7 @@ class MarkdownRequest extends FormRequest
      *
      * @param  string  $fieldName  The name of the field containing HTML
      * @param  bool  $required  Whether the field is required
-     * @return array The validation rules for the field
+     * @return array<string, array<int, mixed>>
      */
     public static function getHtmlFieldRules(string $fieldName, bool $required = true): array
     {
@@ -116,7 +116,7 @@ class MarkdownRequest extends FormRequest
     /**
      * Get custom error messages for Markdown validation
      *
-     * @return array Custom error messages
+     * @return array<string, string>
      */
     public function messages(): array
     {
@@ -132,7 +132,7 @@ class MarkdownRequest extends FormRequest
     /**
      * Get nice attribute names for validation errors
      *
-     * @return array Attribute names
+     * @return array<string, string>
      */
     public function attributes(): array
     {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,6 +15,7 @@ class IndexContributorImageRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,11 +25,13 @@ class IndexContributorImageRequest extends FormRequest
         ];
     }
 
+    /** @return array<string, mixed> */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);
     }
 
+    /** @return array<int, string> */
     public function getIncludeParams(): array
     {
         return IncludeParser::fromRequest($this, AllowList::for('contributor_image'));

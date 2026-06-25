@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -20,6 +20,7 @@ class UpdateTagRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         $tag = $this->route('tag');

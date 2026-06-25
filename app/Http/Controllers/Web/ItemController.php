@@ -334,6 +334,7 @@ class ItemController extends Controller
         return Country::query()->select('id', 'internal_name')->find($countryId);
     }
 
+    /** @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> */
     private function resolveSelectedTags(ListState $listState): EloquentCollection
     {
         $selectedTagIds = $listState->filters['tags'] ?? [];

@@ -157,7 +157,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Generate documentation for a single model
      *
-     * @return array<string, mixed>
+     * @return list<string>
      */
     private function generateModelDocumentation(string $modelClass): array
     {
@@ -412,7 +412,7 @@ class GenerateModelDocumentation extends Command
      * Get model scopes using reflection
      *
      * @param ReflectionClass<object> $reflection
-     * @return array<string, mixed>
+     * @return list<string>
      */
     private function getModelScopes(ReflectionClass $reflection): array
     {

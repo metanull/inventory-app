@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,6 +15,7 @@ class UpdateCountryTranslationRequest extends FormRequest
     /**
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         /** @var \App\Models\CountryTranslation|null $countryTranslation */

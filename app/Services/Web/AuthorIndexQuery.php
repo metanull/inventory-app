@@ -13,6 +13,7 @@ final class AuthorIndexQuery
 {
     public function __construct(private readonly AuthorListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Author> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Author::query()->select([

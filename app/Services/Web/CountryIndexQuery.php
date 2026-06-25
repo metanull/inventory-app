@@ -13,6 +13,7 @@ final class CountryIndexQuery
 {
     public function __construct(private readonly CountryListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Country> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Country::query()->select([

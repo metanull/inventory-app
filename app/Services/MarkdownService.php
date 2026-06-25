@@ -27,8 +27,10 @@ class MarkdownService
 
     private HtmlConverter $htmlConverter;
 
+    /** @var array<int, string> */
     private array $allowedHtmlTags;
 
+    /** @var array<int, string> */
     private array $allowedMarkdownElements;
 
     public function __construct()
@@ -272,7 +274,7 @@ class MarkdownService
     /**
      * Get allowed HTML tags for reference
      *
-     * @return array List of allowed HTML tags
+     * @return array<int, string>
      */
     public function getAllowedHtmlTags(): array
     {
@@ -282,7 +284,7 @@ class MarkdownService
     /**
      * Get allowed Markdown elements for reference
      *
-     * @return array List of allowed Markdown elements
+     * @return array<int, string>
      */
     public function getAllowedMarkdownElements(): array
     {

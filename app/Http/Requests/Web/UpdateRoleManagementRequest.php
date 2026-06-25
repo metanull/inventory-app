@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Web;
 
@@ -21,6 +21,7 @@ class UpdateRoleManagementRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         /** @var \Spatie\Permission\Models\Role|null $role */

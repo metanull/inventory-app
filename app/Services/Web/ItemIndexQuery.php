@@ -13,6 +13,7 @@ final class ItemIndexQuery
 {
     public function __construct(private readonly ItemListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Item> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Item::query()

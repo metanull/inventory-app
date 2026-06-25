@@ -144,7 +144,7 @@ class Partner extends Model
     /**
      * Get the collections this partner is associated with.
      *
-     * @return BelongsToMany<Collection, $this>
+     * @return BelongsToMany<Collection, $this, CollectionPartner>
      */
     public function collections(): BelongsToMany
     {

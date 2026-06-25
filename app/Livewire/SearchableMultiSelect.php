@@ -23,8 +23,8 @@ class SearchableMultiSelect extends Component
 {
     use OptionsLookup;
 
-    #[Modelable]
     /** @var array<int, string|int> */
+    #[Modelable]
     public array $selectedIds = [];
 
     public string $search = '';
@@ -94,8 +94,9 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            /** @var \Illuminate\Support\Collection<int, mixed> $staticCollection */
-            $staticCollection = collect($this->staticOptions);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $staticCollection = collect($rawOpts);
             $count = count($staticCollection);
             $max = (int) config('interface.searchable_select.static_options_max', 50);
             if ($count > $max) {
@@ -180,8 +181,9 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            /** @var \Illuminate\Support\Collection<int, mixed> $allOptions */
-            $allOptions = collect($this->staticOptions);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $allOptions = collect($rawOpts);
 
             return $allOptions->filter(function ($option) {
                 $value = is_object($option) ? ($option->id ?? null) : ($option['id'] ?? null);

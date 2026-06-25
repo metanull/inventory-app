@@ -54,7 +54,7 @@ class CollectionImageController extends Controller
     public function store(StoreCollectionImageRequest $request, Collection $collection): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $availableImage = AvailableImage::findOrFail((string) $validated['available_image_id']);
 
         CollectionImage::attachFromAvailableImage($availableImage, $collection->id);
 

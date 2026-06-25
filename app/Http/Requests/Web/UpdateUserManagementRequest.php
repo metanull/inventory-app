@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Web;
 
@@ -24,6 +24,7 @@ class UpdateUserManagementRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    
     public function rules(): array
     {
         /** @var \App\Models\User|null $user */

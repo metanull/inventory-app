@@ -13,6 +13,7 @@ final class RoleManagementIndexQuery
 {
     public function __construct(private readonly RoleManagementListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \Spatie\Permission\Models\Role> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Role::query()

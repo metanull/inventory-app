@@ -183,7 +183,7 @@ class Collection extends Model
     /**
      * Get all items attached to this collection via many-to-many relationship.
      *
-     * @return BelongsToMany<Item, $this>
+     * @return BelongsToMany<Item, $this, CollectionItem>
      */
     public function attachedItems(): BelongsToMany
     {
@@ -325,7 +325,7 @@ class Collection extends Model
     /**
      * Get all partners associated with this collection.
      *
-     * @return BelongsToMany<Partner, $this>
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function partners(): BelongsToMany
     {

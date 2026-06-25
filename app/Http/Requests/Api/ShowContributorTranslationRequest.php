@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -14,6 +14,7 @@ class ShowContributorTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -21,6 +22,7 @@ class ShowContributorTranslationRequest extends FormRequest
         ];
     }
 
+    /** @return array<int, string> */
     public function getIncludeParams(): array
     {
         return IncludeParser::fromRequest($this, AllowList::for('contributor_translation'));

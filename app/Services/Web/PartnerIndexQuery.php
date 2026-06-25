@@ -13,6 +13,7 @@ final class PartnerIndexQuery
 {
     public function __construct(private readonly PartnerListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Partner> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Partner::query()

@@ -11,6 +11,7 @@ class StoreImageUploadRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         // Get image upload rules from configuration

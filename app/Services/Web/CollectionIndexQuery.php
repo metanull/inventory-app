@@ -13,6 +13,7 @@ final class CollectionIndexQuery
 {
     public function __construct(private readonly CollectionListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\Collection> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Collection::query()

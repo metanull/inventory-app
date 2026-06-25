@@ -13,6 +13,7 @@ final class ItemImageIndexQuery
 {
     public function __construct(private readonly ItemImageListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\ItemImage> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = ItemImage::query()

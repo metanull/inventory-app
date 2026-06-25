@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests\Api;
 
@@ -15,6 +15,7 @@ class IndexLanguageTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,11 +25,13 @@ class IndexLanguageTranslationRequest extends FormRequest
         ];
     }
 
+    /** @return array<string, mixed> */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);
     }
 
+    /** @return array<int, string> */
     public function getIncludeParams(): array
     {
         return IncludeParser::fromRequest($this, AllowList::for('language_translation'));

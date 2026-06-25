@@ -13,6 +13,7 @@ final class ItemTranslationIndexQuery
 {
     public function __construct(private readonly ItemTranslationListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\ItemTranslation> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = ItemTranslation::query()

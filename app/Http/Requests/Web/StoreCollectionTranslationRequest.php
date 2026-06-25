@@ -20,6 +20,7 @@ class StoreCollectionTranslationRequest extends FormRequest
         $this->preparePairsField('extra');
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [

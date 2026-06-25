@@ -13,6 +13,7 @@ final class UserManagementIndexQuery
 {
     public function __construct(private readonly UserManagementListDefinition $definition) {}
 
+    /** @return \Illuminate\Contracts\Pagination\LengthAwarePaginator<int, \App\Models\User> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = User::query()
