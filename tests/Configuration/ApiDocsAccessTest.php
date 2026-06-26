@@ -6,20 +6,11 @@ use Tests\TestCase;
 
 class ApiDocsAccessTest extends TestCase
 {
-    /*
-        This test ensures the route is publicly accessible
-        */
-    public function test_api_json_is_public(): void
-    {
-        $response = $this->get(route('api.documentation'));
-
-        $response->assertOk();
-    }
-
     public function test_api_json_is_valid(): void
     {
         $response = $this->get(route('api.documentation'));
 
+        $response->assertOk();
         $response->assertHeader('Content-Type', 'application/json');
 
         // Check that Cache-Control header contains both values (order may vary)
@@ -43,10 +34,7 @@ class ApiDocsAccessTest extends TestCase
      */
     public function test_api_docs_accessible_in_local_environment(): void
     {
-        // Ensure we're in local environment for this test
-        app()->detectEnvironment(function () {
-            return 'local';
-        });
+        config(['app.env' => 'local']);
 
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertOk();
@@ -60,10 +48,7 @@ class ApiDocsAccessTest extends TestCase
      */
     public function test_api_docs_return_expected_content_type(): void
     {
-        // Ensure we're in local environment for this test
-        app()->detectEnvironment(function () {
-            return 'local';
-        });
+        config(['app.env' => 'local']);
 
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertHeader('content-type', 'text/html; charset=utf-8');
@@ -77,10 +62,7 @@ class ApiDocsAccessTest extends TestCase
      */
     public function test_api_docs_accessible_in_testing_environment(): void
     {
-        // Ensure we're in testing environment for this test
-        app()->detectEnvironment(function () {
-            return 'testing';
-        });
+        config(['app.env' => 'testing']);
 
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertOk();
@@ -94,14 +76,7 @@ class ApiDocsAccessTest extends TestCase
      */
     public function test_api_docs_blocked_in_production_by_default(): void
     {
-        // Set environment to production
-        app()->detectEnvironment(function () {
-            return 'production';
-        });
-
-        // Ensure API_DOCS_ENABLED is not set or false
-        config(['app.env' => 'production']);
-        putenv('API_DOCS_ENABLED=false');
+        config(['app.env' => 'production', 'scramble.enabled' => false]);
 
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertStatus(403);
@@ -115,14 +90,7 @@ class ApiDocsAccessTest extends TestCase
      */
     public function test_api_docs_accessible_in_production_when_enabled(): void
     {
-        // Set environment to production
-        app()->detectEnvironment(function () {
-            return 'production';
-        });
-        config(['app.env' => 'production']);
-
-        // Enable API docs via environment variable
-        putenv('API_DOCS_ENABLED=true');
+        config(['app.env' => 'production', 'scramble.enabled' => true]);
 
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertOk();
@@ -132,39 +100,20 @@ class ApiDocsAccessTest extends TestCase
     }
 
     /**
-     * Test API docs respect boolean-like values for API_DOCS_ENABLED
+     * Test API docs respect the scramble.enabled config flag
      */
     public function test_api_docs_respect_boolean_like_values(): void
     {
-        // Set environment to production
-        app()->detectEnvironment(function () {
-            return 'production';
-        });
         config(['app.env' => 'production']);
 
-        // Test with string "1"
-        putenv('API_DOCS_ENABLED=1');
+        // Enabled
+        config(['scramble.enabled' => true]);
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertOk();
 
-        // Test with string "0"
-        putenv('API_DOCS_ENABLED=0');
+        // Disabled
+        config(['scramble.enabled' => false]);
         $response = $this->get(route('scramble.docs.ui'));
         $response->assertStatus(403);
-
-        // Test with string "false"
-        putenv('API_DOCS_ENABLED=false');
-        $response = $this->get(route('scramble.docs.ui'));
-        $response->assertStatus(403);
-
-        // Clean up
-        putenv('API_DOCS_ENABLED');
-    }
-
-    protected function tearDown(): void
-    {
-        // Clean up environment variables
-        putenv('API_DOCS_ENABLED');
-        parent::tearDown();
     }
 }

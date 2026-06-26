@@ -10,7 +10,7 @@ class CustomRestrictedDocsAccess
     public function handle(Request $request, \Closure $next): mixed
     {
         // Allow access in local and testing environments
-        if (app()->environment(['local', 'testing'])) {
+        if (in_array(config('app.env'), ['local', 'testing'], true)) {
             return $next($request);
         }
 
