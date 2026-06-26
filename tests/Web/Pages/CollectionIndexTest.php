@@ -129,7 +129,7 @@ class CollectionIndexTest extends TestCase
         $this->assertStringContainsString('mode=flat', $nextPageUrl);
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
         $this->assertStringContainsString(
-            'href="http://localhost/web/collections?mode=flat&amp;q=Collection&amp;per_page=10&amp;sort=created_at&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('collections.index', ['mode' => 'flat', 'q' => 'Collection', 'per_page' => 10, 'sort' => 'created_at', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }

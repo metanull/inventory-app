@@ -74,7 +74,7 @@ class ContextIndexTest extends TestCase
         $this->assertStringContainsString('q=Temple', $nextPageUrl);
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
         $this->assertStringContainsString(
-            'href="http://localhost/web/contexts?q=Temple&amp;per_page=10&amp;sort=created_at&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('contexts.index', ['q' => 'Temple', 'per_page' => 10, 'sort' => 'created_at', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }

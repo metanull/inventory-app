@@ -26,8 +26,12 @@ class ItemShowPageData
                     $imageQuery->orderBy('display_order');
                 }])->orderBy('display_order');
             },
-            'tags' => function (Relation $query): void { $query->orderBy('internal_name'); },
-            'itemImages' => function (Relation $query): void { $query->orderBy('display_order'); },
+            'tags' => function (Relation $query): void {
+                $query->orderBy('internal_name');
+            },
+            'itemImages' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
             'translations.context',
             'translations.language',
             'outgoingLinks.target',

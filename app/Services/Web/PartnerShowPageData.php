@@ -18,7 +18,9 @@ class PartnerShowPageData
             'country',
             'project',
             'monumentItem',
-            'partnerImages' => function (Relation $query): void { $query->orderBy('display_order'); },
+            'partnerImages' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
             'translations.context',
             'translations.language',
         ]);

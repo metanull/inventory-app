@@ -178,7 +178,7 @@ class ItemIndexTest extends TestCase
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
 
         $this->assertStringContainsString(
-            'href="http://localhost/web/items?type=object&amp;hierarchy=0&amp;q=Alpha&amp;per_page=10&amp;sort=created_at&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('items.index', ['type' => 'object', 'hierarchy' => 0, 'q' => 'Alpha', 'per_page' => 10, 'sort' => 'created_at', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }
