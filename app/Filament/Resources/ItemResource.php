@@ -322,7 +322,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Partner::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Partner::find($value)?->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('collection')
                     ->label('Collection')
@@ -355,7 +355,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Project::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Project::find($value)?->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('country_id')
                     ->label('Country')
@@ -368,7 +368,7 @@ class ItemResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)?->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('tags')
                     ->label('Tag')

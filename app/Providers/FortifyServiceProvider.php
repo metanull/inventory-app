@@ -98,7 +98,7 @@ class FortifyServiceProvider extends ServiceProvider
         Event::listen(Logout::class, function (Logout $event): void {
             $user = $event->user;
             if ($user instanceof User) {
-                $user->setRememberToken(null);
+                $user->setRememberToken('');
                 $user->save();
             }
 

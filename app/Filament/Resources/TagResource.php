@@ -139,7 +139,7 @@ class TagResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)?->internal_name ?? $value) : '')
                     ->searchable(),
             ])
             ->actions([
@@ -163,7 +163,7 @@ class TagResource extends Resource
                         TextEntry::make('internal_name'),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (Tag $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                     ])

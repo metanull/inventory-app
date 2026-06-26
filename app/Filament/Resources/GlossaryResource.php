@@ -116,7 +116,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)?->internal_name ?? $value) : '')
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereHas('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
@@ -131,7 +131,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)?->internal_name ?? $value) : '')
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereDoesntHave('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))

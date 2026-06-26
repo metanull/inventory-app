@@ -69,7 +69,7 @@ class MediaRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('url')
                     ->label('URL')
-                    ->url(fn (ItemMedia $record): ?string => $record->url)
+                    ->url(fn (ItemMedia $record): string => $record->url)
                     ->openUrlInNewTab()
                     ->limit(60)
                     ->searchable(),

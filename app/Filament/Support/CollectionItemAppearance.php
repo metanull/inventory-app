@@ -44,7 +44,7 @@ class CollectionItemAppearance
         return TextColumn::make('pivot.contextual_text_preview')
             ->label('Contextual text')
             ->getStateUsing(function (Model $record) use ($defaultLangId): ?string {
-                $pivot = $record->pivot;
+                $pivot = $record->getAttribute('pivot');
                 if (! ($pivot instanceof CollectionItem)) {
                     return null;
                 }
@@ -72,7 +72,7 @@ class CollectionItemAppearance
         return TextColumn::make('pivot.contextual_description_languages')
             ->label('Languages')
             ->getStateUsing(function (Model $record): ?string {
-                $pivot = $record->pivot;
+                $pivot = $record->getAttribute('pivot');
                 if (! ($pivot instanceof CollectionItem)) {
                     return null;
                 }
@@ -103,7 +103,7 @@ class CollectionItemAppearance
             ->modalSubmitAction(false)
             ->modalCancelActionLabel('Close')
             ->infolist(function (Model $record): array {
-                $pivot = $record->pivot;
+                $pivot = $record->getAttribute('pivot');
                 if (! ($pivot instanceof CollectionItem)) {
                     return [];
                 }
@@ -151,7 +151,7 @@ class CollectionItemAppearance
                 return $schema;
             })
             ->visible(function (Model $record): bool {
-                $pivot = $record->pivot;
+                $pivot = $record->getAttribute('pivot');
                 if (! ($pivot instanceof CollectionItem)) {
                     return false;
                 }

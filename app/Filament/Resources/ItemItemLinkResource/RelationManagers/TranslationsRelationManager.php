@@ -45,7 +45,7 @@ class TranslationsRelationManager extends RelationManager
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Language::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)?->internal_name ?? $value) : '')
                     ->unique(
                         table: 'item_item_link_translations',
                         column: 'language_id',

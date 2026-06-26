@@ -179,7 +179,7 @@ class SearchableMultiSelect extends Component
      * Currently selected options — queried by id so we never store model instances
      * in component state.
      *
-     * @return Collection<int, mixed>|\Illuminate\Database\Eloquent\Collection<int, Model>
+     * @return Collection<int, mixed>
      */
     public function getSelectedOptionsProperty()
     {
@@ -203,7 +203,7 @@ class SearchableMultiSelect extends Component
             /** @var class-string<Model> $modelClass */
             $modelClass = $this->modelClass;
 
-            return $modelClass::whereIn('id', $this->selectedIds)->get();
+            return $modelClass::whereIn('id', $this->selectedIds)->get()->toBase();
         }
 
         return collect();

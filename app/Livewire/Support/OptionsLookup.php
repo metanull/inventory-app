@@ -185,10 +185,14 @@ trait OptionsLookup
                 $this->validateScopeName($scope, $modelClass);
                 $normalized[] = ['scope' => $scope, 'args' => []];
             } elseif (is_array($scope) && array_key_exists('scope', $scope)) {
-                $this->validateScopeName($scope['scope'], $modelClass);
+                $scopeName = $scope['scope'];
+                if (! is_string($scopeName)) {
+                    throw new InvalidArgumentException('Scope "scope" key must be a string.');
+                }
+                $this->validateScopeName($scopeName, $modelClass);
                 $args = $scope['args'] ?? [];
                 $this->validateScopeArgs($args);
-                $normalized[] = ['scope' => $scope['scope'], 'args' => array_values((array) $args)];
+                $normalized[] = ['scope' => $scopeName, 'args' => array_values((array) $args)];
             } else {
                 throw new InvalidArgumentException('Each scope must be a string or an array with a "scope" key.');
             }

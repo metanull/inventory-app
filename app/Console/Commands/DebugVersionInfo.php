@@ -63,8 +63,8 @@ class DebugVersionInfo extends Command
                     }
                 }
 
-                $this->table(['Key', 'Value'], array_map(function (mixed $key, mixed $value): array {
-                    $keyStr = is_scalar($key) ? (string) $key : '';
+                $this->table(['Key', 'Value'], array_map(function (string $key, mixed $value): array {
+                    $keyStr = $key;
                     if (is_array($value)) {
                         $valStr = (string) json_encode($value);
                     } elseif (is_null($value)) {

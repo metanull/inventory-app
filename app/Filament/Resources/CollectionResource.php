@@ -313,7 +313,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Partner::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Partner::find($value)?->internal_name ?? $value) : '')
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('partners', fn (Builder $q): Builder => $q->where('partners.id', $data['value']))
@@ -329,7 +329,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Project::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Project::find($value)?->internal_name ?? $value) : '')
                     ->searchable()
                     ->query(fn (Builder $query, array $data): Builder => $data['value']
                         ? $query->whereHas('items', fn (Builder $q): Builder => $q->where('project_id', $data['value']))
@@ -345,7 +345,7 @@ class CollectionResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => Country::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : ''))
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)?->internal_name ?? $value) : '')
                     ->searchable(),
             ])
             ->filtersFormColumns(2)

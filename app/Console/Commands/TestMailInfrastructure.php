@@ -27,13 +27,7 @@ class TestMailInfrastructure extends Command
      */
     public function handle(): int
     {
-        $recipientRaw = $this->argument('recipient');
-        if (! is_string($recipientRaw)) {
-            $this->error('Recipient must be a string.');
-
-            return Command::FAILURE;
-        }
-        $recipient = $recipientRaw;
+        $recipient = $this->argument('recipient');
         try {
             Mail::raw('This is a test email from your Laravel deployment.', function (Message $message) use ($recipient): void {
                 $message->to($recipient)

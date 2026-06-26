@@ -5,6 +5,7 @@ namespace App\Services\Web;
 use App\Enums\ItemType;
 use App\Models\Item;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
 class ItemShowPageData
@@ -22,7 +23,7 @@ class ItemShowPageData
             'project',
             'parent',
             'children' => fn (Builder $query): Builder => $query
-                ->with(['itemImages' => fn (Builder $imageQuery): Builder => $imageQuery->orderBy('display_order')])
+                ->with(['itemImages' => fn (Relation $imageQuery): Builder => $imageQuery->orderBy('display_order')])
                 ->orderBy('display_order'),
             'tags' => fn (Builder $query): Builder => $query->orderBy('internal_name'),
             'itemImages' => fn (Builder $query): Builder => $query->orderBy('display_order'),
@@ -80,26 +81,26 @@ class ItemShowPageData
      */
     private function buildFormattedLinks(Item $item): Collection
     {
-        $formattedLinks = collect();
+        $links = [];
 
         foreach ($item->outgoingLinks as $link) {
-            $formattedLinks->push((object) [
+            $links[] = (object) [
                 'id' => $link->id,
                 'item' => $link->target,
                 'direction' => 'outgoing',
                 'link' => $link,
-            ]);
+            ];
         }
 
         foreach ($item->incomingLinks as $link) {
-            $formattedLinks->push((object) [
+            $links[] = (object) [
                 'id' => $link->id,
                 'item' => $link->source,
                 'direction' => 'incoming',
                 'link' => $link,
-            ]);
+            ];
         }
 
-        return $formattedLinks;
+        return collect($links);
     }
 }
