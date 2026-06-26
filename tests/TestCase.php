@@ -28,6 +28,8 @@ abstract class TestCase extends BaseTestCase
      */
     protected function ensurePermissionsExist(): void
     {
+        app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+
         foreach (Permission::cases() as $permission) {
             $exists = \Spatie\Permission\Models\Permission::where('name', $permission->value)
                 ->where('guard_name', 'web')
