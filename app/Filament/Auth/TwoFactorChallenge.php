@@ -106,8 +106,8 @@ class TwoFactorChallenge extends SimplePage
 
     public function sendEmailCode(): void
     {
-        $loginId = session('filament.admin.2fa.user_id');
-        $loginId = is_string($loginId) ? $loginId : '';
+        $loginIdRaw = session('filament.admin.2fa.user_id');
+        $loginId = (is_string($loginIdRaw) || is_int($loginIdRaw)) ? (string) $loginIdRaw : '';
 
         if ($loginId === '') {
             $this->redirect(Filament::getLoginUrl());
@@ -141,7 +141,7 @@ class TwoFactorChallenge extends SimplePage
     public function submit(): void
     {
         $loginIdRaw = session('filament.admin.2fa.user_id');
-        $loginId = is_string($loginIdRaw) ? $loginIdRaw : '';
+        $loginId = (is_string($loginIdRaw) || is_int($loginIdRaw)) ? (string) $loginIdRaw : '';
         $limiterKey = 'two-factor:'.$loginId;
         $maxAttempts = app()->environment('testing') ? 50 : 5;
 
