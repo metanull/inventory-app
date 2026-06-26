@@ -4,6 +4,7 @@ namespace App\Services\Web;
 
 use App\Enums\ItemType;
 use App\Models\Item;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
@@ -21,11 +22,11 @@ class ItemShowPageData
             'partner',
             'project',
             'parent',
-            'children' => fn (Relation $query) => $query
-                ->with(['itemImages' => fn (Relation $imageQuery) => $imageQuery->orderBy('display_order')])
+            'children' => fn (Relation $query): Builder => $query
+                ->with(['itemImages' => fn (Relation $imageQuery): Builder => $imageQuery->orderBy('display_order')])
                 ->orderBy('display_order'),
-            'tags' => fn (Relation $query) => $query->orderBy('internal_name'),
-            'itemImages' => fn (Relation $query) => $query->orderBy('display_order'),
+            'tags' => fn (Relation $query): Builder => $query->orderBy('internal_name'),
+            'itemImages' => fn (Relation $query): Builder => $query->orderBy('display_order'),
             'translations.context',
             'translations.language',
             'outgoingLinks.target',
