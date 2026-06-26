@@ -187,7 +187,7 @@ class PartnerResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)?->internal_name ?? $value) : '')
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('project_id')
                     ->label('Project')
@@ -201,7 +201,7 @@ class PartnerResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Project::find($value)?->internal_name ?? $value) : '')
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Project::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
                 TernaryFilter::make('visible')
                     ->label('Visibility')

@@ -139,7 +139,7 @@ class TagResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)?->internal_name ?? $value) : '')
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
             ])
             ->actions([

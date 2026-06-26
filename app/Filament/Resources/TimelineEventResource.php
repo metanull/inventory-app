@@ -85,7 +85,7 @@ class TimelineEventResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Timeline::find($value)?->internal_name ?? $value) : '')
+                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Timeline::find($value)->internal_name ?? $value) : '')
                             ->searchable(),
                         TextInput::make('year_from')
                             ->label('Year from')
@@ -188,7 +188,7 @@ class TimelineEventResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Timeline::find($value)?->internal_name ?? $value) : '')
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Timeline::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
             ]);
     }

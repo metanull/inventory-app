@@ -203,7 +203,10 @@ class SearchableMultiSelect extends Component
             /** @var class-string<Model> $modelClass */
             $modelClass = $this->modelClass;
 
-            return $modelClass::whereIn('id', $this->selectedIds)->get()->toBase();
+            /** @var Collection<int, mixed> $result */
+            $result = $modelClass::whereIn('id', $this->selectedIds)->get()->toBase();
+
+            return $result;
         }
 
         return collect();

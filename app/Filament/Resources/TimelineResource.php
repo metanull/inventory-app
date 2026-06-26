@@ -84,7 +84,7 @@ class TimelineResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)?->internal_name ?? $value) : '')
+                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)->internal_name ?? $value) : '')
                             ->searchable()
                             ->nullable(),
                         Select::make('collection_id')
@@ -98,7 +98,7 @@ class TimelineResource extends Resource
                                 ->pluck('internal_name', 'id')
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Collection::find($value)?->internal_name ?? $value) : '')
+                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Collection::find($value)->internal_name ?? $value) : '')
                             ->searchable()
                             ->nullable(),
                         TextInput::make('backward_compatibility')
@@ -151,7 +151,7 @@ class TimelineResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)?->internal_name ?? $value) : '')
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Country::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('collection_id')
                     ->label('Collection')

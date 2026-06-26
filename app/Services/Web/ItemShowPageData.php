@@ -23,7 +23,7 @@ class ItemShowPageData
             'project',
             'parent',
             'children' => fn (Builder $query): Builder => $query
-                ->with(['itemImages' => fn (Relation $imageQuery): Builder => $imageQuery->orderBy('display_order')])
+                ->with(['itemImages' => fn (Relation $imageQuery): Relation => $imageQuery->orderBy('display_order')])
                 ->orderBy('display_order'),
             'tags' => fn (Builder $query): Builder => $query->orderBy('internal_name'),
             'itemImages' => fn (Builder $query): Builder => $query->orderBy('display_order'),
@@ -77,7 +77,7 @@ class ItemShowPageData
     }
 
     /**
-     * @return Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
     private function buildFormattedLinks(Item $item): Collection
     {
@@ -101,6 +101,9 @@ class ItemShowPageData
             ];
         }
 
-        return collect($links);
+        /** @var Collection<int, \stdClass> $result */
+        $result = collect($links);
+
+        return $result;
     }
 }
