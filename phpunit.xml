@@ -53,5 +53,6 @@
         <env name="SESSION_DRIVER" value="array" force="true"/>
         <env name="TELESCOPE_ENABLED" value="false" force="true"/>
         <env name="VITE_ENABLED" value="false" force="true"/>
+        <ini name="memory_limit" value="512M"/>
     </php>
 </phpunit>
