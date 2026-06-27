@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ItemDocument;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin ItemDocument */
 class ItemDocumentResource extends JsonResource
 {
     /**

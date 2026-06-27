@@ -4,6 +4,7 @@ namespace App\Services\Web;
 
 use App\Enums\ItemType;
 use App\Models\Item;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
 class ItemShowPageData
@@ -20,11 +21,17 @@ class ItemShowPageData
             'partner',
             'project',
             'parent',
-            'children' => fn ($query) => $query
-                ->with(['itemImages' => fn ($imageQuery) => $imageQuery->orderBy('display_order')])
-                ->orderBy('display_order'),
-            'tags' => fn ($query) => $query->orderBy('internal_name'),
-            'itemImages' => fn ($query) => $query->orderBy('display_order'),
+            'children' => function (Relation $query): void {
+                $query->with(['itemImages' => function (Relation $imageQuery): void {
+                    $imageQuery->orderBy('display_order');
+                }])->orderBy('display_order');
+            },
+            'tags' => function (Relation $query): void {
+                $query->orderBy('internal_name');
+            },
+            'itemImages' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
             'translations.context',
             'translations.language',
             'outgoingLinks.target',
@@ -75,30 +82,33 @@ class ItemShowPageData
     }
 
     /**
-     * @return Collection<int, object>
+     * @return Collection<int, \stdClass>
      */
-    private function buildFormattedLinks(Item $item)
+    private function buildFormattedLinks(Item $item): Collection
     {
-        $formattedLinks = collect();
+        $links = [];
 
         foreach ($item->outgoingLinks as $link) {
-            $formattedLinks->push((object) [
+            $links[] = (object) [
                 'id' => $link->id,
                 'item' => $link->target,
                 'direction' => 'outgoing',
                 'link' => $link,
-            ]);
+            ];
         }
 
         foreach ($item->incomingLinks as $link) {
-            $formattedLinks->push((object) [
+            $links[] = (object) [
                 'id' => $link->id,
                 'item' => $link->source,
                 'direction' => 'incoming',
                 'link' => $link,
-            ]);
+            ];
         }
 
-        return $formattedLinks;
+        /** @var Collection<int, \stdClass> $result */
+        $result = collect($links);
+
+        return $result;
     }
 }

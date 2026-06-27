@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Web;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCollectionRequest extends FormRequest
@@ -11,6 +12,9 @@ class UpdateCollectionRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [

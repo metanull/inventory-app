@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\StreamableImageFile;
 use App\Support\FileSize;
 use App\Support\Images\AttachedImageRegistry;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class CleanupPictures extends Command
@@ -29,8 +32,8 @@ class CleanupPictures extends Command
             return Command::FAILURE;
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $doDelete = $this->option('delete') === true;
         $force = $this->option('force') === true;
         $json = $this->option('json') === true;
@@ -49,8 +52,10 @@ class CleanupPictures extends Command
         $keepSet = $this->buildKeepSet();
 
         // List files on disk
+        /** @var list<string> $allFiles */
         $allFiles = Storage::disk($disk)->allFiles($directory);
 
+        /** @var list<string> $orphans */
         $orphans = [];
         $referenced = 0;
         $skipped = 0;
@@ -65,7 +70,7 @@ class CleanupPictures extends Command
             // Apply --older-than filter
             if ($olderThan !== null) {
                 $lastModified = Storage::disk($disk)->lastModified($file);
-                if ($lastModified === null || $lastModified > $olderThan->timestamp) {
+                if ($lastModified > $olderThan->timestamp) {
                     $skipped++;
 
                     continue;
@@ -119,6 +124,7 @@ class CleanupPictures extends Command
         foreach (AttachedImageRegistry::modelClasses() as $class) {
             $class::query()->chunkById(500, function ($records) use (&$keepSet) {
                 foreach ($records as $record) {
+                    /** @var Model&StreamableImageFile $record */
                     $storagePath = $record->imageStoragePath();
                     $keepSet[$storagePath] = true;
                 }
@@ -254,7 +260,7 @@ class CleanupPictures extends Command
         $orphanCount = count($orphans);
 
         if ($json) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'dry_run' => $dryRun,
                 'disk' => $disk,
                 'scanned' => $totalScanned,

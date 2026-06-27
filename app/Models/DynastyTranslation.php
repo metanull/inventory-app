@@ -3,21 +3,30 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\DynastyTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * DynastyTranslation Model
  *
  * Represents language-specific translations for Dynasties.
  * Contains translated dynasty names, areas, and historical descriptions.
+ *
+ * @property string $dynasty_id
+ * @property string $language_id
+ * @property string|null $name
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class DynastyTranslation extends Model
 {
+    /** @use HasFactory<DynastyTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -30,7 +39,7 @@ class DynastyTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'dynasty_id',
@@ -70,6 +79,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -80,6 +91,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the dynasty that owns the translation.
+     *
+     * @return BelongsTo<Dynasty, $this>
      */
     public function dynasty(): BelongsTo
     {
@@ -88,6 +101,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -96,6 +111,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the author of the translation.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function author(): BelongsTo
     {
@@ -104,6 +121,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the text copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function textCopyEditor(): BelongsTo
     {
@@ -112,6 +131,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the translator.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translator(): BelongsTo
     {
@@ -120,6 +141,8 @@ class DynastyTranslation extends Model
 
     /**
      * Get the translation copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translationCopyEditor(): BelongsTo
     {
@@ -129,11 +152,10 @@ class DynastyTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  Builder  $query
-     * @param  string  $languageId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }

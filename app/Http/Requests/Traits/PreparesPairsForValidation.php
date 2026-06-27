@@ -23,9 +23,12 @@ trait PreparesPairsForValidation
         // Handle Livewire key-value editor component data
         if ($this->has('pairs')) {
             $data = [];
-            foreach ($this->input('pairs', []) as $pair) {
-                if (! empty($pair['key'])) {
-                    $data[$pair['key']] = $pair['value'];
+            $pairs = $this->input('pairs');
+            if (is_array($pairs)) {
+                foreach ($pairs as $pair) {
+                    if (is_array($pair) && isset($pair['key']) && is_string($pair['key']) && $pair['key'] !== '') {
+                        $data[$pair['key']] = $pair['value'] ?? null;
+                    }
                 }
             }
             $this->merge([$fieldName => empty($data) ? null : json_encode($data)]);

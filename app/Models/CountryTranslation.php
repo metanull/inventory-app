@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\CountryTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CountryTranslation extends Model
 {
+    /** @use HasFactory<CountryTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -30,7 +32,7 @@ class CountryTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'country_id',
@@ -61,6 +63,8 @@ class CountryTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -71,6 +75,8 @@ class CountryTranslation extends Model
 
     /**
      * Get the country that owns the translation.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -79,6 +85,8 @@ class CountryTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -88,11 +96,10 @@ class CountryTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  Builder  $query
-     * @param  string  $languageId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }

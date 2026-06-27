@@ -10,13 +10,15 @@ use App\Http\Resources\TimelineEventResource;
 use App\Models\TimelineEvent;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TimelineEventController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexTimelineEventRequest $request)
+    public function index(IndexTimelineEventRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -35,7 +37,7 @@ class TimelineEventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTimelineEventRequest $request)
+    public function store(StoreTimelineEventRequest $request): TimelineEventResource
     {
         $validated = $request->validated();
         $event = TimelineEvent::create($validated);
@@ -49,7 +51,7 @@ class TimelineEventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowTimelineEventRequest $request, TimelineEvent $timelineEvent)
+    public function show(ShowTimelineEventRequest $request, TimelineEvent $timelineEvent): TimelineEventResource
     {
         $includes = $request->getIncludeParams();
         $timelineEvent->load($includes);
@@ -60,7 +62,7 @@ class TimelineEventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTimelineEventRequest $request, TimelineEvent $timelineEvent)
+    public function update(UpdateTimelineEventRequest $request, TimelineEvent $timelineEvent): TimelineEventResource
     {
         $validated = $request->validated();
         $timelineEvent->update($validated);
@@ -74,7 +76,7 @@ class TimelineEventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEvent $timelineEvent)
+    public function destroy(TimelineEvent $timelineEvent): Response
     {
         $timelineEvent->delete();
 

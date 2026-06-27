@@ -8,13 +8,15 @@ use App\Http\Requests\Api\StoreGlossaryTranslationRequest;
 use App\Http\Requests\Api\UpdateGlossaryTranslationRequest;
 use App\Http\Resources\GlossaryTranslationResource;
 use App\Models\GlossaryTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class GlossaryTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossaryTranslationRequest $request)
+    public function index(IndexGlossaryTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -32,10 +34,8 @@ class GlossaryTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return GlossaryTranslationResource
      */
-    public function store(StoreGlossaryTranslationRequest $request)
+    public function store(StoreGlossaryTranslationRequest $request): GlossaryTranslationResource
     {
         $validated = $request->validated();
         $translation = GlossaryTranslation::create($validated);
@@ -47,7 +47,7 @@ class GlossaryTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowGlossaryTranslationRequest $request, GlossaryTranslation $glossaryTranslation)
+    public function show(ShowGlossaryTranslationRequest $request, GlossaryTranslation $glossaryTranslation): GlossaryTranslationResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -59,10 +59,8 @@ class GlossaryTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return GlossaryTranslationResource
      */
-    public function update(UpdateGlossaryTranslationRequest $request, GlossaryTranslation $glossaryTranslation)
+    public function update(UpdateGlossaryTranslationRequest $request, GlossaryTranslation $glossaryTranslation): GlossaryTranslationResource
     {
         $validated = $request->validated();
         $glossaryTranslation->update($validated);
@@ -74,7 +72,7 @@ class GlossaryTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GlossaryTranslation $glossaryTranslation)
+    public function destroy(GlossaryTranslation $glossaryTranslation): Response
     {
         $glossaryTranslation->delete();
 

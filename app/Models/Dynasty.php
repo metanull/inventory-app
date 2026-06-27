@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\DynastyFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Dynasty extends Model
 {
+    /** @use HasFactory<DynastyFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -39,7 +42,7 @@ class Dynasty extends Model
     }
 
     /**
-     * Get the translations for this dynasty.
+     * @return HasMany<DynastyTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -48,6 +51,8 @@ class Dynasty extends Model
 
     /**
      * Get the items associated with this dynasty.
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {

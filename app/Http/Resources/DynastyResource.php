@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Dynasty;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Dynasty */
 class DynastyResource extends JsonResource
 {
     /**

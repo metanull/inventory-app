@@ -20,7 +20,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class AvailableImageEvent
 {
-    public $availableImage;
+    public AvailableImage $availableImage;
 
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

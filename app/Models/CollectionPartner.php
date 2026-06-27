@@ -32,16 +32,9 @@ class CollectionPartner extends Pivot
     public $incrementing = false;
 
     /**
-     * The primary key for the model.
-     *
-     * @var string[]
-     */
-    protected $primaryKey = ['collection_id', 'collection_type', 'partner_id'];
-
-    /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'collection_id',
@@ -73,6 +66,8 @@ class CollectionPartner extends Pivot
 
     /**
      * Get the collection that owns the pivot.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -81,6 +76,8 @@ class CollectionPartner extends Pivot
 
     /**
      * Get the partner that owns the pivot.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Models\Glossary;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateGlossaryRequest extends FormRequest
@@ -11,10 +13,16 @@ class UpdateGlossaryRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var Glossary $glossary */
+        $glossary = $this->route('glossary');
+
         return [
-            'internal_name' => ['required', 'string', 'max:255', 'unique:glossaries,internal_name,'.$this->route('glossary')->id],
+            'internal_name' => ['required', 'string', 'max:255', 'unique:glossaries,internal_name,'.$glossary->id],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
         ];
     }

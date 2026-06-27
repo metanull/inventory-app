@@ -2,15 +2,26 @@
 
 namespace App\Models;
 
+use Database\Factories\ContextFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property bool $is_default
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Context extends Model
 {
+    /** @use HasFactory<ContextFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -30,7 +41,11 @@ class Context extends Model
         return ['id'];
     }
 
-    public function scopeDefault($query)
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }
@@ -40,6 +55,7 @@ class Context extends Model
     ];
 
     // Mark a single row as the default
+    /** @return static */
     public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -60,6 +76,7 @@ class Context extends Model
     }
 
     // Unmark a single row as the default
+    /** @return static */
     public function unsetDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -77,9 +94,9 @@ class Context extends Model
     }
 
     // Clear all defaults
-    public static function clearDefault()
+    public static function clearDefault(): void
     {
-        return DB::transaction(function () {
+        DB::transaction(function () {
             // Set all rows' 'default' column to false (or 0)
             self::query()->update(['is_default' => false]);
         });
@@ -88,7 +105,9 @@ class Context extends Model
     /**
      * Scope to exclude contexts with the given IDs.
      *
+     * @param  Builder<static>  $query
      * @param  array<int, string>  $ids
+     * @return Builder<static>
      */
     public function scopeExcludingIds(Builder $query, array $ids): Builder
     {

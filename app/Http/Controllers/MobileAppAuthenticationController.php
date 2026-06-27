@@ -10,9 +10,10 @@ use App\Http\Resources\MessageResource;
 use App\Http\Resources\TwoFactorChallengeResource;
 use App\Http\Resources\TwoFactorStatusResource;
 use App\Models\User;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
@@ -25,19 +26,24 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request)
+    public function acquire_token(AcquireTokenMobileAppAuthenticationRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
+        $passwordRaw = $validated['password'] ?? null;
+        $deviceNameRaw = $validated['device_name'] ?? null;
+        $password = is_string($passwordRaw) ? $passwordRaw : '';
+        $deviceName = is_string($deviceNameRaw) ? $deviceNameRaw : '';
+
         $user = User::where('email', $validated['email'])->first();
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($password, (string) ($user->password ?? ''))) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         // Check if email verification is required
-        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             throw ValidationException::withMessages([
                 'email' => ['Your email address is not verified.'],
             ]);
@@ -47,8 +53,12 @@ class MobileAppAuthenticationController extends Controller
         if ($user->hasEnabledTwoFactorAuthentication()) {
             // If 2FA code or recovery code provided, verify it
             if (! empty($validated['two_factor_code']) || ! empty($validated['recovery_code'])) {
-                $code = $validated['two_factor_code'] ?? $validated['recovery_code'];
+                $twoFactorCodeRaw = $validated['two_factor_code'] ?? null;
+                $recoveryCodeRaw = $validated['recovery_code'] ?? null;
                 $isRecovery = ! empty($validated['recovery_code']);
+                $code = $isRecovery
+                    ? (is_string($recoveryCodeRaw) ? $recoveryCodeRaw : '')
+                    : (is_string($twoFactorCodeRaw) ? $twoFactorCodeRaw : '');
 
                 if ($this->verifyTwoFactorCode($user, $code, $isRecovery)) {
                     // 2FA verification successful, proceed to issue token
@@ -58,7 +68,7 @@ class MobileAppAuthenticationController extends Controller
 
                     return response()->json(
                         (new AuthTokenResource([
-                            'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                            'token' => $user->createToken($deviceName)->plainTextToken,
                             'user' => [
                                 'id' => $user->id,
                                 'name' => $user->name,
@@ -88,7 +98,7 @@ class MobileAppAuthenticationController extends Controller
 
         return response()->json(
             (new AuthTokenResource([
-                'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                'token' => $user->createToken($deviceName)->plainTextToken,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -105,12 +115,19 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request)
+    public function verify_two_factor(VerifyTwoFactorMobileAppAuthenticationRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
+        $passwordRaw = $validated['password'] ?? null;
+        $deviceNameRaw = $validated['device_name'] ?? null;
+        $codeRaw = $validated['code'] ?? null;
+        $password = is_string($passwordRaw) ? $passwordRaw : '';
+        $deviceName = is_string($deviceNameRaw) ? $deviceNameRaw : '';
+        $code = is_string($codeRaw) ? $codeRaw : '';
+
         $user = User::where('email', $validated['email'])->first();
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($password, (string) ($user->password ?? ''))) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -125,8 +142,9 @@ class MobileAppAuthenticationController extends Controller
         // Verify TOTP code
         $verified = false;
         try {
-            $decryptedSecret = decrypt($user->two_factor_secret);
-            $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $validated['code']);
+            $decryptedRaw = decrypt((string) ($user->two_factor_secret ?? ''));
+            $decryptedSecret = is_string($decryptedRaw) ? $decryptedRaw : '';
+            $verified = app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code);
         } catch (InvalidCharactersException $e) {
             // Invalid TOTP secret in database - treat as invalid code
             $verified = false;
@@ -148,7 +166,7 @@ class MobileAppAuthenticationController extends Controller
 
         return response()->json(
             (new AuthTokenResource([
-                'token' => $user->createToken($validated['device_name'])->plainTextToken,
+                'token' => $user->createToken($deviceName)->plainTextToken,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -166,12 +184,15 @@ class MobileAppAuthenticationController extends Controller
      *
      * @unauthenticated
      */
-    public function two_factor_status(TwoFactorStatusMobileAppAuthenticationRequest $request)
+    public function two_factor_status(TwoFactorStatusMobileAppAuthenticationRequest $request): TwoFactorStatusResource
     {
         $validated = $request->validated();
 
+        $passwordRaw = $validated['password'] ?? null;
+        $password = is_string($passwordRaw) ? $passwordRaw : '';
+
         $user = User::where('email', $validated['email'])->first();
-        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($password, (string) ($user->password ?? ''))) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -190,7 +211,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Return a 2FA challenge response.
      */
-    protected function requireTwoFactorAuthentication(User $user)
+    protected function requireTwoFactorAuthentication(User $user): JsonResponse
     {
         return response()->json(
             (new TwoFactorChallengeResource([
@@ -206,7 +227,7 @@ class MobileAppAuthenticationController extends Controller
     /**
      * Revoke all the token for the current user.
      */
-    public function wipe_tokens(Request $request)
+    public function wipe_tokens(Request $request): JsonResponse|Response
     {
         if (! $request->user()) {
             return response()->json(
@@ -230,7 +251,8 @@ class MobileAppAuthenticationController extends Controller
 
         // Verify TOTP
         try {
-            $decryptedSecret = decrypt($user->two_factor_secret);
+            $decryptedRaw = decrypt((string) ($user->two_factor_secret ?? ''));
+            $decryptedSecret = is_string($decryptedRaw) ? $decryptedRaw : '';
             if (app(TwoFactorAuthenticationProvider::class)->verify($decryptedSecret, $code)) {
                 return true;
             }

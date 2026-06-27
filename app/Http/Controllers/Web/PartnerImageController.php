@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Services\Web\PartnerImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -41,7 +42,7 @@ class PartnerImageController extends Controller
     /**
      * Show form to attach available image to partner.
      */
-    public function create(Partner $partner)
+    public function create(Partner $partner): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -54,7 +55,8 @@ class PartnerImageController extends Controller
     public function store(StorePartnerImageRequest $request, Partner $partner): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         PartnerImage::attachFromAvailableImage($availableImage, $partner->id);
 
@@ -65,7 +67,7 @@ class PartnerImageController extends Controller
     /**
      * Show form to edit partner image.
      */
-    public function edit(Partner $partner, PartnerImage $partnerImage)
+    public function edit(Partner $partner, PartnerImage $partnerImage): View
     {
         // Ensure the image belongs to the partner
         if ($partnerImage->partner_id !== $partner->id) {
@@ -158,7 +160,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Partner $partner, PartnerImage $partnerImage)
+    public function download(Partner $partner, PartnerImage $partnerImage): Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);
@@ -170,7 +172,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Partner $partner, PartnerImage $partnerImage)
+    public function view(Partner $partner, PartnerImage $partnerImage): Responsable
     {
         if ($partnerImage->partner_id !== $partner->id) {
             abort(404);

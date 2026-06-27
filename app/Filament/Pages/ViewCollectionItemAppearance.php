@@ -51,15 +51,19 @@ class ViewCollectionItemAppearance extends Page
 
         abort_if($pivot === null, 404);
 
-        $this->collection = CollectionDisplayLabel::withDisplayLabel(
+        /** @var Collection|null $foundCollection */
+        $foundCollection = CollectionDisplayLabel::withDisplayLabel(
             Collection::where('id', $collection->id)
                 ->with(['context:id,internal_name', 'language:id,internal_name', 'parent:id,internal_name'])
-        )->first() ?? $collection;
+        )->first();
+        $this->collection = $foundCollection ?? $collection;
 
-        $this->item = ItemDisplayLabel::withDisplayLabel(
+        /** @var Item|null $foundItem */
+        $foundItem = ItemDisplayLabel::withDisplayLabel(
             Item::where('id', $item->id)
                 ->with(['partner:id,internal_name'])
-        )->first() ?? $item;
+        )->first();
+        $this->item = $foundItem ?? $item;
 
         $this->displayOrder = $pivot->display_order;
         $this->contextualDescriptions = $pivot->contextualDescriptions();

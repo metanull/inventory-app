@@ -3,6 +3,10 @@
 namespace App\Livewire;
 
 use App\Livewire\Support\OptionsLookup;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
+use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -23,6 +27,7 @@ class SearchableMultiSelect extends Component
 {
     use OptionsLookup;
 
+    /** @var array<int, string|int> */
     #[Modelable]
     public array $selectedIds = [];
 
@@ -32,6 +37,7 @@ class SearchableMultiSelect extends Component
 
     public string $name = '';
 
+    /** @var mixed */
     public $staticOptions = null;
 
     public ?string $modelClass = null;
@@ -48,16 +54,21 @@ class SearchableMultiSelect extends Component
 
     public ?string $filterOperator = '!=';
 
+    /** @var mixed */
     public $filterValue = null;
 
+    /** @var mixed */
     public $scopes = null;
 
     public int $perPage = 50;
 
+    /**
+     * @param  array<int, string|int>  $selectedIds
+     */
     public function mount(
         array $selectedIds = [],
         string $name = '',
-        $staticOptions = null,
+        mixed $staticOptions = null,
         ?string $modelClass = null,
         string $displayField = 'internal_name',
         string $placeholder = 'Select...',
@@ -65,8 +76,8 @@ class SearchableMultiSelect extends Component
         ?string $entity = null,
         ?string $filterColumn = null,
         ?string $filterOperator = '!=',
-        $filterValue = null,
-        $scopes = null,
+        mixed $filterValue = null,
+        mixed $scopes = null,
         ?int $perPage = null
     ): void {
         $this->selectedIds = $selectedIds;
@@ -80,15 +91,18 @@ class SearchableMultiSelect extends Component
         $this->filterColumn = $filterColumn;
         $this->filterOperator = $filterOperator;
         $this->filterValue = $filterValue;
-        $this->perPage = $perPage ?? (int) config('interface.searchable_select.per_page', 50);
+        $this->perPage = $perPage ?? Config::integer('interface.searchable_select.per_page');
 
         if ($scopes !== null) {
             $this->scopes = $this->normalizeScopes($scopes, $this->modelClass);
         }
 
         if ($this->staticOptions !== null) {
-            $count = count(collect($this->staticOptions));
-            $max = (int) config('interface.searchable_select.static_options_max', 50);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $staticCollection = collect($rawOpts);
+            $count = count($staticCollection);
+            $max = Config::integer('interface.searchable_select.static_options_max');
             if ($count > $max) {
                 throw new InvalidArgumentException(
                     "SearchableMultiSelect received {$count} staticOptions but the configured maximum is {$max}. Use dynamic mode (modelClass + scope) for growable entities."
@@ -120,7 +134,7 @@ class SearchableMultiSelect extends Component
     public function removeOption(string $id): void
     {
         $this->selectedIds = array_values(
-            array_filter($this->selectedIds, fn ($existing) => $existing !== $id)
+            array_filter($this->selectedIds, fn (string|int $existing): bool => $existing !== $id)
         );
     }
 
@@ -136,20 +150,26 @@ class SearchableMultiSelect extends Component
     /**
      * Candidate options for the dropdown (excludes already-selected ids).
      */
+    /**
+     * @return Collection<int, mixed>
+     */
     public function getOptionsProperty()
     {
         if ($this->staticOptions !== null) {
             return $this->resolveStaticOptions()->filter(function ($option) {
-                $value = is_object($option) ? ($option->id ?? null) : ($option['id'] ?? null);
+                $value = is_object($option) ? ($option->id ?? null) : (is_array($option) ? ($option['id'] ?? null) : null);
 
-                return ! in_array((string) $value, $this->selectedIds, true);
+                return ! in_array(is_scalar($value) ? (string) $value : '', $this->selectedIds, true);
             });
         }
 
         if ($this->modelClass) {
-            return $this->resolveOptionsQuery()
+            /** @var Collection<int, mixed> $results */
+            $results = $this->resolveOptionsQuery()
                 ->whereNotIn('id', $this->selectedIds)
                 ->get();
+
+            return $results;
         }
 
         return collect();
@@ -158,6 +178,8 @@ class SearchableMultiSelect extends Component
     /**
      * Currently selected options — queried by id so we never store model instances
      * in component state.
+     *
+     * @return Collection<int, mixed>
      */
     public function getSelectedOptionsProperty()
     {
@@ -166,30 +188,43 @@ class SearchableMultiSelect extends Component
         }
 
         if ($this->staticOptions !== null) {
-            return collect($this->staticOptions)->filter(function ($option) {
-                $value = is_object($option) ? ($option->id ?? null) : ($option['id'] ?? null);
+            /** @var array<int, mixed> $rawOpts */
+            $rawOpts = $this->staticOptions;
+            $allOptions = collect($rawOpts);
 
-                return in_array((string) $value, $this->selectedIds, true);
+            return $allOptions->filter(function ($option) {
+                $value = is_object($option) ? ($option->id ?? null) : (is_array($option) ? ($option['id'] ?? null) : null);
+
+                return in_array(is_scalar($value) ? (string) $value : '', $this->selectedIds, true);
             });
         }
 
         if ($this->modelClass) {
-            return $this->modelClass::whereIn('id', $this->selectedIds)->get();
+            /** @var class-string<Model> $modelClass */
+            $modelClass = $this->modelClass;
+
+            /** @var Collection<int, mixed> $result */
+            $result = $modelClass::whereIn('id', $this->selectedIds)->get()->toBase();
+
+            return $result;
         }
 
         return collect();
     }
 
-    public function render()
+    public function render(): View
     {
-        $colors = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
-        $focusClasses = $colors
-            ? "focus:border-{$colors['base']} focus:ring-{$colors['base']}"
+        $colorsRaw = $this->entity ? config("app_entities.{$this->entity}.colors", []) : null;
+        $colors = is_array($colorsRaw) ? $colorsRaw : null;
+        $baseRaw = $colors !== null ? ($colors['base'] ?? null) : null;
+        $base = is_string($baseRaw) ? $baseRaw : '';
+        $focusClasses = ($base !== '')
+            ? "focus:border-{$base} focus:ring-{$base}"
             : 'focus:border-indigo-500 focus:ring-indigo-500';
 
         return view('livewire.searchable-multi-select', [
-            'options' => $this->options,
-            'selectedOptions' => $this->selectedOptions,
+            'options' => $this->getOptionsProperty(),
+            'selectedOptions' => $this->getSelectedOptionsProperty(),
             'focusClasses' => $focusClasses,
         ]);
     }

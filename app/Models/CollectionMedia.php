@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\CollectionMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CollectionMedia extends Model
 {
+    /** @use HasFactory<CollectionMediaFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $table = 'collection_media';
@@ -51,12 +53,17 @@ class CollectionMedia extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('collection_id', $this->collection_id)
+        /** @var Builder<static> $query */
+        $query = static::where('collection_id', $this->collection_id)
             ->where('type', $this->type);
+
+        return $query;
     }
 
     /**
      * Get the collection this media belongs to.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -65,6 +72,8 @@ class CollectionMedia extends Model
 
     /**
      * Get the language of this media.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\AuthorTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin AuthorTranslation */
 class AuthorTranslationResource extends JsonResource
 {
     /**

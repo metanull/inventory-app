@@ -16,13 +16,16 @@ use App\Models\Partner;
 use App\Models\PartnerImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerImageRequest $request)
+    public function index(IndexPartnerImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -40,10 +43,8 @@ class PartnerImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerImageResource
      */
-    public function store(StorePartnerImageRequest $request)
+    public function store(StorePartnerImageRequest $request): PartnerImageResource
     {
         $validated = $request->validated();
         $partnerImage = PartnerImage::create($validated);
@@ -57,7 +58,7 @@ class PartnerImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerImageRequest $request, PartnerImage $partnerImage)
+    public function show(ShowPartnerImageRequest $request, PartnerImage $partnerImage): PartnerImageResource
     {
         $includes = $request->getIncludeParams();
         $partnerImage->load($includes);
@@ -67,10 +68,8 @@ class PartnerImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerImageResource
      */
-    public function update(UpdatePartnerImageRequest $request, PartnerImage $partnerImage)
+    public function update(UpdatePartnerImageRequest $request, PartnerImage $partnerImage): PartnerImageResource
     {
         $validated = $request->validated();
         $partnerImage->update($validated);
@@ -84,7 +83,7 @@ class PartnerImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerImage $partnerImage)
+    public function destroy(PartnerImage $partnerImage): Response
     {
         $partnerImage->delete();
 
@@ -94,7 +93,7 @@ class PartnerImageController extends Controller
     /**
      * Move partner image up in display order.
      */
-    public function moveUp(PartnerImage $partnerImage)
+    public function moveUp(PartnerImage $partnerImage): PartnerImageResource
     {
         $partnerImage->moveUp();
 
@@ -107,7 +106,7 @@ class PartnerImageController extends Controller
     /**
      * Move partner image down in display order.
      */
-    public function moveDown(PartnerImage $partnerImage)
+    public function moveDown(PartnerImage $partnerImage): PartnerImageResource
     {
         $partnerImage->moveDown();
 
@@ -120,7 +119,7 @@ class PartnerImageController extends Controller
     /**
      * Tighten ordering for all images of the partner.
      */
-    public function tightenOrdering(PartnerImage $partnerImage)
+    public function tightenOrdering(PartnerImage $partnerImage): OperationSuccessResource
     {
         $partnerImage->tightenOrderingForPartner();
 
@@ -132,15 +131,15 @@ class PartnerImageController extends Controller
 
     /**
      * Attach an available image to a partner.
-     *
-     * @return PartnerImageResource
      */
-    public function attachFromAvailable(AttachFromAvailablePartnerImageRequest $request, Partner $partner)
+    public function attachFromAvailable(AttachFromAvailablePartnerImageRequest $request, Partner $partner): PartnerImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
-        $partnerImage = PartnerImage::attachFromAvailableImage($availableImage, $partner->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $partnerImage = PartnerImage::attachFromAvailableImage($availableImage, $partner->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -153,7 +152,7 @@ class PartnerImageController extends Controller
     /**
      * Detach a partner image and convert it back to available image.
      */
-    public function detachToAvailable(PartnerImage $partnerImage)
+    public function detachToAvailable(PartnerImage $partnerImage): OperationSuccessResource
     {
         $availableImage = $partnerImage->detachToAvailableImage();
 
@@ -167,7 +166,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerImage $partnerImage)
+    public function download(PartnerImage $partnerImage): Responsable
     {
         return new DownloadImageResponse($partnerImage);
     }
@@ -175,7 +174,7 @@ class PartnerImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerImage $partnerImage)
+    public function view(PartnerImage $partnerImage): Responsable
     {
         return new InlineImageResponse($partnerImage);
     }

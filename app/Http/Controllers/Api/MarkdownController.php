@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ConversionResource;
 use App\Rules\MarkdownRule;
 use App\Services\MarkdownService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -46,7 +47,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function markdownToHtml(Request $request)
+    public function markdownToHtml(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -64,7 +65,8 @@ class MarkdownController extends Controller
         }
 
         try {
-            $html = $this->markdownService->markdownToHtml($request->input('markdown'));
+            $inputRaw = $request->input('markdown');
+            $html = $this->markdownService->markdownToHtml(is_string($inputRaw) ? $inputRaw : '');
 
             return new ConversionResource([
                 'success' => true,
@@ -105,16 +107,16 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function htmlToMarkdown(Request $request)
+    public function htmlToMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'html' => [
                 'required',
                 'string',
                 'max:65535',
-                function ($attribute, $value, $fail) {
+                function (string $attribute, mixed $value, \Closure $fail): void {
                     try {
-                        $this->markdownService->validateHtml($value);
+                        $this->markdownService->validateHtml(is_string($value) ? $value : '');
                     } catch (ValidationException $e) {
                         $errors = $e->validator->errors()->all();
                         foreach ($errors as $error) {
@@ -137,7 +139,8 @@ class MarkdownController extends Controller
         }
 
         try {
-            $markdown = $this->markdownService->htmlToMarkdown($request->input('html'));
+            $htmlRaw = $request->input('html');
+            $markdown = $this->markdownService->htmlToMarkdown(is_string($htmlRaw) ? $htmlRaw : '');
 
             return new ConversionResource([
                 'success' => true,
@@ -178,7 +181,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function validateMarkdown(Request $request)
+    public function validateMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'markdown' => ['required', 'string', new MarkdownRule],
@@ -218,7 +221,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function getAllowedElements()
+    public function getAllowedElements(): ConversionResource
     {
         return new ConversionResource([
             'success' => true,
@@ -235,7 +238,7 @@ class MarkdownController extends Controller
      * Generates an HTML preview of Markdown content for display purposes.
      * This is essentially the same as markdownToHtml but with a different semantic meaning.
      */
-    public function previewMarkdown(Request $request)
+    public function previewMarkdown(Request $request): ConversionResource|JsonResponse
     {
         return $this->markdownToHtml($request);
     }
@@ -255,7 +258,7 @@ class MarkdownController extends Controller
      *   }
      * }
      */
-    public function isMarkdown(Request $request)
+    public function isMarkdown(Request $request): ConversionResource|JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'content' => ['required', 'string'],
@@ -272,8 +275,8 @@ class MarkdownController extends Controller
             );
         }
 
-        $content = $request->input('content');
-        $isMarkdown = $this->markdownService->isMarkdown($content);
+        $contentRaw = $request->input('content');
+        $isMarkdown = $this->markdownService->isMarkdown(is_string($contentRaw) ? $contentRaw : '');
 
         return new ConversionResource([
             'success' => true,

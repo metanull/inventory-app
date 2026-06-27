@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Country;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
-class CountryResource extends JsonResource
+/** @extends BaseJsonResource<Country> */
+class CountryResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,15 +17,15 @@ class CountryResource extends JsonResource
     {
         return [
             // The unique identifier (ISO 3166-1 alpha-3 code)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // A name for this resource, for internal use only.
-            'internal_name' => $this->internal_name,
+            'internal_name' => $this->resource->internal_name,
             // The Id(s) of matching resource in the legacy system (if any).
-            'backward_compatibility' => $this->backward_compatibility,
+            'backward_compatibility' => $this->resource->backward_compatibility,
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

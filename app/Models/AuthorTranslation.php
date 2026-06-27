@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\AuthorTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class AuthorTranslation extends Model
 {
+    /** @use HasFactory<AuthorTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -30,7 +32,7 @@ class AuthorTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'author_id',
@@ -62,6 +64,8 @@ class AuthorTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -72,6 +76,8 @@ class AuthorTranslation extends Model
 
     /**
      * Get the author that owns the translation.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function author(): BelongsTo
     {
@@ -80,6 +86,8 @@ class AuthorTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -88,6 +96,8 @@ class AuthorTranslation extends Model
 
     /**
      * Get the context of the translation.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {
@@ -97,10 +107,10 @@ class AuthorTranslation extends Model
     /**
      * Scope a query to only include translations for the default context.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeDefaultContext($query)
+    public function scopeDefaultContext(Builder $query): Builder
     {
         return $query->whereHas('context', function ($query) {
             $query->where('is_default', true);
@@ -110,11 +120,10 @@ class AuthorTranslation extends Model
     /**
      * Scope a query to only include translations for a specific language.
      *
-     * @param  Builder  $query
-     * @param  string  $languageId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }
@@ -122,11 +131,10 @@ class AuthorTranslation extends Model
     /**
      * Scope a query to only include translations for a specific context.
      *
-     * @param  Builder  $query
-     * @param  string  $contextId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForContext($query, $contextId)
+    public function scopeForContext(Builder $query, string $contextId): Builder
     {
         return $query->where('context_id', $contextId);
     }

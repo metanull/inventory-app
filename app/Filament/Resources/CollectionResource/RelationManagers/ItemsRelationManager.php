@@ -43,7 +43,7 @@ class ItemsRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 ItemDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record) => ItemResource::getUrl('view', ['record' => $record])),
+                    ->url(fn (Item $record): string => ItemResource::getUrl('view', ['record' => $record])),
                 CollectionItemAppearance::displayOrderColumn(),
                 CollectionItemAppearance::contextualTextPreviewColumn(),
                 CollectionItemAppearance::contextualTextLanguagesColumn(),
@@ -54,13 +54,13 @@ class ItemsRelationManager extends RelationManager
                 TextColumn::make('partner.internal_name')
                     ->label('Partner')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->partner
+                    ->url(fn (Item $record): ?string => $record->partner
                         ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
                         : null),
                 TextColumn::make('project.internal_name')
                     ->label('Project')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->project
+                    ->url(fn (Item $record): ?string => $record->project
                         ? (auth()->user()?->can('view', $record->project) ? ProjectResource::getUrl('view', ['record' => $record->project]) : null)
                         : null),
                 TextColumn::make('internal_name')

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Mail;
 
 class TestMailInfrastructure extends Command
@@ -28,7 +29,7 @@ class TestMailInfrastructure extends Command
     {
         $recipient = $this->argument('recipient');
         try {
-            Mail::raw('This is a test email from your Laravel deployment.', function ($message) use ($recipient) {
+            Mail::raw('This is a test email from your Laravel deployment.', function (Message $message) use ($recipient): void {
                 $message->to($recipient)
                     ->subject('Laravel Mail Test');
             });

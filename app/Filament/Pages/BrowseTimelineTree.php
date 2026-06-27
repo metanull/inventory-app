@@ -229,11 +229,14 @@ class BrowseTimelineTree extends Page
      */
     public function getEvents(string $timelineId): Collection
     {
-        return TimelineEventDisplayLabel::withDisplayLabel(
+        /** @var Collection<int, TimelineEvent> $result */
+        $result = TimelineEventDisplayLabel::withDisplayLabel(
             TimelineEvent::query()
                 ->where('timeline_id', $timelineId)
                 ->orderBy('display_order')
                 ->orderBy('internal_name')
         )->get();
+
+        return $result;
     }
 }

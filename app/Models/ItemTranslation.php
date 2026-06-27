@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\ItemTranslationSaved;
 use App\Traits\HasJsonFields;
+use Database\Factories\ItemTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,9 +21,18 @@ use Illuminate\Support\Facades\DB;
  *
  * Represents language and context-specific translations for Items.
  * Supports internationalization and contextualization of Item content.
+ *
+ * @property string $item_id
+ * @property string $language_id
+ * @property string $context_id
+ * @property string|null $name
+ * @property string|null $description
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class ItemTranslation extends Model
 {
+    /** @use HasFactory<ItemTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -29,7 +40,7 @@ class ItemTranslation extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($itemTranslation) {
+        static::saved(function (ItemTranslation $itemTranslation): void {
             event(new ItemTranslationSaved($itemTranslation));
         });
     }
@@ -44,10 +55,6 @@ class ItemTranslation extends Model
      */
     public function delete()
     {
-        if (is_null($this->getKeyName())) {
-            throw new \LogicException('No primary key defined on model.');
-        }
-
         // If the model doesn't exist, nothing to delete
         if (! $this->exists) {
             return false;
@@ -86,7 +93,7 @@ class ItemTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'item_id',
@@ -137,6 +144,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -145,25 +154,19 @@ class ItemTranslation extends Model
         );
     }
 
-    /**
-     * Get the item that owns the translation.
-     */
+    /** @return BelongsTo<Item, $this> */
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
     }
 
-    /**
-     * Get the language of the translation.
-     */
+    /** @return BelongsTo<Language, $this> */
     public function language(): BelongsTo
     {
         return $this->belongsTo(Language::class);
     }
 
-    /**
-     * Get the context of the translation.
-     */
+    /** @return BelongsTo<Context, $this> */
     public function context(): BelongsTo
     {
         return $this->belongsTo(Context::class);
@@ -171,6 +174,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the author of the translation.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function author(): BelongsTo
     {
@@ -179,6 +184,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the text copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function textCopyEditor(): BelongsTo
     {
@@ -187,6 +194,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the translator.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translator(): BelongsTo
     {
@@ -195,6 +204,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the translation copy editor.
+     *
+     * @return BelongsTo<Author, $this>
      */
     public function translationCopyEditor(): BelongsTo
     {
@@ -203,6 +214,8 @@ class ItemTranslation extends Model
 
     /**
      * Get the glossary spellings linked to this item translation.
+     *
+     * @return BelongsToMany<GlossarySpelling, $this>
      */
     public function spellings(): BelongsToMany
     {
@@ -211,12 +224,10 @@ class ItemTranslation extends Model
     }
 
     /**
-     * Scope a query to only include translations for the default context.
-     *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeDefaultContext($query)
+    public function scopeDefaultContext(Builder $query): Builder
     {
         return $query->whereHas('context', function ($query) {
             $query->where('is_default', true);
@@ -224,34 +235,30 @@ class ItemTranslation extends Model
     }
 
     /**
-     * Scope a query to only include translations for a specific language.
-     *
-     * @param  Builder  $query
-     * @param  string  $languageId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForLanguage($query, $languageId)
+    public function scopeForLanguage(Builder $query, string $languageId): Builder
     {
         return $query->where('language_id', $languageId);
     }
 
     /**
-     * Scope a query to only include translations for a specific context.
-     *
-     * @param  Builder  $query
-     * @param  string  $contextId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForContext($query, $contextId)
+    public function scopeForContext(Builder $query, string $contextId): Builder
     {
         return $query->where('context_id', $contextId);
     }
 
     /**
      * Get sibling translations (other translations of the same item).
+     *
+     * @return HasMany<ItemTranslation, $this>
      */
     public function siblingTranslations(): HasMany
     {
-        return $this->hasMany(static::class, 'item_id', 'item_id');
+        return $this->hasMany(self::class, 'item_id', 'item_id');
     }
 }

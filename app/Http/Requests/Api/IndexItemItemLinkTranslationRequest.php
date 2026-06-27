@@ -12,6 +12,7 @@ class IndexItemItemLinkTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,6 +25,8 @@ class IndexItemItemLinkTranslationRequest extends FormRequest
 
     /**
      * Get validated pagination parameters.
+     *
+     * @return array{page:int, per_page:int}
      */
     public function getPaginationParams(): array
     {

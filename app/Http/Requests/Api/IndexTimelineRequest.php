@@ -15,6 +15,7 @@ class IndexTimelineRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,6 +25,7 @@ class IndexTimelineRequest extends FormRequest
         ];
     }
 
+    /** @return array{page:int, per_page:int} */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);

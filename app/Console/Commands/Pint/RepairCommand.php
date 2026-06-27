@@ -25,7 +25,7 @@ class RepairCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $process = new Process([base_path('vendor/bin/pint'), '--repair', '--no-interaction', '--ansi']);
         $process->run();

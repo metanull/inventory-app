@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\GlossaryFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class Glossary extends Model
 {
+    /** @use HasFactory<GlossaryFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -30,10 +32,6 @@ class Glossary extends Model
      */
     public function delete()
     {
-        if (is_null($this->getKeyName())) {
-            throw new \LogicException('No primary key defined on model.');
-        }
-
         // If the model doesn't exist, nothing to delete
         if (! $this->exists) {
             return false;
@@ -86,7 +84,7 @@ class Glossary extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'internal_name',
@@ -105,6 +103,8 @@ class Glossary extends Model
 
     /**
      * Get the translations for this glossary entry.
+     *
+     * @return HasMany<GlossaryTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -113,6 +113,8 @@ class Glossary extends Model
 
     /**
      * Get the spellings for this glossary entry.
+     *
+     * @return HasMany<GlossarySpelling, $this>
      */
     public function spellings(): HasMany
     {
@@ -121,6 +123,8 @@ class Glossary extends Model
 
     /**
      * Get the synonyms for this glossary entry.
+     *
+     * @return BelongsToMany<Glossary, $this>
      */
     public function synonyms(): BelongsToMany
     {
@@ -130,6 +134,8 @@ class Glossary extends Model
 
     /**
      * Get the reverse synonyms for this glossary entry.
+     *
+     * @return BelongsToMany<Glossary, $this>
      */
     public function reverseSynonyms(): BelongsToMany
     {

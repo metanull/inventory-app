@@ -3,6 +3,7 @@
 namespace App\Actions\Fortify;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CustomLogoutAction
 {
@@ -17,7 +18,7 @@ class CustomLogoutAction
 
         // Clear remember token before logout
         if ($user) {
-            $user->setRememberToken(null);
+            $user->setRememberToken(Str::random(60));
             $user->save();
         }
 

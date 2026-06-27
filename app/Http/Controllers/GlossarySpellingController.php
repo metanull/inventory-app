@@ -8,13 +8,15 @@ use App\Http\Requests\Api\StoreGlossarySpellingRequest;
 use App\Http\Requests\Api\UpdateGlossarySpellingRequest;
 use App\Http\Resources\GlossarySpellingResource;
 use App\Models\GlossarySpelling;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class GlossarySpellingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossarySpellingRequest $request)
+    public function index(IndexGlossarySpellingRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -32,10 +34,8 @@ class GlossarySpellingController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return GlossarySpellingResource
      */
-    public function store(StoreGlossarySpellingRequest $request)
+    public function store(StoreGlossarySpellingRequest $request): GlossarySpellingResource
     {
         $validated = $request->validated();
         $spelling = GlossarySpelling::create($validated);
@@ -47,7 +47,7 @@ class GlossarySpellingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowGlossarySpellingRequest $request, GlossarySpelling $glossarySpelling)
+    public function show(ShowGlossarySpellingRequest $request, GlossarySpelling $glossarySpelling): GlossarySpellingResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -59,10 +59,8 @@ class GlossarySpellingController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return GlossarySpellingResource
      */
-    public function update(UpdateGlossarySpellingRequest $request, GlossarySpelling $glossarySpelling)
+    public function update(UpdateGlossarySpellingRequest $request, GlossarySpelling $glossarySpelling): GlossarySpellingResource
     {
         $validated = $request->validated();
         $glossarySpelling->update($validated);
@@ -74,7 +72,7 @@ class GlossarySpellingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GlossarySpelling $glossarySpelling)
+    public function destroy(GlossarySpelling $glossarySpelling): Response
     {
         $glossarySpelling->delete();
 

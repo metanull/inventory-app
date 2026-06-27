@@ -11,7 +11,7 @@ class DebugVersionInfo extends Command
 
     protected $description = 'Debug version information loading';
 
-    public function handle()
+    public function handle(): int
     {
         $this->info('=== Laravel Application Version Debug ===');
         $this->newLine();
@@ -25,10 +25,13 @@ class DebugVersionInfo extends Command
 
             if (is_callable($versionInfo)) {
                 $this->info('   ✓ app_version_info is callable');
-                $result = $versionInfo();
+                $rawResult = $versionInfo();
+                /** @var array<string, mixed> $result */
+                $result = is_array($rawResult) ? $rawResult : [];
                 $this->info('   ✓ Callback executed successfully');
 
                 // Process the result to include formatted datetime like app-footer.blade.php
+                /** @var array<string, mixed> $processedResult */
                 $processedResult = $result;
                 if (isset($result['build_timestamp'])) {
                     $buildTimestamp = $result['build_timestamp'];
@@ -39,7 +42,7 @@ class DebugVersionInfo extends Command
                         if (is_array($buildTimestamp) && isset($buildTimestamp['value'])) {
                             // Parse .NET DateTime format: "/Date(1757794373908)/"
                             $value = $buildTimestamp['value'];
-                            if (preg_match('/\/Date\((\d+)\)\//', $value, $matches)) {
+                            if (is_string($value) && preg_match('/\/Date\((\d+)\)\//', $value, $matches)) {
                                 $timestamp = intval($matches[1]) / 1000; // Convert milliseconds to seconds
                                 $date = new \DateTime;
                                 $date->setTimestamp($timestamp);
@@ -60,12 +63,19 @@ class DebugVersionInfo extends Command
                     }
                 }
 
-                $this->table(['Key', 'Value'], array_map(function ($key, $value) {
+                $this->table(['Key', 'Value'], array_map(function (string $key, mixed $value): array {
+                    $keyStr = $key;
                     if (is_array($value)) {
-                        $value = json_encode($value);
+                        $valStr = (string) json_encode($value);
+                    } elseif (is_null($value)) {
+                        $valStr = 'NULL';
+                    } elseif (is_scalar($value)) {
+                        $valStr = (string) $value;
+                    } else {
+                        $valStr = '?';
                     }
 
-                    return [$key, $value ?? 'NULL'];
+                    return [$keyStr, $valStr];
                 }, array_keys($processedResult), array_values($processedResult)));
             } else {
                 $this->error('   ✗ app_version_info is not callable');
@@ -94,8 +104,8 @@ class DebugVersionInfo extends Command
 
         $this->newLine();
         $this->info('3. Testing config fallbacks:');
-        $this->line("   config('app.version'): ".(config('app.version') ?? 'NULL'));
-        $this->line("   env('APP_VERSION'): ".(env('APP_VERSION') ?? 'NULL'));
+        $appVersion = config('app.version');
+        $this->line("   config('app.version'): ".(is_scalar($appVersion) ? (string) $appVersion : 'NULL'));
 
         $this->newLine();
         $this->info('=== End Debug ===');

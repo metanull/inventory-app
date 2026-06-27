@@ -8,6 +8,7 @@ use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Shared Filament helpers for Collection-Item appearance presentation.
@@ -37,21 +38,23 @@ class CollectionItemAppearance
      */
     public static function contextualTextPreviewColumn(): TextColumn
     {
-        $defaultLangId = Language::default()?->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
 
         return TextColumn::make('pivot.contextual_text_preview')
             ->label('Contextual text')
-            ->getStateUsing(function ($record) use ($defaultLangId): ?string {
-                if (! ($record->pivot instanceof CollectionItem)) {
+            ->getStateUsing(function (Model $record) use ($defaultLangId): ?string {
+                $pivot = $record->getAttribute('pivot');
+                if (! ($pivot instanceof CollectionItem)) {
                     return null;
                 }
 
                 $text = $defaultLangId
-                    ? $record->pivot->contextualDescriptionForLanguage($defaultLangId)
+                    ? $pivot->contextualDescriptionForLanguage($defaultLangId)
                     : null;
 
                 if ($text === null) {
-                    $descriptions = $record->pivot->contextualDescriptions();
+                    $descriptions = $pivot->contextualDescriptions();
                     $text = $descriptions !== [] ? reset($descriptions) : null;
                 }
 
@@ -68,12 +71,13 @@ class CollectionItemAppearance
     {
         return TextColumn::make('pivot.contextual_description_languages')
             ->label('Languages')
-            ->getStateUsing(function ($record): ?string {
-                if (! ($record->pivot instanceof CollectionItem)) {
+            ->getStateUsing(function (Model $record): ?string {
+                $pivot = $record->getAttribute('pivot');
+                if (! ($pivot instanceof CollectionItem)) {
                     return null;
                 }
 
-                $languages = $record->pivot->contextualDescriptionLanguages();
+                $languages = $pivot->contextualDescriptionLanguages();
 
                 return $languages !== [] ? implode(', ', $languages) : null;
             })
@@ -98,13 +102,14 @@ class CollectionItemAppearance
             ->modalHeading('Appearance text')
             ->modalSubmitAction(false)
             ->modalCancelActionLabel('Close')
-            ->infolist(function ($record): array {
-                if (! ($record->pivot instanceof CollectionItem)) {
+            ->infolist(function (Model $record): array {
+                $pivot = $record->getAttribute('pivot');
+                if (! ($pivot instanceof CollectionItem)) {
                     return [];
                 }
 
-                $descriptions = $record->pivot->contextualDescriptions();
-                $sources = $record->pivot->sourceBackwardCompatibilityByLanguage();
+                $descriptions = $pivot->contextualDescriptions();
+                $sources = $pivot->sourceBackwardCompatibilityByLanguage();
                 $allLanguageIds = array_unique(
                     array_merge(array_keys($descriptions), array_keys($sources))
                 );
@@ -145,13 +150,14 @@ class CollectionItemAppearance
 
                 return $schema;
             })
-            ->visible(function ($record): bool {
-                if (! ($record->pivot instanceof CollectionItem)) {
+            ->visible(function (Model $record): bool {
+                $pivot = $record->getAttribute('pivot');
+                if (! ($pivot instanceof CollectionItem)) {
                     return false;
                 }
 
-                return $record->pivot->contextualDescriptions() !== []
-                    || $record->pivot->sourceBackwardCompatibilityByLanguage() !== [];
+                return $pivot->contextualDescriptions() !== []
+                    || $pivot->sourceBackwardCompatibilityByLanguage() !== [];
             });
     }
 }

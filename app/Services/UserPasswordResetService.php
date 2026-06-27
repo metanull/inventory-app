@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Notifications\AdminPasswordResetNotification;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 
 class UserPasswordResetService
@@ -14,7 +15,7 @@ class UserPasswordResetService
      */
     public function sendResetLink(User $user): void
     {
-        $token = Password::broker(config('fortify.passwords'))->createToken($user);
+        $token = Password::broker(Config::string('fortify.passwords'))->createToken($user);
         $user->notify(new AdminPasswordResetNotification($token));
     }
 }

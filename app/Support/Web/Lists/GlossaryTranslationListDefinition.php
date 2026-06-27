@@ -30,6 +30,10 @@ final class GlossaryTranslationListDefinition extends ListDefinition
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

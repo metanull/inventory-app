@@ -16,6 +16,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -53,7 +54,7 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     public function form(Form $form): Form
@@ -106,7 +107,7 @@ class PasswordResetMfaChallenge extends SimplePage
                                 ->label(__('Send code to my email'))
                                 ->color('gray')
                                 ->outlined()
-                                ->action(fn ($livewire) => $livewire->sendEmailCode()),
+                                ->action(fn (PasswordResetMfaChallenge $livewire) => $livewire->sendEmailCode()),
                         ])
                             ->hidden(fn (Get $get): bool => $get('method') !== 'email')
                             ->columnSpanFull(),
@@ -118,9 +119,10 @@ class PasswordResetMfaChallenge extends SimplePage
 
     public function sendEmailCode(): void
     {
-        $userId = session(self::USER_ID_SESSION_KEY);
+        $userIdRaw = session(self::USER_ID_SESSION_KEY);
+        $userId = is_numeric($userIdRaw) ? (int) $userIdRaw : 0;
 
-        if (! $userId) {
+        if ($userId === 0) {
             $this->redirect(Filament::getLoginUrl());
 
             return;
@@ -155,7 +157,8 @@ class PasswordResetMfaChallenge extends SimplePage
 
     public function submit(): void
     {
-        $userId = session(self::USER_ID_SESSION_KEY);
+        $userIdRaw = session(self::USER_ID_SESSION_KEY);
+        $userId = is_numeric($userIdRaw) ? (int) $userIdRaw : 0;
         $limiterKey = 'password-reset-mfa:'.$userId;
         $maxAttempts = app()->environment('testing') ? self::MAX_ATTEMPTS_TESTING : self::MAX_ATTEMPTS_PRODUCTION;
 
@@ -177,13 +180,17 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
-        $method = $data['method'] ?? 'totp';
+        $methodRaw = $data['method'] ?? 'totp';
+        $method = is_string($methodRaw) ? $methodRaw : 'totp';
 
-        $code = $method === 'totp' ? trim((string) ($data['code'] ?? '')) : '';
-        $recoveryCode = $method === 'recovery' ? trim((string) ($data['recovery_code'] ?? '')) : '';
-        $emailCode = $method === 'email' ? trim((string) ($data['email_code'] ?? '')) : '';
+        $codeRaw = $data['code'] ?? null;
+        $code = $method === 'totp' ? trim(is_string($codeRaw) ? $codeRaw : '') : '';
+        $recoveryCodeRaw = $data['recovery_code'] ?? null;
+        $recoveryCode = $method === 'recovery' ? trim(is_string($recoveryCodeRaw) ? $recoveryCodeRaw : '') : '';
+        $emailCodeRaw = $data['email_code'] ?? null;
+        $emailCode = $method === 'email' ? trim(is_string($emailCodeRaw) ? $emailCodeRaw : '') : '';
 
         if ($code === '' && $recoveryCode === '' && $emailCode === '') {
             throw ValidationException::withMessages([
@@ -191,7 +198,7 @@ class PasswordResetMfaChallenge extends SimplePage
             ]);
         }
 
-        $user = User::find($userId);
+        $user = User::find($userId === 0 ? null : $userId);
 
         if (! $user) {
             $this->clearPasswordResetSession();
@@ -212,7 +219,8 @@ class PasswordResetMfaChallenge extends SimplePage
             }
         } elseif ($code !== '') {
             $provider = app(TwoFactorAuthenticationProvider::class);
-            $secret = Fortify::currentEncrypter()->decrypt($user->two_factor_secret);
+            $secretRaw = Fortify::currentEncrypter()->decrypt($user->two_factor_secret ?? '');
+            $secret = is_string($secretRaw) ? $secretRaw : '';
             $verified = $provider->verify($secret, $code);
         } elseif ($emailCode !== '') {
             $verified = app(EmailTwoFactorCodeService::class)->verify(
@@ -234,18 +242,20 @@ class PasswordResetMfaChallenge extends SimplePage
         RateLimiter::clear($limiterKey);
 
         // Pull all pending reset state; fail fast if any piece is missing
-        $pendingHash = session()->pull(self::PASSWORD_HASH_SESSION_KEY);
-        $pendingToken = session()->pull(self::TOKEN_SESSION_KEY);
+        $pendingHashRaw = session()->pull(self::PASSWORD_HASH_SESSION_KEY);
+        $pendingTokenRaw = session()->pull(self::TOKEN_SESSION_KEY);
+        $pendingHash = is_string($pendingHashRaw) ? $pendingHashRaw : null;
+        $pendingToken = is_string($pendingTokenRaw) ? $pendingTokenRaw : null;
         $this->clearPasswordResetSession();
 
-        if (! $pendingHash || ! $pendingToken) {
+        if ($pendingHash === null || $pendingToken === null) {
             $this->redirect(Filament::getLoginUrl());
 
             return;
         }
 
         // Re-check token validity after MFA succeeds, before applying the password change
-        $tokenRepository = Password::broker(config('fortify.passwords'))->getRepository();
+        $tokenRepository = Password::broker(Config::string('fortify.passwords'))->getRepository();
 
         if (! $tokenRepository->exists($user, $pendingToken)) {
             Notification::make()
@@ -259,7 +269,7 @@ class PasswordResetMfaChallenge extends SimplePage
         }
 
         $user->forceFill(['password' => $pendingHash])->save();
-        Password::broker(config('fortify.passwords'))->deleteToken($user);
+        Password::broker(Config::string('fortify.passwords'))->deleteToken($user);
 
         Notification::make()
             ->title(__('Your password has been reset. You may now log in.'))

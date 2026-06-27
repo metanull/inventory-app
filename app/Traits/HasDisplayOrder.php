@@ -22,8 +22,7 @@ trait HasDisplayOrder
      */
     protected static function bootHasDisplayOrder(): void
     {
-        static::deleted(function ($model) {
-            // Get any remaining sibling to call tightenOrdering
+        static::deleted(function (self $model): void {
             $remaining = $model->getSiblingsQuery()->first();
             if ($remaining) {
                 $remaining->tightenOrdering();
@@ -46,7 +45,7 @@ trait HasDisplayOrder
     {
         $maxOrder = $this->getSiblingsQuery()->max('display_order');
 
-        return $maxOrder ? $maxOrder + 1 : 1;
+        return is_numeric($maxOrder) ? (int) $maxOrder + 1 : 1;
     }
 
     /**
@@ -68,7 +67,7 @@ trait HasDisplayOrder
 
         $maxOrder = $query->max('display_order');
 
-        return $maxOrder ? $maxOrder + 1 : 1;
+        return is_numeric($maxOrder) ? (int) $maxOrder + 1 : 1;
     }
 
     /**
@@ -176,7 +175,8 @@ trait HasDisplayOrder
                 return true; // Already at requested position
             }
 
-            $maxOrder = $this->getSiblingsQuery()->lockForUpdate()->max('display_order') ?? 0;
+            $maxRaw = $this->getSiblingsQuery()->lockForUpdate()->max('display_order');
+            $maxOrder = is_numeric($maxRaw) ? (int) $maxRaw : 0;
             $targetPosition = min($newPosition, $maxOrder);
 
             if ($currentOrder < $targetPosition) {

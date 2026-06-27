@@ -34,6 +34,10 @@ final class PartnerImageListDefinition extends ListDefinition
         return ['partner_images.path', 'partner_images.original_name', 'partner_images.alt_text'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

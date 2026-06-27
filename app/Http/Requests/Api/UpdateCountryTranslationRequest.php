@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\CountryTranslation;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,14 +15,20 @@ class UpdateCountryTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var CountryTranslation|null $countryTranslation */
         $countryTranslation = $this->route('countryTranslation');
 
         $uniqueRule = Rule::unique('country_translations')
-            ->where('country_id', $this->input('country_id'))
-            ->where('language_id', $this->input('language_id'))
-            ->ignore($countryTranslation->id);
+            ->where(fn (Builder $q) => $q
+                ->where('country_id', $this->input('country_id'))
+                ->where('language_id', $this->input('language_id'))
+            )
+            ->ignore($countryTranslation?->id);
 
         return [
             'id' => ['prohibited'],

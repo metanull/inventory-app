@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ItemType;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ItemFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,12 +12,31 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $id
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property ItemType $type
+ * @property string|null $parent_id
+ * @property string $collection_id
+ * @property string|null $project_id
+ * @property int|null $display_order
+ * @property int|null $start_date
+ * @property int|null $end_date
+ * @property string|null $display_label
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Item extends Model
 {
     use HasDisplayOrder;
+
+    /** @use HasFactory<ItemFactory> */
     use HasFactory;
+
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.
@@ -32,10 +52,6 @@ class Item extends Model
      */
     public function delete()
     {
-        if (is_null($this->getKeyName())) {
-            throw new \LogicException('No primary key defined on model.');
-        }
-
         // If the model doesn't exist, nothing to delete
         if (! $this->exists) {
             return false;
@@ -111,6 +127,8 @@ class Item extends Model
 
     /**
      * The partner owning or responsible for the Item.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {
@@ -119,6 +137,8 @@ class Item extends Model
 
     /**
      * The country of the Item.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -127,6 +147,8 @@ class Item extends Model
 
     /**
      * The project associated with the Item.
+     *
+     * @return BelongsTo<Project, $this>
      */
     public function project(): BelongsTo
     {
@@ -135,6 +157,8 @@ class Item extends Model
 
     /**
      * The collection that contains this item.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -143,6 +167,8 @@ class Item extends Model
 
     /**
      * The parent item (for hierarchical relationships).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function parent(): BelongsTo
     {
@@ -151,6 +177,8 @@ class Item extends Model
 
     /**
      * The child items (for hierarchical relationships).
+     *
+     * @return HasMany<Item, $this>
      */
     public function children(): HasMany
     {
@@ -164,13 +192,18 @@ class Item extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return $this->parent_id
+        /** @var Builder<static> $query */
+        $query = $this->parent_id
             ? static::where('parent_id', $this->parent_id)
             : static::whereNull('parent_id');
+
+        return $query;
     }
 
     /**
      * The item images attached to this item.
+     *
+     * @return HasMany<ItemImage, $this>
      */
     public function itemImages(): HasMany
     {
@@ -179,6 +212,8 @@ class Item extends Model
 
     /**
      * The media (audio/video URLs) attached to this item.
+     *
+     * @return HasMany<ItemMedia, $this>
      */
     public function itemMedia(): HasMany
     {
@@ -187,6 +222,8 @@ class Item extends Model
 
     /**
      * The documents attached to this item.
+     *
+     * @return HasMany<ItemDocument, $this>
      */
     public function itemDocuments(): HasMany
     {
@@ -195,6 +232,8 @@ class Item extends Model
 
     /**
      * The tags that belong to this item.
+     *
+     * @return BelongsToMany<Tag, $this>
      */
     public function tags(): BelongsToMany
     {
@@ -203,6 +242,8 @@ class Item extends Model
 
     /**
      * Artists associated with this item
+     *
+     * @return BelongsToMany<Artist, $this>
      */
     public function artists(): BelongsToMany
     {
@@ -211,6 +252,8 @@ class Item extends Model
 
     /**
      * Workshops associated with this item
+     *
+     * @return BelongsToMany<Workshop, $this>
      */
     public function workshops(): BelongsToMany
     {
@@ -219,6 +262,8 @@ class Item extends Model
 
     /**
      * Dynasties associated with this item
+     *
+     * @return BelongsToMany<Dynasty, $this>
      */
     public function dynasties(): BelongsToMany
     {
@@ -227,6 +272,8 @@ class Item extends Model
 
     /**
      * Get all translations for this item.
+     *
+     * @return HasMany<ItemTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -235,6 +282,8 @@ class Item extends Model
 
     /**
      * Get all outgoing links (where this item is the source).
+     *
+     * @return HasMany<ItemItemLink, $this>
      */
     public function outgoingLinks(): HasMany
     {
@@ -243,6 +292,8 @@ class Item extends Model
 
     /**
      * Get all incoming links (where this item is the target).
+     *
+     * @return HasMany<ItemItemLink, $this>
      */
     public function incomingLinks(): HasMany
     {
@@ -251,6 +302,8 @@ class Item extends Model
 
     /**
      * Get all timeline events this item is associated with.
+     *
+     * @return BelongsToMany<TimelineEvent, $this>
      */
     public function timelineEvents(): BelongsToMany
     {
@@ -261,6 +314,8 @@ class Item extends Model
 
     /**
      * Get all collections this item is attached to via many-to-many relationship.
+     *
+     * @return BelongsToMany<Collection, $this, CollectionItem>
      */
     public function attachedToCollections(): BelongsToMany
     {
@@ -275,10 +330,7 @@ class Item extends Model
      */
     public function getDefaultTranslation(string $languageId): ?ItemTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        return $this->translations()->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -286,10 +338,7 @@ class Item extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?ItemTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        return $this->translations()->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**
@@ -309,6 +358,9 @@ class Item extends Model
 
     /**
      * Scope to get only object items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeObjects(Builder $query): Builder
     {
@@ -317,6 +369,9 @@ class Item extends Model
 
     /**
      * Scope to get only monument items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeMonuments(Builder $query): Builder
     {
@@ -325,6 +380,9 @@ class Item extends Model
 
     /**
      * Scope to get only detail items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeDetails(Builder $query): Builder
     {
@@ -333,6 +391,9 @@ class Item extends Model
 
     /**
      * Scope to get only picture items.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopePictures(Builder $query): Builder
     {
@@ -341,6 +402,9 @@ class Item extends Model
 
     /**
      * Scope to get parent items (items with no parent).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeParents(Builder $query): Builder
     {
@@ -349,6 +413,9 @@ class Item extends Model
 
     /**
      * Scope to get child items (items with a parent).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeChildren(Builder $query): Builder
     {
@@ -358,7 +425,9 @@ class Item extends Model
     /**
      * Scope to get items for a specific tag.
      *
+     * @param  Builder<static>  $query
      * @param  string|Tag  $tag  The tag ID or Tag model instance
+     * @return Builder<static>
      */
     public function scopeForTag(Builder $query, $tag): Builder
     {
@@ -372,7 +441,9 @@ class Item extends Model
     /**
      * Scope to get items that have ALL of the specified tags (AND condition).
      *
-     * @param  array  $tags  Array of tag IDs or Tag model instances
+     * @param  Builder<static>  $query
+     * @param  array<int, mixed>  $tags  Array of tag IDs or Tag model instances
+     * @return Builder<static>
      */
     public function scopeWithAllTags(Builder $query, array $tags): Builder
     {
@@ -392,7 +463,9 @@ class Item extends Model
     /**
      * Scope to get items that have ANY of the specified tags (OR condition).
      *
-     * @param  array  $tags  Array of tag IDs or Tag model instances
+     * @param  Builder<static>  $query
+     * @param  array<int, mixed>  $tags  Array of tag IDs or Tag model instances
+     * @return Builder<static>
      */
     public function scopeWithAnyTags(Builder $query, array $tags): Builder
     {
@@ -434,22 +507,22 @@ class Item extends Model
     }
 
     // Accessors and Mutators to ensure null values instead of empty strings
-    public function getOwnerReferenceAttribute($value): ?string
+    public function getOwnerReferenceAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setOwnerReferenceAttribute($value): void
+    public function setOwnerReferenceAttribute(mixed $value): void
     {
         $this->attributes['owner_reference'] = $value === '' ? null : $value;
     }
 
-    public function getMwnfReferenceAttribute($value): ?string
+    public function getMwnfReferenceAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setMwnfReferenceAttribute($value): void
+    public function setMwnfReferenceAttribute(mixed $value): void
     {
         $this->attributes['mwnf_reference'] = $value === '' ? null : $value;
     }
@@ -457,7 +530,9 @@ class Item extends Model
     /**
      * Scope to exclude items with the given IDs.
      *
+     * @param  Builder<static>  $query
      * @param  array<int, string>  $ids
+     * @return Builder<static>
      */
     public function scopeExcludingIds(Builder $query, array $ids): Builder
     {
@@ -469,7 +544,9 @@ class Item extends Model
      * Prevents a descendant from being set as the item's own parent.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $itemId  UUID of the item whose descendants to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingDescendantsOf(Builder $query, string $itemId): Builder
     {
@@ -501,7 +578,9 @@ class Item extends Model
      * Prevents an ancestor from being set as a child of the item.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $itemId  UUID of the item whose ancestors to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingAncestorsOf(Builder $query, string $itemId): Builder
     {
@@ -511,7 +590,7 @@ class Item extends Model
 
         for ($depth = 0; $depth < $maxDepth; $depth++) {
             $parentId = static::where('id', $currentId)->value('parent_id');
-            if ($parentId === null) {
+            if (! is_string($parentId)) {
                 break;
             }
             $excludeIds[] = $parentId;

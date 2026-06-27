@@ -97,7 +97,7 @@ class TagResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Tag $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('description', 'asc')
             ->columns([
                 TextColumn::make('description')
@@ -108,7 +108,7 @@ class TagResource extends Resource
                     ->sortable(),
                 TextColumn::make('category')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised')
+                    ->formatStateUsing(fn (?string $state): string => $state !== null ? (static::categoryOptions()[$state] ?? 'Uncategorised') : 'Uncategorised')
                     ->color(fn (Tag $record): array => EntityColor::palette($record->category ?? 'tags'))
                     ->sortable(),
                 TextColumn::make('internal_name')
@@ -120,7 +120,7 @@ class TagResource extends Resource
                     ->label('Language')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (Tag $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 static::uuidColumn(),
@@ -139,7 +139,7 @@ class TagResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
             ])
             ->actions([
@@ -159,11 +159,11 @@ class TagResource extends Resource
                         TextEntry::make('description')
                             ->label('Tag'),
                         TextEntry::make('category')
-                            ->formatStateUsing(fn (?string $state): string => static::categoryOptions()[$state] ?? 'Uncategorised'),
+                            ->formatStateUsing(fn (?string $state): string => $state !== null ? (static::categoryOptions()[$state] ?? 'Uncategorised') : 'Uncategorised'),
                         TextEntry::make('internal_name'),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (Tag $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                     ])
@@ -181,6 +181,9 @@ class TagResource extends Resource
             ]);
     }
 
+    /**
+     * @return Builder<Tag>
+     */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('language');

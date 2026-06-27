@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 
 class RequestPasswordReset extends SimplePage
@@ -36,7 +37,7 @@ class RequestPasswordReset extends SimplePage
             return;
         }
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     public function form(Form $form): Form
@@ -70,10 +71,11 @@ class RequestPasswordReset extends SimplePage
         try {
             $this->rateLimit(5);
         } catch (TooManyRequestsException $exception) {
+            $seconds = is_numeric($exception->secondsUntilAvailable) ? (int) $exception->secondsUntilAvailable : 0;
             Notification::make()
                 ->title(__('filament-panels::pages/auth/login.notifications.throttled.title', [
-                    'seconds' => $exception->secondsUntilAvailable,
-                    'minutes' => (int) ceil($exception->secondsUntilAvailable / 60),
+                    'seconds' => $seconds,
+                    'minutes' => (int) ceil($seconds / 60),
                 ]))
                 ->danger()
                 ->send();
@@ -81,12 +83,12 @@ class RequestPasswordReset extends SimplePage
             return;
         }
 
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         $user = User::query()->where('email', $data['email'])->first();
 
         if ($user) {
-            $token = Password::broker(config('fortify.passwords'))->createToken($user);
+            $token = Password::broker(Config::string('fortify.passwords'))->createToken($user);
             $user->notify(new AdminPasswordResetNotification($token));
         }
 
@@ -95,7 +97,7 @@ class RequestPasswordReset extends SimplePage
             ->success()
             ->send();
 
-        $this->form->fill();
+        $this->getForm('form')?->fill();
     }
 
     /**

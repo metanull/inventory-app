@@ -3,6 +3,7 @@
 namespace App\Livewire\Support;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -28,10 +29,18 @@ trait OptionsLookup
      * Applies the optional filter column, named scopes, and prefix-first
      * LIKE search, then limits the result set to $perPage rows. The caller
      * is responsible for calling ->get() on the returned builder.
+     *
+     * @return Builder<Model>
      */
     public function resolveOptionsQuery(): Builder
     {
-        $query = $this->modelClass::query();
+        if ($this->modelClass === null) {
+            throw new InvalidArgumentException('Model class is not set on '.static::class);
+        }
+
+        /** @var class-string<Model> $modelClass */
+        $modelClass = $this->modelClass;
+        $query = $modelClass::query();
 
         if ($this->filterColumn && $this->filterValue !== null) {
             $this->applyFilter($query);
@@ -50,11 +59,16 @@ trait OptionsLookup
      *
      * Iterates over the normalised $scopes array (array<int, array{scope: string, args: array}>)
      * and calls each scope method on the query, forwarding any args.
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function applyScopes(Builder $query): Builder
     {
         if ($this->scopes) {
-            foreach ($this->scopes as $scopeEntry) {
+            /** @var list<array{scope: string, args: list<mixed>}> $scopes */
+            $scopes = $this->scopes;
+            foreach ($scopes as $scopeEntry) {
                 $query->{$scopeEntry['scope']}(...$scopeEntry['args']);
             }
         }
@@ -71,6 +85,9 @@ trait OptionsLookup
      *   - Secondary ORDER BY displayField ASC
      * When $search is empty:
      *   - ORDER BY displayField ASC only
+     *
+     * @param  Builder<Model>  $query
+     * @return Builder<Model>
      */
     public function applySearch(Builder $query, string $search): Builder
     {
@@ -95,19 +112,24 @@ trait OptionsLookup
      *
      * Performs a case-insensitive substring match against displayField.
      * No database queries are issued.
+     *
+     * @return Collection<int, mixed>
      */
     public function resolveStaticOptions(): Collection
     {
-        $options = collect($this->staticOptions);
+        /** @var array<int, mixed> $rawOpts */
+        $rawOpts = $this->staticOptions;
+        /** @var Collection<int, mixed> $options */
+        $options = collect($rawOpts);
 
         $search = trim($this->search);
         if ($search !== '') {
             $options = $options->filter(function ($option) use ($search) {
                 $displayValue = is_object($option)
                     ? ($option->{$this->displayField} ?? '')
-                    : ($option[$this->displayField] ?? '');
+                    : (is_array($option) ? ($option[$this->displayField] ?? '') : '');
 
-                return stripos($displayValue, $search) !== false;
+                return stripos(is_scalar($displayValue) ? (string) $displayValue : '', $search) !== false;
             });
         }
 
@@ -118,13 +140,18 @@ trait OptionsLookup
      * Apply the filter column/operator/value constraint to the query.
      *
      * Supports IN, NOT IN, and any standard comparison operator.
+     *
+     * @param  Builder<Model>  $query
      */
     protected function applyFilter(Builder $query): void
     {
-        match (strtoupper($this->filterOperator)) {
-            'IN' => $query->whereIn($this->filterColumn, (array) $this->filterValue),
-            'NOT IN' => $query->whereNotIn($this->filterColumn, (array) $this->filterValue),
-            default => $query->where($this->filterColumn, $this->filterOperator, $this->filterValue),
+        $filterColumn = $this->filterColumn ?? throw new InvalidArgumentException('Filter column is not set on '.static::class);
+        $filterOperator = $this->filterOperator ?? '=';
+
+        match (strtoupper($filterOperator)) {
+            'IN' => $query->whereIn($filterColumn, (array) $this->filterValue),
+            'NOT IN' => $query->whereNotIn($filterColumn, (array) $this->filterValue),
+            default => $query->where($filterColumn, $filterOperator, $this->filterValue),
         };
     }
 
@@ -136,6 +163,8 @@ trait OptionsLookup
      *   string                                         → single scope, no args
      *   array<int, string>                             → multiple scopes, no args
      *   array<int, array{scope: string, args: array}>  → fully specified
+     *
+     * @return list<array{scope: string, args: list<mixed>}>
      *
      * @throws InvalidArgumentException for non-alphanumeric names, unknown scopes, or non-serializable args
      */
@@ -156,10 +185,14 @@ trait OptionsLookup
                 $this->validateScopeName($scope, $modelClass);
                 $normalized[] = ['scope' => $scope, 'args' => []];
             } elseif (is_array($scope) && array_key_exists('scope', $scope)) {
-                $this->validateScopeName($scope['scope'], $modelClass);
+                $scopeName = $scope['scope'];
+                if (! is_string($scopeName)) {
+                    throw new InvalidArgumentException('Scope "scope" key must be a string.');
+                }
+                $this->validateScopeName($scopeName, $modelClass);
                 $args = $scope['args'] ?? [];
                 $this->validateScopeArgs($args);
-                $normalized[] = ['scope' => $scope['scope'], 'args' => array_values((array) $args)];
+                $normalized[] = ['scope' => $scopeName, 'args' => array_values((array) $args)];
             } else {
                 throw new InvalidArgumentException('Each scope must be a string or an array with a "scope" key.');
             }

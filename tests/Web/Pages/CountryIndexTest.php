@@ -76,7 +76,7 @@ class CountryIndexTest extends TestCase
         $this->assertStringContainsString('q=Temple', $nextPageUrl);
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
         $this->assertStringContainsString(
-            'href="http://localhost/web/countries?q=Temple&amp;per_page=10&amp;sort=internal_name&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('countries.index', ['q' => 'Temple', 'per_page' => 10, 'sort' => 'internal_name', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }

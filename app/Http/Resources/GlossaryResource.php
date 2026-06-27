@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Glossary;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Glossary */
 class GlossaryResource extends JsonResource
 {
     /**

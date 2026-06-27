@@ -40,7 +40,7 @@ class CollectionAppearancesRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 CollectionDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => $this->getAuthorizedUrl($record, CollectionResource::class)),
+                    ->url(fn (Collection $record): ?string => $this->getAuthorizedUrl($record, CollectionResource::class)),
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
@@ -48,7 +48,7 @@ class CollectionAppearancesRelationManager extends RelationManager
                     ->label('Parent collection')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->parent
+                    ->url(fn (Collection $record): ?string => $record->parent
                         ? $this->getAuthorizedUrl($record->parent, CollectionResource::class)
                         : null),
                 CollectionItemAppearance::displayOrderColumn(),
@@ -58,14 +58,14 @@ class CollectionAppearancesRelationManager extends RelationManager
                     ->label('Context')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->context
+                    ->url(fn (Collection $record): ?string => $record->context
                         ? $this->getAuthorizedUrl($record->context, ContextResource::class)
                         : null),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
                     ->toggleable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (Collection $record): ?string => $record->language
                         ? $this->getAuthorizedUrl($record->language, LanguageResource::class)
                         : null),
                 TextColumn::make('internal_name')
@@ -93,10 +93,17 @@ class CollectionAppearancesRelationManager extends RelationManager
             ]);
     }
 
+    /**
+     * @param  class-string<\Filament\Resources\Resource>  $resourceClass
+     */
     private function getAuthorizedUrl(mixed $record, string $resourceClass): ?string
     {
-        return auth()->user()?->can('view', $record)
-            ? $resourceClass::getUrl('view', ['record' => $record])
-            : null;
+        if (! auth()->user()?->can('view', $record)) {
+            return null;
+        }
+        /** @var string $url */
+        $url = $resourceClass::getUrl('view', ['record' => $record]);
+
+        return $url;
     }
 }

@@ -15,13 +15,17 @@ use App\Models\Contributor;
 use App\Models\ContributorImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 class ContributorImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorImageRequest $request)
+    public function index(IndexContributorImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -39,10 +43,8 @@ class ContributorImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorImageResource
      */
-    public function store(StoreContributorImageRequest $request)
+    public function store(StoreContributorImageRequest $request): ContributorImageResource
     {
         $validated = $request->validated();
         $contributorImage = ContributorImage::create($validated);
@@ -56,7 +58,7 @@ class ContributorImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContributorImageRequest $request, ContributorImage $contributorImage)
+    public function show(ShowContributorImageRequest $request, ContributorImage $contributorImage): ContributorImageResource
     {
         $includes = $request->getIncludeParams();
         $contributorImage->load($includes);
@@ -66,10 +68,8 @@ class ContributorImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorImageResource
      */
-    public function update(UpdateContributorImageRequest $request, ContributorImage $contributorImage)
+    public function update(UpdateContributorImageRequest $request, ContributorImage $contributorImage): ContributorImageResource
     {
         $validated = $request->validated();
         $contributorImage->update($validated);
@@ -83,7 +83,7 @@ class ContributorImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorImage $contributorImage)
+    public function destroy(ContributorImage $contributorImage): Response
     {
         $contributorImage->delete();
 
@@ -93,7 +93,7 @@ class ContributorImageController extends Controller
     /**
      * Move contributor image up in display order.
      */
-    public function moveUp(ContributorImage $contributorImage)
+    public function moveUp(ContributorImage $contributorImage): ContributorImageResource
     {
         $contributorImage->moveUp();
         $contributorImage->refresh();
@@ -104,7 +104,7 @@ class ContributorImageController extends Controller
     /**
      * Move contributor image down in display order.
      */
-    public function moveDown(ContributorImage $contributorImage)
+    public function moveDown(ContributorImage $contributorImage): ContributorImageResource
     {
         $contributorImage->moveDown();
         $contributorImage->refresh();
@@ -115,7 +115,7 @@ class ContributorImageController extends Controller
     /**
      * Tighten ordering for all images of the contributor.
      */
-    public function tightenOrdering(ContributorImage $contributorImage)
+    public function tightenOrdering(ContributorImage $contributorImage): OperationSuccessResource
     {
         $contributorImage->tightenOrdering();
 
@@ -127,15 +127,15 @@ class ContributorImageController extends Controller
 
     /**
      * Attach an available image to a contributor.
-     *
-     * @return ContributorImageResource
      */
-    public function attachFromAvailable(AttachFromAvailableContributorImageRequest $request, Contributor $contributor)
+    public function attachFromAvailable(AttachFromAvailableContributorImageRequest $request, Contributor $contributor): ContributorImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
-        $contributorImage = ContributorImage::attachFromAvailableImage($availableImage, $contributor->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $contributorImage = ContributorImage::attachFromAvailableImage($availableImage, $contributor->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -148,7 +148,7 @@ class ContributorImageController extends Controller
     /**
      * Detach a contributor image and convert it back to available image.
      */
-    public function detachToAvailable(ContributorImage $contributorImage)
+    public function detachToAvailable(ContributorImage $contributorImage): OperationSuccessResource
     {
         $availableImage = $contributorImage->detachToAvailableImage();
 
@@ -162,10 +162,10 @@ class ContributorImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(ContributorImage $contributorImage)
+    public function download(ContributorImage $contributorImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $contributorImage->original_name ?: basename($contributorImage->path);
 
         $storagePath = $directory.'/'.$contributorImage->path;
@@ -181,10 +181,10 @@ class ContributorImageController extends Controller
     /**
      * Returns the image file for direct viewing.
      */
-    public function view(ContributorImage $contributorImage)
+    public function view(ContributorImage $contributorImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         $storagePath = $directory.'/'.$contributorImage->path;
 

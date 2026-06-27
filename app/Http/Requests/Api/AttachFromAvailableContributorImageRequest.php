@@ -27,6 +27,7 @@ class AttachFromAvailableContributorImageRequest extends FormRequest
         ];
     }
 
+    /** @return array<int, string> */
     public function getIncludeParams(): array
     {
         return IncludeParser::fromRequest($this, AllowList::for('contributor_image'));

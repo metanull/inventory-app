@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ItemItemLinkFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,15 +10,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ */
 class ItemItemLink extends Model
 {
+    /** @use HasFactory<ItemItemLinkFactory> */
     use HasFactory;
+
     use HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'source_id',
@@ -37,6 +43,8 @@ class ItemItemLink extends Model
 
     /**
      * The source item of the link (the item initiating the link).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function source(): BelongsTo
     {
@@ -45,6 +53,8 @@ class ItemItemLink extends Model
 
     /**
      * The target item of the link (the item receiving the link).
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function target(): BelongsTo
     {
@@ -53,6 +63,8 @@ class ItemItemLink extends Model
 
     /**
      * The context in which the link exists.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {
@@ -61,6 +73,8 @@ class ItemItemLink extends Model
 
     /**
      * Get all translations for this link.
+     *
+     * @return HasMany<ItemItemLinkTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -70,7 +84,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by source item.
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $source  The source Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeFromSource(Builder $query, $source): Builder
     {
@@ -82,7 +98,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by target item.
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $target  The target Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeToTarget(Builder $query, $target): Builder
     {
@@ -94,7 +112,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links by context.
      *
+     * @param  Builder<static>  $query
      * @param  string|Context  $context  The Context ID or Context model instance
+     * @return Builder<static>
      */
     public function scopeInContext(Builder $query, $context): Builder
     {
@@ -106,7 +126,9 @@ class ItemItemLink extends Model
     /**
      * Scope to filter links involving a specific item (as either source or target).
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $item  The Item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeInvolvingItem(Builder $query, $item): Builder
     {

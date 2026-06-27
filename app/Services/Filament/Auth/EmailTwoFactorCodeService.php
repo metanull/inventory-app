@@ -35,7 +35,8 @@ class EmailTwoFactorCodeService
             throw new \RuntimeException('No pending admin MFA session for this user.');
         }
 
-        $sendLimiterKey = $this->sendLimiterKey($user->getKey(), request()->ip() ?? 'unknown');
+        $userKey = $user->getKey();
+        $sendLimiterKey = $this->sendLimiterKey(is_scalar($userKey) ? (string) $userKey : '', request()->ip() ?? 'unknown');
 
         if (RateLimiter::tooManyAttempts($sendLimiterKey, self::SEND_MAX_ATTEMPTS)) {
             throw new \RuntimeException('Too many email code requests. Please try again later.');
@@ -52,7 +53,7 @@ class EmailTwoFactorCodeService
         $cacheKey = $this->cacheKey($challengeId);
 
         $previousChallengeId = session($challengeIdSessionKey);
-        if ($previousChallengeId) {
+        if (is_string($previousChallengeId) && $previousChallengeId !== '') {
             Cache::forget($this->cacheKey($previousChallengeId));
         }
 
@@ -85,16 +86,17 @@ class EmailTwoFactorCodeService
             return false;
         }
 
-        $challengeId = session($challengeIdSessionKey);
+        $challengeIdRaw = session($challengeIdSessionKey);
 
-        if (! $challengeId) {
+        if (! is_string($challengeIdRaw) || $challengeIdRaw === '') {
             return false;
         }
 
+        $challengeId = $challengeIdRaw;
         $cacheKey = $this->cacheKey($challengeId);
         $payload = Cache::get($cacheKey);
 
-        if (! $payload) {
+        if (! is_array($payload)) {
             session()->forget($challengeIdSessionKey);
 
             return false;
@@ -117,7 +119,8 @@ class EmailTwoFactorCodeService
             return false;
         }
 
-        if (Hash::check($code, $payload['code_hash'])) {
+        $codeHash = is_string($payload['code_hash'] ?? null) ? $payload['code_hash'] : '';
+        if (Hash::check($code, $codeHash)) {
             Cache::forget($cacheKey);
             session()->forget($challengeIdSessionKey);
             RateLimiter::clear($verifyLimiterKey);
@@ -130,7 +133,7 @@ class EmailTwoFactorCodeService
         return false;
     }
 
-    public function sendLimiterKey(mixed $userId, string $ip): string
+    public function sendLimiterKey(string $userId, string $ip): string
     {
         return "filament-admin-email-2fa-send:{$userId}:{$ip}";
     }

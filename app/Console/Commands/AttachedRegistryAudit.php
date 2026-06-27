@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Support\Images\AttachedImageRegistry;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class AttachedRegistryAudit extends Command
@@ -24,8 +25,8 @@ class AttachedRegistryAudit extends Command
             return Command::FAILURE;
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         $results = [];
         $hasIssues = false;
@@ -50,8 +51,9 @@ class AttachedRegistryAudit extends Command
                     $rowCount++;
                     $path = $record->getAttribute('path');
 
-                    if (empty($path)) {
-                        $emptyPaths[] = $record->getKey();
+                    if (! is_string($path) || $path === '') {
+                        $keyRaw = $record->getKey();
+                        $emptyPaths[] = is_scalar($keyRaw) ? (string) $keyRaw : '';
 
                         continue;
                     }
@@ -85,7 +87,7 @@ class AttachedRegistryAudit extends Command
         }
 
         if ($this->option('json')) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'registry_valid' => true,
                 'has_issues' => $hasIssues,
                 'models' => $results,
@@ -102,7 +104,7 @@ class AttachedRegistryAudit extends Command
     }
 
     /**
-     * @param  list<array<string, mixed>>  $results
+     * @param  list<array{class: class-string, table: string, row_count: int, distinct_paths: int, missing_files: list<string>, duplicate_paths: list<string>, empty_path_ids: list<string>}>  $results
      */
     private function outputTable(array $results, bool $hasIssues): void
     {

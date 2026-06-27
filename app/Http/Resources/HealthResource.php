@@ -17,10 +17,12 @@ class HealthResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'status' => $this->resource['status'] ?? 'unknown',
-            'checks' => $this->resource['checks'] ?? [],
-            'timestamp' => $this->resource['timestamp'] ?? now()->toISOString(),
+            'status' => $data['status'] ?? 'unknown',
+            'checks' => $data['checks'] ?? [],
+            'timestamp' => $data['timestamp'] ?? now()->toISOString(),
         ];
     }
 }

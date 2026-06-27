@@ -28,6 +28,12 @@ class CollectionDisplayLabel
      * The helper ensures `collections.*` is preserved in the column list when
      * no explicit SELECT has been issued yet.
      */
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
+     */
     public static function withDisplayLabel(Builder $query): Builder
     {
         $defaultLangId = Language::default()->value('id') ?? '';
@@ -92,7 +98,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
@@ -104,7 +110,7 @@ class CollectionDisplayLabel
                     && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
@@ -114,14 +120,14 @@ class CollectionDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->title)
             );
             if ($t) {
-                return $t->title;
+                return is_scalar($t->title) ? (string) $t->title : '';
             }
         }
 
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->title));
         if ($t) {
-            return $t->title;
+            return (string) $t->title;
         }
 
         // 5. Fallback
@@ -140,12 +146,12 @@ class CollectionDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $collection = Collection::find($value);
-        if (! $collection) {
-            return (string) $value;
+        if (! $collection instanceof Collection) {
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $collection->load('translations');

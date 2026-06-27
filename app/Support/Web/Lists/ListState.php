@@ -27,6 +27,7 @@ final class ListState
     }
 
     /**
+     * @param  array<int, string>  $except
      * @return array<string, mixed>
      */
     public function query(array $except = []): array

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Collection;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,6 +24,7 @@ class UpdateCollectionRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var Collection|null $collection */
         $collection = $this->route('collection');
 
         return [

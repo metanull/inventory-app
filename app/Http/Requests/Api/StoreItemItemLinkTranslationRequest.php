@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -29,7 +30,7 @@ class StoreItemItemLinkTranslationRequest extends FormRequest
                 'required',
                 'uuid',
                 'exists:item_item_links,id',
-                Rule::unique('item_item_link_translations')->where(function ($query) {
+                Rule::unique('item_item_link_translations')->where(function (Builder $query) {
                     return $query->where('language_id', $this->input('language_id'));
                 }),
             ],

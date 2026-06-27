@@ -10,13 +10,15 @@ use App\Http\Resources\LanguageTranslationResource;
 use App\Models\LanguageTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class LanguageTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexLanguageTranslationRequest $request)
+    public function index(IndexLanguageTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class LanguageTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return LanguageTranslationResource
      */
-    public function store(StoreLanguageTranslationRequest $request)
+    public function store(StoreLanguageTranslationRequest $request): LanguageTranslationResource
     {
         $validated = $request->validated();
         $languageTranslation = LanguageTranslation::create($validated);
@@ -51,7 +51,7 @@ class LanguageTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowLanguageTranslationRequest $request, LanguageTranslation $languageTranslation)
+    public function show(ShowLanguageTranslationRequest $request, LanguageTranslation $languageTranslation): LanguageTranslationResource
     {
         $includes = $request->getIncludeParams();
         $languageTranslation->load($includes);
@@ -61,10 +61,8 @@ class LanguageTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return LanguageTranslationResource
      */
-    public function update(UpdateLanguageTranslationRequest $request, LanguageTranslation $languageTranslation)
+    public function update(UpdateLanguageTranslationRequest $request, LanguageTranslation $languageTranslation): LanguageTranslationResource
     {
         $validated = $request->validated();
         $languageTranslation->update($validated);
@@ -78,7 +76,7 @@ class LanguageTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(LanguageTranslation $languageTranslation)
+    public function destroy(LanguageTranslation $languageTranslation): Response
     {
         $languageTranslation->delete();
 

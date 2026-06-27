@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\ItemItemLinkTranslation;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -40,7 +41,9 @@ class UpdateItemItemLinkTranslationRequest extends FormRequest
                 'size:3',
                 'exists:languages,id',
                 Rule::unique('item_item_link_translations')
-                    ->where('item_item_link_id', $this->input('item_item_link_id'))
+                    ->where(fn (Builder $q) => $q
+                        ->where('item_item_link_id', $this->input('item_item_link_id'))
+                    )
                     ->ignore($translationId),
             ],
             'description' => ['nullable', 'string'],

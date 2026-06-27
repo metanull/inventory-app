@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ItemResource\RelationManagers;
 
 use App\Enums\MediaType;
 use App\Filament\Resources\LanguageResource;
+use App\Models\ItemMedia;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -68,14 +69,14 @@ class MediaRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('url')
                     ->label('URL')
-                    ->url(fn ($record): ?string => $record->url)
+                    ->url(fn (ItemMedia $record): string => $record->url)
                     ->openUrlInNewTab()
                     ->limit(60)
                     ->searchable(),
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (ItemMedia $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('display_order')

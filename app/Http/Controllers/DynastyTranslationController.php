@@ -10,13 +10,15 @@ use App\Http\Resources\DynastyTranslationResource;
 use App\Models\DynastyTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class DynastyTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexDynastyTranslationRequest $request)
+    public function index(IndexDynastyTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class DynastyTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return DynastyTranslationResource
      */
-    public function store(StoreDynastyTranslationRequest $request)
+    public function store(StoreDynastyTranslationRequest $request): DynastyTranslationResource
     {
         $validated = $request->validated();
         $dynastyTranslation = DynastyTranslation::create($validated);
@@ -51,7 +51,7 @@ class DynastyTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowDynastyTranslationRequest $request, DynastyTranslation $dynastyTranslation)
+    public function show(ShowDynastyTranslationRequest $request, DynastyTranslation $dynastyTranslation): DynastyTranslationResource
     {
         $includes = $request->getIncludeParams();
         $dynastyTranslation->load($includes);
@@ -61,10 +61,8 @@ class DynastyTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return DynastyTranslationResource
      */
-    public function update(UpdateDynastyTranslationRequest $request, DynastyTranslation $dynastyTranslation)
+    public function update(UpdateDynastyTranslationRequest $request, DynastyTranslation $dynastyTranslation): DynastyTranslationResource
     {
         $validated = $request->validated();
         $dynastyTranslation->update($validated);
@@ -78,7 +76,7 @@ class DynastyTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DynastyTranslation $dynastyTranslation)
+    public function destroy(DynastyTranslation $dynastyTranslation): Response
     {
         $dynastyTranslation->delete();
 

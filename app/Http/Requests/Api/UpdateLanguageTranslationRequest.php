@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\LanguageTranslation;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,14 +15,20 @@ class UpdateLanguageTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
+        /** @var LanguageTranslation|null $languageTranslation */
         $languageTranslation = $this->route('languageTranslation');
 
         $uniqueRule = Rule::unique('language_translations')
-            ->where('language_id', $this->input('language_id'))
-            ->where('display_language_id', $this->input('display_language_id'))
-            ->ignore($languageTranslation->id);
+            ->where(fn (Builder $q) => $q
+                ->where('language_id', $this->input('language_id'))
+                ->where('display_language_id', $this->input('display_language_id'))
+            )
+            ->ignore($languageTranslation?->id);
 
         return [
             'id' => ['prohibited'],

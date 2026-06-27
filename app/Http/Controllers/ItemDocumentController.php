@@ -8,13 +8,17 @@ use App\Http\Resources\ItemDocumentResource;
 use App\Http\Responses\FileResponse;
 use App\Models\Item;
 use App\Models\ItemDocument;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 class ItemDocumentController extends Controller
 {
     /**
      * Display a listing of item documents for a specific item.
      */
-    public function index(Item $item)
+    public function index(Item $item): AnonymousResourceCollection
     {
         $itemDocuments = $item->itemDocuments()->orderBy('display_order')->get();
 
@@ -24,7 +28,7 @@ class ItemDocumentController extends Controller
     /**
      * Store a newly created item document.
      */
-    public function store(StoreItemDocumentRequest $request, Item $item)
+    public function store(StoreItemDocumentRequest $request, Item $item): ItemDocumentResource
     {
         $validated = $request->validated();
         $validated['item_id'] = $item->id;
@@ -40,7 +44,7 @@ class ItemDocumentController extends Controller
     /**
      * Display the specified item document.
      */
-    public function show(ItemDocument $itemDocument)
+    public function show(ItemDocument $itemDocument): ItemDocumentResource
     {
         return new ItemDocumentResource($itemDocument);
     }
@@ -48,7 +52,7 @@ class ItemDocumentController extends Controller
     /**
      * Update the specified item document.
      */
-    public function update(UpdateItemDocumentRequest $request, ItemDocument $itemDocument)
+    public function update(UpdateItemDocumentRequest $request, ItemDocument $itemDocument): ItemDocumentResource
     {
         $validated = $request->validated();
         $itemDocument->update($validated);
@@ -60,7 +64,7 @@ class ItemDocumentController extends Controller
     /**
      * Move item document up in display order.
      */
-    public function moveUp(ItemDocument $itemDocument)
+    public function moveUp(ItemDocument $itemDocument): ItemDocumentResource
     {
         $itemDocument->moveUp();
         $itemDocument->refresh();
@@ -71,7 +75,7 @@ class ItemDocumentController extends Controller
     /**
      * Move item document down in display order.
      */
-    public function moveDown(ItemDocument $itemDocument)
+    public function moveDown(ItemDocument $itemDocument): ItemDocumentResource
     {
         $itemDocument->moveDown();
         $itemDocument->refresh();
@@ -82,7 +86,7 @@ class ItemDocumentController extends Controller
     /**
      * Remove the specified item document.
      */
-    public function destroy(ItemDocument $itemDocument)
+    public function destroy(ItemDocument $itemDocument): Response
     {
         $itemDocument->delete();
 
@@ -92,10 +96,10 @@ class ItemDocumentController extends Controller
     /**
      * Returns the document file for download.
      */
-    public function download(ItemDocument $itemDocument)
+    public function download(ItemDocument $itemDocument): Responsable
     {
-        $disk = config('localstorage.documents.disk');
-        $directory = trim(config('localstorage.documents.directory'), '/');
+        $disk = Config::string('localstorage.documents.disk');
+        $directory = trim(Config::string('localstorage.documents.directory'), '/');
         $filename = $itemDocument->original_name ?: basename($itemDocument->path);
 
         $storagePath = $directory.'/'.$itemDocument->path;

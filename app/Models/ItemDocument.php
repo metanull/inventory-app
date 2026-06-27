@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ItemDocumentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemDocument extends Model
 {
+    /** @use HasFactory<ItemDocumentFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -49,11 +51,16 @@ class ItemDocument extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('item_id', $this->item_id);
+        /** @var Builder<static> $query */
+        $query = static::where('item_id', $this->item_id);
+
+        return $query;
     }
 
     /**
      * Get the item this document belongs to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {
@@ -62,6 +69,8 @@ class ItemDocument extends Model
 
     /**
      * Get the language of this document.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

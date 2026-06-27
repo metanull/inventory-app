@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Contracts\DetachableImage;
+use App\Contracts\StreamableImageFile;
 use App\Models\AvailableImage;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -102,7 +104,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                                 ])
                                 ->all()
                             )
-                            ->getOptionLabelUsing(fn ($value): string => AvailableImage::find($value)?->path ?? (string) $value)
+                            ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (AvailableImage::find($value)->path ?? $value) : '')
                             ->searchable(),
                         TextInput::make('alt_text')
                             ->label('Alt text')
@@ -123,10 +125,12 @@ abstract class BaseImagesRelationManager extends RelationManager
                         }
 
                         $modelClass = $this->imageModelClass();
+                        $ownerKey = $this->getOwnerRecord()->getKey();
+                        $altTextRaw = $data['alt_text'] ?? null;
                         $modelClass::attachFromAvailableImage(
                             $availableImage,
-                            (string) $this->getOwnerRecord()->getKey(),
-                            $data['alt_text'] ?? null
+                            is_scalar($ownerKey) ? (string) $ownerKey : '',
+                            is_string($altTextRaw) ? $altTextRaw : null
                         );
 
                         Notification::make()
@@ -167,6 +171,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                     ->modalHeading('Detach image')
                     ->modalDescription('This will move the image back to the available image pool. You can re-attach it later.')
                     ->action(function (Model $record): void {
+                        /** @var Model&StreamableImageFile&DetachableImage $record */
                         $record->detachToAvailableImage();
 
                         Notification::make()
@@ -180,6 +185,7 @@ abstract class BaseImagesRelationManager extends RelationManager
                     ->modalHeading('Delete image permanently')
                     ->modalDescription('The image file will be permanently deleted from storage and cannot be recovered. It will NOT be returned to the available image pool.')
                     ->before(function (Model $record): void {
+                        /** @var Model&StreamableImageFile $record */
                         Storage::disk($record->imageDisk())
                             ->delete($record->imageStoragePath());
                     }),
@@ -191,9 +197,12 @@ abstract class BaseImagesRelationManager extends RelationManager
      */
     protected function imageRouteParameters(Model $record): array
     {
+        $ownerAttr = $record->getAttribute($this->ownerForeignKey());
+        $imageKey = $record->getKey();
+
         return [
-            $this->ownerRouteParameter() => (string) $record->getAttribute($this->ownerForeignKey()),
-            $this->imageRouteParameter() => (string) $record->getKey(),
+            $this->ownerRouteParameter() => is_scalar($ownerAttr) ? (string) $ownerAttr : '',
+            $this->imageRouteParameter() => is_scalar($imageKey) ? (string) $imageKey : '',
         ];
     }
 }

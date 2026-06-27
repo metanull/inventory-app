@@ -80,7 +80,11 @@ class TranslationFormSchema
                 ->pluck('name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($v): string => Author::find($v)?->name ?? $v);
+            ->getOptionLabelUsing(function (mixed $v): string {
+                $author = Author::query()->whereKey($v)->first();
+
+                return $author !== null ? $author->name : (is_scalar($v) ? (string) $v : '');
+            });
     }
 
     public static function itemSelectField(
@@ -114,7 +118,7 @@ class TranslationFormSchema
                     ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                return ItemDisplayLabel::resolveLabel($value) ?: (string) $value;
+                return ItemDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : '');
             });
 
         return static::requiredOrNullable($select, $required);
@@ -151,7 +155,7 @@ class TranslationFormSchema
                     ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                return CollectionDisplayLabel::resolveLabel($value) ?: (string) $value;
+                return CollectionDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : '');
             });
 
         return static::requiredOrNullable($select, $required);
@@ -188,7 +192,7 @@ class TranslationFormSchema
                     ])->all();
             })
             ->getOptionLabelUsing(function (mixed $value): string {
-                return PartnerDisplayLabel::resolveLabel($value) ?: (string) $value;
+                return PartnerDisplayLabel::resolveLabel($value) ?: (is_scalar($value) ? (string) $value : '');
             });
 
         return static::requiredOrNullable($select, $required);
@@ -209,7 +213,11 @@ class TranslationFormSchema
                 ->pluck('internal_name', 'id')
                 ->all()
             )
-            ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? (string) $value);
+            ->getOptionLabelUsing(function (mixed $value): string {
+                $context = Context::query()->whereKey($value)->first();
+
+                return $context !== null ? $context->internal_name : (is_scalar($value) ? (string) $value : '');
+            });
 
         return static::requiredOrNullable($select, $required);
     }
@@ -233,12 +241,12 @@ class TranslationFormSchema
         ];
     }
 
-    private static function requiredOrNullable(Select $select, bool $required): Select
+    protected static function requiredOrNullable(Select $select, bool $required): Select
     {
         return $required ? $select->required() : $select->nullable();
     }
 
-    private static function legacyLabel(string $internalName, ?string $backwardCompatibility): string
+    protected static function legacyLabel(string $internalName, ?string $backwardCompatibility): string
     {
         return $backwardCompatibility
             ? "{$internalName} [{$backwardCompatibility}]"

@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ContributorImage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin ContributorImage */
 class ContributorImageResource extends JsonResource
 {
     /**

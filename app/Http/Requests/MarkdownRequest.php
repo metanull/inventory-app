@@ -41,7 +41,7 @@ class MarkdownRequest extends FormRequest
      *
      * @param  string  $fieldName  The name of the field containing Markdown
      * @param  bool  $required  Whether the field is required
-     * @return array The validation rules for the field
+     * @return array<string, array<int, mixed>>
      */
     public static function getMarkdownFieldRules(string $fieldName, bool $required = true): array
     {
@@ -59,21 +59,23 @@ class MarkdownRequest extends FormRequest
     /**
      * Get validation rules for multiple Markdown fields
      *
-     * @param  array  $fields  Array of field names or field => required pairs
-     * @return array The validation rules for all fields
+     * @param  array<int|string, mixed>  $fields  Array of field names or field => required pairs
+     * @return array<string, array<int, mixed>>
      */
     public static function getMultipleMarkdownFieldRules(array $fields): array
     {
         $rules = [];
 
         foreach ($fields as $field => $required) {
-            // If numeric key, field name is the value and it's required by default
             if (is_numeric($field)) {
-                $field = $required;
-                $required = true;
+                $fieldName = is_string($required) ? $required : '';
+                $isRequired = true;
+            } else {
+                $fieldName = (string) $field;
+                $isRequired = is_bool($required) ? $required : true;
             }
 
-            $rules = array_merge($rules, self::getMarkdownFieldRules($field, $required));
+            $rules = array_merge($rules, self::getMarkdownFieldRules($fieldName, $isRequired));
         }
 
         return $rules;
@@ -84,17 +86,17 @@ class MarkdownRequest extends FormRequest
      *
      * @param  string  $fieldName  The name of the field containing HTML
      * @param  bool  $required  Whether the field is required
-     * @return array The validation rules for the field
+     * @return array<string, array<int, mixed>>
      */
     public static function getHtmlFieldRules(string $fieldName, bool $required = true): array
     {
         $rules = [
             'string',
             'max:65535', // TEXT field limit
-            function ($attribute, $value, $fail) {
+            function (string $attribute, mixed $value, \Closure $fail): void {
                 $markdownService = app(MarkdownService::class);
                 try {
-                    $markdownService->validateHtml($value);
+                    $markdownService->validateHtml(is_string($value) ? $value : '');
                 } catch (ValidationException $e) {
                     $errors = $e->validator->errors()->all();
                     foreach ($errors as $error) {
@@ -116,7 +118,7 @@ class MarkdownRequest extends FormRequest
     /**
      * Get custom error messages for Markdown validation
      *
-     * @return array Custom error messages
+     * @return array<string, string>
      */
     public function messages(): array
     {
@@ -132,7 +134,7 @@ class MarkdownRequest extends FormRequest
     /**
      * Get nice attribute names for validation errors
      *
-     * @return array Attribute names
+     * @return array<string, string>
      */
     public function attributes(): array
     {

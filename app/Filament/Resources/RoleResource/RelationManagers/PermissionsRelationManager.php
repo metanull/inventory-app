@@ -12,8 +12,10 @@ use Filament\Tables\Actions\DetachAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionsRelationManager extends RelationManager
 {
@@ -42,7 +44,7 @@ class PermissionsRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->preloadRecordSelect()
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('name')),
+                    ->recordSelectOptionsQuery(fn (Builder $query): Builder => $query->orderBy('name')),
                 Action::make('createPermission')
                     ->label('Create Permission')
                     ->icon('heroicon-o-plus')
@@ -59,7 +61,9 @@ class PermissionsRelationManager extends RelationManager
                             'guard_name' => config('fortify.guard', 'web'),
                         ]);
 
-                        $this->getOwnerRecord()->givePermissionTo($permission);
+                        /** @var Role $role */
+                        $role = $this->getOwnerRecord();
+                        $role->givePermissionTo($permission);
 
                         Notification::make()->success()->title('Permission created and attached')->send();
                     }),

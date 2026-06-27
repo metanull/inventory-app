@@ -42,6 +42,10 @@ final class ItemTranslationListDefinition extends ListDefinition
         return ['language', 'context', 'item'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

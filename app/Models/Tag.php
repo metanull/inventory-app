@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TagFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tag extends Model
 {
+    /** @use HasFactory<TagFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -24,6 +27,8 @@ class Tag extends Model
 
     /**
      * The items that belong to this tag.
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {
@@ -32,6 +37,8 @@ class Tag extends Model
 
     /**
      * The collection images that belong to this tag.
+     *
+     * @return BelongsToMany<CollectionImage, $this>
      */
     public function collectionImages(): BelongsToMany
     {
@@ -40,6 +47,8 @@ class Tag extends Model
 
     /**
      * The item images that belong to this tag.
+     *
+     * @return BelongsToMany<ItemImage, $this>
      */
     public function itemImages(): BelongsToMany
     {
@@ -48,6 +57,8 @@ class Tag extends Model
 
     /**
      * Get the language this tag belongs to (optional).
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -57,7 +68,9 @@ class Tag extends Model
     /**
      * Scope to get tags for a specific item.
      *
+     * @param  Builder<static>  $query
      * @param  string|Item  $item  The item ID or Item model instance
+     * @return Builder<static>
      */
     public function scopeForItem(Builder $query, $item): Builder
     {
@@ -70,6 +83,9 @@ class Tag extends Model
 
     /**
      * Scope to get tags by category.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeByCategory(Builder $query, string $category): Builder
     {
@@ -78,6 +94,9 @@ class Tag extends Model
 
     /**
      * Scope to get tags by language.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeByLanguage(Builder $query, string $languageId): Builder
     {
@@ -87,7 +106,9 @@ class Tag extends Model
     /**
      * Scope to exclude tags already attached to the given item.
      *
+     * @param  Builder<static>  $query
      * @param  string  $itemId  UUID of the item to check attachment against
+     * @return Builder<static>
      */
     public function scopeNotAttachedTo(Builder $query, string $itemId): Builder
     {

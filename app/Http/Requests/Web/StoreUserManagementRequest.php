@@ -5,6 +5,7 @@ namespace App\Http\Requests\Web;
 use App\Enums\Permission;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
 
 class StoreUserManagementRequest extends FormRequest
@@ -35,9 +36,9 @@ class StoreUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             // Check if any of the roles being assigned have sensitive permissions
             if ($this->has('roles') && is_array($this->roles)) {
                 $roles = Role::whereIn('id', $this->roles)->get();

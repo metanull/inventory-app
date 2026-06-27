@@ -11,10 +11,13 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @template TModel of Model
+ */
 trait HasChangeParentAction
 {
     /**
-     * @return class-string<Model>
+     * @return class-string<TModel>
      */
     abstract protected static function changeParentModelClass(): string;
 
@@ -24,6 +27,9 @@ trait HasChangeParentAction
 
     /**
      * Override to restrict the search query for the row action (e.g., excluding descendants).
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
      */
     protected static function changeParentRowQueryScope(Builder $query, Model $record): Builder
     {
@@ -35,6 +41,7 @@ trait HasChangeParentAction
      * dropdown. The default implementation returns internal_name keyed by ID. Resources
      * that support translated display labels should override this to return translated labels.
      *
+     * @param  Builder<TModel>  $query
      * @return array<string, string>
      */
     protected static function changeParentSearchResults(Builder $query): array
@@ -50,7 +57,7 @@ trait HasChangeParentAction
     {
         $modelClass = static::changeParentModelClass();
 
-        return $modelClass::find($value)?->internal_name ?? (string) $value;
+        return $modelClass::find($value)?->internal_name ?? (is_scalar($value) ? (string) $value : '');
     }
 
     protected static function changeParentAction(): Action
@@ -80,7 +87,7 @@ trait HasChangeParentAction
             ])
             ->action(function (Model $record, array $data) use ($resourceName, $idKey): void {
                 try {
-                    $record->parent_id = $data['parent_id'] ?? null;
+                    $record->setAttribute('parent_id', $data['parent_id'] ?? null);
                     $record->save();
 
                     Notification::make()
@@ -89,7 +96,7 @@ trait HasChangeParentAction
                         ->send();
                 } catch (\RuntimeException $e) {
                     logger()->warning($resourceName.': changeParent failed', [
-                        $idKey => $record->id,
+                        $idKey => $record->getKey(),
                         'new_parent_id' => $data['parent_id'] ?? null,
                         'error' => $e->getMessage(),
                     ]);
@@ -132,15 +139,16 @@ trait HasChangeParentAction
                 $errors = [];
                 foreach ($records as $record) {
                     try {
-                        $record->parent_id = $data['parent_id'] ?? null;
+                        $record->setAttribute('parent_id', $data['parent_id'] ?? null);
                         $record->save();
                     } catch (\RuntimeException $e) {
                         logger()->warning($resourceName.': moveToParent failed', [
-                            $idKey => $record->id,
+                            $idKey => $record->getKey(),
                             'new_parent_id' => $data['parent_id'] ?? null,
                             'error' => $e->getMessage(),
                         ]);
-                        $errors[] = $record->internal_name;
+                        $nameRaw = $record->getAttribute('internal_name');
+                        $errors[] = is_scalar($nameRaw) ? (string) $nameRaw : '';
                     }
                 }
 

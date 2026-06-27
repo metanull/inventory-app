@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Spatie\Permission\Models\Role;
 
 class UpdateUserManagementRequest extends FormRequest
@@ -26,9 +27,12 @@ class UpdateUserManagementRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var User|null $user */
+        $user = $this->route('user');
+
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user')?->id)],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user?->id)],
             'roles' => ['array'],
             'roles.*' => ['exists:roles,id'],
             'verify_email' => ['nullable', 'boolean'],
@@ -40,9 +44,9 @@ class UpdateUserManagementRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             $user = $this->route('user');
 
             if (! $user instanceof User) {

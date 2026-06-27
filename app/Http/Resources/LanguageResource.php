@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Language;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
-class LanguageResource extends JsonResource
+/** @extends BaseJsonResource<Language> */
+class LanguageResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,17 +17,17 @@ class LanguageResource extends JsonResource
     {
         return [
             // The unique identifier (ISO 639-1 code)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // A name for this resource, for internal use only.
-            'internal_name' => $this->internal_name,
+            'internal_name' => $this->resource->internal_name,
             // The Id(s) of matching resource in the legacy system (if any).
-            'backward_compatibility' => $this->backward_compatibility,
+            'backward_compatibility' => $this->resource->backward_compatibility,
             // Indicates if this language is the default one. There is one single default language for the entire database.
-            'is_default' => $this->is_default,
+            'is_default' => $this->resource->is_default,
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

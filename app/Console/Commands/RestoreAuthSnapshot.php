@@ -7,6 +7,7 @@ use App\Support\AuthSnapshots\AuthSnapshotFile;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -37,8 +38,7 @@ class RestoreAuthSnapshot extends Command
      */
     public function handle(): int
     {
-        $argumentPath = $this->argument('path');
-        $path = AuthSnapshotFile::resolvePath(is_string($argumentPath) ? $argumentPath : null);
+        $path = AuthSnapshotFile::resolvePath((string) $this->argument('path'));
 
         if (! File::isFile($path)) {
             $this->error("Auth snapshot was not found at [{$path}].");
@@ -64,18 +64,28 @@ class RestoreAuthSnapshot extends Command
             return Command::FAILURE;
         }
 
-        $tables = $payload['tables'] ?? [];
+        $tablesRaw = $payload['tables'] ?? [];
+        $tables = is_array($tablesRaw) ? $tablesRaw : [];
+
+        /** @var array<int, array<string, mixed>> $usersRows */
+        $usersRows = is_array($tables['users'] ?? null) ? $tables['users'] : [];
+        /** @var array<int, array<string, mixed>> $roleAssignments */
+        $roleAssignments = is_array($tables['role_assignments'] ?? null) ? $tables['role_assignments'] : [];
+        /** @var array<int, array<string, mixed>> $permissionAssignments */
+        $permissionAssignments = is_array($tables['permission_assignments'] ?? null) ? $tables['permission_assignments'] : [];
+        /** @var array<int, array<string, mixed>> $tokenRows */
+        $tokenRows = is_array($tables['personal_access_tokens'] ?? null) ? $tables['personal_access_tokens'] : [];
 
         try {
-            DB::transaction(function () use ($tables): void {
+            DB::transaction(function () use ($usersRows, $roleAssignments, $permissionAssignments, $tokenRows): void {
                 Schema::disableForeignKeyConstraints();
 
                 try {
                     $this->clearUserAuthRecords();
-                    $this->restoreRows('users', Arr::get($tables, 'users', []));
-                    $this->restoreRoleAssignments(Arr::get($tables, 'role_assignments', []));
-                    $this->restorePermissionAssignments(Arr::get($tables, 'permission_assignments', []));
-                    $this->restoreRows('personal_access_tokens', Arr::get($tables, 'personal_access_tokens', []));
+                    $this->restoreRows('users', $usersRows);
+                    $this->restoreRoleAssignments($roleAssignments);
+                    $this->restorePermissionAssignments($permissionAssignments);
+                    $this->restoreRows('personal_access_tokens', $tokenRows);
                 } finally {
                     Schema::enableForeignKeyConstraints();
                 }
@@ -89,10 +99,10 @@ class RestoreAuthSnapshot extends Command
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $this->info('Auth snapshot restored successfully.');
-        $this->line('Restored users: '.count(Arr::get($tables, 'users', [])));
-        $this->line('Restored role assignments: '.count(Arr::get($tables, 'role_assignments', [])));
-        $this->line('Restored direct permission assignments: '.count(Arr::get($tables, 'permission_assignments', [])));
-        $this->line('Restored personal access tokens: '.count(Arr::get($tables, 'personal_access_tokens', [])));
+        $this->line('Restored users: '.count($usersRows));
+        $this->line('Restored role assignments: '.count($roleAssignments));
+        $this->line('Restored direct permission assignments: '.count($permissionAssignments));
+        $this->line('Restored personal access tokens: '.count($tokenRows));
 
         return Command::SUCCESS;
     }
@@ -104,16 +114,15 @@ class RestoreAuthSnapshot extends Command
     {
         try {
             $contents = File::get($path);
+            $decrypted = Crypt::decryptString($contents);
+            $decoded = json_decode($decrypted, true, 512, JSON_THROW_ON_ERROR);
 
-            if (! is_string($contents)) {
-                $this->error("Unable to read auth snapshot from [{$path}].");
-
+            if (! is_array($decoded)) {
                 return null;
             }
 
-            $decrypted = Crypt::decryptString($contents);
-
-            return json_decode($decrypted, true, 512, JSON_THROW_ON_ERROR);
+            /** @var array<string, mixed> $decoded */
+            return $decoded;
         } catch (DecryptException) {
             $this->error('Unable to decrypt auth snapshot. Verify that this app uses the same APP_KEY that created the snapshot.');
         } catch (JsonException $exception) {
@@ -127,10 +136,12 @@ class RestoreAuthSnapshot extends Command
 
     protected function clearUserAuthRecords(): void
     {
-        $tables = config('permission.table_names');
+        $tables = Config::array('permission.table_names');
+        $modelHasRolesTable = is_string($tables['model_has_roles'] ?? null) ? $tables['model_has_roles'] : '';
+        $modelHasPermissionsTable = is_string($tables['model_has_permissions'] ?? null) ? $tables['model_has_permissions'] : '';
 
-        $this->deleteUserModelRows($tables['model_has_roles']);
-        $this->deleteUserModelRows($tables['model_has_permissions']);
+        $this->deleteUserModelRows($modelHasRolesTable);
+        $this->deleteUserModelRows($modelHasPermissionsTable);
 
         if (Schema::hasTable('personal_access_tokens')) {
             DB::table('personal_access_tokens')
@@ -177,22 +188,27 @@ class RestoreAuthSnapshot extends Command
             return;
         }
 
-        $tables = config('permission.table_names');
-        $columns = config('permission.column_names');
-        $modelKey = $columns['model_morph_key'] ?? 'model_id';
-        $roleKey = $columns['role_pivot_key'] ?? 'role_id';
+        $tables = Config::array('permission.table_names');
+        $columns = Config::array('permission.column_names');
+        $modelKeyRaw = $columns['model_morph_key'] ?? 'model_id';
+        $modelKey = is_string($modelKeyRaw) ? $modelKeyRaw : 'model_id';
+        $roleKeyRaw = $columns['role_pivot_key'] ?? 'role_id';
+        $roleKey = is_string($roleKeyRaw) ? $roleKeyRaw : 'role_id';
+        $rolesTable = is_string($tables['roles'] ?? null) ? $tables['roles'] : 'roles';
+        $modelHasRolesTable = is_string($tables['model_has_roles'] ?? null) ? $tables['model_has_roles'] : 'model_has_roles';
 
         foreach ($assignments as $assignment) {
-            $role = DB::table($tables['roles'])
+            $role = DB::table($rolesTable)
                 ->where('name', $assignment['name'])
                 ->where('guard_name', $assignment['guard_name'])
                 ->first();
 
             if ($role === null) {
-                throw new \RuntimeException("Role [{$assignment['name']}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
+                $roleName = is_string($assignment['name']) ? $assignment['name'] : '';
+                throw new \RuntimeException("Role [{$roleName}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
             }
 
-            DB::table($tables['model_has_roles'])->insert([
+            DB::table($modelHasRolesTable)->insert([
                 $roleKey => $role->id,
                 'model_type' => $assignment['model_type'],
                 $modelKey => $assignment['model_id'],
@@ -209,22 +225,27 @@ class RestoreAuthSnapshot extends Command
             return;
         }
 
-        $tables = config('permission.table_names');
-        $columns = config('permission.column_names');
-        $modelKey = $columns['model_morph_key'] ?? 'model_id';
-        $permissionKey = $columns['permission_pivot_key'] ?? 'permission_id';
+        $tables = Config::array('permission.table_names');
+        $columns = Config::array('permission.column_names');
+        $modelKeyRaw = $columns['model_morph_key'] ?? 'model_id';
+        $modelKey = is_string($modelKeyRaw) ? $modelKeyRaw : 'model_id';
+        $permissionKeyRaw = $columns['permission_pivot_key'] ?? 'permission_id';
+        $permissionKey = is_string($permissionKeyRaw) ? $permissionKeyRaw : 'permission_id';
+        $permissionsTable = is_string($tables['permissions'] ?? null) ? $tables['permissions'] : 'permissions';
+        $modelHasPermissionsTable = is_string($tables['model_has_permissions'] ?? null) ? $tables['model_has_permissions'] : 'model_has_permissions';
 
         foreach ($assignments as $assignment) {
-            $permission = DB::table($tables['permissions'])
+            $permission = DB::table($permissionsTable)
                 ->where('name', $assignment['name'])
                 ->where('guard_name', $assignment['guard_name'])
                 ->first();
 
             if ($permission === null) {
-                throw new \RuntimeException("Permission [{$assignment['name']}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
+                $permName = is_string($assignment['name']) ? $assignment['name'] : '';
+                throw new \RuntimeException("Permission [{$permName}] does not exist. Run php artisan permissions:sync before restoring the snapshot.");
             }
 
-            DB::table($tables['model_has_permissions'])->insert([
+            DB::table($modelHasPermissionsTable)->insert([
                 $permissionKey => $permission->id,
                 'model_type' => $assignment['model_type'],
                 $modelKey => $assignment['model_id'],

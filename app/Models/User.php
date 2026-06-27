@@ -3,32 +3,40 @@
 namespace App\Models;
 
 use App\Enums\Permission;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, FilamentUser, MustVerifyEmail
+/**
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $two_factor_secret
+ * @property Carbon|null $two_factor_confirmed_at
+ * @property string|null $two_factor_recovery_codes
+ * @property Carbon|null $approved_at
+ * @property Carbon|null $suspended_at
+ */
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
-    use Authenticatable;
-    use Authorizable;
-    use CanResetPassword;
     use HasApiTokens;
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use HasRoles;
     use MustVerifyEmailTrait;
@@ -38,7 +46,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -51,7 +59,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -63,7 +71,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * The accessors to append to the model's array form.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $appends = [
         'profile_photo_url',
@@ -113,6 +121,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * Get the user's two factor authentication recovery codes.
      * Override Fortify's method to handle null values gracefully.
+     *
+     * @return array<int, string>
      */
     public function recoveryCodes(): array
     {
@@ -120,7 +130,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return [];
         }
 
-        return json_decode(decrypt($this->two_factor_recovery_codes), true) ?? [];
+        $decrypted = decrypt($this->two_factor_recovery_codes);
+        $codes = is_string($decrypted) ? json_decode($decrypted, true) : null;
+        /** @var array<int, string> $result */
+        $result = is_array($codes) ? $codes : [];
+
+        return $result;
     }
 
     /**

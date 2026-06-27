@@ -7,6 +7,7 @@ use App\Filament\Resources\ContextResource;
 use App\Filament\Resources\ItemItemLinkResource;
 use App\Filament\Resources\ItemResource;
 use App\Filament\Support\TranslationFormSchema;
+use App\Models\ItemItemLink;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
@@ -48,17 +49,17 @@ class OutgoingLinksRelationManager extends RelationManager
                 TextColumn::make('target.internal_name')
                     ->label('Target item')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->target
+                    ->url(fn (ItemItemLink $record): ?string => $record->target
                         ? (auth()->user()?->can('view', $record->target) ? ItemResource::getUrl('view', ['record' => $record->target]) : null)
                         : null),
                 TextColumn::make('target.type')
                     ->label('Target type')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state instanceof ItemType ? $state->label() : (string) $state),
+                    ->formatStateUsing(fn (mixed $state): string => $state instanceof ItemType ? $state->label() : (is_scalar($state) ? (string) $state : '')),
                 TextColumn::make('context.internal_name')
                     ->label('Context')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->context
+                    ->url(fn (ItemItemLink $record): ?string => $record->context
                         ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                         : null),
                 TextColumn::make('created_at')
@@ -74,7 +75,7 @@ class OutgoingLinksRelationManager extends RelationManager
                 Action::make('viewLink')
                     ->label('View link')
                     ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                    ->url(fn (ItemItemLink $record): ?string => auth()->user()?->can('view', $record)
                         ? ItemItemLinkResource::getUrl('view', ['record' => $record])
                         : null)
                     ->openUrlInNewTab(),

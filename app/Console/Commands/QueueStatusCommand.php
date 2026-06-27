@@ -26,7 +26,7 @@ class QueueStatusCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $this->info('=== QUEUE STATUS CHECK ===');
 
@@ -60,7 +60,7 @@ class QueueStatusCommand extends Command
                 $this->line("- ID: <fg=yellow>{$upload->id}</>");
                 $this->line("  Path: {$upload->path}");
                 $this->line("  Name: {$upload->name}");
-                $this->line('  Size: '.number_format($upload->size).' bytes');
+                $this->line('  Size: '.number_format((int) $upload->size).' bytes');
                 $this->line("  Created: {$upload->created_at}");
                 $this->line("  Updated: {$upload->updated_at}");
                 $this->newLine();
@@ -87,15 +87,18 @@ class QueueStatusCommand extends Command
             $this->info('=== PENDING JOBS DETAILS ===');
             $jobs = DB::table('jobs')->orderBy('created_at', 'desc')->take(5)->get();
             foreach ($jobs as $job) {
-                $this->line("- Job ID: <fg=yellow>{$job->id}</>");
-                $this->line("  Queue: {$job->queue}");
-                $this->line("  Attempts: {$job->attempts}");
-                $this->line('  Available at: '.date('Y-m-d H:i:s', $job->available_at));
-                $this->line('  Created at: '.date('Y-m-d H:i:s', $job->created_at));
+                $this->line('- Job ID: <fg=yellow>'.(is_scalar($job->id) ? (string) $job->id : '').'</>');
+                $this->line('  Queue: '.(is_scalar($job->queue) ? (string) $job->queue : ''));
+                $this->line('  Attempts: '.(is_scalar($job->attempts) ? (string) $job->attempts : ''));
+                $availableAt = is_numeric($job->available_at) ? date('Y-m-d H:i:s', (int) $job->available_at) : 'N/A';
+                $createdAt = is_numeric($job->created_at) ? date('Y-m-d H:i:s', (int) $job->created_at) : 'N/A';
+                $this->line("  Available at: {$availableAt}");
+                $this->line("  Created at: {$createdAt}");
 
                 if ($this->option('detailed')) {
-                    $payload = json_decode($job->payload, true);
-                    if ($payload && isset($payload['displayName'])) {
+                    $payloadStr = is_string($job->payload) ? $job->payload : '';
+                    $payload = json_decode($payloadStr, true);
+                    if (is_array($payload) && is_string($payload['displayName'] ?? null)) {
                         $this->line("  Job Type: {$payload['displayName']}");
                     }
                 }

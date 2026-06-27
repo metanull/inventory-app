@@ -104,8 +104,8 @@ class RolePermissionSeeder extends Seeder
             PermissionEnum::ACCESS_ADMIN_PANEL->value,
         ]);
 
-        $this->command->info('Roles and permissions created successfully!');
-        $this->command->info('Created roles: Non-verified users, Visitor, Regular User, Manager of Users');
-        $this->command->info('Created '.count($permissions).' permissions');
+        $this->command?->info('Roles and permissions created successfully!');
+        $this->command?->info('Created roles: Non-verified users, Visitor, Regular User, Manager of Users');
+        $this->command?->info('Created '.count($permissions).' permissions');
     }
 }

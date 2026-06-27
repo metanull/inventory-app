@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Component;
 
 class ConfirmationModal extends Component
@@ -22,6 +23,7 @@ class ConfirmationModal extends Component
 
     public string $method = 'DELETE';
 
+    /** @var array<string, string> */
     protected $listeners = ['confirm-action' => 'showConfirmation'];
 
     public function showConfirmation(
@@ -69,7 +71,7 @@ class ConfirmationModal extends Component
         $this->method = 'DELETE';
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.confirmation-modal');
     }

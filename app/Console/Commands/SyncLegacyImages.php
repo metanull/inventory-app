@@ -8,6 +8,7 @@ use App\Models\PartnerImage;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,8 +67,8 @@ class SyncLegacyImages extends Command
         }
 
         // Resolve target directory from Laravel storage config
-        $targetDisk = config('localstorage.pictures.disk');
-        $targetDir = trim(config('localstorage.pictures.directory'), '/');
+        $targetDisk = Config::string('localstorage.pictures.disk');
+        $targetDir = trim(Config::string('localstorage.pictures.directory'), '/');
         $targetBasePath = Storage::disk($targetDisk)->path($targetDir);
 
         $this->info('Legacy Image Synchronization');
@@ -211,7 +212,8 @@ class SyncLegacyImages extends Command
                 } catch (\Throwable $e) {
                     $errors++;
                     $this->newLine();
-                    $this->error("  {$image->id}: {$e->getMessage()}");
+                    $keyRaw = $image->getKey();
+                    $this->error('  '.(is_scalar($keyRaw) ? (string) $keyRaw : '?').': '.$e->getMessage());
                 }
 
                 $bar->advance();
@@ -258,11 +260,13 @@ class SyncLegacyImages extends Command
         }
 
         // New filename is UUID.extension
-        $newFilename = $image->getAttribute('id').'.'.$extension;
+        $imageIdRaw = $image->getAttribute('id');
+        $imageId = is_scalar($imageIdRaw) ? (string) $imageIdRaw : '';
+        $newFilename = $imageId.'.'.$extension;
         $storageRelativePath = $targetDir.'/'.$newFilename;
 
         if ($dryRun) {
-            $this->line("  [DRY-RUN] Would sync {$image->getAttribute('id')}: {$normalized} → {$newFilename}");
+            $this->line("  [DRY-RUN] Would sync {$imageId}: {$normalized} → {$newFilename}");
 
             return true;
         }

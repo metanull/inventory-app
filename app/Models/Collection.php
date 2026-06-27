@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PartnerLevel;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,15 +12,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Collection Model
  *
  * Represents a collection of museum items with translation and partner support.
  * Collections organize items and provide context for display purposes.
+ *
+ * @property string $id
+ * @property string $internal_name
+ * @property string $type
+ * @property string|null $parent_id
+ * @property string|null $context_id
+ * @property string|null $backward_compatibility
+ * @property string|null $display_label
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Collection extends Model
 {
+    /** @use HasFactory<CollectionFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     // Type constants
@@ -44,7 +57,7 @@ class Collection extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'internal_name',
@@ -91,13 +104,18 @@ class Collection extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return $this->parent_id
+        /** @var Builder<static> $query */
+        $query = $this->parent_id
             ? static::where('parent_id', $this->parent_id)
             : static::whereNull('parent_id');
+
+        return $query;
     }
 
     /**
      * Get all translations for this collection.
+     *
+     * @return HasMany<CollectionTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -106,6 +124,8 @@ class Collection extends Model
 
     /**
      * Get the default language for this collection.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -114,6 +134,8 @@ class Collection extends Model
 
     /**
      * Get the default context for this collection.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {
@@ -122,6 +144,8 @@ class Collection extends Model
 
     /**
      * Get the country associated with this collection.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -130,6 +154,8 @@ class Collection extends Model
 
     /**
      * Get the parent collection (for hierarchical organization).
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function parent(): BelongsTo
     {
@@ -138,6 +164,8 @@ class Collection extends Model
 
     /**
      * Get all child collections.
+     *
+     * @return HasMany<Collection, $this>
      */
     public function children(): HasMany
     {
@@ -146,6 +174,8 @@ class Collection extends Model
 
     /**
      * Get all items belonging to this collection (primary relationship).
+     *
+     * @return HasMany<Item, $this>
      */
     public function items(): HasMany
     {
@@ -154,6 +184,8 @@ class Collection extends Model
 
     /**
      * Get all items attached to this collection via many-to-many relationship.
+     *
+     * @return BelongsToMany<Item, $this, CollectionItem>
      */
     public function attachedItems(): BelongsToMany
     {
@@ -165,6 +197,8 @@ class Collection extends Model
 
     /**
      * Get all images belonging to this collection.
+     *
+     * @return HasMany<CollectionImage, $this>
      */
     public function collectionImages(): HasMany
     {
@@ -173,6 +207,8 @@ class Collection extends Model
 
     /**
      * Get all media (audio/video URLs) belonging to this collection.
+     *
+     * @return HasMany<CollectionMedia, $this>
      */
     public function collectionMedia(): HasMany
     {
@@ -181,6 +217,8 @@ class Collection extends Model
 
     /**
      * Get all contributors belonging to this collection.
+     *
+     * @return HasMany<Contributor, $this>
      */
     public function contributors(): HasMany
     {
@@ -189,6 +227,9 @@ class Collection extends Model
 
     /**
      * Scope to get only collection type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeCollections(Builder $query): Builder
     {
@@ -197,6 +238,9 @@ class Collection extends Model
 
     /**
      * Scope to get only exhibition type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeExhibitions(Builder $query): Builder
     {
@@ -205,6 +249,9 @@ class Collection extends Model
 
     /**
      * Scope to get only gallery type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeGalleries(Builder $query): Builder
     {
@@ -213,6 +260,9 @@ class Collection extends Model
 
     /**
      * Scope to get only theme type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeThemes(Builder $query): Builder
     {
@@ -221,6 +271,9 @@ class Collection extends Model
 
     /**
      * Scope to get only exhibition trail type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeExhibitionTrails(Builder $query): Builder
     {
@@ -229,6 +282,9 @@ class Collection extends Model
 
     /**
      * Scope to get only itinerary type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeItineraries(Builder $query): Builder
     {
@@ -237,6 +293,9 @@ class Collection extends Model
 
     /**
      * Scope to get only location type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeLocations(Builder $query): Builder
     {
@@ -245,6 +304,9 @@ class Collection extends Model
 
     /**
      * Scope to get only root collections (no parent).
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeRoots(Builder $query): Builder
     {
@@ -253,6 +315,9 @@ class Collection extends Model
 
     /**
      * Scope to get child collections of a specific parent.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeChildrenOf(Builder $query, string $parentId): Builder
     {
@@ -261,6 +326,8 @@ class Collection extends Model
 
     /**
      * Get all partners associated with this collection.
+     *
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function partners(): BelongsToMany
     {
@@ -276,10 +343,7 @@ class Collection extends Model
      */
     public function getDefaultTranslation(string $languageId): ?CollectionTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        return $this->translations()->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -287,10 +351,7 @@ class Collection extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?CollectionTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        return $this->translations()->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**
@@ -310,6 +371,8 @@ class Collection extends Model
 
     /**
      * Get partners by level.
+     *
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function partnersByLevel(PartnerLevel $level): BelongsToMany
     {
@@ -318,6 +381,8 @@ class Collection extends Model
 
     /**
      * Get direct partners (level: partner).
+     *
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function directPartners(): BelongsToMany
     {
@@ -326,6 +391,8 @@ class Collection extends Model
 
     /**
      * Get associated partners (level: associated_partner).
+     *
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function associatedPartners(): BelongsToMany
     {
@@ -334,6 +401,8 @@ class Collection extends Model
 
     /**
      * Get minor contributors (level: minor_contributor).
+     *
+     * @return BelongsToMany<Partner, $this, CollectionPartner>
      */
     public function minorContributors(): BelongsToMany
     {
@@ -358,6 +427,8 @@ class Collection extends Model
 
     /**
      * Attach multiple items to this collection.
+     *
+     * @param  array<int, string>  $itemIds
      */
     public function attachItems(array $itemIds): void
     {
@@ -366,6 +437,8 @@ class Collection extends Model
 
     /**
      * Detach multiple items from this collection.
+     *
+     * @param  array<int, string>  $itemIds
      */
     public function detachItems(array $itemIds): void
     {
@@ -375,7 +448,9 @@ class Collection extends Model
     /**
      * Scope to exclude collections with the given IDs.
      *
+     * @param  Builder<static>  $query
      * @param  array<int, string>  $ids
+     * @return Builder<static>
      */
     public function scopeExcludingIds(Builder $query, array $ids): Builder
     {
@@ -387,7 +462,9 @@ class Collection extends Model
      * Prevents circular hierarchies when selecting a parent collection.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $collectionId  UUID of the collection whose descendants to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingDescendantsOf(Builder $query, string $collectionId): Builder
     {
@@ -419,7 +496,9 @@ class Collection extends Model
      * Prevents an ancestor from being set as a child of the collection.
      * Hard-caps traversal at 10 levels.
      *
+     * @param  Builder<static>  $query
      * @param  string  $collectionId  UUID of the collection whose ancestors to exclude
+     * @return Builder<static>
      */
     public function scopeExcludingAncestorsOf(Builder $query, string $collectionId): Builder
     {

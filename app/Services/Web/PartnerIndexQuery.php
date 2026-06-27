@@ -13,6 +13,7 @@ final class PartnerIndexQuery
 {
     public function __construct(private readonly PartnerListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, Partner> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Partner::query()
@@ -35,11 +36,13 @@ final class PartnerIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<Partner> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<Partner> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;
@@ -49,6 +52,7 @@ final class PartnerIndexQuery
         }
     }
 
+    /** @param Builder<Partner> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

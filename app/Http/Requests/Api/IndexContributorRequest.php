@@ -15,6 +15,7 @@ class IndexContributorRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -24,11 +25,13 @@ class IndexContributorRequest extends FormRequest
         ];
     }
 
+    /** @return array{page:int, per_page:int} */
     public function getPaginationParams(): array
     {
         return PaginationParams::fromRequest($this);
     }
 
+    /** @return array<int, string> */
     public function getIncludeParams(): array
     {
         return IncludeParser::fromRequest($this, AllowList::for('contributor'));

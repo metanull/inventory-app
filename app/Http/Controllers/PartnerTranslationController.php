@@ -10,13 +10,15 @@ use App\Http\Resources\PartnerTranslationResource;
 use App\Models\PartnerTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerTranslationRequest $request)
+    public function index(IndexPartnerTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class PartnerTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerTranslationResource
      */
-    public function store(StorePartnerTranslationRequest $request)
+    public function store(StorePartnerTranslationRequest $request): PartnerTranslationResource
     {
         $validated = $request->validated();
         $partnerTranslation = PartnerTranslation::create($validated);
@@ -51,7 +51,7 @@ class PartnerTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerTranslationRequest $request, PartnerTranslation $partnerTranslation)
+    public function show(ShowPartnerTranslationRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationResource
     {
         $includes = $request->getIncludeParams();
         $partnerTranslation->load($includes);
@@ -61,10 +61,8 @@ class PartnerTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerTranslationResource
      */
-    public function update(UpdatePartnerTranslationRequest $request, PartnerTranslation $partnerTranslation)
+    public function update(UpdatePartnerTranslationRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationResource
     {
         $validated = $request->validated();
         $partnerTranslation->update($validated);
@@ -78,7 +76,7 @@ class PartnerTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerTranslation $partnerTranslation)
+    public function destroy(PartnerTranslation $partnerTranslation): Response
     {
         $partnerTranslation->delete();
 

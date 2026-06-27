@@ -22,6 +22,10 @@ class RequireRole
 
         $user = Auth::user();
 
+        if ($user === null) {
+            return $this->redirectToLogin($request);
+        }
+
         // Check if user has any roles at all
         if ($user->roles()->count() === 0) {
             return $this->handleUnauthorized($request, 'User has no assigned roles');

@@ -11,6 +11,7 @@ class UpdatePartnerLogoRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [

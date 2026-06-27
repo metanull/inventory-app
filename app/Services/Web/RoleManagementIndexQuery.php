@@ -13,6 +13,7 @@ final class RoleManagementIndexQuery
 {
     public function __construct(private readonly RoleManagementListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, Role> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Role::query()
@@ -34,11 +35,13 @@ final class RoleManagementIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<Role> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<Role> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

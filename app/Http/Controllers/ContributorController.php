@@ -10,13 +10,15 @@ use App\Http\Resources\ContributorResource;
 use App\Models\Contributor;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContributorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorRequest $request)
+    public function index(IndexContributorRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class ContributorController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorResource
      */
-    public function store(StoreContributorRequest $request)
+    public function store(StoreContributorRequest $request): ContributorResource
     {
         $validated = $request->validated();
         $contributor = Contributor::create($validated);
@@ -51,7 +51,7 @@ class ContributorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContributorRequest $request, Contributor $contributor)
+    public function show(ShowContributorRequest $request, Contributor $contributor): ContributorResource
     {
         $includes = $request->getIncludeParams();
         $contributor->load($includes);
@@ -61,10 +61,8 @@ class ContributorController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorResource
      */
-    public function update(UpdateContributorRequest $request, Contributor $contributor)
+    public function update(UpdateContributorRequest $request, Contributor $contributor): ContributorResource
     {
         $validated = $request->validated();
         $contributor->update($validated);
@@ -78,7 +76,7 @@ class ContributorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Contributor $contributor)
+    public function destroy(Contributor $contributor): Response
     {
         $contributor->delete();
 

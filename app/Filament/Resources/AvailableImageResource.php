@@ -25,6 +25,7 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageResource extends Resource
@@ -77,7 +78,7 @@ class AvailableImageResource extends Resource
             ->schema([
                 ImageEntry::make('preview')
                     ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                    ->getStateUsing(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->height(200)
@@ -118,16 +119,16 @@ class AvailableImageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (AvailableImage $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('preview')
                     ->label('Preview')
-                    ->getStateUsing(fn ($record) => route('filament.admin.available-image.view', [
+                    ->getStateUsing(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->height(64)
-                    ->url(fn ($record) => route('filament.admin.available-image.view', [
+                    ->url(fn (AvailableImage $record) => route('filament.admin.available-image.view', [
                         'availableImage' => $record->id,
                     ]))
                     ->openUrlInNewTab()
@@ -170,15 +171,16 @@ class AvailableImageResource extends Resource
                         FileUpload::make('file')
                             ->label('Image file')
                             ->disk('local')
-                            ->directory(config('localstorage.uploads.images.directory', 'image_uploads'))
+                            ->directory(Config::string('localstorage.uploads.images.directory'))
                             ->visibility('private')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-                            ->maxSize((int) config('localstorage.uploads.images.max_size', 20480))
+                            ->maxSize(Config::integer('localstorage.uploads.images.max_size'))
                             ->required(),
                     ])
                     ->action(function (array $data): void {
-                        $path = $data['file'];
+                        $fileRaw = $data['file'] ?? null;
+                        $path = is_string($fileRaw) ? $fileRaw : '';
 
                         $imageUpload = ImageUpload::create([
                             'path' => $path,

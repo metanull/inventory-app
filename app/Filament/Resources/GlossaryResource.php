@@ -26,6 +26,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -68,6 +69,10 @@ class GlossaryResource extends Resource
      * Glossary translations are language-only (no context_id column).
      * Override the shared withFallbackExists to check only the default language.
      */
+    /**
+     * @param  Builder<Glossary>  $query
+     * @return Builder<Glossary>
+     */
     protected static function withFallbackExists(Builder $query): Builder
     {
         return $query->withExists([
@@ -79,6 +84,9 @@ class GlossaryResource extends Resource
     /**
      * Glossary translations are language-only (no context_id column).
      * Override to exclude context-based filters that would produce SQL errors.
+     */
+    /**
+     * @return array<int, BaseFilter>
      */
     protected static function translationCoverageFilters(): array
     {
@@ -108,7 +116,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)->internal_name ?? $value) : '')
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereHas('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
@@ -123,7 +131,7 @@ class GlossaryResource extends Resource
                     ->limit(50)
                     ->pluck('internal_name', 'id')
                     ->all())
-                ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)->internal_name ?? $value) : '')
                 ->searchable()
                 ->query(fn (Builder $query, array $data): Builder => $data['value']
                     ? $query->whereDoesntHave('translations', fn (Builder $q): Builder => $q->where('language_id', $data['value']))
@@ -147,7 +155,7 @@ class GlossaryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Glossary $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => static::withFallbackExists($query))
             ->defaultSort('internal_name', 'asc')
             ->columns([

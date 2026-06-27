@@ -17,9 +17,11 @@ class AuthTokenResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'token' => $this->resource['token'] ?? null,
-            'user' => $this->resource['user'] ?? [],
+            'token' => $data['token'] ?? null,
+            'user' => $data['user'] ?? [],
         ];
     }
 }

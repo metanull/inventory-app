@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\TimelineEventTranslationSaved;
 use App\Traits\HasJsonFields;
+use Database\Factories\TimelineEventTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,10 +12,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $timeline_event_id
+ * @property string $language_id
+ * @property string|null $name
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class TimelineEventTranslation extends Model
 {
+    /** @use HasFactory<TimelineEventTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -22,7 +32,7 @@ class TimelineEventTranslation extends Model
      */
     protected static function booted(): void
     {
-        static::saved(function ($timelineEventTranslation) {
+        static::saved(function (TimelineEventTranslation $timelineEventTranslation): void {
             event(new TimelineEventTranslationSaved($timelineEventTranslation));
         });
     }
@@ -37,10 +47,6 @@ class TimelineEventTranslation extends Model
      */
     public function delete()
     {
-        if (is_null($this->getKeyName())) {
-            throw new \LogicException('No primary key defined on model.');
-        }
-
         // If the model doesn't exist, nothing to delete
         if (! $this->exists) {
             return false;
@@ -99,6 +105,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -109,6 +117,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the timeline event that owns the translation.
+     *
+     * @return BelongsTo<TimelineEvent, $this>
      */
     public function timelineEvent(): BelongsTo
     {
@@ -117,6 +127,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -125,6 +137,8 @@ class TimelineEventTranslation extends Model
 
     /**
      * Get the glossary spellings linked to this timeline event translation.
+     *
+     * @return BelongsToMany<GlossarySpelling, $this>
      */
     public function spellings(): BelongsToMany
     {
@@ -134,6 +148,9 @@ class TimelineEventTranslation extends Model
 
     /**
      * Scope a query to only include translations for a specific language.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeForLanguage(Builder $query, string $languageId): Builder
     {

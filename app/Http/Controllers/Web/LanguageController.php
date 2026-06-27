@@ -69,7 +69,7 @@ class LanguageController extends Controller
         $language->update($payload);
         if ($makeDefault) {
             $language->setDefault();
-        } elseif ($language->is_default && ! $makeDefault) {
+        } elseif ($language->is_default) {
             // If checkbox not sent we do nothing; explicit un-setting could be future feature.
         }
 

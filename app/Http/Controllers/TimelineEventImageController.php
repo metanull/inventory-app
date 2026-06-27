@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Resources\TimelineEventImageResource;
 use App\Models\TimelineEventImage;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TimelineEventImageController extends Controller
 {
     /**
      * Display the specified resource.
      */
-    public function show(TimelineEventImage $timelineEventImage)
+    public function show(TimelineEventImage $timelineEventImage): TimelineEventImageResource
     {
         return new TimelineEventImageResource($timelineEventImage);
     }
@@ -19,8 +20,9 @@ class TimelineEventImageController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TimelineEventImage $timelineEventImage)
+    public function update(Request $request, TimelineEventImage $timelineEventImage): TimelineEventImageResource
     {
+        /** @var array<string, mixed> $validated */
         $validated = $request->validate([
             'alt_text' => ['nullable', 'string', 'max:255'],
         ]);
@@ -34,7 +36,7 @@ class TimelineEventImageController extends Controller
     /**
      * Move the image up in display order.
      */
-    public function moveUp(TimelineEventImage $timelineEventImage)
+    public function moveUp(TimelineEventImage $timelineEventImage): TimelineEventImageResource
     {
         $timelineEventImage->moveUp();
 
@@ -44,7 +46,7 @@ class TimelineEventImageController extends Controller
     /**
      * Move the image down in display order.
      */
-    public function moveDown(TimelineEventImage $timelineEventImage)
+    public function moveDown(TimelineEventImage $timelineEventImage): TimelineEventImageResource
     {
         $timelineEventImage->moveDown();
 
@@ -54,7 +56,7 @@ class TimelineEventImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(TimelineEventImage $timelineEventImage)
+    public function destroy(TimelineEventImage $timelineEventImage): Response
     {
         $timelineEventImage->delete();
 

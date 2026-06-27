@@ -12,8 +12,10 @@ use App\Models\AvailableImage;
 use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Services\Web\PartnerTranslationImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 
 class PartnerTranslationImageController extends Controller
 {
@@ -42,7 +44,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Show form to attach available image to partner translation.
      */
-    public function create(PartnerTranslation $partnerTranslation)
+    public function create(PartnerTranslation $partnerTranslation): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -55,7 +57,8 @@ class PartnerTranslationImageController extends Controller
     public function store(StorePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id);
 
@@ -66,7 +69,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Show form to edit partner translation image.
      */
-    public function edit(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function edit(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): View
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
@@ -159,15 +162,15 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function download(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerTranslationImage->original_name ?: basename($partnerTranslationImage->path);
 
         // Prepend directory to path
@@ -184,15 +187,15 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage)
+    public function view(PartnerTranslation $partnerTranslation, PartnerTranslationImage $partnerTranslationImage): Responsable
     {
         // Ensure the image belongs to the partner translation
         if ($partnerTranslationImage->partner_translation_id !== $partnerTranslation->id) {
             abort(404);
         }
 
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;

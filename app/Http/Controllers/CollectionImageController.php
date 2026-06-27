@@ -14,13 +14,16 @@ use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CollectionImageController extends Controller
 {
     /**
      * Display a listing of collection images for a specific collection.
      */
-    public function index(IndexCollectionImageRequest $request, Collection $collection)
+    public function index(IndexCollectionImageRequest $request, Collection $collection): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $collectionImages = $collection->collectionImages()->orderBy('display_order');
@@ -35,7 +38,7 @@ class CollectionImageController extends Controller
     /**
      * Store a newly created collection image.
      */
-    public function store(StoreCollectionImageRequest $request, Collection $collection)
+    public function store(StoreCollectionImageRequest $request, Collection $collection): CollectionImageResource
     {
         $validated = $request->validated();
         $validated['collection_id'] = $collection->id;
@@ -49,7 +52,7 @@ class CollectionImageController extends Controller
     /**
      * Display the specified collection image.
      */
-    public function show(ShowCollectionImageRequest $request, CollectionImage $collectionImage)
+    public function show(ShowCollectionImageRequest $request, CollectionImage $collectionImage): CollectionImageResource
     {
         $includes = $request->getIncludeParams();
 
@@ -63,7 +66,7 @@ class CollectionImageController extends Controller
     /**
      * Update the specified collection image.
      */
-    public function update(UpdateCollectionImageRequest $request, CollectionImage $collectionImage)
+    public function update(UpdateCollectionImageRequest $request, CollectionImage $collectionImage): CollectionImageResource
     {
         $validated = $request->validated();
         $collectionImage->update($validated);
@@ -79,7 +82,7 @@ class CollectionImageController extends Controller
     /**
      * Move collection image up in display order.
      */
-    public function moveUp(CollectionImage $collectionImage)
+    public function moveUp(CollectionImage $collectionImage): CollectionImageResource
     {
         $collectionImage->moveUp();
 
@@ -92,7 +95,7 @@ class CollectionImageController extends Controller
     /**
      * Move collection image down in display order.
      */
-    public function moveDown(CollectionImage $collectionImage)
+    public function moveDown(CollectionImage $collectionImage): CollectionImageResource
     {
         $collectionImage->moveDown();
 
@@ -105,7 +108,7 @@ class CollectionImageController extends Controller
     /**
      * Tighten ordering for all images of the collection.
      */
-    public function tightenOrdering(CollectionImage $collectionImage)
+    public function tightenOrdering(CollectionImage $collectionImage): OperationSuccessResource
     {
         $collectionImage->tightenOrderingForCollection();
 
@@ -117,15 +120,15 @@ class CollectionImageController extends Controller
 
     /**
      * Attach an available image to a collection.
-     *
-     * @return CollectionImageResource
      */
-    public function attachFromAvailable(AttachFromAvailableCollectionImageRequest $request, Collection $collection)
+    public function attachFromAvailable(AttachFromAvailableCollectionImageRequest $request, Collection $collection): CollectionImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
-        $collectionImage = CollectionImage::attachFromAvailableImage($availableImage, $collection->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $collectionImage = CollectionImage::attachFromAvailableImage($availableImage, $collection->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -138,7 +141,7 @@ class CollectionImageController extends Controller
     /**
      * Detach a collection image and convert it back to available image.
      */
-    public function detachToAvailable(CollectionImage $collectionImage)
+    public function detachToAvailable(CollectionImage $collectionImage): OperationSuccessResource
     {
         $availableImage = $collectionImage->detachToAvailableImage();
 
@@ -152,7 +155,7 @@ class CollectionImageController extends Controller
     /**
      * Remove the specified collection image.
      */
-    public function destroy(CollectionImage $collectionImage)
+    public function destroy(CollectionImage $collectionImage): Response
     {
         $collectionImage->delete();
 
@@ -162,7 +165,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(CollectionImage $collectionImage)
+    public function download(CollectionImage $collectionImage): Responsable
     {
         return new DownloadImageResponse($collectionImage);
     }
@@ -170,7 +173,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(CollectionImage $collectionImage)
+    public function view(CollectionImage $collectionImage): Responsable
     {
         return new InlineImageResponse($collectionImage);
     }

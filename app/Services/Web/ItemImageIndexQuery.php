@@ -13,6 +13,7 @@ final class ItemImageIndexQuery
 {
     public function __construct(private readonly ItemImageListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, ItemImage> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = ItemImage::query()
@@ -35,16 +36,19 @@ final class ItemImageIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<ItemImage> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('item_images.item_id', $state->filters['item_id']);
     }
 
+    /** @param Builder<ItemImage> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<ItemImage> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

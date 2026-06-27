@@ -2,24 +2,28 @@
 
 namespace App\Models;
 
+use App\Contracts\DetachableImage;
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\PartnerImageFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class PartnerImage extends Model implements StreamableImageFile
+class PartnerImage extends Model implements DetachableImage, StreamableImageFile
 {
+    /** @use HasFactory<PartnerImageFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'partner_id',
@@ -55,6 +59,8 @@ class PartnerImage extends Model implements StreamableImageFile
 
     /**
      * Get the partner this image belongs to.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {
@@ -78,7 +84,10 @@ class PartnerImage extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('partner_id', $this->partner_id);
+        /** @var Builder<static> $query */
+        $query = static::where('partner_id', $this->partner_id);
+
+        return $query;
     }
 
     /**
@@ -96,22 +105,24 @@ class PartnerImage extends Model implements StreamableImageFile
      */
     public static function attachFromAvailableImage(AvailableImage $availableImage, string $partnerId, ?string $altText = null): static
     {
-        return DB::transaction(function () use ($availableImage, $partnerId, $altText) {
+        /** @var static $result */
+        $result = DB::transaction(function () use ($availableImage, $partnerId, $altText) {
             $displayOrder = static::getNextDisplayOrderForPartner($partnerId);
 
             // Move file from available storage to pictures storage
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
 
             $filename = $availableImage->path; // Already just filename
 
             // Move the file from images/ to pictures/
-            Storage::disk($picturesDisk)->writeStream(
-                $picturesDir.'/'.$filename,
-                Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename)
-            );
+            $readStream = Storage::disk($availableDisk)->readStream($availableDir.'/'.$filename);
+            if ($readStream === null) {
+                throw new \RuntimeException("Failed to open read stream for image: {$filename}");
+            }
+            Storage::disk($picturesDisk)->writeStream($picturesDir.'/'.$filename, $readStream);
             Storage::disk($availableDisk)->delete($availableDir.'/'.$filename);
 
             $partnerImage = Model::unguarded(fn () => static::create([
@@ -129,6 +140,8 @@ class PartnerImage extends Model implements StreamableImageFile
 
             return $partnerImage;
         });
+
+        return $result;
     }
 
     /**
@@ -138,18 +151,19 @@ class PartnerImage extends Model implements StreamableImageFile
     {
         return $this->getConnection()->transaction(function () {
             // Move file from pictures storage back to available storage
-            $picturesDisk = config('localstorage.pictures.disk');
-            $picturesDir = trim(config('localstorage.pictures.directory'), '/');
-            $availableDisk = config('localstorage.available.images.disk');
-            $availableDir = trim(config('localstorage.available.images.directory'), '/');
+            $picturesDisk = Config::string('localstorage.pictures.disk');
+            $picturesDir = trim(Config::string('localstorage.pictures.directory'), '/');
+            $availableDisk = Config::string('localstorage.available.images.disk');
+            $availableDir = trim(Config::string('localstorage.available.images.directory'), '/');
 
             $filename = $this->path; // Already just filename
 
             // Move the file from pictures/ back to images/
-            Storage::disk($availableDisk)->writeStream(
-                $availableDir.'/'.$filename,
-                Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename)
-            );
+            $readStream = Storage::disk($picturesDisk)->readStream($picturesDir.'/'.$filename);
+            if ($readStream === null) {
+                throw new \RuntimeException("Failed to open read stream for image: {$filename}");
+            }
+            Storage::disk($availableDisk)->writeStream($availableDir.'/'.$filename, $readStream);
             Storage::disk($picturesDisk)->delete($picturesDir.'/'.$filename);
 
             $availableImage = Model::unguarded(fn () => AvailableImage::create([
@@ -169,12 +183,12 @@ class PartnerImage extends Model implements StreamableImageFile
 
     public function imageDisk(): string
     {
-        return config('localstorage.pictures.disk');
+        return Config::string('localstorage.pictures.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.pictures.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

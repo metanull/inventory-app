@@ -7,13 +7,15 @@ use App\Http\Requests\Api\UpdateItemMediaRequest;
 use App\Http\Resources\ItemMediaResource;
 use App\Models\Item;
 use App\Models\ItemMedia;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ItemMediaController extends Controller
 {
     /**
      * Display a listing of item media for a specific item.
      */
-    public function index(Item $item)
+    public function index(Item $item): AnonymousResourceCollection
     {
         $itemMedia = $item->itemMedia()->orderBy('type')->orderBy('display_order')->get();
 
@@ -23,7 +25,7 @@ class ItemMediaController extends Controller
     /**
      * Store a newly created item media.
      */
-    public function store(StoreItemMediaRequest $request, Item $item)
+    public function store(StoreItemMediaRequest $request, Item $item): ItemMediaResource
     {
         $validated = $request->validated();
         $validated['item_id'] = $item->id;
@@ -40,7 +42,7 @@ class ItemMediaController extends Controller
     /**
      * Display the specified item media.
      */
-    public function show(ItemMedia $itemMedia)
+    public function show(ItemMedia $itemMedia): ItemMediaResource
     {
         return new ItemMediaResource($itemMedia);
     }
@@ -48,7 +50,7 @@ class ItemMediaController extends Controller
     /**
      * Update the specified item media.
      */
-    public function update(UpdateItemMediaRequest $request, ItemMedia $itemMedia)
+    public function update(UpdateItemMediaRequest $request, ItemMedia $itemMedia): ItemMediaResource
     {
         $validated = $request->validated();
         $itemMedia->update($validated);
@@ -60,7 +62,7 @@ class ItemMediaController extends Controller
     /**
      * Move item media up in display order.
      */
-    public function moveUp(ItemMedia $itemMedia)
+    public function moveUp(ItemMedia $itemMedia): ItemMediaResource
     {
         $itemMedia->moveUp();
         $itemMedia->refresh();
@@ -71,7 +73,7 @@ class ItemMediaController extends Controller
     /**
      * Move item media down in display order.
      */
-    public function moveDown(ItemMedia $itemMedia)
+    public function moveDown(ItemMedia $itemMedia): ItemMediaResource
     {
         $itemMedia->moveDown();
         $itemMedia->refresh();
@@ -82,7 +84,7 @@ class ItemMediaController extends Controller
     /**
      * Remove the specified item media.
      */
-    public function destroy(ItemMedia $itemMedia)
+    public function destroy(ItemMedia $itemMedia): Response
     {
         $itemMedia->delete();
 

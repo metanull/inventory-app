@@ -13,6 +13,7 @@ final class CountryIndexQuery
 {
     public function __construct(private readonly CountryListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, Country> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Country::query()->select([
@@ -31,11 +32,13 @@ final class CountryIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<Country> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<Country> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

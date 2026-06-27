@@ -121,7 +121,8 @@ class CollectionController extends Controller
             'item_id' => ['required', 'exists:items,id'],
         ]);
 
-        $item = Item::findOrFail($request->item_id);
+        $itemIdRaw = $request->input('item_id');
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->attachItem($item);
 
         return redirect()->route('collections.show', $collection)
@@ -142,13 +143,17 @@ class CollectionController extends Controller
             'parent_id' => ['required', 'exists:collections,id'],
         ]);
 
-        if ($request->parent_id === $collection->id) {
+        $parentIdRaw = $request->input('parent_id');
+        $parentId = is_string($parentIdRaw) ? $parentIdRaw : '';
+
+        if ($parentId === $collection->id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'A collection cannot be its own parent'])
                 ->withInput();
         }
 
-        $potentialParent = Collection::findOrFail($request->parent_id);
+        /** @var Collection $potentialParent */
+        $potentialParent = Collection::findOrFail($parentId);
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $collection->id) {
@@ -156,13 +161,14 @@ class CollectionController extends Controller
                     ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
                     ->withInput();
             }
-            $ancestor = Collection::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Collection::find($ancestor->parent_id);
+            if (! $next instanceof Collection) {
                 break;
             }
+            $ancestor = $next;
         }
 
-        $collection->update(['parent_id' => $request->parent_id]);
+        $collection->update(['parent_id' => $parentId]);
 
         return redirect()->route('collections.show', $collection)
             ->with('success', 'Parent collection set successfully');
@@ -199,6 +205,9 @@ class CollectionController extends Controller
         return $redirect->with('success', $message);
     }
 
+    /**
+     * @return array<int, array{label: string, url: string}>
+     */
     private function buildAncestorBreadcrumbs(Collection $collection): array
     {
         $breadcrumbs = [];

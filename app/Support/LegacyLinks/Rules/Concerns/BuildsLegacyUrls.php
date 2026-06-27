@@ -51,7 +51,10 @@ trait BuildsLegacyUrls
             return null;
         }
 
-        $code = trim((string) ($country->backward_compatibility ?: $country->getKey()));
+        $backwardRaw = $country->backward_compatibility;
+        $keyRaw = $country->getKey();
+        $raw = (is_string($backwardRaw) && $backwardRaw !== '') ? $backwardRaw : $keyRaw;
+        $code = trim(is_string($raw) ? $raw : '');
 
         return $code === '' ? null : strtolower($code);
     }

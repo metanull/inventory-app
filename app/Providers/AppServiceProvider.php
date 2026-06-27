@@ -29,6 +29,7 @@ use App\View\Composers\SettingsComposer;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -66,10 +67,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Share entity color config helper across views
         View::share('entityColor', function (string $entity): array {
-            $map = config('app_entities.colors', []);
-            $fragments = config('app_entities.fragments', []);
-            $color = $map[$entity] ?? 'gray';
-            $fragment = $fragments[$color] ?? [
+            $map = Config::array('app_entities.colors', []);
+            $fragments = Config::array('app_entities.fragments', []);
+            $colorRaw = $map[$entity] ?? null;
+            $color = is_string($colorRaw) ? $colorRaw : 'gray';
+            $fragmentDefault = [
                 'button' => 'bg-gray-600 hover:bg-gray-700 text-white',
                 'focus' => 'focus:border-gray-500 focus:ring-gray-500',
                 'badge' => 'bg-gray-100 text-gray-700',
@@ -80,6 +82,8 @@ class AppServiceProvider extends ServiceProvider
                 'bg' => 'bg-gray-50',
                 'text' => 'text-gray-600',
             ];
+            $fragmentRaw = $fragments[$color] ?? null;
+            $fragment = is_array($fragmentRaw) ? $fragmentRaw : $fragmentDefault;
 
             return array_merge(['name' => $color], $fragment);
         });
@@ -102,6 +106,9 @@ class AppServiceProvider extends ServiceProvider
             if (file_exists($versionPath)) {
                 try {
                     $content = file_get_contents($versionPath);
+                    if ($content === false) {
+                        throw new \RuntimeException("Cannot read {$versionPath}");
+                    }
 
                     // Remove UTF-8 BOM if present
                     if (substr($content, 0, 3) === "\xEF\xBB\xBF") {
@@ -125,6 +132,9 @@ class AppServiceProvider extends ServiceProvider
                 if (file_exists($packagePath)) {
                     try {
                         $packageContent = file_get_contents($packagePath);
+                        if ($packageContent === false) {
+                            throw new \RuntimeException("Cannot read {$packagePath}");
+                        }
                         $packageData = json_decode($packageContent, true);
                         if (json_last_error() === JSON_ERROR_NONE && is_array($packageData) && isset($packageData['version'])) {
                             $info['app_version'] = $packageData['version'];
@@ -163,10 +173,9 @@ class AppServiceProvider extends ServiceProvider
             ]);
 
         Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
-            $openApi->secure(
-                // SecurityScheme::apiKey('query', 'api_token')
-                SecurityScheme::http('bearer')
-            );
+            /** @var SecurityScheme $scheme */
+            $scheme = SecurityScheme::http('bearer');
+            $openApi->secure($scheme);
         });
     }
 }

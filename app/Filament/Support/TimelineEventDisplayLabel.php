@@ -27,6 +27,12 @@ class TimelineEventDisplayLabel
      * The helper ensures `timeline_events.*` is preserved in the column list
      * when no explicit SELECT has been issued yet.
      */
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
+     */
     public static function withDisplayLabel(Builder $query): Builder
     {
         $defaultLangId = Language::default()->value('id') ?? '';
@@ -72,14 +78,14 @@ class TimelineEventDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
         // 2. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
         if ($t) {
-            return $t->name;
+            return (string) $t->name;
         }
 
         // 3. Fallback
@@ -98,12 +104,12 @@ class TimelineEventDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $event = TimelineEvent::find($value);
-        if (! $event) {
-            return (string) $value;
+        if (! $event instanceof TimelineEvent) {
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $event->load('translations');

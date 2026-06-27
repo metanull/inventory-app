@@ -5,6 +5,7 @@ namespace App\Http\Requests\Web;
 use App\Http\Requests\Traits\PreparesPairsForValidation;
 use App\Models\ItemTranslation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateItemTranslationRequest extends FormRequest
 {
@@ -20,6 +21,7 @@ class UpdateItemTranslationRequest extends FormRequest
         $this->preparePairsField('extra');
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -62,9 +64,10 @@ class UpdateItemTranslationRequest extends FormRequest
      * Add uniqueness validation for the combination of item_id, language_id, and context_id.
      * Exclude the current translation from the uniqueness check.
      */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
+            /** @var ItemTranslation|null $itemTranslation */
             $itemTranslation = $this->route('item_translation');
 
             if (! $itemTranslation) {

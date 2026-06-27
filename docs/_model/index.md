@@ -569,7 +569,48 @@ const UPDATED_AT = 'updated_at';
 | Property | Value |
 |----------|-------|
 | **Table Name** | `collection_partner` |
-⚠️ **Error generating documentation for this model:** Array to string conversion
+| **Primary Key** | `id` |
+| **Key Type** | Auto-incrementing Integer |
+| **Incrementing** | No |
+| **Timestamps** | Yes (`created_at`, `updated_at`) |
+
+### Database Schema
+
+| Column | Type | Nullable | Default | Extra |
+|--------|------|----------|---------|-------|
+| `collection_id` | char | Unknown | Unknown |  |
+| `collection_type` | varchar | Unknown | Unknown |  |
+| `partner_id` | char | Unknown | Unknown |  |
+| `level` | varchar | Unknown | Unknown |  |
+| `visible` | tinyint | Unknown | Unknown |  |
+| `created_at` | timestamp | Unknown | Unknown |  |
+| `updated_at` | timestamp | Unknown | Unknown |  |
+
+### Fillable Fields
+
+```php
+['collection_id', 'collection_type', 'partner_id', 'level', 'visible']
+```
+
+### Attribute Casting
+
+| Attribute | Cast Type |
+|-----------|-----------|
+| `level` | `string` |
+| `visible` | `boolean` |
+
+### Model Constants
+
+```php
+const CREATED_AT = 'created_at';
+const UPDATED_AT = 'updated_at';
+```
+
+### Relationships
+
+#### Belongs To
+- **`collection()`**: BelongsTo [Collection](#collection)
+- **`partner()`**: BelongsTo [Partner](#partner)
 
 
 ## CollectionTranslation {#collectiontranslation}

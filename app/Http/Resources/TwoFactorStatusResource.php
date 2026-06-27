@@ -17,11 +17,13 @@ class TwoFactorStatusResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'two_factor_enabled' => $this->resource['two_factor_enabled'] ?? false,
-            'available_methods' => $this->resource['available_methods'] ?? [],
-            'primary_method' => $this->resource['primary_method'] ?? null,
-            'requires_two_factor' => $this->resource['requires_two_factor'] ?? false,
+            'two_factor_enabled' => $data['two_factor_enabled'] ?? false,
+            'available_methods' => $data['available_methods'] ?? [],
+            'primary_method' => $data['primary_method'] ?? null,
+            'requires_two_factor' => $data['requires_two_factor'] ?? false,
         ];
     }
 }

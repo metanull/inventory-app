@@ -54,7 +54,8 @@ class TwoFactorSetup extends SimplePage
         }
 
         $this->qrCodeSvg = $user->twoFactorQrCodeSvg();
-        $this->setupKey = decrypt($user->two_factor_secret);
+        $decrypted = decrypt($user->two_factor_secret ?? '');
+        $this->setupKey = is_string($decrypted) ? $decrypted : '';
     }
 
     public function form(Form $form): Form
@@ -87,13 +88,14 @@ class TwoFactorSetup extends SimplePage
 
     public function confirm(): void
     {
-        $data = $this->form->getState();
+        $data = $this->getForm('form')?->getState() ?? [];
 
         /** @var User $user */
         $user = Auth::guard(Filament::getAuthGuard())->user();
 
         try {
-            app(ConfirmTwoFactorAuthentication::class)($user, (string) ($data['code'] ?? ''));
+            $codeRaw = $data['code'] ?? null;
+            app(ConfirmTwoFactorAuthentication::class)($user, is_string($codeRaw) ? $codeRaw : '');
         } catch (ValidationException) {
             throw ValidationException::withMessages([
                 'data.code' => [__('The provided two factor authentication code was invalid.')],

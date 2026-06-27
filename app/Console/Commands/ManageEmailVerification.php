@@ -43,16 +43,11 @@ class ManageEmailVerification extends Command
             return Command::FAILURE;
         }
 
-        switch ($action) {
-            case 'verify':
-                return $this->verifyUser($user);
-            case 'unverify':
-                return $this->unverifyUser($user);
-            case 'status':
-                return $this->showStatus($user);
-        }
-
-        return Command::FAILURE;
+        return match ($action) {
+            'verify' => $this->verifyUser($user),
+            'unverify' => $this->unverifyUser($user),
+            default => $this->showStatus($user),
+        };
     }
 
     /**
@@ -68,7 +63,7 @@ class ManageEmailVerification extends Command
 
         $user->markEmailAsVerified();
         $this->info("✅ Successfully verified email for user '{$user->email}'.");
-        $this->line("Verification timestamp: {$user->fresh()->email_verified_at->format('Y-m-d H:i:s')}");
+        $this->line("Verification timestamp: {$user->fresh()?->email_verified_at?->format('Y-m-d H:i:s')}");
 
         return Command::SUCCESS;
     }
@@ -104,7 +99,7 @@ class ManageEmailVerification extends Command
 
         if ($user->hasVerifiedEmail()) {
             $this->line('Status: ✅ Verified');
-            $this->line("Verified at: {$user->email_verified_at->format('Y-m-d H:i:s')}");
+            $this->line("Verified at: {$user->email_verified_at?->format('Y-m-d H:i:s')}");
         } else {
             $this->line('Status: ❌ Not Verified');
             $this->line('The user needs to verify their email address to access the full application.');

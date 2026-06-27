@@ -5,12 +5,15 @@ namespace Tests\Console;
 use App\Models\CollectionImage;
 use App\Models\ItemImage;
 use App\Models\PartnerImage;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SyncLegacyImagesCommandTest extends TestCase
 {
+    use RefreshDatabase;
+
     private string $disk;
 
     private string $directory;

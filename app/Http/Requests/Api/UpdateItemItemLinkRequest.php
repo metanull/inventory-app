@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use App\Models\ItemItemLink;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -46,8 +47,10 @@ class UpdateItemItemLinkRequest extends FormRequest
                 'uuid',
                 'exists:contexts,id',
                 Rule::unique('item_item_links')
-                    ->where('source_id', $this->input('source_id'))
-                    ->where('target_id', $this->input('target_id'))
+                    ->where(fn (Builder $q) => $q
+                        ->where('source_id', $this->input('source_id'))
+                        ->where('target_id', $this->input('target_id'))
+                    )
                     ->ignore($linkId),
             ],
             'created_at' => ['prohibited'],

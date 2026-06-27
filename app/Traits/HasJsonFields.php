@@ -24,11 +24,11 @@ trait HasJsonFields
      * Normalize a JSON field value to an associative array
      *
      * @param  string  $field  The field name containing JSON data
-     * @return array The normalized array
+     * @return array<string, mixed> The normalized array
      */
     protected function normalizedJson(string $field): array
     {
-        return $this->getJsonNormalizer()->normalize($this->{$field});
+        return $this->getJsonNormalizer()->normalize($this->{$field}) ?? [];
     }
 
     /**

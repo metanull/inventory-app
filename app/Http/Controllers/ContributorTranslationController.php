@@ -10,13 +10,15 @@ use App\Http\Resources\ContributorTranslationResource;
 use App\Models\ContributorTranslation;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class ContributorTranslationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexContributorTranslationRequest $request)
+    public function index(IndexContributorTranslationRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class ContributorTranslationController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return ContributorTranslationResource
      */
-    public function store(StoreContributorTranslationRequest $request)
+    public function store(StoreContributorTranslationRequest $request): ContributorTranslationResource
     {
         $validated = $request->validated();
         $contributorTranslation = ContributorTranslation::create($validated);
@@ -51,7 +51,7 @@ class ContributorTranslationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowContributorTranslationRequest $request, ContributorTranslation $contributorTranslation)
+    public function show(ShowContributorTranslationRequest $request, ContributorTranslation $contributorTranslation): ContributorTranslationResource
     {
         $includes = $request->getIncludeParams();
         $contributorTranslation->load($includes);
@@ -61,10 +61,8 @@ class ContributorTranslationController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return ContributorTranslationResource
      */
-    public function update(UpdateContributorTranslationRequest $request, ContributorTranslation $contributorTranslation)
+    public function update(UpdateContributorTranslationRequest $request, ContributorTranslation $contributorTranslation): ContributorTranslationResource
     {
         $validated = $request->validated();
         $contributorTranslation->update($validated);
@@ -78,7 +76,7 @@ class ContributorTranslationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ContributorTranslation $contributorTranslation)
+    public function destroy(ContributorTranslation $contributorTranslation): Response
     {
         $contributorTranslation->delete();
 

@@ -6,7 +6,6 @@ use App\Faker\LocalImageProvider;
 use App\Faker\LoremPicsumImageProvider;
 use Faker\Factory as FakerFactory;
 use Faker\Generator as FakerGenerator;
-use Illuminate\Database\Eloquent\Factories\Factory as EloquentFactory;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -47,12 +46,6 @@ class LocalImageFakerServiceProvider extends ServiceProvider
             }
 
             return $faker;
-        });
-
-        $this->app->singleton(EloquentFactory::class, function ($app) {
-            return EloquentFactory::construct(
-                $app->make(FakerGenerator::class), $this->app->databasePath('factories')
-            );
         });
     }
 

@@ -110,9 +110,11 @@ class ItemController extends Controller
             'tag_id' => ['required', 'exists:tags,id'],
         ]);
 
+        $tagIdRaw = $request->input('tag_id');
+        $tagId = is_string($tagIdRaw) ? $tagIdRaw : '';
         // Attach the tag if not already attached
-        if (! $item->tags()->where('tag_id', $request->tag_id)->exists()) {
-            $item->tags()->attach($request->tag_id);
+        if (! $item->tags()->where('tag_id', $tagId)->exists()) {
+            $item->tags()->attach($tagId);
             $message = 'Tag attached successfully';
         } else {
             $message = 'Tag is already attached to this item';
@@ -141,8 +143,11 @@ class ItemController extends Controller
             'parent_id' => ['required', 'exists:items,id'],
         ]);
 
+        $parentIdRaw = $request->input('parent_id');
+        $parentId = is_string($parentIdRaw) ? $parentIdRaw : '';
+
         // Prevent item from being its own parent
-        if ($request->parent_id === $item->id) {
+        if ($parentId === $item->id) {
             return redirect()->back()
                 ->withErrors(['parent_id' => 'An item cannot be its own parent'])
                 ->withInput();
@@ -150,7 +155,8 @@ class ItemController extends Controller
 
         // Prevent circular references by checking if the potential parent
         // has this item anywhere in its ancestry chain
-        $potentialParent = Item::findOrFail($request->parent_id);
+        /** @var Item $potentialParent */
+        $potentialParent = Item::findOrFail($parentId);
         $ancestor = $potentialParent;
         while ($ancestor->parent_id !== null) {
             if ($ancestor->parent_id === $item->id) {
@@ -158,13 +164,14 @@ class ItemController extends Controller
                     ->withErrors(['parent_id' => 'Cannot create circular parent relationship'])
                     ->withInput();
             }
-            $ancestor = Item::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Item::find($ancestor->parent_id);
+            if (! $next instanceof Item) {
                 break;
             }
+            $ancestor = $next;
         }
 
-        $item->update(['parent_id' => $request->parent_id]);
+        $item->update(['parent_id' => $parentId]);
 
         return redirect()->route('items.show', $item)
             ->with('success', 'Parent set successfully');
@@ -184,14 +191,18 @@ class ItemController extends Controller
             'child_id' => ['required', 'exists:items,id'],
         ]);
 
+        $childIdRaw = $request->input('child_id');
+        $childId = is_string($childIdRaw) ? $childIdRaw : '';
+
         // Prevent item from being its own child
-        if ($request->child_id === $item->id) {
+        if ($childId === $item->id) {
             return redirect()->back()
                 ->withErrors(['child_id' => 'An item cannot be its own child'])
                 ->withInput();
         }
 
-        $child = Item::findOrFail($request->child_id);
+        /** @var Item $child */
+        $child = Item::findOrFail($childId);
 
         // Check if already a child (idempotent)
         if ($child->parent_id === $item->id) {
@@ -207,10 +218,11 @@ class ItemController extends Controller
                     ->withErrors(['child_id' => 'Cannot create circular child relationship'])
                     ->withInput();
             }
-            $ancestor = Item::find($ancestor->parent_id);
-            if (! $ancestor) {
+            $next = Item::find($ancestor->parent_id);
+            if (! $next instanceof Item) {
                 break;
             }
+            $ancestor = $next;
         }
 
         $child->update(['parent_id' => $item->id]);
@@ -233,6 +245,9 @@ class ItemController extends Controller
             ->with('success', 'Child relationship removed successfully');
     }
 
+    /**
+     * @return array<int, array{label: string, url: string}>
+     */
     private function buildAncestorBreadcrumbs(Item $item): array
     {
         $breadcrumbs = [];
@@ -327,6 +342,7 @@ class ItemController extends Controller
         return Country::query()->select('id', 'internal_name')->find($countryId);
     }
 
+    /** @return EloquentCollection<int, Tag> */
     private function resolveSelectedTags(ListState $listState): EloquentCollection
     {
         $selectedTagIds = $listState->filters['tags'] ?? [];

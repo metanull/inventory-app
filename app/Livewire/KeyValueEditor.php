@@ -2,14 +2,17 @@
 
 namespace App\Livewire;
 
+use Illuminate\View\View;
 use Livewire\Component;
 
 class KeyValueEditor extends Component
 {
+    /** @var array<int, array{key: string, value: string}> */
     public array $pairs = [];
 
     public string $componentName = '';
 
+    /** @param array<string, mixed>|null $initialData */
     public function mount(?array $initialData = null, string $componentName = 'extra'): void
     {
         $this->componentName = $componentName;
@@ -35,6 +38,10 @@ class KeyValueEditor extends Component
         }
     }
 
+    /**
+     * @param  array<string, mixed>|null  $data
+     * @return array<int, array{key: string, value: string}>
+     */
     public function jsonToArray(?array $data): array
     {
         if (! $data) {
@@ -45,14 +52,14 @@ class KeyValueEditor extends Component
         foreach ($data as $key => $value) {
             $result[] = [
                 'key' => $key,
-                'value' => is_array($value) ? json_encode($value) : $value,
+                'value' => is_array($value) ? (string) json_encode($value) : (is_scalar($value) ? (string) $value : ''),
             ];
         }
 
         return $result;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.key-value-editor');
     }

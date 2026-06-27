@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TimelineEvent;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin TimelineEvent */
 class TimelineEventResource extends JsonResource
 {
     /**

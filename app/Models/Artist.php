@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ArtistFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class Artist extends Model
 {
+    /** @use HasFactory<ArtistFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -41,6 +43,8 @@ class Artist extends Model
 
     /**
      * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
      */
     public function uniqueIds(): array
     {
@@ -49,6 +53,8 @@ class Artist extends Model
 
     /**
      * Items created by this artist
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {
@@ -56,62 +62,62 @@ class Artist extends Model
     }
 
     // Accessors and Mutators to ensure null values instead of empty strings
-    public function getPlaceOfBirthAttribute($value): ?string
+    public function getPlaceOfBirthAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setPlaceOfBirthAttribute($value): void
+    public function setPlaceOfBirthAttribute(mixed $value): void
     {
         $this->attributes['place_of_birth'] = $value === '' ? null : $value;
     }
 
-    public function getPlaceOfDeathAttribute($value): ?string
+    public function getPlaceOfDeathAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setPlaceOfDeathAttribute($value): void
+    public function setPlaceOfDeathAttribute(mixed $value): void
     {
         $this->attributes['place_of_death'] = $value === '' ? null : $value;
     }
 
-    public function getDateOfBirthAttribute($value): ?string
+    public function getDateOfBirthAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setDateOfBirthAttribute($value): void
+    public function setDateOfBirthAttribute(mixed $value): void
     {
         $this->attributes['date_of_birth'] = $value === '' ? null : $value;
     }
 
-    public function getDateOfDeathAttribute($value): ?string
+    public function getDateOfDeathAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setDateOfDeathAttribute($value): void
+    public function setDateOfDeathAttribute(mixed $value): void
     {
         $this->attributes['date_of_death'] = $value === '' ? null : $value;
     }
 
-    public function getPeriodOfActivityAttribute($value): ?string
+    public function getPeriodOfActivityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setPeriodOfActivityAttribute($value): void
+    public function setPeriodOfActivityAttribute(mixed $value): void
     {
         $this->attributes['period_of_activity'] = $value === '' ? null : $value;
     }
 
-    public function getBackwardCompatibilityAttribute($value): ?string
+    public function getBackwardCompatibilityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
 
-    public function setBackwardCompatibilityAttribute($value): void
+    public function setBackwardCompatibilityAttribute(mixed $value): void
     {
         $this->attributes['backward_compatibility'] = $value === '' ? null : $value;
     }

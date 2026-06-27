@@ -76,8 +76,10 @@ class PartnerTranslationResource extends Resource
                         table: 'partner_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?PartnerTranslation $record): Unique => $rule
-                            ->where('partner_id', $get('partner_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn (\Illuminate\Database\Query\Builder $q) => $q
+                                ->where('partner_id', $get('partner_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )
@@ -204,17 +206,17 @@ class PartnerTranslationResource extends Resource
                     ->schema([
                         TextEntry::make('partner.internal_name')
                             ->label('Partner')
-                            ->url(fn ($record): ?string => $record->partner
+                            ->url(fn (PartnerTranslation $record): ?string => $record->partner
                                 ? (auth()->user()?->can('view', $record->partner) ? PartnerResource::getUrl('view', ['record' => $record->partner]) : null)
                                 : null),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (PartnerTranslation $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (PartnerTranslation $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                     ])
@@ -274,7 +276,7 @@ class PartnerTranslationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (PartnerTranslation $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
                 'partner:id,internal_name',
                 'language:id,internal_name,is_default',

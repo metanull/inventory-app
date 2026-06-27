@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\ContributorTranslationFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ContributorTranslation extends Model
 {
+    /** @use HasFactory<ContributorTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     protected $fillable = [
@@ -29,6 +31,9 @@ class ContributorTranslation extends Model
         'extra' => 'object',
     ];
 
+    /**
+     * @return array<int, string>
+     */
     public function uniqueIds(): array
     {
         return ['id'];
@@ -36,6 +41,8 @@ class ContributorTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -46,6 +53,8 @@ class ContributorTranslation extends Model
 
     /**
      * Get the contributor that owns the translation.
+     *
+     * @return BelongsTo<Contributor, $this>
      */
     public function contributor(): BelongsTo
     {
@@ -54,6 +63,8 @@ class ContributorTranslation extends Model
 
     /**
      * Get the language of the translation.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -62,6 +73,8 @@ class ContributorTranslation extends Model
 
     /**
      * Get the context of the translation.
+     *
+     * @return BelongsTo<Context, $this>
      */
     public function context(): BelongsTo
     {

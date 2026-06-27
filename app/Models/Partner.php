@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +10,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $id
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property string $type
+ * @property string|null $project_id
+ * @property string|null $latitude
+ * @property string|null $longitude
+ * @property int $map_zoom
+ * @property bool $visible
+ * @property string|null $display_label
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Partner extends Model
 {
+    /** @use HasFactory<PartnerFactory> */
     use HasFactory;
+
     use HasUuids;
 
     // No model-level eager loads. Use request-scoped includes in controllers.
@@ -58,6 +76,8 @@ class Partner extends Model
 
     /**
      * Get the items belonging to this partner.
+     *
+     * @return HasMany<Item, $this>
      */
     public function items(): HasMany
     {
@@ -66,6 +86,8 @@ class Partner extends Model
 
     /**
      * The country of the partner.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -74,6 +96,8 @@ class Partner extends Model
 
     /**
      * Get the project this partner is associated with.
+     *
+     * @return BelongsTo<Project, $this>
      */
     public function project(): BelongsTo
     {
@@ -82,6 +106,8 @@ class Partner extends Model
 
     /**
      * Get the monument item this partner is linked to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function monumentItem(): BelongsTo
     {
@@ -90,6 +116,8 @@ class Partner extends Model
 
     /**
      * Get the translations for this partner.
+     *
+     * @return HasMany<PartnerTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -98,6 +126,8 @@ class Partner extends Model
 
     /**
      * Get the images for this partner.
+     *
+     * @return HasMany<PartnerImage, $this>
      */
     public function partnerImages(): HasMany
     {
@@ -106,6 +136,8 @@ class Partner extends Model
 
     /**
      * Get the logos for this partner.
+     *
+     * @return HasMany<PartnerLogo, $this>
      */
     public function partnerLogos(): HasMany
     {
@@ -114,6 +146,8 @@ class Partner extends Model
 
     /**
      * Get the collections this partner is associated with.
+     *
+     * @return BelongsToMany<Collection, $this, CollectionPartner>
      */
     public function collections(): BelongsToMany
     {
@@ -126,10 +160,10 @@ class Partner extends Model
     /**
      * Scope a query to only include visible partners.
      *
-     * @param  Builder  $query
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeVisible($query)
+    public function scopeVisible(Builder $query): Builder
     {
         return $query->where('visible', true);
     }
@@ -139,10 +173,7 @@ class Partner extends Model
      */
     public function getDefaultTranslation(string $languageId): ?PartnerTranslation
     {
-        return $this->translations()
-            ->defaultContext()
-            ->forLanguage($languageId)
-            ->first();
+        return $this->translations()->defaultContext()->forLanguage($languageId)->first();
     }
 
     /**
@@ -150,10 +181,7 @@ class Partner extends Model
      */
     public function getContextualizedTranslation(string $languageId, string $contextId): ?PartnerTranslation
     {
-        return $this->translations()
-            ->forLanguage($languageId)
-            ->forContext($contextId)
-            ->first();
+        return $this->translations()->forLanguage($languageId)->forContext($contextId)->first();
     }
 
     /**

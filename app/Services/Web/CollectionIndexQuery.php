@@ -13,6 +13,7 @@ final class CollectionIndexQuery
 {
     public function __construct(private readonly CollectionListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, Collection> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = Collection::query()
@@ -38,11 +39,13 @@ final class CollectionIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<Collection> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<Collection> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $filters = $state->filters;
@@ -62,6 +65,7 @@ final class CollectionIndexQuery
         $query->roots();
     }
 
+    /** @param Builder<Collection> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

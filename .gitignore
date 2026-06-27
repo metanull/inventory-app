@@ -137,6 +137,7 @@ docs/Gemfile.lock
 **/temp_*.md
 **/temp_*.json
 **/temp_*.txt
+**/temp_*.xml
 
 # Debug scripts
 debug_*.php

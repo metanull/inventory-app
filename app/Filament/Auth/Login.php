@@ -2,13 +2,13 @@
 
 namespace App\Filament\Auth;
 
+use App\Models\User;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Http\Responses\Auth\Contracts\LoginResponse as FilamentLoginResponse;
 use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Laravel\Fortify\Features;
@@ -36,10 +36,13 @@ class Login extends \Filament\Pages\Auth\Login
             $this->throwFailureValidationException();
         }
 
-        if (! ($user instanceof FilamentUser) || ! $user->canAccessPanel(Filament::getCurrentPanel())) {
+        $panel = Filament::getCurrentPanel();
+
+        if (! ($user instanceof FilamentUser) || ! $panel || ! $user->canAccessPanel($panel)) {
             $this->throwFailureValidationException();
         }
 
+        /** @var User $user */
         $remember = (bool) ($data['remember'] ?? false);
 
         if (
@@ -50,21 +53,21 @@ class Login extends \Filament\Pages\Auth\Login
             session()->put('filament.admin.2fa.user_id', $user->getKey());
             session()->put('filament.admin.2fa.remember', $remember);
 
-            $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-challenge'));
+            $this->redirect($panel->route('auth.two-factor-challenge'));
 
             return null;
         }
 
         $guard->login($user, $remember);
 
-        if (($user instanceof MustVerifyEmail) && ! $user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             $this->redirectRoute('verification.notice');
 
             return null;
         }
 
         if (Features::enabled(Features::twoFactorAuthentication()) && is_null($user->two_factor_confirmed_at)) {
-            $this->redirect(Filament::getCurrentPanel()->route('auth.two-factor-setup'));
+            $this->redirect($panel->route('auth.two-factor-setup'));
 
             return null;
         }
@@ -74,7 +77,7 @@ class Login extends \Filament\Pages\Auth\Login
 
     protected function getForgotPasswordUrl(): ?string
     {
-        return Filament::getCurrentPanel()->route('auth.password.request');
+        return Filament::getCurrentPanel()?->route('auth.password.request');
     }
 
     protected function getPasswordFormComponent(): Component

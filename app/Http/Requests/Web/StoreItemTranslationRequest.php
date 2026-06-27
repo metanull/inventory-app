@@ -5,6 +5,7 @@ namespace App\Http\Requests\Web;
 use App\Http\Requests\Traits\PreparesPairsForValidation;
 use App\Models\ItemTranslation;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreItemTranslationRequest extends FormRequest
 {
@@ -20,6 +21,7 @@ class StoreItemTranslationRequest extends FormRequest
         $this->preparePairsField('extra');
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         return [
@@ -61,9 +63,9 @@ class StoreItemTranslationRequest extends FormRequest
     /**
      * Add uniqueness validation for the combination of item_id, language_id, and context_id.
      */
-    public function withValidator($validator): void
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             $exists = ItemTranslation::where('item_id', $this->item_id)
                 ->where('language_id', $this->language_id)
                 ->where('context_id', $this->context_id)

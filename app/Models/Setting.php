@@ -24,7 +24,10 @@ class Setting extends Model
             return $default;
         }
 
-        return static::castValue($setting->value, $setting->type);
+        $valueRaw = $setting->getAttribute('value');
+        $typeRaw = $setting->getAttribute('type');
+
+        return static::castValue(is_string($valueRaw) ? $valueRaw : '', is_string($typeRaw) ? $typeRaw : 'string');
     }
 
     /**
@@ -47,7 +50,7 @@ class Setting extends Model
     /**
      * Cast string value to appropriate type
      */
-    private static function castValue(string $value, string $type): mixed
+    protected static function castValue(string $value, string $type): mixed
     {
         return match ($type) {
             'boolean' => $value === 'true',
@@ -61,12 +64,12 @@ class Setting extends Model
     /**
      * Convert value to string for storage
      */
-    private static function valueToString(mixed $value, string $type): string
+    protected static function valueToString(mixed $value, string $type): string
     {
         return match ($type) {
             'boolean' => $value ? 'true' : 'false',
-            'json' => json_encode($value),
-            default => (string) $value,
+            'json' => (string) json_encode($value),
+            default => is_scalar($value) ? (string) $value : '',
         };
     }
 }

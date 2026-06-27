@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
@@ -28,7 +29,7 @@ class GenerateModelDocumentation extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $outputPath = base_path('docs/_model/index.md');
 
@@ -67,6 +68,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get all model classes from the app/Models directory
+     *
+     * @return array<int, string>
      */
     private function getAllModels(): array
     {
@@ -100,6 +103,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Generate the complete documentation
+     *
+     * @param  array<int, string>  $models
      */
     private function generateDocumentation(array $models): string
     {
@@ -121,7 +126,7 @@ class GenerateModelDocumentation extends Command
         $content[] = '## Overview';
         $content[] = '';
         $content[] = '- ** Total Models:** '.count($models);
-        $content[] = '- ** Database Connection:** '.config('database.default');
+        $content[] = '- ** Database Connection:** '.Config::string('database.default');
         $content[] = '- ** Laravel Version:** '.app()->version();
         $content[] = '';
 
@@ -152,6 +157,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Generate documentation for a single model
+     *
+     * @return list<string>
      */
     private function generateModelDocumentation(string $modelClass): array
     {
@@ -162,6 +169,7 @@ class GenerateModelDocumentation extends Command
         try {
             /** @var Model $model */
             $model = new $modelClass;
+            /** @var class-string $modelClass */
             $reflection = new ReflectionClass($modelClass);
 
             // Model header
@@ -196,6 +204,7 @@ class GenerateModelDocumentation extends Command
                 $content[] = '| Column | Type | Nullable | Default | Extra |';
                 $content[] = '|--------|------|----------|---------|-------|';
 
+                /** @var list<string> $columns */
                 $columns = Schema::getColumnListing($tableName);
                 foreach ($columns as $column) {
                     $columnDetails = $this->getColumnDetails($tableName, $column);
@@ -234,7 +243,8 @@ class GenerateModelDocumentation extends Command
                 $content[] = '| Attribute | Cast Type |';
                 $content[] = '|-----------|-----------|';
                 foreach ($casts as $attribute => $castType) {
-                    $content[] = "| `{$attribute}` | `{$castType}` |";
+                    $castTypeStr = is_scalar($castType) ? (string) $castType : '';
+                    $content[] = "| `{$attribute}` | `{$castTypeStr}` |";
                 }
                 $content[] = '';
             }
@@ -246,7 +256,7 @@ class GenerateModelDocumentation extends Command
                 $content[] = '';
                 $content[] = '```php';
                 foreach ($constants as $name => $value) {
-                    $valueStr = is_string($value) ? "'{$value}'" : (is_bool($value) ? ($value ? 'true' : 'false') : $value);
+                    $valueStr = is_string($value) ? "'{$value}'" : (is_bool($value) ? ($value ? 'true' : 'false') : (is_scalar($value) ? (string) $value : 'null'));
                     $content[] = "const {$name} = {$valueStr};";
                 }
                 $content[] = '```';
@@ -262,7 +272,7 @@ class GenerateModelDocumentation extends Command
                     if (! empty($relations)) {
                         $content[] = "#### {$type}";
                         foreach ($relations as $relation) {
-                            $relatedModel = isset($relation['related']) ? class_basename($relation['related']) : 'Unknown';
+                            $relatedModel = class_basename($relation['related']);
                             $relatedAnchor = strtolower(str_replace('\\', '-', $relatedModel));
                             $content[] = "- **`{$relation['method']}()`**: {$relation['type']} [{$relatedModel}](#{$relatedAnchor})";
                         }
@@ -292,6 +302,8 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get column details from database schema
+     *
+     * @return array{type: string, nullable: string, default: string, extra: string}
      */
     private function getColumnDetails(string $tableName, string $columnName): array
     {
@@ -318,6 +330,9 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get model relationships using reflection
+     *
+     * @param  ReflectionClass<object>  $reflection
+     * @return array<string, list<array{method: string, type: string, related: string}>>
      */
     private function getModelRelationships(Model $model, ReflectionClass $reflection): array
     {
@@ -398,6 +413,9 @@ class GenerateModelDocumentation extends Command
 
     /**
      * Get model scopes using reflection
+     *
+     * @param  ReflectionClass<object>  $reflection
+     * @return list<string>
      */
     private function getModelScopes(ReflectionClass $reflection): array
     {

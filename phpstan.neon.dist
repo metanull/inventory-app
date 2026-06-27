@@ -7,6 +7,12 @@ parameters:
 
     level: 5
 
+    databaseMigrationsPath:
+        - database/migrations
+
     ignoreErrors:
+
+    stubFiles:
+        - phpstan-stubs/spatie-permission.php
 
     excludePaths:

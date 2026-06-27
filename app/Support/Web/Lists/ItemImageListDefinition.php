@@ -34,6 +34,10 @@ final class ItemImageListDefinition extends ListDefinition
         return ['item_images.path', 'item_images.original_name', 'item_images.alt_text'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

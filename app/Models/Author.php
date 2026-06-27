@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\AuthorFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Author extends Model
 {
+    /** @use HasFactory<AuthorFactory> */
     use HasFactory, HasUuids;
 
     /**
@@ -39,6 +41,8 @@ class Author extends Model
 
     /**
      * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
      */
     public function uniqueIds(): array
     {
@@ -48,7 +52,7 @@ class Author extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getInternalNameAttribute($value): ?string
+    public function getInternalNameAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -56,7 +60,7 @@ class Author extends Model
     /**
      * Mutator to ensure null values instead of empty strings
      */
-    public function setInternalNameAttribute($value): void
+    public function setInternalNameAttribute(mixed $value): void
     {
         $this->attributes['internal_name'] = $value === '' ? null : $value;
     }
@@ -64,7 +68,7 @@ class Author extends Model
     /**
      * Accessor to ensure null values instead of empty strings
      */
-    public function getBackwardCompatibilityAttribute($value): ?string
+    public function getBackwardCompatibilityAttribute(?string $value): ?string
     {
         return $value === '' ? null : $value;
     }
@@ -72,13 +76,15 @@ class Author extends Model
     /**
      * Mutator to ensure null values instead of empty strings
      */
-    public function setBackwardCompatibilityAttribute($value): void
+    public function setBackwardCompatibilityAttribute(mixed $value): void
     {
         $this->attributes['backward_compatibility'] = $value === '' ? null : $value;
     }
 
     /**
      * Get the translations for this author.
+     *
+     * @return HasMany<AuthorTranslation, $this>
      */
     public function translations(): HasMany
     {

@@ -11,6 +11,7 @@ use App\Http\Responses\CustomLogoutResponse;
 use App\Http\Responses\CustomPasswordResetResponse;
 use App\Http\Responses\CustomRegisterResponse;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\SafeTwoFactorAuthenticationProvider;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -77,7 +78,8 @@ class FortifyServiceProvider extends ServiceProvider
         );
 
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $inputRaw = $request->input(Fortify::username());
+            $throttleKey = Str::transliterate(Str::lower(is_string($inputRaw) ? $inputRaw : '').'|'.$request->ip());
 
             // Allow more attempts in testing environment
             $maxAttempts = app()->environment('testing') ? 50 : 5;
@@ -93,10 +95,11 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         // Listen for logout events to clear remember tokens and 2FA challenge session
-        Event::listen(Logout::class, function ($event) {
-            if ($event->user) {
-                $event->user->setRememberToken(null);
-                $event->user->save();
+        Event::listen(Logout::class, function (Logout $event): void {
+            $user = $event->user;
+            if ($user instanceof User) {
+                $user->setRememberToken('');
+                $user->save();
             }
 
             // Clear 2FA challenge session

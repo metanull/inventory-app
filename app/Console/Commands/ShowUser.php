@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use Spatie\Permission\Models\Role;
 
 class ShowUser extends Command
 {
@@ -39,8 +40,8 @@ class ShowUser extends Command
         $this->line("ID: {$user->id}");
         $this->line("Name: {$user->name}");
         $this->line("Email: {$user->email}");
-        $this->line("Created: {$user->created_at->format('Y-m-d H:i:s')}");
-        $this->line("Updated: {$user->updated_at->format('Y-m-d H:i:s')}");
+        $this->line("Created: {$user->created_at?->format('Y-m-d H:i:s')}");
+        $this->line("Updated: {$user->updated_at?->format('Y-m-d H:i:s')}");
 
         $this->newLine();
 
@@ -50,6 +51,7 @@ class ShowUser extends Command
         } else {
             $this->info('Assigned Roles:');
             foreach ($user->roles as $role) {
+                /** @var Role $role */
                 $this->line("  • {$role->name}");
             }
 
@@ -57,7 +59,7 @@ class ShowUser extends Command
             $this->info('Permissions (via roles):');
             $permissions = $user->getAllPermissions()->pluck('name')->unique()->sort();
             foreach ($permissions as $permission) {
-                $this->line("  • {$permission}");
+                $this->line('  • '.(is_string($permission) ? $permission : ''));
             }
         }
 

@@ -32,10 +32,13 @@ class InfoController extends Controller
     {
         $healthChecks = $this->performHealthChecks();
 
+        $versionResource = $this->version();
+        $versionData = is_array($versionResource->resource) ? $versionResource->resource : [];
+
         $info = [
             'application' => [
                 'name' => config('app.name'),
-                'version' => $this->version()->resource['app_version'] ?? '1.0.0-dev',
+                'version' => $versionData['app_version'] ?? '1.0.0-dev',
                 'environment' => config('app.env'),
             ],
             'health' => [
@@ -79,16 +82,16 @@ class InfoController extends Controller
      * Simple endpoint that returns just the version information
      * for deployment tracking and API compatibility checks.
      *
-     * @return JsonResponse Version information
+     * @return VersionResource Version information
      */
-    public function version()
+    public function version(): VersionResource
     {
         // If a deployment has produced a VERSION file at repo root, return its content as-is.
         $versionPath = base_path('VERSION');
         if (file_exists($versionPath)) {
             try {
                 $raw = @file_get_contents($versionPath);
-                $decoded = @json_decode($raw, true);
+                $decoded = @json_decode((string) $raw, true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                     return new VersionResource($decoded);
                 }
@@ -101,7 +104,7 @@ class InfoController extends Controller
         return new VersionResource([
             'repository' => null,
             'build_timestamp' => [
-                'value' => '/Date('.(now()->timestamp * 1000).')/',
+                'value' => '/Date('.((int) now()->timestamp * 1000).')/',
                 'DisplayHint' => 2,
                 'DateTime' => now()->format('l j F Y H:i:s'),
             ],
@@ -118,7 +121,7 @@ class InfoController extends Controller
      * Checks the health of key application dependencies including
      * database connectivity and cache functionality.
      *
-     * @return array Health check results with overall status
+     * @return array<string, mixed> Health check results with overall status
      */
     private function performHealthChecks(): array
     {

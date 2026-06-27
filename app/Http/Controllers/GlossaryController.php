@@ -10,13 +10,16 @@ use App\Http\Requests\Api\StoreGlossaryRequest;
 use App\Http\Requests\Api\UpdateGlossaryRequest;
 use App\Http\Resources\GlossaryResource;
 use App\Models\Glossary;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class GlossaryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexGlossaryRequest $request)
+    public function index(IndexGlossaryRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +37,8 @@ class GlossaryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return GlossaryResource
      */
-    public function store(StoreGlossaryRequest $request)
+    public function store(StoreGlossaryRequest $request): GlossaryResource
     {
         $validated = $request->validated();
         $glossary = Glossary::create($validated);
@@ -49,7 +50,7 @@ class GlossaryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowGlossaryRequest $request, Glossary $glossary)
+    public function show(ShowGlossaryRequest $request, Glossary $glossary): GlossaryResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -61,10 +62,8 @@ class GlossaryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return GlossaryResource
      */
-    public function update(UpdateGlossaryRequest $request, Glossary $glossary)
+    public function update(UpdateGlossaryRequest $request, Glossary $glossary): GlossaryResource
     {
         $validated = $request->validated();
         $glossary->update($validated);
@@ -76,7 +75,7 @@ class GlossaryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Glossary $glossary)
+    public function destroy(Glossary $glossary): Response
     {
         $glossary->delete();
 
@@ -85,10 +84,8 @@ class GlossaryController extends Controller
 
     /**
      * Attach a synonym to the glossary entry.
-     *
-     * @return GlossaryResource
      */
-    public function attachSynonym(AttachGlossarySynonymRequest $request, Glossary $glossary)
+    public function attachSynonym(AttachGlossarySynonymRequest $request, Glossary $glossary): GlossaryResource|JsonResponse
     {
         $validated = $request->validated();
         $synonymId = $validated['synonym_id'];
@@ -112,10 +109,8 @@ class GlossaryController extends Controller
 
     /**
      * Detach a synonym from the glossary entry.
-     *
-     * @return GlossaryResource
      */
-    public function detachSynonym(DetachGlossarySynonymRequest $request, Glossary $glossary)
+    public function detachSynonym(DetachGlossarySynonymRequest $request, Glossary $glossary): GlossaryResource
     {
         $validated = $request->validated();
         $synonymId = $validated['synonym_id'];

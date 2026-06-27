@@ -74,8 +74,10 @@ class ItemTranslationResource extends Resource
                         table: 'item_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?ItemTranslation $record): Unique => $rule
-                            ->where('item_id', $get('item_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn (\Illuminate\Database\Query\Builder $q) => $q
+                                ->where('item_id', $get('item_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )
@@ -188,17 +190,17 @@ class ItemTranslationResource extends Resource
                     ->schema([
                         TextEntry::make('item.internal_name')
                             ->label('Item')
-                            ->url(fn ($record): ?string => $record->item
+                            ->url(fn (ItemTranslation $record): ?string => $record->item
                                 ? (auth()->user()?->can('view', $record->item) ? ItemResource::getUrl('view', ['record' => $record->item]) : null)
                                 : null),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (ItemTranslation $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (ItemTranslation $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                     ])
@@ -243,22 +245,22 @@ class ItemTranslationResource extends Resource
                     ->schema([
                         TextEntry::make('author.name')
                             ->label('Author')
-                            ->url(fn ($record): ?string => $record->author
+                            ->url(fn (ItemTranslation $record): ?string => $record->author
                                 ? (auth()->user()?->can('view', $record->author) ? AuthorResource::getUrl('view', ['record' => $record->author]) : null)
                                 : null),
                         TextEntry::make('textCopyEditor.name')
                             ->label('Text copy editor')
-                            ->url(fn ($record): ?string => $record->textCopyEditor
+                            ->url(fn (ItemTranslation $record): ?string => $record->textCopyEditor
                                 ? (auth()->user()?->can('view', $record->textCopyEditor) ? AuthorResource::getUrl('view', ['record' => $record->textCopyEditor]) : null)
                                 : null),
                         TextEntry::make('translator.name')
                             ->label('Translator')
-                            ->url(fn ($record): ?string => $record->translator
+                            ->url(fn (ItemTranslation $record): ?string => $record->translator
                                 ? (auth()->user()?->can('view', $record->translator) ? AuthorResource::getUrl('view', ['record' => $record->translator]) : null)
                                 : null),
                         TextEntry::make('translationCopyEditor.name')
                             ->label('Translation copy editor')
-                            ->url(fn ($record): ?string => $record->translationCopyEditor
+                            ->url(fn (ItemTranslation $record): ?string => $record->translationCopyEditor
                                 ? (auth()->user()?->can('view', $record->translationCopyEditor) ? AuthorResource::getUrl('view', ['record' => $record->translationCopyEditor]) : null)
                                 : null),
                     ])
@@ -288,7 +290,7 @@ class ItemTranslationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (ItemTranslation $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
                 'item:id,internal_name',
                 'language:id,internal_name,is_default',

@@ -142,11 +142,9 @@ class SyncPermissionsCommandTest extends TestCase
 
     public function test_command_updates_role_descriptions(): void
     {
-        // Create a role with old description
-        $role = Role::create([
-            'name' => 'Regular User',
-            'description' => 'Old description',
-        ]);
+        // Use the seeded role and set an old description
+        $role = Role::where('name', 'Regular User')->first();
+        $role->update(['description' => 'Old description']);
 
         $this->artisan('permissions:sync')
             ->assertExitCode(0);
@@ -158,13 +156,9 @@ class SyncPermissionsCommandTest extends TestCase
 
     public function test_command_updates_role_permissions_when_changed(): void
     {
-        // Create Regular User role with wrong permissions
-        $role = Role::create([
-            'name' => 'Regular User',
-            'description' => 'Standard user with data operation access',
-        ]);
-
-        // Give it only VIEW_DATA permission (missing others)
+        // Use the seeded role and reset to only VIEW_DATA (missing others)
+        $role = Role::where('name', 'Regular User')->first();
+        $role->permissions()->detach();
         $role->givePermissionTo(PermissionEnum::VIEW_DATA->value);
 
         $this->artisan('permissions:sync')

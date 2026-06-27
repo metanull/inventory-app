@@ -43,12 +43,16 @@ final class CollectionListDefinition extends ListDefinition
         return ['context', 'language'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([
             'parent_id' => $this->normalizeNullableString($input['parent_id'] ?? null),
             'mode' => $this->normalizeMode($input['mode'] ?? null),
-        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     private function normalizeNullableString(mixed $value): ?string

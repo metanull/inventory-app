@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasJsonFields;
+use Database\Factories\LanguageTranslationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class LanguageTranslation extends Model
 {
+    /** @use HasFactory<LanguageTranslationFactory> */
     use HasFactory, HasJsonFields, HasUuids;
 
     /**
@@ -30,7 +32,7 @@ class LanguageTranslation extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'language_id',
@@ -61,6 +63,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
      */
     protected function extraDecoded(): Attribute
     {
@@ -71,6 +75,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the language being translated.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {
@@ -79,6 +85,8 @@ class LanguageTranslation extends Model
 
     /**
      * Get the language this translation is displayed in.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function displayLanguage(): BelongsTo
     {
@@ -88,11 +96,10 @@ class LanguageTranslation extends Model
     /**
      * Scope a query to only include translations displayed in a specific language.
      *
-     * @param  Builder  $query
-     * @param  string  $displayLanguageId
-     * @return Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
-    public function scopeForDisplayLanguage($query, $displayLanguageId)
+    public function scopeForDisplayLanguage(Builder $query, string $displayLanguageId): Builder
     {
         return $query->where('display_language_id', $displayLanguageId);
     }

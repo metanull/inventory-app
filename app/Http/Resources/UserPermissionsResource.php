@@ -17,8 +17,10 @@ class UserPermissionsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'permissions' => $this->resource['permissions'] ?? [],
+            'permissions' => $data['permissions'] ?? [],
         ];
     }
 }

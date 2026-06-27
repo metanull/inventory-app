@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,11 +13,14 @@ class StoreCountryTranslationRequest extends FormRequest
         return $this->user() !== null;
     }
 
+    /** @return array<string, mixed> */
     public function rules(): array
     {
         $uniqueRule = Rule::unique('country_translations')
-            ->where('country_id', $this->input('country_id'))
-            ->where('language_id', $this->input('language_id'));
+            ->where(fn (Builder $q) => $q
+                ->where('country_id', $this->input('country_id'))
+                ->where('language_id', $this->input('language_id'))
+            );
 
         return [
             'id' => ['prohibited'],

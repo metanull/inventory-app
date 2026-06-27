@@ -9,13 +9,18 @@ use Illuminate\Support\Collection;
 class TranslationSectionData
 {
     /**
-     * @param  Collection<int, mixed>  $translations
-     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, mixed>}>
+     * @template TTranslation
+     *
+     * @param  Collection<int, TTranslation>  $translations
+     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}>
      */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
         if ($translations->isEmpty()) {
-            return collect();
+            /** @var Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}> $empty */
+            $empty = collect([]);
+
+            return $empty;
         }
 
         $defaultLanguageId = Language::query()
@@ -23,17 +28,23 @@ class TranslationSectionData
             ->value('id');
 
         $sortedTranslations = $translations
-            ->sortBy(fn ($translation): string => sprintf(
-                '%d-%s',
-                $translation->language_id === $defaultLanguageId ? 0 : 1,
-                $translation->language?->internal_name ?? $translation->language_id
-            ))
+            ->sortBy(function ($translation) use ($defaultLanguageId): string {
+                /** @var object{language_id: string|null, language: object{internal_name: string|null}|null} $translation */
+                return sprintf(
+                    '%d-%s',
+                    $translation->language_id === $defaultLanguageId ? 0 : 1,
+                    $translation->language->internal_name ?? $translation->language_id
+                );
+            })
             ->values();
 
         if (! $groupByContext) {
+            /** @var string|null $label */
+            $label = null;
+
             return collect([
                 [
-                    'label' => null,
+                    'label' => $label,
                     'is_default' => false,
                     'translations' => $sortedTranslations,
                 ],
@@ -44,29 +55,42 @@ class TranslationSectionData
             ->where('is_default', true)
             ->value('id');
 
-        return $sortedTranslations
-            ->groupBy(fn ($translation): string => $translation->context_id ?? '__none__')
+        /** @var Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}> $result */
+        $result = $sortedTranslations
+            ->groupBy(function ($translation): string {
+                /** @var object{context_id: string|null} $translation */
+                return $translation->context_id ?? '__none__';
+            })
             ->map(function (Collection $group, string $contextKey) use ($defaultContextId): array {
-                $context = $group->first()?->context;
+                /** @var object{context: Context|null}|null $firstItem */
+                $firstItem = $group->first();
+                $context = is_object($firstItem) ? $firstItem->context : null;
                 $isDefaultContext = $context?->id === $defaultContextId;
+                /** @var string|null $label */
+                $label = $context !== null ? $context->internal_name : 'No Context';
 
                 return [
-                    'label' => $context?->internal_name ?? 'No Context',
+                    'label' => $label,
                     'is_default' => $isDefaultContext,
                     'translations' => $group->values(),
                     'sort_key' => sprintf(
                         '%d-%s',
                         $isDefaultContext ? 0 : ($contextKey === '__none__' ? 2 : 1),
-                        $context?->internal_name ?? 'zzz'
+                        $context !== null ? $context->internal_name : 'zzz'
                     ),
                 ];
             })
             ->sortBy('sort_key')
             ->values()
             ->map(function (array $group): array {
-                unset($group['sort_key']);
-
-                return $group;
+                /** @var array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>, sort_key: string} $group */
+                return [
+                    'label' => $group['label'],
+                    'is_default' => $group['is_default'],
+                    'translations' => $group['translations'],
+                ];
             });
+
+        return $result;
     }
 }

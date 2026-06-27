@@ -42,8 +42,8 @@ class GlossaryTranslationController extends Controller
     public function create(Glossary $glossary): View
     {
         $usedLanguageIds = $glossary->translations()->pluck('language_id')->toArray();
-        $languageOptions = Language::orderBy('internal_name')->get()->map(function ($lang) use ($usedLanguageIds) {
-            $lang->disabled = in_array($lang->id, $usedLanguageIds);
+        $languageOptions = Language::orderBy('internal_name')->get()->map(function (Language $lang) use ($usedLanguageIds) {
+            $lang->setAttribute('disabled', in_array($lang->id, $usedLanguageIds));
 
             return $lang;
         });
@@ -87,8 +87,8 @@ class GlossaryTranslationController extends Controller
             ->where('id', '!=', $translation->id)
             ->pluck('language_id')
             ->toArray();
-        $languageOptions = Language::orderBy('internal_name')->get()->map(function ($lang) use ($usedLanguageIds) {
-            $lang->disabled = in_array($lang->id, $usedLanguageIds);
+        $languageOptions = Language::orderBy('internal_name')->get()->map(function (Language $lang) use ($usedLanguageIds) {
+            $lang->setAttribute('disabled', in_array($lang->id, $usedLanguageIds));
 
             return $lang;
         });

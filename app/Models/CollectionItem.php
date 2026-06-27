@@ -38,7 +38,7 @@ class CollectionItem extends Pivot
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'collection_id',
@@ -59,6 +59,8 @@ class CollectionItem extends Pivot
 
     /**
      * Get the collection that owns the pivot.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -67,6 +69,8 @@ class CollectionItem extends Pivot
 
     /**
      * Get the item that owns the pivot.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {
@@ -80,7 +84,10 @@ class CollectionItem extends Pivot
      */
     public function contextualDescriptions(): array
     {
-        return (array) ($this->extra['contextual_descriptions'] ?? []);
+        $extra = is_array($this->extra) ? $this->extra : [];
+
+        /** @var array<string, string> */
+        return (array) ($extra['contextual_descriptions'] ?? []);
     }
 
     /**
@@ -112,7 +119,10 @@ class CollectionItem extends Pivot
      */
     public function sourceBackwardCompatibilityByLanguage(): array
     {
-        return (array) ($this->extra['source_bc_by_language'] ?? []);
+        $extra = is_array($this->extra) ? $this->extra : [];
+
+        /** @var array<string, string> */
+        return (array) ($extra['source_bc_by_language'] ?? []);
     }
 
     /**

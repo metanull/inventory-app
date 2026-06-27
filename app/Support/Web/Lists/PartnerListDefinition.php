@@ -35,11 +35,15 @@ final class PartnerListDefinition extends ListDefinition
         return ['country'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([
             'country_id' => $this->normalizeNullableString($input['country_id'] ?? null),
-        ], static fn (mixed $value): bool => $value !== null && $value !== []);
+        ], static fn (mixed $value): bool => $value !== null);
     }
 
     private function normalizeNullableString(mixed $value): ?string

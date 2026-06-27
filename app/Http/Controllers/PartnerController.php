@@ -10,13 +10,15 @@ use App\Http\Resources\PartnerResource;
 use App\Models\Partner;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class PartnerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerRequest $request)
+    public function index(IndexPartnerRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class PartnerController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerResource
      */
-    public function store(StorePartnerRequest $request)
+    public function store(StorePartnerRequest $request): PartnerResource
     {
         $validated = $request->validated();
         $partner = Partner::create($validated);
@@ -51,7 +51,7 @@ class PartnerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerRequest $request, Partner $partner)
+    public function show(ShowPartnerRequest $request, Partner $partner): PartnerResource
     {
         $includes = $request->getIncludeParams();
         $partner->load($includes);
@@ -61,10 +61,8 @@ class PartnerController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerResource
      */
-    public function update(UpdatePartnerRequest $request, Partner $partner)
+    public function update(UpdatePartnerRequest $request, Partner $partner): PartnerResource
     {
         $validated = $request->validated();
         $partner->update($validated);
@@ -78,7 +76,7 @@ class PartnerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Partner $partner)
+    public function destroy(Partner $partner): Response
     {
         $partner->delete();
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TimelineFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timeline extends Model
 {
+    /** @use HasFactory<TimelineFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -37,6 +40,8 @@ class Timeline extends Model
 
     /**
      * Get the country for this timeline.
+     *
+     * @return BelongsTo<Country, $this>
      */
     public function country(): BelongsTo
     {
@@ -45,6 +50,8 @@ class Timeline extends Model
 
     /**
      * Get the collection associated with this timeline.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -53,6 +60,8 @@ class Timeline extends Model
 
     /**
      * Get the events for this timeline.
+     *
+     * @return HasMany<TimelineEvent, $this>
      */
     public function events(): HasMany
     {

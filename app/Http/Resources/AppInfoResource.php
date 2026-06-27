@@ -17,10 +17,12 @@ class AppInfoResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'application' => $this->resource['application'] ?? [],
-            'health' => $this->resource['health'] ?? [],
-            'timestamp' => $this->resource['timestamp'] ?? now()->toISOString(),
+            'application' => $data['application'] ?? [],
+            'health' => $data['health'] ?? [],
+            'timestamp' => $data['timestamp'] ?? now()->toISOString(),
         ];
     }
 }

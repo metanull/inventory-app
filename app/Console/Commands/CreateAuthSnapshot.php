@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Support\AuthSnapshots\AuthSnapshotFile;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -126,11 +127,14 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table($table)
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($table)
             ->orderBy('id')
             ->get()
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -138,17 +142,22 @@ class CreateAuthSnapshot extends Command
      */
     protected function roleAssignments(): array
     {
-        $tables = config('permission.table_names');
-        $columns = config('permission.column_names');
-        $modelKey = $columns['model_morph_key'] ?? 'model_id';
-        $roleKey = $columns['role_pivot_key'] ?? 'role_id';
+        $tables = Config::array('permission.table_names');
+        $columns = Config::array('permission.column_names');
+        $modelKeyRaw = $columns['model_morph_key'] ?? 'model_id';
+        $modelKey = is_string($modelKeyRaw) ? $modelKeyRaw : 'model_id';
+        $roleKeyRaw = $columns['role_pivot_key'] ?? 'role_id';
+        $roleKey = is_string($roleKeyRaw) ? $roleKeyRaw : 'role_id';
+        $modelHasRolesTable = is_string($tables['model_has_roles'] ?? null) ? $tables['model_has_roles'] : '';
+        $rolesTable = is_string($tables['roles'] ?? null) ? $tables['roles'] : '';
 
-        if (! Schema::hasTable($tables['model_has_roles']) || ! Schema::hasTable($tables['roles'])) {
+        if (! Schema::hasTable($modelHasRolesTable) || ! Schema::hasTable($rolesTable)) {
             return [];
         }
 
-        return DB::table($tables['model_has_roles'].' as assignment')
-            ->join($tables['roles'].' as role', 'role.id', '=', 'assignment.'.$roleKey)
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($modelHasRolesTable.' as assignment')
+            ->join($rolesTable.' as role', 'role.id', '=', 'assignment.'.$roleKey)
             ->where('assignment.model_type', User::class)
             ->orderBy('assignment.'.$modelKey)
             ->orderBy('role.name')
@@ -160,6 +169,8 @@ class CreateAuthSnapshot extends Command
             ])
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -167,17 +178,22 @@ class CreateAuthSnapshot extends Command
      */
     protected function permissionAssignments(): array
     {
-        $tables = config('permission.table_names');
-        $columns = config('permission.column_names');
-        $modelKey = $columns['model_morph_key'] ?? 'model_id';
-        $permissionKey = $columns['permission_pivot_key'] ?? 'permission_id';
+        $tables = Config::array('permission.table_names');
+        $columns = Config::array('permission.column_names');
+        $modelKeyRaw = $columns['model_morph_key'] ?? 'model_id';
+        $modelKey = is_string($modelKeyRaw) ? $modelKeyRaw : 'model_id';
+        $permissionKeyRaw = $columns['permission_pivot_key'] ?? 'permission_id';
+        $permissionKey = is_string($permissionKeyRaw) ? $permissionKeyRaw : 'permission_id';
+        $modelHasPermissionsTable = is_string($tables['model_has_permissions'] ?? null) ? $tables['model_has_permissions'] : '';
+        $permissionsTable = is_string($tables['permissions'] ?? null) ? $tables['permissions'] : '';
 
-        if (! Schema::hasTable($tables['model_has_permissions']) || ! Schema::hasTable($tables['permissions'])) {
+        if (! Schema::hasTable($modelHasPermissionsTable) || ! Schema::hasTable($permissionsTable)) {
             return [];
         }
 
-        return DB::table($tables['model_has_permissions'].' as assignment')
-            ->join($tables['permissions'].' as permission', 'permission.id', '=', 'assignment.'.$permissionKey)
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table($modelHasPermissionsTable.' as assignment')
+            ->join($permissionsTable.' as permission', 'permission.id', '=', 'assignment.'.$permissionKey)
             ->where('assignment.model_type', User::class)
             ->orderBy('assignment.'.$modelKey)
             ->orderBy('permission.name')
@@ -189,6 +205,8 @@ class CreateAuthSnapshot extends Command
             ])
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 
     /**
@@ -200,11 +218,14 @@ class CreateAuthSnapshot extends Command
             return [];
         }
 
-        return DB::table('personal_access_tokens')
+        /** @var array<int, array<string, mixed>> $result */
+        $result = DB::table('personal_access_tokens')
             ->where('tokenable_type', User::class)
             ->orderBy('id')
             ->get()
             ->map(fn (object $row): array => (array) $row)
             ->all();
+
+        return $result;
     }
 }

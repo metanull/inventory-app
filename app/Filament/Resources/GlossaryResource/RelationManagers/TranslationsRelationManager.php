@@ -4,6 +4,7 @@ namespace App\Filament\Resources\GlossaryResource\RelationManagers;
 
 use App\Filament\Resources\LanguageResource;
 use App\Filament\Support\TranslationFormSchema;
+use App\Models\GlossaryTranslation;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -44,7 +45,7 @@ class TranslationsRelationManager extends RelationManager
                 TextColumn::make('language.internal_name')
                     ->label('Language')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->language
+                    ->url(fn (GlossaryTranslation $record): ?string => $record->language
                         ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                         : null),
                 TextColumn::make('definition')

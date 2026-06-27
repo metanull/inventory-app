@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Contributor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Contributor */
 class ContributorResource extends JsonResource
 {
     /**

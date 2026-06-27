@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Item;
 use App\Models\ItemImage;
 use App\Services\Web\ItemImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -41,7 +42,7 @@ class ItemImageController extends Controller
     /**
      * Show form to attach available image to item.
      */
-    public function create(Item $item)
+    public function create(Item $item): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -54,7 +55,8 @@ class ItemImageController extends Controller
     public function store(StoreItemImageRequest $request, Item $item): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         ItemImage::attachFromAvailableImage($availableImage, $item->id);
 
@@ -65,7 +67,7 @@ class ItemImageController extends Controller
     /**
      * Show form to edit item image.
      */
-    public function edit(Item $item, ItemImage $itemImage)
+    public function edit(Item $item, ItemImage $itemImage): View
     {
         // Ensure the image belongs to the item
         if ($itemImage->item_id !== $item->id) {
@@ -158,7 +160,7 @@ class ItemImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Item $item, ItemImage $itemImage)
+    public function download(Item $item, ItemImage $itemImage): Responsable
     {
         if ($itemImage->item_id !== $item->id) {
             abort(404);
@@ -170,7 +172,7 @@ class ItemImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Item $item, ItemImage $itemImage)
+    public function view(Item $item, ItemImage $itemImage): Responsable
     {
         if ($itemImage->item_id !== $item->id) {
             abort(404);

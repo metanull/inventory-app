@@ -10,6 +10,10 @@ use App\Http\Resources\ImageUploadStatusResource;
 use App\Models\AvailableImage;
 use App\Models\ImageUpload;
 use App\Models\ItemImage;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class ImageUploadController extends Controller
@@ -17,7 +21,7 @@ class ImageUploadController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return ImageUploadResource::collection(ImageUpload::all());
     }
@@ -25,16 +29,16 @@ class ImageUploadController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreImageUploadRequest $request)
+    public function store(StoreImageUploadRequest $request): ImageUploadResource
     {
         $validated = $request->validated();
 
         // Store the file in the local/private directory and disk.
         $file = $request->file('file');
-        $storagePath = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
+        $storagePath = $file->store(Config::string('localstorage.uploads.images.directory'), Config::string('localstorage.uploads.images.disk'));
 
         // Store only filename in database (no directory)
-        $validated['path'] = basename($storagePath);
+        $validated['path'] = basename((string) $storagePath);
 
         $imageUpload = ImageUpload::create($validated);
         $imageUpload->refresh();
@@ -53,7 +57,7 @@ class ImageUploadController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ImageUpload $imageUpload)
+    public function show(ImageUpload $imageUpload): ImageUploadResource
     {
         return new ImageUploadResource($imageUpload);
     }
@@ -64,7 +68,7 @@ class ImageUploadController extends Controller
      * Returns the processing status. If processing is complete, returns the AvailableImage details.
      * If the ImageUpload no longer exists, check if an AvailableImage exists with the same ID.
      */
-    public function status(string $id)
+    public function status(string $id): ImageUploadStatusResource|JsonResponse
     {
         // First check if the ImageUpload still exists (processing not complete)
         $imageUpload = ImageUpload::find($id);
@@ -106,9 +110,11 @@ class ImageUploadController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ImageUpload $imageUpload)
+    public function destroy(ImageUpload $imageUpload): Response
     {
-        Storage::delete($imageUpload->path);
+        if ($imageUpload->path !== null) {
+            Storage::delete($imageUpload->path);
+        }
         $imageUpload->delete();
 
         return response()->noContent();

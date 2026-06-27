@@ -15,13 +15,17 @@ use App\Models\PartnerTranslation;
 use App\Models\PartnerTranslationImage;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 class PartnerTranslationImageController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerTranslationImageRequest $request)
+    public function index(IndexPartnerTranslationImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -39,10 +43,8 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerTranslationImageResource
      */
-    public function store(StorePartnerTranslationImageRequest $request)
+    public function store(StorePartnerTranslationImageRequest $request): PartnerTranslationImageResource
     {
         $validated = $request->validated();
         $partnerTranslationImage = PartnerTranslationImage::create($validated);
@@ -56,7 +58,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerTranslationImageRequest $request, PartnerTranslationImage $partnerTranslationImage)
+    public function show(ShowPartnerTranslationImageRequest $request, PartnerTranslationImage $partnerTranslationImage): PartnerTranslationImageResource
     {
         $includes = $request->getIncludeParams();
         $partnerTranslationImage->load($includes);
@@ -66,10 +68,8 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerTranslationImageResource
      */
-    public function update(UpdatePartnerTranslationImageRequest $request, PartnerTranslationImage $partnerTranslationImage)
+    public function update(UpdatePartnerTranslationImageRequest $request, PartnerTranslationImage $partnerTranslationImage): PartnerTranslationImageResource
     {
         $validated = $request->validated();
         $partnerTranslationImage->update($validated);
@@ -83,7 +83,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerTranslationImage $partnerTranslationImage)
+    public function destroy(PartnerTranslationImage $partnerTranslationImage): Response
     {
         $partnerTranslationImage->delete();
 
@@ -93,7 +93,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Move partner translation image up in display order.
      */
-    public function moveUp(PartnerTranslationImage $partnerTranslationImage)
+    public function moveUp(PartnerTranslationImage $partnerTranslationImage): PartnerTranslationImageResource
     {
         $partnerTranslationImage->moveUp();
 
@@ -106,7 +106,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Move partner translation image down in display order.
      */
-    public function moveDown(PartnerTranslationImage $partnerTranslationImage)
+    public function moveDown(PartnerTranslationImage $partnerTranslationImage): PartnerTranslationImageResource
     {
         $partnerTranslationImage->moveDown();
 
@@ -119,7 +119,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Tighten ordering for all images of the partner translation.
      */
-    public function tightenOrdering(PartnerTranslationImage $partnerTranslationImage)
+    public function tightenOrdering(PartnerTranslationImage $partnerTranslationImage): OperationSuccessResource
     {
         $partnerTranslationImage->tightenOrderingForPartnerTranslation();
 
@@ -131,15 +131,15 @@ class PartnerTranslationImageController extends Controller
 
     /**
      * Attach an available image to a partner translation.
-     *
-     * @return PartnerTranslationImageResource
      */
-    public function attachFromAvailable(AttachFromAvailablePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation)
+    public function attachFromAvailable(AttachFromAvailablePartnerTranslationImageRequest $request, PartnerTranslation $partnerTranslation): PartnerTranslationImageResource
     {
         $validated = $request->validated();
 
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
-        $partnerTranslationImage = PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id, $validated['alt_text'] ?? null);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
+        $altTextRaw = $validated['alt_text'] ?? null;
+        $partnerTranslationImage = PartnerTranslationImage::attachFromAvailableImage($availableImage, $partnerTranslation->id, is_string($altTextRaw) ? $altTextRaw : null);
 
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -152,7 +152,7 @@ class PartnerTranslationImageController extends Controller
     /**
      * Detach a partner translation image and convert it back to available image.
      */
-    public function detachToAvailable(PartnerTranslationImage $partnerTranslationImage)
+    public function detachToAvailable(PartnerTranslationImage $partnerTranslationImage): OperationSuccessResource
     {
         $availableImage = $partnerTranslationImage->detachToAvailableImage();
 
@@ -166,10 +166,10 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerTranslationImage $partnerTranslationImage)
+    public function download(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerTranslationImage->original_name ?: basename($partnerTranslationImage->path);
 
         // Prepend directory to path
@@ -186,10 +186,10 @@ class PartnerTranslationImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerTranslationImage $partnerTranslationImage)
+    public function view(PartnerTranslationImage $partnerTranslationImage): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerTranslationImage->path;

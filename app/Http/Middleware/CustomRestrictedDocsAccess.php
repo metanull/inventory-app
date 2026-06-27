@@ -2,21 +2,20 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class CustomRestrictedDocsAccess
 {
-    public function handle($request, \Closure $next)
+    public function handle(Request $request, \Closure $next): mixed
     {
         // Allow access in local and testing environments
-        if (app()->environment(['local', 'testing'])) {
+        if (in_array(config('app.env'), ['local', 'testing'], true)) {
             return $next($request);
         }
 
-        // Check if API documentation is explicitly enabled via environment variable
-        // Handle boolean-like values properly (true, "true", "1", 1)
-        $apiDocsEnabled = env('API_DOCS_ENABLED', false);
-        if (filter_var($apiDocsEnabled, FILTER_VALIDATE_BOOLEAN)) {
+        // Check if API documentation is explicitly enabled via config
+        if (config('scramble.enabled', false)) {
             return $next($request);
         }
 

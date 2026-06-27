@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Services\MarkdownService;
+use Illuminate\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
@@ -65,7 +66,7 @@ class MarkdownEditor extends Component
         return app(MarkdownService::class)->markdownToHtml($this->content);
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.markdown-editor');
     }

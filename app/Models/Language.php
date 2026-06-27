@@ -2,12 +2,25 @@
 
 namespace App\Models;
 
+use Database\Factories\LanguageFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property string $internal_name
+ * @property string|null $backward_compatibility
+ * @property bool $is_default
+ * @property bool $disabled
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class Language extends Model
 {
+    /** @use HasFactory<LanguageFactory> */
     use HasFactory;
 
     public $incrementing = false; // Disable auto-incrementing
@@ -21,12 +34,20 @@ class Language extends Model
         'is_default',
     ];
 
-    public function scopeEnglish($query)
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeEnglish(Builder $query): Builder
     {
         return $query->where('id', 'eng');
     }
 
-    public function scopeDefault($query)
+    /**
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }
@@ -36,6 +57,7 @@ class Language extends Model
     ];
 
     // Mark a single row as the default
+    /** @return static */
     public function setDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -56,6 +78,7 @@ class Language extends Model
     }
 
     // Unmark a single row as the default
+    /** @return static */
     public function unsetDefault()
     {
         // Ensure the table has a 'default' column (boolean or integer)
@@ -73,9 +96,9 @@ class Language extends Model
     }
 
     // Clear all defaults
-    public static function clearDefault()
+    public static function clearDefault(): void
     {
-        return DB::transaction(function () {
+        DB::transaction(function () {
             // Set all rows' 'default' column to false (or 0)
             self::query()->update(['is_default' => false]);
         });
@@ -83,8 +106,10 @@ class Language extends Model
 
     /**
      * Get the translations for this language (how this language is named in other languages).
+     *
+     * @return HasMany<LanguageTranslation, $this>
      */
-    public function translations()
+    public function translations(): HasMany
     {
         return $this->hasMany(LanguageTranslation::class, 'language_id');
     }

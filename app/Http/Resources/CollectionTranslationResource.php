@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CollectionTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -10,6 +11,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *
  * Transforms CollectionTranslation model data for API responses.
  * Includes relationships and computed attributes for API consumption.
+ *
+ * @mixin CollectionTranslation
  */
 class CollectionTranslationResource extends JsonResource
 {

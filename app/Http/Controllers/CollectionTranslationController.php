@@ -8,6 +8,8 @@ use App\Http\Requests\Api\StoreCollectionTranslationRequest;
 use App\Http\Requests\Api\UpdateCollectionTranslationRequest;
 use App\Http\Resources\CollectionTranslationResource;
 use App\Models\CollectionTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 /**
  * @tags Collection Translations
@@ -17,7 +19,7 @@ class CollectionTranslationController extends Controller
     /**
      * Display a listing of collection translations
      */
-    public function index(IndexCollectionTranslationRequest $request)
+    public function index(IndexCollectionTranslationRequest $request): AnonymousResourceCollection
     {
         $query = CollectionTranslation::query();
 
@@ -49,7 +51,7 @@ class CollectionTranslationController extends Controller
     /**
      * Store a newly created collection translation
      */
-    public function store(StoreCollectionTranslationRequest $request)
+    public function store(StoreCollectionTranslationRequest $request): CollectionTranslationResource
     {
         $translation = CollectionTranslation::create($request->validated());
 
@@ -59,7 +61,7 @@ class CollectionTranslationController extends Controller
     /**
      * Display the specified collection translation
      */
-    public function show(ShowCollectionTranslationRequest $request, CollectionTranslation $collectionTranslation)
+    public function show(ShowCollectionTranslationRequest $request, CollectionTranslation $collectionTranslation): CollectionTranslationResource
     {
         return new CollectionTranslationResource($collectionTranslation->load(['collection', 'language', 'context']));
     }
@@ -67,7 +69,7 @@ class CollectionTranslationController extends Controller
     /**
      * Update the specified collection translation
      */
-    public function update(UpdateCollectionTranslationRequest $request, CollectionTranslation $collectionTranslation)
+    public function update(UpdateCollectionTranslationRequest $request, CollectionTranslation $collectionTranslation): CollectionTranslationResource
     {
         $collectionTranslation->update($request->validated());
 
@@ -77,7 +79,7 @@ class CollectionTranslationController extends Controller
     /**
      * Remove the specified collection translation
      */
-    public function destroy(CollectionTranslation $collectionTranslation)
+    public function destroy(CollectionTranslation $collectionTranslation): Response
     {
         $collectionTranslation->delete();
 

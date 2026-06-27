@@ -3,6 +3,7 @@
 namespace App\Services\Web;
 
 use App\Models\Collection;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class CollectionShowPageData
 {
@@ -17,11 +18,17 @@ class CollectionShowPageData
             'context',
             'language',
             'parent',
-            'children' => fn ($query) => $query->orderBy('display_order'),
+            'children' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
             'translations.context',
             'translations.language',
-            'attachedItems.itemImages' => fn ($query) => $query->orderBy('display_order'),
-            'collectionImages' => fn ($query) => $query->orderBy('display_order'),
+            'attachedItems.itemImages' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
+            'collectionImages' => function (Relation $query): void {
+                $query->orderBy('display_order');
+            },
         ]);
 
         return [

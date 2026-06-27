@@ -66,6 +66,7 @@ switch ($Fix) {
             -e COMPOSER_ALLOW_SUPERUSER=1 `
             -e COMPOSER_HOME=/tmp/composer-home `
             -e COMPOSER_CACHE_DIR=/tmp/composer-cache `
+            -e COMPOSER_SOURCE_FALLBACK=1 `
             app composer update --no-scripts --with-dependencies --no-interaction --no-progress --ansi
         if ($LASTEXITCODE -ne 0) { throw "Fix failed: composer update" }
     }

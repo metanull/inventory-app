@@ -42,6 +42,10 @@ final class CollectionTranslationListDefinition extends ListDefinition
         return ['language', 'context', 'collection'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

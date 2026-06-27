@@ -34,6 +34,8 @@ enum Permission: string
 
     /**
      * Get all permission values as an array
+     *
+     * @return array<int, string>
      */
     public static function all(): array
     {
@@ -42,6 +44,8 @@ enum Permission: string
 
     /**
      * Get data operation permissions
+     *
+     * @return array<int, string>
      */
     public static function dataOperations(): array
     {
@@ -55,6 +59,8 @@ enum Permission: string
 
     /**
      * Get user management permissions
+     *
+     * @return array<int, string>
      */
     public static function userManagement(): array
     {
@@ -67,6 +73,8 @@ enum Permission: string
 
     /**
      * Get role management permissions
+     *
+     * @return array<int, string>
      */
     public static function roleManagement(): array
     {
@@ -79,6 +87,8 @@ enum Permission: string
 
     /**
      * Get administrative permissions (user + role management + settings)
+     *
+     * @return array<int, string>
      */
     public static function administrative(): array
     {
@@ -94,6 +104,8 @@ enum Permission: string
 
     /**
      * Get sensitive permissions that require MFA
+     *
+     * @return array<int, string>
      */
     public static function sensitivePermissions(): array
     {

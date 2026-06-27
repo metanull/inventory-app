@@ -17,8 +17,10 @@ class MessageResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $data = is_array($this->resource) ? $this->resource : [];
+
         return [
-            'message' => $this->resource['message'] ?? '',
+            'message' => $data['message'] ?? '',
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Filament\Resources\CountryResource;
 use App\Filament\Resources\PartnerResource;
 use App\Filament\Support\PartnerDisplayLabel;
+use App\Models\Partner;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -31,7 +32,7 @@ class PartnersRelationManager extends RelationManager
             ->defaultPaginationPageOption(25)
             ->columns([
                 PartnerDisplayLabel::displayLabelColumn()
-                    ->url(fn ($record): ?string => auth()->user()?->can('view', $record)
+                    ->url(fn (Partner $record): ?string => auth()->user()?->can('view', $record)
                         ? PartnerResource::getUrl('view', ['record' => $record])
                         : null),
                 TextColumn::make('type')
@@ -39,7 +40,7 @@ class PartnersRelationManager extends RelationManager
                 TextColumn::make('country.internal_name')
                     ->label('Country')
                     ->sortable()
-                    ->url(fn ($record): ?string => $record->country
+                    ->url(fn (Partner $record): ?string => $record->country
                         ? (auth()->user()?->can('view', $record->country) ? CountryResource::getUrl('view', ['record' => $record->country]) : null)
                         : null),
                 TextColumn::make('internal_name')

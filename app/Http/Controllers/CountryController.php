@@ -10,13 +10,15 @@ use App\Http\Resources\CountryResource;
 use App\Models\Country;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class CountryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexCountryRequest $request)
+    public function index(IndexCountryRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -34,10 +36,8 @@ class CountryController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return CountryResource
      */
-    public function store(StoreCountryRequest $request)
+    public function store(StoreCountryRequest $request): CountryResource
     {
         $validated = $request->validated();
         $country = Country::create($validated);
@@ -51,7 +51,7 @@ class CountryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowCountryRequest $request, Country $country)
+    public function show(ShowCountryRequest $request, Country $country): CountryResource
     {
         $includes = $request->getIncludeParams();
         $country->load($includes);
@@ -61,10 +61,8 @@ class CountryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return CountryResource
      */
-    public function update(UpdateCountryRequest $request, Country $country)
+    public function update(UpdateCountryRequest $request, Country $country): CountryResource
     {
         $validated = $request->validated();
         $country->update($validated);
@@ -78,7 +76,7 @@ class CountryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Country $country)
+    public function destroy(Country $country): Response
     {
         $country->delete();
 

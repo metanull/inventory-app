@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ContributorFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contributor extends Model
 {
+    /** @use HasFactory<ContributorFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $fillable = [
@@ -28,6 +30,9 @@ class Contributor extends Model
         'visible' => 'boolean',
     ];
 
+    /**
+     * @return array<int, string>
+     */
     public function uniqueIds(): array
     {
         return ['id'];
@@ -40,11 +45,16 @@ class Contributor extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('collection_id', $this->collection_id);
+        /** @var Builder<static> $query */
+        $query = static::where('collection_id', $this->collection_id);
+
+        return $query;
     }
 
     /**
      * Get the collection this contributor belongs to.
+     *
+     * @return BelongsTo<Collection, $this>
      */
     public function collection(): BelongsTo
     {
@@ -53,6 +63,8 @@ class Contributor extends Model
 
     /**
      * Get the translations for this contributor.
+     *
+     * @return HasMany<ContributorTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -61,6 +73,8 @@ class Contributor extends Model
 
     /**
      * Get the images for this contributor.
+     *
+     * @return HasMany<ContributorImage, $this>
      */
     public function contributorImages(): HasMany
     {

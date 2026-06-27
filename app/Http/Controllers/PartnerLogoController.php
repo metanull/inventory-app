@@ -12,13 +12,17 @@ use App\Http\Responses\FileResponse;
 use App\Models\PartnerLogo;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 
 class PartnerLogoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexPartnerLogoRequest $request)
+    public function index(IndexPartnerLogoRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -36,10 +40,8 @@ class PartnerLogoController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @return PartnerLogoResource
      */
-    public function store(StorePartnerLogoRequest $request)
+    public function store(StorePartnerLogoRequest $request): PartnerLogoResource
     {
         $validated = $request->validated();
         $partnerLogo = PartnerLogo::create($validated);
@@ -53,7 +55,7 @@ class PartnerLogoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowPartnerLogoRequest $request, PartnerLogo $partnerLogo)
+    public function show(ShowPartnerLogoRequest $request, PartnerLogo $partnerLogo): PartnerLogoResource
     {
         $includes = $request->getIncludeParams();
         $partnerLogo->load($includes);
@@ -63,10 +65,8 @@ class PartnerLogoController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return PartnerLogoResource
      */
-    public function update(UpdatePartnerLogoRequest $request, PartnerLogo $partnerLogo)
+    public function update(UpdatePartnerLogoRequest $request, PartnerLogo $partnerLogo): PartnerLogoResource
     {
         $validated = $request->validated();
         $partnerLogo->update($validated);
@@ -80,7 +80,7 @@ class PartnerLogoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PartnerLogo $partnerLogo)
+    public function destroy(PartnerLogo $partnerLogo): Response
     {
         $partnerLogo->delete();
 
@@ -90,7 +90,7 @@ class PartnerLogoController extends Controller
     /**
      * Move partner logo up in display order.
      */
-    public function moveUp(PartnerLogo $partnerLogo)
+    public function moveUp(PartnerLogo $partnerLogo): PartnerLogoResource
     {
         $partnerLogo->moveUp();
 
@@ -103,7 +103,7 @@ class PartnerLogoController extends Controller
     /**
      * Move partner logo down in display order.
      */
-    public function moveDown(PartnerLogo $partnerLogo)
+    public function moveDown(PartnerLogo $partnerLogo): PartnerLogoResource
     {
         $partnerLogo->moveDown();
 
@@ -116,7 +116,7 @@ class PartnerLogoController extends Controller
     /**
      * Tighten ordering for all logos of the partner.
      */
-    public function tightenOrdering(PartnerLogo $partnerLogo)
+    public function tightenOrdering(PartnerLogo $partnerLogo): OperationSuccessResource
     {
         $partnerLogo->tightenOrderingForPartner();
 
@@ -129,10 +129,10 @@ class PartnerLogoController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(PartnerLogo $partnerLogo)
+    public function download(PartnerLogo $partnerLogo): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
         $filename = $partnerLogo->original_name ?: basename($partnerLogo->path);
 
         // Prepend directory to path
@@ -149,10 +149,10 @@ class PartnerLogoController extends Controller
     /**
      * Returns the logo file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(PartnerLogo $partnerLogo)
+    public function view(PartnerLogo $partnerLogo): Responsable
     {
-        $disk = config('localstorage.pictures.disk');
-        $directory = trim(config('localstorage.pictures.directory'), '/');
+        $disk = Config::string('localstorage.pictures.disk');
+        $directory = trim(Config::string('localstorage.pictures.directory'), '/');
 
         // Prepend directory to path
         $storagePath = $directory.'/'.$partnerLogo->path;

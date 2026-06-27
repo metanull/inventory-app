@@ -59,7 +59,7 @@ class ExtraJsonField
                     return $state;
                 }
 
-                $decoded = json_decode((string) $state, true);
+                $decoded = json_decode(is_scalar($state) ? (string) $state : '', true);
 
                 return is_array($decoded) ? $decoded : null;
             })
@@ -70,7 +70,7 @@ class ExtraJsonField
                             return;
                         }
 
-                        json_decode((string) $value);
+                        json_decode(is_scalar($value) ? (string) $value : '');
 
                         if (json_last_error() !== JSON_ERROR_NONE) {
                             $fail('The extra metadata must be valid JSON.');
@@ -103,7 +103,7 @@ class ExtraJsonField
                 );
 
                 return '<pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-50 text-gray-950 p-2 rounded">'
-                    .e($json)
+                    .e((string) $json)
                     .'</pre>';
             })
             ->columnSpanFull();
@@ -115,12 +115,12 @@ class ExtraJsonField
      *
      * Returns the original value unchanged when it is already an array or a scalar.
      */
-    private static function toArray(mixed $value): mixed
+    protected static function toArray(mixed $value): mixed
     {
         if (is_object($value)) {
             // JSON round-trip is the idiomatic way to deep-convert a stdClass graph
             // to an associative array (shallow `(array)` cast leaves nested objects intact).
-            return json_decode(json_encode($value), true);
+            return json_decode((string) json_encode($value), true);
         }
 
         if (is_string($value)) {

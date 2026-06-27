@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CountryTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin CountryTranslation */
 class CountryTranslationResource extends JsonResource
 {
     /**

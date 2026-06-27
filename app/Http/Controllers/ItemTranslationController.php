@@ -8,6 +8,8 @@ use App\Http\Requests\Api\StoreItemTranslationRequest;
 use App\Http\Requests\Api\UpdateItemTranslationRequest;
 use App\Http\Resources\ItemTranslationResource;
 use App\Models\ItemTranslation;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 /**
  * @tags Item Translations
@@ -17,7 +19,7 @@ class ItemTranslationController extends Controller
     /**
      * Display a listing of item translations
      */
-    public function index(IndexItemTranslationRequest $request)
+    public function index(IndexItemTranslationRequest $request): AnonymousResourceCollection
     {
         $query = ItemTranslation::query();
 
@@ -48,10 +50,8 @@ class ItemTranslationController extends Controller
 
     /**
      * Store a newly created item translation
-     *
-     * @return ItemTranslationResource
      */
-    public function store(StoreItemTranslationRequest $request)
+    public function store(StoreItemTranslationRequest $request): ItemTranslationResource
     {
         $data = $request->validated();
         $translation = ItemTranslation::create($data);
@@ -64,7 +64,7 @@ class ItemTranslationController extends Controller
     /**
      * Display the specified item translation
      */
-    public function show(ShowItemTranslationRequest $request, ItemTranslation $itemTranslation)
+    public function show(ShowItemTranslationRequest $request, ItemTranslation $itemTranslation): ItemTranslationResource
     {
         $includes = $request->getIncludeParams();
         if (! empty($includes)) {
@@ -76,10 +76,8 @@ class ItemTranslationController extends Controller
 
     /**
      * Update the specified item translation
-     *
-     * @return ItemTranslationResource
      */
-    public function update(UpdateItemTranslationRequest $request, ItemTranslation $itemTranslation)
+    public function update(UpdateItemTranslationRequest $request, ItemTranslation $itemTranslation): ItemTranslationResource
     {
         $data = $request->validated();
         $itemTranslation->update($data);
@@ -92,7 +90,7 @@ class ItemTranslationController extends Controller
     /**
      * Remove the specified item translation
      */
-    public function destroy(ItemTranslation $itemTranslation)
+    public function destroy(ItemTranslation $itemTranslation): Response
     {
         $itemTranslation->delete();
 

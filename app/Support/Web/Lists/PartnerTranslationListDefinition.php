@@ -42,6 +42,10 @@ final class PartnerTranslationListDefinition extends ListDefinition
         return ['language', 'context', 'partner'];
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
     public function normalizeFilters(array $input): array
     {
         return array_filter([

@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Item;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
-class ItemResource extends JsonResource
+/** @extends BaseJsonResource<Item> */
+class ItemResource extends BaseJsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,25 +17,25 @@ class ItemResource extends JsonResource
     {
         return [
             // The unique identifier (GUID)
-            'id' => $this->id,
+            'id' => $this->resource->id,
             // A name for this resource, for internal use only.
-            'internal_name' => $this->internal_name,
+            'internal_name' => $this->resource->internal_name,
             // The Id(s) of matching resource in the legacy system (if any).
-            'backward_compatibility' => $this->backward_compatibility,
+            'backward_compatibility' => $this->resource->backward_compatibility,
             // The type of the item: 'object', 'monument', 'detail', or 'picture'.
-            'type' => $this->type,
+            'type' => $this->resource->type,
             // The parent item ID (for hierarchical relationships), nullable
-            'parent_id' => $this->parent_id,
+            'parent_id' => $this->resource->parent_id,
             // Display order among siblings sharing the same parent, nullable
-            'display_order' => $this->display_order,
+            'display_order' => $this->resource->display_order,
             // Owner's reference number for the item (external reference from owner)
-            'owner_reference' => $this->owner_reference,
+            'owner_reference' => $this->resource->owner_reference,
             // MWNF reference number for the item (reference from MWNF system)
-            'mwnf_reference' => $this->mwnf_reference,
+            'mwnf_reference' => $this->resource->mwnf_reference,
             // The start year for the item (for datation purposes)
-            'start_date' => $this->start_date,
+            'start_date' => $this->resource->start_date,
             // The end year for the item (for datation purposes)
-            'end_date' => $this->end_date,
+            'end_date' => $this->resource->end_date,
             // The parent item (for hierarchical relationships), nullable (ItemResource)
             'parent' => new ItemResource($this->whenLoaded('parent')),
             // The child items (for hierarchical relationships) (ItemResource[])
@@ -60,9 +61,9 @@ class ItemResource extends JsonResource
             // Item images attached to this item with display ordering (ItemImageResource[])
             'itemImages' => ItemImageResource::collection($this->whenLoaded('itemImages')),
             // The date of creation of the resource (managed by the system)
-            'created_at' => $this->created_at,
+            'created_at' => $this->resource->created_at,
             // The date of last modification of the resource (managed by the system)
-            'updated_at' => $this->updated_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

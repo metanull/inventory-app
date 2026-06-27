@@ -38,7 +38,8 @@ class LegacyUrlResolver
 
     public function resolveFor(Model $record, string $language = 'en'): LegacyLinkSet
     {
-        $reference = LegacyReference::parse($record->getAttribute('backward_compatibility'));
+        $bcRaw = $record->getAttribute('backward_compatibility');
+        $reference = LegacyReference::parse(is_string($bcRaw) ? $bcRaw : null);
 
         if ($reference === null) {
             return new LegacyLinkSet([

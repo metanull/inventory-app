@@ -15,7 +15,7 @@ return [
             | Note that this value is used for validation, so it should be set
             | according to your application's requirements.
             | */
-            'max_size' => env('UPLOAD_IMAGES_MAX_SIZE', 20480), // in kb
+            'max_size' => (int) env('UPLOAD_IMAGES_MAX_SIZE', 20480), // in kb
 
             /*
             |--------------------------------------------------------------------------

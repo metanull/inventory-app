@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDisplayOrder;
+use Database\Factories\TimelineEventFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +12,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ */
 class TimelineEvent extends Model
 {
     use HasDisplayOrder;
+
+    /** @use HasFactory<TimelineEventFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -59,11 +66,16 @@ class TimelineEvent extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('timeline_id', $this->timeline_id);
+        /** @var Builder<static> $query */
+        $query = static::where('timeline_id', $this->timeline_id);
+
+        return $query;
     }
 
     /**
      * Get the timeline that owns this event.
+     *
+     * @return BelongsTo<Timeline, $this>
      */
     public function timeline(): BelongsTo
     {
@@ -71,7 +83,7 @@ class TimelineEvent extends Model
     }
 
     /**
-     * Get the translations for this event.
+     * @return HasMany<TimelineEventTranslation, $this>
      */
     public function translations(): HasMany
     {
@@ -80,6 +92,8 @@ class TimelineEvent extends Model
 
     /**
      * Get the images for this event.
+     *
+     * @return HasMany<TimelineEventImage, $this>
      */
     public function images(): HasMany
     {
@@ -88,6 +102,8 @@ class TimelineEvent extends Model
 
     /**
      * Get the items associated with this event.
+     *
+     * @return BelongsToMany<Item, $this>
      */
     public function items(): BelongsToMany
     {

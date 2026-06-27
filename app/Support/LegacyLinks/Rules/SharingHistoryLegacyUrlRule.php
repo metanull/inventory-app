@@ -10,6 +10,7 @@ use App\Support\LegacyLinks\LegacyLink;
 use App\Support\LegacyLinks\LegacyReference;
 use App\Support\LegacyLinks\Rules\Concerns\BuildsLegacyUrls;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 
 class SharingHistoryLegacyUrlRule implements LegacyUrlRule
 {
@@ -136,7 +137,7 @@ class SharingHistoryLegacyUrlRule implements LegacyUrlRule
             return [LegacyLink::diagnostic('Sharing History partner page', LegacyLinkConfidence::REQUIRES_LOOKUP, $reference->raw, 'The partner legacy URL needs a country code.')];
         }
 
-        $project = config('legacy.links.sharing_history_project', 'AWE');
+        $project = Config::string('legacy.links.sharing_history_project', 'AWE');
         $partnerCode = strtoupper((string) $reference->part(0));
 
         return [

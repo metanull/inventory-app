@@ -4,20 +4,23 @@ namespace App\Models;
 
 use App\Contracts\StreamableImageFile;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\PartnerLogoFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Config;
 
 class PartnerLogo extends Model implements StreamableImageFile
 {
+    /** @use HasFactory<PartnerLogoFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'partner_id',
@@ -52,6 +55,8 @@ class PartnerLogo extends Model implements StreamableImageFile
 
     /**
      * Get the partner this logo belongs to.
+     *
+     * @return BelongsTo<Partner, $this>
      */
     public function partner(): BelongsTo
     {
@@ -75,7 +80,10 @@ class PartnerLogo extends Model implements StreamableImageFile
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('partner_id', $this->partner_id);
+        /** @var Builder<static> $query */
+        $query = static::where('partner_id', $this->partner_id);
+
+        return $query;
     }
 
     /**
@@ -110,12 +118,12 @@ class PartnerLogo extends Model implements StreamableImageFile
 
     public function imageDisk(): string
     {
-        return config('localstorage.pictures.disk');
+        return Config::string('localstorage.pictures.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.pictures.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.pictures.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string

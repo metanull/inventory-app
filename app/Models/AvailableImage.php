@@ -3,13 +3,28 @@
 namespace App\Models;
 
 use App\Contracts\StreamableImageFile;
+use Database\Factories\AvailableImageFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 
+/**
+ * @property string $id
+ * @property string|null $path
+ * @property string|null $original_name
+ * @property string|null $mime_type
+ * @property int|null $size
+ * @property string|null $comment
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class AvailableImage extends Model implements StreamableImageFile
 {
+    /** @use HasFactory<AvailableImageFactory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $fillable = [
@@ -41,12 +56,12 @@ class AvailableImage extends Model implements StreamableImageFile
 
     public function imageDisk(): string
     {
-        return config('localstorage.available.images.disk');
+        return Config::string('localstorage.available.images.disk');
     }
 
     public function imageStoragePath(): string
     {
-        return trim(config('localstorage.available.images.directory'), '/').'/'.$this->path;
+        return trim(Config::string('localstorage.available.images.directory'), '/').'/'.$this->path;
     }
 
     public function imageMimeType(): ?string
@@ -56,6 +71,6 @@ class AvailableImage extends Model implements StreamableImageFile
 
     public function imageDownloadFilename(): string
     {
-        return $this->original_name ?: basename($this->path);
+        return $this->original_name ?: basename($this->path ?? '');
     }
 }

@@ -93,7 +93,7 @@ class CollectionController extends Controller
     /**
      * Get collections by type.
      */
-    public function byType(Request $request, string $type)
+    public function byType(Request $request, string $type): AnonymousResourceCollection
     {
         $request->validate([
             'type' => 'required|in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location',
@@ -134,14 +134,13 @@ class CollectionController extends Controller
 
     /**
      * Attach an item to a collection via many-to-many relationship.
-     *
-     * @return CollectionResource
      */
-    public function attachItem(AttachItemCollectionRequest $request, Collection $collection)
+    public function attachItem(AttachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail($validated['item_id']);
+        $itemIdRaw = $validated['item_id'] ?? null;
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->attachItem($item);
 
         $collection->refresh();
@@ -153,14 +152,13 @@ class CollectionController extends Controller
 
     /**
      * Detach an item from a collection.
-     *
-     * @return CollectionResource
      */
-    public function detachItem(DetachItemCollectionRequest $request, Collection $collection)
+    public function detachItem(DetachItemCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $item = Item::findOrFail($validated['item_id']);
+        $itemIdRaw = $validated['item_id'] ?? null;
+        $item = Item::findOrFail(is_string($itemIdRaw) ? $itemIdRaw : '');
         $collection->detachItem($item);
 
         $collection->refresh();
@@ -172,14 +170,14 @@ class CollectionController extends Controller
 
     /**
      * Attach multiple items to a collection.
-     *
-     * @return CollectionResource
      */
-    public function attachItems(AttachItemsCollectionRequest $request, Collection $collection)
+    public function attachItems(AttachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $collection->attachItems($validated['item_ids']);
+        /** @var array<int, string> $itemIds */
+        $itemIds = is_array($validated['item_ids'] ?? null) ? $validated['item_ids'] : [];
+        $collection->attachItems($itemIds);
 
         $collection->refresh();
         $includes = $request->getIncludeParams();
@@ -190,14 +188,14 @@ class CollectionController extends Controller
 
     /**
      * Detach multiple items from a collection.
-     *
-     * @return CollectionResource
      */
-    public function detachItems(DetachItemsCollectionRequest $request, Collection $collection)
+    public function detachItems(DetachItemsCollectionRequest $request, Collection $collection): CollectionResource
     {
         $validated = $request->validated();
 
-        $collection->detachItems($validated['item_ids']);
+        /** @var array<int, string> $itemIds */
+        $itemIds = is_array($validated['item_ids'] ?? null) ? $validated['item_ids'] : [];
+        $collection->detachItems($itemIds);
 
         $collection->refresh();
         $includes = $request->getIncludeParams();

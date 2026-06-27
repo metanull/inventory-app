@@ -10,8 +10,10 @@ use App\Http\Responses\Image\DownloadImageResponse;
 use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
 use App\Services\Web\AvailableImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
@@ -45,7 +47,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(AvailableImage $availableImage)
+    public function view(AvailableImage $availableImage): Responsable
     {
         return new InlineImageResponse($availableImage);
     }
@@ -53,7 +55,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the file to the caller for download.
      */
-    public function download(AvailableImage $availableImage)
+    public function download(AvailableImage $availableImage): Responsable
     {
         return new DownloadImageResponse($availableImage);
     }
@@ -83,8 +85,8 @@ class AvailableImageController extends Controller
     public function destroy(AvailableImage $availableImage): RedirectResponse
     {
         // Delete the physical file from storage
-        $disk = Storage::disk(config('localstorage.available.images.disk'));
-        if ($disk->exists($availableImage->path)) {
+        $disk = Storage::disk(Config::string('localstorage.available.images.disk'));
+        if ($availableImage->path !== null && $disk->exists($availableImage->path)) {
             $disk->delete($availableImage->path);
         }
 

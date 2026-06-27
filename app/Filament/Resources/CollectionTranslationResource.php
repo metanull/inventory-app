@@ -74,8 +74,10 @@ class CollectionTranslationResource extends Resource
                         table: 'collection_translations',
                         column: 'language_id',
                         modifyRuleUsing: fn (Unique $rule, Get $get, ?CollectionTranslation $record): Unique => $rule
-                            ->where('collection_id', $get('collection_id') ?? '')
-                            ->where('context_id', $get('context_id') ?? '')
+                            ->where(fn (\Illuminate\Database\Query\Builder $q) => $q
+                                ->where('collection_id', $get('collection_id'))
+                                ->where('context_id', $get('context_id'))
+                            )
                             ->ignore($record?->id),
                         ignoreRecord: true,
                     )
@@ -125,17 +127,17 @@ class CollectionTranslationResource extends Resource
                     ->schema([
                         TextEntry::make('collection.internal_name')
                             ->label('Collection')
-                            ->url(fn ($record): ?string => $record->collection
+                            ->url(fn (CollectionTranslation $record): ?string => $record->collection
                                 ? (auth()->user()?->can('view', $record->collection) ? CollectionResource::getUrl('view', ['record' => $record->collection]) : null)
                                 : null),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (CollectionTranslation $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (CollectionTranslation $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                     ])
@@ -172,7 +174,7 @@ class CollectionTranslationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (CollectionTranslation $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
                 'collection:id,internal_name',
                 'language:id,internal_name,is_default',

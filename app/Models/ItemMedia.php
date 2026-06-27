@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use App\Traits\HasDisplayOrder;
+use Database\Factories\ItemMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ItemMedia extends Model
 {
+    /** @use HasFactory<ItemMediaFactory> */
     use HasDisplayOrder, HasFactory, HasUuids;
 
     protected $table = 'item_media';
@@ -51,12 +53,17 @@ class ItemMedia extends Model
      */
     protected function getSiblingsQuery(): Builder
     {
-        return static::where('item_id', $this->item_id)
+        /** @var Builder<static> $query */
+        $query = static::where('item_id', $this->item_id)
             ->where('type', $this->type);
+
+        return $query;
     }
 
     /**
      * Get the item this media belongs to.
+     *
+     * @return BelongsTo<Item, $this>
      */
     public function item(): BelongsTo
     {
@@ -65,6 +72,8 @@ class ItemMedia extends Model
 
     /**
      * Get the language of this media.
+     *
+     * @return BelongsTo<Language, $this>
      */
     public function language(): BelongsTo
     {

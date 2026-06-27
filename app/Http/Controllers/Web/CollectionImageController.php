@@ -13,6 +13,7 @@ use App\Models\AvailableImage;
 use App\Models\Collection;
 use App\Models\CollectionImage;
 use App\Services\Web\CollectionImageIndexQuery;
+use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -41,7 +42,7 @@ class CollectionImageController extends Controller
     /**
      * Show form to attach available image to collection.
      */
-    public function create(Collection $collection)
+    public function create(Collection $collection): View
     {
         $availableImages = AvailableImage::orderBy('path')->get();
 
@@ -54,7 +55,8 @@ class CollectionImageController extends Controller
     public function store(StoreCollectionImageRequest $request, Collection $collection): RedirectResponse
     {
         $validated = $request->validated();
-        $availableImage = AvailableImage::findOrFail($validated['available_image_id']);
+        $idRaw = $validated['available_image_id'] ?? null;
+        $availableImage = AvailableImage::findOrFail(is_string($idRaw) ? $idRaw : '');
 
         CollectionImage::attachFromAvailableImage($availableImage, $collection->id);
 
@@ -65,7 +67,7 @@ class CollectionImageController extends Controller
     /**
      * Show form to edit collection image.
      */
-    public function edit(Collection $collection, CollectionImage $collectionImage)
+    public function edit(Collection $collection, CollectionImage $collectionImage): View
     {
         // Ensure the image belongs to the collection
         if ($collectionImage->collection_id !== $collection->id) {
@@ -158,7 +160,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the file to the caller.
      */
-    public function download(Collection $collection, CollectionImage $collectionImage)
+    public function download(Collection $collection, CollectionImage $collectionImage): Responsable
     {
         if ($collectionImage->collection_id !== $collection->id) {
             abort(404);
@@ -170,7 +172,7 @@ class CollectionImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(Collection $collection, CollectionImage $collectionImage)
+    public function view(Collection $collection, CollectionImage $collectionImage): Responsable
     {
         if ($collectionImage->collection_id !== $collection->id) {
             abort(404);

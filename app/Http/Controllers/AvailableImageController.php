@@ -8,6 +8,9 @@ use App\Http\Resources\AvailableImageResource;
 use App\Http\Responses\Image\DownloadImageResponse;
 use App\Http\Responses\Image\InlineImageResponse;
 use App\Models\AvailableImage;
+use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 
 class AvailableImageController extends Controller
@@ -15,7 +18,7 @@ class AvailableImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexAvailableImageRequest $request)
+    public function index(IndexAvailableImageRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -32,10 +35,8 @@ class AvailableImageController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @return AvailableImageResource
      */
-    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage)
+    public function update(UpdateAvailableImageRequest $request, AvailableImage $availableImage): AvailableImageResource
     {
         $validated = $request->validated();
         $availableImage->update($validated);
@@ -47,7 +48,7 @@ class AvailableImageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(AvailableImage $availableImage)
+    public function show(AvailableImage $availableImage): AvailableImageResource
     {
         return new AvailableImageResource($availableImage);
     }
@@ -55,9 +56,11 @@ class AvailableImageController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AvailableImage $availableImage)
+    public function destroy(AvailableImage $availableImage): Response
     {
-        Storage::delete($availableImage->path);
+        if ($availableImage->path !== null) {
+            Storage::delete($availableImage->path);
+        }
         $availableImage->delete();
 
         return response()->noContent();
@@ -66,7 +69,7 @@ class AvailableImageController extends Controller
     /**
      * Download the file to the caller.
      */
-    public function download(AvailableImage $availableImage)
+    public function download(AvailableImage $availableImage): Responsable
     {
         return new DownloadImageResponse($availableImage);
     }
@@ -74,7 +77,7 @@ class AvailableImageController extends Controller
     /**
      * Returns the image file for direct viewing (e.g., for use in <img> src attribute).
      */
-    public function view(AvailableImage $availableImage)
+    public function view(AvailableImage $availableImage): Responsable
     {
         return new InlineImageResponse($availableImage);
     }

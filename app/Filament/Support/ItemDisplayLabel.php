@@ -34,10 +34,18 @@ class ItemDisplayLabel
      * The helper ensures `items.*` is preserved in the column list when
      * no explicit SELECT has been issued yet.
      */
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
+     */
     public static function withDisplayLabel(Builder $query): Builder
     {
-        $defaultLangId = Language::default()->value('id') ?? '';
-        $defaultContextId = Context::default()->value('id') ?? '';
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : '';
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : '';
 
         if (is_null($query->getQuery()->columns)) {
             $query->getQuery()->columns = ['items.*'];
@@ -90,8 +98,10 @@ class ItemDisplayLabel
      */
     public static function resolveForRecord(Item $item): string
     {
-        $defaultLangId = Language::default()->value('id');
-        $defaultContextId = Context::default()->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : null;
 
         $translations = $item->translations;
 
@@ -112,7 +122,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -124,7 +134,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -134,14 +144,14 @@ class ItemDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
         if ($t) {
-            return $t->name;
+            return (string) $t->name;
         }
 
         // 5. Fallback
@@ -183,7 +193,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -195,7 +205,7 @@ class ItemDisplayLabel
                     && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
@@ -205,14 +215,18 @@ class ItemDisplayLabel
                 fn ($t) => $t->language_id === $defaultLangId && ! empty($t->name)
             );
             if ($t) {
-                return $t->name;
+                return is_scalar($t->name) ? (string) $t->name : '';
             }
         }
 
         // 4. First translation in any language
         $t = $translations->first(fn ($t) => ! empty($t->name));
 
-        return $t?->name;
+        if (! $t) {
+            return null;
+        }
+
+        return is_scalar($t->name) ? (string) $t->name : null;
     }
 
     /**
@@ -237,8 +251,15 @@ class ItemDisplayLabel
      */
     public static function resolvePictureLabel(Item $picture, ?string $defaultLangId = null, ?string $defaultContextId = null): string
     {
-        $defaultLangId ??= Language::default()->value('id');
-        $defaultContextId ??= Context::default()->value('id');
+        if ($defaultLangId === null) {
+            $rawLang = Language::default()->value('id');
+            $defaultLangId = is_string($rawLang) ? $rawLang : null;
+        }
+
+        if ($defaultContextId === null) {
+            $rawCtx = Context::default()->value('id');
+            $defaultContextId = is_string($rawCtx) ? $rawCtx : null;
+        }
 
         $ownTranslation = static::resolveTranslationOnly($picture, $defaultLangId, $defaultContextId);
 
@@ -270,12 +291,14 @@ class ItemDisplayLabel
      */
     public static function pictureDisplayLabelColumn(): TextColumn
     {
-        $defaultLangId = Language::default()->value('id');
-        $defaultContextId = Context::default()->value('id');
+        $langIdRaw = Language::default()->value('id');
+        $ctxIdRaw = Context::default()->value('id');
+        $defaultLangId = is_string($langIdRaw) ? $langIdRaw : null;
+        $defaultContextId = is_string($ctxIdRaw) ? $ctxIdRaw : null;
 
         return TextColumn::make('picture_label')
             ->label('Name')
-            ->getStateUsing(fn ($record): string => static::resolvePictureLabel($record, $defaultLangId, $defaultContextId))
+            ->getStateUsing(fn (Item $record): string => static::resolvePictureLabel($record, $defaultLangId, $defaultContextId))
             ->searchable(false)
             ->sortable(false);
     }
@@ -292,12 +315,12 @@ class ItemDisplayLabel
     public static function resolveLabel(mixed $value): string
     {
         if (! $value) {
-            return (string) $value;
+            return '';
         }
 
         $item = Item::find($value);
-        if (! $item) {
-            return (string) $value;
+        if (! $item instanceof Item) {
+            return is_scalar($value) ? (string) $value : '';
         }
 
         $item->load(['translations', 'collection:id,context_id', 'project:id,context_id']);

@@ -13,6 +13,7 @@ final class ItemTranslationIndexQuery
 {
     public function __construct(private readonly ItemTranslationListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, ItemTranslation> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = ItemTranslation::query()
@@ -38,6 +39,7 @@ final class ItemTranslationIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<ItemTranslation> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('item_translations.item_id', $state->filters['item_id']);
@@ -51,11 +53,13 @@ final class ItemTranslationIndexQuery
         }
     }
 
+    /** @param Builder<ItemTranslation> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<ItemTranslation> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

@@ -3,6 +3,7 @@
 namespace App\Support\Pagination;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 
 class PaginationParams
@@ -18,22 +19,18 @@ class PaginationParams
      */
     public static function fromRequest(Request $request): array
     {
-        $page = (int) ($request->query('page', 1));
-        $perPage = (int) $request->query('per_page', config('interface.pagination.default_per_page'));
+        $pageRaw = $request->query('page');
+        $page = is_numeric($pageRaw) ? (int) $pageRaw : 1;
+        $perPageRaw = $request->query('per_page');
+        $perPage = is_numeric($perPageRaw) ? (int) $perPageRaw : Config::integer('interface.pagination.default_per_page');
 
         // Apply bounds checking using config values
-        $maxPerPage = (int) config('interface.pagination.max_per_page');
+        $maxPerPage = Config::integer('interface.pagination.max_per_page');
         $perPage = max(1, min($perPage, $maxPerPage));
 
         if ($page < 1) {
             throw ValidationException::withMessages([
                 'page' => ['Page must be a positive integer (1-based).'],
-            ]);
-        }
-
-        if ($perPage < 1 || $perPage > $maxPerPage) {
-            throw ValidationException::withMessages([
-                'per_page' => ["per_page must be between 1 and {$maxPerPage}."],
             ]);
         }
 

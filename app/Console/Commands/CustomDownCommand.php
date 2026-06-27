@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Foundation\Console\DownCommand;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -14,17 +15,17 @@ class CustomDownCommand extends DownCommand
     /**
      * Execute the console command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         // Call parent implementation to execute standard Laravel maintenance mode
-        parent::handle();
+        $result = parent::handle();
 
         // Create lock file in public directory for SPA access
         try {
-            $disk = Storage::disk(config('maintenance.public_lock_disk'));
-            $filename = config('maintenance.public_lock_file');
+            $disk = Storage::disk(Config::string('maintenance.public_lock_disk'));
+            $filename = Config::string('maintenance.public_lock_file');
 
-            $content = json_encode([
+            $content = (string) json_encode([
                 'timestamp' => now()->toIso8601String(),
                 'message' => 'Application is currently under maintenance',
             ]);
@@ -35,5 +36,7 @@ class CustomDownCommand extends DownCommand
         } catch (\Exception $e) {
             $this->components->warn('Failed to create public lock file: '.$e->getMessage());
         }
+
+        return $result === self::FAILURE ? self::FAILURE : self::SUCCESS;
     }
 }

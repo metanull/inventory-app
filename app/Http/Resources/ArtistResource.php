@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Artist;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Artist */
 class ArtistResource extends JsonResource
 {
     /**

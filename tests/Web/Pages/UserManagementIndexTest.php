@@ -97,7 +97,7 @@ class UserManagementIndexTest extends TestCase
         $this->assertStringContainsString('q=temple-user', $nextPageUrl);
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
         $this->assertStringContainsString(
-            'href="http://localhost/web/admin/users?role=Curator&amp;q=temple-user&amp;per_page=10&amp;sort=created_at&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('admin.users.index', ['role' => 'Curator', 'q' => 'temple-user', 'per_page' => 10, 'sort' => 'created_at', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }

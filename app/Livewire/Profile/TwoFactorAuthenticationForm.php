@@ -3,7 +3,9 @@
 namespace App\Livewire\Profile;
 
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
@@ -42,7 +44,7 @@ class TwoFactorAuthenticationForm extends Component
     public function mount(): void
     {
         if (Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm') &&
-            is_null(Auth::user()->two_factor_confirmed_at)) {
+            is_null(Auth::user()?->two_factor_confirmed_at)) {
             app(DisableTwoFactorAuthentication::class)(Auth::user());
         }
     }
@@ -76,7 +78,7 @@ class TwoFactorAuthenticationForm extends Component
             $this->ensurePasswordIsConfirmed();
         }
 
-        $confirm(Auth::user(), $this->code);
+        $confirm(Auth::user(), (string) $this->code);
 
         $this->showingQrCode = false;
         $this->showingConfirmation = false;
@@ -138,7 +140,7 @@ class TwoFactorAuthenticationForm extends Component
     /**
      * Get the current user of the application.
      */
-    public function getUserProperty()
+    public function getUserProperty(): ?Authenticatable
     {
         return Auth::user();
     }
@@ -154,7 +156,7 @@ class TwoFactorAuthenticationForm extends Component
     /**
      * Render the component.
      */
-    public function render()
+    public function render(): View
     {
         return view('profile.two-factor-authentication-form');
     }

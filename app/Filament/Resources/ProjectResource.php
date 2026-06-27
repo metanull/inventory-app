@@ -17,6 +17,7 @@ use App\Filament\Resources\ProjectResource\RelationManagers\PartnersRelationMana
 use App\Models\Context;
 use App\Models\Language;
 use App\Models\Project;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section as FiltersSection;
 use Filament\Forms\Components\Select;
@@ -101,7 +102,7 @@ class ProjectResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
+            ->recordUrl(fn (Project $record): ?string => auth()->user()?->can('view', $record) ? static::getUrl('view', ['record' => $record]) : null)
             ->defaultSort('internal_name', 'asc')
             ->columns([
                 static::internalNameColumn(),
@@ -147,7 +148,7 @@ class ProjectResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Context::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Context::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
                 SelectFilter::make('language_id')
                     ->label('Language')
@@ -159,21 +160,24 @@ class ProjectResource extends Resource
                         ->pluck('internal_name', 'id')
                         ->all()
                     )
-                    ->getOptionLabelUsing(fn ($value): string => Language::find($value)?->internal_name ?? $value)
+                    ->getOptionLabelUsing(fn (mixed $value): string => is_string($value) ? (Language::find($value)->internal_name ?? $value) : '')
                     ->searchable(),
             ])
             ->filtersFormColumns(2)
             ->filtersLayout(FiltersLayout::AboveContentCollapsible)
-            ->filtersFormSchema(fn (array $filters): array => [
-                FiltersSection::make('Project Filters')
-                    ->schema([
-                        $filters['is_enabled'],
-                        $filters['is_launched'],
-                        $filters['context_id'],
-                        $filters['language_id'],
-                    ])
-                    ->columns(2),
-            ]);
+            ->filtersFormSchema(function (array $filters): array {
+                /** @var array<string, Component> $filters */
+                return [
+                    FiltersSection::make('Project Filters')
+                        ->schema([
+                            $filters['is_enabled'],
+                            $filters['is_launched'],
+                            $filters['context_id'],
+                            $filters['language_id'],
+                        ])
+                        ->columns(2),
+                ];
+            });
     }
 
     public static function infolist(Infolist $infolist): Infolist
@@ -195,12 +199,12 @@ class ProjectResource extends Resource
                             ->boolean(),
                         TextEntry::make('context.internal_name')
                             ->label('Context')
-                            ->url(fn ($record): ?string => $record->context
+                            ->url(fn (Project $record): ?string => $record->context
                                 ? (auth()->user()?->can('view', $record->context) ? ContextResource::getUrl('view', ['record' => $record->context]) : null)
                                 : null),
                         TextEntry::make('language.internal_name')
                             ->label('Language')
-                            ->url(fn ($record): ?string => $record->language
+                            ->url(fn (Project $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
                     ])

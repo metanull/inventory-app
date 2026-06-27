@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Models\Item;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class UpdateItemRequest extends FormRequest
 {
@@ -11,6 +14,9 @@ class UpdateItemRequest extends FormRequest
         return $this->user() !== null; // Additional policy checks can be added later
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
@@ -33,14 +39,15 @@ class UpdateItemRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator)
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (\Illuminate\Contracts\Validation\Validator $validator) {
             // Prevent circular references
+            /** @var Item|null $item */
             $item = $this->route('item');
             $parentId = $this->input('parent_id');
 
-            if ($this->has('parent_id') && $parentId !== null && $parentId === $item->id) {
+            if ($this->has('parent_id') && $parentId !== null && $item !== null && $parentId === $item->id) {
                 $validator->errors()->add('parent_id', 'An item cannot be its own parent.');
             }
         });

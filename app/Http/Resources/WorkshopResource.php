@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Workshop;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Workshop */
 class WorkshopResource extends JsonResource
 {
     /**

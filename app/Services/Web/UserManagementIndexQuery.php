@@ -13,6 +13,7 @@ final class UserManagementIndexQuery
 {
     public function __construct(private readonly UserManagementListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, User> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = User::query()
@@ -37,11 +38,13 @@ final class UserManagementIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<User> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<User> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $role = $state->filter('role');
@@ -55,6 +58,7 @@ final class UserManagementIndexQuery
         });
     }
 
+    /** @param Builder<User> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

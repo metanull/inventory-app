@@ -10,13 +10,15 @@ use App\Http\Resources\TimelineResource;
 use App\Models\Timeline;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class TimelineController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexTimelineRequest $request)
+    public function index(IndexTimelineRequest $request): AnonymousResourceCollection
     {
         $includes = $request->getIncludeParams();
         $pagination = $request->getPaginationParams();
@@ -35,7 +37,7 @@ class TimelineController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTimelineRequest $request)
+    public function store(StoreTimelineRequest $request): TimelineResource
     {
         $validated = $request->validated();
         $timeline = Timeline::create($validated);
@@ -49,7 +51,7 @@ class TimelineController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ShowTimelineRequest $request, Timeline $timeline)
+    public function show(ShowTimelineRequest $request, Timeline $timeline): TimelineResource
     {
         $includes = $request->getIncludeParams();
         $timeline->load($includes);
@@ -60,7 +62,7 @@ class TimelineController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTimelineRequest $request, Timeline $timeline)
+    public function update(UpdateTimelineRequest $request, Timeline $timeline): TimelineResource
     {
         $validated = $request->validated();
         $timeline->update($validated);
@@ -74,7 +76,7 @@ class TimelineController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Timeline $timeline)
+    public function destroy(Timeline $timeline): Response
     {
         $timeline->delete();
 

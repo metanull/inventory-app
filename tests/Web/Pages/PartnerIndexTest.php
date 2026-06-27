@@ -95,7 +95,7 @@ class PartnerIndexTest extends TestCase
         $this->assertStringContainsString('q=Museum', $nextPageUrl);
         $this->assertStringContainsString('per_page=10', $nextPageUrl);
         $this->assertStringContainsString(
-            'href="http://localhost/web/partners?q=Museum&amp;per_page=10&amp;sort=created_at&amp;direction=asc&amp;page=1"',
+            'href="'.e(route('partners.index', ['q' => 'Museum', 'per_page' => 10, 'sort' => 'created_at', 'direction' => 'asc', 'page' => 1])).'"',
             $response->getContent(),
         );
     }

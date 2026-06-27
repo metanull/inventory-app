@@ -4,6 +4,8 @@ namespace App\Listeners;
 
 use App\Events\AvailableImageEvent;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -35,21 +37,30 @@ class AvailableImageListener
     {
         $file = $event->availableImage;
 
+        if ($file->path === null) {
+            Log::error('AvailableImage has no path.', ['id' => $file->id]);
+
+            return;
+        }
+
         // Get disk and directory where uploaded images are stored
-        $uploadDisk = config('localstorage.uploads.images.disk');
-        $uploadeDir = trim(config('localstorage.uploads.images.directory'), '/');
+        $uploadDisk = Config::string('localstorage.uploads.images.disk');
+        $uploadeDir = trim(Config::string('localstorage.uploads.images.directory'), '/');
         // Get disk and directory where public images are stored
-        $finalDisk = config('localstorage.available.images.disk');
-        $finalDir = trim(config('localstorage.available.images.directory'), '/');
+        $finalDisk = Config::string('localstorage.available.images.disk');
+        $finalDir = trim(Config::string('localstorage.available.images.directory'), '/');
 
         // Get filename (path should already be just filename)
         $filename = basename($file->path);
 
         // Move the file from the source disk to the destination disk
-        Storage::disk($finalDisk)->writeStream(
-            $finalDir.'/'.$filename,
-            Storage::disk($uploadDisk)->readStream($uploadeDir.'/'.$filename)
-        );
+        $readStream = Storage::disk($uploadDisk)->readStream($uploadeDir.'/'.$filename);
+        if ($readStream === null) {
+            Log::error('Failed to open read stream for available image.', ['filename' => $filename]);
+
+            return;
+        }
+        Storage::disk($finalDisk)->writeStream($finalDir.'/'.$filename, $readStream);
         // Delete the file from the source disk
         Storage::disk($uploadDisk)->delete($uploadeDir.'/'.$filename);
 

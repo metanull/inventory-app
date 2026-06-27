@@ -13,6 +13,7 @@ final class GlossarySpellingIndexQuery
 {
     public function __construct(private readonly GlossarySpellingListDefinition $definition) {}
 
+    /** @return LengthAwarePaginator<int, GlossarySpelling> */
     public function paginate(ListState $state): LengthAwarePaginator
     {
         $query = GlossarySpelling::query()
@@ -35,16 +36,19 @@ final class GlossarySpellingIndexQuery
             ->withQueryString();
     }
 
+    /** @param Builder<GlossarySpelling> $query */
     private function applyFilters(Builder $query, ListState $state): void
     {
         $query->where('glossary_spellings.glossary_id', $state->filters['glossary_id']);
     }
 
+    /** @param Builder<GlossarySpelling> $query */
     private function applySearch(Builder $query, ?string $search): void
     {
         $this->definition->applySearch($query, $search);
     }
 
+    /** @param Builder<GlossarySpelling> $query */
     private function applySort(Builder $query, ListState $state): void
     {
         $column = $this->definition->sortColumn($state->sort);

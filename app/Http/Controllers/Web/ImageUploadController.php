@@ -9,6 +9,7 @@ use App\Http\Requests\Web\StoreImageUploadRequest;
 use App\Models\ImageUpload;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 
 class ImageUploadController extends Controller
 {
@@ -35,7 +36,7 @@ class ImageUploadController extends Controller
 
         // Store the file in the local/private directory and disk
         $file = $request->file('file');
-        $path = $file->store(config('localstorage.uploads.images.directory'), config('localstorage.uploads.images.disk'));
+        $path = $file->store(Config::string('localstorage.uploads.images.directory'), Config::string('localstorage.uploads.images.disk'));
 
         $imageUpload = ImageUpload::create([
             'path' => $path,
