@@ -37,6 +37,6 @@ class CustomDownCommand extends DownCommand
             $this->components->warn('Failed to create public lock file: '.$e->getMessage());
         }
 
-        return $result ?? self::SUCCESS;
+        return $result;
     }
 }
