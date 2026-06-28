@@ -199,6 +199,16 @@ export class ItemExporter extends BaseExporter {
       }
     }
 
+    // Write one translations/items.{lang}.json per language (null fields omitted)
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const [itemId, langMap] of translationMap) {
+      for (const [langCode, fields] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![itemId] = this.stripNulls(fields)
+      }
+    }
+    await this.writeTranslationFiles('items', byLang)
+
     // picture_id -> lang_code -> { caption, photographer, copyright }
     const picTransMap = new Map<
       string,
@@ -228,10 +238,10 @@ export class ItemExporter extends BaseExporter {
       // photographer/copyright are not language-specific; pick from first available lang
       const firstLang = Object.values(perLang)[0]
 
-      // Collect captions keyed by lang code
-      const captions: Record<string, string | null> = {}
+      // Captions keyed by lang code — skip langs where caption is null
+      const captions: Record<string, string> = {}
       for (const [lang, t] of Object.entries(perLang)) {
-        captions[lang] = t.caption
+        if (t.caption !== null) captions[lang] = t.caption
       }
 
       imageMap.get(pic.item_id)!.push({
@@ -260,6 +270,7 @@ export class ItemExporter extends BaseExporter {
     const output = items.map(item => ({
       id: item.id,
       type: item.type,
+      internal_name: item.internal_name,
       parent_id: item.parent_id,
       partner_id: item.partner_id,
       country_id: item.country_id,
@@ -270,7 +281,6 @@ export class ItemExporter extends BaseExporter {
       end_date: item.end_date,
       latitude: item.latitude !== null ? parseFloat(item.latitude) : null,
       longitude: item.longitude !== null ? parseFloat(item.longitude) : null,
-      translations: translationMap.get(item.id) ?? {},
       images: imageMap.get(item.id) ?? [],
       dynasty_ids: dynastyMap.get(item.id) ?? [],
       tags: tagMap.get(item.id) ?? [],
@@ -286,7 +296,7 @@ export class ItemExporter extends BaseExporter {
 interface ImageEntry {
   url: string
   display_order: number | null
-  captions: Record<string, string | null>
+  captions: Record<string, string>
   photographer: string | null
   copyright: string | null
 }

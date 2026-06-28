@@ -1,5 +1,9 @@
 import { writeFile } from 'fs/promises'
-import { resolve } from 'path'
+import { mkdirSync, createWriteStream } from 'fs'
+import { resolve, dirname } from 'path'
+import { createGzip } from 'zlib'
+import { pipeline } from 'stream/promises'
+import { Readable } from 'stream'
 import type { ExportContext, ExportResult } from '../core/types.js'
 
 export abstract class BaseExporter {
@@ -48,9 +52,35 @@ export abstract class BaseExporter {
     return this._langCodeMap
   }
 
+  /** Writes compact JSON + a .gz companion. Creates parent directories as needed. */
   protected async writeJson(filename: string, data: unknown): Promise<void> {
     const filePath = resolve(this.context.outputDir, filename)
-    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+    mkdirSync(dirname(filePath), { recursive: true })
+    const json = JSON.stringify(data)
+    await writeFile(filePath, json, 'utf-8')
+    await pipeline(
+      Readable.from([Buffer.from(json, 'utf-8')]),
+      createGzip(),
+      createWriteStream(filePath + '.gz')
+    )
+  }
+
+  /**
+   * Writes one translation file per language under translations/{entityName}.{lang}.json.
+   * byLang maps lang code → { [entityId]: stripped translation fields }.
+   */
+  protected async writeTranslationFiles(
+    entityName: string,
+    byLang: Map<string, Record<string, unknown>>
+  ): Promise<void> {
+    for (const [lang, data] of byLang) {
+      await this.writeJson(`translations/${entityName}.${lang}.json`, data)
+    }
+  }
+
+  /** Returns a shallow copy of obj with null-valued keys removed. */
+  protected stripNulls(obj: Record<string, unknown>): Record<string, unknown> {
+    return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== null))
   }
 
   protected placeholders(count: number): string {

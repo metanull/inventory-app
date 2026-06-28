@@ -112,6 +112,16 @@ export class CollectionExporter extends BaseExporter {
       }
     }
 
+    // Write one translations/collections.{lang}.json per language (null fields omitted)
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const [colId, langMap] of translationMap) {
+      for (const [langCode, fields] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![colId] = this.stripNulls(fields)
+      }
+    }
+    await this.writeTranslationFiles('collections', byLang)
+
     // collection_id -> images[]
     const imageMap = new Map<
       string,
@@ -141,7 +151,6 @@ export class CollectionExporter extends BaseExporter {
       display_order: c.display_order,
       latitude: c.latitude !== null ? parseFloat(c.latitude) : null,
       longitude: c.longitude !== null ? parseFloat(c.longitude) : null,
-      translations: translationMap.get(c.id) ?? {},
       images: imageMap.get(c.id) ?? [],
       item_ids: itemMap.get(c.id) ?? [],
     }))

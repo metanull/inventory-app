@@ -79,13 +79,22 @@ export class DynastyExporter extends BaseExporter {
       }
     }
 
+    // Write one translations/dynasties.{lang}.json per language (null fields omitted)
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const [dynastyId, langMap] of translationMap) {
+      for (const [langCode, fields] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![dynastyId] = this.stripNulls(fields as Record<string, unknown>)
+      }
+    }
+    await this.writeTranslationFiles('dynasties', byLang)
+
     const output = dynasties.map(d => ({
       id: d.id,
       from_ah: d.from_ah,
       to_ah: d.to_ah,
       from_ad: d.from_ad,
       to_ad: d.to_ad,
-      translations: translationMap.get(d.id) ?? {},
     }))
 
     await this.writeJson('dynasties.json', output)

@@ -113,6 +113,16 @@ export class PartnerExporter extends BaseExporter {
       }
     }
 
+    // Write one translations/partners.{lang}.json per language (null fields omitted)
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const [partnerId, langMap] of translationMap) {
+      for (const [langCode, fields] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![partnerId] = this.stripNulls(fields as Record<string, unknown>)
+      }
+    }
+    await this.writeTranslationFiles('partners', byLang)
+
     // partner_id -> images[]
     const imageMap = new Map<
       string,
@@ -149,7 +159,6 @@ export class PartnerExporter extends BaseExporter {
       latitude: p.latitude !== null ? parseFloat(p.latitude) : null,
       longitude: p.longitude !== null ? parseFloat(p.longitude) : null,
       monument_item_id: p.monument_item_id,
-      translations: translationMap.get(p.id) ?? {},
       images: imageMap.get(p.id) ?? [],
       logos: logoMap.get(p.id) ?? [],
     }))
