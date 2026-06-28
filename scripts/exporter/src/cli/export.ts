@@ -49,7 +49,7 @@ program
   .option(
     '--base-url <url>',
     'Base URL for media files',
-    process.env['BASE_URL'] ?? 'https://inventory.metanull.eu/storage'
+    process.env['BASE_URL'] ?? './images'
   )
   .action(
     async (
