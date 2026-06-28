@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Permission;
+use App\Http\Controllers\Pub\PictureController;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SpaController;
@@ -228,6 +229,20 @@ Route::prefix('web')->group(function () {
 
 // Note: Registration routes are handled by Fortify with self_registration middleware
 // See app/Providers/FortifyServiceProvider.php for middleware configuration
+
+// Public picture viewer — no authentication, rate-limited
+// Serves: /pub/{type}/{uuid}.jpg
+// Supported types: item-picture, collection-picture, partner-picture,
+//   partner-translation-picture, contributor-picture, timeline-event-picture, partner-logo
+Route::middleware(['throttle:pub-pictures'])
+    ->prefix('pub')
+    ->name('pub.')
+    ->group(function () {
+        Route::get('/{type}/{filename}', [PictureController::class, 'show'])
+            ->where('type', '[a-z][a-z-]*')
+            ->where('filename', '[0-9a-f-]+\.jpg')
+            ->name('picture');
+    });
 
 // Vue.js SPA Route - serves the client app at /cli (demo client)
 // IMPORTANT: This route works in PRODUCTION (Apache with .htaccess) but NOT with 'php artisan serve'

@@ -131,7 +131,7 @@ export class PartnerExporter extends BaseExporter {
     for (const img of images) {
       if (!imageMap.has(img.partner_id)) imageMap.set(img.partner_id, [])
       imageMap.get(img.partner_id)!.push({
-        url: this.imageUrl(img.path),
+        url: this.imageUrl(img.path, 'partner-picture'),
         alt_text: img.alt_text,
         display_order: img.display_order,
       })
@@ -145,7 +145,7 @@ export class PartnerExporter extends BaseExporter {
     for (const logo of logos) {
       if (!logoMap.has(logo.partner_id)) logoMap.set(logo.partner_id, [])
       logoMap.get(logo.partner_id)!.push({
-        url: this.imageUrl(logo.path),
+        url: this.imageUrl(logo.path, 'partner-logo'),
         logo_type: logo.logo_type,
         alt_text: logo.alt_text,
         display_order: logo.display_order,

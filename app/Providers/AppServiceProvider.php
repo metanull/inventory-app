@@ -29,9 +29,12 @@ use App\View\Composers\SettingsComposer;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
@@ -51,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Public picture endpoint throttle — configurable via PUB_PICTURES_THROTTLE env var
+        RateLimiter::for('pub-pictures', function (Request $request) {
+            return Limit::perMinute(Config::integer('app.pub_pictures_throttle', 60))
+                ->by($request->ip());
+        });
+
         // Register glossary link maintenance event listeners
         Event::listen(ItemTranslationSaved::class, DispatchSyncItemTranslationSpellings::class);
         Event::listen(CollectionTranslationSaved::class, DispatchSyncCollectionTranslationSpellings::class);

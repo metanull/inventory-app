@@ -245,7 +245,7 @@ export class ItemExporter extends BaseExporter {
       }
 
       imageMap.get(pic.item_id)!.push({
-        url: this.imageUrl(pic.path),
+        url: this.imageUrl(pic.path, 'item-picture'),
         display_order: pic.display_order,
         captions,
         photographer: firstLang?.photographer ?? null,
