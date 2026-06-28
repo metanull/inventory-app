@@ -81,11 +81,29 @@ export class GlossaryExporter extends BaseExporter {
       }
     }
 
+    // Collect all language codes that appear in either map
+    const allLangs = new Set<string>()
+    for (const m of definitionMap.values()) Object.keys(m).forEach(k => allLangs.add(k))
+    for (const m of spellingMap.values()) Object.keys(m).forEach(k => allLangs.add(k))
+
+    // Write one translations/glossary.{lang}.json per language
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const entry of entries) {
+      const defs = definitionMap.get(entry.id) ?? {}
+      const spells = spellingMap.get(entry.id) ?? {}
+      for (const lang of allLangs) {
+        if (!byLang.has(lang)) byLang.set(lang, {})
+        const obj: Record<string, unknown> = {}
+        if (defs[lang] !== undefined) obj['definition'] = defs[lang]
+        if (spells[lang] !== undefined) obj['spellings'] = spells[lang]
+        if (Object.keys(obj).length > 0) byLang.get(lang)![entry.id] = obj
+      }
+    }
+    await this.writeTranslationFiles('glossary', byLang)
+
     const output = entries.map(entry => ({
       id: entry.id,
       word: entry.internal_name,
-      definitions: definitionMap.get(entry.id) ?? {},
-      spellings: spellingMap.get(entry.id) ?? {},
     }))
 
     await this.writeJson('glossary.json', output)
