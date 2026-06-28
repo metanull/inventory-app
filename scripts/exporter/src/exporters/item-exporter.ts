@@ -39,18 +39,25 @@ interface ItemTranslationRow {
   provenance: string | null
   obtention: string | null
   bibliography: string | null
-  extra: string | null
   author_name: string | null
   copy_editor_name: string | null
   translator_name: string | null
   translation_copy_editor_name: string | null
 }
 
-interface ItemImageRow {
-  item_id: string
+interface PictureItemRow {
+  picture_id: string
+  item_id: string // parent_id
+  display_order: number | null
   path: string
   alt_text: string | null
-  display_order: number
+}
+
+interface PictureTranslationRow {
+  picture_id: string
+  language_id: string
+  caption: string | null // name field on picture item translations
+  extra: string | null // JSON: { photographer, copyright }
 }
 
 interface ItemDynastyRow {
@@ -73,8 +80,7 @@ export class ItemExporter extends BaseExporter {
 
     const ph = this.placeholders(this.projectIds.length)
 
-    // Exclude 'picture' child items — those are internal importer artefacts.
-    // We export objects, monuments, and monument details.
+    // Exclude 'picture' child items — those are exported as images on their parent.
     const items = await this.db.query<ItemRow>(
       `SELECT id, type, internal_name, backward_compatibility, parent_id,
               partner_id, country_id, collection_id, project_id,
@@ -97,36 +103,57 @@ export class ItemExporter extends BaseExporter {
     const itemPh = this.placeholders(itemIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
-    const [translations, images, dynastyLinks, tagLinks] = await Promise.all([
-      // Join authors to resolve their names directly — avoids a second round-trip
-      this.db.query<ItemTranslationRow>(
-        `SELECT it.item_id, it.language_id,
-                it.name, it.alternate_name, it.description,
-                it.type, it.holder, it.owner, it.initial_owner, it.dates,
-                it.location, it.dimensions, it.place_of_production,
-                it.method_for_datation, it.method_for_provenance,
-                it.provenance, it.obtention, it.bibliography, it.extra,
-                a1.name AS author_name,
-                a2.name AS copy_editor_name,
-                a3.name AS translator_name,
-                a4.name AS translation_copy_editor_name
-         FROM item_translations it
-         LEFT JOIN authors a1 ON a1.id = it.author_id
-         LEFT JOIN authors a2 ON a2.id = it.text_copy_editor_id
-         LEFT JOIN authors a3 ON a3.id = it.translator_id
-         LEFT JOIN authors a4 ON a4.id = it.translation_copy_editor_id
-         WHERE it.item_id IN (${itemPh})`,
-        itemIds
-      ),
-      // item_images: the importer attaches the first picture's image directly to the
-      // parent object/monument. Only these direct attachments are exported here.
-      this.db.query<ItemImageRow>(
-        `SELECT item_id, path, alt_text, display_order
-         FROM item_images
-         WHERE item_id IN (${itemPh})
-         ORDER BY item_id, display_order`,
-        itemIds
-      ),
+    // ── 1. Content translations (name, description, …) ──────────────────────
+    const translations = await this.db.query<ItemTranslationRow>(
+      `SELECT it.item_id, it.language_id,
+              it.name, it.alternate_name, it.description,
+              it.type, it.holder, it.owner, it.initial_owner, it.dates,
+              it.location, it.dimensions, it.place_of_production,
+              it.method_for_datation, it.method_for_provenance,
+              it.provenance, it.obtention, it.bibliography,
+              a1.name AS author_name,
+              a2.name AS copy_editor_name,
+              a3.name AS translator_name,
+              a4.name AS translation_copy_editor_name
+       FROM item_translations it
+       LEFT JOIN authors a1 ON a1.id = it.author_id
+       LEFT JOIN authors a2 ON a2.id = it.text_copy_editor_id
+       LEFT JOIN authors a3 ON a3.id = it.translator_id
+       LEFT JOIN authors a4 ON a4.id = it.translation_copy_editor_id
+       WHERE it.item_id IN (${itemPh})`,
+      itemIds
+    )
+
+    // ── 2. Images via picture child items ────────────────────────────────────
+    // Each image is a child item of type 'picture'. It carries:
+    //   - items.display_order  → position in the gallery
+    //   - item_images.path     → the file path
+    //   - item_translations.name (caption, per language)
+    //   - item_translations.extra JSON { photographer, copyright }
+    const pictureItems = await this.db.query<PictureItemRow>(
+      `SELECT pic.id AS picture_id, pic.parent_id AS item_id,
+              pic.display_order, ii.path, ii.alt_text
+       FROM items pic
+       JOIN item_images ii ON ii.item_id = pic.id
+       WHERE pic.type = 'picture'
+         AND pic.parent_id IN (${itemPh})
+       ORDER BY pic.parent_id, pic.display_order`,
+      itemIds
+    )
+
+    let pictureTranslations: PictureTranslationRow[] = []
+    if (pictureItems.length > 0) {
+      const pictureIds = [...new Set(pictureItems.map(p => p.picture_id))]
+      pictureTranslations = await this.db.query<PictureTranslationRow>(
+        `SELECT item_id AS picture_id, language_id, name AS caption, extra
+         FROM item_translations
+         WHERE item_id IN (${this.placeholders(pictureIds.length)})`,
+        pictureIds
+      )
+    }
+
+    // ── 3. Dynasty and tag links ─────────────────────────────────────────────
+    const [dynastyLinks, tagLinks] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -140,17 +167,14 @@ export class ItemExporter extends BaseExporter {
       ),
     ])
 
+    // ── Build maps ───────────────────────────────────────────────────────────
+
     // item_id -> lang_code -> translation fields
     const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
     for (const t of translations) {
-      if (!translationMap.has(t.item_id)) {
-        translationMap.set(t.item_id, {})
-      }
+      if (!translationMap.has(t.item_id)) translationMap.set(t.item_id, {})
       const code = langCodeMap.get(t.language_id)
       if (!code) continue
-
-      const extraParsed = parseJson(t.extra)
-
       translationMap.get(t.item_id)![code] = {
         name: t.name,
         alternate_name: t.alternate_name,
@@ -172,21 +196,50 @@ export class ItemExporter extends BaseExporter {
         copy_editor: t.copy_editor_name,
         translator: t.translator_name,
         translation_copy_editor: t.translation_copy_editor_name,
-        ...(extraParsed ? { extra: extraParsed } : {}),
       }
     }
 
-    // item_id -> images[]
-    const imageMap = new Map<
+    // picture_id -> lang_code -> { caption, photographer, copyright }
+    const picTransMap = new Map<
       string,
-      { url: string; alt_text: string | null; display_order: number }[]
+      Record<
+        string,
+        { caption: string | null; photographer: string | null; copyright: string | null }
+      >
     >()
-    for (const img of images) {
-      if (!imageMap.has(img.item_id)) imageMap.set(img.item_id, [])
-      imageMap.get(img.item_id)!.push({
-        url: this.imageUrl(img.path),
-        alt_text: img.alt_text,
-        display_order: img.display_order,
+    for (const t of pictureTranslations) {
+      if (!picTransMap.has(t.picture_id)) picTransMap.set(t.picture_id, {})
+      const code = langCodeMap.get(t.language_id)
+      if (!code) continue
+      const extra = parseJson(t.extra) as Record<string, string> | null
+      picTransMap.get(t.picture_id)![code] = {
+        caption: t.caption,
+        photographer: extra?.photographer ?? null,
+        copyright: extra?.copyright ?? null,
+      }
+    }
+
+    // item_id -> images[] (built from picture children)
+    const imageMap = new Map<string, ImageEntry[]>()
+    for (const pic of pictureItems) {
+      if (!imageMap.has(pic.item_id)) imageMap.set(pic.item_id, [])
+      const perLang = picTransMap.get(pic.picture_id) ?? {}
+
+      // photographer/copyright are not language-specific; pick from first available lang
+      const firstLang = Object.values(perLang)[0]
+
+      // Collect captions keyed by lang code
+      const captions: Record<string, string | null> = {}
+      for (const [lang, t] of Object.entries(perLang)) {
+        captions[lang] = t.caption
+      }
+
+      imageMap.get(pic.item_id)!.push({
+        url: this.imageUrl(pic.path),
+        display_order: pic.display_order,
+        captions,
+        photographer: firstLang?.photographer ?? null,
+        copyright: firstLang?.copyright ?? null,
       })
     }
 
@@ -228,6 +281,14 @@ export class ItemExporter extends BaseExporter {
 
     return { file: 'items.json', count: output.length }
   }
+}
+
+interface ImageEntry {
+  url: string
+  display_order: number | null
+  captions: Record<string, string | null>
+  photographer: string | null
+  copyright: string | null
 }
 
 function parseJson(raw: string | null): unknown | null {
