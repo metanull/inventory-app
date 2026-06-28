@@ -1,0 +1,38 @@
+{
+  "name": "exporter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static JSON data exporter for MWNF public websites",
+  "scripts": {
+    "build": "tsc",
+    "export": "tsx src/cli/export.ts",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.2",
+    "dotenv": "^17.4.2",
+    "mysql2": "^3.22.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.8.2",
+    "tsx": "^4.19.2",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.59.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
