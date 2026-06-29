@@ -64,17 +64,33 @@ program
     'Base URL for media files',
     process.env['BASE_URL'] ?? './images'
   )
-  .option('--publish', 'Generate npm package.json and bump version for publishing', false)
+  .option('--publish', 'Generate npm package.json, bump version, and publish to registry', false)
   .option(
     '--package-name <name>',
     'NPM package name (defaults to @mwnf/{subdirectory}-data)',
     ''
   )
+  .option(
+    '--package-version <semver>',
+    'Set an explicit version instead of auto-incrementing (e.g. 1.0.4)'
+  )
+  .option(
+    '--npm-registry <url>',
+    'npm registry URL for publish (overrides NPM_REGISTRY env var)'
+  )
   .action(
     async (
       subdirectory: string,
       projectKeys: string[],
-      options: { force: boolean; outputDir: string; baseUrl: string; publish: boolean; packageName: string }
+      options: {
+        force: boolean
+        outputDir: string
+        baseUrl: string
+        publish: boolean
+        packageName: string
+        packageVersion?: string
+        npmRegistry?: string
+      }
     ) => {
       const logger = new Logger('Exporter')
 
@@ -156,19 +172,35 @@ program
         if (options.publish && !hasErrors) {
           console.log('')
           console.log(chalk.bold('='.repeat(70)))
-          console.log(chalk.bold.cyan('PREPARING NPM PACKAGE'))
+          console.log(chalk.bold.cyan('PUBLISHING NPM PACKAGE'))
           console.log(chalk.bold('='.repeat(70)))
 
           try {
             const packageName = options.packageName || `@mwnf/${subdirectory}-data`
+            const registry =
+              options.npmRegistry ||
+              process.env['NPM_REGISTRY'] ||
+              'https://npm.pkg.github.com'
+
+            // Version file lives next to the output base dir, NOT inside the project
+            // output directory, so it survives --force cleans.
+            const versionFile = resolve(outputBaseDir, `.version-${subdirectory}`)
+
             const publishManager = new PublishManager({
               outputDir,
+              versionFile,
               packageName,
               projectKeys,
               logger,
+              author: process.env['PACKAGE_AUTHOR'],
+              license: process.env['PACKAGE_LICENSE'],
+              repositoryUrl: process.env['PACKAGE_REPO_URL'],
+              registry,
             })
 
-            const nextVersion = publishManager.getNextVersion()
+            const nextVersion = options.packageVersion
+              ? publishManager.setVersion(options.packageVersion)
+              : publishManager.getNextVersion()
             console.log(chalk.green(`  ✓ Version: ${nextVersion}`))
 
             const packageJson = publishManager.generatePackageJson(nextVersion)
@@ -182,13 +214,12 @@ program
             console.log(chalk.green(`  ✓ Generated: README.md`))
 
             console.log('')
-            console.log(chalk.yellow('📦 To publish this package:'))
-            console.log(chalk.gray(`  cd ${outputDir}`))
-            console.log(chalk.gray(`  npm publish`))
+            publishManager.publish()
+            console.log(chalk.green(`  ✓ Published: ${packageName}@${nextVersion}`))
             console.log('')
           } catch (err) {
             const message = err instanceof Error ? err.message : String(err)
-            console.error(chalk.red(`\nPackage generation failed: ${message}`))
+            console.error(chalk.red(`\nPublish failed: ${message}`))
             process.exit(1)
           }
         }

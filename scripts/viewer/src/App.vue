@@ -1,58 +1,34 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import manifestData from '@inventory-data/manifest.json'
+import itemsData from '@inventory-data/items.json'
 
-const DATA_PATH = import.meta.env.VITE_DATA_PATH?.replace(/\/$/, '') ?? ''
-
-const items = ref([])
-const availableLangs = ref([])
-const activeLang = ref('en')
+const items = ref(itemsData)
+const availableLangs = ref(manifestData.languages ?? [])
+const activeLang = ref(
+  (manifestData.languages ?? []).includes('en')
+    ? 'en'
+    : (manifestData.languages?.[0] ?? 'en')
+)
 // { [langCode]: { [itemId]: { name, description, ... } } }
 const translationsCache = ref({})
-const loading = ref(true)
-const error = ref(null)
 const selected = ref(null)
 
 async function loadTranslations(lang) {
   if (translationsCache.value[lang]) return
   try {
-    const res = await fetch(`${DATA_PATH}/translations/items.${lang}.json`)
-    if (res.ok) {
-      translationsCache.value = { ...translationsCache.value, [lang]: await res.json() }
-    }
+    const module = await import(`@inventory-data/translations/items.${lang}.json`)
+    translationsCache.value = { ...translationsCache.value, [lang]: module.default }
   } catch {
     // silently fall back to internal_name
   }
 }
 
-onMounted(async () => {
-  try {
-    const [manifestRes, itemsRes] = await Promise.all([
-      fetch(`${DATA_PATH}/manifest.json`),
-      fetch(`${DATA_PATH}/items.json`),
-    ])
+// Load initial language translations
+loadTranslations(activeLang.value)
 
-    if (!itemsRes.ok) throw new Error(`HTTP ${itemsRes.status}`)
-    items.value = await itemsRes.json()
-
-    if (manifestRes.ok) {
-      const manifest = await manifestRes.json()
-      availableLangs.value = manifest.languages ?? []
-      // default to 'en' if present, otherwise first available
-      if (availableLangs.value.length > 0 && !availableLangs.value.includes(activeLang.value)) {
-        activeLang.value = availableLangs.value[0]
-      }
-    }
-
-    await loadTranslations(activeLang.value)
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
-})
-
-watch(activeLang, async (lang) => {
-  await loadTranslations(lang)
+watch(activeLang, (lang) => {
+  loadTranslations(lang)
 })
 
 function t(item) {
@@ -103,30 +79,19 @@ const detailFields = computed(() => {
   <div class="shell">
     <header>
       <span class="logo">Inventory Viewer</span>
-      <span v-if="!loading && !error" class="count">{{ items.length }} items</span>
+      <span class="count">{{ items.length }} items</span>
       <select
         v-if="availableLangs.length > 1"
         v-model="activeLang"
         class="lang-select"
-        :disabled="loading"
       >
         <option v-for="lang in availableLangs" :key="lang" :value="lang">{{ lang }}</option>
       </select>
     </header>
 
     <main>
-      <!-- Loading -->
-      <div v-if="loading" class="state">Loading…</div>
-
-      <!-- Error -->
-      <div v-else-if="error" class="state error">
-        Could not load items.json<br />
-        <small>{{ error }}</small><br />
-        <small>DATA_PATH: {{ DATA_PATH || '(not set)' }}</small>
-      </div>
-
       <!-- Detail -->
-      <template v-else-if="selected">
+      <template v-if="selected">
         <a class="back" href="#" @click.prevent="back">← Back to list</a>
 
         <div class="detail">
@@ -206,12 +171,8 @@ header {
   font-size: .8rem;
   cursor: pointer;
 }
-.lang-select:disabled { opacity: .5; cursor: default; }
 
 main { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 1.5rem; }
-
-.state { padding: 3rem; text-align: center; color: #666; }
-.state.error { color: #c0392b; }
 
 /* List */
 .list { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
