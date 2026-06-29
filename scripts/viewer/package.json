@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@metanull/islamicart-data": "^1.0.4",
     "vue": "^3.5.39"
   },
   "devDependencies": {
