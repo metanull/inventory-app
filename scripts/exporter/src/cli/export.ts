@@ -9,19 +9,32 @@
  *   npm run export -- <subdirectory> <project-key> [more-project-keys...]
  *
  * Examples:
+ *   # Export ISL project data only
  *   npm run export -- islamicart ISL
+ *
+ *   # Export multiple projects
  *   npm run export -- combined ISL WHS --force
+ *
+ *   # Custom output and base URLs
  *   npm run export -- islamicart ISL --output-dir /tmp/export --base-url https://cdn.example.com/storage
+ *
+ *   # Export and prepare for npm publishing (auto-increment version, generate package.json)
+ *   npm run export -- islamicart ISL --publish
+ *   # Then: cd output/islamicart && npm publish
+ *
+ *   # Publish with custom package name
+ *   npm run export -- islamicart ISL --publish --package-name @mwnf/islamic-art-data
  */
 
 import dotenv from 'dotenv'
 import { resolve } from 'path'
-import { existsSync, mkdirSync, rmSync } from 'fs'
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs'
 import { Command } from 'commander'
 import chalk from 'chalk'
 
 import { Database } from '../core/database.js'
 import { Logger } from '../core/logger.js'
+import { PublishManager } from '../core/publish-manager.js'
 import type { ExportContext } from '../core/types.js'
 import {
   ManifestExporter,
@@ -51,11 +64,17 @@ program
     'Base URL for media files',
     process.env['BASE_URL'] ?? './images'
   )
+  .option('--publish', 'Generate npm package.json and bump version for publishing', false)
+  .option(
+    '--package-name <name>',
+    'NPM package name (defaults to @mwnf/{subdirectory}-data)',
+    ''
+  )
   .action(
     async (
       subdirectory: string,
       projectKeys: string[],
-      options: { force: boolean; outputDir: string; baseUrl: string }
+      options: { force: boolean; outputDir: string; baseUrl: string; publish: boolean; packageName: string }
     ) => {
       const logger = new Logger('Exporter')
 
@@ -132,6 +151,47 @@ program
         }
 
         const hasErrors = results.some(r => r.error !== null)
+
+        // Handle npm package publishing if --publish flag is set
+        if (options.publish && !hasErrors) {
+          console.log('')
+          console.log(chalk.bold('='.repeat(70)))
+          console.log(chalk.bold.cyan('PREPARING NPM PACKAGE'))
+          console.log(chalk.bold('='.repeat(70)))
+
+          try {
+            const packageName = options.packageName || `@mwnf/${subdirectory}-data`
+            const publishManager = new PublishManager({
+              outputDir,
+              packageName,
+              projectKeys,
+              logger,
+            })
+
+            const nextVersion = publishManager.getNextVersion()
+            console.log(chalk.green(`  ✓ Version: ${nextVersion}`))
+
+            const packageJson = publishManager.generatePackageJson(nextVersion)
+            const packageJsonPath = resolve(outputDir, 'package.json')
+            writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf-8')
+            console.log(chalk.green(`  ✓ Generated: package.json`))
+
+            const readmePath = resolve(outputDir, 'README.md')
+            const readmeContent = publishManager.generateReadme(packageName)
+            writeFileSync(readmePath, readmeContent, 'utf-8')
+            console.log(chalk.green(`  ✓ Generated: README.md`))
+
+            console.log('')
+            console.log(chalk.yellow('📦 To publish this package:'))
+            console.log(chalk.gray(`  cd ${outputDir}`))
+            console.log(chalk.gray(`  npm publish`))
+            console.log('')
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err)
+            console.error(chalk.red(`\nPackage generation failed: ${message}`))
+            process.exit(1)
+          }
+        }
 
         console.log('')
         console.log(chalk.bold('='.repeat(70)))
