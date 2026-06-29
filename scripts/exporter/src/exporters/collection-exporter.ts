@@ -130,7 +130,7 @@ export class CollectionExporter extends BaseExporter {
     for (const img of images) {
       if (!imageMap.has(img.collection_id)) imageMap.set(img.collection_id, [])
       imageMap.get(img.collection_id)!.push({
-        url: this.imageUrl(img.path, 'collection-picture'),
+        url: this.imageUrl(img.path),
         alt_text: img.alt_text,
         display_order: img.display_order,
       })

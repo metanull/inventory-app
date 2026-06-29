@@ -2,12 +2,9 @@
 
 namespace Tests\Pub;
 
-use App\Models\CollectionImage;
-use App\Models\Item;
-use App\Models\ItemImage;
-use App\Models\PartnerImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class PictureControllerTest extends TestCase
@@ -20,7 +17,6 @@ class PictureControllerTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('local');
         Storage::fake('public');
 
         config([
@@ -37,22 +33,19 @@ class PictureControllerTest extends TestCase
         );
     }
 
+    private function uuid(): string
+    {
+        return (string) Str::uuid();
+    }
+
     // ── Happy path ────────────────────────────────────────────────────────────
 
     public function test_serves_jpeg_with_caching_headers(): void
     {
-        $item = Item::factory()->create();
-        $image = ItemImage::factory()->create([
-            'item_id' => $item->id,
-            'path' => $item->id.'.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
+        $filename = $this->uuid().'.jpg';
+        $this->putTestImage($filename);
 
-        $response = $this->get(route('pub.picture', [
-            'type' => 'item-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
+        $response = $this->get(route('pub.picture', ['filename' => $filename]));
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'image/jpeg');
@@ -65,27 +58,14 @@ class PictureControllerTest extends TestCase
 
     public function test_returns_304_when_etag_matches(): void
     {
-        $item = Item::factory()->create();
-        $image = ItemImage::factory()->create([
-            'item_id' => $item->id,
-            'path' => $item->id.'.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
+        $filename = $this->uuid().'.jpg';
+        $this->putTestImage($filename);
 
-        // First request to obtain the ETag
-        $first = $this->get(route('pub.picture', [
-            'type' => 'item-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
+        $first = $this->get(route('pub.picture', ['filename' => $filename]));
         $etag = $first->headers->get('ETag');
 
-        // Conditional request with matching ETag
         $response = $this->withHeaders(['If-None-Match' => $etag])
-            ->get(route('pub.picture', [
-                'type' => 'item-picture',
-                'filename' => $image->id.'.jpg',
-            ]));
+            ->get(route('pub.picture', ['filename' => $filename]));
 
         $response->assertStatus(304);
     }
@@ -94,58 +74,23 @@ class PictureControllerTest extends TestCase
 
     public function test_returns_304_when_not_modified_since(): void
     {
-        $item = Item::factory()->create();
-        $image = ItemImage::factory()->create([
-            'item_id' => $item->id,
-            'path' => $item->id.'.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
+        $filename = $this->uuid().'.jpg';
+        $this->putTestImage($filename);
 
-        $first = $this->get(route('pub.picture', [
-            'type' => 'item-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
+        $first = $this->get(route('pub.picture', ['filename' => $filename]));
         $lastModified = $first->headers->get('Last-Modified');
 
         $response = $this->withHeaders(['If-Modified-Since' => $lastModified])
-            ->get(route('pub.picture', [
-                'type' => 'item-picture',
-                'filename' => $image->id.'.jpg',
-            ]));
+            ->get(route('pub.picture', ['filename' => $filename]));
 
         $response->assertStatus(304);
     }
 
     // ── 404 paths ─────────────────────────────────────────────────────────────
 
-    public function test_returns_404_for_unknown_id(): void
+    public function test_returns_404_for_unknown_file(): void
     {
-        $response = $this->get('/pub/item-picture/00000000-0000-0000-0000-000000000000.jpg');
-
-        $response->assertNotFound();
-    }
-
-    public function test_returns_404_for_unknown_model_type(): void
-    {
-        $response = $this->get('/pub/unknown-type/00000000-0000-0000-0000-000000000000.jpg');
-
-        $response->assertNotFound();
-    }
-
-    public function test_returns_404_when_file_missing_from_disk(): void
-    {
-        $item = Item::factory()->create();
-        $image = ItemImage::factory()->create([
-            'item_id' => $item->id,
-            'path' => 'missing-file.jpg',
-        ]);
-        // intentionally not putting the file in storage
-
-        $response = $this->get(route('pub.picture', [
-            'type' => 'item-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
+        $response = $this->get('/pub/00000000-0000-0000-0000-000000000000.jpg');
 
         $response->assertNotFound();
     }
@@ -154,64 +99,20 @@ class PictureControllerTest extends TestCase
 
     public function test_returns_400_when_query_string_is_present(): void
     {
-        $item = Item::factory()->create();
-        $image = ItemImage::factory()->create([
-            'item_id' => $item->id,
-            'path' => $item->id.'.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
+        $filename = $this->uuid().'.jpg';
+        $this->putTestImage($filename);
 
-        $response = $this->get(route('pub.picture', [
-            'type' => 'item-picture',
-            'filename' => $image->id.'.jpg',
-        ]).'?w=200');
+        $response = $this->get(route('pub.picture', ['filename' => $filename]).'?w=200');
 
         $response->assertStatus(400);
     }
 
-    // ── Non-JPEG filename is rejected by the route (no match → 404) ───────────
+    // ── Non-JPEG filename does not match the route ────────────────────────────
 
     public function test_non_jpg_extension_does_not_match_route(): void
     {
-        $response = $this->get('/pub/item-picture/00000000-0000-0000-0000-000000000000.png');
+        $response = $this->get('/pub/00000000-0000-0000-0000-000000000000.png');
 
         $response->assertNotFound();
-    }
-
-    // ── Different model types resolve correctly ───────────────────────────────
-
-    public function test_serves_collection_picture(): void
-    {
-        $image = CollectionImage::factory()->create([
-            'path' => 'col-test.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
-
-        $response = $this->get(route('pub.picture', [
-            'type' => 'collection-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
-
-        $response->assertOk();
-        $response->assertHeader('Content-Type', 'image/jpeg');
-    }
-
-    public function test_serves_partner_picture(): void
-    {
-        $image = PartnerImage::factory()->create([
-            'path' => 'partner-test.jpg',
-            'mime_type' => 'image/jpeg',
-        ]);
-        $this->putTestImage($image->path);
-
-        $response = $this->get(route('pub.picture', [
-            'type' => 'partner-picture',
-            'filename' => $image->id.'.jpg',
-        ]));
-
-        $response->assertOk();
-        $response->assertHeader('Content-Type', 'image/jpeg');
     }
 }

@@ -87,13 +87,8 @@ export abstract class BaseExporter {
     return Array.from({ length: count }, () => '?').join(', ')
   }
 
-  /**
-   * Build the public picture URL for a given image path and model type segment.
-   * path is the bare filename stored in the DB (e.g. "uuid.jpg").
-   * modelSegment is the kebab-case type used in the /pub/ URL
-   * (e.g. "item-picture", "collection-picture", "partner-logo").
-   */
-  protected imageUrl(path: string, modelSegment: string): string {
-    return `${this.baseUrl}/pub/${modelSegment}/${path}`
+  /** Build the public picture URL for a bare filename stored in the DB (e.g. "uuid.jpg"). */
+  protected imageUrl(path: string): string {
+    return `${this.baseUrl}/pub/${path}`
   }
 }
