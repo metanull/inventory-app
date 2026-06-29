@@ -9,11 +9,16 @@ export class ManifestExporter extends BaseExporter {
   async export(): Promise<ExportResult> {
     this.logger.info('Writing manifest.json...')
 
+    const langRows = await this.db.query<{ backward_compatibility: string }>(
+      `SELECT backward_compatibility FROM languages WHERE backward_compatibility IS NOT NULL ORDER BY id`
+    )
+
     const manifest = {
       generatedAt: new Date().toISOString(),
       projectKeys: this.context.projectKeys,
       projectIds: this.context.projectIds,
       version: '1.0.0',
+      languages: langRows.map(r => r.backward_compatibility),
     }
 
     await this.writeJson('manifest.json', manifest)

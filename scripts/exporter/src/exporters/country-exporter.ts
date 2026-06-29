@@ -43,11 +43,20 @@ export class CountryExporter extends BaseExporter {
       }
     }
 
+    // Write one translations/countries.{lang}.json per language
+    const byLang = new Map<string, Record<string, unknown>>()
+    for (const [countryId, langMap] of translationMap) {
+      for (const [langCode, name] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![countryId] = { name }
+      }
+    }
+    await this.writeTranslationFiles('countries', byLang)
+
     const output = countries.map(country => ({
       id: country.id,
       code: country.backward_compatibility,
       internal_name: country.internal_name,
-      translations: translationMap.get(country.id) ?? {},
     }))
 
     await this.writeJson('countries.json', output)

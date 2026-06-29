@@ -1,18 +1,49 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 const DATA_PATH = import.meta.env.VITE_DATA_PATH?.replace(/\/$/, '') ?? ''
 
 const items = ref([])
+const availableLangs = ref([])
+const activeLang = ref('en')
+// { [langCode]: { [itemId]: { name, description, ... } } }
+const translationsCache = ref({})
 const loading = ref(true)
 const error = ref(null)
 const selected = ref(null)
 
+async function loadTranslations(lang) {
+  if (translationsCache.value[lang]) return
+  try {
+    const res = await fetch(`${DATA_PATH}/translations/items.${lang}.json`)
+    if (res.ok) {
+      translationsCache.value = { ...translationsCache.value, [lang]: await res.json() }
+    }
+  } catch {
+    // silently fall back to internal_name
+  }
+}
+
 onMounted(async () => {
   try {
-    const res = await fetch(`${DATA_PATH}/items.json`)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    items.value = await res.json()
+    const [manifestRes, itemsRes] = await Promise.all([
+      fetch(`${DATA_PATH}/manifest.json`),
+      fetch(`${DATA_PATH}/items.json`),
+    ])
+
+    if (!itemsRes.ok) throw new Error(`HTTP ${itemsRes.status}`)
+    items.value = await itemsRes.json()
+
+    if (manifestRes.ok) {
+      const manifest = await manifestRes.json()
+      availableLangs.value = manifest.languages ?? []
+      // default to 'en' if present, otherwise first available
+      if (availableLangs.value.length > 0 && !availableLangs.value.includes(activeLang.value)) {
+        activeLang.value = availableLangs.value[0]
+      }
+    }
+
+    await loadTranslations(activeLang.value)
   } catch (e) {
     error.value = e.message
   } finally {
@@ -20,8 +51,16 @@ onMounted(async () => {
   }
 })
 
+watch(activeLang, async (lang) => {
+  await loadTranslations(lang)
+})
+
+function t(item) {
+  return translationsCache.value[activeLang.value]?.[item.id] ?? {}
+}
+
 function label(item) {
-  return item.translations?.en?.name ?? item.internal_name ?? item.id
+  return t(item).name ?? item.internal_name ?? item.id
 }
 
 function selectItem(item) {
@@ -33,7 +72,6 @@ function back() {
   selected.value = null
 }
 
-// Fields to show in detail view, in order
 const DETAIL_FIELDS = [
   ['type', 'Type'],
   ['alternate_name', 'Alternate name'],
@@ -54,9 +92,9 @@ const DETAIL_FIELDS = [
 
 const detailFields = computed(() => {
   if (!selected.value) return []
-  const en = selected.value.translations?.en ?? {}
+  const fields = t(selected.value)
   return DETAIL_FIELDS
-    .map(([key, label]) => ({ label, value: en[key] }))
+    .map(([key, label]) => ({ label, value: fields[key] }))
     .filter(f => f.value)
 })
 </script>
@@ -66,6 +104,14 @@ const detailFields = computed(() => {
     <header>
       <span class="logo">Inventory Viewer</span>
       <span v-if="!loading && !error" class="count">{{ items.length }} items</span>
+      <select
+        v-if="availableLangs.length > 1"
+        v-model="activeLang"
+        class="lang-select"
+        :disabled="loading"
+      >
+        <option v-for="lang in availableLangs" :key="lang" :value="lang">{{ lang }}</option>
+      </select>
     </header>
 
     <main>
@@ -89,9 +135,9 @@ const detailFields = computed(() => {
 
           <div v-if="selected.images?.length" class="images">
             <figure v-for="(img, i) in selected.images" :key="i">
-              <img :src="img.url" :alt="img.captions?.en ?? ''" loading="lazy" />
-              <figcaption v-if="img.captions?.en || img.photographer">
-                <span v-if="img.captions?.en">{{ img.captions.en }}</span>
+              <img :src="img.url" :alt="img.captions?.[activeLang] ?? ''" loading="lazy" />
+              <figcaption v-if="img.captions?.[activeLang] || img.photographer">
+                <span v-if="img.captions?.[activeLang]">{{ img.captions[activeLang] }}</span>
                 <span v-if="img.photographer" class="credit">© {{ img.photographer }}</span>
               </figcaption>
             </figure>
@@ -149,6 +195,18 @@ header {
 }
 .logo { font-weight: 700; font-size: 1rem; letter-spacing: .02em; }
 .count { font-size: .8rem; opacity: .6; }
+
+.lang-select {
+  margin-left: auto;
+  background: #2a2a4e;
+  color: #fff;
+  border: 1px solid #4a4a7e;
+  border-radius: 4px;
+  padding: .25rem .5rem;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.lang-select:disabled { opacity: .5; cursor: default; }
 
 main { flex: 1; max-width: 900px; width: 100%; margin: 0 auto; padding: 1.5rem; }
 
