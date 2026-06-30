@@ -60,24 +60,24 @@ loadEnglishTranslations()
 
 function itemLabel(item) {
   if (!item) return ''
-  return enItemTranslations.value[item.id]?.name ?? item.internal_name ?? item.id
+  return mdStrip(enItemTranslations.value[item.id]?.name ?? item.internal_name ?? item.id)
 }
 
 function countryLabel(countryId) {
   if (!countryId) return ''
   const fallback = countries.value.find(c => c.id === countryId)
-  return enCountryTranslations.value[countryId]?.name ?? fallback?.internal_name ?? countryId
+  return mdStrip(enCountryTranslations.value[countryId]?.name ?? fallback?.internal_name ?? countryId)
 }
 
 function dynastyLabel(dynastyId) {
   if (!dynastyId) return ''
-  return enDynastyTranslations.value[dynastyId]?.name ?? dynastyId
+  return mdStrip(enDynastyTranslations.value[dynastyId]?.name ?? dynastyId)
 }
 
 function partnerLabel(partnerId) {
   if (!partnerId) return ''
   const fallback = partners.value.find(p => p.id === partnerId)
-  return enPartnerTranslations.value[partnerId]?.name ?? fallback?.id ?? partnerId
+  return mdStrip(enPartnerTranslations.value[partnerId]?.name ?? fallback?.id ?? partnerId)
 }
 
 // ── Lookup maps ────────────────────────────────────────────────────────────
@@ -88,11 +88,24 @@ const itemById = computed(() => {
   return m
 })
 
-// ── Markdown helper ────────────────────────────────────────────────────────
+// ── Markdown helpers ───────────────────────────────────────────────────────
 
+// Full block markdown → HTML (for prose sections)
 function md(text) {
   if (!text) return ''
   return marked.parse(text, { breaks: true })
+}
+
+// Inline markdown → HTML without block-level <p> wrapping (for titles, names)
+function mdInline(text) {
+  if (!text) return ''
+  return marked.parseInline(text)
+}
+
+// Strip all markdown to plain text (for alt attributes, list badges, etc.)
+function mdStrip(text) {
+  if (!text) return ''
+  return marked.parseInline(text).replace(/<[^>]*>/g, '')
 }
 
 export function useInventoryData() {
@@ -116,5 +129,7 @@ export function useInventoryData() {
     partnerLabel,
     itemById,
     md,
+    mdInline,
+    mdStrip,
   }
 }
