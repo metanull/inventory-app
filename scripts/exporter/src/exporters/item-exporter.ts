@@ -39,6 +39,7 @@ interface ItemTranslationRow {
   provenance: string | null
   obtention: string | null
   bibliography: string | null
+  extra: string | null
   author_name: string | null
   copy_editor_name: string | null
   translator_name: string | null
@@ -115,7 +116,7 @@ export class ItemExporter extends BaseExporter {
               it.type, it.holder, it.owner, it.initial_owner, it.dates,
               it.location, it.dimensions, it.place_of_production,
               it.method_for_datation, it.method_for_provenance,
-              it.provenance, it.obtention, it.bibliography,
+              it.provenance, it.obtention, it.bibliography, it.extra,
               a1.name AS author_name,
               a2.name AS copy_editor_name,
               a3.name AS translator_name,
@@ -179,12 +180,26 @@ export class ItemExporter extends BaseExporter {
 
     // ── Build maps ───────────────────────────────────────────────────────────
 
+    // item_id -> type (needed to conditionally surface monument-specific extra fields)
+    const itemTypeMap = new Map<string, string>(items.map(i => [i.id, i.type]))
+
     // item_id -> lang_code -> translation fields
     const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
     for (const t of translations) {
       if (!translationMap.has(t.item_id)) translationMap.set(t.item_id, {})
       const code = langCodeMap.get(t.language_id)
       if (!code) continue
+
+      // For monuments, surface history and patrons stored in item_translations.extra.
+      // These fields are distinct from objects' obtention and initial_owner.
+      let history: string | null = null
+      let patrons: string | null = null
+      if (itemTypeMap.get(t.item_id) === 'monument' && t.extra) {
+        const extra = parseJson(t.extra) as Record<string, string> | null
+        history = extra?.history ?? null
+        patrons = extra?.patrons ?? null
+      }
+
       translationMap.get(t.item_id)![code] = {
         name: t.name,
         alternate_name: t.alternate_name,
@@ -202,6 +217,8 @@ export class ItemExporter extends BaseExporter {
         provenance: t.provenance,
         obtention: t.obtention,
         bibliography: t.bibliography,
+        history,
+        patrons,
         author: t.author_name,
         copy_editor: t.copy_editor_name,
         translator: t.translator_name,
@@ -293,6 +310,7 @@ export class ItemExporter extends BaseExporter {
       id: item.id,
       type: item.type,
       internal_name: item.internal_name,
+      backward_compatibility: item.backward_compatibility,
       parent_id: item.parent_id,
       partner_id: item.partner_id,
       country_id: item.country_id,

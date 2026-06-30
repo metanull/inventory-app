@@ -155,6 +155,7 @@ export class PartnerExporter extends BaseExporter {
     const output = partners.map(p => ({
       id: p.id,
       type: p.type,
+      backward_compatibility: p.backward_compatibility,
       country_id: p.country_id,
       latitude: p.latitude !== null ? parseFloat(p.latitude) : null,
       longitude: p.longitude !== null ? parseFloat(p.longitude) : null,
