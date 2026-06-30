@@ -59,4 +59,37 @@ export class Database {
 
     return rows.map(r => r.id)
   }
+
+  /**
+   * Resolve context UUIDs for the given project keys.
+   *
+   * Each legacy project (e.g. "ISL") has a corresponding context row whose
+   * backward_compatibility matches the project: "mwnf3:projects:ISL".
+   * Item translations must be filtered to these context IDs so that
+   * explore-context translations (mwnf3_explore:context) are excluded.
+   */
+  async resolveContextIds(projectKeys: string[]): Promise<string[]> {
+    const bcValues = projectKeys.map(k => `mwnf3:projects:${k}`)
+    const placeholders = bcValues.map(() => '?').join(', ')
+
+    const rows = await this.query<{ id: string; backward_compatibility: string }>(
+      `SELECT id, backward_compatibility FROM contexts WHERE backward_compatibility IN (${placeholders})`,
+      bcValues
+    )
+
+    if (rows.length === 0) {
+      throw new Error(
+        `No contexts found. Looked for: ${bcValues.join(', ')}\n` +
+          `Run: SELECT backward_compatibility FROM contexts; to list available contexts.`
+      )
+    }
+
+    if (rows.length < projectKeys.length) {
+      const found = new Set(rows.map(r => r.backward_compatibility))
+      const missing = bcValues.filter(v => !found.has(v))
+      throw new Error(`Contexts not found for: ${missing.join(', ')}`)
+    }
+
+    return rows.map(r => r.id)
+  }
 }
