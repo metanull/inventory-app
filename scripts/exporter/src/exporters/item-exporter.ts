@@ -69,6 +69,8 @@ interface ItemDynastyRow {
 interface ItemItemLinkRow {
   source_id: string
   target_id: string
+  language_id: string
+  justification: string | null
 }
 
 interface ItemTagRow {
@@ -109,7 +111,12 @@ export class ItemExporter extends BaseExporter {
     const itemPh = this.placeholders(itemIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
+    const contextIds = this.context.contextIds
+    const contextPh = this.placeholders(contextIds.length)
+
     // ── 1. Content translations (name, description, …) ──────────────────────
+    // Filter by context_id so that explore-context translations (which may have
+    // extra=null) do not overwrite the canonical project translations.
     const translations = await this.db.query<ItemTranslationRow>(
       `SELECT it.item_id, it.language_id,
               it.name, it.alternate_name, it.description,
@@ -126,8 +133,9 @@ export class ItemExporter extends BaseExporter {
        LEFT JOIN authors a2 ON a2.id = it.text_copy_editor_id
        LEFT JOIN authors a3 ON a3.id = it.translator_id
        LEFT JOIN authors a4 ON a4.id = it.translation_copy_editor_id
-       WHERE it.item_id IN (${itemPh})`,
-      itemIds
+       WHERE it.item_id IN (${itemPh})
+         AND it.context_id IN (${contextPh})`,
+      [...itemIds, ...contextIds]
     )
 
     // ── 2. Images via picture child items ────────────────────────────────────
@@ -171,10 +179,16 @@ export class ItemExporter extends BaseExporter {
          WHERE it2.item_id IN (${itemPh})`,
         itemIds
       ),
+      // Outgoing links only (source_id IN items). The legacy data model stores
+      // directed links; fetching both directions and reversing doubles the list.
+      // Justification texts are joined per link per language.
       this.db.query<ItemItemLinkRow>(
-        `SELECT source_id, target_id FROM item_item_links
-         WHERE source_id IN (${itemPh}) OR target_id IN (${itemPh})`,
-        [...itemIds, ...itemIds]
+        `SELECT iil.source_id, iil.target_id,
+                iilt.language_id, iilt.description AS justification
+         FROM item_item_links iil
+         LEFT JOIN item_item_link_translations iilt ON iilt.item_item_link_id = iil.id
+         WHERE iil.source_id IN (${itemPh})`,
+        itemIds
       ),
     ])
 
@@ -294,15 +308,23 @@ export class ItemExporter extends BaseExporter {
       tagMap.get(link.item_id)!.push(link.tag)
     }
 
-    // item_id -> related_item_ids[] (bidirectional; only items present in this export)
+    // item_id -> related item entries (outgoing links only; only targets present in this export)
+    // source_id -> target_id -> lang_code -> justification text
     const itemIdSet = new Set(itemIds)
     const relatedMap = new Map<string, string[]>()
+    const justificationMap = new Map<string, Map<string, Record<string, string>>>()
     for (const link of itemItemLinks) {
-      if (itemIdSet.has(link.source_id) && itemIdSet.has(link.target_id)) {
-        if (!relatedMap.has(link.source_id)) relatedMap.set(link.source_id, [])
-        relatedMap.get(link.source_id)!.push(link.target_id)
-        if (!relatedMap.has(link.target_id)) relatedMap.set(link.target_id, [])
-        relatedMap.get(link.target_id)!.push(link.source_id)
+      if (!itemIdSet.has(link.target_id)) continue
+      if (!relatedMap.has(link.source_id)) relatedMap.set(link.source_id, [])
+      const existing = relatedMap.get(link.source_id)!
+      if (!existing.includes(link.target_id)) existing.push(link.target_id)
+
+      const code = langCodeMap.get(link.language_id)
+      if (code && link.justification) {
+        if (!justificationMap.has(link.source_id)) justificationMap.set(link.source_id, new Map())
+        const tgtMap = justificationMap.get(link.source_id)!
+        if (!tgtMap.has(link.target_id)) tgtMap.set(link.target_id, {})
+        tgtMap.get(link.target_id)![code] = link.justification
       }
     }
 
@@ -323,7 +345,10 @@ export class ItemExporter extends BaseExporter {
       longitude: item.longitude !== null ? parseFloat(item.longitude) : null,
       images: imageMap.get(item.id) ?? [],
       dynasty_ids: dynastyMap.get(item.id) ?? [],
-      related_item_ids: relatedMap.get(item.id) ?? [],
+      related_items: (relatedMap.get(item.id) ?? []).map(targetId => ({
+        id: targetId,
+        justifications: justificationMap.get(item.id)?.get(targetId) ?? {},
+      })),
       tags: tagMap.get(item.id) ?? [],
     }))
 

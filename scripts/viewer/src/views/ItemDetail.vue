@@ -81,15 +81,17 @@ const selectedDynasties = computed(() => {
 // ── Related items ─────────────────────────────────────────────────────
 
 const relatedItems = computed(() => {
-  if (!item.value?.related_item_ids?.length) return []
+  const links = item.value?.related_items ?? []
+  if (!links.length) return []
   const seen = new Set()
-  return item.value.related_item_ids
-    .map(id => itemById.value[id])
-    .filter(it => {
-      if (!it || seen.has(it.id)) return false
+  return links
+    .map(link => {
+      const it = itemById.value[link.id]
+      if (!it || seen.has(it.id)) return null
       seen.add(it.id)
-      return true
+      return { item: it, justifications: link.justifications ?? {} }
     })
+    .filter(Boolean)
 })
 
 // ── Key facts (metadata table), type-conditional field order ─────────
@@ -113,12 +115,12 @@ const keyFacts = computed(() => {
   } else {
     if (tr.location)            facts.push({ label: 'Location',                  value: tr.location })
     if (tr.holder)              facts.push({ label: 'Holding Museum',             value: tr.holder })
-    if (it.owner_reference)     facts.push({ label: 'Museum Inventory Number',    value: it.owner_reference })
     if (tr.dates)               facts.push({ label: 'Date of Object',             value: tr.dates })
-    if (dynastyNames)           facts.push({ label: 'Period / Dynasty',           value: dynastyNames })
-    if (tr.provenance)          facts.push({ label: 'Provenance',                 value: tr.provenance })
+    if (it.owner_reference)     facts.push({ label: 'Museum Inventory Number',    value: it.owner_reference })
     if (tr.type)                facts.push({ label: 'Material(s) / Technique(s)', value: tr.type })
     if (tr.dimensions)          facts.push({ label: 'Dimensions',                 value: tr.dimensions })
+    if (dynastyNames)           facts.push({ label: 'Period / Dynasty',           value: dynastyNames })
+    if (tr.provenance)          facts.push({ label: 'Provenance',                 value: tr.provenance })
     if (tr.owner)               facts.push({ label: 'Owner',                      value: tr.owner })
     if (tr.initial_owner)       facts.push({ label: 'Initial Owner',              value: tr.initial_owner })
     if (tr.place_of_production) facts.push({ label: 'Place of Production',        value: tr.place_of_production })
@@ -136,21 +138,18 @@ const contentSections = computed(() => {
   const sections = []
 
   if (monument) {
-    if (tr.history)     sections.push({ heading: 'History',     value: tr.history })
-    if (tr.description) sections.push({ heading: 'Description', value: tr.description })
+    if (tr.history)               sections.push({ heading: 'History',                        value: tr.history })
+    if (tr.description)           sections.push({ heading: 'Description',                    value: tr.description })
+    if (tr.method_for_datation)   sections.push({ heading: 'How Monument was dated',         value: tr.method_for_datation })
+    if (tr.method_for_provenance) sections.push({ heading: 'How provenance was established', value: tr.method_for_provenance })
+    if (tr.bibliography)          sections.push({ heading: 'Selected bibliography',          value: tr.bibliography })
   } else {
-    if (tr.description) sections.push({ heading: 'Description',       value: tr.description })
-    if (tr.obtention)   sections.push({ heading: 'History / Acquisition', value: tr.obtention })
+    if (tr.description)           sections.push({ heading: 'Description',                          value: tr.description })
+    if (tr.method_for_datation)   sections.push({ heading: 'How date and origin were established', value: tr.method_for_datation })
+    if (tr.obtention)             sections.push({ heading: 'How Object was obtained',              value: tr.obtention })
+    if (tr.method_for_provenance) sections.push({ heading: 'How provenance was established',       value: tr.method_for_provenance })
+    if (tr.bibliography)          sections.push({ heading: 'Selected bibliography',                value: tr.bibliography })
   }
-
-  if (tr.method_for_datation)
-    sections.push({ heading: monument ? 'How Monument Was Dated' : 'How Object Was Dated', value: tr.method_for_datation })
-
-  if (tr.method_for_provenance)
-    sections.push({ heading: monument ? 'How Monument Provenance Was Determined' : 'How Object Provenance Was Determined', value: tr.method_for_provenance })
-
-  if (tr.bibliography)
-    sections.push({ heading: 'Bibliography', value: tr.bibliography })
 
   return sections
 })
@@ -270,7 +269,7 @@ function back() {
         <h2 class="sub-section-title">Related Items</h2>
         <ul class="related-list item-list">
           <li
-            v-for="rel in relatedItems"
+            v-for="{ item: rel, justifications } in relatedItems"
             :key="rel.id"
             class="item-list-row"
             @click="$router.push(`/item/${encodeURIComponent(rel.id)}`)"
@@ -281,6 +280,10 @@ function back() {
             </div>
             <div class="item-list-info">
               <div class="item-list-name">{{ itemLabel(rel) }}</div>
+              <div
+                v-if="justifications[activeLang]"
+                class="item-list-justification"
+              >{{ justifications[activeLang] }}</div>
               <div class="item-list-meta">
                 <span class="item-type-badge">{{ rel.type }}</span>
               </div>
@@ -473,5 +476,13 @@ function back() {
   letter-spacing: 0.06em;
   font-size: 10px;
   color: #888;
+}
+.item-list-justification {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 2px 0 4px;
+  font-family: Arial, sans-serif;
+  line-height: 1.4;
 }
 </style>
