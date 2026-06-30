@@ -296,7 +296,7 @@ function back() {
 </template>
 
 <style scoped>
-.not-found { color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; }
+.not-found { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; }
 
 .detail-wrap { display: flex; flex-direction: column; gap: 10px; }
 
@@ -304,35 +304,32 @@ function back() {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 12px;
   color: var(--muted);
   justify-content: flex-end;
 }
-.lang-label { }
 .lang-select { font-size: 12px; padding: 3px 6px; }
-
-.detail { }
 
 .detail-type-badge {
   display: inline-block;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--header-bg);
-  border: 1px solid var(--gold);
+  color: var(--heading);
+  border: 1px solid var(--gold-dark);
   padding: 2px 8px;
   margin-bottom: 10px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .detail-title {
-  font-size: 22px;
-  font-weight: bold;
-  color: var(--header-bg);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--heading);
   margin-bottom: 16px;
   line-height: 1.3;
-  font-family: Georgia, serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Images */
@@ -355,7 +352,7 @@ function back() {
   color: var(--muted);
   margin-top: 4px;
   width: 180px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .photo-credit { display: block; }
 
@@ -364,7 +361,7 @@ function back() {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .key-facts th,
 .key-facts td {
@@ -374,15 +371,15 @@ function back() {
   text-align: left;
 }
 .key-facts th {
-  background: #f8f0e3;
+  background: var(--gold-pale);
   width: 36%;
-  font-weight: bold;
-  color: var(--header-bg);
-  font-family: Arial, sans-serif;
-  font-size: 12px;
+  font-weight: 500;
+  color: var(--heading);
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
   white-space: nowrap;
 }
-.key-facts td { color: var(--text); font-family: Arial, sans-serif; }
+.key-facts td { color: var(--text); font-family: 'Roboto', sans-serif; }
 
 /* Content sections */
 .content-section {
@@ -392,16 +389,16 @@ function back() {
 }
 .content-section-heading {
   font-size: 13px;
-  font-weight: bold;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: var(--header-bg);
+  color: var(--heading);
   margin-bottom: 10px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Prose */
-.prose { font-size: 13px; line-height: 1.7; color: var(--text); font-family: Arial, sans-serif; }
+.prose { font-size: 14px; line-height: 1.7; color: var(--text); font-family: 'Roboto', sans-serif; }
 .prose :deep(p) { margin: 0 0 .75em; }
 .prose :deep(p:last-child) { margin-bottom: 0; }
 .prose :deep(em) { font-style: italic; }
@@ -414,16 +411,16 @@ function back() {
 .credits {
   margin-top: 20px;
   padding-top: 14px;
-  border-top: 2px solid var(--header-bg);
+  border-top: 2px solid var(--heading);
 }
 .credits-heading {
   font-size: 11px;
-  font-weight: bold;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--header-bg);
+  color: var(--heading);
   margin-bottom: 10px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .credits-list {
   display: grid;
@@ -431,26 +428,26 @@ function back() {
   gap: .3rem 1rem;
   font-size: 12px;
   margin-bottom: 8px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
-.credits-list dt { font-weight: bold; color: var(--muted); }
+.credits-list dt { font-weight: 500; color: var(--muted); }
 .credits-list dd { color: var(--text); }
-.mwnf-ref { font-size: 11px; color: var(--muted); font-family: Arial, sans-serif; }
+.mwnf-ref { font-size: 11px; color: var(--muted); font-family: 'Roboto', sans-serif; }
 
 /* Dynasty cards */
 .sub-section-title {
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted);
   margin-bottom: 10px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .dynasties { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
 .dynasty-card {
-  background: #faf5ec;
-  border-left: 3px solid var(--gold);
+  background: var(--section-bg);
+  border-left: 3px solid var(--gold-dark);
   padding: 10px 14px;
   margin-bottom: 8px;
 }
@@ -461,11 +458,11 @@ function back() {
   gap: .4rem 1rem;
   margin-bottom: 4px;
 }
-.dynasty-name { font-weight: bold; font-size: 13px; }
-.dynasty-aka  { font-size: 11px; color: var(--muted); font-style: italic; }
-.dynasty-dates { font-size: 11px; color: var(--muted); margin-left: auto; }
-.dynasty-history { font-size: 12px; line-height: 1.6; color: var(--text); margin: 0 0 4px; font-family: Arial, sans-serif; }
-.dynasty-area { font-size: 11px; color: var(--muted); margin: 0; font-family: Arial, sans-serif; }
+.dynasty-name { font-weight: 500; font-size: 14px; font-family: 'Roboto', sans-serif; }
+.dynasty-aka  { font-size: 12px; color: var(--muted); font-style: italic; font-family: 'Roboto', sans-serif; }
+.dynasty-dates { font-size: 12px; color: var(--muted); margin-left: auto; font-family: 'Roboto', sans-serif; }
+.dynasty-history { font-size: 13px; line-height: 1.6; color: var(--text); margin: 0 0 4px; font-family: 'Roboto', sans-serif; }
+.dynasty-area { font-size: 12px; color: var(--muted); margin: 0; font-family: 'Roboto', sans-serif; }
 
 /* Related */
 .related { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
@@ -475,14 +472,15 @@ function back() {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 10px;
-  color: #888;
+  color: var(--muted);
+  font-family: 'Roboto', sans-serif;
 }
 .item-list-justification {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   font-style: italic;
   margin: 2px 0 4px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   line-height: 1.4;
 }
 </style>
