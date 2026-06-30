@@ -65,6 +65,11 @@ interface ItemDynastyRow {
   dynasty_id: string
 }
 
+interface ItemItemLinkRow {
+  source_id: string
+  target_id: string
+}
+
 interface ItemTagRow {
   item_id: string
   tag: string
@@ -152,8 +157,8 @@ export class ItemExporter extends BaseExporter {
       )
     }
 
-    // ── 3. Dynasty and tag links ─────────────────────────────────────────────
-    const [dynastyLinks, tagLinks] = await Promise.all([
+    // ── 3. Dynasty, tag, and item-item links ────────────────────────────────
+    const [dynastyLinks, tagLinks, itemItemLinks] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -164,6 +169,11 @@ export class ItemExporter extends BaseExporter {
          JOIN tags t ON t.id = it2.tag_id
          WHERE it2.item_id IN (${itemPh})`,
         itemIds
+      ),
+      this.db.query<ItemItemLinkRow>(
+        `SELECT source_id, target_id FROM item_item_links
+         WHERE source_id IN (${itemPh}) OR target_id IN (${itemPh})`,
+        [...itemIds, ...itemIds]
       ),
     ])
 
@@ -267,6 +277,18 @@ export class ItemExporter extends BaseExporter {
       tagMap.get(link.item_id)!.push(link.tag)
     }
 
+    // item_id -> related_item_ids[] (bidirectional; only items present in this export)
+    const itemIdSet = new Set(itemIds)
+    const relatedMap = new Map<string, string[]>()
+    for (const link of itemItemLinks) {
+      if (itemIdSet.has(link.source_id) && itemIdSet.has(link.target_id)) {
+        if (!relatedMap.has(link.source_id)) relatedMap.set(link.source_id, [])
+        relatedMap.get(link.source_id)!.push(link.target_id)
+        if (!relatedMap.has(link.target_id)) relatedMap.set(link.target_id, [])
+        relatedMap.get(link.target_id)!.push(link.source_id)
+      }
+    }
+
     const output = items.map(item => ({
       id: item.id,
       type: item.type,
@@ -283,6 +305,7 @@ export class ItemExporter extends BaseExporter {
       longitude: item.longitude !== null ? parseFloat(item.longitude) : null,
       images: imageMap.get(item.id) ?? [],
       dynasty_ids: dynastyMap.get(item.id) ?? [],
+      related_item_ids: relatedMap.get(item.id) ?? [],
       tags: tagMap.get(item.id) ?? [],
     }))
 

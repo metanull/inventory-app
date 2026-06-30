@@ -1,11 +1,10 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { createRequire } from 'module'
 import { dirname } from 'path'
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const dataPackage = env.DATA_PACKAGE || '@metanull/islamicart-data'
+export default defineConfig(() => {
+  const dataPackage = process.env.DATA_PACKAGE || '@metanull/islamicart-data'
 
   const require = createRequire(import.meta.url)
   let dataPackageDir
