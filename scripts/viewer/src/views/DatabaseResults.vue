@@ -293,7 +293,7 @@ const searchSummary = computed(() => {
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 6px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 12px;
 }
 .summary-label { font-weight: bold; color: var(--muted); }
@@ -302,11 +302,11 @@ const searchSummary = computed(() => {
 .summary-actions { margin-left: auto; display: flex; align-items: center; }
 
 .refine-panel { display: flex; flex-direction: column; gap: 10px; }
-.filter-label { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; color: var(--muted); }
+.filter-label { font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; color: var(--muted); }
 .refine-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 
 .result-count {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 12px;
   color: var(--muted);
   margin-bottom: 12px;
@@ -314,7 +314,7 @@ const searchSummary = computed(() => {
   border-bottom: 1px solid var(--border);
 }
 
-.no-results { color: var(--muted); font-family: Arial, sans-serif; font-size: 13px; padding: 20px 0; }
+.no-results { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; padding: 20px 0; }
 
 .item-type-badge {
   text-transform: uppercase;
@@ -323,5 +323,5 @@ const searchSummary = computed(() => {
   color: #888;
 }
 
-.page-ellipsis { padding: 4px; color: var(--muted); font-family: Arial, sans-serif; font-size: 12px; }
+.page-ellipsis { padding: 4px; color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 12px; }
 </style>
