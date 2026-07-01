@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
-const { items, itemLabel, enItemTranslations } = useInventoryData()
+const { items, itemLabel, enItemTranslations, mdInline } = useInventoryData()
 
 // Pick a random item that has an image, as the featured spotlight
 const featured = computed(() => {
@@ -67,7 +67,7 @@ function goToItem(item) {
         </div>
         <div class="featured-info">
           <p class="featured-type">{{ featured.type }}</p>
-          <h3 class="featured-name">{{ itemLabel(featured) }}</h3>
+          <h3 class="featured-name" v-html="mdInline(enItemTranslations[featured.id]?.name ?? featured.internal_name ?? featured.id)" />
           <p v-if="enItemTranslations[featured.id]?.location" class="featured-meta">
             {{ enItemTranslations[featured.id].location }}
           </p>

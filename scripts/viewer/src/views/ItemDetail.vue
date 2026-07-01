@@ -13,7 +13,7 @@ const {
   loadLangTranslations,
   itemById,
   itemLabel, countryLabel, partnerLabel,
-  md,
+  md, mdInline,
 } = useInventoryData()
 
 // ── Active item & language ────────────────────────────────────────────
@@ -37,8 +37,14 @@ function t(it) {
   return translationsCache.value[activeLang.value]?.[it.id] ?? {}
 }
 
-function label(it) {
-  return t(it).name ?? it.internal_name ?? it.id
+function labelText(it) {
+  if (!it) return ''
+  return itemLabel(it) // already mdStrip'd
+}
+
+function labelHtml(it) {
+  if (!it) return ''
+  return mdInline(t(it).name ?? it.internal_name ?? it.id)
 }
 
 // ── Dynasties for this item ───────────────────────────────────────────
@@ -201,7 +207,7 @@ function back() {
       <div class="detail-type-badge">{{ item.type }}</div>
 
       <!-- Title -->
-      <h1 class="detail-title">{{ label(item) }}</h1>
+      <h1 class="detail-title" v-html="labelHtml(item)" />
 
       <!-- Images -->
       <div v-if="item.images?.length" class="images">
@@ -253,7 +259,7 @@ function back() {
         <h2 class="sub-section-title">{{ selectedDynasties.length === 1 ? 'Dynasty' : 'Dynasties' }}</h2>
         <div v-for="d in selectedDynasties" :key="d.id" class="dynasty-card">
           <div class="dynasty-header">
-            <span class="dynasty-name">{{ d.name ?? '—' }}</span>
+            <span class="dynasty-name" v-html="d.name ? mdInline(d.name) : '—'" />
             <span v-if="d.also_known_as" class="dynasty-aka">also known as {{ d.also_known_as }}</span>
             <span v-if="d.from_ad || d.to_ad" class="dynasty-dates">
               {{ d.date_description_ad ?? (d.from_ad + (d.to_ad ? ' – ' + d.to_ad : '')) }}
@@ -275,11 +281,11 @@ function back() {
             @click="$router.push(`/item/${encodeURIComponent(rel.id)}`)"
           >
             <div class="item-thumb">
-              <img v-if="rel.images?.length" :src="rel.images[0].url" :alt="itemLabel(rel)" loading="lazy" />
+              <img v-if="rel.images?.length" :src="rel.images[0].url" :alt="labelText(rel)" loading="lazy" />
               <div v-else class="item-thumb-placeholder" />
             </div>
             <div class="item-list-info">
-              <div class="item-list-name">{{ itemLabel(rel) }}</div>
+              <div class="item-list-name" v-html="mdInline(t(rel).name ?? rel.internal_name ?? rel.id)" />
               <div
                 v-if="justifications[activeLang]"
                 class="item-list-justification"

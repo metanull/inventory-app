@@ -8,7 +8,7 @@ const router = useRouter()
 const {
   items, countries, partners, dynasties,
   countryLabel, dynastyLabel, partnerLabel,
-  itemLabel, enItemTranslations,
+  itemLabel, enItemTranslations, mdInline,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
@@ -218,7 +218,7 @@ const activeFilterLabel = computed(() => {
             <div v-else class="item-thumb-placeholder" />
           </div>
           <div class="item-list-info">
-            <div class="item-list-name">{{ itemLabel(item) }}</div>
+            <div class="item-list-name" v-html="mdInline(enItemTranslations[item.id]?.name ?? item.internal_name ?? item.id)" />
             <div class="item-list-meta">
               <span v-if="item.country_id">{{ countryLabel(item.country_id) }}</span>
               <span v-if="enItemTranslations[item.id]?.dates">{{ enItemTranslations[item.id].dates }}</span>
