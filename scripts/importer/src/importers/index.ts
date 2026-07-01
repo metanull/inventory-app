@@ -18,6 +18,7 @@ export { DynastyImporter } from './phase-01/index.js';
 export { AuthorImporter } from './phase-01/index.js';
 export { SchoolImporter } from './phase-01/index.js';
 export { PartnerHierarchyImporter } from './phase-01/index.js';
+export { InstitutionHierarchyImporter } from './phase-01/index.js';
 export { Mwnf3ExhibitionImporter } from './phase-01/index.js';
 export { Mwnf3ExhibitionTranslationImporter } from './phase-01/index.js';
 export { Mwnf3ExhibitionItemImporter } from './phase-01/index.js';

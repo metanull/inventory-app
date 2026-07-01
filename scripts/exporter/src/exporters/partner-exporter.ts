@@ -83,16 +83,27 @@ export class PartnerExporter extends BaseExporter {
 
     const ph = this.placeholders(this.projectIds.length)
 
-    // Partners that hold at least one object/monument in these projects.
-    // items.partner_id is the authoritative link: museums hold objects,
-    // institutions hold monuments.
+    // Partners listed in the curated legacy hierarchy (partner_museums/partner_institutions
+    // and their associated/minor tiers, imported into collection_partner) for these projects.
+    // This is deliberately narrower than "owns an item in this project": most institutions
+    // attached to a monument are just the country's generic administrative authority (e.g.
+    // a Ministry of Culture recorded as the monument's owner), not an actual listed project
+    // partner — legacy's Partners page only ever shows the curated hierarchy, never every
+    // institution that happens to own an item.
     const partners = await this.db.query<PartnerRow>(
       `SELECT DISTINCT p.id, p.type, p.internal_name, p.backward_compatibility,
               p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id
        FROM partners p
-       JOIN items i ON i.partner_id = p.id
-       WHERE i.project_id IN (${ph})
-         AND i.type IN ('object', 'monument', 'detail')
+       WHERE EXISTS (
+         SELECT 1
+         FROM collection_partner cp
+         JOIN collections c ON c.id = cp.collection_id
+         JOIN projects proj ON proj.context_id = c.context_id
+         WHERE cp.collection_type = 'project'
+           AND cp.visible = true
+           AND cp.partner_id = p.id
+           AND proj.id IN (${ph})
+       )
        ORDER BY p.type, p.internal_name`,
       this.projectIds
     )

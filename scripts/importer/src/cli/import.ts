@@ -132,6 +132,7 @@ import {
   ThgTimelineImporter,
   ThgGalleryContentImporter,
   PartnerHierarchyImporter,
+  InstitutionHierarchyImporter,
   Mwnf3ExhibitionImporter,
   Mwnf3ExhibitionTranslationImporter,
   Mwnf3ExhibitionItemImporter,
@@ -220,6 +221,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description:
       'Import partner hierarchy levels (partner/associated/minor) from partner_museums tables',
     importerClass: PartnerHierarchyImporter,
+    dependencies: ['project', 'partner'],
+  },
+  {
+    key: 'institution-hierarchy',
+    name: 'Institution Hierarchy',
+    description:
+      'Import institution hierarchy levels (partner/associated) from partner_institutions tables',
+    importerClass: InstitutionHierarchyImporter,
     dependencies: ['project', 'partner'],
   },
   {
