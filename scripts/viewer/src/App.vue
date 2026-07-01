@@ -20,6 +20,7 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/database" active-class="nav-active">Database</RouterLink>
         <RouterLink to="/timeline" active-class="nav-active">Timeline</RouterLink>
         <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
+        <RouterLink to="/dynasties" active-class="nav-active">Dynasties</RouterLink>
       </div>
     </nav>
 
