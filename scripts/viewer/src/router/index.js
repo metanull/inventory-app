@@ -4,6 +4,8 @@ import PcEntrance from '../views/PcEntrance.vue'
 import PcList from '../views/PcList.vue'
 import Database from '../views/Database.vue'
 import DatabaseResults from '../views/DatabaseResults.vue'
+import TimelineEntrance from '../views/TimelineEntrance.vue'
+import TimelineResults from '../views/TimelineResults.vue'
 import ItemDetail from '../views/ItemDetail.vue'
 
 const routes = [
@@ -12,6 +14,8 @@ const routes = [
   { path: '/permanent-collection/results', component: PcList },
   { path: '/database', component: Database },
   { path: '/database/results', component: DatabaseResults },
+  { path: '/timeline', component: TimelineEntrance },
+  { path: '/timeline/results', component: TimelineResults },
   { path: '/item/:id', component: ItemDetail },
 ]
 
