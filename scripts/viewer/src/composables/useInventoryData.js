@@ -102,10 +102,20 @@ function mdInline(text) {
   return marked.parseInline(text)
 }
 
-// Strip all markdown to plain text (for alt attributes, list badges, etc.)
+// Strip all markdown to plain text (for alt attributes, search matching, etc.)
+// Walks marked's inline token tree directly — no HTML intermediate, no regex.
 function mdStrip(text) {
   if (!text) return ''
-  return marked.parseInline(text).replace(/<[^>]*>/g, '')
+  function tokensToText(tokens) {
+    return tokens.map(t => {
+      if (t.tokens?.length) return tokensToText(t.tokens)
+      if (t.type === 'image') return t.text ?? ''   // alt text
+      if (t.type === 'html') return ''              // discard raw HTML nodes
+      if (t.type === 'br' || t.type === 'softbreak') return ' '
+      return t.text ?? ''
+    }).join('')
+  }
+  return tokensToText(marked.Lexer.lexInline(text))
 }
 
 export function useInventoryData() {
