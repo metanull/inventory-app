@@ -19,6 +19,7 @@ interface PartnerTranslationRow {
   name: string
   description: string | null
   city_display: string | null
+  address_notes: string | null
   contact_website: string | null
   contact_phone: string | null
   contact_email_general: string | null
@@ -108,7 +109,7 @@ export class PartnerExporter extends BaseExporter {
 
     const [translations, images, logos, levels] = await Promise.all([
       this.db.query<PartnerTranslationRow>(
-        `SELECT partner_id, language_id, name, description, city_display,
+        `SELECT partner_id, language_id, name, description, city_display, address_notes,
                 contact_website, contact_phone, contact_email_general, extra
          FROM partner_translations
          WHERE partner_id IN (${partnerPh})`,
@@ -155,6 +156,7 @@ export class PartnerExporter extends BaseExporter {
           name: t.name,
           description: t.description,
           city: t.city_display,
+          address: t.address_notes,
           website: t.contact_website,
           phone: t.contact_phone,
           email: t.contact_email_general,

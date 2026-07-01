@@ -49,7 +49,7 @@ function viewItemsLink() {
 // ── Contact ────────────────────────────────────────────────────────────
 
 const hasContactInfo = computed(() =>
-  !!(t.value.phone || t.value.email || t.value.website || partner.value?.additional_urls?.length)
+  !!(t.value.address || t.value.phone || t.value.email || t.value.website || partner.value?.additional_urls?.length)
 )
 
 function normalizeUrl(url) {
@@ -145,6 +145,7 @@ function back() {
         <h2 class="content-section-heading">Contact</h2>
 
         <div v-if="hasContactInfo" class="contact-block">
+          <p v-if="t.address" class="contact-address">{{ t.address }}</p>
           <p v-if="t.phone">Phone: {{ t.phone }}</p>
           <p v-if="t.email"><a :href="`mailto:${t.email}`">{{ t.email }}</a></p>
           <p v-if="t.website">
@@ -295,6 +296,7 @@ function back() {
   border-left: 3px solid var(--gold-dark);
 }
 .contact-person-title { font-weight: 500; color: var(--heading); }
+.contact-address { white-space: pre-line; }
 
 .logos { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 .logo-img { max-height: 80px; max-width: 200px; object-fit: contain; }
