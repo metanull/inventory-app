@@ -69,6 +69,15 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Browse →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/dynasties')">
+        <h2 class="home-card-title">Islamic Dynasties</h2>
+        <p class="home-card-desc">
+          Discover the dynasties and ruling periods of the Islamic world, and
+          see the objects and monuments linked to each one.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->

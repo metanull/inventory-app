@@ -45,7 +45,7 @@ const totalCount = computed(() =>
 )
 
 function partnerLink(partner) {
-  return { path: '/permanent-collection/results', query: { partner: partner.id } }
+  return { path: `/partner/${encodeURIComponent(partner.id)}` }
 }
 </script>
 

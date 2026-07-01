@@ -8,6 +8,9 @@ import TimelineEntrance from '../views/TimelineEntrance.vue'
 import TimelineResults from '../views/TimelineResults.vue'
 import PartnersEntrance from '../views/PartnersEntrance.vue'
 import PartnersResults from '../views/PartnersResults.vue'
+import PartnerDetail from '../views/PartnerDetail.vue'
+import Dynasties from '../views/Dynasties.vue'
+import DynastyDetail from '../views/DynastyDetail.vue'
 import ItemDetail from '../views/ItemDetail.vue'
 
 const routes = [
@@ -20,6 +23,9 @@ const routes = [
   { path: '/timeline/results', component: TimelineResults },
   { path: '/partners', component: PartnersEntrance },
   { path: '/partners/results', component: PartnersResults },
+  { path: '/partner/:id', component: PartnerDetail },
+  { path: '/dynasties', component: Dynasties },
+  { path: '/dynasty/:id', component: DynastyDetail },
   { path: '/item/:id', component: ItemDetail },
 ]
 
