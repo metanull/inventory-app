@@ -150,9 +150,8 @@ temp-vue-app
 
 # CI/CD build artifacts (locally created for testing)
 VERSION
-# npm authentication (contains tokens — commit only token-free .npmrc files)
+# npm authentication (contains tokens)
 .npmrc
-!scripts/viewer/.npmrc
 
 # act secrets file (contains sensitive tokens)
 .secrets
