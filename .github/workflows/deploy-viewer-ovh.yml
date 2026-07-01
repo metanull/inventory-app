@@ -14,7 +14,9 @@ concurrency:
 
 permissions:
   contents: read
-  packages: read   # Required to pull @metanull/islamicart-data from GitHub Packages
+  # packages: read is insufficient — @metanull/islamicart-data is published from a
+  # different repository, so GITHUB_TOKEN cannot access it. GH_PACKAGES_TOKEN
+  # (a PAT with read:packages scope) is used instead for npm auth.
 
 jobs:
 
@@ -38,13 +40,13 @@ jobs:
       - name: Install dependencies
         working-directory: scripts/viewer
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         run: npm ci --no-audit --no-fund
 
       - name: Update data package to latest published version
         working-directory: scripts/viewer
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         # Always pull the newest @metanull/islamicart-data regardless of what
         # is pinned in package-lock.json — the viewer must reflect current data.
         run: npm install @metanull/islamicart-data@latest --no-audit --no-fund
