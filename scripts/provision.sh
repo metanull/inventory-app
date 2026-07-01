@@ -27,8 +27,9 @@
 #   9. Installs Certbot + issues SSL certificate (before Nginx config)
 #   10. Configures Nginx vhost for inventory-app (HTTPS if cert available)
 #   11. Creates the application directory structure (owned by deploy)
-#   12. Creates queue worker systemd service
-#   13. Sets up daily MySQL backup cron
+#   12. Creates /opt/islamicart static-file directory (islamicart viewer SPA)
+#   13. Creates queue worker systemd service
+#   14. Sets up daily MySQL backup cron
 #
 # The 'deploy' user has NO sudo. All privileged operations belong here.
 #
@@ -379,6 +380,12 @@ server {
 
     client_max_body_size 20M;
 
+    location /islamicart {
+        alias /opt/islamicart;
+        index index.html;
+        try_files \$uri \$uri/ /islamicart/index.html;
+    }
+
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
         proxy_http_version 1.1;
@@ -399,6 +406,12 @@ server {
     server_name ${DOMAIN};
 
     client_max_body_size 20M;
+
+    location /islamicart {
+        alias /opt/islamicart;
+        index index.html;
+        try_files \$uri \$uri/ /islamicart/index.html;
+    }
 
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
@@ -440,6 +453,12 @@ server {
 
     charset utf-8;
 
+    location /islamicart {
+        alias /opt/islamicart;
+        index index.html;
+        try_files \$uri \$uri/ /islamicart/index.html;
+    }
+
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
@@ -475,6 +494,12 @@ server {
     add_header X-Content-Type-Options "nosniff";
 
     charset utf-8;
+
+    location /islamicart {
+        alias /opt/islamicart;
+        index index.html;
+        try_files \$uri \$uri/ /islamicart/index.html;
+    }
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
@@ -528,7 +553,20 @@ find "${APP_DIR}/shared/storage" -type d -exec chmod g+s {} +
 info "Application directories created."
 
 # =============================================================================
-# 12. Queue worker systemd service
+# 12. islamicart static-file directory
+# =============================================================================
+info "Creating /opt/islamicart for the islamicart viewer SPA..."
+# The viewer is a static Vue 3 SPA deployed via CI/CD (scp into this directory).
+# Nginx serves it under /islamicart using an alias location block (see step 10).
+# Owned by deploy so the CI/CD user can write files without sudo.
+# World-readable (755/644) so Nginx (www-data) can read without group membership.
+mkdir -p /opt/islamicart
+chown "${DEPLOY_USER}:${DEPLOY_USER}" /opt/islamicart
+chmod 755 /opt/islamicart
+info "/opt/islamicart created (owned by ${DEPLOY_USER}, readable by Nginx)."
+
+# =============================================================================
+# 13. Queue worker systemd service
 # =============================================================================
 info "Creating queue worker systemd service..."
 cat > /etc/systemd/system/inventory-queue.service <<UNIT
@@ -561,7 +599,7 @@ else
 fi
 
 # =============================================================================
-# 13. Daily MySQL backup
+# 14. Daily MySQL backup
 # =============================================================================
 info "Setting up daily MySQL backup..."
 
@@ -614,7 +652,8 @@ info ""
 info "  Deploy user:   ${DEPLOY_USER} (no sudo)"
 info "  App directory: ${APP_DIR} (owned by ${DEPLOY_USER}:www-data)"
 info "  PHP-FPM:       ${PHP_VERSION}"
-info "  Nginx:         configured for ${DOMAIN}"
+info "  Nginx:         configured for ${DOMAIN} (+ /islamicart static SPA)"
+info "  islamicart:    /opt/islamicart (deploy-owned, CI/CD deploys viewer dist here)"
 info ""
 info "  MySQL:         ${DB_NAME} (credentials in ${DB_CREDENTIALS_FILE})"
 info "  Valkey:        localhost:6379 (use REDIS_DB=2, REDIS_CACHE_DB=3)"
