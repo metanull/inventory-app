@@ -1,0 +1,89 @@
+name: Deploy Viewer to OVH
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/viewer/**"
+
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-viewer-ovh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: read   # Required to pull @metanull/islamicart-data from GitHub Packages
+
+jobs:
+
+  build-and-deploy:
+    name: Build and Deploy islamicart Viewer
+    runs-on: ubuntu-latest
+    environment:
+      name: inventory.metanull.eu
+      url: https://inventory.metanull.eu/islamicart/
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/Krypton"
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Install dependencies
+        working-directory: scripts/viewer
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm ci --no-audit --no-fund
+
+      - name: Update data package to latest published version
+        working-directory: scripts/viewer
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Always pull the newest @metanull/islamicart-data regardless of what
+        # is pinned in package-lock.json — the viewer must reflect current data.
+        run: npm install @metanull/islamicart-data@latest --no-audit --no-fund
+
+      - name: Build viewer
+        working-directory: scripts/viewer
+        run: npm run build -- --base=/islamicart/
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Check VPS connectivity
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          nc -z -w 10 "$VPS_HOST" 22 || \
+            { echo "::error::Cannot reach ${VPS_HOST}:22 — check VPS_HOST and firewall"; exit 1; }
+
+      - name: Verify SSH authentication
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes \
+            "${VPS_USER}@${VPS_HOST}" whoami || \
+            { echo "::error::SSH auth failed — check VPS_SSH_KEY and VPS_SSH_USER secrets"; exit 1; }
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 -r \
+            scripts/viewer/dist/. "${VPS_USER}@${VPS_HOST}:/opt/islamicart/"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
