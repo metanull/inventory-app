@@ -6,6 +6,8 @@ import Database from '../views/Database.vue'
 import DatabaseResults from '../views/DatabaseResults.vue'
 import TimelineEntrance from '../views/TimelineEntrance.vue'
 import TimelineResults from '../views/TimelineResults.vue'
+import PartnersEntrance from '../views/PartnersEntrance.vue'
+import PartnersResults from '../views/PartnersResults.vue'
 import ItemDetail from '../views/ItemDetail.vue'
 
 const routes = [
@@ -16,6 +18,8 @@ const routes = [
   { path: '/database/results', component: DatabaseResults },
   { path: '/timeline', component: TimelineEntrance },
   { path: '/timeline/results', component: TimelineResults },
+  { path: '/partners', component: PartnersEntrance },
+  { path: '/partners/results', component: PartnersResults },
   { path: '/item/:id', component: ItemDetail },
 ]
 

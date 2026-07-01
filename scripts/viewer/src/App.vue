@@ -19,6 +19,7 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/permanent-collection" active-class="nav-active">Permanent Collection</RouterLink>
         <RouterLink to="/database" active-class="nav-active">Database</RouterLink>
         <RouterLink to="/timeline" active-class="nav-active">Timeline</RouterLink>
+        <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
       </div>
     </nav>
 

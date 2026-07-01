@@ -38,6 +38,19 @@ interface PartnerLogoRow {
   display_order: number
 }
 
+interface PartnerLevelRow {
+  partner_id: string
+  level: string | null
+}
+
+// Legacy tiers, most to least prominent. A partner attached at multiple
+// levels across the exported projects is reported at its most prominent tier.
+const LEVEL_RANK: Record<string, number> = {
+  partner: 0,
+  associated_partner: 1,
+  minor_contributor: 2,
+}
+
 export class PartnerExporter extends BaseExporter {
   getName(): string {
     return 'Partners'
@@ -72,7 +85,7 @@ export class PartnerExporter extends BaseExporter {
     const partnerPh = this.placeholders(partnerIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
-    const [translations, images, logos] = await Promise.all([
+    const [translations, images, logos, levels] = await Promise.all([
       this.db.query<PartnerTranslationRow>(
         `SELECT partner_id, language_id, name, description, city_display,
                 contact_website, contact_phone, contact_email_general
@@ -93,6 +106,19 @@ export class PartnerExporter extends BaseExporter {
          WHERE partner_id IN (${partnerPh})
          ORDER BY partner_id, display_order`,
         partnerIds
+      ),
+      // Legacy tier (partner / associated_partner / minor_contributor), scoped to the
+      // collections that represent the exported projects themselves.
+      this.db.query<PartnerLevelRow>(
+        `SELECT cp.partner_id, cp.level
+         FROM collection_partner cp
+         JOIN collections c ON c.id = cp.collection_id
+         JOIN projects proj ON proj.context_id = c.context_id
+         WHERE cp.collection_type = 'project'
+           AND cp.visible = true
+           AND proj.id IN (${ph})
+           AND cp.partner_id IN (${partnerPh})`,
+        [...this.projectIds, ...partnerIds]
       ),
     ])
 
@@ -152,6 +178,16 @@ export class PartnerExporter extends BaseExporter {
       })
     }
 
+    // partner_id -> most prominent level across the exported projects
+    const levelMap = new Map<string, string>()
+    for (const row of levels) {
+      if (!row.level) continue
+      const current = levelMap.get(row.partner_id)
+      if (!current || (LEVEL_RANK[row.level] ?? 99) < (LEVEL_RANK[current] ?? 99)) {
+        levelMap.set(row.partner_id, row.level)
+      }
+    }
+
     const output = partners.map(p => ({
       id: p.id,
       type: p.type,
@@ -160,6 +196,7 @@ export class PartnerExporter extends BaseExporter {
       latitude: p.latitude !== null ? parseFloat(p.latitude) : null,
       longitude: p.longitude !== null ? parseFloat(p.longitude) : null,
       monument_item_id: p.monument_item_id,
+      level: levelMap.get(p.id) ?? null,
       images: imageMap.get(p.id) ?? [],
       logos: logoMap.get(p.id) ?? [],
     }))

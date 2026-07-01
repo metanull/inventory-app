@@ -60,6 +60,15 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Explore →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/partners')">
+        <h2 class="home-card-title">Partners</h2>
+        <p class="home-card-desc">
+          Meet the partner museums and institutions across the Islamic world
+          that hold and share the objects and monuments in the collection.
+        </p>
+        <span class="home-card-link">Browse →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->
