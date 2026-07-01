@@ -29,7 +29,7 @@ import { RouterView, RouterLink } from 'vue-router'
 
     <footer class="site-footer">
       <div class="container">
-        <span>© Museum With No Frontiers — Islamic Art Digital Exhibition</span>
+        <span>© Museum With No Frontiers (MWNF) 2004 – 2026/span>
       </div>
     </footer>
   </div>
