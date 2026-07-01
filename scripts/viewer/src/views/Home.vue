@@ -51,6 +51,15 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Search →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/timeline')">
+        <h2 class="home-card-title">Timeline</h2>
+        <p class="home-card-desc">
+          Explore historical events by country and time period, and see the
+          collection items linked to each period.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->
@@ -101,7 +110,8 @@ function goToItem(item) {
 }
 
 /* Cards */
-.home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 800px) { .home-cards { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .home-cards { grid-template-columns: 1fr; } }
 
 .home-card {

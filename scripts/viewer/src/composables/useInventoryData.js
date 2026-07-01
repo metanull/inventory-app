@@ -5,12 +5,16 @@ import itemsData from '@inventory-data/items.json'
 import countriesData from '@inventory-data/countries.json'
 import partnersData from '@inventory-data/partners.json'
 import dynastiesData from '@inventory-data/dynasties.json'
+import timelinesData from '@inventory-data/timelines.json'
+import timelineEventsData from '@inventory-data/timeline_events.json'
 
 // Module-level singletons — loaded once, shared across all views
 const items = ref(itemsData)
 const countries = ref(countriesData)
 const partners = ref(partnersData)
 const dynasties = ref(dynastiesData)
+const timelines = ref(timelinesData)
+const timelineEvents = ref(timelineEventsData)
 const availableLangs = ref(manifestData.languages ?? [])
 const defaultLang = (manifestData.languages ?? []).includes('en')
   ? 'en'
@@ -20,6 +24,7 @@ const enItemTranslations = ref({})
 const enCountryTranslations = ref({})
 const enDynastyTranslations = ref({})
 const enPartnerTranslations = ref({})
+const enTimelineEventTranslations = ref({})
 const translationsCache = ref({}) // lang -> item translations (for detail view)
 
 let enLoaded = false
@@ -36,6 +41,8 @@ async function loadEnglishTranslations() {
       .then(m => { enDynastyTranslations.value = m.default }),
     import('@inventory-data/translations/partners.en.json')
       .then(m => { enPartnerTranslations.value = m.default }),
+    import('@inventory-data/translations/timeline_events.en.json')
+      .then(m => { enTimelineEventTranslations.value = m.default }),
   ])
   // Seed English into the detail-view cache too
   if (!translationsCache.value['en']) {
@@ -124,12 +131,15 @@ export function useInventoryData() {
     countries,
     partners,
     dynasties,
+    timelines,
+    timelineEvents,
     availableLangs,
     defaultLang,
     enItemTranslations,
     enCountryTranslations,
     enDynastyTranslations,
     enPartnerTranslations,
+    enTimelineEventTranslations,
     translationsCache,
     loadEnglishTranslations,
     loadLangTranslations,
