@@ -25,7 +25,7 @@ function goToItem(item) {
     <div class="home-banner content-box">
       <h1 class="home-title">Welcome to Islamic Art</h1>
       <p class="home-intro">
-        The Islamic Art digital exhibition presents a wide range of objects and monuments
+        Discover Islamic Art presents a wide range of objects and monuments
         from the Islamic world, held in museums and historic sites across numerous countries.
         Explore the collection through the Permanent Collection browser or the full-text
         Database search.
