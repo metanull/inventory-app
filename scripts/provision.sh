@@ -358,6 +358,45 @@ else
     SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
 fi
 
+# ── Nginx shared location snippets ──────────────────────────────────────────
+# Location blocks that are identical across all deploy modes (bare-metal/docker)
+# and SSL states live here — written once, included in each vhost variant.
+# Adding a new shared location means editing ONE place, not four.
+info "Writing shared Nginx location snippets..."
+mkdir -p /etc/nginx/snippets
+
+# Quoted delimiter: $uri etc. are Nginx variables and must NOT be shell-expanded.
+cat > /etc/nginx/snippets/inventory-shared-locations.conf << 'SNIPPET'
+# islamicart viewer SPA (Vue 3, hash router — static files at /opt/islamicart)
+# index index.html overrides the server-level "index index.php" so directory
+# requests return the SPA entry point rather than a 403.
+location /islamicart {
+    alias /opt/islamicart;
+    index index.html;
+    try_files $uri $uri/ /islamicart/index.html;
+}
+
+location = /favicon.ico { access_log off; log_not_found off; }
+location = /robots.txt  { access_log off; log_not_found off; }
+
+location ~ /\.(?!well-known).* {
+    deny all;
+}
+SNIPPET
+
+# Unquoted delimiter: ${PHP_VERSION} must expand; \$ escapes Nginx variables.
+cat > /etc/nginx/snippets/inventory-php-handler.conf << SNIPPET
+error_page 404 /index.php;
+
+location ~ \.php\$ {
+    fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+    include fastcgi_params;
+}
+SNIPPET
+info "Nginx snippets written to /etc/nginx/snippets/."
+
+# ── Main vhost config ────────────────────────────────────────────────────────
 if [[ "$DEPLOY_MODE" == "docker" ]]; then
     # Docker mode: Nginx is a reverse proxy to the app container on a loopback port.
     if [[ -f "$SSL_CERT" && -f "$SSL_KEY" ]]; then
@@ -380,11 +419,7 @@ server {
 
     client_max_body_size 20M;
 
-    location /islamicart {
-        alias /opt/islamicart;
-        index index.html;
-        try_files \$uri \$uri/ /islamicart/index.html;
-    }
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
 
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
@@ -407,11 +442,7 @@ server {
 
     client_max_body_size 20M;
 
-    location /islamicart {
-        alias /opt/islamicart;
-        index index.html;
-        try_files \$uri \$uri/ /islamicart/index.html;
-    }
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
 
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
@@ -453,30 +484,13 @@ server {
 
     charset utf-8;
 
-    location /islamicart {
-        alias /opt/islamicart;
-        index index.html;
-        try_files \$uri \$uri/ /islamicart/index.html;
-    }
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php\$ {
-        fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
+    include /etc/nginx/snippets/inventory-php-handler.conf;
 }
 NGINX
     else
@@ -495,30 +509,13 @@ server {
 
     charset utf-8;
 
-    location /islamicart {
-        alias /opt/islamicart;
-        index index.html;
-        try_files \$uri \$uri/ /islamicart/index.html;
-    }
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php\$ {
-        fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
+    include /etc/nginx/snippets/inventory-php-handler.conf;
 }
 NGINX
     fi
