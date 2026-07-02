@@ -11,6 +11,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
+import { deterministicUuid } from '../utils/deterministic-uuid.js';
 import type { RowDataPacket } from 'mysql2/promise';
 import type { IWriteStrategy } from '../core/strategy.js';
 import type {
@@ -157,7 +158,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeLanguageTranslation(data: LanguageTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(
+      `language_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.display_language_id}`
+    );
     await this.db.execute(
       `INSERT INTO language_translations (id, language_id, display_language_id, name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -193,7 +196,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCountryTranslation(data: CountryTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(
+      `country_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}`
+    );
     await this.db.execute(
       `INSERT INTO country_translations (id, country_id, language_id, name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -215,7 +220,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeContext(data: ContextData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`context:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO contexts (id, internal_name, is_default, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -240,7 +245,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCollection(data: CollectionData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`collection:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO collections (id, context_id, language_id, parent_id, type, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -268,7 +273,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCollectionTranslation(data: CollectionTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    // backward_compatibility is shared across all language rows of the same
+    // collection (it identifies the collection, not the translation row), so
+    // language_id/context_id must be folded in to keep rows distinct.
+    const id = deterministicUuid(
+      `collection_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
+    );
     const extra = data.extra ?? null;
     await this.db.execute(
       `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, extra, backward_compatibility, created_at, updated_at)
@@ -306,7 +316,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeProject(data: ProjectData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`project:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO projects (id, internal_name, context_id, language_id, launch_date, is_launched, is_enabled, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -374,7 +384,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writePartner(data: PartnerData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`partner:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO partners (id, type, internal_name, backward_compatibility, country_id, latitude, longitude, map_zoom, project_id, monument_item_id, visible, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -401,7 +411,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writePartnerTranslation(data: PartnerTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    // backward_compatibility identifies the partner, not the translation row —
+    // fold in language_id/context_id to keep per-language rows distinct.
+    const id = deterministicUuid(
+      `partner_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
+    );
     await this.db.execute(
       `INSERT INTO partner_translations (id, partner_id, language_id, context_id, name, description, city_display, address_notes, contact_website, contact_phone, contact_email_general, extra, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -439,7 +453,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItem(data: ItemData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`item:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO items (id, partner_id, collection_id, parent_id, internal_name, type, country_id, project_id, owner_reference, mwnf_reference, start_date, end_date, display_order, latitude, longitude, map_zoom, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -472,7 +486,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemTranslation(data: ItemTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    // backward_compatibility identifies the item, not the translation row (and
+    // is sometimes shared by two rows in the same language via the EPM second
+    // context) — fold in language_id/context_id to keep rows distinct.
+    const id = deterministicUuid(
+      `item_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
+    );
     // Convert undefined values to null for SQL compatibility
     const safeNull = (val: string | null | undefined): string | null => val ?? null;
     await this.db.execute(
@@ -599,7 +618,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeTag(data: TagData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`tag:${sanitized.backward_compatibility.toLowerCase()}`);
     try {
       await this.db.execute(
         `INSERT INTO tags (id, internal_name, category, language_id, description, backward_compatibility, created_at, updated_at)
@@ -638,8 +657,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeAuthor(data: AuthorData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
     const bc = sanitized.backward_compatibility || null;
+    // Free-text authors (no legacy ID) have no natural key — keep them
+    // random; AuthorHelper dedupes those by name lookup instead.
+    const id = bc ? deterministicUuid(`author:${bc.toLowerCase()}`) : uuidv4();
     try {
       await this.db.execute(
         `INSERT INTO authors (id, name, firstname, lastname, givenname, originalname, internal_name, backward_compatibility, created_at, updated_at)
@@ -708,7 +729,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeAuthorTranslation(data: AuthorTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const bc = sanitized.backward_compatibility ?? null;
+    const id = bc
+      ? deterministicUuid(
+          `author_translation:${bc.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
+        )
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO author_translations (id, author_id, language_id, context_id, curriculum, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -728,7 +754,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeArtist(data: ArtistData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`artist:${sanitized.backward_compatibility.toLowerCase()}`);
     try {
       await this.db.execute(
         `INSERT INTO artists (id, name, internal_name, place_of_birth, place_of_death, date_of_birth, date_of_death, period_of_activity, backward_compatibility, created_at, updated_at)
@@ -775,7 +801,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemImage(data: ItemImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    // Legacy relative path stands in for backward_compatibility (item_images
+    // has no such column). The owner (item_id) must be folded in too: the
+    // same legacy path is deliberately written twice for a "first image"
+    // (once on the picture Item, once on its parent Item) and path alone
+    // would collide on the UUID primary key.
+    const id =
+      sanitized.id ||
+      deterministicUuid(`image:${sanitized.item_id}:${sanitized.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO item_images (id, item_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -799,7 +832,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writePartnerImage(data: PartnerImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      deterministicUuid(`image:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -824,7 +859,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writePartnerLogo(data: PartnerLogoData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      deterministicUuid(`image:logo:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO partner_logos (id, partner_id, path, original_name, mime_type, size, logo_type, alt_text, display_order, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -849,7 +886,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCollectionImage(data: CollectionImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      deterministicUuid(`image:${sanitized.collection_id}:${sanitized.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -877,7 +916,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeGlossary(data: GlossaryData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`glossary:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO glossaries (id, internal_name, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?)`,
@@ -915,8 +954,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemItemLink(data: ItemItemLinkData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
     const backwardCompat = sanitized.backward_compatibility ?? null;
+    const id = backwardCompat
+      ? deterministicUuid(`item_item_link:${backwardCompat.toLowerCase()}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO item_item_links (id, source_id, target_id, context_id, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -940,7 +981,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemItemLinkTranslation(data: ItemItemLinkTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const bc = sanitized.backward_compatibility ?? null;
+    const id = bc
+      ? deterministicUuid(`item_item_link_translation:${bc.toLowerCase()}:${sanitized.language_id}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO item_item_link_translations (id, item_item_link_id, language_id, description, reciprocal_description, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -963,7 +1007,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeDynasty(data: DynastyData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`dynasty:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO dynasties (id, from_ah, to_ah, from_ad, to_ad, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -985,7 +1029,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeDynastyTranslation(data: DynastyTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const bc = sanitized.backward_compatibility ?? null;
+    const id = bc
+      ? deterministicUuid(`dynasty_translation:${bc.toLowerCase()}:${sanitized.language_id}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO dynasty_translations (id, dynasty_id, language_id, name, also_known_as, area, history, date_description_ah, date_description_ad, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1021,7 +1068,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeTimeline(data: TimelineData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(`timeline:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO timelines (id, internal_name, country_id, collection_id, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1043,7 +1090,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeTimelineEvent(data: TimelineEventData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = deterministicUuid(
+      `timeline_event:${sanitized.backward_compatibility.toLowerCase()}`
+    );
     await this.db.execute(
       `INSERT INTO timeline_events (id, timeline_id, internal_name, year_from, year_to, year_from_ah, year_to_ah, date_from, date_to, display_order, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1071,7 +1120,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeTimelineEventTranslation(data: TimelineEventTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const bc = sanitized.backward_compatibility ?? null;
+    const id = bc
+      ? deterministicUuid(`timeline_event_translation:${bc.toLowerCase()}:${sanitized.language_id}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO timeline_event_translations (id, timeline_event_id, language_id, name, description, date_from_description, date_to_description, date_from_ah_description, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1109,7 +1161,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
   }
 
   async writeTimelineEventImage(data: TimelineEventImageData): Promise<string> {
-    const id = data.id || uuidv4();
+    const id =
+      data.id || deterministicUuid(`image:${data.timeline_event_id}:${data.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO timeline_event_images (id, timeline_event_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1144,7 +1197,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemMedia(data: ItemMediaData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = sanitized.backward_compatibility
+      ? deterministicUuid(`item_media:${sanitized.backward_compatibility.toLowerCase()}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO item_media (id, item_id, language_id, type, title, description,
                                url, display_order, extra, backward_compatibility,
@@ -1173,7 +1228,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeCollectionMedia(data: CollectionMediaData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = sanitized.backward_compatibility
+      ? deterministicUuid(`collection_media:${sanitized.backward_compatibility.toLowerCase()}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO collection_media (id, collection_id, language_id, type, title, description,
                                      url, display_order, extra, backward_compatibility,
@@ -1202,7 +1259,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeItemDocument(data: ItemDocumentData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = uuidv4();
+    const id = sanitized.backward_compatibility
+      ? deterministicUuid(`item_document:${sanitized.backward_compatibility.toLowerCase()}`)
+      : uuidv4();
     await this.db.execute(
       `INSERT INTO item_documents (id, item_id, language_id, path, original_name,
                                    mime_type, size, title, display_order, extra,
@@ -1348,7 +1407,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeContributor(data: ContributorData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      (sanitized.backward_compatibility
+        ? deterministicUuid(`contributor:${sanitized.backward_compatibility.toLowerCase()}`)
+        : uuidv4());
     await this.db.execute(
       `INSERT INTO contributors (id, collection_id, category, display_order, visible, backward_compatibility, internal_name, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1372,7 +1435,13 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeContributorTranslation(data: ContributorTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      (sanitized.backward_compatibility
+        ? deterministicUuid(
+            `contributor_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
+          )
+        : uuidv4());
     await this.db.execute(
       `INSERT INTO contributor_translations (id, contributor_id, language_id, context_id, name, description, link, alt_text, extra, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1395,7 +1464,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeContributorImage(data: ContributorImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
-    const id = sanitized.id || uuidv4();
+    const id =
+      sanitized.id ||
+      deterministicUuid(`image:${sanitized.contributor_id}:${sanitized.path.toLowerCase()}`);
     await this.db.execute(
       `INSERT INTO contributor_images (id, contributor_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -1510,11 +1581,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return typeof raw === 'string' ? JSON.parse(raw) : raw;
   }
 
-  async setCollectionItemExtra(
-    collectionId: string,
-    itemId: string,
-    extra: string
-  ): Promise<void> {
+  async setCollectionItemExtra(collectionId: string, itemId: string, extra: string): Promise<void> {
     await this.db.execute(
       `UPDATE collection_item SET extra = ?, updated_at = ? WHERE collection_id = ? AND item_id = ?`,
       [extra, this.now, collectionId, itemId]
