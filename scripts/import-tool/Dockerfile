@@ -22,6 +22,17 @@ RUN npm ci
 COPY scripts/importer/tsconfig.json ./
 COPY scripts/importer/src ./src
 
+# language-importer.ts / country-importer.ts resolve these two files via a
+# relative path assuming the full repo checkout (5 levels up from their own
+# source file to the repo root, then database/seeders/data/*.json) — they
+# are NOT importer-owned data, but the importer reads them directly as its
+# single source of truth for reference data (same files a Laravel seeder
+# would use). Placed at /opt/database/seeders/data to land exactly where
+# that relative resolution expects, without pulling in the rest of
+# database/seeders/data (e.g. ~800KB of unrelated dev-seeder sample images).
+COPY database/seeders/data/languages.json /opt/database/seeders/data/languages.json
+COPY database/seeders/data/countries.json /opt/database/seeders/data/countries.json
+
 COPY scripts/import-tool/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
