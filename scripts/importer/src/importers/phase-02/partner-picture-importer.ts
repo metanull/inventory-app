@@ -105,20 +105,6 @@ export class PartnerPictureImporter extends BaseImporter {
       pkValues: [picture.museum_id, picture.country, String(picture.image_number)],
     });
 
-    // Check if already imported using lowercase path as unique identifier
-    const imageKey = picture.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
-      return false;
-    }
-
-    if (this.isDryRun || this.isSampleOnlyMode) {
-      this.logInfo(
-        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum picture: ${backwardCompat}`
-      );
-      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
-      return true;
-    }
-
     // Find Partner
     const partnerBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
@@ -128,6 +114,21 @@ export class PartnerPictureImporter extends BaseImporter {
     const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
+    }
+
+    // Check if already imported. partner_images has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    const imageKey = picture.path.toLowerCase();
+    if (await this.imageExistsAsync('partner_images', partnerId, picture.path)) {
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import museum picture: ${backwardCompat}`
+      );
+      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
+      return true;
     }
 
     // Build alt_text from caption or use path
@@ -229,20 +230,6 @@ export class PartnerPictureImporter extends BaseImporter {
       pkValues: [picture.institution_id, picture.country, String(picture.image_number)],
     });
 
-    // Check if already imported using lowercase path as unique identifier
-    const imageKey = picture.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
-      return false;
-    }
-
-    if (this.isDryRun || this.isSampleOnlyMode) {
-      this.logInfo(
-        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution picture: ${backwardCompat}`
-      );
-      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
-      return true;
-    }
-
     // Find Partner
     const partnerBackwardCompat = formatBackwardCompatibility({
       schema: 'mwnf3',
@@ -252,6 +239,21 @@ export class PartnerPictureImporter extends BaseImporter {
     const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
     if (!partnerId) {
       throw new Error(`Partner not found: ${partnerBackwardCompat}`);
+    }
+
+    // Check if already imported. partner_images has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    const imageKey = picture.path.toLowerCase();
+    if (await this.imageExistsAsync('partner_images', partnerId, picture.path)) {
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import institution picture: ${backwardCompat}`
+      );
+      this.registerEntity(`sample-image-${backwardCompat}`, imageKey, 'image');
+      return true;
     }
 
     // Build alt_text from caption or use path

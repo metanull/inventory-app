@@ -213,3 +213,142 @@ describe('SqlWriteStrategy — image writes survive a duplicate-key hit (non-wip
     );
   });
 });
+
+/** A DB mock whose SELECT returns a row iff `matchId` equals the queried id. */
+function makeMockDbWithExistingRow(matchId: string | null) {
+  return {
+    execute: vi.fn(async (sql: string, values?: unknown) => {
+      if (typeof sql === 'string' && sql.startsWith('SELECT id FROM')) {
+        const queriedId = (values as unknown[])[0];
+        return [matchId !== null && queriedId === matchId ? [{ id: matchId }] : [], []];
+      }
+      return [{}, []];
+    }),
+    end: vi.fn(async () => {}),
+    beginTransaction: vi.fn(async () => {}),
+    commit: vi.fn(async () => {}),
+    rollback: vi.fn(async () => {}),
+  };
+}
+
+describe('SqlWriteStrategy.imageExists — the pre-write existence check for image tables', () => {
+  it('returns null when no row exists for the given owner + path', async () => {
+    const mockDb = makeMockDbWithExistingRow(null);
+    const strategy = new SqlWriteStrategy(
+      mockDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+
+    const result = await strategy.imageExists('item_images', 'item-1', 'objects/1.jpg');
+    expect(result).toBeNull();
+  });
+
+  it('returns the row id when it matches the id writeItemImage would have derived', async () => {
+    // First, discover what id writeItemImage would derive for this owner+path.
+    const probeDb = makeMockDbFailingOnSecondInsert();
+    const probeStrategy = new SqlWriteStrategy(
+      probeDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const expectedId = await probeStrategy.writeItemImage({
+      item_id: 'item-1',
+      path: 'objects/1.jpg',
+      original_name: '1.jpg',
+      mime_type: 'image/jpeg',
+      size: 1,
+      display_order: 1,
+    });
+
+    // Now confirm imageExists recomputes the exact same id and finds it.
+    const mockDb = makeMockDbWithExistingRow(expectedId);
+    const strategy = new SqlWriteStrategy(
+      mockDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const result = await strategy.imageExists('item_images', 'item-1', 'objects/1.jpg');
+    expect(result).toBe(expectedId);
+  });
+
+  it('is case-insensitive on the path, matching write*Image', async () => {
+    const probeDb = makeMockDbFailingOnSecondInsert();
+    const probeStrategy = new SqlWriteStrategy(
+      probeDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const expectedId = await probeStrategy.writeItemImage({
+      item_id: 'item-1',
+      path: 'Objects/IMG.JPG',
+      original_name: 'IMG.JPG',
+      mime_type: 'image/jpeg',
+      size: 1,
+      display_order: 1,
+    });
+
+    const mockDb = makeMockDbWithExistingRow(expectedId);
+    const strategy = new SqlWriteStrategy(
+      mockDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    // A rerun reading the SAME legacy path in a different case should still match.
+    const result = await strategy.imageExists('item_images', 'item-1', 'objects/img.jpg');
+    expect(result).toBe(expectedId);
+  });
+
+  it('partner_logos and partner_images never collide for the same owner + path', async () => {
+    const probeDb = makeMockDbFailingOnSecondInsert();
+    const probeStrategy = new SqlWriteStrategy(
+      probeDb as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const logoId = await probeStrategy.writePartnerLogo({
+      partner_id: 'partner-1',
+      path: 'museums/1.jpg',
+      original_name: '1.jpg',
+      mime_type: 'image/jpeg',
+      size: 1,
+      display_order: 1,
+    });
+    const imageId = await probeStrategy.writePartnerImage({
+      partner_id: 'partner-1',
+      path: 'museums/1.jpg',
+      original_name: '1.jpg',
+      mime_type: 'image/jpeg',
+      size: 1,
+      display_order: 1,
+    });
+
+    expect(logoId).not.toBe(imageId);
+  });
+
+  it('a rerun (fresh strategy, same owner+path) recomputes the same candidate id independent of sync state', async () => {
+    // Simulates the exact scenario from the user's question: the importer
+    // rereads the LEGACY path from the source DB on every run, regardless of
+    // whether image-sync has already overwritten the target row's `path`
+    // column with a UUID filename and moved the legacy path to
+    // `original_name`. imageExists() must therefore always be called with
+    // the legacy path (never the row's current, possibly-synced `path`),
+    // and will recompute the identical id either way.
+    const run1Db = makeMockDbFailingOnSecondInsert();
+    const run1 = new SqlWriteStrategy(
+      run1Db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const idFromRun1 = await run1.writeItemImage({
+      item_id: 'item-1',
+      path: 'objects/1.jpg',
+      original_name: '1.jpg',
+      mime_type: 'image/jpeg',
+      size: 1,
+      display_order: 1,
+    });
+
+    // A brand new process, checking the SAME legacy path before writing.
+    const run2Db = makeMockDbWithExistingRow(idFromRun1);
+    const run2 = new SqlWriteStrategy(
+      run2Db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+    const found = await run2.imageExists('item_images', 'item-1', 'objects/1.jpg');
+    expect(found).toBe(idFromRun1);
+  });
+});

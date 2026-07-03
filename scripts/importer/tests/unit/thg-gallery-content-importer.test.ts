@@ -131,6 +131,7 @@ describe('ThgGalleryContentImporter', () => {
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      imageExists: vi.fn().mockResolvedValue(null),
       writeCollectionImage: writeCollectionImageMock,
       writeCollectionMedia: writeCollectionMediaMock,
       writePartner: writePartnerMock,

@@ -140,17 +140,18 @@ export class TravelsTrailPictureImporter extends BaseImporter {
   private async importPicture(group: PictureGroup, _result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
 
-    // Check if already imported using path as unique identifier
-    const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
-      return false;
-    }
-
     // Find parent trail collection
     const trailBackwardCompat = `mwnf3_travels:trail:${group.project_id}:${group.country}:${group.trail_id}`;
     const collectionId = await this.getEntityUuidAsync(trailBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`Parent trail collection not found: ${trailBackwardCompat}`);
+    }
+
+    // Check if already imported. collection_images has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    const imageKey = group.path.toLowerCase();
+    if (await this.imageExistsAsync('collection_images', collectionId, group.path)) {
+      return false;
     }
 
     // Collect sample

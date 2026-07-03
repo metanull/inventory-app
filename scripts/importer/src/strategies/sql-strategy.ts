@@ -58,6 +58,7 @@ import type {
   ContributorData,
   ContributorTranslationData,
   ContributorImageData,
+  ImageTable,
 } from '../core/types.js';
 import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
 
@@ -824,6 +825,24 @@ export class SqlWriteStrategy implements IWriteStrategy {
     }
   }
 
+  /**
+   * Recompute the deterministic id for an image row from its owner + legacy
+   * path — the same formula each write*Image method uses to derive `id`.
+   * Shared so the write path and the imageExists() lookup can never drift
+   * apart. Deliberately independent of the row's CURRENT state (path may
+   * have been overwritten with a UUID filename by image-sync, size may no
+   * longer be the 1-byte placeholder) — identity is always derived from the
+   * legacy path the importer reads fresh from the source DB, never from
+   * whatever's currently stored on the target row.
+   */
+  private computeImageId(table: ImageTable, ownerId: string, path: string): string {
+    const name =
+      table === 'partner_logos'
+        ? `image:logo:${ownerId}:${path.toLowerCase()}`
+        : `image:${ownerId}:${path.toLowerCase()}`;
+    return deterministicUuid(name);
+  }
+
   async writeItemImage(data: ItemImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
     // Legacy relative path stands in for backward_compatibility (item_images
@@ -832,8 +851,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     // (once on the picture Item, once on its parent Item) and path alone
     // would collide on the UUID primary key.
     const id =
-      sanitized.id ||
-      deterministicUuid(`image:${sanitized.item_id}:${sanitized.path.toLowerCase()}`);
+      sanitized.id || this.computeImageId('item_images', sanitized.item_id, sanitized.path);
     const trackerKey = `${sanitized.item_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
@@ -862,8 +880,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writePartnerImage(data: PartnerImageData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
     const id =
-      sanitized.id ||
-      deterministicUuid(`image:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
+      sanitized.id || this.computeImageId('partner_images', sanitized.partner_id, sanitized.path);
     const trackerKey = `${sanitized.partner_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
@@ -893,8 +910,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writePartnerLogo(data: PartnerLogoData): Promise<string> {
     const sanitized = sanitizeAllStrings(data);
     const id =
-      sanitized.id ||
-      deterministicUuid(`image:logo:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
+      sanitized.id || this.computeImageId('partner_logos', sanitized.partner_id, sanitized.path);
     const trackerKey = `logo:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
@@ -926,7 +942,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id =
       sanitized.id ||
-      deterministicUuid(`image:${sanitized.collection_id}:${sanitized.path.toLowerCase()}`);
+      this.computeImageId('collection_images', sanitized.collection_id, sanitized.path);
     const trackerKey = `${sanitized.collection_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
@@ -1204,7 +1220,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async writeTimelineEventImage(data: TimelineEventImageData): Promise<string> {
     const id =
-      data.id || deterministicUuid(`image:${data.timeline_event_id}:${data.path.toLowerCase()}`);
+      data.id || this.computeImageId('timeline_event_images', data.timeline_event_id, data.path);
     const trackerKey = `${data.timeline_event_id}:${data.path.toLowerCase()}`;
     try {
       await this.db.execute(
@@ -1396,6 +1412,28 @@ export class SqlWriteStrategy implements IWriteStrategy {
     'timeline_event_images',
   ]);
 
+  /**
+   * Check if an image row already exists for the given owner + legacy path.
+   * This is the counterpart to exists()/findByBackwardCompatibility() for
+   * the six TABLES_WITHOUT_BC tables, which have no backward_compatibility
+   * column to query by. Recomputes the same deterministic id the
+   * corresponding write*Image method would derive and does a primary-key
+   * lookup — cheap (indexed by definition), and correct regardless of
+   * whether image-sync has since overwritten the row's `path` with a UUID
+   * filename: identity is derived from the legacy path passed in here
+   * (which the importer always reads fresh from the source DB), never from
+   * the target row's current, possibly-already-synced state.
+   *
+   * @returns The existing row's id, or null if no such image exists yet.
+   */
+  async imageExists(table: ImageTable, ownerId: string, path: string): Promise<string | null> {
+    const id = this.computeImageId(table, ownerId, path);
+    const [rows] = await this.db.execute<RowDataPacket[]>(`SELECT id FROM ${table} WHERE id = ?`, [
+      id,
+    ]);
+    return rows.length > 0 ? id : null;
+  }
+
   async exists(table: string, backwardCompatibility: string): Promise<boolean> {
     const entityType = mapTableToEntityType(table);
     if (entityType && this.tracker.exists(backwardCompatibility, entityType)) {
@@ -1513,7 +1551,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id =
       sanitized.id ||
-      deterministicUuid(`image:${sanitized.contributor_id}:${sanitized.path.toLowerCase()}`);
+      this.computeImageId('contributor_images', sanitized.contributor_id, sanitized.path);
     const trackerKey = `${sanitized.contributor_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
