@@ -11,7 +11,7 @@ manual `scp`, no dependency on `rsync` existing on the operator's machine.
 |---|---|
 | `append` (default) | `import` → `image-sync` → `glossary:resync`, no wipe. Safe to run any time — the importer is idempotent, this only adds what's missing. |
 | `backup-permissions` | Snapshots users (incl. MFA columns), role assignments, direct permission assignments, and API tokens to an encrypted JSON on the OVH host, plus a redundant timestamped copy pulled back locally. No import, no writes to application data. |
-| `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → `auth:restore` → the full `append` pipeline. **Destructive.** Requires a snapshot already at `AUTH_SNAPSHOT_REMOTE` (run `backup-permissions` first — `clean` does not take a fresh snapshot itself) and requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. |
+| `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore users → the full `append` pipeline. **Destructive.** Requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. Restores from a snapshot at `AUTH_SNAPSHOT_REMOTE` if one exists (run `backup-permissions` first to create it — `clean` does not take a fresh snapshot itself); if none exists **and** both `ADMIN_EMAIL`/`REGULAR_USER_EMAIL` are set, falls back to recreating just those two accounts instead. If neither applies, aborts before anything beyond the wipe itself is lost. |
 
 ## Build
 
@@ -74,12 +74,30 @@ docker run --rm \
 
 ## Before your first `clean`
 
-`clean` restores users/permissions from a snapshot that must already
-exist — it does not take one itself. Run `backup-permissions` at least
-once first. If no snapshot exists at `AUTH_SNAPSHOT_REMOTE`,
-`auth:restore` fails cleanly with "snapshot not found" and the whole
-pipeline aborts before the wipe does any further damage — but you still
-want a real snapshot, not just a clean failure.
+Best case: run `backup-permissions` at least once before your first
+`clean`, so there's a real snapshot to restore from — this preserves
+*every* existing user, MFA setup, and role/permission assignment exactly
+as they were.
+
+If you skip that (or the snapshot is missing for any other reason),
+`clean` checks whether `AUTH_SNAPSHOT_REMOTE` actually exists on the OVH
+host *before* calling `auth:restore` — it does not just let the restore
+fail and stop there. If nothing exists and both `ADMIN_EMAIL` and
+`REGULAR_USER_EMAIL` are set (see `.env.example`), it recreates exactly
+those two accounts instead — one with the `Manager of Users` role
+(admin panel + user/role/settings management), one with `Regular User`
+(data operations only). Neither account gets a plaintext password:
+`user:create` emails a password-reset invitation to that address, so you
+still need working outbound mail on OVH for this to be usable.
+
+If neither a snapshot nor both fallback emails are available, `clean`
+aborts right there — after the wipe, but before anything else happens —
+with a clear message telling you what's missing. **Note this means a
+`clean` run without a snapshot and without the fallback configured still
+leaves the `users` table empty** (`db:seed`'s `UserSeeder` only creates
+accounts when `APP_ENV=local`, i.e. never on production) — there is no
+way to log into `/admin` again until you either supply a snapshot or set
+the fallback emails and re-run.
 
 ## Dry runs
 

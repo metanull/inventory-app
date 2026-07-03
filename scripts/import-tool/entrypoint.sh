@@ -12,9 +12,14 @@ set -euo pipefail
 #                       to application data.
 #   clean               db:wipe -> migrate -> seed -> permission:sync ->
 #                       auth:restore -> [append pipeline]. DESTRUCTIVE.
-#                       Requires a snapshot already at $AUTH_SNAPSHOT_REMOTE
-#                       (run backup-permissions first) and requires
-#                       CONFIRM_WIPE=yes-really-wipe-production.
+#                       Requires CONFIRM_WIPE=yes-really-wipe-production.
+#                       Restores from a snapshot at $AUTH_SNAPSHOT_REMOTE if
+#                       one exists (run backup-permissions first to create
+#                       it); if none exists AND both ADMIN_EMAIL and
+#                       REGULAR_USER_EMAIL are set, falls back to recreating
+#                       just those two accounts instead. If neither applies,
+#                       aborts before anything is lost beyond the wipe
+#                       itself.
 #
 # See README.md for the full list of required env vars and mounts.
 # ==============================================================================
@@ -34,6 +39,13 @@ STAGING_DIR="${IMAGE_STAGING_DIR:-/staging/images}"
 
 AUTH_SNAPSHOT_REMOTE="${AUTH_SNAPSHOT_REMOTE:-${OVH_SHARED_DIR}/auth-snapshots/current.json.enc}"
 AUTH_SNAPSHOT_LOCAL_BACKUP_DIR="${AUTH_SNAPSHOT_LOCAL_BACKUP_DIR:-/backup}"
+
+# clean-mode fallback, only used when no snapshot exists at AUTH_SNAPSHOT_REMOTE
+# (see do_wipe_and_restore). Both must be set for the fallback to engage — if
+# only one is set, or neither, clean fails with no snapshot the same way it
+# always has, rather than partially creating accounts.
+ADMIN_EMAIL="${ADMIN_EMAIL:-}"
+REGULAR_USER_EMAIL="${REGULAR_USER_EMAIL:-}"
 
 DRY_RUN="${DRY_RUN:-0}"
 
@@ -196,6 +208,32 @@ do_import_pipeline() {
   [ "$rc_b" -eq 0 ] || die "glossary:resync branch failed (exit $rc_b)"
 }
 
+# True if a snapshot file already exists on the OVH host. Checked with a
+# plain remote `test -f` rather than parsing auth:restore's error text —
+# more robust, and lets us distinguish "no snapshot, fall back" from any
+# OTHER auth:restore failure (wrong APP_KEY, missing roles, etc.), which
+# should still abort the pipeline hard rather than silently paper over it.
+snapshot_exists() {
+  ssh "${SSH_OPTS_BASE[@]}" -i "$SSH_KEY" "${OVH_USER}@${OVH_HOST}" \
+    "test -f '$AUTH_SNAPSHOT_REMOTE'"
+}
+
+# Recreates exactly two accounts (one "Manager of Users" admin, one
+# "Regular User") when no snapshot exists to restore instead. Requires
+# ADMIN_EMAIL/REGULAR_USER_EMAIL — never invented or defaulted. user:create
+# does not set a plaintext password; it emails a password-reset invitation
+# to that address.
+create_fallback_accounts() {
+  log "No snapshot to restore — recreating fallback accounts for ADMIN_EMAIL and REGULAR_USER_EMAIL instead"
+  ssh_run "php artisan user:create '$ADMIN_EMAIL' '$ADMIN_EMAIL'"
+  ssh_run "php artisan user:email-verification '$ADMIN_EMAIL' verify"
+  ssh_run "php artisan user:assign-role '$ADMIN_EMAIL' 'Manager of Users'"
+  ssh_run "php artisan user:create '$REGULAR_USER_EMAIL' '$REGULAR_USER_EMAIL'"
+  ssh_run "php artisan user:email-verification '$REGULAR_USER_EMAIL' verify"
+  ssh_run "php artisan user:assign-role '$REGULAR_USER_EMAIL' 'Regular User'"
+  log "Fallback accounts created — check $ADMIN_EMAIL and $REGULAR_USER_EMAIL for password-reset emails"
+}
+
 do_wipe_and_restore() {
   [ "${CONFIRM_WIPE:-}" = "yes-really-wipe-production" ] \
     || die "clean mode requires CONFIRM_WIPE=yes-really-wipe-production — refusing to wipe the database"
@@ -206,11 +244,14 @@ do_wipe_and_restore() {
   ssh_run "php artisan optimize:clear"
   ssh_run "php artisan db:seed --class=MinimalDatabaseSeeder --force"
   ssh_run "php artisan permission:sync"
-  # Requires a snapshot already at $AUTH_SNAPSHOT_REMOTE (from a prior
-  # backup-permissions run). If none exists, auth:restore fails cleanly with
-  # "snapshot not found" and this aborts the whole pipeline before anything
-  # further happens — the correct, safe failure mode.
-  ssh_run "php artisan auth:restore '$AUTH_SNAPSHOT_REMOTE' --force"
+
+  if snapshot_exists; then
+    ssh_run "php artisan auth:restore '$AUTH_SNAPSHOT_REMOTE' --force"
+  elif [ -n "$ADMIN_EMAIL" ] && [ -n "$REGULAR_USER_EMAIL" ]; then
+    create_fallback_accounts
+  else
+    die "no snapshot at $AUTH_SNAPSHOT_REMOTE and ADMIN_EMAIL/REGULAR_USER_EMAIL not both set — nothing to restore and no fallback configured. Run backup-permissions first, or set both in .env to allow account recreation as a fallback."
+  fi
 }
 
 do_backup_permissions() {
