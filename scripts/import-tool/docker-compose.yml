@@ -40,6 +40,12 @@ services:
       - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
     environment:
       LEGACY_IMAGES_ROOT: /legacy-images
+      # Forwarded from the shell that invokes `docker compose run` (e.g.
+      # PowerShell's $env:DRY_RUN='1'), NOT from .env — env_file: only
+      # injects the .env FILE's own contents, it doesn't also forward your
+      # shell's environment. ${VAR:-default} interpolation is Compose's
+      # separate mechanism that actually reads the invoking shell.
+      DRY_RUN: ${DRY_RUN:-0}
 
   clean:
     <<: *build
@@ -50,3 +56,13 @@ services:
       - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
     environment:
       LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # Same as above — must come from ${VAR} interpolation, not env_file,
+      # to be settable from the invoking shell at run time. CONFIRM_WIPE is
+      # deliberately NOT read from .env in practice (leave it unset there);
+      # set it in your shell just before this one command instead, e.g.
+      # PowerShell: $env:CONFIRM_WIPE='yes-really-wipe-production'; docker
+      # compose -f scripts/import-tool/docker-compose.yml run --rm clean
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
