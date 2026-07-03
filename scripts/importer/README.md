@@ -192,6 +192,13 @@ Business logic is written once in transformers:
 
 ### Typical Workflow
 
+> **Running this against the OVH-hosted deployment?** Use
+> [`scripts/import-tool/`](../import-tool/README.md) — a Docker container
+> that automates the full workflow below (SSH tunnel, sequential
+> exit-code-checked `artisan` commands, rsync image push, auth
+> snapshot/restore) in three modes (`append`/`backup-permissions`/`clean`)
+> instead of running each step by hand.
+
 The importer is designed to run as part of a complete database initialization:
 
 1. **Create auth snapshot** - Preserve user accounts, MFA setup, role assignments, direct permissions, and API tokens (`php artisan auth:snapshot auth-snapshots/pre-import.json.enc --force`)

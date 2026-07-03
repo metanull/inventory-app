@@ -1,0 +1,38 @@
+# Convenience wrapper around `docker run` for the import tool.
+#
+# Build context is the repo root — run compose commands from there, e.g.:
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm append
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm backup-permissions
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm clean
+#
+# Reads credentials from scripts/import-tool/.env.import-tool (gitignored —
+# see .env.import-tool.example). All three services share the same image and
+# mounts; only the command (mode) differs.
+
+name: inventory-import-tool
+
+x-import-tool: &import-tool
+  build:
+    context: ../..
+    dockerfile: scripts/import-tool/Dockerfile
+  env_file:
+    - .env.import-tool
+  volumes:
+    - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+    - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+    - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+  environment:
+    LEGACY_IMAGES_ROOT: /legacy-images
+
+services:
+  append:
+    <<: *import-tool
+    command: ["append"]
+
+  backup-permissions:
+    <<: *import-tool
+    command: ["backup-permissions"]
+
+  clean:
+    <<: *import-tool
+    command: ["clean"]
