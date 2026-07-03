@@ -1,15 +1,9 @@
 # Import Tool
 
-Dockerized replacement for the legacy-data import pipeline against the
-OVH-hosted `inventory-app`. Runs the [importer](../importer/README.md)
-(`import`, `image-sync`) over an SSH tunnel and drives the remote
-`artisan` commands over blocking SSH calls — no more fire-and-forget
-windows, no manual `scp`, no dependency on `rsync` existing on the
-operator's machine (it doesn't, on Windows; this container has it).
-
-Supersedes `scripts/ImportLegacy.ps1` (removed — it had a serious bug: it
-launched a sequence of dependent `artisan` commands via `Start-Process`
-with no `-Wait`, so they could run out of order or overlap).
+Dockerized legacy-data import pipeline against the OVH-hosted `inventory-app`.
+Runs the [importer](../importer/README.md) (`import`, `image-sync`) over an SSH
+tunnel and drives the remote `artisan` commands over blocking SSH calls, no 
+manual `scp`, no dependency on `rsync` existing on the operator's machine.
 
 ## Modes
 
@@ -31,12 +25,21 @@ docker build -f scripts/import-tool/Dockerfile -t import-tool:latest .
 ## Configure
 
 ```bash
-cp scripts/import-tool/.env.import-tool.example scripts/import-tool/.env.import-tool
-# edit scripts/import-tool/.env.import-tool with real credentials/paths
+cp scripts/import-tool/.env.example scripts/import-tool/.env
+# edit scripts/import-tool/.env with real credentials/paths
 ```
 
-`.env.import-tool` is gitignored. See the `.example` file for every
-variable and what it's for — the important ones:
+The file must be named exactly `.env` (not e.g. `.env.import-tool`) —
+Docker Compose only auto-loads a file with that literal name to resolve
+`${VAR}` placeholders while parsing `docker-compose.yml` itself (used
+below for the `volumes:` host paths), which is a separate step from
+`env_file:` injecting variables into the container. A differently-named
+file works for the container's own environment but silently leaves the
+volume paths empty, which Docker then rejects with something like
+`invalid spec: :/run/secrets/deploy_key:ro: empty section between colons`.
+
+`.env` is gitignored. See `.env.example` for every variable and what
+it's for — the important ones:
 
 - `OVH_SSH_KEY_HOST_PATH` — host path to the `deploy` SSH private key
 - `LEGACY_IMAGES_HOST_PATH` — host path to the legacy images source
@@ -48,7 +51,7 @@ variable and what it's for — the important ones:
 
 ## Run
 
-Via compose (recommended — reads `.env.import-tool` for you):
+Via compose (recommended — reads `.env` for you):
 
 ```bash
 docker compose -f scripts/import-tool/docker-compose.yml run --rm append

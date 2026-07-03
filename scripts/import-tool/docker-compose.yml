@@ -5,34 +5,48 @@
 #   docker compose -f scripts/import-tool/docker-compose.yml run --rm backup-permissions
 #   docker compose -f scripts/import-tool/docker-compose.yml run --rm clean
 #
-# Reads credentials from scripts/import-tool/.env.import-tool (gitignored —
-# see .env.import-tool.example). All three services share the same image and
-# mounts; only the command (mode) differs.
+# Reads credentials from scripts/import-tool/.env (gitignored — see
+# .env.example). Must be named exactly `.env`: Compose only auto-loads that
+# literal filename to resolve the ${VAR} host paths below while parsing this
+# file — a differently-named file only reaches the container via env_file,
+# too late for that.
 
 name: inventory-import-tool
 
-x-import-tool: &import-tool
+x-build: &build
   build:
     context: ../..
     dockerfile: scripts/import-tool/Dockerfile
   env_file:
-    - .env.import-tool
-  volumes:
-    - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
-    - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
-    - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
-  environment:
-    LEGACY_IMAGES_ROOT: /legacy-images
+    - .env
 
 services:
-  append:
-    <<: *import-tool
-    command: ["append"]
-
+  # No legacy-images mount — this mode never touches image data, and
+  # requiring it here would fail the same way for anyone who hasn't set up
+  # legacy image access yet but only wants a permissions snapshot.
   backup-permissions:
-    <<: *import-tool
+    <<: *build
     command: ["backup-permissions"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+
+  append:
+    <<: *build
+    command: ["append"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
 
   clean:
-    <<: *import-tool
+    <<: *build
     command: ["clean"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
