@@ -140,17 +140,33 @@ describe('ShMonumentPictureImporter', () => {
     };
   });
 
-  it('creates translation with caption as name when caption is present', async () => {
+  it('creates translation with parent title as name and caption in description when caption is present', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_monument_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_monument_image_texts')) return [textWithCaption];
+      if (sql.includes('sh_monuments_texts')) return [{ name: 'Dubrovnik Fortress' }];
       return [];
     });
     const importer = new ShMonumentPictureImporter(context);
     await importer.import();
 
     expect(writeItemTranslationMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Harbour fortress' })
+      expect.objectContaining({ name: 'Dubrovnik Fortress (1)', description: 'Harbour fortress' })
+    );
+  });
+
+  it('falls back to a generic "Picture N" name when the parent SH monument title is unavailable', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('sh_monument_images') && !sql.includes('texts')) return [imageRow];
+      if (sql.includes('sh_monument_image_texts')) return [textWithCaption];
+      if (sql.includes('sh_monuments_texts')) return []; // parent not found
+      return [];
+    });
+    const importer = new ShMonumentPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 1', description: 'Harbour fortress' })
     );
   });
 
@@ -198,7 +214,7 @@ describe('ShMonumentPictureImporter', () => {
     }
   });
 
-  it('reports error when parent SH monument not found for metadata-only row', async () => {
+  it('falls back to a generic name (no error) when parent SH monument not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_monument_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_monument_image_texts')) return [textMetadataOnly];
@@ -208,8 +224,10 @@ describe('ShMonumentPictureImporter', () => {
     const importer = new ShMonumentPictureImporter(context);
     const result = await importer.import();
 
-    expect(result.errors.length).toBeGreaterThan(0);
-    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.errors.length).toBe(0);
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 1' })
+    );
   });
 
   it('succeeds with no translations when picture text table does not exist', async () => {

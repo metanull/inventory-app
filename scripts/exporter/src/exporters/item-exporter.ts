@@ -57,7 +57,7 @@ interface PictureItemRow {
 interface PictureTranslationRow {
   picture_id: string
   language_id: string
-  caption: string | null // name field on picture item translations
+  caption: string | null // description field on picture item translations
   extra: string | null // JSON: { photographer, copyright }
 }
 
@@ -142,7 +142,7 @@ export class ItemExporter extends BaseExporter {
     // Each image is a child item of type 'picture'. It carries:
     //   - items.display_order  → position in the gallery
     //   - item_images.path     → the file path
-    //   - item_translations.name (caption, per language)
+    //   - item_translations.description (caption, per language)
     //   - item_translations.extra JSON { photographer, copyright }
     const pictureItems = await this.db.query<PictureItemRow>(
       `SELECT pic.id AS picture_id, pic.parent_id AS item_id,
@@ -159,7 +159,7 @@ export class ItemExporter extends BaseExporter {
     if (pictureItems.length > 0) {
       const pictureIds = [...new Set(pictureItems.map(p => p.picture_id))]
       pictureTranslations = await this.db.query<PictureTranslationRow>(
-        `SELECT item_id AS picture_id, language_id, name AS caption, extra
+        `SELECT item_id AS picture_id, language_id, description AS caption, extra
          FROM item_translations
          WHERE item_id IN (${this.placeholders(pictureIds.length)})`,
         pictureIds
@@ -279,10 +279,10 @@ export class ItemExporter extends BaseExporter {
       // photographer/copyright are not language-specific; pick from first available lang
       const firstLang = Object.values(perLang)[0]
 
-      // Captions keyed by lang code — skip langs where caption is null
+      // Captions keyed by lang code — skip langs with no caption text
       const captions: Record<string, string> = {}
       for (const [lang, t] of Object.entries(perLang)) {
-        if (t.caption !== null) captions[lang] = t.caption
+        if (t.caption) captions[lang] = t.caption
       }
 
       imageMap.get(pic.item_id)!.push({

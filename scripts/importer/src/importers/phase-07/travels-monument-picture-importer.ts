@@ -330,9 +330,10 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang);
 
-    const name = hasCaption
-      ? convertHtmlToMarkdown(translation.caption)
-      : `Picture ${translation.image_number}`;
+    // `name` is always a short label; the caption (long-form HTML) belongs in
+    // `description` rather than the 255-char `name` column.
+    const name = `Picture ${translation.image_number}`;
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption) : '';
 
     const translationExtra: Record<string, unknown> = { ...itemExtra };
     if (hasPhotographer) {
@@ -348,7 +349,7 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
       context_id: contextId,
       backward_compatibility: `mwnf3_travels:monument_picture:${translation.project_id}:${translation.country}:${translation.trail_id}:${translation.itinerary_id}:${translation.location_id}:${translation.number}:${translation.type || '_'}:${translation.image_number}:${translation.lang}`,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,

@@ -124,17 +124,33 @@ describe('ShObjectPictureImporter', () => {
     };
   });
 
-  it('creates translation with caption as name when caption is present', async () => {
+  it('creates translation with parent title as name and caption in description when caption is present', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_object_image_texts')) return [textWithCaption];
+      if (sql.includes('sh_objects_texts')) return [{ name: 'SH Object Title' }];
       return [];
     });
     const importer = new ShObjectPictureImporter(context);
     await importer.import();
 
     expect(writeItemTranslationMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Golden vessel' })
+      expect.objectContaining({ name: 'SH Object Title (2)', description: 'Golden vessel' })
+    );
+  });
+
+  it('falls back to a generic "Picture N" name when the parent SH object title is unavailable', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
+      if (sql.includes('sh_object_image_texts')) return [textWithCaption];
+      if (sql.includes('sh_objects_texts')) return []; // parent not found
+      return [];
+    });
+    const importer = new ShObjectPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 2', description: 'Golden vessel' })
     );
   });
 
@@ -185,7 +201,7 @@ describe('ShObjectPictureImporter', () => {
     }
   });
 
-  it('reports error when parent SH object not found for metadata-only row', async () => {
+  it('falls back to a generic name (no error) when parent SH object not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_object_images') && !sql.includes('texts')) return [imageRow];
       if (sql.includes('sh_object_image_texts')) return [textCopyrightOnly];
@@ -195,8 +211,10 @@ describe('ShObjectPictureImporter', () => {
     const importer = new ShObjectPictureImporter(context);
     const result = await importer.import();
 
-    expect(result.errors.length).toBeGreaterThan(0);
-    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.errors.length).toBe(0);
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 2' })
+    );
   });
 
   it('queries sh_objects_texts (not sh_object_texts) for parent name lookup', async () => {
