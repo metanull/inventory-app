@@ -5,6 +5,20 @@ Runs the [importer](../importer/README.md) (`import`, `image-sync`) over an SSH
 tunnel and drives the remote `artisan` commands over blocking SSH calls, no 
 manual `scp`, no dependency on `rsync` existing on the operator's machine.
 
+## Run (TL;DR)
+
+```powershell
+$env:CONFIRM_WIPE='yes-really-wipe-production'
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm clean
+```
+
+`--build` matters: `docker compose run` only builds the image if it
+doesn't exist yet — it does **not** notice that `entrypoint.sh` or the
+`importer` source changed since the last build, and will silently keep
+running the old one. Always include `--build` after pulling changes to
+this tool (or run `docker compose -f scripts/import-tool/docker-compose.yml
+build` once beforehand) to be sure you're running current code.
+
 ## Modes
 
 | Mode | What it does |
@@ -48,20 +62,6 @@ it's for — the important ones:
   (`DB_HOST=127.0.0.1`, `DB_PORT` matching `TUNNEL_LOCAL_PORT`, default `3307`)
 - `LEGACY_DB_*` — legacy source DB
 - `CONFIRM_WIPE` — leave commented out; only set for a real `clean` run
-
-## Run (TL;DR)
-
-```powershell
-$env:CONFIRM_WIPE='yes-really-wipe-production'
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm clean
-```
-
-`--build` matters: `docker compose run` only builds the image if it
-doesn't exist yet — it does **not** notice that `entrypoint.sh` or the
-`importer` source changed since the last build, and will silently keep
-running the old one. Always include `--build` after pulling changes to
-this tool (or run `docker compose -f scripts/import-tool/docker-compose.yml
-build` once beforehand) to be sure you're running current code.
 
 ## Run
 Via compose (recommended — reads `.env` for you). Include `--build` any
