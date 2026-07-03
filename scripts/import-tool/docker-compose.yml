@@ -1,0 +1,68 @@
+# Convenience wrapper around `docker run` for the import tool.
+#
+# Build context is the repo root — run compose commands from there, e.g.:
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm append
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm backup-permissions
+#   docker compose -f scripts/import-tool/docker-compose.yml run --rm clean
+#
+# Reads credentials from scripts/import-tool/.env (gitignored — see
+# .env.example). Must be named exactly `.env`: Compose only auto-loads that
+# literal filename to resolve the ${VAR} host paths below while parsing this
+# file — a differently-named file only reaches the container via env_file,
+# too late for that.
+
+name: inventory-import-tool
+
+x-build: &build
+  build:
+    context: ../..
+    dockerfile: scripts/import-tool/Dockerfile
+  env_file:
+    - .env
+
+services:
+  # No legacy-images mount — this mode never touches image data, and
+  # requiring it here would fail the same way for anyone who hasn't set up
+  # legacy image access yet but only wants a permissions snapshot.
+  backup-permissions:
+    <<: *build
+    command: ["backup-permissions"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+
+  append:
+    <<: *build
+    command: ["append"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      # Forwarded from the shell that invokes `docker compose run` (e.g.
+      # PowerShell's $env:DRY_RUN='1'), NOT from .env — env_file: only
+      # injects the .env FILE's own contents, it doesn't also forward your
+      # shell's environment. ${VAR:-default} interpolation is Compose's
+      # separate mechanism that actually reads the invoking shell.
+      DRY_RUN: ${DRY_RUN:-0}
+
+  clean:
+    <<: *build
+    command: ["clean"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # Same as above — must come from ${VAR} interpolation, not env_file,
+      # to be settable from the invoking shell at run time. CONFIRM_WIPE is
+      # deliberately NOT read from .env in practice (leave it unset there);
+      # set it in your shell just before this one command instead, e.g.
+      # PowerShell: $env:CONFIRM_WIPE='yes-really-wipe-production'; docker
+      # compose -f scripts/import-tool/docker-compose.yml run --rm clean
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
