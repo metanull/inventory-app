@@ -49,14 +49,29 @@ it's for — the important ones:
 - `LEGACY_DB_*` — legacy source DB
 - `CONFIRM_WIPE` — leave commented out; only set for a real `clean` run
 
-## Run
+## Run (TL;DR)
 
-Via compose (recommended — reads `.env` for you):
+```powershell
+$env:CONFIRM_WIPE='yes-really-wipe-production'
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm clean
+```
+
+`--build` matters: `docker compose run` only builds the image if it
+doesn't exist yet — it does **not** notice that `entrypoint.sh` or the
+`importer` source changed since the last build, and will silently keep
+running the old one. Always include `--build` after pulling changes to
+this tool (or run `docker compose -f scripts/import-tool/docker-compose.yml
+build` once beforehand) to be sure you're running current code.
+
+## Run
+Via compose (recommended — reads `.env` for you). Include `--build` any
+time `entrypoint.sh` or the importer source has changed since your last
+build — `docker compose run` does not detect that on its own:
 
 ```bash
-docker compose -f scripts/import-tool/docker-compose.yml run --rm append
-docker compose -f scripts/import-tool/docker-compose.yml run --rm backup-permissions
-docker compose -f scripts/import-tool/docker-compose.yml run --rm clean
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm append
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm backup-permissions
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm clean
 ```
 
 Or raw `docker run` (Windows paths shown):
