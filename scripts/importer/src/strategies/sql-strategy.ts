@@ -95,6 +95,31 @@ const tableEntityMap: Record<string, EntityType> = {
 function mapTableToEntityType(table: string): EntityType | null {
   return tableEntityMap[table] ?? null;
 }
+
+/**
+ * True if `error` is a MySQL duplicate-key error (ER_DUP_ENTRY / errno 1062).
+ *
+ * Used by the six image-table writers (item_images, partner_images,
+ * partner_logos, collection_images, contributor_images,
+ * timeline_event_images) to make image writes idempotent across process
+ * restarts. Those tables have no `backward_compatibility` column, so
+ * `SqlWriteStrategy.exists()`/`findByBackwardCompatibility()` cannot detect
+ * "already imported" for them (see TABLES_WITHOUT_BC below) — the row's id
+ * is deterministic (UUIDv5 derived from owner + legacy path), so re-running
+ * the importer against a non-wiped DB re-derives the SAME id and a
+ * duplicate-key hit here means, unambiguously, "this exact image row
+ * already exists". None of these six tables has any other unique
+ * constraint, so any ER_DUP_ENTRY on their INSERT can only be the primary
+ * key — safe to treat as "found", not "failed".
+ */
+function isDuplicateKeyError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code?: unknown }).code === 'ER_DUP_ENTRY'
+  );
+}
 import type { ITracker } from '../core/tracker.js';
 
 // Type for resilient connection wrapper
@@ -809,24 +834,28 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id =
       sanitized.id ||
       deterministicUuid(`image:${sanitized.item_id}:${sanitized.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO item_images (id, item_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.item_id,
-        sanitized.path,
-        sanitized.original_name,
-        sanitized.mime_type,
-        sanitized.size,
-        sanitized.alt_text,
-        sanitized.display_order,
-        this.now,
-        this.now,
-      ]
-    );
-    // Track using lowercase path as unique identifier
-    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    const trackerKey = `${sanitized.item_id}:${sanitized.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO item_images (id, item_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          sanitized.item_id,
+          sanitized.path,
+          sanitized.original_name,
+          sanitized.mime_type,
+          sanitized.size,
+          sanitized.alt_text,
+          sanitized.display_order,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 
@@ -835,25 +864,29 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id =
       sanitized.id ||
       deterministicUuid(`image:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, extra, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.partner_id,
-        sanitized.path,
-        sanitized.original_name,
-        sanitized.mime_type,
-        sanitized.size,
-        sanitized.alt_text,
-        sanitized.display_order,
-        sanitized.extra ?? null,
-        this.now,
-        this.now,
-      ]
-    );
-    // Track using lowercase path as unique identifier
-    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    const trackerKey = `${sanitized.partner_id}:${sanitized.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO partner_images (id, partner_id, path, original_name, mime_type, size, alt_text, display_order, extra, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          sanitized.partner_id,
+          sanitized.path,
+          sanitized.original_name,
+          sanitized.mime_type,
+          sanitized.size,
+          sanitized.alt_text,
+          sanitized.display_order,
+          sanitized.extra ?? null,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 
@@ -862,25 +895,30 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id =
       sanitized.id ||
       deterministicUuid(`image:logo:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO partner_logos (id, partner_id, path, original_name, mime_type, size, logo_type, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.partner_id,
-        sanitized.path,
-        sanitized.original_name,
-        sanitized.mime_type,
-        sanitized.size,
-        sanitized.logo_type ?? 'primary',
-        sanitized.alt_text,
-        sanitized.display_order,
-        this.now,
-        this.now,
-      ]
-    );
-    // Track using lowercase path as unique identifier (prefixed to avoid collision with images)
-    this.tracker.set(`logo:${sanitized.path.toLowerCase()}`, id, 'image');
+    const trackerKey = `logo:${sanitized.partner_id}:${sanitized.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO partner_logos (id, partner_id, path, original_name, mime_type, size, logo_type, alt_text, display_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          sanitized.partner_id,
+          sanitized.path,
+          sanitized.original_name,
+          sanitized.mime_type,
+          sanitized.size,
+          sanitized.logo_type ?? 'primary',
+          sanitized.alt_text,
+          sanitized.display_order,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    // Tracked prefixed with "logo:" to avoid collision with non-logo images
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 
@@ -889,24 +927,28 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id =
       sanitized.id ||
       deterministicUuid(`image:${sanitized.collection_id}:${sanitized.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.collection_id,
-        sanitized.path,
-        sanitized.original_name,
-        sanitized.mime_type,
-        sanitized.size,
-        sanitized.alt_text,
-        sanitized.display_order,
-        this.now,
-        this.now,
-      ]
-    );
-    // Track using lowercase path as unique identifier
-    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    const trackerKey = `${sanitized.collection_id}:${sanitized.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          sanitized.collection_id,
+          sanitized.path,
+          sanitized.original_name,
+          sanitized.mime_type,
+          sanitized.size,
+          sanitized.alt_text,
+          sanitized.display_order,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 
@@ -1163,23 +1205,28 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeTimelineEventImage(data: TimelineEventImageData): Promise<string> {
     const id =
       data.id || deterministicUuid(`image:${data.timeline_event_id}:${data.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO timeline_event_images (id, timeline_event_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        data.timeline_event_id,
-        data.path,
-        data.original_name,
-        data.mime_type,
-        data.size,
-        data.alt_text ?? null,
-        data.display_order,
-        this.now,
-        this.now,
-      ]
-    );
-    this.tracker.set(data.path.toLowerCase(), id, 'image');
+    const trackerKey = `${data.timeline_event_id}:${data.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO timeline_event_images (id, timeline_event_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          data.timeline_event_id,
+          data.path,
+          data.original_name,
+          data.mime_type,
+          data.size,
+          data.alt_text ?? null,
+          data.display_order,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 
@@ -1467,24 +1514,29 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id =
       sanitized.id ||
       deterministicUuid(`image:${sanitized.contributor_id}:${sanitized.path.toLowerCase()}`);
-    await this.db.execute(
-      `INSERT INTO contributor_images (id, contributor_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        sanitized.contributor_id,
-        sanitized.path,
-        sanitized.original_name,
-        sanitized.mime_type,
-        sanitized.size,
-        sanitized.alt_text,
-        sanitized.display_order,
-        this.now,
-        this.now,
-      ]
-    );
-    // Track using lowercase path as unique identifier
-    this.tracker.set(sanitized.path.toLowerCase(), id, 'image');
+    const trackerKey = `${sanitized.contributor_id}:${sanitized.path.toLowerCase()}`;
+    try {
+      await this.db.execute(
+        `INSERT INTO contributor_images (id, contributor_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          sanitized.contributor_id,
+          sanitized.path,
+          sanitized.original_name,
+          sanitized.mime_type,
+          sanitized.size,
+          sanitized.alt_text,
+          sanitized.display_order,
+          this.now,
+          this.now,
+        ]
+      );
+    } catch (error) {
+      if (!isDuplicateKeyError(error)) throw error;
+    }
+    // Track using owner-scoped, lowercase path as unique identifier
+    this.tracker.set(trackerKey, id, 'image');
     return id;
   }
 

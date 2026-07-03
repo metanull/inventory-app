@@ -147,10 +147,15 @@ export class ShMonumentDetailPictureImporter extends BaseImporter {
     _result: ImportResult
   ): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
-
-    // Check if already imported
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 

@@ -141,10 +141,15 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
   private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
-
-    // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -358,9 +363,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       }
       const parentTitle = convertHtmlToMarkdown(parentName);
       name =
-        translation.picture_id != null
-          ? `${parentTitle} (${translation.picture_id})`
-          : parentTitle;
+        translation.picture_id != null ? `${parentTitle} (${translation.picture_id})` : parentTitle;
     }
 
     if (name.length > MAX_NAME_LENGTH) {

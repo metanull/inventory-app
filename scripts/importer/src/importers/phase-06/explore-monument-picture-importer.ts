@@ -15,7 +15,12 @@
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
-import type { ImportResult, ItemData, ItemTranslationData, ItemImageData } from '../../core/types.js';
+import type {
+  ImportResult,
+  ItemData,
+  ItemTranslationData,
+  ItemImageData,
+} from '../../core/types.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { TagHelper } from '../../helpers/tag-helper.js';
@@ -68,7 +73,11 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
         getEntityUuid: (backwardCompatibility, entityType) =>
           this.getEntityUuidAsync(backwardCompatibility, entityType),
       });
-      this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+      this.tagHelper = new TagHelper(
+        this.context.strategy,
+        this.context.tracker,
+        this.context.logger
+      );
 
       // Query all monument pictures
       const pictures = await this.context.legacyDb.query<LegacyMonumentPicture>(
@@ -144,10 +153,15 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
 
   private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
-
-    // Check if already imported using path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -282,7 +296,11 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
     }
 
     if (group.type) {
-      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      const tagIds = await this.tagHelper.findOrCreateList(
+        group.type,
+        'image-type',
+        defaultLangId ?? 'eng'
+      );
       if (tagIds.length > 0) {
         await this.tagHelper.attachToItem(pictureItemId, tagIds);
       }
