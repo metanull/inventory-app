@@ -73,9 +73,25 @@ export class ShPartnerPictureImporter extends BaseImporter {
             continue;
           }
 
-          // Check if already imported via lowercase path
+          // Resolve parent partner
+          const partnerBackwardCompat = formatShBackwardCompatibility(
+            SH_PARTNERS_TABLE,
+            picture.partners_id
+          );
+          const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
+          if (!partnerId) {
+            this.logWarning(
+              `${backwardCompat}: Partner not found for BC key ${partnerBackwardCompat}`
+            );
+            result.errors.push(`${backwardCompat}: Partner not found: ${partnerBackwardCompat}`);
+            this.showError();
+            continue;
+          }
+
+          // Check if already imported. partner_images has no
+          // backward_compatibility column — identity is (owner, legacy path).
           const imageKey = picture.path.toLowerCase();
-          if (await this.entityExistsAsync(imageKey, 'image')) {
+          if (await this.imageExistsAsync('partner_images', partnerId, picture.path)) {
             result.skipped++;
             this.showSkipped();
             continue;
@@ -91,26 +107,12 @@ export class ShPartnerPictureImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve parent partner
-          const partnerBackwardCompat = formatShBackwardCompatibility(
-            SH_PARTNERS_TABLE,
-            picture.partners_id
-          );
-          const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
-          if (!partnerId) {
-            this.logWarning(`${backwardCompat}: Partner not found for BC key ${partnerBackwardCompat}`);
-            result.errors.push(`${backwardCompat}: Partner not found: ${partnerBackwardCompat}`);
-            this.showError();
-            continue;
-          }
-
           // Build metadata
           const mimeType = this.getMimeType(picture.path);
           const originalName = path.basename(picture.path);
 
           // Build alt_text: trimmed caption when present and non-empty, otherwise null
-          const altText =
-            picture.caption && picture.caption.trim() ? picture.caption.trim() : null;
+          const altText = picture.caption && picture.caption.trim() ? picture.caption.trim() : null;
 
           // Build extra for photographer/copyright
           const extra: Record<string, string> = {};

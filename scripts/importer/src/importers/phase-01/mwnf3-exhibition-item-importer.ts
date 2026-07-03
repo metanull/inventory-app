@@ -218,7 +218,15 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
           result.imported++;
           this.showProgress();
         } else {
-          // Custom image (empty ref_item) → CollectionImage
+          // Custom image (empty ref_item) → CollectionImage. collection_images
+          // has no backward_compatibility column — identity is (owner, legacy
+          // path).
+          if (await this.imageExistsAsync('collection_images', collectionId, img.picture)) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();
@@ -329,7 +337,14 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
           result.imported++;
           this.showProgress();
         } else {
-          // Custom image → CollectionImage
+          // Custom image → CollectionImage. collection_images has no
+          // backward_compatibility column — identity is (owner, legacy path).
+          if (await this.imageExistsAsync('collection_images', collectionId, img.picture)) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();
@@ -535,9 +550,12 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
    */
   private async loadImageEav(): Promise<Map<number, ImageEav>> {
     const fieldList = IMAGE_EAV_FIELDS_PAGE.map((f) => `'${f}'`).join(', ');
-    const rows = await this.context.legacyDb.query<
-      { entity_id: number; lang_id: string; field: string; value: string }
-    >(
+    const rows = await this.context.legacyDb.query<{
+      entity_id: number;
+      lang_id: string;
+      field: string;
+      value: string;
+    }>(
       `SELECT image_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.exhibition_page_images_fields
        WHERE field IN (${fieldList})
@@ -562,9 +580,12 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     );
 
     const detailFieldList = IMAGE_EAV_FIELDS_PAGE.map((f) => `'${f}'`).join(', ');
-    const detailEavRows = await this.context.legacyDb.query<
-      { entity_id: number; lang_id: string; field: string; value: string }
-    >(
+    const detailEavRows = await this.context.legacyDb.query<{
+      entity_id: number;
+      lang_id: string;
+      field: string;
+      value: string;
+    }>(
       `SELECT image_detail_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.exhibition_page_image_details_fields
        WHERE field IN (${detailFieldList})
@@ -607,9 +628,12 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
    */
   private async loadExhibitionImageEav(): Promise<Map<number, ImageEav>> {
     const fieldList = IMAGE_EAV_FIELDS_EXHIBITION.map((f) => `'${f}'`).join(', ');
-    const rows = await this.context.legacyDb.query<
-      { entity_id: number; lang_id: string; field: string; value: string }
-    >(
+    const rows = await this.context.legacyDb.query<{
+      entity_id: number;
+      lang_id: string;
+      field: string;
+      value: string;
+    }>(
       `SELECT image_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.exhibition_images_fields
        WHERE field IN (${fieldList})
@@ -628,9 +652,12 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
    */
   private async loadArtintroImageEav(): Promise<Map<number, ImageEav>> {
     const fieldList = IMAGE_EAV_FIELDS_ARTINTRO.map((f) => `'${f}'`).join(', ');
-    const rows = await this.context.legacyDb.query<
-      { entity_id: number; lang_id: string; field: string; value: string }
-    >(
+    const rows = await this.context.legacyDb.query<{
+      entity_id: number;
+      lang_id: string;
+      field: string;
+      value: string;
+    }>(
       `SELECT image_id AS entity_id, lang_id, field, value
        FROM ${MWNF3_SCHEMA}.artintro_page_images_fields
        WHERE field IN (${fieldList})

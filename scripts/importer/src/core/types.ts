@@ -655,3 +655,16 @@ export interface ContributorImageData {
   alt_text?: string | null;
   display_order: number;
 }
+
+/**
+ * The six tables with no backward_compatibility column. An image row's
+ * identity is (owner id, legacy path) instead — see
+ * SqlWriteStrategy.imageExists() / computeImageId().
+ */
+export type ImageTable =
+  | 'item_images'
+  | 'partner_images'
+  | 'partner_logos'
+  | 'collection_images'
+  | 'contributor_images'
+  | 'timeline_event_images';

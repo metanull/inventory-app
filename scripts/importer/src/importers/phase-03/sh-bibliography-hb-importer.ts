@@ -797,7 +797,14 @@ export class ShBibliographyHbImporter extends BaseImporter {
           result.imported++;
           this.showProgress();
         } else {
-          // Custom image → CollectionImage
+          // Custom image → CollectionImage. collection_images has no
+          // backward_compatibility column — identity is (owner, legacy path).
+          if (await this.imageExistsAsync('collection_images', collectionId, img.picture)) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             customImages++;
@@ -857,6 +864,14 @@ export class ShBibliographyHbImporter extends BaseImporter {
           result.warnings = result.warnings || [];
           result.warnings.push(`HB map ${map.map_id}: Parent HB not found`);
           this.logWarning(`HB map ${map.map_id}: Parent HB not found, skipping`);
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
+        // collection_images has no backward_compatibility column — identity
+        // is (owner, legacy path).
+        if (await this.imageExistsAsync('collection_images', collectionId, map.map_path)) {
           result.skipped++;
           this.showSkipped();
           continue;

@@ -133,17 +133,18 @@ export class ExploreLocationPictureImporter extends BaseImporter {
   private async importPicture(group: PictureGroup, _result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
 
-    // Check if already imported using path as unique identifier
-    const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
-      return false;
-    }
-
     // Find parent location collection
     const locationBackwardCompat = `mwnf3_explore:location:${group.locationId}`;
     const collectionId = await this.getEntityUuidAsync(locationBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`Parent location collection not found: ${locationBackwardCompat}`);
+    }
+
+    // Check if already imported. collection_images has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    const imageKey = group.path.toLowerCase();
+    if (await this.imageExistsAsync('collection_images', collectionId, group.path)) {
+      return false;
     }
 
     // Collect sample

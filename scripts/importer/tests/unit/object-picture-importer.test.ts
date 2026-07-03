@@ -182,6 +182,31 @@ describe('ObjectPictureImporter', () => {
     }
   });
 
+  it('skips an already-imported picture cleanly on a non-wiped rerun (no writes attempted)', async () => {
+    // Simulates a second process run against a persisted (non-wiped) DB: the
+    // picture Item's own backward_compatibility is already known — either
+    // via the in-memory tracker or (in a real rerun, a fresh process) via
+    // SqlWriteStrategy.exists('items', ...), which the mock below stands in
+    // for. Regression guard for the bug where the importer gated on
+    // entityExistsAsync(imageKey, 'image') instead — item_images has no
+    // backward_compatibility column, so that check could never detect an
+    // already-imported picture from a previous run, and would attempt (and,
+    // pre-idempotent-write-fix, silently duplicate) the picture again.
+    (strategy.exists as ReturnType<typeof vi.fn>).mockImplementation(
+      async (table: string, backwardCompatibility: string) =>
+        table === 'items' && backwardCompatibility === 'mwnf3:objects_pictures:EPM:qt:Mus21:19:1'
+    );
+
+    const importer = new ObjectPictureImporter(context);
+    const result = await importer.import();
+
+    expect(writeItemMock).not.toHaveBeenCalled();
+    expect(writeItemImageMock).not.toHaveBeenCalled();
+    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.skipped).toBe(1);
+    expect(result.imported).toBe(0);
+  });
+
   it('reports error when parent object not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.objects_pictures')) return [rowCopyrightOnly];

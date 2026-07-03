@@ -233,9 +233,21 @@ export class SchoolImporter extends BaseImporter {
           pkValues: [picture.school_id, picture.country, String(picture.image_number)],
         });
 
-        // Check if already imported via lowercase path
+        // Find parent Partner
+        const partnerBC = formatBackwardCompatibility({
+          schema: 'mwnf3',
+          table: 'schools',
+          pkValues: [picture.school_id, picture.country],
+        });
+        const partnerId = await this.getEntityUuidAsync(partnerBC, 'partner');
+        if (!partnerId) {
+          throw new Error(`Partner not found: ${partnerBC}`);
+        }
+
+        // Check if already imported. partner_images has no
+        // backward_compatibility column — identity is (owner, legacy path).
         const imageKey = picture.path.toLowerCase();
-        if (await this.entityExistsAsync(imageKey, 'image')) {
+        if (await this.imageExistsAsync('partner_images', partnerId, picture.path)) {
           result.skipped++;
           this.showSkipped();
           continue;
@@ -249,17 +261,6 @@ export class SchoolImporter extends BaseImporter {
           result.imported++;
           this.showProgress();
           continue;
-        }
-
-        // Find parent Partner
-        const partnerBC = formatBackwardCompatibility({
-          schema: 'mwnf3',
-          table: 'schools',
-          pkValues: [picture.school_id, picture.country],
-        });
-        const partnerId = await this.getEntityUuidAsync(partnerBC, 'partner');
-        if (!partnerId) {
-          throw new Error(`Partner not found: ${partnerBC}`);
         }
 
         // Build alt_text

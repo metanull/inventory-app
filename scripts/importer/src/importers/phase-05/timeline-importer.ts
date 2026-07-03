@@ -622,6 +622,14 @@ export class TimelineImporter extends BaseImporter {
           const imgTexts = textsByImgId.get(img.hcr_img_id);
           const altText = await this.getStandaloneImageAltTextAsync(imgTexts);
 
+          // timeline_event_images has no backward_compatibility column —
+          // identity is (owner, legacy path).
+          if (await this.imageExistsAsync('timeline_event_images', eventId, img.picture)) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) {
             result.imported++;
             this.showProgress();

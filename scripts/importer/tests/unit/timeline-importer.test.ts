@@ -90,6 +90,7 @@ describe('TimelineImporter', () => {
       writeTimelineEventItem: vi.fn().mockResolvedValue(undefined),
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      imageExists: vi.fn().mockResolvedValue(null),
       updateTimelineExtra: vi.fn().mockResolvedValue(undefined),
     } as unknown as IWriteStrategy;
 

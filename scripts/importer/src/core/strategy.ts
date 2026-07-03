@@ -52,6 +52,7 @@ import type {
   ContributorData,
   ContributorTranslationData,
   ContributorImageData,
+  ImageTable,
 } from './types.js';
 
 /**
@@ -477,6 +478,20 @@ export interface IWriteStrategy {
    * @returns The entity ID or null
    */
   findByBackwardCompatibility(table: string, backwardCompatibility: string): Promise<string | null>;
+
+  /**
+   * Check if an image row already exists for a given owner + legacy path.
+   * item_images, partner_images, partner_logos, collection_images,
+   * contributor_images, and timeline_event_images have no
+   * backward_compatibility column, so exists()/findByBackwardCompatibility()
+   * cannot be used for them — identity is (owner id, legacy path) instead,
+   * the same natural key used to derive the row's deterministic id.
+   * @param table One of the six image tables
+   * @param ownerId The id of the owning row (item_id, partner_id, etc.)
+   * @param path The legacy relative path (not the post-sync UUID filename)
+   * @returns The existing row's id, or null if not yet imported
+   */
+  imageExists(table: ImageTable, ownerId: string, path: string): Promise<string | null>;
 
   // =========================================================================
   // Extra JSON Read-Modify-Write (for bibliography injection, etc.)
