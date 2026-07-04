@@ -13,6 +13,33 @@ interface CollectionRow {
   longitude: string | null
 }
 
+/** Per-item caption/override fields, as pivoted from legacy EAV placement metadata. */
+interface CollectionItemCaption {
+  name?: string
+  date?: string
+  dynasty?: string
+  location?: string
+  museum?: string
+  detail_name?: string
+  justification?: string
+}
+
+const CAPTION_FIELD_MAP: Record<string, keyof CollectionItemCaption> = {
+  item_name: 'name',
+  item_date: 'date',
+  item_dynasty: 'dynasty',
+  item_location: 'location',
+  item_museum: 'museum',
+  detail_name: 'detail_name',
+  detail_justification: 'justification',
+}
+
+/** One selectable detail sub-image of an item (e.g. a close-up of one part of a monument). */
+interface CollectionItemDetailEntry {
+  image_url: string | null
+  caption?: Record<string, CollectionItemCaption>
+}
+
 interface CollectionTranslationRow {
   collection_id: string
   language_id: string
@@ -20,7 +47,7 @@ interface CollectionTranslationRow {
   description: string | null
   quote: string | null
   url: string | null
-  extra: string | null
+  extra: unknown
 }
 
 interface CollectionImageRow {
@@ -34,6 +61,7 @@ interface CollectionItemRow {
   collection_id: string
   item_id: string
   display_order: number | null
+  extra: unknown
 }
 
 export class CollectionExporter extends BaseExporter {
@@ -86,7 +114,7 @@ export class CollectionExporter extends BaseExporter {
       ),
       // Items in these collections, restricted to non-picture items from the project
       this.db.query<CollectionItemRow>(
-        `SELECT ci.collection_id, ci.item_id, ci.display_order
+        `SELECT ci.collection_id, ci.item_id, ci.display_order, ci.extra
          FROM collection_item ci
          JOIN items i ON i.id = ci.item_id
          WHERE ci.collection_id IN (${colPh})
@@ -136,23 +164,26 @@ export class CollectionExporter extends BaseExporter {
       })
     }
 
-    // collection_id -> item_ids[]
-    const itemMap = new Map<string, string[]>()
+    // collection_id -> items[]
+    const imageUrlFn = (path: string) => this.imageUrl(path)
+    const itemMap = new Map<string, ReturnType<typeof buildCollectionItemEntry>[]>()
     for (const link of itemLinks) {
       if (!itemMap.has(link.collection_id)) itemMap.set(link.collection_id, [])
-      itemMap.get(link.collection_id)!.push(link.item_id)
+      itemMap.get(link.collection_id)!.push(buildCollectionItemEntry(link, imageUrlFn))
     }
 
     const output = collections.map(c => ({
       id: c.id,
       type: c.type,
+      internal_name: c.internal_name,
+      backward_compatibility: c.backward_compatibility,
       parent_id: c.parent_id,
       country_id: c.country_id,
       display_order: c.display_order,
       latitude: c.latitude !== null ? parseFloat(c.latitude) : null,
       longitude: c.longitude !== null ? parseFloat(c.longitude) : null,
       images: imageMap.get(c.id) ?? [],
-      item_ids: itemMap.get(c.id) ?? [],
+      items: itemMap.get(c.id) ?? [],
     }))
 
     await this.writeJson('collections.json', output)
@@ -162,10 +193,80 @@ export class CollectionExporter extends BaseExporter {
   }
 }
 
-function parseJson(raw: string | null): unknown | null {
-  if (!raw) return null
+/**
+ * Pivots caption/override fields (item_name, item_date, item_dynasty,
+ * item_location, item_museum, detail_name, detail_justification — each a
+ * language-keyed map) into a per-language caption record.
+ */
+function extractCaptions(fields: Record<string, unknown>): Record<string, CollectionItemCaption> {
+  const caption: Record<string, CollectionItemCaption> = {}
+  for (const [legacyField, outField] of Object.entries(CAPTION_FIELD_MAP)) {
+    const langMap = fields[legacyField]
+    if (!langMap || typeof langMap !== 'object') continue
+    for (const [lang, text] of Object.entries(langMap as Record<string, string>)) {
+      if (!text) continue
+      if (!caption[lang]) caption[lang] = {}
+      caption[lang]![outField] = text
+    }
+  }
+  return caption
+}
+
+/**
+ * Builds one collections.json item entry from a collection_item pivot row.
+ *
+ * `extra` holds legacy placement metadata: `n`/`n2` (grid row/column — items
+ * sharing the same row can have several selectable variants at different
+ * columns, mirroring the legacy artintro/exhibition thumbnail-grid UI),
+ * per-language caption overrides, and — for exhibitions only — a `details`
+ * array of additional selectable sub-images of the same item (e.g. a
+ * close-up of one part of a monument), each with its own image and caption.
+ */
+function buildCollectionItemEntry(
+  link: CollectionItemRow,
+  imageUrlFn: (path: string) => string
+): {
+  id: string
+  display_order: number | null
+  variant_order: number | null
+  caption?: Record<string, CollectionItemCaption>
+  details?: CollectionItemDetailEntry[]
+} {
+  const extra = parseJson(link.extra) as Record<string, unknown> | null
+  const variantOrder = extra && typeof extra.n2 === 'number' ? extra.n2 : null
+  const caption = extra ? extractCaptions(extra) : {}
+
+  const details: CollectionItemDetailEntry[] = []
+  if (extra && Array.isArray(extra.details)) {
+    for (const raw of extra.details as Record<string, unknown>[]) {
+      const picture = typeof raw.picture_details === 'string' ? raw.picture_details : null
+      const detailCaption = extractCaptions(raw)
+      details.push({
+        image_url: picture ? imageUrlFn(picture) : null,
+        ...(Object.keys(detailCaption).length > 0 ? { caption: detailCaption } : {}),
+      })
+    }
+  }
+
+  return {
+    id: link.item_id,
+    display_order: link.display_order,
+    variant_order: variantOrder,
+    ...(Object.keys(caption).length > 0 ? { caption } : {}),
+    ...(details.length > 0 ? { details } : {}),
+  }
+}
+
+/**
+ * Parses a MySQL JSON column value. mysql2 auto-decodes native JSON columns
+ * into JS objects already, so `raw` is usually an object/array, not a string
+ * — only fall back to JSON.parse for the (defensive) string case.
+ */
+function parseJson(raw: unknown): unknown | null {
+  if (raw == null) return null
+  if (typeof raw === 'object') return raw
   try {
-    return JSON.parse(raw) as unknown
+    return JSON.parse(raw as string) as unknown
   } catch {
     return null
   }

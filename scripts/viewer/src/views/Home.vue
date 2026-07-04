@@ -78,6 +78,25 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Explore →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/artistic-introduction')">
+        <h2 class="home-card-title">Artistic Introduction</h2>
+        <p class="home-card-desc">
+          Read curated introductions to the major artistic traditions of
+          Islamic art, illustrated with monuments and objects from the
+          collection.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/exhibitions')">
+        <h2 class="home-card-title">Exhibitions</h2>
+        <p class="home-card-desc">
+          Discover curated virtual exhibitions exploring specific themes,
+          monuments, and objects from the Islamic art collection.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->

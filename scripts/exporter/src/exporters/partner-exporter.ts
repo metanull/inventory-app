@@ -23,7 +23,7 @@ interface PartnerTranslationRow {
   contact_website: string | null
   contact_phone: string | null
   contact_email_general: string | null
-  extra: string | null
+  extra: unknown
 }
 
 interface ContactPerson {
@@ -49,7 +49,7 @@ interface PartnerImageRow {
   path: string
   alt_text: string | null
   display_order: number
-  extra: string | null
+  extra: unknown
 }
 
 interface PartnerLogoRow {
@@ -267,9 +267,16 @@ export class PartnerExporter extends BaseExporter {
   }
 }
 
-function parseJson<T>(raw: string): T | null {
+/**
+ * Parses a MySQL JSON column value. mysql2 auto-decodes native JSON columns
+ * into JS objects already, so `raw` is usually an object/array, not a string
+ * — only fall back to JSON.parse for the (defensive) string case.
+ */
+function parseJson<T>(raw: unknown): T | null {
+  if (raw == null) return null
+  if (typeof raw === 'object') return raw as T
   try {
-    return JSON.parse(raw) as T
+    return JSON.parse(raw as string) as T
   } catch {
     return null
   }

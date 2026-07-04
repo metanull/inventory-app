@@ -7,6 +7,7 @@ import partnersData from '@inventory-data/partners.json'
 import dynastiesData from '@inventory-data/dynasties.json'
 import timelinesData from '@inventory-data/timelines.json'
 import timelineEventsData from '@inventory-data/timeline_events.json'
+import collectionsData from '@inventory-data/collections.json'
 
 // Module-level singletons — loaded once, shared across all views
 const items = ref(itemsData)
@@ -15,6 +16,7 @@ const partners = ref(partnersData)
 const dynasties = ref(dynastiesData)
 const timelines = ref(timelinesData)
 const timelineEvents = ref(timelineEventsData)
+const collections = ref(collectionsData)
 const availableLangs = ref(manifestData.languages ?? [])
 const defaultLang = (manifestData.languages ?? []).includes('en')
   ? 'en'
@@ -25,6 +27,7 @@ const enCountryTranslations = ref({})
 const enDynastyTranslations = ref({})
 const enPartnerTranslations = ref({})
 const enTimelineEventTranslations = ref({})
+const enCollectionTranslations = ref({})
 const translationsCache = ref({}) // lang -> item translations (for detail view)
 
 let enLoaded = false
@@ -43,6 +46,8 @@ async function loadEnglishTranslations() {
       .then(m => { enPartnerTranslations.value = m.default }),
     import('@inventory-data/translations/timeline_events.en.json')
       .then(m => { enTimelineEventTranslations.value = m.default }),
+    import('@inventory-data/translations/collections.en.json')
+      .then(m => { enCollectionTranslations.value = m.default }),
   ])
   // Seed English into the detail-view cache too
   if (!translationsCache.value['en']) {
@@ -95,6 +100,84 @@ const itemById = computed(() => {
   return m
 })
 
+// ── Artistic Introduction (legacy "gai") ──────────────────────────────────
+//
+// Imported as generic Collections, nested under a dedicated "Artistic
+// Introduction" marker collection (backward_compatibility
+// "mwnf3:artintro:root", a child of the Islamic Art project collection).
+// From that single, unambiguous anchor the rest of the tree — root, themes
+// (e.g. "The Umayyads"), pages (tabs within a theme, e.g. "Monuments" /
+// "Objects") — is just parent_id lookups, no internal_name guessing.
+
+const ARTINTRO_MARKER_BC = 'mwnf3:artintro:root'
+
+const artIntroRoot = computed(() => {
+  const marker = collections.value.find(c => c.backward_compatibility === ARTINTRO_MARKER_BC)
+  if (!marker) return null
+  return collections.value.find(c => c.parent_id === marker.id) ?? null
+})
+
+const artIntroThemes = computed(() => {
+  const root = artIntroRoot.value
+  if (!root) return []
+  const themes = collections.value
+    .filter(c => c.parent_id === root.id)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+  return themes.map(theme => ({
+    ...theme,
+    pages: collections.value
+      .filter(c => c.parent_id === theme.id)
+      .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
+  }))
+})
+
+function artIntroThemeById(id) {
+  return artIntroThemes.value.find(t => t.id === id) ?? null
+}
+
+// ── Exhibitions ────────────────────────────────────────────────────────────
+//
+// Imported as generic Collections, nested under a dedicated "Exhibitions"
+// marker collection (backward_compatibility "mwnf3:exhibitions:root", a
+// child of the Islamic Art project collection) — needed because neither
+// type='exhibition' nor the mwnf3:exhibitions:{id} backward_compatibility
+// key are project-scoped in the legacy schema (shared with Baroque Art,
+// Sharing History, etc). From that anchor: exhibitions are its children,
+// themes are an exhibition's children, pages are a theme's children (tabs).
+// "Introduction" is not a theme — it's the exhibition's own translation
+// (extra.intro_header / extra.intro_text) plus items attached directly to
+// the exhibition collection itself (not to any theme/page).
+
+const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root'
+
+const exhibitions = computed(() => {
+  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  if (!marker) return []
+  return collections.value
+    .filter(c => c.parent_id === marker.id)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+})
+
+function exhibitionById(id) {
+  return exhibitions.value.find(e => e.id === id) ?? null
+}
+
+function exhibitionThemes(exhibitionId) {
+  return collections.value
+    .filter(c => c.parent_id === exhibitionId)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+    .map(theme => ({
+      ...theme,
+      pages: collections.value
+        .filter(c => c.parent_id === theme.id)
+        .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
+    }))
+}
+
+function exhibitionThemeById(exhibitionId, themeId) {
+  return exhibitionThemes(exhibitionId).find(t => t.id === themeId) ?? null
+}
+
 // ── Markdown helpers ───────────────────────────────────────────────────────
 
 // Full block markdown → HTML (for prose sections)
@@ -133,6 +216,7 @@ export function useInventoryData() {
     dynasties,
     timelines,
     timelineEvents,
+    collections,
     availableLangs,
     defaultLang,
     enItemTranslations,
@@ -140,6 +224,7 @@ export function useInventoryData() {
     enDynastyTranslations,
     enPartnerTranslations,
     enTimelineEventTranslations,
+    enCollectionTranslations,
     translationsCache,
     loadEnglishTranslations,
     loadLangTranslations,
@@ -148,6 +233,13 @@ export function useInventoryData() {
     dynastyLabel,
     partnerLabel,
     itemById,
+    artIntroRoot,
+    artIntroThemes,
+    artIntroThemeById,
+    exhibitions,
+    exhibitionById,
+    exhibitionThemes,
+    exhibitionThemeById,
     md,
     mdInline,
     mdStrip,

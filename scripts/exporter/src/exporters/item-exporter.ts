@@ -39,7 +39,7 @@ interface ItemTranslationRow {
   provenance: string | null
   obtention: string | null
   bibliography: string | null
-  extra: string | null
+  extra: unknown
   author_name: string | null
   copy_editor_name: string | null
   translator_name: string | null
@@ -58,7 +58,7 @@ interface PictureTranslationRow {
   picture_id: string
   language_id: string
   caption: string | null // description field on picture item translations
-  extra: string | null // JSON: { photographer, copyright }
+  extra: unknown // JSON: { photographer, copyright }
 }
 
 interface ItemDynastyRow {
@@ -367,10 +367,16 @@ interface ImageEntry {
   copyright: string | null
 }
 
-function parseJson(raw: string | null): unknown | null {
-  if (!raw) return null
+/**
+ * Parses a MySQL JSON column value. mysql2 auto-decodes native JSON columns
+ * into JS objects already, so `raw` is usually an object/array, not a string
+ * — only fall back to JSON.parse for the (defensive) string case.
+ */
+function parseJson(raw: unknown): unknown | null {
+  if (raw == null) return null
+  if (typeof raw === 'object') return raw
   try {
-    return JSON.parse(raw) as unknown
+    return JSON.parse(raw as string) as unknown
   } catch {
     return null
   }
