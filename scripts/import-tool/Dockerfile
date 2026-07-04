@@ -7,7 +7,9 @@
 
 FROM node:22-alpine
 
-RUN apk add --no-cache openssh-client rsync bash
+# mysql-client provides mysql/mysqldump — used only by `ship` mode, to dump
+# local-mysql (a `stage` build) and load it into OVH through the tunnel.
+RUN apk add --no-cache openssh-client rsync bash mysql-client
 
 WORKDIR /opt/import-tool/importer
 

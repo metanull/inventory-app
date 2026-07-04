@@ -27,6 +27,7 @@ build` once beforehand) to be sure you're running current code.
 | `backup-permissions` | Snapshots users (incl. MFA columns), role assignments, direct permission assignments, and API tokens to an encrypted JSON on the OVH host, plus a redundant timestamped copy pulled back locally. No import, no writes to application data. |
 | `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore users → the full `append` pipeline. **Destructive.** Requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. Restores from a snapshot at `AUTH_SNAPSHOT_REMOTE` if one exists (run `backup-permissions` first to create it — `clean` does not take a fresh snapshot itself); if none exists **and** both `ADMIN_EMAIL`/`REGULAR_USER_EMAIL` are set, falls back to recreating just those two accounts instead. If neither applies, aborts before anything beyond the wipe itself is lost. |
 | `stage` | `import` → `image-sync`, writing straight to a local, persistent MySQL (`local-mysql`) instead of through the OVH tunnel. **No SSH, no OVH contact at all.** Builds a fully-populated local copy of the legacy import — DB rows in `local-mysql`, image files in the `local-images-data` volume — at local-network speed. Safe to run at any time, including while a real `append`/`clean` run is in progress against OVH (they hit the same legacy source DB, which comfortably handles concurrent readers). See "Local staging" below. |
+| `ship` | Ships an already-built `stage` copy to OVH: rebuilds the app layer on OVH exactly like `clean` (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then loads local-mysql's **content tables only** through the tunnel and pushes the already-staged images. **Destructive**, same `CONFIRM_WIPE` requirement as `clean`. See "Shipping a staged build to a server" below. |
 
 ## Build
 
@@ -155,11 +156,10 @@ tens of thousands of small round-trips at WAN latency, which is why a real
 `clean` run can take hours. `stage` writes to a local MySQL instead (`local-mysql`,
 same `mysql:8.4` image the root dev `docker-compose.yml` uses), removing that
 per-row network cost entirely. It's a way to build and inspect a fully-populated
-copy of the import fast, and — later — a way to prepare data for a bulk
-`mysqldump` + `rsync` handoff to OVH instead of thousands of live inserts
-against production. **That handoff is a manual runbook, not automated
-yet** — see "Shipping a staged build to a server" below; `stage` itself
-only builds and holds the local copy.
+copy of the import fast, and a way to prepare data for a bulk `mysqldump` +
+tunnel-load handoff to OVH instead of thousands of live inserts against
+production — see "Shipping a staged build to a server" below for the `ship`
+mode that does that handoff.
 
 ```bash
 docker compose -f scripts/import-tool/docker-compose.yml up -d local-mysql
@@ -176,62 +176,104 @@ Both the DB and the staged images persist in named Docker volumes
 and survive `docker compose down` (without `-v`) followed by `up`/`run` again.
 Only `docker compose down -v` (or `docker volume rm`) destroys them.
 
-`stage` intentionally differs from `append`/`clean` in two ways:
+`stage` intentionally differs from `append`/`clean` in one way: **migrations
+only, no seeders.** `local-migrate` runs `php artisan migrate --force` and
+nothing else — no roles, no permissions, no dev users. This container is
+never meant to be logged into; it exists purely to materialize a
+fully-populated dataset, so there's no reason to wire up auth for it. (The
+real auth layer is always built fresh on OVH itself when you `ship` — see
+below — never read from local-mysql.)
 
-- **Migrations only, no seeders.** `local-migrate` runs `php artisan migrate --force`
-  and nothing else — no roles, no permissions, no dev users. This container
-  is never meant to be logged into; it exists purely to materialize a
-  fully-populated dataset, so there's no reason to wire up auth for it.
-- **Non-fatal on partial errors.** The importer's `import` and `image-sync`
-  commands both exit non-zero whenever *any* row/file failed — which, for
-  this legacy dataset, is always true (a handful of genuinely bad legacy rows,
-  and some image paths referenced in the legacy DB that don't actually exist
-  under `LEGACY_IMAGES_HOST_PATH`). `append`/`clean` still treat that as fatal
-  (unchanged, on purpose — see `run_importer_import`/`run_image_sync_and_push`
-  in `entrypoint.sh`). `stage` uses tolerant variants that log a note and
-  continue instead, since the goal is "best complete copy possible," not
-  "abort over a known, already-summarized handful of legacy gaps." Every
-  skipped row/file is still listed in the run's own output and log file —
-  nothing is silently swallowed, just not treated as pipeline-fatal.
+Every mode is now tolerant of partial errors: the importer's `import` and
+`image-sync` commands both exit non-zero whenever *any* row/file failed,
+which for this legacy dataset is always true (a handful of genuinely bad
+legacy rows, and some image paths referenced in the legacy DB that don't
+actually exist under `LEGACY_IMAGES_HOST_PATH`). That used to be treated as
+pipeline-fatal in `append`/`clean` too — confirmed in practice: a real
+`clean` run against OVH completed the whole import (135343 rows, 385 known
+per-row errors) and then never ran image-sync or `glossary:resync` at all,
+because the old code killed the container right after the import summary
+printed. Fixed everywhere now — every mode logs a note and continues past
+per-row/per-file errors, since a handful of already-summarized legacy gaps
+shouldn't block the rest of a run. Nothing is silently swallowed: every
+skipped row/file is still listed in the run's own output and log file, just
+not treated as fatal. A genuine transport failure (rsync itself, the SQL
+load itself) is still fatal, as it should be.
+
+### Continuing a stage build vs. starting over
 
 Rerunning `stage` against an already-populated `local-mysql` is safe and
 fast — `import` and `image-sync` are both idempotent, so a rerun only adds
-what's missing (e.g. after new legacy data shows up) instead of redoing
-everything.
+what's missing instead of redoing everything. Concretely:
 
-## Shipping a staged build to a server (manual — not automated yet)
+- **New legacy data appeared, or some images were missing last time and are
+  now available:** just rerun `stage` again —
+  `docker compose -f scripts/import-tool/docker-compose.yml run --build --rm stage`.
+  Already-imported rows and already-copied images are detected and skipped;
+  only what's new or was missing gets added.
+- **`glossary:resync`:** there's nothing to "continue" locally — `stage`
+  never touches it (it's an OVH-only side effect, consumed by
+  `inventory-queue.service` running on OVH). It happens automatically as
+  part of `ship`, once you're ready to send the build to OVH.
+- **You actually want to rebuild from nothing** (e.g. to verify a truly
+  clean import from scratch): `docker compose -f scripts/import-tool/docker-compose.yml down -v`
+  destroys `local-mysql-data`/`local-images-data`/`local-app-vendor`, then
+  `run --build --rm stage` starts over completely empty. Not needed just to
+  pick up new data or missing images — only for an intentional full reset.
+
+## Shipping a staged build to a server
 
 Once `stage` has produced a fully-populated `local-mysql` + `local-images-data`,
-you can hand that off to a target server (OVH or otherwise) instead of
-running `append`/`clean` against it directly over the tunnel. There is no
-mode that does this for you yet — it's a manual runbook:
+`ship` sends that build to OVH instead of running `append`/`clean` against it
+directly over the tunnel:
 
-1. **Dump the local DB:**
-   ```bash
-   docker exec inventory-import-tool-local-mysql-1 \
-     mysqldump -uinventory -psecret --single-transaction --routines inventory \
-     > inventory-staged.sql
-   ```
-2. **Copy the dump and the staged images to the server.** The dump is a
-   plain file, so `scp`/`rsync` it directly. The images live inside the
-   `local-images-data` *volume*, not a host directory — on Docker Desktop
-   (Windows/Mac) that volume is inside the Docker VM, so copy it out via a
-   throwaway container first, then rsync the resulting host directory:
-   ```bash
-   docker run --rm -v inventory-import-tool_local-images-data:/data -v <host-dir>:/out alpine cp -a /data/. /out/
-   rsync -az inventory-staged.sql deploy@<server>:/tmp/
-   rsync -az --stats <host-dir>/ deploy@<server>:/opt/inventory/shared/storage/app/public/pictures/
-   ```
-3. **Load the dump into the target DB on the server**, replacing its
-   contents — treat this exactly like `clean`'s wipe: it's a full
-   replacement, so back up first and schedule a maintenance window
-   (`php artisan down`) around it:
-   ```bash
-   ssh deploy@<server> "mysql -u<db_user> -p<db_pass> <db_name> < /tmp/inventory-staged.sql"
-   ```
-4. **Finish up on the server:** `php artisan storage:link` (if not already
-   linked) and `php artisan optimize:clear`, then bring it back up
-   (`php artisan up`).
+```powershell
+$env:CONFIRM_WIPE='yes-really-wipe-production'
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm ship
+```
+
+What it actually does, in order:
+
+1. **Rebuilds the app layer on OVH** — `do_wipe_and_restore`, the *exact same*
+   `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore-or-recreate-users
+   sequence `clean` uses. This is why `ship` needs the same `CONFIRM_WIPE`
+   guard, and the same pre-flight advice as `clean` (see "Before your first
+   `clean`" above — the snapshot/fallback-account rules are identical).
+2. **Dumps local-mysql, excluding auth/infrastructure tables, and loads it
+   through the tunnel** — `mysqldump` against `local-mysql`, with
+   `--ignore-table` for every table in `SHIP_EXCLUDED_TABLES` (`users`,
+   `roles`, `permissions`, `model_has_roles`, `model_has_permissions`,
+   `role_has_permissions`, `personal_access_tokens`, `sessions`, `cache`,
+   `cache_locks`, `jobs`, `job_batches`, `failed_jobs`,
+   `email_two_factor_codes`, `password_reset_tokens`, `migrations`,
+   `settings`), then loaded via the importer's `load-sql` command (not the
+   `mysqldump`/`mysql` CLI pipe you'd expect — see the note below). **This
+   guarantee is the whole point:** `local-mysql` never has real data in any
+   of those tables (`stage` runs no seeders — see above), so loading them
+   wholesale would blank out OVH's real users, roles, permission
+   assignments, API tokens, and settings. Excluding them means step 1's
+   freshly-restored auth state is never touched by step 2 — only the actual
+   imported legacy content moves.
+3. **Pushes the already-staged images** from `local-images-data` — no
+   re-running image-sync, they're already there.
+4. **Resyncs the glossary** on OVH, same as `append`/`clean`.
+
+**Why not just pipe `mysqldump | mysql` through the tunnel directly?** This
+image's `mysql`/`mysqldump` are Alpine's MariaDB client, which can't
+authenticate to a modern MySQL 8 server's default `caching_sha2_password`
+plugin at all (`Plugin caching_sha2_password could not be loaded` — the
+plugin's `.so` isn't packaged, not an SSL/config issue) — and that's what
+both `local-mysql` and the real OVH database use. Works fine as the *source*
+of the dump once `local-mysql`'s app user is switched to the older,
+universally-supported `mysql_native_password` (see `mysql/init.sql` — a
+disposable local-only credential, safe to relax; OVH's real credentials are
+never touched). For the *destination* leg, `ship` instead pipes the dump
+through `import.ts load-sql`, which reuses the same `mysql2` driver the rest
+of this tool already relies on to talk to OVH everywhere else.
+
+No manual runbook needed — `ship` requires only that `stage` has already
+been run (`local-mysql` healthy, `local-images-data` populated) and that you
+treat it with the same care as `clean`: it wipes production first.
 
 ## Testing against real OVH
 

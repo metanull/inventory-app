@@ -73,11 +73,14 @@ services:
   # in the root dev docker-compose.yml), image files land in the
   # local-images-data volume. This exists to validate/stage the import at
   # local-network speed (no per-row SSH-tunnel round-trip to OVH) before ever
-  # touching production. Shipping the result to OVH (mysqldump + rsync +
-  # remote load) is a separate, not-yet-automated step — this mode only
-  # builds and holds the local copy.
+  # touching production. Shipping the result to OVH is the separate `ship`
+  # service below.
   local-mysql:
     image: mysql:8.4
+    # MySQL 8.4 ships mysql_native_password disabled server-side by default
+    # (Oracle is phasing it out) — needed to authenticate the Alpine-based
+    # MariaDB client `ship` uses for mysqldump; see mysql/init.sql.
+    command: ["--mysql-native-password=ON"]
     environment:
       MYSQL_ROOT_PASSWORD: rootsecret
       MYSQL_DATABASE: inventory
@@ -85,6 +88,10 @@ services:
       MYSQL_PASSWORD: secret
     volumes:
       - local-mysql-data:/var/lib/mysql
+      # Switches the inventory user to mysql_native_password so `ship`'s
+      # mysqldump (Alpine-based MariaDB client) can authenticate at all —
+      # see mysql/init.sql. Only runs on first-ever init of an empty volume.
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/10-native-password.sql:ro
     ports:
       - "127.0.0.1:3316:3306"
     healthcheck:
@@ -142,6 +149,32 @@ services:
     depends_on:
       local-migrate:
         condition: service_completed_successfully
+
+  # Ships an already-built `stage` copy to OVH. DESTRUCTIVE (same
+  # CONFIRM_WIPE requirement as `clean`) — see entrypoint.sh's do_ship and
+  # README.md "Shipping a staged build to a server". No LEGACY_IMAGES_HOST_PATH
+  # mount: images come from the already-staged local-images-data volume, not
+  # the legacy image source.
+  ship:
+    <<: *build
+    command: ["ship"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - local-images-data:/staging/images:ro
+    environment:
+      DRY_RUN: ${DRY_RUN:-0}
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+      LOCAL_DB_HOST: local-mysql
+      LOCAL_DB_PORT: "3306"
+      LOCAL_DB_USERNAME: inventory
+      LOCAL_DB_PASSWORD: secret
+      LOCAL_DB_DATABASE: inventory
+    depends_on:
+      local-mysql:
+        condition: service_healthy
 
 volumes:
   local-mysql-data:
