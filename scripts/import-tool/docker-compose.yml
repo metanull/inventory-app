@@ -66,3 +66,117 @@ services:
       CONFIRM_WIPE: ${CONFIRM_WIPE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+
+  # --- Local staging (no OVH contact at all) ---------------------------------
+  # Builds a fully-populated local copy of the legacy import: DB rows land in
+  # local-mysql (a disposable-but-persistent MySQL matching the version used
+  # in the root dev docker-compose.yml), image files land in the
+  # local-images-data volume. This exists to validate/stage the import at
+  # local-network speed (no per-row SSH-tunnel round-trip to OVH) before ever
+  # touching production. Shipping the result to OVH is the separate `ship`
+  # service below.
+  local-mysql:
+    image: mysql:8.4
+    # MySQL 8.4 ships mysql_native_password disabled server-side by default
+    # (Oracle is phasing it out) — needed to authenticate the Alpine-based
+    # MariaDB client `ship` uses for mysqldump; see mysql/init.sql.
+    command: ["--mysql-native-password=ON"]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - local-mysql-data:/var/lib/mysql
+      # Switches the inventory user to mysql_native_password so `ship`'s
+      # mysqldump (Alpine-based MariaDB client) can authenticate at all —
+      # see mysql/init.sql. Only runs on first-ever init of an empty volume.
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/10-native-password.sql:ro
+    ports:
+      - "127.0.0.1:3316:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+  # One-shot: applies migrations to local-mysql. Deliberately migrations-only,
+  # no seeders — this container is never meant to be logged into, so roles,
+  # permissions, and dev users are intentionally not created here. Safe to
+  # rerun (migrate is idempotent); reruns each time `stage` starts, per the
+  # same depends_on pattern the root docker-compose.yml uses for its own
+  # migrate -> app sequencing.
+  local-migrate:
+    build:
+      context: ../..
+      dockerfile: .docker/Dockerfile.dev
+    command: ["/bin/sh", "-c", "[ -f vendor/autoload.php ] || composer install --no-interaction --quiet && php artisan migrate --force"]
+    volumes:
+      - ../..:/var/www/app
+      - local-app-vendor:/var/www/app/vendor
+      - ../../.docker/php.dev.ini:/usr/local/etc/php/conf.d/99-app.ini:ro
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: mysql
+      DB_HOST: local-mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+    depends_on:
+      local-mysql:
+        condition: service_healthy
+
+  stage:
+    <<: *build
+    command: ["stage"]
+    volumes:
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+      - local-images-data:/staging/images
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # Overrides the OVH-tunnel DB_* values from .env — this mode writes
+      # straight to local-mysql over the compose network, never through a
+      # tunnel. LEGACY_DB_* still comes from .env unchanged (real legacy
+      # source, same as every other mode).
+      DB_HOST: local-mysql
+      DB_PORT: "3306"
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      DB_DATABASE: inventory
+    depends_on:
+      local-migrate:
+        condition: service_completed_successfully
+
+  # Ships an already-built `stage` copy to OVH. DESTRUCTIVE (same
+  # CONFIRM_WIPE requirement as `clean`) — see entrypoint.sh's do_ship and
+  # README.md "Shipping a staged build to a server". No LEGACY_IMAGES_HOST_PATH
+  # mount: images come from the already-staged local-images-data volume, not
+  # the legacy image source.
+  ship:
+    <<: *build
+    command: ["ship"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./auth-backups}:/backup
+      - local-images-data:/staging/images:ro
+    environment:
+      DRY_RUN: ${DRY_RUN:-0}
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+      LOCAL_DB_HOST: local-mysql
+      LOCAL_DB_PORT: "3306"
+      LOCAL_DB_USERNAME: inventory
+      LOCAL_DB_PASSWORD: secret
+      LOCAL_DB_DATABASE: inventory
+    depends_on:
+      local-mysql:
+        condition: service_healthy
+
+volumes:
+  local-mysql-data:
+  local-images-data:
+  local-app-vendor:

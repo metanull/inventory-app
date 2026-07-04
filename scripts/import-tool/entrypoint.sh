@@ -20,6 +20,26 @@ set -euo pipefail
 #                       just those two accounts instead. If neither applies,
 #                       aborts before anything is lost beyond the wipe
 #                       itself.
+#   stage               import -> image-sync, writing straight to DB_HOST
+#                       (expected to be a local MySQL, e.g. the compose
+#                       "local-mysql" service) instead of through the OVH
+#                       tunnel. No SSH, no OVH contact at all — builds a
+#                       fully-populated local copy (DB + staged images) at
+#                       local-network speed.
+#   ship                Ships an already-built `stage` copy to OVH: the same
+#                       db:wipe -> migrate -> seed -> permission:sync ->
+#                       auth:restore/fallback sequence as `clean` (so the app
+#                       layer — users, roles, permissions, tokens — is always
+#                       rebuilt fresh or restored from a real snapshot on OVH
+#                       itself, NEVER read from local-mysql), followed by
+#                       loading local-mysql's CONTENT tables only (legacy
+#                       import data — explicitly excluding
+#                       users/roles/permissions/tokens/sessions/etc., see
+#                       SHIP_EXCLUDED_TABLES below) through the tunnel, then
+#                       pushing the already-staged images and resyncing the
+#                       glossary. DESTRUCTIVE — same CONFIRM_WIPE requirement
+#                       as `clean`. Requires a `stage` run to have already
+#                       populated local-mysql/local-images-data.
 #
 # See README.md for the full list of required env vars and mounts.
 # ==============================================================================
@@ -28,7 +48,12 @@ IMPORTER_DIR=/opt/import-tool/importer
 
 MODE="${1:-${IMPORT_MODE:-append}}"
 
-OVH_HOST="${OVH_HOST:?OVH_HOST is required}"
+# Only append/backup-permissions/clean/ship touch OVH — stage writes straight
+# to a local DB_HOST and never dials out, so OVH_HOST has no reason to be
+# required for it. Checked explicitly per-mode in the dispatch at the bottom
+# instead of unconditionally here.
+OVH_HOST="${OVH_HOST:-}"
+require_ovh_host() { [ -n "$OVH_HOST" ] || die "OVH_HOST is required for mode '$MODE'"; }
 OVH_USER="${OVH_USER:-deploy}"
 OVH_APP_DIR="${OVH_APP_DIR:-/opt/inventory/current}"
 OVH_SHARED_DIR="${OVH_SHARED_DIR:-/opt/inventory/shared}"
@@ -36,6 +61,37 @@ OVH_SSH_KEY_PATH="${OVH_SSH_KEY_PATH:-/run/secrets/deploy_key}"
 
 TUNNEL_LOCAL_PORT="${TUNNEL_LOCAL_PORT:-3307}"
 STAGING_DIR="${IMAGE_STAGING_DIR:-/staging/images}"
+
+# `ship`-only: the LOCAL source DB built by a prior `stage` run. Distinct from
+# DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE, which for `ship` (unlike
+# `stage`) keep their normal append/clean meaning — the OVH target, reached
+# through the tunnel this container opens.
+LOCAL_DB_HOST="${LOCAL_DB_HOST:-local-mysql}"
+LOCAL_DB_PORT="${LOCAL_DB_PORT:-3306}"
+LOCAL_DB_USERNAME="${LOCAL_DB_USERNAME:-inventory}"
+LOCAL_DB_PASSWORD="${LOCAL_DB_PASSWORD:-secret}"
+LOCAL_DB_DATABASE="${LOCAL_DB_DATABASE:-inventory}"
+
+# Tables NEVER included in a `ship` data load — every table that stores app
+# identity/auth/session/queue/config state rather than imported legacy
+# content. `stage`'s local-mysql never has real data in any of these (no
+# seeders run there — see do_stage), so loading them wholesale onto OVH would
+# blank out its real users, roles, permission assignments, API tokens, and
+# settings. The real app-layer state is instead always (re)built directly on
+# OVH by do_wipe_and_restore, using OVH's own APP_KEY, exactly like `clean`
+# already does — never read from the local build. Reviewed against every
+# migration that creates a users/auth/session/queue/settings table as of this
+# writing; mysqldump --ignore-table is a no-op (not an error) for any of
+# these that don't exist in a given schema version, so this list is safe to
+# keep ahead of what's actually deployed.
+SHIP_EXCLUDED_TABLES=(
+  users password_reset_tokens sessions
+  cache cache_locks
+  jobs job_batches failed_jobs
+  personal_access_tokens email_two_factor_codes
+  permissions roles model_has_permissions model_has_roles role_has_permissions
+  migrations settings
+)
 
 AUTH_SNAPSHOT_REMOTE="${AUTH_SNAPSHOT_REMOTE:-${OVH_SHARED_DIR}/auth-snapshots/current.json.enc}"
 AUTH_SNAPSHOT_LOCAL_BACKUP_DIR="${AUTH_SNAPSHOT_LOCAL_BACKUP_DIR:-/backup}"
@@ -132,13 +188,28 @@ trap close_tunnel EXIT
 # Importer steps (run locally in the container against DB_HOST/DB_PORT, which
 # the caller must set to point at the tunnel — see README.md)
 # ------------------------------------------------------------------------------
+# The importer's `import` command exits 1 whenever totals.errors > 0 (see
+# src/cli/import.ts) — which this legacy dataset always has some of:
+# individual rows with genuinely bad/missing legacy data, already tracked and
+# summarized as warnings/errors in the run's own output, not a sign the whole
+# run failed. Every mode (append/clean/stage) needs image-sync/glossary-resync
+# to still run against whatever WAS imported rather than aborting the entire
+# pipeline over a handful of known, already-summarized per-row failures — this
+# used to die() here, which silently skipped image-sync and glossary:resync on
+# every real append/clean run (confirmed: the OVH `clean` run that produced
+# "135343 imported ... 385 errors" never reached either step, because this
+# function killed the container right after the import summary printed).
 run_importer_import() {
   local extra_args=()
   [ "$DRY_RUN" = "1" ] && extra_args+=(--dry-run)
 
   log "Running importer: import ${extra_args[*]}"
-  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts import "${extra_args[@]}") \
-    || die "importer 'import' step failed"
+  local rc=0
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts import "${extra_args[@]}") || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    log "NOTE: importer 'import' exited non-zero (rc=$rc) — see the run's own summary above for the error count. Continuing to image-sync/glossary-resync regardless; this is expected for this dataset, not treated as fatal."
+  fi
+  return 0
 }
 
 run_image_sync_and_push() {
@@ -147,9 +218,17 @@ run_image_sync_and_push() {
 
   log "Running importer: image-sync --copy --target-dir $STAGING_DIR ${extra_args[*]}"
   mkdir -p "$STAGING_DIR"
-  if ! (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts image-sync --copy --target-dir "$STAGING_DIR" "${extra_args[@]}"); then
-    log "image-sync failed"
-    return 1
+  # Same reasoning as run_importer_import: image-sync exits 1 whenever any
+  # individual file failed (e.g. a legacy image path that doesn't exist on
+  # disk — this dataset always has a few hundred of these). Previously this
+  # returned early and skipped the rsync push entirely, discarding every
+  # image that WAS successfully staged, not just the ones that failed. Push
+  # whatever landed in $STAGING_DIR regardless; the run's own summary above
+  # already lists exactly what's missing.
+  local sync_rc=0
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts image-sync --copy --target-dir "$STAGING_DIR" "${extra_args[@]}") || sync_rc=$?
+  if [ "$sync_rc" -ne 0 ]; then
+    log "NOTE: image-sync exited non-zero (rc=$sync_rc) — see the run's own summary above for what's missing. Pushing whatever was staged regardless."
   fi
 
   if [ "$DRY_RUN" = "1" ]; then
@@ -176,6 +255,25 @@ run_image_sync_and_push() {
     log "rsync push failed"
     return 1
   fi
+}
+
+run_image_sync_local_only() {
+  local extra_args=()
+  [ "$DRY_RUN" = "1" ] && extra_args+=(--dry-run)
+
+  log "Running importer: image-sync --copy --target-dir $STAGING_DIR ${extra_args[*]} (local only, no OVH push)"
+  mkdir -p "$STAGING_DIR"
+  local rc=0
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts image-sync --copy --target-dir "$STAGING_DIR" "${extra_args[@]}") || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    # Same reasoning as run_importer_import: image-sync exits 1 whenever any
+    # file failed (e.g. "Legacy image not found" — broken links already
+    # present in the legacy image tree itself, not something this container
+    # can fix). Not treated as fatal here; the run's own summary above
+    # already lists exactly what's missing.
+    log "NOTE: image-sync exited non-zero (rc=$rc) — see the run's own summary above for what's missing. Not treated as fatal in stage mode."
+  fi
+  return 0
 }
 
 run_glossary_resync() {
@@ -254,6 +352,84 @@ do_wipe_and_restore() {
   fi
 }
 
+do_stage() {
+  log "Stage mode: writing straight to DB_HOST=${DB_HOST:-<unset>} — no SSH, no OVH contact"
+  run_importer_import
+  run_image_sync_local_only
+}
+
+# Dumps LOCAL_DB_* (local-mysql, built by a prior `stage` run), excluding
+# every table in SHIP_EXCLUDED_TABLES, and loads it through the already-open
+# OVH tunnel (DB_HOST/DB_PORT/etc., set up by do_wipe_and_restore + open_tunnel
+# before this runs).
+#
+# The load leg deliberately does NOT pipe mysqldump's output straight into
+# this image's own `mysql` CLI: that CLI is Alpine's MariaDB client, which
+# can't authenticate to a modern MySQL 8 server's default
+# caching_sha2_password plugin at all (confirmed: "Plugin caching_sha2_password
+# could not be loaded" — the plugin's .so isn't present in this package, not
+# an SSL configuration issue) — and that's exactly what both local-mysql and
+# the real OVH target use. Instead: dump to a temp file with mysqldump
+# (--ssl=0 needed even for the dump leg — local-mysql's self-signed cert isn't
+# trusted by this client either), then load that file via the importer's own
+# `load-sql` command, which uses the same mysql2 driver already proven to talk
+# to OVH throughout every other mode in this tool.
+load_staged_dump() {
+  local ignore_flags=()
+  local t
+  for t in "${SHIP_EXCLUDED_TABLES[@]}"; do
+    ignore_flags+=(--ignore-table="${LOCAL_DB_DATABASE}.${t}")
+  done
+
+  local dump_file="/tmp/staged-dump.sql"
+  log "Dumping local-mysql (excluding: ${SHIP_EXCLUDED_TABLES[*]}) to $dump_file"
+  mysqldump -h "$LOCAL_DB_HOST" -P "$LOCAL_DB_PORT" -u "$LOCAL_DB_USERNAME" -p"$LOCAL_DB_PASSWORD" --ssl=0 \
+    --single-transaction --routines --no-tablespaces "${ignore_flags[@]}" "$LOCAL_DB_DATABASE" \
+    > "$dump_file" \
+    || die "dumping local-mysql failed"
+
+  log "Loading $dump_file into ${DB_DATABASE}@${DB_HOST}:${DB_PORT} (through the tunnel)"
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts load-sql --file "$dump_file") \
+    || die "loading staged dump into ${DB_DATABASE} failed"
+
+  rm -f "$dump_file"
+}
+
+# Pushes images already staged by a prior `stage` run (local-images-data,
+# mounted at $STAGING_DIR) to OVH. Unlike run_image_sync_and_push, this never
+# re-runs the importer's image-sync step — the images are already there.
+# --delete is always correct here: do_wipe_and_restore already wiped OVH, so
+# whatever is in $STAGING_DIR is the full, authoritative set.
+push_staged_images() {
+  if [ "$DRY_RUN" = "1" ]; then
+    log "DRY_RUN=1 — skipping rsync push to OVH"
+    return 0
+  fi
+  log "rsync -az --stats --delete $STAGING_DIR/ -> ${OVH_HOST}:${OVH_SHARED_DIR}/storage/app/public/pictures/"
+  rsync -az --stats --delete -e "ssh ${SSH_OPTS_BASE[*]} -i $SSH_KEY" \
+    "$STAGING_DIR"/ \
+    "${OVH_USER}@${OVH_HOST}:${OVH_SHARED_DIR}/storage/app/public/pictures/" \
+    || die "rsync push failed"
+}
+
+# Ships an already-built `stage` copy to OVH. The app layer (users, roles,
+# permissions, tokens) is always rebuilt fresh on OVH itself by
+# do_wipe_and_restore — reusing it here unchanged means `ship` restores real
+# users/roles from OVH's own snapshot (or the fallback accounts) exactly like
+# `clean` does, and never reads any of that from local-mysql (which has none
+# of it — see do_stage). Only the CONTENT tables (the actual imported legacy
+# data) come from the local build.
+do_ship() {
+  do_wipe_and_restore
+
+  open_tunnel
+  load_staged_dump
+  close_tunnel
+
+  push_staged_images
+  run_glossary_resync
+}
+
 do_backup_permissions() {
   prepare_ssh_key
   mkdir -p "$AUTH_SNAPSHOT_LOCAL_BACKUP_DIR"
@@ -275,17 +451,29 @@ do_backup_permissions() {
 # ------------------------------------------------------------------------------
 case "$MODE" in
 append)
+  require_ovh_host
   do_import_pipeline
   ;;
 backup-permissions)
+  require_ovh_host
   do_backup_permissions
   ;;
 clean)
+  require_ovh_host
   do_wipe_and_restore
   do_import_pipeline
   ;;
+stage)
+  do_stage
+  ;;
+ship)
+  require_ovh_host
+  [ "${CONFIRM_WIPE:-}" = "yes-really-wipe-production" ] \
+    || die "ship mode requires CONFIRM_WIPE=yes-really-wipe-production — refusing to wipe the database"
+  do_ship
+  ;;
 *)
-  die "unknown mode '$MODE' (expected: append | backup-permissions | clean)"
+  die "unknown mode '$MODE' (expected: append | backup-permissions | clean | stage | ship)"
   ;;
 esac
 
