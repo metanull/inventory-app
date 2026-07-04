@@ -128,18 +128,35 @@ describe('ShMonumentDetailPictureImporter', () => {
     };
   });
 
-  it('creates translation with caption as name when caption is present', async () => {
+  it('creates translation with parent title as name and caption in description when caption is present', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_monument_detail_pictures') && !sql.includes('texts'))
         return [imageRow];
       if (sql.includes('sh_monument_detail_picture_texts')) return [textWithCaption];
+      if (sql.includes('sh_monument_detail_texts')) return [{ name: 'Detail Section' }];
       return [];
     });
     const importer = new ShMonumentDetailPictureImporter(context);
     await importer.import();
 
     expect(writeItemTranslationMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Carved stone detail' })
+      expect.objectContaining({ name: 'Detail Section (2)', description: 'Carved stone detail' })
+    );
+  });
+
+  it('falls back to a generic "Picture N" name when the parent detail title is unavailable', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('sh_monument_detail_pictures') && !sql.includes('texts'))
+        return [imageRow];
+      if (sql.includes('sh_monument_detail_picture_texts')) return [textWithCaption];
+      if (sql.includes('sh_monument_detail_texts')) return []; // parent not found
+      return [];
+    });
+    const importer = new ShMonumentDetailPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 2', description: 'Carved stone detail' })
     );
   });
 
@@ -190,7 +207,7 @@ describe('ShMonumentDetailPictureImporter', () => {
     }
   });
 
-  it('reports error when parent detail not found for metadata-only row', async () => {
+  it('falls back to a generic name (no error) when parent detail not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('sh_monument_detail_pictures') && !sql.includes('texts'))
         return [imageRow];
@@ -201,7 +218,9 @@ describe('ShMonumentDetailPictureImporter', () => {
     const importer = new ShMonumentDetailPictureImporter(context);
     const result = await importer.import();
 
-    expect(result.errors.length).toBeGreaterThan(0);
-    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.errors.length).toBe(0);
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 2' })
+    );
   });
 });

@@ -364,32 +364,22 @@ export class MonumentPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang);
 
-    let name: string;
-    if (hasCaption) {
-      name = convertHtmlToMarkdown(translation.caption!);
-    } else {
-      // Metadata-only row: resolve parent monument title for a human-readable name.
-      const parentName = await this.getParentItemName(
-        translation.project_id,
-        translation.country,
-        translation.institution_id,
-        translation.number,
-        translation.lang
-      );
-      if (!parentName) {
-        throw new Error(
-          `Parent monument name not found for metadata-only translation ` +
-            `(project_id=${translation.project_id}, country=${translation.country}, ` +
-            `institution_id=${translation.institution_id}, number=${translation.number}, ` +
-            `lang=${translation.lang})`
-        );
-      }
-      const parentTitle = convertHtmlToMarkdown(parentName);
-      name =
-        translation.image_number != null
-          ? `${parentTitle} (${translation.image_number})`
-          : parentTitle;
-    }
+    // `name` is always a short label derived from the parent monument's title —
+    // never the caption, which is long-form HTML and belongs in `description`
+    // (an unbounded text column) rather than the 255-char `name` column.
+    const parentName = await this.getCachedParentItemName(
+      translation.project_id,
+      translation.country,
+      translation.institution_id,
+      translation.number,
+      translation.lang
+    );
+    const parentTitle = parentName ? convertHtmlToMarkdown(parentName) : null;
+    let name = parentTitle
+      ? translation.image_number != null
+        ? `${parentTitle} (${translation.image_number})`
+        : parentTitle
+      : `Picture ${translation.image_number}`;
 
     const MAX_NAME_LENGTH = 255;
     if (name.length > MAX_NAME_LENGTH) {
@@ -398,6 +388,8 @@ export class MonumentPictureImporter extends BaseImporter {
       );
       name = name.substring(0, MAX_NAME_LENGTH);
     }
+
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption!) : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -413,7 +405,7 @@ export class MonumentPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -445,6 +437,25 @@ export class MonumentPictureImporter extends BaseImporter {
     };
 
     await this.context.strategy.writeItemTranslation(translationData);
+  }
+
+  private parentNameCache = new Map<string, string | null>();
+
+  private async getCachedParentItemName(
+    projectId: string,
+    country: string,
+    institutionId: string,
+    number: number,
+    lang: string
+  ): Promise<string | null> {
+    const key = `${projectId}:${country}:${institutionId}:${number}:${lang}`;
+    if (!this.parentNameCache.has(key)) {
+      this.parentNameCache.set(
+        key,
+        await this.getParentItemName(projectId, country, institutionId, number, lang)
+      );
+    }
+    return this.parentNameCache.get(key)!;
   }
 
   private async getParentItemName(

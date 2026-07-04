@@ -324,27 +324,17 @@ export class ShObjectPictureImporter extends BaseImporter {
 
       const languageId = mapLanguageCode(text.lang);
 
-      let name: string;
-      if (hasCaption) {
-        name = convertHtmlToMarkdown(text.caption!);
-      } else {
-        // Metadata-only row: resolve parent object title for a human-readable name.
-        const parentName = await this.getParentObjectName(
-          group.project_id,
-          group.country,
-          group.number,
-          text.lang
-        );
-        if (!parentName) {
-          throw new Error(
-            `Parent SH object name not found for metadata-only translation ` +
-              `(project_id=${group.project_id}, country=${group.country}, ` +
-              `number=${group.number}, lang=${text.lang})`
-          );
-        }
-        const parentTitle = convertHtmlToMarkdown(parentName);
-        name = `${parentTitle} (${group.image_number})`;
-      }
+      // `name` is always a short label derived from the parent object's title —
+      // never the caption, which is long-form HTML and belongs in `description`
+      // (an unbounded text column) rather than the 255-char `name` column.
+      const parentName = await this.getCachedParentObjectName(
+        group.project_id,
+        group.country,
+        group.number,
+        text.lang
+      );
+      const parentTitle = parentName ? convertHtmlToMarkdown(parentName) : null;
+      let name = parentTitle ? `${parentTitle} (${group.image_number})` : `Picture ${group.image_number}`;
 
       const MAX_NAME_LENGTH = 255;
       if (name.length > MAX_NAME_LENGTH) {
@@ -353,6 +343,8 @@ export class ShObjectPictureImporter extends BaseImporter {
         );
         name = name.substring(0, MAX_NAME_LENGTH);
       }
+
+      const description = hasCaption ? convertHtmlToMarkdown(text.caption!) : '';
 
       const translationExtra: Record<string, unknown> = { ...extra };
       if (hasPhotographer) {
@@ -368,7 +360,7 @@ export class ShObjectPictureImporter extends BaseImporter {
         context_id: contextId,
         backward_compatibility: this.getPictureBackwardCompatibility(group),
         name,
-        description: '',
+        description,
         alternate_name: null,
         type: null,
         holder: null,
@@ -396,6 +388,21 @@ export class ShObjectPictureImporter extends BaseImporter {
     }
 
     return itemId;
+  }
+
+  private parentNameCache = new Map<string, string | null>();
+
+  private async getCachedParentObjectName(
+    projectId: string,
+    country: string,
+    number: number,
+    lang: string
+  ): Promise<string | null> {
+    const key = `${projectId}:${country}:${number}:${lang}`;
+    if (!this.parentNameCache.has(key)) {
+      this.parentNameCache.set(key, await this.getParentObjectName(projectId, country, number, lang));
+    }
+    return this.parentNameCache.get(key)!;
   }
 
   private async getParentObjectName(

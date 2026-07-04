@@ -125,16 +125,31 @@ describe('MonumentDetailPictureImporter', () => {
     };
   });
 
-  it('creates translation with caption as name when caption is present', async () => {
+  it('creates translation with parent title as name and caption in description when caption is present', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowWithCaption];
+      if (sql.includes('FROM mwnf3.monument_details')) return [{ name: 'Mosque Detail' }];
       return [];
     });
     const importer = new MonumentDetailPictureImporter(context);
     await importer.import();
 
     expect(writeItemTranslationMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Detail view' })
+      expect.objectContaining({ name: 'Mosque Detail (10)', description: 'Detail view' })
+    );
+  });
+
+  it('falls back to a generic "Picture N" name when the parent detail title is unavailable', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowWithCaption];
+      if (sql.includes('FROM mwnf3.monument_details')) return []; // parent not found
+      return [];
+    });
+    const importer = new MonumentDetailPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 10', description: 'Detail view' })
     );
   });
 
@@ -179,7 +194,7 @@ describe('MonumentDetailPictureImporter', () => {
     }
   });
 
-  it('reports error when parent detail not found for metadata-only row', async () => {
+  it('falls back to a generic name (no error) when parent detail not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.monument_detail_pictures')) return [rowPhotographerOnly];
       if (sql.includes('FROM mwnf3.monument_details')) return []; // not found
@@ -188,10 +203,10 @@ describe('MonumentDetailPictureImporter', () => {
     const importer = new MonumentDetailPictureImporter(context);
     const result = await importer.import();
 
-    // The failure must be surfaced (either errors or warnings) – NOT silently swallowed.
-    const surfaced = [...(result.errors ?? []), ...(result.warnings ?? [])];
-    expect(surfaced.length).toBeGreaterThan(0);
-    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.errors.length).toBe(0);
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 10' })
+    );
   });
 
   it('queries mwnf3.monument_details (not monuments_details) for parent name lookup', async () => {

@@ -111,19 +111,18 @@ export function transformProjectTranslation(
 ): TransformedProjectTranslationBundle {
   const languageId = mapLanguageCode(legacy.lang);
 
-  // Translation name and description are required - no fallback
+  // Translation name is required - no fallback. Description is optional: the
+  // legacy `projectnames` table never had a description column, and the
+  // synthetic description generated from the thematic gallery data doesn't
+  // cover every project/language combination. collection_translations.description
+  // is nullable specifically to accommodate this gap.
   if (!legacy.name) {
     throw new Error(
       `Project translation ${legacy.project_id}:${legacy.lang} missing required name field`
     );
   }
-  if (!legacy.description) {
-    throw new Error(
-      `Project translation ${legacy.project_id}:${legacy.lang} missing required description field`
-    );
-  }
   const name = convertHtmlToMarkdown(legacy.name);
-  const description = convertHtmlToMarkdown(legacy.description);
+  const description = legacy.description ? convertHtmlToMarkdown(legacy.description) : null;
 
   // Collection translation uses same backward_compatibility as parent collection
   const backwardCompatibility = formatBackwardCompatibility({

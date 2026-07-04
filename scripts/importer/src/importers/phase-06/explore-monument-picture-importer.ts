@@ -325,9 +325,10 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang);
 
-    const name = hasCaption
-      ? convertHtmlToMarkdown(translation.caption ?? '')
-      : `Picture ${translation.image_number}`;
+    // `name` is always a short label; the caption (long-form HTML) belongs in
+    // `description` rather than the 255-char `name` column.
+    const name = `Picture ${translation.image_number}`;
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption ?? '') : '';
 
     const translationExtra: Record<string, unknown> = { ...itemExtra };
     if (hasPhotographer) {
@@ -343,7 +344,7 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
       context_id: contextId,
       backward_compatibility: `${this.getBackwardCompatibility({ monumentId: translation.monumentId, image_number: translation.image_number, type: translation.type, path: translation.path, translations: [] })}:${translation.lang}`,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,
