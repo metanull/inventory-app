@@ -14,6 +14,10 @@ import DynastyDetail from '../views/DynastyDetail.vue'
 import ItemDetail from '../views/ItemDetail.vue'
 import ArtIntroEntrance from '../views/ArtIntroEntrance.vue'
 import ArtIntroTheme from '../views/ArtIntroTheme.vue'
+import ExhibitionsEntrance from '../views/ExhibitionsEntrance.vue'
+import ExhibitionSplash from '../views/ExhibitionSplash.vue'
+import ExhibitionIntroduction from '../views/ExhibitionIntroduction.vue'
+import ExhibitionTheme from '../views/ExhibitionTheme.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -30,6 +34,10 @@ const routes = [
   { path: '/dynasty/:id', component: DynastyDetail },
   { path: '/artistic-introduction', component: ArtIntroEntrance },
   { path: '/artistic-introduction/:themeId', component: ArtIntroTheme },
+  { path: '/exhibitions', component: ExhibitionsEntrance },
+  { path: '/exhibitions/:exhibitionId', component: ExhibitionSplash },
+  { path: '/exhibitions/:exhibitionId/introduction', component: ExhibitionIntroduction },
+  { path: '/exhibitions/:exhibitionId/theme/:themeId', component: ExhibitionTheme },
   { path: '/item/:id', component: ItemDetail },
 ]
 

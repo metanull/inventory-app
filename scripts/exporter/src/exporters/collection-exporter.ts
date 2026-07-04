@@ -34,6 +34,12 @@ const CAPTION_FIELD_MAP: Record<string, keyof CollectionItemCaption> = {
   detail_justification: 'justification',
 }
 
+/** One selectable detail sub-image of an item (e.g. a close-up of one part of a monument). */
+interface CollectionItemDetailEntry {
+  image_url: string | null
+  caption?: Record<string, CollectionItemCaption>
+}
+
 interface CollectionTranslationRow {
   collection_id: string
   language_id: string
@@ -159,10 +165,11 @@ export class CollectionExporter extends BaseExporter {
     }
 
     // collection_id -> items[]
+    const imageUrlFn = (path: string) => this.imageUrl(path)
     const itemMap = new Map<string, ReturnType<typeof buildCollectionItemEntry>[]>()
     for (const link of itemLinks) {
       if (!itemMap.has(link.collection_id)) itemMap.set(link.collection_id, [])
-      itemMap.get(link.collection_id)!.push(buildCollectionItemEntry(link))
+      itemMap.get(link.collection_id)!.push(buildCollectionItemEntry(link, imageUrlFn))
     }
 
     const output = collections.map(c => ({
@@ -187,33 +194,57 @@ export class CollectionExporter extends BaseExporter {
 }
 
 /**
+ * Pivots caption/override fields (item_name, item_date, item_dynasty,
+ * item_location, item_museum, detail_name, detail_justification — each a
+ * language-keyed map) into a per-language caption record.
+ */
+function extractCaptions(fields: Record<string, unknown>): Record<string, CollectionItemCaption> {
+  const caption: Record<string, CollectionItemCaption> = {}
+  for (const [legacyField, outField] of Object.entries(CAPTION_FIELD_MAP)) {
+    const langMap = fields[legacyField]
+    if (!langMap || typeof langMap !== 'object') continue
+    for (const [lang, text] of Object.entries(langMap as Record<string, string>)) {
+      if (!text) continue
+      if (!caption[lang]) caption[lang] = {}
+      caption[lang]![outField] = text
+    }
+  }
+  return caption
+}
+
+/**
  * Builds one collections.json item entry from a collection_item pivot row.
  *
  * `extra` holds legacy placement metadata: `n`/`n2` (grid row/column — items
  * sharing the same row can have several selectable variants at different
- * columns, mirroring the legacy artintro thumbnail-grid UI) and per-language
- * caption overrides (item_name, item_date, item_dynasty, item_location,
- * item_museum, detail_name, detail_justification).
+ * columns, mirroring the legacy artintro/exhibition thumbnail-grid UI),
+ * per-language caption overrides, and — for exhibitions only — a `details`
+ * array of additional selectable sub-images of the same item (e.g. a
+ * close-up of one part of a monument), each with its own image and caption.
  */
-function buildCollectionItemEntry(link: CollectionItemRow): {
+function buildCollectionItemEntry(
+  link: CollectionItemRow,
+  imageUrlFn: (path: string) => string
+): {
   id: string
   display_order: number | null
   variant_order: number | null
   caption?: Record<string, CollectionItemCaption>
+  details?: CollectionItemDetailEntry[]
 } {
   const extra = parseJson(link.extra) as Record<string, unknown> | null
   const variantOrder = extra && typeof extra.n2 === 'number' ? extra.n2 : null
+  const caption = extra ? extractCaptions(extra) : {}
 
-  const caption: Record<string, CollectionItemCaption> = {}
-  if (extra) {
-    for (const [legacyField, outField] of Object.entries(CAPTION_FIELD_MAP)) {
-      const langMap = extra[legacyField]
-      if (!langMap || typeof langMap !== 'object') continue
-      for (const [lang, text] of Object.entries(langMap as Record<string, string>)) {
-        if (!text) continue
-        if (!caption[lang]) caption[lang] = {}
-        caption[lang]![outField] = text
-      }
+  const details: CollectionItemDetailEntry[] = []
+  if (extra && Array.isArray(extra.details)) {
+    for (const raw of extra.details as Record<string, unknown>[]) {
+      const picture = typeof raw.picture_details === 'string' ? raw.picture_details : null
+      const detailCaption = extractCaptions(raw)
+      details.push({
+        image_url: picture ? imageUrlFn(picture) : null,
+        ...(Object.keys(detailCaption).length > 0 ? { caption: detailCaption } : {}),
+      })
     }
   }
 
@@ -222,6 +253,7 @@ function buildCollectionItemEntry(link: CollectionItemRow): {
     display_order: link.display_order,
     variant_order: variantOrder,
     ...(Object.keys(caption).length > 0 ? { caption } : {}),
+    ...(details.length > 0 ? { details } : {}),
   }
 }
 

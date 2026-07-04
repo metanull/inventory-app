@@ -135,6 +135,49 @@ function artIntroThemeById(id) {
   return artIntroThemes.value.find(t => t.id === id) ?? null
 }
 
+// ── Exhibitions ────────────────────────────────────────────────────────────
+//
+// Imported as generic Collections, nested under a dedicated "Exhibitions"
+// marker collection (backward_compatibility "mwnf3:exhibitions:root", a
+// child of the Islamic Art project collection) — needed because neither
+// type='exhibition' nor the mwnf3:exhibitions:{id} backward_compatibility
+// key are project-scoped in the legacy schema (shared with Baroque Art,
+// Sharing History, etc). From that anchor: exhibitions are its children,
+// themes are an exhibition's children, pages are a theme's children (tabs).
+// "Introduction" is not a theme — it's the exhibition's own translation
+// (extra.intro_header / extra.intro_text) plus items attached directly to
+// the exhibition collection itself (not to any theme/page).
+
+const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root'
+
+const exhibitions = computed(() => {
+  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  if (!marker) return []
+  return collections.value
+    .filter(c => c.parent_id === marker.id)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+})
+
+function exhibitionById(id) {
+  return exhibitions.value.find(e => e.id === id) ?? null
+}
+
+function exhibitionThemes(exhibitionId) {
+  return collections.value
+    .filter(c => c.parent_id === exhibitionId)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+    .map(theme => ({
+      ...theme,
+      pages: collections.value
+        .filter(c => c.parent_id === theme.id)
+        .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
+    }))
+}
+
+function exhibitionThemeById(exhibitionId, themeId) {
+  return exhibitionThemes(exhibitionId).find(t => t.id === themeId) ?? null
+}
+
 // ── Markdown helpers ───────────────────────────────────────────────────────
 
 // Full block markdown → HTML (for prose sections)
@@ -193,6 +236,10 @@ export function useInventoryData() {
     artIntroRoot,
     artIntroThemes,
     artIntroThemeById,
+    exhibitions,
+    exhibitionById,
+    exhibitionThemes,
+    exhibitionThemeById,
     md,
     mdInline,
     mdStrip,

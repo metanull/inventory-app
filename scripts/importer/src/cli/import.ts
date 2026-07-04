@@ -135,6 +135,7 @@ import {
   PartnerHierarchyImporter,
   InstitutionHierarchyImporter,
   ArtintroRootCollectionImporter,
+  ExhibitionsRootCollectionImporter,
   Mwnf3ExhibitionImporter,
   Mwnf3ExhibitionTranslationImporter,
   Mwnf3ExhibitionItemImporter,
@@ -433,11 +434,19 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['project', 'language'],
   },
   {
+    key: 'exhibitions-root-collection',
+    name: 'Exhibitions Root Collection',
+    description:
+      'Create the "Exhibitions" marker collection (child of the ISL project collection) that ISL exhibitions nest under',
+    importerClass: ExhibitionsRootCollectionImporter,
+    dependencies: ['project', 'language'],
+  },
+  {
     key: 'mwnf3-exhibition',
     name: 'MWNF3 Exhibitions',
     description: 'Import mwnf3 exhibition + artintro hierarchy as nested collections',
     importerClass: Mwnf3ExhibitionImporter,
-    dependencies: ['project', 'language', 'artintro-root-collection'],
+    dependencies: ['project', 'language', 'artintro-root-collection', 'exhibitions-root-collection'],
   },
   {
     key: 'mwnf3-exhibition-translation',

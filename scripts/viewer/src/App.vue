@@ -22,6 +22,7 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
         <RouterLink to="/dynasties" active-class="nav-active">Dynasties</RouterLink>
         <RouterLink to="/artistic-introduction" active-class="nav-active">Artistic Introduction</RouterLink>
+        <RouterLink to="/exhibitions" active-class="nav-active">Exhibitions</RouterLink>
       </div>
     </nav>
 
