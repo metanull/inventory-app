@@ -916,6 +916,37 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   },
 ];
 
+// Ceiling on how long a single in-flight query can take before we treat the
+// connection as dead. Needed because of a real gotcha with mysql2: attaching
+// our own 'error' listener to a Connection (below) means that when the
+// socket dies mid-query, the error can be fully consumed by that listener
+// without ever rejecting the specific pending query's own promise — so
+// `await connection.execute(...)` just hangs forever, and the retry loops
+// below never get a chance to run at all (confirmed in practice: a legacy DB
+// connection drop mid-query left the importer hung indefinitely at 0% CPU,
+// with no further log output, during a `stage` run against the real legacy
+// DB). Racing every execute() against this timeout turns that silent hang
+// into a retryable error instead.
+const QUERY_TIMEOUT_MS = 30000;
+
+function withQueryTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${QUERY_TIMEOUT_MS}ms (connection likely dead)`));
+    }, QUERY_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err: unknown) => {
+        clearTimeout(timer);
+        reject(err instanceof Error ? err : new Error(String(err)));
+      }
+    );
+  });
+}
+
 /**
  * Simple Legacy Database wrapper with automatic reconnection
  */
@@ -997,8 +1028,11 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         const [rows] = params
-          ? await this.connection.execute(sql, params as (string | number | null)[])
-          : await this.connection.execute(sql);
+          ? await withQueryTimeout(
+              this.connection.execute(sql, params as (string | number | null)[]),
+              '[LegacyDatabase] query'
+            )
+          : await withQueryTimeout(this.connection.execute(sql), '[LegacyDatabase] query');
         return rows as T[];
       } catch (err) {
         const error = err as Error & { code?: string };
@@ -1006,7 +1040,8 @@ class LegacyDatabase implements ILegacyDatabase {
         const isConnectionError =
           error.code === 'PROTOCOL_CONNECTION_LOST' ||
           error.code === 'ECONNRESET' ||
-          error.message?.includes('connection is in closed state');
+          error.message?.includes('connection is in closed state') ||
+          error.message?.includes('connection likely dead');
 
         if (isConnectionError && attempt < maxRetries) {
           console.log(
@@ -1039,9 +1074,12 @@ class LegacyDatabase implements ILegacyDatabase {
         }
 
         if (params) {
-          await this.connection.execute(sql, params as (string | number | null)[]);
+          await withQueryTimeout(
+            this.connection.execute(sql, params as (string | number | null)[]),
+            '[LegacyDatabase] execute'
+          );
         } else {
-          await this.connection.execute(sql);
+          await withQueryTimeout(this.connection.execute(sql), '[LegacyDatabase] execute');
         }
         return;
       } catch (err) {
@@ -1050,7 +1088,8 @@ class LegacyDatabase implements ILegacyDatabase {
         const isConnectionError =
           error.code === 'PROTOCOL_CONNECTION_LOST' ||
           error.code === 'ECONNRESET' ||
-          error.message?.includes('connection is in closed state');
+          error.message?.includes('connection is in closed state') ||
+          error.message?.includes('connection likely dead');
 
         if (isConnectionError && attempt < maxRetries) {
           console.log(
@@ -1138,9 +1177,9 @@ class ResilientConnection {
           throw new Error('Failed to establish connection');
         }
 
-        return await this.connection.execute<T>(
-          sql,
-          values as (string | number | null)[] | undefined
+        return await withQueryTimeout(
+          this.connection.execute<T>(sql, values as (string | number | null)[] | undefined),
+          '[ResilientConnection] execute'
         );
       } catch (err) {
         const error = err as Error & { code?: string };
@@ -1148,7 +1187,8 @@ class ResilientConnection {
         const isConnectionError =
           error.code === 'PROTOCOL_CONNECTION_LOST' ||
           error.code === 'ECONNRESET' ||
-          error.message?.includes('connection is in closed state');
+          error.message?.includes('connection is in closed state') ||
+          error.message?.includes('connection likely dead');
 
         if (isConnectionError && attempt < maxRetries) {
           console.log(
