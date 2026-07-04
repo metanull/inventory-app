@@ -157,7 +157,8 @@ same `mysql:8.4` image the root dev `docker-compose.yml` uses), removing that
 per-row network cost entirely. It's a way to build and inspect a fully-populated
 copy of the import fast, and — later — a way to prepare data for a bulk
 `mysqldump` + `rsync` handoff to OVH instead of thousands of live inserts
-against production. **That handoff step is not implemented yet** — `stage`
+against production. **That handoff is a manual runbook, not automated
+yet** — see "Shipping a staged build to a server" below; `stage` itself
 only builds and holds the local copy.
 
 ```bash
@@ -197,6 +198,40 @@ Rerunning `stage` against an already-populated `local-mysql` is safe and
 fast — `import` and `image-sync` are both idempotent, so a rerun only adds
 what's missing (e.g. after new legacy data shows up) instead of redoing
 everything.
+
+## Shipping a staged build to a server (manual — not automated yet)
+
+Once `stage` has produced a fully-populated `local-mysql` + `local-images-data`,
+you can hand that off to a target server (OVH or otherwise) instead of
+running `append`/`clean` against it directly over the tunnel. There is no
+mode that does this for you yet — it's a manual runbook:
+
+1. **Dump the local DB:**
+   ```bash
+   docker exec inventory-import-tool-local-mysql-1 \
+     mysqldump -uinventory -psecret --single-transaction --routines inventory \
+     > inventory-staged.sql
+   ```
+2. **Copy the dump and the staged images to the server.** The dump is a
+   plain file, so `scp`/`rsync` it directly. The images live inside the
+   `local-images-data` *volume*, not a host directory — on Docker Desktop
+   (Windows/Mac) that volume is inside the Docker VM, so copy it out via a
+   throwaway container first, then rsync the resulting host directory:
+   ```bash
+   docker run --rm -v inventory-import-tool_local-images-data:/data -v <host-dir>:/out alpine cp -a /data/. /out/
+   rsync -az inventory-staged.sql deploy@<server>:/tmp/
+   rsync -az --stats <host-dir>/ deploy@<server>:/opt/inventory/shared/storage/app/public/pictures/
+   ```
+3. **Load the dump into the target DB on the server**, replacing its
+   contents — treat this exactly like `clean`'s wipe: it's a full
+   replacement, so back up first and schedule a maintenance window
+   (`php artisan down`) around it:
+   ```bash
+   ssh deploy@<server> "mysql -u<db_user> -p<db_pass> <db_name> < /tmp/inventory-staged.sql"
+   ```
+4. **Finish up on the server:** `php artisan storage:link` (if not already
+   linked) and `php artisan optimize:clear`, then bring it back up
+   (`php artisan up`).
 
 ## Testing against real OVH
 
