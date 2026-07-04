@@ -169,6 +169,7 @@ export class CollectionExporter extends BaseExporter {
       id: c.id,
       type: c.type,
       internal_name: c.internal_name,
+      backward_compatibility: c.backward_compatibility,
       parent_id: c.parent_id,
       country_id: c.country_id,
       display_order: c.display_order,

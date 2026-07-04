@@ -102,30 +102,31 @@ const itemById = computed(() => {
 
 // ── Artistic Introduction (legacy "gai") ──────────────────────────────────
 //
-// Imported as generic Collections, identified by internal_name prefix:
-// root "mwnf3_artintro_{id}", themes "mwnf3_artintro_theme_{id}"
-// (e.g. "The Umayyads"), pages "mwnf3_artintro_page_{id}" (tabs within a
-// theme, e.g. "Monuments" / "Objects"). Reconstructed here into a tree since
-// collections.json only carries parent_id, not the theme/page distinction.
+// Imported as generic Collections, nested under a dedicated "Artistic
+// Introduction" marker collection (backward_compatibility
+// "mwnf3:artintro:root", a child of the Islamic Art project collection).
+// From that single, unambiguous anchor the rest of the tree — root, themes
+// (e.g. "The Umayyads"), pages (tabs within a theme, e.g. "Monuments" /
+// "Objects") — is just parent_id lookups, no internal_name guessing.
 
-const artIntroRoot = computed(() =>
-  collections.value.find(
-    c => c.internal_name?.startsWith('mwnf3_artintro_') &&
-      !c.internal_name.startsWith('mwnf3_artintro_theme_') &&
-      !c.internal_name.startsWith('mwnf3_artintro_page_')
-  ) ?? null
-)
+const ARTINTRO_MARKER_BC = 'mwnf3:artintro:root'
+
+const artIntroRoot = computed(() => {
+  const marker = collections.value.find(c => c.backward_compatibility === ARTINTRO_MARKER_BC)
+  if (!marker) return null
+  return collections.value.find(c => c.parent_id === marker.id) ?? null
+})
 
 const artIntroThemes = computed(() => {
   const root = artIntroRoot.value
   if (!root) return []
   const themes = collections.value
-    .filter(c => c.internal_name?.startsWith('mwnf3_artintro_theme_') && c.parent_id === root.id)
+    .filter(c => c.parent_id === root.id)
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
   return themes.map(theme => ({
     ...theme,
     pages: collections.value
-      .filter(c => c.internal_name?.startsWith('mwnf3_artintro_page_') && c.parent_id === theme.id)
+      .filter(c => c.parent_id === theme.id)
       .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
   }))
 })
