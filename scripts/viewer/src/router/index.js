@@ -12,6 +12,8 @@ import PartnerDetail from '../views/PartnerDetail.vue'
 import Dynasties from '../views/Dynasties.vue'
 import DynastyDetail from '../views/DynastyDetail.vue'
 import ItemDetail from '../views/ItemDetail.vue'
+import ArtIntroEntrance from '../views/ArtIntroEntrance.vue'
+import ArtIntroTheme from '../views/ArtIntroTheme.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -26,6 +28,8 @@ const routes = [
   { path: '/partner/:id', component: PartnerDetail },
   { path: '/dynasties', component: Dynasties },
   { path: '/dynasty/:id', component: DynastyDetail },
+  { path: '/artistic-introduction', component: ArtIntroEntrance },
+  { path: '/artistic-introduction/:themeId', component: ArtIntroTheme },
   { path: '/item/:id', component: ItemDetail },
 ]
 

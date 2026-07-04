@@ -7,6 +7,7 @@ import partnersData from '@inventory-data/partners.json'
 import dynastiesData from '@inventory-data/dynasties.json'
 import timelinesData from '@inventory-data/timelines.json'
 import timelineEventsData from '@inventory-data/timeline_events.json'
+import collectionsData from '@inventory-data/collections.json'
 
 // Module-level singletons — loaded once, shared across all views
 const items = ref(itemsData)
@@ -15,6 +16,7 @@ const partners = ref(partnersData)
 const dynasties = ref(dynastiesData)
 const timelines = ref(timelinesData)
 const timelineEvents = ref(timelineEventsData)
+const collections = ref(collectionsData)
 const availableLangs = ref(manifestData.languages ?? [])
 const defaultLang = (manifestData.languages ?? []).includes('en')
   ? 'en'
@@ -25,6 +27,7 @@ const enCountryTranslations = ref({})
 const enDynastyTranslations = ref({})
 const enPartnerTranslations = ref({})
 const enTimelineEventTranslations = ref({})
+const enCollectionTranslations = ref({})
 const translationsCache = ref({}) // lang -> item translations (for detail view)
 
 let enLoaded = false
@@ -43,6 +46,8 @@ async function loadEnglishTranslations() {
       .then(m => { enPartnerTranslations.value = m.default }),
     import('@inventory-data/translations/timeline_events.en.json')
       .then(m => { enTimelineEventTranslations.value = m.default }),
+    import('@inventory-data/translations/collections.en.json')
+      .then(m => { enCollectionTranslations.value = m.default }),
   ])
   // Seed English into the detail-view cache too
   if (!translationsCache.value['en']) {
@@ -95,6 +100,40 @@ const itemById = computed(() => {
   return m
 })
 
+// ── Artistic Introduction (legacy "gai") ──────────────────────────────────
+//
+// Imported as generic Collections, identified by internal_name prefix:
+// root "mwnf3_artintro_{id}", themes "mwnf3_artintro_theme_{id}"
+// (e.g. "The Umayyads"), pages "mwnf3_artintro_page_{id}" (tabs within a
+// theme, e.g. "Monuments" / "Objects"). Reconstructed here into a tree since
+// collections.json only carries parent_id, not the theme/page distinction.
+
+const artIntroRoot = computed(() =>
+  collections.value.find(
+    c => c.internal_name?.startsWith('mwnf3_artintro_') &&
+      !c.internal_name.startsWith('mwnf3_artintro_theme_') &&
+      !c.internal_name.startsWith('mwnf3_artintro_page_')
+  ) ?? null
+)
+
+const artIntroThemes = computed(() => {
+  const root = artIntroRoot.value
+  if (!root) return []
+  const themes = collections.value
+    .filter(c => c.internal_name?.startsWith('mwnf3_artintro_theme_') && c.parent_id === root.id)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+  return themes.map(theme => ({
+    ...theme,
+    pages: collections.value
+      .filter(c => c.internal_name?.startsWith('mwnf3_artintro_page_') && c.parent_id === theme.id)
+      .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
+  }))
+})
+
+function artIntroThemeById(id) {
+  return artIntroThemes.value.find(t => t.id === id) ?? null
+}
+
 // ── Markdown helpers ───────────────────────────────────────────────────────
 
 // Full block markdown → HTML (for prose sections)
@@ -133,6 +172,7 @@ export function useInventoryData() {
     dynasties,
     timelines,
     timelineEvents,
+    collections,
     availableLangs,
     defaultLang,
     enItemTranslations,
@@ -140,6 +180,7 @@ export function useInventoryData() {
     enDynastyTranslations,
     enPartnerTranslations,
     enTimelineEventTranslations,
+    enCollectionTranslations,
     translationsCache,
     loadEnglishTranslations,
     loadLangTranslations,
@@ -148,6 +189,9 @@ export function useInventoryData() {
     dynastyLabel,
     partnerLabel,
     itemById,
+    artIntroRoot,
+    artIntroThemes,
+    artIntroThemeById,
     md,
     mdInline,
     mdStrip,
