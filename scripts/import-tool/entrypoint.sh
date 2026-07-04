@@ -383,8 +383,24 @@ load_staged_dump() {
 
   local dump_file="/tmp/staged-dump.sql"
   log "Dumping local-mysql (excluding: ${SHIP_EXCLUDED_TABLES[*]}) to $dump_file"
+  # --no-create-info: schema already exists from do_wipe_and_restore's own
+  # migrate step moments ago — re-creating it from a dump-derived CREATE
+  # TABLE would be redundant at best, and DDL causes implicit commits that
+  # would break the transactional load in `load-sql` at worst. --routines
+  # deliberately omitted (this app defines none — verified against
+  # database/migrations — and dropping it avoids DELIMITER-block statements
+  # that a naive line-based SQL splitter can't safely handle).
+  # --skip-extended-insert: one row per INSERT, not batched — keeps every
+  # single statement small. Needed after hitting "Got a packet bigger than
+  # max_allowed_packet bytes": mysql2's multipleStatements mode sends an
+  # entire multi-statement string as ONE packet, so `load-sql` no longer
+  # uses that mode at all (see its own comments) — but an individual
+  # extended-insert statement batching thousands of rows (some with long
+  # HTML-derived descriptions) could still be large enough on its own to hit
+  # the same limit.
   mysqldump -h "$LOCAL_DB_HOST" -P "$LOCAL_DB_PORT" -u "$LOCAL_DB_USERNAME" -p"$LOCAL_DB_PASSWORD" --ssl=0 \
-    --single-transaction --routines --no-tablespaces "${ignore_flags[@]}" "$LOCAL_DB_DATABASE" \
+    --single-transaction --no-create-info --skip-extended-insert --no-tablespaces \
+    "${ignore_flags[@]}" "$LOCAL_DB_DATABASE" \
     > "$dump_file" \
     || die "dumping local-mysql failed"
 

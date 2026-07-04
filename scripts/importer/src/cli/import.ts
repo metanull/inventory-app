@@ -1672,40 +1672,90 @@ program
     const filePath = options.file as string;
     console.log(chalk.cyan(`Loading SQL file: ${filePath}`));
 
-    let sql: string;
+    let content: string;
     try {
-      sql = readFileSync(filePath, 'utf8');
+      content = readFileSync(filePath, 'utf8');
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.log(chalk.red(`\n❌ Failed to read ${filePath}: ${message}`));
       process.exit(1);
     }
 
-    if (!sql.trim()) {
+    if (!content.trim()) {
       console.log(chalk.yellow('SQL file is empty — nothing to do.'));
       return;
     }
 
-    // multipleStatements is off everywhere else in this codebase deliberately
-    // (see LegacyDatabase) since it defeats single-statement SQL-injection
-    // protections when a query might carry untrusted input. This connection
-    // is the one narrow, intentional exception: it only ever executes a file
-    // WE generated ourselves via mysqldump immediately beforehand — never
-    // arbitrary or user-supplied SQL — and running a full dump in one round
-    // trip requires it.
+    // Split into individual statements rather than sending the whole file as
+    // one multi-statement query. Confirmed the hard way: mysql2's
+    // multipleStatements mode packages an entire multi-statement string into
+    // ONE protocol packet, so a 300k-line dump hit "Got a packet bigger than
+    // max_allowed_packet bytes" immediately, before executing anything.
+    // Splitting on end-of-line ';' is safe specifically for dumps this tool
+    // generates itself: entrypoint.sh's mysqldump call deliberately omits
+    // --routines (this app defines none — no DELIMITER-block statements to
+    // worry about) and each mysqldump statement is one contiguous line-block
+    // ending in ';'. `--` comment lines are skipped; `/*! ... */`-style
+    // MySQL directive comments are real, executable statements and are kept.
+    const statements: string[] = [];
+    let buffer: string[] = [];
+    for (const line of content.split('\n')) {
+      const trimmed = line.trim();
+      if (trimmed === '' || trimmed.startsWith('--')) {
+        continue;
+      }
+      buffer.push(line);
+      if (trimmed.endsWith(';')) {
+        statements.push(buffer.join('\n'));
+        buffer = [];
+      }
+    }
+    if (buffer.some((l) => l.trim() !== '')) {
+      statements.push(buffer.join('\n'));
+    }
+
+    console.log(chalk.cyan(`Executing ${statements.length} statements...`));
+
     const connection = await mysql.createConnection({
       host: process.env['DB_HOST'] || 'localhost',
       port: parseInt(process.env['DB_PORT'] || '3306', 10),
       user: process.env['DB_USERNAME'] || 'root',
       password: process.env['DB_PASSWORD'] || '',
       database: process.env['DB_DATABASE'] || 'inventory',
-      multipleStatements: true,
     });
 
     try {
-      await connection.query(sql);
-      console.log(chalk.green('✓ SQL file loaded successfully'));
+      // FK checks off: statements land in whatever order the dumped tables
+      // happen to sort in (e.g. item_translations before items), not FK
+      // dependency order. Wrapped in one transaction so a failure partway
+      // through leaves the target exactly as it was before this ran, rather
+      // than a half-loaded database.
+      await connection.query('SET FOREIGN_KEY_CHECKS=0');
+      await connection.beginTransaction();
+      let executed = 0;
+      for (const statement of statements) {
+        try {
+          await connection.query(statement);
+          executed++;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.log(
+            chalk.red(`\n❌ Statement ${executed + 1}/${statements.length} failed: ${message}`)
+          );
+          console.log(chalk.gray(statement.slice(0, 500)));
+          throw error;
+        }
+      }
+      await connection.commit();
+      await connection.query('SET FOREIGN_KEY_CHECKS=1');
+      console.log(chalk.green(`✓ SQL file loaded successfully (${executed} statements)`));
     } catch (error) {
+      try {
+        await connection.rollback();
+      } catch {
+        // Connection may already be unusable — the outer catch reports the
+        // original error either way.
+      }
       const message = error instanceof Error ? error.message : String(error);
       console.log(chalk.red(`\n❌ Failed to load SQL file: ${message}`));
       process.exit(1);
