@@ -6,8 +6,13 @@
  * - exhibition_themes (~171) → Collection (type='theme'), child of exhibition
  * - exhibition_pages (200+) → Collection (type='theme'), nested child of theme
  *
- * Also imports the artintro hierarchy (identical structure):
- * - artintros (1) → Collection (type='collection'), child of ISL project collection
+ * Also imports the artintro hierarchy (identical structure), nested under the
+ * "Artistic Introduction" marker collection created by
+ * ArtintroRootCollectionImporter (child of the ISL project collection) so
+ * artintro data can be identified unambiguously by parent_id instead of
+ * internal_name matching:
+ * - artintros (1) → Collection (type='collection'), child of the Artistic
+ *   Introduction marker collection
  * - artintro_themes (10) → Collection (type='theme'), child of artintro
  * - artintro_pages (19) → Collection (type='theme'), nested child of artintro theme
  *
@@ -22,6 +27,8 @@
  *
  * Dependencies:
  * - ProjectImporter (must run first to create project collections/contexts)
+ * - ArtintroRootCollectionImporter (must run first to create the Artistic
+ *   Introduction marker collection that the artintro root nests under)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -368,17 +375,23 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
         }
 
         const projectBackwardCompat = `${MWNF3_SCHEMA}:projects:${legacy.project_id.toUpperCase()}`;
+
+        // Nest under the "Artistic Introduction" marker collection (created by
+        // ArtintroRootCollectionImporter) instead of directly under the project
+        // collection, so artintro data can be identified unambiguously by
+        // parent_id/backward_compatibility rather than internal_name matching.
+        const artintroRootBackwardCompat = `${MWNF3_SCHEMA}:artintro:root`;
         const parentCollectionId = await this.getEntityUuidAsync(
-          projectBackwardCompat,
+          artintroRootBackwardCompat,
           'collection'
         );
         if (!parentCollectionId) {
           result.errors.push(
-            `Artintro ${legacy.artintro_id}: Project collection not found (${projectBackwardCompat})`
+            `Artintro ${legacy.artintro_id}: Artistic Introduction root collection not found (${artintroRootBackwardCompat}). Run ArtintroRootCollectionImporter first.`
           );
           this.logError(
             `Artintro ${legacy.artintro_id}`,
-            `Project collection not found (${projectBackwardCompat})`
+            `Artistic Introduction root collection not found (${artintroRootBackwardCompat})`
           );
           this.showError();
           continue;
