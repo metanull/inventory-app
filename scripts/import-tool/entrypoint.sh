@@ -20,6 +20,13 @@ set -euo pipefail
 #                       just those two accounts instead. If neither applies,
 #                       aborts before anything is lost beyond the wipe
 #                       itself.
+#   stage               import -> image-sync, writing straight to DB_HOST
+#                       (expected to be a local MySQL, e.g. the compose
+#                       "local-mysql" service) instead of through the OVH
+#                       tunnel. No SSH, no OVH contact at all — builds a
+#                       fully-populated local copy (DB + staged images) at
+#                       local-network speed, to be shipped to OVH separately
+#                       later (mysqldump + rsync, not automated here).
 #
 # See README.md for the full list of required env vars and mounts.
 # ==============================================================================
@@ -28,7 +35,12 @@ IMPORTER_DIR=/opt/import-tool/importer
 
 MODE="${1:-${IMPORT_MODE:-append}}"
 
-OVH_HOST="${OVH_HOST:?OVH_HOST is required}"
+# Only append/backup-permissions/clean touch OVH — stage writes straight to a
+# local DB_HOST and never dials out, so OVH_HOST has no reason to be required
+# for it. Checked explicitly per-mode in the dispatch at the bottom instead of
+# unconditionally here.
+OVH_HOST="${OVH_HOST:-}"
+require_ovh_host() { [ -n "$OVH_HOST" ] || die "OVH_HOST is required for mode '$MODE'"; }
 OVH_USER="${OVH_USER:-deploy}"
 OVH_APP_DIR="${OVH_APP_DIR:-/opt/inventory/current}"
 OVH_SHARED_DIR="${OVH_SHARED_DIR:-/opt/inventory/shared}"
@@ -141,6 +153,29 @@ run_importer_import() {
     || die "importer 'import' step failed"
 }
 
+# Same as run_importer_import, but does not abort the pipeline on a non-zero
+# exit. The importer's `import` command exits 1 whenever totals.errors > 0
+# (see src/cli/import.ts), which this legacy dataset always has some of —
+# individual rows with genuinely bad/missing legacy data (tracked as
+# warnings/errors in its own summary), not a sign the whole run failed. For
+# `stage` specifically we still want image-sync to run against whatever WAS
+# imported rather than abort the entire local build over a handful of known,
+# already-summarized per-row failures. append/clean deliberately keep the
+# stricter die-on-any-error behavior via run_importer_import above — that
+# decision isn't changed here.
+run_importer_import_tolerant() {
+  local extra_args=()
+  [ "$DRY_RUN" = "1" ] && extra_args+=(--dry-run)
+
+  log "Running importer: import ${extra_args[*]}"
+  local rc=0
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts import "${extra_args[@]}") || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    log "NOTE: importer 'import' exited non-zero (rc=$rc) — see the run's own summary above for the error count. Continuing to image-sync regardless; this is expected for this dataset, not treated as fatal in stage mode."
+  fi
+  return 0
+}
+
 run_image_sync_and_push() {
   local extra_args=()
   [ "$DRY_RUN" = "1" ] && extra_args+=(--dry-run)
@@ -176,6 +211,25 @@ run_image_sync_and_push() {
     log "rsync push failed"
     return 1
   fi
+}
+
+run_image_sync_local_only() {
+  local extra_args=()
+  [ "$DRY_RUN" = "1" ] && extra_args+=(--dry-run)
+
+  log "Running importer: image-sync --copy --target-dir $STAGING_DIR ${extra_args[*]} (local only, no OVH push)"
+  mkdir -p "$STAGING_DIR"
+  local rc=0
+  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts image-sync --copy --target-dir "$STAGING_DIR" "${extra_args[@]}") || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    # Same reasoning as run_importer_import_tolerant: image-sync exits 1
+    # whenever any file failed (e.g. "Legacy image not found" — broken links
+    # already present in the legacy image tree itself, not something this
+    # container can fix). Not treated as fatal here; the run's own summary
+    # above already lists exactly what's missing.
+    log "NOTE: image-sync exited non-zero (rc=$rc) — see the run's own summary above for what's missing. Not treated as fatal in stage mode."
+  fi
+  return 0
 }
 
 run_glossary_resync() {
@@ -254,6 +308,12 @@ do_wipe_and_restore() {
   fi
 }
 
+do_stage() {
+  log "Stage mode: writing straight to DB_HOST=${DB_HOST:-<unset>} — no SSH, no OVH contact"
+  run_importer_import_tolerant
+  run_image_sync_local_only
+}
+
 do_backup_permissions() {
   prepare_ssh_key
   mkdir -p "$AUTH_SNAPSHOT_LOCAL_BACKUP_DIR"
@@ -275,17 +335,23 @@ do_backup_permissions() {
 # ------------------------------------------------------------------------------
 case "$MODE" in
 append)
+  require_ovh_host
   do_import_pipeline
   ;;
 backup-permissions)
+  require_ovh_host
   do_backup_permissions
   ;;
 clean)
+  require_ovh_host
   do_wipe_and_restore
   do_import_pipeline
   ;;
+stage)
+  do_stage
+  ;;
 *)
-  die "unknown mode '$MODE' (expected: append | backup-permissions | clean)"
+  die "unknown mode '$MODE' (expected: append | backup-permissions | clean | stage)"
   ;;
 esac
 

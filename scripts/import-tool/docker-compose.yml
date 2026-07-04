@@ -66,3 +66,84 @@ services:
       CONFIRM_WIPE: ${CONFIRM_WIPE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+
+  # --- Local staging (no OVH contact at all) ---------------------------------
+  # Builds a fully-populated local copy of the legacy import: DB rows land in
+  # local-mysql (a disposable-but-persistent MySQL matching the version used
+  # in the root dev docker-compose.yml), image files land in the
+  # local-images-data volume. This exists to validate/stage the import at
+  # local-network speed (no per-row SSH-tunnel round-trip to OVH) before ever
+  # touching production. Shipping the result to OVH (mysqldump + rsync +
+  # remote load) is a separate, not-yet-automated step — this mode only
+  # builds and holds the local copy.
+  local-mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - local-mysql-data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3316:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+  # One-shot: applies migrations to local-mysql. Deliberately migrations-only,
+  # no seeders — this container is never meant to be logged into, so roles,
+  # permissions, and dev users are intentionally not created here. Safe to
+  # rerun (migrate is idempotent); reruns each time `stage` starts, per the
+  # same depends_on pattern the root docker-compose.yml uses for its own
+  # migrate -> app sequencing.
+  local-migrate:
+    build:
+      context: ../..
+      dockerfile: .docker/Dockerfile.dev
+    command: ["/bin/sh", "-c", "[ -f vendor/autoload.php ] || composer install --no-interaction --quiet && php artisan migrate --force"]
+    volumes:
+      - ../..:/var/www/app
+      - local-app-vendor:/var/www/app/vendor
+      - ../../.docker/php.dev.ini:/usr/local/etc/php/conf.d/99-app.ini:ro
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: mysql
+      DB_HOST: local-mysql
+      DB_PORT: "3306"
+      DB_DATABASE: inventory
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+    depends_on:
+      local-mysql:
+        condition: service_healthy
+
+  stage:
+    <<: *build
+    command: ["stage"]
+    volumes:
+      - ${LEGACY_IMAGES_HOST_PATH}:/legacy-images:ro
+      - local-images-data:/staging/images
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # Overrides the OVH-tunnel DB_* values from .env — this mode writes
+      # straight to local-mysql over the compose network, never through a
+      # tunnel. LEGACY_DB_* still comes from .env unchanged (real legacy
+      # source, same as every other mode).
+      DB_HOST: local-mysql
+      DB_PORT: "3306"
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      DB_DATABASE: inventory
+    depends_on:
+      local-migrate:
+        condition: service_completed_successfully
+
+volumes:
+  local-mysql-data:
+  local-images-data:
+  local-app-vendor:

@@ -26,6 +26,7 @@ build` once beforehand) to be sure you're running current code.
 | `append` (default) | `import` → `image-sync` → `glossary:resync`, no wipe. Safe to run any time — the importer is idempotent, this only adds what's missing. |
 | `backup-permissions` | Snapshots users (incl. MFA columns), role assignments, direct permission assignments, and API tokens to an encrypted JSON on the OVH host, plus a redundant timestamped copy pulled back locally. No import, no writes to application data. |
 | `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore users → the full `append` pipeline. **Destructive.** Requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. Restores from a snapshot at `AUTH_SNAPSHOT_REMOTE` if one exists (run `backup-permissions` first to create it — `clean` does not take a fresh snapshot itself); if none exists **and** both `ADMIN_EMAIL`/`REGULAR_USER_EMAIL` are set, falls back to recreating just those two accounts instead. If neither applies, aborts before anything beyond the wipe itself is lost. |
+| `stage` | `import` → `image-sync`, writing straight to a local, persistent MySQL (`local-mysql`) instead of through the OVH tunnel. **No SSH, no OVH contact at all.** Builds a fully-populated local copy of the legacy import — DB rows in `local-mysql`, image files in the `local-images-data` volume — at local-network speed. Safe to run at any time, including while a real `append`/`clean` run is in progress against OVH (they hit the same legacy source DB, which comfortably handles concurrent readers). See "Local staging" below. |
 
 ## Build
 
@@ -145,6 +146,57 @@ below).
    and that a forced failure in one parallel branch (image-sync/rsync vs
    glossary-resync) still lets the other complete and the container exits
    non-zero with a clear message either way.
+
+## Local staging
+
+`stage` exists because every operation `append`/`clean` perform against the
+real target DB goes over an SSH tunnel to OVH — for a full import, that's
+tens of thousands of small round-trips at WAN latency, which is why a real
+`clean` run can take hours. `stage` writes to a local MySQL instead (`local-mysql`,
+same `mysql:8.4` image the root dev `docker-compose.yml` uses), removing that
+per-row network cost entirely. It's a way to build and inspect a fully-populated
+copy of the import fast, and — later — a way to prepare data for a bulk
+`mysqldump` + `rsync` handoff to OVH instead of thousands of live inserts
+against production. **That handoff step is not implemented yet** — `stage`
+only builds and holds the local copy.
+
+```bash
+docker compose -f scripts/import-tool/docker-compose.yml up -d local-mysql
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm stage
+```
+
+`local-mysql` doesn't need to be started explicitly first — `run --rm stage`
+brings up its dependencies (`local-mysql`, then the one-shot `local-migrate`)
+automatically — but starting it yourself first lets you watch its healthcheck
+separately and keeps it running independently of any one `stage` invocation.
+
+Both the DB and the staged images persist in named Docker volumes
+(`local-mysql-data`, `local-images-data`) — they survive `docker restart`,
+and survive `docker compose down` (without `-v`) followed by `up`/`run` again.
+Only `docker compose down -v` (or `docker volume rm`) destroys them.
+
+`stage` intentionally differs from `append`/`clean` in two ways:
+
+- **Migrations only, no seeders.** `local-migrate` runs `php artisan migrate --force`
+  and nothing else — no roles, no permissions, no dev users. This container
+  is never meant to be logged into; it exists purely to materialize a
+  fully-populated dataset, so there's no reason to wire up auth for it.
+- **Non-fatal on partial errors.** The importer's `import` and `image-sync`
+  commands both exit non-zero whenever *any* row/file failed — which, for
+  this legacy dataset, is always true (a handful of genuinely bad legacy rows,
+  and some image paths referenced in the legacy DB that don't actually exist
+  under `LEGACY_IMAGES_HOST_PATH`). `append`/`clean` still treat that as fatal
+  (unchanged, on purpose — see `run_importer_import`/`run_image_sync_and_push`
+  in `entrypoint.sh`). `stage` uses tolerant variants that log a note and
+  continue instead, since the goal is "best complete copy possible," not
+  "abort over a known, already-summarized handful of legacy gaps." Every
+  skipped row/file is still listed in the run's own output and log file —
+  nothing is silently swallowed, just not treated as pipeline-fatal.
+
+Rerunning `stage` against an already-populated `local-mysql` is safe and
+fast — `import` and `image-sync` are both idempotent, so a rerun only adds
+what's missing (e.g. after new legacy data shows up) instead of redoing
+everything.
 
 ## Testing against real OVH
 
