@@ -172,3 +172,6 @@ public/down.lock
 
 # local git modules
 .legacy-database
+
+# Local tools
+RebuildOvh.ps1
