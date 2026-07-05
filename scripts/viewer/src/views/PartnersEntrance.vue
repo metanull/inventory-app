@@ -3,8 +3,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-function browse(type) {
-  router.push({ path: '/partners/results', query: { type } })
+function browse(type, project) {
+  router.push({ path: '/partners/results', query: { type, project } })
 }
 </script>
 
@@ -25,13 +25,37 @@ function browse(type) {
           <tr>
             <th><label>Partner Museums</label></th>
             <td>
-              <button class="btn" @click="browse('museum')">Browse Museums →</button>
+              <button class="btn" @click="browse('museum', 'ISL')">Browse Museums →</button>
             </td>
           </tr>
           <tr>
             <th><label>Partner Institutions</label></th>
             <td>
-              <button class="btn" @click="browse('institution')">Browse Institutions →</button>
+              <button class="btn" @click="browse('institution', 'ISL')">Browse Institutions →</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="content-box">
+      <p class="intro-text">
+        Explore Islamic Art Collections brings together further museums and institutions
+        beyond the core Discover Islamic Art network.
+      </p>
+
+      <table class="form-table filter-table">
+        <tbody>
+          <tr>
+            <th><label>Partner Museums</label></th>
+            <td>
+              <button class="btn" @click="browse('museum', 'EPM')">Browse Museums →</button>
+            </td>
+          </tr>
+          <tr>
+            <th><label>Partner Institutions</label></th>
+            <td>
+              <button class="btn" @click="browse('institution', 'EPM')">Browse Institutions →</button>
             </td>
           </tr>
         </tbody>
