@@ -137,8 +137,8 @@ function artIntroThemeById(id) {
 
 // ── Exhibitions ────────────────────────────────────────────────────────────
 //
-// Imported as generic Collections, nested under a dedicated "Exhibitions"
-// marker collection (backward_compatibility "mwnf3:exhibitions:root", a
+// Imported as generic Collections, nested under a dedicated "Virtual
+// Exhibitions" marker collection (backward_compatibility "mwnf3:exhibitions:root", a
 // child of the Islamic Art project collection) — needed because neither
 // type='exhibition' nor the mwnf3:exhibitions:{id} backward_compatibility
 // key are project-scoped in the legacy schema (shared with Baroque Art,

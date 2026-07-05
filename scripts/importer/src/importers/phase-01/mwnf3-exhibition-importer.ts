@@ -3,8 +3,8 @@
  *
  * Imports the mwnf3 exhibition hierarchy as nested Collections:
  * - exhibitions (27, across ISL/BAR/SH/...) → Collection (type='exhibition').
- *   ISL exhibitions (18) nest under the "Exhibitions" marker collection
- *   created by ExhibitionsRootCollectionImporter (child of the ISL project
+ *   ISL exhibitions (18) nest under the "Virtual Exhibitions" marker
+ *   collection created by ExhibitionsRootCollectionImporter (child of the ISL project
  *   collection), since neither type='exhibition' nor the
  *   mwnf3:exhibitions:{id} key are project-scoped. Every other project's
  *   exhibitions keep nesting directly under their own project collection.
@@ -91,8 +91,8 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve parent: for ISL, nest under the "Exhibitions" marker
-          // collection (created by ExhibitionsRootCollectionImporter) so ISL
+          // Resolve parent: for ISL, nest under the "Virtual Exhibitions"
+          // marker collection (created by ExhibitionsRootCollectionImporter) so ISL
           // exhibitions can be identified unambiguously by parent_id —
           // neither type='exhibition' nor the mwnf3:exhibitions:{id}
           // backward_compatibility key are project-scoped (the legacy schema
@@ -108,7 +108,7 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
             'collection'
           );
           if (!parentCollectionId) {
-            const label = isIsl ? 'Exhibitions root collection' : 'Project collection';
+            const label = isIsl ? 'Virtual Exhibitions root collection' : 'Project collection';
             result.errors.push(
               `Exhibition ${legacy.exhibition_id}: ${label} not found (${parentBackwardCompat})`
             );
