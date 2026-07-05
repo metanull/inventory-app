@@ -20,7 +20,20 @@ const {
 
 const item = computed(() => itemById.value[decodeURIComponent(route.params.id)] ?? null)
 
-const activeLang = ref(defaultLang)
+// Only languages this specific item actually has a translation for — not every
+// site language (most items are translated into a handful of languages, not all).
+const itemLangs = computed(() => {
+  const langs = item.value?.languages
+  return langs?.length ? langs : availableLangs.value
+})
+
+const activeLang = ref(itemLangs.value.includes(defaultLang) ? defaultLang : (itemLangs.value[0] ?? defaultLang))
+
+watch(item, () => {
+  if (!itemLangs.value.includes(activeLang.value)) {
+    activeLang.value = itemLangs.value.includes(defaultLang) ? defaultLang : (itemLangs.value[0] ?? defaultLang)
+  }
+})
 
 onMounted(() => {
   loadLangTranslations(activeLang.value)
@@ -44,8 +57,12 @@ function labelText(it) {
 
 function labelHtml(it) {
   if (!it) return ''
-  return mdInline(t(it).name ?? it.internal_name ?? it.id)
+  return mdInlineGloss(t(it).name ?? it.internal_name ?? it.id)
 }
+
+// Item content (not the app's own English interface) follows the active
+// language's natural direction — Arabic reads right-to-left.
+const contentDir = computed(() => (activeLang.value === 'ar' ? 'rtl' : 'ltr'))
 
 // ── Dynasties for this item ───────────────────────────────────────────
 
@@ -61,6 +78,104 @@ async function loadDynastyTranslations(lang) {
 
 onMounted(() => loadDynastyTranslations(activeLang.value))
 watch(activeLang, lang => loadDynastyTranslations(lang))
+
+// ── Glossary term hyperlinking ────────────────────────────────────────
+//
+// Legacy wires known glossary words/phrases directly into item text (e.g.
+// "thuluth" on database_item.php), opening a popup with the term's
+// definition on click (glossary1.php). We do the same: wrap every spelling
+// of this item's glossary_ids, in the active language, in a clickable span
+// before markdown rendering — marked passes inline HTML through untouched —
+// then handle clicks on those spans via event delegation (v-html content
+// isn't part of Vue's own template, so it can't bind @click directly).
+
+const glossaryTranslationsCache = ref({})
+
+async function loadGlossaryTranslations(lang) {
+  if (glossaryTranslationsCache.value[lang]) return
+  try {
+    const m = await import(`@inventory-data/translations/glossary.${lang}.json`)
+    glossaryTranslationsCache.value = { ...glossaryTranslationsCache.value, [lang]: m.default }
+  } catch {
+    glossaryTranslationsCache.value = { ...glossaryTranslationsCache.value, [lang]: {} }
+  }
+}
+
+onMounted(() => loadGlossaryTranslations(activeLang.value))
+watch(activeLang, lang => loadGlossaryTranslations(lang))
+
+// spelling (lowercased) -> { gid, spelling, definition } for this item's glossary
+// terms in the active language, longest spelling first so multi-word phrases
+// match before any single word they contain.
+const glossaryEntries = computed(() => {
+  const ids = item.value?.glossary_ids ?? []
+  if (!ids.length) return []
+  const byLang = glossaryTranslationsCache.value[activeLang.value] ?? {}
+  const entries = []
+  for (const gid of ids) {
+    const entry = byLang[gid]
+    if (!entry?.spellings?.length) continue
+    for (const spelling of entry.spellings) {
+      entries.push({ gid, spelling, definition: entry.definition ?? '' })
+    }
+  }
+  return entries.sort((a, b) => b.spelling.length - a.spelling.length)
+})
+
+const glossaryRegex = computed(() => {
+  const entries = glossaryEntries.value
+  if (!entries.length) return null
+  const escaped = entries.map(e => e.spelling.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  return new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi')
+})
+
+const spellingToEntry = computed(() => {
+  const m = new Map()
+  for (const e of glossaryEntries.value) m.set(e.spelling.toLowerCase(), e)
+  return m
+})
+
+// Wraps every glossary spelling occurrence in `text` with a clickable span,
+// safe to run on raw markdown/plain text before md()/mdInline() renders it.
+function glossify(text) {
+  if (!text || !glossaryRegex.value) return text
+  return text.replace(glossaryRegex.value, match => {
+    const entry = spellingToEntry.value.get(match.toLowerCase())
+    if (!entry) return match
+    return `<span class="gloss-term" data-gid="${entry.gid}">${match}</span>`
+  })
+}
+
+function mdGloss(text) {
+  return md(glossify(text))
+}
+
+function mdInlineGloss(text) {
+  return mdInline(glossify(text))
+}
+
+// Plain-text fields (key facts) aren't markdown — glossify then render the
+// resulting span(s) as-is, no further markdown parsing.
+function glossifyPlain(text) {
+  return glossify(text ?? '')
+}
+
+const activeGlossaryTerm = ref(null) // { spelling, definition } | null
+
+function onDetailClick(event) {
+  const el = event.target?.closest?.('.gloss-term')
+  if (!el) return
+  event.preventDefault()
+  const entry = glossaryEntries.value.find(e => e.gid === el.dataset.gid)
+  activeGlossaryTerm.value = {
+    spelling: el.textContent,
+    definition: entry?.definition ?? '',
+  }
+}
+
+function closeGlossaryModal() {
+  activeGlossaryTerm.value = null
+}
 
 const dynastyById = computed(() => {
   const m = {}
@@ -194,20 +309,20 @@ function back() {
     <!-- Breadcrumb / back -->
     <a class="back-link" href="#" @click.prevent="back">← Back to results</a>
 
-    <!-- Language selector for item content -->
-    <div v-if="availableLangs.length > 1" class="lang-selector">
+    <!-- Language selector for item content — only languages this item actually has -->
+    <div v-if="itemLangs.length > 1" class="lang-selector">
       <label class="lang-label">Item language:</label>
       <select v-model="activeLang" class="lang-select">
-        <option v-for="lang in availableLangs" :key="lang" :value="lang">{{ lang.toUpperCase() }}</option>
+        <option v-for="lang in itemLangs" :key="lang" :value="lang">{{ lang.toUpperCase() }}</option>
       </select>
     </div>
 
-    <div class="detail content-box">
+    <div class="detail content-box" @click="onDetailClick">
       <!-- Type badge -->
       <div class="detail-type-badge">{{ item.type }}</div>
 
       <!-- Title -->
-      <h1 class="detail-title" v-html="labelHtml(item)" />
+      <h1 class="detail-title" :dir="contentDir" v-html="labelHtml(item)" />
 
       <!-- Images -->
       <div v-if="item.images?.length" class="images">
@@ -225,7 +340,7 @@ function back() {
         <tbody>
           <tr v-for="fact in keyFacts" :key="fact.label">
             <th>{{ fact.label }}</th>
-            <td>{{ fact.value }}</td>
+            <td :dir="contentDir" v-html="glossifyPlain(fact.value)"></td>
           </tr>
         </tbody>
       </table>
@@ -237,7 +352,7 @@ function back() {
         class="content-section"
       >
         <h2 class="content-section-heading">{{ section.heading }}</h2>
-        <div v-html="md(section.value)" class="prose" />
+        <div v-html="mdGloss(section.value)" class="prose" :dir="contentDir" />
       </section>
 
       <!-- Credits -->
@@ -246,7 +361,7 @@ function back() {
         <dl class="credits-list">
           <template v-for="c in credits" :key="c.label">
             <dt>{{ c.label }}</dt>
-            <dd>{{ c.value }}</dd>
+            <dd :dir="contentDir">{{ c.value }}</dd>
           </template>
         </dl>
         <p v-if="item.mwnf_reference" class="mwnf-ref">
@@ -257,7 +372,7 @@ function back() {
       <!-- Dynasty cards -->
       <div v-if="selectedDynasties.length" class="dynasties">
         <h2 class="sub-section-title">{{ selectedDynasties.length === 1 ? 'Dynasty' : 'Dynasties' }}</h2>
-        <div v-for="d in selectedDynasties" :key="d.id" class="dynasty-card">
+        <div v-for="d in selectedDynasties" :key="d.id" class="dynasty-card" :dir="contentDir">
           <div class="dynasty-header">
             <span class="dynasty-name" v-html="d.name ? mdInline(d.name) : '—'" />
             <span v-if="d.also_known_as" class="dynasty-aka">also known as {{ d.also_known_as }}</span>
@@ -284,7 +399,7 @@ function back() {
               <img v-if="rel.images?.length" :src="rel.images[0].url" :alt="labelText(rel)" loading="lazy" />
               <div v-else class="item-thumb-placeholder" />
             </div>
-            <div class="item-list-info">
+            <div class="item-list-info" :dir="contentDir">
               <div class="item-list-name" v-html="mdInline(t(rel).name ?? rel.internal_name ?? rel.id)" />
               <div
                 v-if="justifications[activeLang]"
@@ -296,6 +411,16 @@ function back() {
             </div>
           </li>
         </ul>
+      </div>
+    </div>
+
+    <!-- Glossary term modal, mirrors legacy's glossary1.php popup -->
+    <div v-if="activeGlossaryTerm" class="gloss-modal-overlay" @click.self="closeGlossaryModal">
+      <div class="gloss-modal" :dir="contentDir">
+        <button class="gloss-modal-close" @click="closeGlossaryModal" aria-label="Close">✕</button>
+        <h2 class="gloss-modal-heading">Glossary &amp; Spelling</h2>
+        <h3 class="gloss-modal-term">{{ activeGlossaryTerm.spelling }}</h3>
+        <p class="gloss-modal-definition">{{ activeGlossaryTerm.definition }}</p>
       </div>
     </div>
   </div>
@@ -488,5 +613,65 @@ function back() {
   margin: 2px 0 4px;
   font-family: 'Roboto', sans-serif;
   line-height: 1.4;
+}
+
+/* Glossary term links, injected as raw HTML into v-html content */
+.detail :deep(.gloss-term) {
+  color: var(--link);
+  border-bottom: 1px dotted var(--gold-dark);
+  cursor: pointer;
+}
+.detail :deep(.gloss-term:hover) { color: var(--heading); }
+
+/* Glossary modal */
+.gloss-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  z-index: 1000;
+}
+.gloss-modal {
+  position: relative;
+  background: var(--section-bg, #fff);
+  border-top: 4px solid var(--gold-dark);
+  max-width: 480px;
+  width: 100%;
+  padding: 28px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+.gloss-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+}
+.gloss-modal-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-family: 'Roboto', sans-serif;
+}
+.gloss-modal-term {
+  font-size: 20px;
+  color: var(--heading);
+  margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+.gloss-modal-definition {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  font-family: 'Roboto', sans-serif;
 }
 </style>

@@ -373,6 +373,7 @@ export class ItemExporter extends BaseExporter {
       })),
       tags: tagMap.get(item.id) ?? [],
       glossary_ids: glossaryMap.get(item.id) ?? [],
+      languages: Object.keys(translationMap.get(item.id) ?? {}).sort(),
     }))
 
     await this.writeJson('items.json', output)
