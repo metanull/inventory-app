@@ -18,7 +18,6 @@
 
 import dotenv from 'dotenv';
 import { resolve } from 'path';
-import { readFileSync } from 'fs';
 import { Command } from 'commander';
 import chalk from 'chalk';
 import mysql from 'mysql2/promise';
@@ -1673,62 +1672,6 @@ program
       console.log(chalk.red(`\n❌ Image sync failed: ${message}`));
       console.log(chalk.red(error instanceof Error ? error.stack : ''));
       process.exit(1);
-    }
-  });
-
-program
-  .command('load-sql')
-  .description(
-    'Execute a SQL file against the target DB (DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD/DB_DATABASE). ' +
-      "Built for import-tool's `ship` mode, which loads a mysqldump of a local `stage` build " +
-      "through the OVH tunnel — mysqldump's own CLI can't authenticate to a modern MySQL 8 " +
-      "server's caching_sha2_password default from this project's Alpine-based tooling image, " +
-      'so this reuses the same mysql2 driver the rest of the importer already relies on.'
-  )
-  .requiredOption('--file <path>', 'Path to the .sql file to execute')
-  .action(async (options) => {
-    const filePath = options.file as string;
-    console.log(chalk.cyan(`Loading SQL file: ${filePath}`));
-
-    let sql: string;
-    try {
-      sql = readFileSync(filePath, 'utf8');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.log(chalk.red(`\n❌ Failed to read ${filePath}: ${message}`));
-      process.exit(1);
-    }
-
-    if (!sql.trim()) {
-      console.log(chalk.yellow('SQL file is empty — nothing to do.'));
-      return;
-    }
-
-    // multipleStatements is off everywhere else in this codebase deliberately
-    // (see LegacyDatabase) since it defeats single-statement SQL-injection
-    // protections when a query might carry untrusted input. This connection
-    // is the one narrow, intentional exception: it only ever executes a file
-    // WE generated ourselves via mysqldump immediately beforehand — never
-    // arbitrary or user-supplied SQL — and running a full dump in one round
-    // trip requires it.
-    const connection = await mysql.createConnection({
-      host: process.env['DB_HOST'] || 'localhost',
-      port: parseInt(process.env['DB_PORT'] || '3306', 10),
-      user: process.env['DB_USERNAME'] || 'root',
-      password: process.env['DB_PASSWORD'] || '',
-      database: process.env['DB_DATABASE'] || 'inventory',
-      multipleStatements: true,
-    });
-
-    try {
-      await connection.query(sql);
-      console.log(chalk.green('✓ SQL file loaded successfully'));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.log(chalk.red(`\n❌ Failed to load SQL file: ${message}`));
-      process.exit(1);
-    } finally {
-      await connection.end();
     }
   });
 

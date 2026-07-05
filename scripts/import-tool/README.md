@@ -27,7 +27,7 @@ build` once beforehand) to be sure you're running current code.
 | `backup-permissions` | Snapshots users (incl. MFA columns), role assignments, direct permission assignments, and API tokens to an encrypted JSON on the OVH host, plus a redundant timestamped copy pulled back locally. No import, no writes to application data. |
 | `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore users → the full `append` pipeline. **Destructive.** Requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. Restores from a snapshot at `AUTH_SNAPSHOT_REMOTE` if one exists (run `backup-permissions` first to create it — `clean` does not take a fresh snapshot itself); if none exists **and** both `ADMIN_EMAIL`/`REGULAR_USER_EMAIL` are set, falls back to recreating just those two accounts instead. If neither applies, aborts before anything beyond the wipe itself is lost. |
 | `stage` | `import` → `image-sync`, writing straight to a local, persistent MySQL (`local-mysql`) instead of through the OVH tunnel. **No SSH, no OVH contact at all.** Builds a fully-populated local copy of the legacy import — DB rows in `local-mysql`, image files in the `local-images-data` volume — at local-network speed. Safe to run at any time, including while a real `append`/`clean` run is in progress against OVH (they hit the same legacy source DB, which comfortably handles concurrent readers). See "Local staging" below. |
-| `ship` | Ships an already-built `stage` copy to OVH: rebuilds the app layer on OVH exactly like `clean` (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then loads local-mysql's **content tables only** through the tunnel and pushes the already-staged images. **Destructive**, same `CONFIRM_WIPE` requirement as `clean`. See "Shipping a staged build to a server" below. |
+| `ship` | Ships an already-built `stage` copy to OVH: rebuilds the app layer on OVH exactly like `clean` (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then copies local-mysql's **content tables only** to OVH and loads them there (against OVH's own local MySQL, not through the tunnel), and pushes the already-staged images. **Destructive**, same `CONFIRM_WIPE` requirement as `clean`. See "Shipping a staged build to a server" below. |
 
 ## Build
 
@@ -157,7 +157,7 @@ tens of thousands of small round-trips at WAN latency, which is why a real
 same `mysql:8.4` image the root dev `docker-compose.yml` uses), removing that
 per-row network cost entirely. It's a way to build and inspect a fully-populated
 copy of the import fast, and a way to prepare data for a bulk `mysqldump` +
-tunnel-load handoff to OVH instead of thousands of live inserts against
+copy-and-load-on-OVH handoff instead of thousands of live inserts against
 production — see "Shipping a staged build to a server" below for the `ship`
 mode that does that handoff.
 
@@ -241,37 +241,54 @@ What it actually does, in order:
    sequence `clean` uses. This is why `ship` needs the same `CONFIRM_WIPE`
    guard, and the same pre-flight advice as `clean` (see "Before your first
    `clean`" above — the snapshot/fallback-account rules are identical).
-2. **Dumps local-mysql, excluding auth/infrastructure tables, and loads it
-   through the tunnel** — `mysqldump` against `local-mysql`, with
-   `--ignore-table` for every table in `SHIP_EXCLUDED_TABLES` (`users`,
-   `roles`, `permissions`, `model_has_roles`, `model_has_permissions`,
-   `role_has_permissions`, `personal_access_tokens`, `sessions`, `cache`,
-   `cache_locks`, `jobs`, `job_batches`, `failed_jobs`,
-   `email_two_factor_codes`, `password_reset_tokens`, `migrations`,
-   `settings`), then loaded via the importer's `load-sql` command (not the
-   `mysqldump`/`mysql` CLI pipe you'd expect — see the note below). **This
-   guarantee is the whole point:** `local-mysql` never has real data in any
-   of those tables (`stage` runs no seeders — see above), so loading them
-   wholesale would blank out OVH's real users, roles, permission
-   assignments, API tokens, and settings. Excluding them means step 1's
-   freshly-restored auth state is never touched by step 2 — only the actual
-   imported legacy content moves.
+2. **Dumps local-mysql (data only, excluding auth/infrastructure tables),
+   copies the dump to OVH, and loads it there against OVH's own local MySQL**
+   — `mysqldump --no-create-info --skip-extended-insert` against
+   `local-mysql`, with `--ignore-table` for every table in
+   `SHIP_EXCLUDED_TABLES` (`users`, `roles`, `permissions`,
+   `model_has_roles`, `model_has_permissions`, `role_has_permissions`,
+   `personal_access_tokens`, `sessions`, `cache`, `cache_locks`, `jobs`,
+   `job_batches`, `failed_jobs`, `email_two_factor_codes`,
+   `password_reset_tokens`, `migrations`, `settings`). The dump is then `scp`'d
+   to OVH and loaded there with OVH's own `mysql` client, reading
+   `DB_PASSWORD` straight out of OVH's own `.env` — not through the SSH
+   tunnel, and not from this container's own `mysql` CLI (see the note
+   below). **The table exclusion is the whole point:** `local-mysql` never
+   has real data in any of those tables (`stage` runs no seeders — see
+   above), so loading them wholesale would blank out OVH's real users,
+   roles, permission assignments, API tokens, and settings. Excluding them
+   means step 1's freshly-restored auth state is never touched by step 2 —
+   only the actual imported legacy content moves. `--no-create-info` (data
+   only, no `DROP TABLE`/`CREATE TABLE`) matters because step 1 already
+   created every table via `migrate --force`; dumping structure too would
+   just collide with it.
 3. **Pushes the already-staged images** from `local-images-data` — no
    re-running image-sync, they're already there.
 4. **Resyncs the glossary** on OVH, same as `append`/`clean`.
 
-**Why not just pipe `mysqldump | mysql` through the tunnel directly?** This
-image's `mysql`/`mysqldump` are Alpine's MariaDB client, which can't
-authenticate to a modern MySQL 8 server's default `caching_sha2_password`
-plugin at all (`Plugin caching_sha2_password could not be loaded` — the
-plugin's `.so` isn't packaged, not an SSL/config issue) — and that's what
-both `local-mysql` and the real OVH database use. Works fine as the *source*
-of the dump once `local-mysql`'s app user is switched to the older,
-universally-supported `mysql_native_password` (see `mysql/init.sql` — a
-disposable local-only credential, safe to relax; OVH's real credentials are
-never touched). For the *destination* leg, `ship` instead pipes the dump
-through `import.ts load-sql`, which reuses the same `mysql2` driver the rest
-of this tool already relies on to talk to OVH everywhere else.
+**Why load the dump on OVH itself, not through the tunnel?** That's the
+entire reason `stage`/`ship` exist: avoid thousands of small round-trips over
+the network, which is what makes a per-row `append`/`clean` run take hours.
+Loading through the tunnel — even as a single dump file — still means every
+statement is a WAN round-trip from wherever this container runs to OVH. Copy
+the file to OVH once, then load it from an SSH session there, and every
+statement is local-loopback I/O instead (confirmed in practice: loading
+through the tunnel took over an hour and didn't finish; run locally on OVH,
+it's a normal `mysql < file.sql` restore).
+
+This also sidesteps needing this image's own `mysql` client for the
+*destination* leg: it's Alpine's MariaDB client, which can't authenticate to
+a modern MySQL 8 server's default `caching_sha2_password` plugin at all
+(`Plugin caching_sha2_password could not be loaded` — the plugin's `.so`
+isn't packaged, not an SSL/config issue) — and that's what both `local-mysql`
+and the real OVH database use. It still works fine as the *source* of the
+dump (reading from `local-mysql`) once `local-mysql`'s app user is switched
+to the older, universally-supported `mysql_native_password` (see
+`mysql/init.sql` — a disposable local-only credential, safe to relax; OVH's
+real credentials are never touched). For the *destination* leg, OVH's own
+`mysql` client is a real, modern MySQL client matching its own server, with
+no such limitation — it's not Alpine, and it's not a different
+implementation.
 
 No manual runbook needed — `ship` requires only that `stage` has already
 been run (`local-mysql` healthy, `local-images-data` populated) and that you
