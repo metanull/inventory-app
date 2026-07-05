@@ -81,7 +81,20 @@ function resolveTitle(collectionId, fallbackName) {
   return fallbackName
 }
 
-const themeTitle = computed(() => resolveTitle(theme.value?.id, theme.value?.internal_name ?? ''))
+// The heading shows the *active page's* own title, not the theme's — legacy
+// exhibition themes aren't always a fixed Monuments/Objects-style split (that
+// pattern is specific to Artistic Introduction); a theme's pages are often
+// just paginated continuations of one narrative, and legacy navigates them
+// with Previous/Next arrows rather than named tabs (confirmed against the
+// live site: exhibition.php shows "< Previous page | Next page >", never a
+// tab strip). A page's own title is frequently identical to its theme's, but
+// isn't guaranteed to be.
+const pageTitle = computed(() => resolveTitle(activePage.value?.id, theme.value?.internal_name ?? ''))
+
+function goToPage(idx) {
+  if (idx < 0 || idx >= pages.value.length) return
+  selectTab(idx)
+}
 
 // ── Thumbnail grid, detail panel, and multi-variant "detail" selector ───
 
@@ -168,7 +181,7 @@ function back() {
   </div>
 
   <div v-else class="theme-wrap">
-    <a class="back-link" href="#" @click.prevent="back">← Back to {{ exhibition.internal_name }}</a>
+    <a class="back-link" href="#" @click.prevent="back">← Back to {{ resolveTitle(exhibition.id, exhibition.internal_name) }}</a>
 
     <div v-if="availableLangs.length > 1" class="lang-selector">
       <label class="lang-label">Text language:</label>
@@ -178,18 +191,17 @@ function back() {
     </div>
 
     <div class="content-box">
-      <h1 class="theme-title" v-html="mdInline(themeTitle)" />
+      <h1 class="theme-title" v-html="mdInline(pageTitle)" />
 
-      <!-- Tabs -->
-      <div v-if="pages.length > 1" class="tab-row">
-        <button
-          v-for="(page, idx) in pages"
-          :key="page.id"
-          class="tab-btn"
-          :class="{ active: idx === activeTabIndex }"
-          @click="selectTab(idx)"
-        >
-          {{ resolveTitle(page.id, page.internal_name) }}
+      <!-- Page navigation: Previous/Next, matching the legacy site (a
+           theme's pages are paginated continuations, not fixed named tabs) -->
+      <div v-if="pages.length > 1" class="page-nav-row">
+        <button class="page-nav-btn" :disabled="activeTabIndex === 0" @click="goToPage(activeTabIndex - 1)">
+          ← Previous page
+        </button>
+        <span class="page-nav-count">Page {{ activeTabIndex + 1 }} of {{ pages.length }}</span>
+        <button class="page-nav-btn" :disabled="activeTabIndex === pages.length - 1" @click="goToPage(activeTabIndex + 1)">
+          Next page →
         </button>
       </div>
 
@@ -285,28 +297,31 @@ function back() {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Tabs */
-.tab-row {
+/* Page navigation (Previous/Next) */
+.page-nav-row {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 18px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
-.tab-btn {
+.page-nav-btn {
   font-family: 'Roboto', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--heading);
   cursor: pointer;
 }
-.tab-btn:hover { color: var(--heading); }
-.tab-btn.active {
-  color: var(--heading);
-  border-bottom-color: var(--gold-dark);
+.page-nav-btn:hover:not(:disabled) { color: var(--nav-active); border-color: var(--gold-dark); }
+.page-nav-btn:disabled { opacity: 0.4; cursor: default; }
+.page-nav-count {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 /* Two-column layout */
