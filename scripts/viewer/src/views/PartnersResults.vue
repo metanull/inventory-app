@@ -11,12 +11,18 @@ const otherType = computed(() => (filterType.value === 'museum' ? 'institution' 
 const typeLabel = computed(() => (filterType.value === 'museum' ? 'Museums' : 'Institutions'))
 const otherTypeLabel = computed(() => (otherType.value === 'museum' ? 'Partner Museums' : 'Partner Institutions'))
 
+// 'ISL' (Discover Islamic Art, pm_partner_list.php) and 'EPM' (Explore Islamic Art
+// Collections, pm_partner_list_eiac.php) are two entirely separate curated lists in
+// legacy — never merged into one, unlike Permanent Collection/Database.
+const project = computed(() => (route.query.project === 'EPM' ? 'EPM' : 'ISL'))
+const projectLabel = computed(() => (project.value === 'EPM' ? 'Explore Islamic Art Collections' : 'Discover Islamic Art'))
+
 // Associated tiers are nested under the main "Partners" list per country,
 // mirroring the legacy pm_partner_list.php accordion (level is only present
 // once the exporter's partner-hierarchy join has been re-published; a
 // partner without a level is treated as a main partner).
 const groupedByCountry = computed(() => {
-  const byType = partners.value.filter(p => p.type === filterType.value)
+  const byType = partners.value.filter(p => p.type === filterType.value && p.project_ids?.includes(project.value))
 
   const countries = new Map()
   for (const p of byType) {
@@ -55,12 +61,13 @@ function partnerLink(partner) {
 
     <h1 class="section-heading">
       Partner {{ typeLabel }}
+      <span class="heading-project"> — {{ projectLabel }}</span>
     </h1>
 
     <div class="content-box">
       <p class="result-count">
         {{ totalCount }} partner{{ totalCount !== 1 ? 's' : '' }} found —
-        <RouterLink :to="{ path: '/partners/results', query: { type: otherType } }">
+        <RouterLink :to="{ path: '/partners/results', query: { type: otherType, project } }">
           view {{ otherTypeLabel }} instead
         </RouterLink>
       </p>
@@ -94,6 +101,8 @@ function partnerLink(partner) {
 </template>
 
 <style scoped>
+.heading-project { font-weight: normal; font-size: 14px; color: var(--muted); }
+
 .result-count {
   font-family: 'Roboto', sans-serif;
   font-size: 12px;

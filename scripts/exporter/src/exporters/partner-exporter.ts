@@ -63,6 +63,7 @@ interface PartnerLogoRow {
 interface PartnerLevelRow {
   partner_id: string
   level: string | null
+  project_id: string
 }
 
 interface GroupMembershipRow {
@@ -155,9 +156,11 @@ export class PartnerExporter extends BaseExporter {
         partnerIds
       ),
       // Legacy tier (partner / associated_partner / minor_contributor), scoped to the
-      // collections that represent the exported projects themselves.
+      // collections that represent the exported projects themselves. Also carries
+      // which project each attachment belongs to, so a partner curated under more
+      // than one exported project (e.g. ISL and EPM both list it) reports all of them.
       this.db.query<PartnerLevelRow>(
-        `SELECT cp.partner_id, cp.level
+        `SELECT cp.partner_id, cp.level, proj.id AS project_id
          FROM collection_partner cp
          JOIN collections c ON c.id = cp.collection_id
          JOIN projects proj ON proj.context_id = c.context_id
@@ -168,6 +171,11 @@ export class PartnerExporter extends BaseExporter {
         [...this.projectIds, ...partnerIds]
       ),
     ])
+
+    // project UUID -> legacy project key (e.g. 'ISL', 'EPM'), for project_ids below
+    const projectKeyById = new Map(
+      this.projectIds.map((id, i) => [id, this.context.projectKeys[i]])
+    )
 
     // Per-context hierarchy: partner-hierarchy-importer.ts / institution-hierarchy-importer.ts
     // give each tier-1 partner_museums/partner_institutions row its own "group" collection
@@ -269,11 +277,21 @@ export class PartnerExporter extends BaseExporter {
 
     // partner_id -> most prominent level across the exported projects
     const levelMap = new Map<string, string>()
+    // partner_id -> legacy project keys this partner is curated under (e.g. ['ISL'], or
+    // ['ISL', 'EPM'] if listed in both) — lets the viewer split Partners by project the
+    // same way legacy keeps separate pages per project (pm_partner_list.php vs
+    // pm_partner_list_eiac.php).
+    const projectIdsMap = new Map<string, Set<string>>()
     for (const row of levels) {
       if (!row.level) continue
       const current = levelMap.get(row.partner_id)
       if (!current || (LEVEL_RANK[row.level] ?? 99) < (LEVEL_RANK[current] ?? 99)) {
         levelMap.set(row.partner_id, row.level)
+      }
+      const key = projectKeyById.get(row.project_id)
+      if (key) {
+        if (!projectIdsMap.has(row.partner_id)) projectIdsMap.set(row.partner_id, new Set())
+        projectIdsMap.get(row.partner_id)!.add(key)
       }
     }
 
@@ -301,6 +319,7 @@ export class PartnerExporter extends BaseExporter {
       map_zoom: p.map_zoom,
       monument_item_id: p.monument_item_id,
       level: levelMap.get(p.id) ?? null,
+      project_ids: [...(projectIdsMap.get(p.id) ?? [])],
       parent_id: parentMap.get(p.id) ?? null,
       contact_person_1: contactMap.get(p.id)?.contact_person_1 ?? null,
       contact_person_2: contactMap.get(p.id)?.contact_person_2 ?? null,

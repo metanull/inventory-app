@@ -22,6 +22,19 @@ const defaultLang = (manifestData.languages ?? []).includes('en')
   ? 'en'
   : ((manifestData.languages ?? [])[0] ?? 'en')
 
+// Legacy project key (e.g. 'ISL', 'EPM') by project UUID — manifest.json's
+// projectIds/projectKeys are parallel arrays, one exported project per index.
+const projectKeyById = new Map(
+  (manifestData.projectIds ?? []).map((id, i) => [id, manifestData.projectKeys?.[i]])
+)
+
+// 'ISL' ("Discover Islamic Art") is always the default/primary project; any other
+// exported project (e.g. 'EPM', "Explore Islamic Art Collections") is opt-in —
+// mirrors legacy's database.php "Include Explore Islamic Art Collections" checkbox.
+function itemProjectKey(item) {
+  return projectKeyById.get(item.project_id) ?? null
+}
+
 const enItemTranslations = ref({})
 const enCountryTranslations = ref({})
 const enDynastyTranslations = ref({})
@@ -232,6 +245,7 @@ export function useInventoryData() {
     countryLabel,
     dynastyLabel,
     partnerLabel,
+    itemProjectKey,
     itemById,
     artIntroRoot,
     artIntroThemes,

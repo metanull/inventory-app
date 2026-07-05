@@ -8,7 +8,7 @@ const router = useRouter()
 const {
   items, dynasties,
   itemLabel, countryLabel, dynastyLabel,
-  enItemTranslations, mdInline,
+  enItemTranslations, mdInline, itemProjectKey,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
@@ -27,6 +27,7 @@ function parseQuery(q) {
     cond3:    q.cond3    ?? 'AND',
     dateFrom: q.date_from ?? '',
     dateTo:   q.date_to   ?? '',
+    includeEpm: q.epm === '1',
     page:     parseInt(q.page ?? '1', 10) || 1,
     // refine row
     keyword4: q.keyword4 ?? '',
@@ -162,7 +163,13 @@ function itemMatches(item, s) {
 
 const filteredItems = computed(() => {
   const s = search.value
-  return items.value.filter(item => itemMatches(item, s))
+  return items.value.filter(item => {
+    // 'ISL' (Discover Islamic Art) is always searched; other projects (e.g. 'EPM',
+    // Explore Islamic Art Collections) are opt-in via the "Include..." checkbox.
+    const key = itemProjectKey(item)
+    if (key && key !== 'ISL' && !s.includeEpm) return false
+    return itemMatches(item, s)
+  })
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredItems.value.length / PAGE_SIZE)))
@@ -191,6 +198,7 @@ const searchSummary = computed(() => {
   if (s.keyword4) parts.push(`${s.cond4} ${fieldLabel(s.field4)}: "${s.keyword4}"`)
   if (s.dateFrom) parts.push(`from ${s.dateFrom}`)
   if (s.dateTo)   parts.push(`to ${s.dateTo}`)
+  if (s.includeEpm) parts.push('+ Explore Islamic Art Collections')
   return parts
 })
 </script>

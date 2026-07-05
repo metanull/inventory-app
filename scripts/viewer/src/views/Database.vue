@@ -24,6 +24,7 @@ const cond2    = ref('AND')
 const cond3    = ref('AND')
 const dateFrom = ref('')
 const dateTo   = ref('')
+const includeEpm = ref(false)
 
 function search() {
   const q = {}
@@ -32,11 +33,14 @@ function search() {
   if (keyword3.value) { q.keyword3 = keyword3.value; q.field3 = field3.value; q.cond3 = cond3.value }
   if (dateFrom.value) q.date_from = dateFrom.value
   if (dateTo.value)   q.date_to   = dateTo.value
+  if (includeEpm.value) q.epm = '1'
   router.push({ path: '/database/results', query: q })
 }
 
 function showAll() {
-  router.push({ path: '/database/results', query: {} })
+  const q = {}
+  if (includeEpm.value) q.epm = '1'
+  router.push({ path: '/database/results', query: q })
 }
 </script>
 
@@ -96,6 +100,19 @@ function showAll() {
 
           <tr><td colspan="2"><hr class="form-divider" /></td></tr>
 
+          <!-- Collection scope -->
+          <tr>
+            <th></th>
+            <td>
+              <label class="epm-toggle">
+                <input type="checkbox" v-model="includeEpm" />
+                Include Explore Islamic Art Collections
+              </label>
+            </td>
+          </tr>
+
+          <tr><td colspan="2"><hr class="form-divider" /></td></tr>
+
           <!-- Date range -->
           <tr>
             <th>Date (from year)</th>
@@ -146,5 +163,14 @@ function showAll() {
   border: none;
   border-top: 1px solid var(--border);
   margin: 8px 0;
+}
+.epm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  color: var(--text);
+  cursor: pointer;
 }
 </style>
