@@ -173,8 +173,10 @@ separately and keeps it running independently of any one `stage` invocation.
 
 Both the DB and the staged images persist in named Docker volumes
 (`local-mysql-data`, `local-images-data`) — they survive `docker restart`,
-and survive `docker compose down` (without `-v`) followed by `up`/`run` again.
-Only `docker compose down -v` (or `docker volume rm`) destroys them.
+and survive `docker compose -f scripts/import-tool/docker-compose.yml down`
+(without `-v`) followed by `up`/`run` again. Only
+`docker compose -f scripts/import-tool/docker-compose.yml down -v` (or
+`docker volume rm`) destroys them.
 
 `stage` intentionally differs from `append`/`clean` in one way: **migrations
 only, no seeders.** `local-migrate` runs `php artisan migrate --force` and

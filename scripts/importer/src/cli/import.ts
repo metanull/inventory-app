@@ -435,9 +435,9 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   },
   {
     key: 'exhibitions-root-collection',
-    name: 'Exhibitions Root Collection',
+    name: 'Virtual Exhibitions Root Collection',
     description:
-      'Create the "Exhibitions" marker collection (child of the ISL project collection) that ISL exhibitions nest under',
+      'Create the "Virtual Exhibitions" marker collection (child of the ISL project collection) that ISL exhibitions nest under',
     importerClass: ExhibitionsRootCollectionImporter,
     dependencies: ['project', 'language'],
   },

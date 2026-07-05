@@ -1,8 +1,8 @@
 /**
  * Exhibitions Root Collection Importer
  *
- * Creates a single "Exhibitions" marker collection as a child of the Islamic
- * Art (ISL) project collection. This mirrors ArtintroRootCollectionImporter:
+ * Creates a single "Virtual Exhibitions" marker collection as a child of the
+ * Islamic Art (ISL) project collection. This mirrors ArtintroRootCollectionImporter:
  * `type='exhibition'` (and even the `mwnf3:exhibitions:{id}` backward_compatibility
  * key) is not project-scoped — the mwnf3 legacy schema shares its exhibitions
  * table across multiple projects (ISL, BAR, SH, ...), so neither field alone
@@ -50,7 +50,7 @@ export class ExhibitionsRootCollectionImporter extends BaseImporter {
       const backwardCompat = `${MWNF3_SCHEMA}:exhibitions:root`;
 
       if (await this.entityExistsAsync(backwardCompat, 'collection')) {
-        this.logInfo('Exhibitions root collection already exists, skipping');
+        this.logInfo('Virtual Exhibitions root collection already exists, skipping');
         result.skipped++;
         this.showSkipped();
         return result;
@@ -77,7 +77,7 @@ export class ExhibitionsRootCollectionImporter extends BaseImporter {
         'exhibitions_root_collection',
         { internal_name: internalName, backward_compatibility: backwardCompat },
         'foundation',
-        'Exhibitions root collection'
+        'Virtual Exhibitions root collection'
       );
 
       if (this.isDryRun || this.isSampleOnlyMode) {
@@ -112,18 +112,18 @@ export class ExhibitionsRootCollectionImporter extends BaseImporter {
         language_id: defaultLanguageId,
         context_id: contextId,
         backward_compatibility: translationBackwardCompat,
-        title: 'Exhibitions',
+        title: 'Virtual Exhibitions',
         description:
           'Curated virtual exhibitions exploring themes, monuments, and objects from the Islamic art collection.',
       });
 
-      this.logInfo(`Created Exhibitions root collection: ${collectionId}`);
+      this.logInfo(`Created Virtual Exhibitions root collection: ${collectionId}`);
       result.imported++;
       this.showProgress();
     } catch (error) {
       result.success = false;
       const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Error creating Exhibitions root collection: ${message}`);
+      result.errors.push(`Error creating Virtual Exhibitions root collection: ${message}`);
       this.logError('ExhibitionsRootCollectionImporter', message);
       this.showError();
     }
