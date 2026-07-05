@@ -49,7 +49,11 @@ export class MonumentPictureImporter extends BaseImporter {
     const result = this.createResult();
 
     // Initialize helper
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.tagHelper = new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing monument pictures...');
@@ -148,10 +152,15 @@ export class MonumentPictureImporter extends BaseImporter {
 
   private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
-
-    // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -324,7 +333,11 @@ export class MonumentPictureImporter extends BaseImporter {
 
     if (group.type) {
       const defaultLangId = this.context.tracker.getMetadata('default_language_id');
-      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      const tagIds = await this.tagHelper.findOrCreateList(
+        group.type,
+        'image-type',
+        defaultLangId ?? 'eng'
+      );
       if (tagIds.length > 0) {
         await this.tagHelper.attachToItem(pictureItemId, tagIds);
       }
@@ -351,32 +364,22 @@ export class MonumentPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang);
 
-    let name: string;
-    if (hasCaption) {
-      name = convertHtmlToMarkdown(translation.caption!);
-    } else {
-      // Metadata-only row: resolve parent monument title for a human-readable name.
-      const parentName = await this.getParentItemName(
-        translation.project_id,
-        translation.country,
-        translation.institution_id,
-        translation.number,
-        translation.lang
-      );
-      if (!parentName) {
-        throw new Error(
-          `Parent monument name not found for metadata-only translation ` +
-            `(project_id=${translation.project_id}, country=${translation.country}, ` +
-            `institution_id=${translation.institution_id}, number=${translation.number}, ` +
-            `lang=${translation.lang})`
-        );
-      }
-      const parentTitle = convertHtmlToMarkdown(parentName);
-      name =
-        translation.image_number != null
-          ? `${parentTitle} (${translation.image_number})`
-          : parentTitle;
-    }
+    // `name` is always a short label derived from the parent monument's title —
+    // never the caption, which is long-form HTML and belongs in `description`
+    // (an unbounded text column) rather than the 255-char `name` column.
+    const parentName = await this.getCachedParentItemName(
+      translation.project_id,
+      translation.country,
+      translation.institution_id,
+      translation.number,
+      translation.lang
+    );
+    const parentTitle = parentName ? convertHtmlToMarkdown(parentName) : null;
+    let name = parentTitle
+      ? translation.image_number != null
+        ? `${parentTitle} (${translation.image_number})`
+        : parentTitle
+      : `Picture ${translation.image_number}`;
 
     const MAX_NAME_LENGTH = 255;
     if (name.length > MAX_NAME_LENGTH) {
@@ -385,6 +388,8 @@ export class MonumentPictureImporter extends BaseImporter {
       );
       name = name.substring(0, MAX_NAME_LENGTH);
     }
+
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption!) : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -400,7 +405,7 @@ export class MonumentPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -432,6 +437,25 @@ export class MonumentPictureImporter extends BaseImporter {
     };
 
     await this.context.strategy.writeItemTranslation(translationData);
+  }
+
+  private parentNameCache = new Map<string, string | null>();
+
+  private async getCachedParentItemName(
+    projectId: string,
+    country: string,
+    institutionId: string,
+    number: number,
+    lang: string
+  ): Promise<string | null> {
+    const key = `${projectId}:${country}:${institutionId}:${number}:${lang}`;
+    if (!this.parentNameCache.has(key)) {
+      this.parentNameCache.set(
+        key,
+        await this.getParentItemName(projectId, country, institutionId, number, lang)
+      );
+    }
+    return this.parentNameCache.get(key)!;
   }
 
   private async getParentItemName(

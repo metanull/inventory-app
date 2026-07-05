@@ -41,6 +41,7 @@ import {
   LanguageExporter,
   CountryExporter,
   DynastyExporter,
+  TimelineExporter,
   PartnerExporter,
   ItemExporter,
   CollectionExporter,
@@ -132,12 +133,20 @@ program
         logger.info(`Resolving project IDs for: ${projectKeys.join(', ')}`)
         const projectIds = await db.resolveProjectIds(projectKeys)
         console.log(chalk.green(`  ✓ Found ${projectIds.length} project(s)`))
+
+        // Resolve context IDs — same keys, but contexts table.
+        // Used to filter item_translations to only the right project context,
+        // excluding explore-context translations that would otherwise overwrite.
+        logger.info(`Resolving context IDs for: ${projectKeys.join(', ')}`)
+        const contextIds = await db.resolveContextIds(projectKeys)
+        console.log(chalk.green(`  ✓ Found ${contextIds.length} context(s)`))
         console.log('')
 
         const context: ExportContext = {
           db,
           outputDir,
           projectIds,
+          contextIds,
           projectKeys,
           baseUrl: options.baseUrl,
           logger,
@@ -148,6 +157,7 @@ program
           new LanguageExporter(context),
           new CountryExporter(context),
           new DynastyExporter(context),
+          new TimelineExporter(context),
           new PartnerExporter(context),
           new ItemExporter(context),
           new CollectionExporter(context),

@@ -29,18 +29,19 @@ export class DynastyExporter extends BaseExporter {
   async export(): Promise<ExportResult> {
     this.logger.info('Exporting dynasties.json...')
 
-    const ph = this.placeholders(this.projectIds.length)
-
-    // Only dynasties linked (via item_dynasty pivot) to non-picture items in the given projects
+    // The `dynasties` table has no project/context column of its own — legacy's
+    // mwnf3.dynasties is imported wholesale (dynasty-importer.ts has no project filter),
+    // and today it holds only ISL's 60 rows, so exporting the full table reproduces
+    // legacy's dynasty list exactly. Scoping via item_dynasty instead (as this used to)
+    // silently dropped the ~17 dynasties legacy lists that no cataloged item happens to
+    // reference — legacy shows all defined dynasties regardless of item usage.
+    // If a second project's dynasties are ever imported into this same table, this will
+    // need real project scoping (a column on `dynasties`, mirroring the still-open
+    // cross-project scoping problem in glossary-exporter.ts) rather than exporting everything.
     const dynasties = await this.db.query<DynastyRow>(
-      `SELECT DISTINCT d.id, d.backward_compatibility, d.from_ah, d.to_ah, d.from_ad, d.to_ad
-       FROM dynasties d
-       JOIN item_dynasty id2 ON d.id = id2.dynasty_id
-       JOIN items i ON id2.item_id = i.id
-       WHERE i.project_id IN (${ph})
-         AND i.type IN ('object', 'monument', 'detail')
-       ORDER BY d.from_ad`,
-      this.projectIds
+      `SELECT id, backward_compatibility, from_ah, to_ah, from_ad, to_ad
+       FROM dynasties
+       ORDER BY from_ad`
     )
 
     if (dynasties.length === 0) {

@@ -214,6 +214,12 @@ export class ExploreThematicCycleTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // collection_images has no backward_compatibility column —
+          // identity is (owner, legacy path).
+          if (await this.imageExistsAsync('collection_images', collectionId, pic.path)) {
+            continue;
+          }
+
           if (this.isDryRun || this.isSampleOnlyMode) continue;
 
           await this.context.strategy.writeCollectionImage({

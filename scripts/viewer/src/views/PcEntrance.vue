@@ -158,14 +158,14 @@ function search() {
   line-height: 1.65;
   color: var(--muted);
   margin-bottom: 16px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .filter-table th {
   text-align: left;
   font-weight: normal;
   padding: 6px 16px 6px 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 13px;
   color: var(--text);
   vertical-align: middle;

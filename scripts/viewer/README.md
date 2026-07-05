@@ -13,12 +13,16 @@ scripts/viewer/
 │   ├── main.js         # Creates and mounts the Vue app
 │   └── App.vue         # Entire application: data loading, list, detail view
 ├── vite.config.js      # Resolves the data package path; sets @inventory-data alias
-├── .npmrc              # Scopes @metanull to https://npm.pkg.github.com
 └── package.json        # Dependencies: vue + the data package
 ```
 
 The application is intentionally contained in a single component (`App.vue`) to keep
 it easy to read top-to-bottom.
+
+Scoping `@metanull` to `https://npm.pkg.github.com` (with the auth token)
+happens in the repo-**root** `.npmrc` (gitignored, not this directory) —
+`npm install`/`npm ci` from anywhere under this repo picks it up
+automatically via npm's normal upward config-file resolution.
 
 ## How it uses `@metanull/islamicart-data`
 
@@ -61,3 +65,44 @@ npm run dev          # development server at http://localhost:5173
 npm run build        # production build → dist/
 npm run preview      # serve the production build locally
 ```
+
+## Deployment (OVH)
+
+[`.github/workflows/deploy-viewer-ovh.yml`](../../.github/workflows/deploy-viewer-ovh.yml)
+builds and deploys this viewer to `https://inventory.metanull.eu/islamicart/`
+automatically. It triggers on:
+
+- Any push to `main` that touches `scripts/viewer/**`
+- Manual dispatch (`workflow_dispatch`), e.g. to redeploy after a new data
+  package version is published without changing any viewer code
+
+Steps, in order:
+
+1. Checkout, set up Node with the `@metanull` scope pointed at
+   `npm.pkg.github.com`
+2. `npm ci` (installs whatever's pinned in `package-lock.json`)
+3. **`npm install @metanull/islamicart-data@latest`** — always pulls the
+   newest published data package regardless of what's pinned in the
+   lockfile, since the whole point of a deploy is to reflect current content
+4. `npm run build -- --base=/islamicart/` (the `--base` matters: the site is
+   served from a subpath, not the domain root)
+5. Set up the deploy SSH key, verify the VPS is reachable and the key
+   authenticates *before* attempting the actual deploy (fails fast with a
+   clear error instead of a confusing mid-deploy failure)
+6. `scp` the built `dist/` contents to `/opt/islamicart/` on the VPS
+7. Clean up the SSH key (`if: always()`, runs even if a prior step failed)
+
+Runs with `concurrency: cancel-in-progress: false` — a second push while a
+deploy is in flight queues behind it rather than cancelling the first.
+
+**Required repository secrets:** `VPS_SSH_KEY` (private key), `VPS_HOST`,
+`VPS_SSH_USER`. **Required permission:** `packages: read`, to pull
+`@metanull/islamicart-data` from GitHub Packages using the workflow's own
+`GITHUB_TOKEN` — no separate PAT needed in CI (unlike local development,
+which needs a real PAT in `~/.npmrc`).
+
+This workflow only builds and ships the *viewer* — it never runs the
+exporter or touches the database. Publishing a new data package version is
+a separate, manual step (see [`scripts/exporter/README.md`](../exporter/README.md));
+this workflow just needs to be triggered (a push, or manually) afterward to
+pick it up.

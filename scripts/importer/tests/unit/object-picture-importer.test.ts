@@ -125,16 +125,31 @@ describe('ObjectPictureImporter', () => {
     };
   });
 
-  it('creates translation with caption as name when caption is present', async () => {
+  it('creates translation with parent title as name and caption in description when caption is present', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.objects_pictures')) return [rowWithCaption];
+      if (sql.includes('FROM mwnf3.objects')) return [{ name: 'Museum Object Title' }];
       return [];
     });
     const importer = new ObjectPictureImporter(context);
     await importer.import();
 
     expect(writeItemTranslationMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Gold amulet' })
+      expect.objectContaining({ name: 'Museum Object Title (1)', description: 'Gold amulet' })
+    );
+  });
+
+  it('falls back to a generic "Picture N" name when the parent object title is unavailable', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.objects_pictures')) return [rowWithCaption];
+      if (sql.includes('FROM mwnf3.objects')) return []; // parent not found
+      return [];
+    });
+    const importer = new ObjectPictureImporter(context);
+    await importer.import();
+
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 1', description: 'Gold amulet' })
     );
   });
 
@@ -182,7 +197,32 @@ describe('ObjectPictureImporter', () => {
     }
   });
 
-  it('reports error when parent object not found for metadata-only row', async () => {
+  it('skips an already-imported picture cleanly on a non-wiped rerun (no writes attempted)', async () => {
+    // Simulates a second process run against a persisted (non-wiped) DB: the
+    // picture Item's own backward_compatibility is already known — either
+    // via the in-memory tracker or (in a real rerun, a fresh process) via
+    // SqlWriteStrategy.exists('items', ...), which the mock below stands in
+    // for. Regression guard for the bug where the importer gated on
+    // entityExistsAsync(imageKey, 'image') instead — item_images has no
+    // backward_compatibility column, so that check could never detect an
+    // already-imported picture from a previous run, and would attempt (and,
+    // pre-idempotent-write-fix, silently duplicate) the picture again.
+    (strategy.exists as ReturnType<typeof vi.fn>).mockImplementation(
+      async (table: string, backwardCompatibility: string) =>
+        table === 'items' && backwardCompatibility === 'mwnf3:objects_pictures:EPM:qt:Mus21:19:1'
+    );
+
+    const importer = new ObjectPictureImporter(context);
+    const result = await importer.import();
+
+    expect(writeItemMock).not.toHaveBeenCalled();
+    expect(writeItemImageMock).not.toHaveBeenCalled();
+    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.skipped).toBe(1);
+    expect(result.imported).toBe(0);
+  });
+
+  it('falls back to a generic name (no error) when parent object not found for metadata-only row', async () => {
     queryMock.mockImplementation(async (sql: string) => {
       if (sql.includes('FROM mwnf3.objects_pictures')) return [rowCopyrightOnly];
       if (sql.includes('FROM mwnf3.objects')) return []; // parent not found
@@ -191,9 +231,9 @@ describe('ObjectPictureImporter', () => {
     const importer = new ObjectPictureImporter(context);
     const result = await importer.import();
 
-    // The failure must be surfaced (either errors or warnings) – NOT silently swallowed.
-    const surfaced = [...(result.errors ?? []), ...(result.warnings ?? [])];
-    expect(surfaced.length).toBeGreaterThan(0);
-    expect(writeItemTranslationMock).not.toHaveBeenCalled();
+    expect(result.errors.length).toBe(0);
+    expect(writeItemTranslationMock).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Picture 1' })
+    );
   });
 });

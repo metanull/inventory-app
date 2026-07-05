@@ -13,7 +13,7 @@
 
 import type { ITracker } from './tracker.js';
 import type { IWriteStrategy } from './strategy.js';
-import type { ImportResult, EntityType } from './types.js';
+import type { ImportResult, EntityType, ImageTable } from './types.js';
 import { createImportResult } from './types.js';
 
 /**
@@ -481,5 +481,21 @@ export abstract class BaseImporter {
     }
 
     return dbResult;
+  }
+
+  /**
+   * Check if an image row already exists for a given owner + legacy path.
+   * The image-table counterpart to entityExistsAsync(): item_images and its
+   * five siblings have no backward_compatibility column, so identity is
+   * (owner id, legacy path) instead — always queries the database directly
+   * (via IWriteStrategy.imageExists()), since these tables aren't tracked
+   * in the in-memory tracker across the composite (owner, path) key.
+   */
+  protected async imageExistsAsync(
+    table: ImageTable,
+    ownerId: string,
+    path: string
+  ): Promise<boolean> {
+    return (await this.context.strategy.imageExists(table, ownerId, path)) !== null;
   }
 }

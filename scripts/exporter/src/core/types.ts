@@ -5,6 +5,7 @@ export interface ExportContext {
   db: Database
   outputDir: string
   projectIds: string[]
+  contextIds: string[]
   projectKeys: string[]
   baseUrl: string
   logger: Logger

@@ -27,8 +27,9 @@
 #   9. Installs Certbot + issues SSL certificate (before Nginx config)
 #   10. Configures Nginx vhost for inventory-app (HTTPS if cert available)
 #   11. Creates the application directory structure (owned by deploy)
-#   12. Creates queue worker systemd service
-#   13. Sets up daily MySQL backup cron
+#   12. Creates /opt/islamicart static-file directory (islamicart viewer SPA)
+#   13. Creates queue worker systemd service
+#   14. Sets up daily MySQL backup cron
 #
 # The 'deploy' user has NO sudo. All privileged operations belong here.
 #
@@ -357,6 +358,45 @@ else
     SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
 fi
 
+# ── Nginx shared location snippets ──────────────────────────────────────────
+# Location blocks that are identical across all deploy modes (bare-metal/docker)
+# and SSL states live here — written once, included in each vhost variant.
+# Adding a new shared location means editing ONE place, not four.
+info "Writing shared Nginx location snippets..."
+mkdir -p /etc/nginx/snippets
+
+# Quoted delimiter: $uri etc. are Nginx variables and must NOT be shell-expanded.
+cat > /etc/nginx/snippets/inventory-shared-locations.conf << 'SNIPPET'
+# islamicart viewer SPA (Vue 3, hash router — static files at /opt/islamicart)
+# index index.html overrides the server-level "index index.php" so directory
+# requests return the SPA entry point rather than a 403.
+location /islamicart {
+    alias /opt/islamicart;
+    index index.html;
+    try_files $uri $uri/ /islamicart/index.html;
+}
+
+location = /favicon.ico { access_log off; log_not_found off; }
+location = /robots.txt  { access_log off; log_not_found off; }
+
+location ~ /\.(?!well-known).* {
+    deny all;
+}
+SNIPPET
+
+# Unquoted delimiter: ${PHP_VERSION} must expand; \$ escapes Nginx variables.
+cat > /etc/nginx/snippets/inventory-php-handler.conf << SNIPPET
+error_page 404 /index.php;
+
+location ~ \.php\$ {
+    fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+    include fastcgi_params;
+}
+SNIPPET
+info "Nginx snippets written to /etc/nginx/snippets/."
+
+# ── Main vhost config ────────────────────────────────────────────────────────
 if [[ "$DEPLOY_MODE" == "docker" ]]; then
     # Docker mode: Nginx is a reverse proxy to the app container on a loopback port.
     if [[ -f "$SSL_CERT" && -f "$SSL_KEY" ]]; then
@@ -379,6 +419,8 @@ server {
 
     client_max_body_size 20M;
 
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
+
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
         proxy_http_version 1.1;
@@ -399,6 +441,8 @@ server {
     server_name ${DOMAIN};
 
     client_max_body_size 20M;
+
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
 
     location / {
         proxy_pass         http://127.0.0.1:${DOCKER_APP_PORT};
@@ -440,24 +484,13 @@ server {
 
     charset utf-8;
 
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
+
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php\$ {
-        fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
+    include /etc/nginx/snippets/inventory-php-handler.conf;
 }
 NGINX
     else
@@ -476,24 +509,13 @@ server {
 
     charset utf-8;
 
+    include /etc/nginx/snippets/inventory-shared-locations.conf;
+
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php\$ {
-        fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
+    include /etc/nginx/snippets/inventory-php-handler.conf;
 }
 NGINX
     fi
@@ -528,7 +550,20 @@ find "${APP_DIR}/shared/storage" -type d -exec chmod g+s {} +
 info "Application directories created."
 
 # =============================================================================
-# 12. Queue worker systemd service
+# 12. islamicart static-file directory
+# =============================================================================
+info "Creating /opt/islamicart for the islamicart viewer SPA..."
+# The viewer is a static Vue 3 SPA deployed via CI/CD (scp into this directory).
+# Nginx serves it under /islamicart using an alias location block (see step 10).
+# Owned by deploy so the CI/CD user can write files without sudo.
+# World-readable (755/644) so Nginx (www-data) can read without group membership.
+mkdir -p /opt/islamicart
+chown "${DEPLOY_USER}:${DEPLOY_USER}" /opt/islamicart
+chmod 755 /opt/islamicart
+info "/opt/islamicart created (owned by ${DEPLOY_USER}, readable by Nginx)."
+
+# =============================================================================
+# 13. Queue worker systemd service
 # =============================================================================
 info "Creating queue worker systemd service..."
 cat > /etc/systemd/system/inventory-queue.service <<UNIT
@@ -561,7 +596,7 @@ else
 fi
 
 # =============================================================================
-# 13. Daily MySQL backup
+# 14. Daily MySQL backup
 # =============================================================================
 info "Setting up daily MySQL backup..."
 
@@ -614,7 +649,8 @@ info ""
 info "  Deploy user:   ${DEPLOY_USER} (no sudo)"
 info "  App directory: ${APP_DIR} (owned by ${DEPLOY_USER}:www-data)"
 info "  PHP-FPM:       ${PHP_VERSION}"
-info "  Nginx:         configured for ${DOMAIN}"
+info "  Nginx:         configured for ${DOMAIN} (+ /islamicart static SPA)"
+info "  islamicart:    /opt/islamicart (deploy-owned, CI/CD deploys viewer dist here)"
 info ""
 info "  MySQL:         ${DB_NAME} (credentials in ${DB_CREDENTIALS_FILE})"
 info "  Valkey:        localhost:6379 (use REDIS_DB=2, REDIS_CACHE_DB=3)"

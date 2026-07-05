@@ -16,7 +16,12 @@
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
-import type { ImportResult, ItemData, ItemTranslationData, ItemImageData } from '../../core/types.js';
+import type {
+  ImportResult,
+  ItemData,
+  ItemTranslationData,
+  ItemImageData,
+} from '../../core/types.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { TagHelper } from '../../helpers/tag-helper.js';
@@ -71,7 +76,11 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
     try {
       this.logInfo('Importing travel monument pictures...');
-      this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+      this.tagHelper = new TagHelper(
+        this.context.strategy,
+        this.context.tracker,
+        this.context.logger
+      );
 
       // Query all monument pictures
       const pictures = await this.context.legacyDb.query<LegacyMonumentPicture>(
@@ -152,10 +161,15 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
   private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
-
-    // Check if already imported using path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -287,7 +301,11 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
     }
 
     if (group.type) {
-      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      const tagIds = await this.tagHelper.findOrCreateList(
+        group.type,
+        'image-type',
+        defaultLangId ?? 'eng'
+      );
       if (tagIds.length > 0) {
         await this.tagHelper.attachToItem(pictureItemId, tagIds);
       }
@@ -312,9 +330,10 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang);
 
-    const name = hasCaption
-      ? convertHtmlToMarkdown(translation.caption)
-      : `Picture ${translation.image_number}`;
+    // `name` is always a short label; the caption (long-form HTML) belongs in
+    // `description` rather than the 255-char `name` column.
+    const name = `Picture ${translation.image_number}`;
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption) : '';
 
     const translationExtra: Record<string, unknown> = { ...itemExtra };
     if (hasPhotographer) {
@@ -330,7 +349,7 @@ export class TravelsMonumentPictureImporter extends BaseImporter {
       context_id: contextId,
       backward_compatibility: `mwnf3_travels:monument_picture:${translation.project_id}:${translation.country}:${translation.trail_id}:${translation.itinerary_id}:${translation.location_id}:${translation.number}:${translation.type || '_'}:${translation.image_number}:${translation.lang}`,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,

@@ -91,6 +91,7 @@ describe('ShPartnerPictureImporter', () => {
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      imageExists: vi.fn().mockResolvedValue(null),
       writePartnerImage: writePartnerImageMock,
     } as unknown as IWriteStrategy;
 
@@ -275,11 +276,14 @@ describe('ShPartnerPictureImporter', () => {
   });
 
   it('skips already-imported images (deduplication)', async () => {
-    // Pre-register the image key in tracker
-    tracker.set(
-      at01Row1.path.toLowerCase(),
-      'existing-image-uuid',
-      'image'
+    // Simulate a non-wiped rerun: partner_images has no
+    // backward_compatibility column, so identity is (owner, legacy path) —
+    // see SqlWriteStrategy.imageExists().
+    (strategy.imageExists as ReturnType<typeof vi.fn>).mockImplementation(
+      async (table: string, ownerId: string, path: string) =>
+        table === 'partner_images' && ownerId === 'partner-at01-uuid' && path === at01Row1.path
+          ? 'existing-image-uuid'
+          : null
     );
 
     const importer = new ShPartnerPictureImporter(context);

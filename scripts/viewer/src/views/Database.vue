@@ -126,19 +126,19 @@ function showAll() {
 
 <style scoped>
 .intro-text {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
-  color: var(--muted);
+  color: var(--text);
   margin-bottom: 16px;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .db-form th {
   text-align: right;
   padding-right: 14px;
-  font-size: 12px;
-  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
   color: var(--muted);
-  font-weight: bold;
+  font-weight: 500;
   white-space: nowrap;
   width: 130px;
 }

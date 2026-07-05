@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
-const { items, itemLabel, enItemTranslations } = useInventoryData()
+const { items, itemLabel, enItemTranslations, mdInline } = useInventoryData()
 
 // Pick a random item that has an image, as the featured spotlight
 const featured = computed(() => {
@@ -25,7 +25,7 @@ function goToItem(item) {
     <div class="home-banner content-box">
       <h1 class="home-title">Welcome to Islamic Art</h1>
       <p class="home-intro">
-        The Islamic Art digital exhibition presents a wide range of objects and monuments
+        Discover Islamic Art presents a wide range of objects and monuments
         from the Islamic world, held in museums and historic sites across numerous countries.
         Explore the collection through the Permanent Collection browser or the full-text
         Database search.
@@ -51,6 +51,52 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Search →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/timeline')">
+        <h2 class="home-card-title">Timeline</h2>
+        <p class="home-card-desc">
+          Explore historical events by country and time period, and see the
+          collection items linked to each period.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/partners')">
+        <h2 class="home-card-title">Partners</h2>
+        <p class="home-card-desc">
+          Meet the partner museums and institutions across the Islamic world
+          that hold and share the objects and monuments in the collection.
+        </p>
+        <span class="home-card-link">Browse →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/dynasties')">
+        <h2 class="home-card-title">Islamic Dynasties</h2>
+        <p class="home-card-desc">
+          Discover the dynasties and ruling periods of the Islamic world, and
+          see the objects and monuments linked to each one.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/artistic-introduction')">
+        <h2 class="home-card-title">Artistic Introduction</h2>
+        <p class="home-card-desc">
+          Read curated introductions to the major artistic traditions of
+          Islamic art, illustrated with monuments and objects from the
+          collection.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/exhibitions')">
+        <h2 class="home-card-title">Exhibitions</h2>
+        <p class="home-card-desc">
+          Discover curated virtual exhibitions exploring specific themes,
+          monuments, and objects from the Islamic art collection.
+        </p>
+        <span class="home-card-link">Explore →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->
@@ -67,7 +113,7 @@ function goToItem(item) {
         </div>
         <div class="featured-info">
           <p class="featured-type">{{ featured.type }}</p>
-          <h3 class="featured-name">{{ itemLabel(featured) }}</h3>
+          <h3 class="featured-name" v-html="mdInline(enItemTranslations[featured.id]?.name ?? featured.internal_name ?? featured.id)" />
           <p v-if="enItemTranslations[featured.id]?.location" class="featured-meta">
             {{ enItemTranslations[featured.id].location }}
           </p>
@@ -84,54 +130,57 @@ function goToItem(item) {
 <style scoped>
 .home { display: flex; flex-direction: column; gap: 16px; }
 
-.home-banner { border-top: 3px solid var(--gold); }
+.home-banner { border-top: 3px solid var(--gold-dark); }
 .home-title {
   font-size: 20px;
-  font-weight: bold;
-  color: var(--header-bg);
+  font-weight: 400;
+  color: var(--heading);
   margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
 }
 .home-intro {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
-  color: var(--muted);
+  color: var(--text);
   max-width: 680px;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Cards */
-.home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 800px) { .home-cards { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .home-cards { grid-template-columns: 1fr; } }
 
 .home-card {
   cursor: pointer;
-  border-top: 3px solid var(--gold);
+  border-top: 3px solid var(--gold-dark);
   transition: box-shadow 0.15s;
 }
 .home-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
 .home-card-title {
   font-size: 16px;
-  font-weight: bold;
-  color: var(--header-bg);
+  font-weight: 500;
+  color: var(--heading);
   margin-bottom: 8px;
-  font-family: Georgia, serif;
+  font-family: 'Roboto', sans-serif;
 }
-.home-card-desc { font-size: 12px; line-height: 1.65; color: var(--muted); margin-bottom: 12px; }
+.home-card-desc { font-size: 13px; line-height: 1.65; color: var(--muted); margin-bottom: 12px; font-family: 'Roboto', sans-serif; }
 .home-card-link {
-  font-size: 12px;
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  color: var(--gold);
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: var(--nav-active);
 }
 
 /* Featured */
-.home-featured { border-top: 3px solid var(--gold); }
+.home-featured { border-top: 3px solid var(--gold-dark); }
 .featured-inner {
   display: flex;
   gap: 20px;
   cursor: pointer;
   align-items: flex-start;
 }
-.featured-inner:hover .featured-name { color: var(--gold); }
+.featured-inner:hover .featured-name { color: var(--nav-active); }
 
 .featured-img-wrap {
   flex-shrink: 0;
@@ -147,28 +196,29 @@ function goToItem(item) {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   margin-bottom: 6px;
 }
 .featured-name {
   font-size: 18px;
-  font-weight: bold;
-  color: var(--header-bg);
+  font-weight: 400;
+  color: var(--heading);
   margin-bottom: 8px;
   line-height: 1.3;
+  font-family: 'Roboto', sans-serif;
 }
 .featured-meta {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   margin-bottom: 4px;
 }
 .featured-link {
   display: inline-block;
   margin-top: 10px;
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--gold);
-  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nav-active);
+  font-family: 'Roboto', sans-serif;
 }
 </style>

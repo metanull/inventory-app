@@ -132,17 +132,18 @@ export class ExploreThematicCyclePictureImporter extends BaseImporter {
   private async importPicture(group: PictureGroup, _result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getBackwardCompatibility(group);
 
-    // Check if already imported using path as unique identifier
-    const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
-      return false;
-    }
-
     // Find parent thematic cycle collection
     const cycleBackwardCompat = `mwnf3_explore:thematiccycle:${group.cycleId}`;
     const collectionId = await this.getEntityUuidAsync(cycleBackwardCompat, 'collection');
     if (!collectionId) {
       throw new Error(`Parent thematic cycle collection not found: ${cycleBackwardCompat}`);
+    }
+
+    // Check if already imported. collection_images has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    const imageKey = group.path.toLowerCase();
+    if (await this.imageExistsAsync('collection_images', collectionId, group.path)) {
+      return false;
     }
 
     // Collect sample

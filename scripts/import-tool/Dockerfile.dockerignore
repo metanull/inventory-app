@@ -1,0 +1,11 @@
+# Docker BuildKit picks this up automatically for `-f scripts/import-tool/Dockerfile`
+# builds (in addition to the repo-root .dockerignore, which already excludes
+# node_modules/.git/.env). Only the importer's source is needed at runtime.
+scripts/importer/node_modules
+scripts/importer/dist
+scripts/importer/logs
+scripts/importer/gap_analysis
+scripts/importer/tests
+scripts/importer/temp_todo*.md
+scripts/importer/.env
+scripts/importer/.env.*

@@ -295,14 +295,19 @@ export class ThgGalleryContentImporter extends BaseImporter {
           continue;
         }
 
-        const trackerKey = logoPath.toLowerCase();
-        if (await this.getEntityUuidAsync(trackerKey, 'image')) {
+        // Check if already imported. collection_images has no
+        // backward_compatibility column — identity is (owner, legacy path).
+        if (await this.imageExistsAsync('collection_images', collectionId, logoPath)) {
           result.skipped++;
           this.showSkipped();
           continue;
         }
 
-        this.collectSample('exhibition_logo', logo as unknown as Record<string, unknown>, 'success');
+        this.collectSample(
+          'exhibition_logo',
+          logo as unknown as Record<string, unknown>,
+          'success'
+        );
 
         if (!this.isDryRun && !this.isSampleOnlyMode) {
           await this.context.strategy.writeCollectionImage({
@@ -523,7 +528,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
          ORDER BY partner_id, language_id`
       );
     } catch {
-      result.warnings.push('exhibition_partner_i18n table not available; partner translations skipped');
+      result.warnings.push(
+        'exhibition_partner_i18n table not available; partner translations skipped'
+      );
       return [];
     }
   }
@@ -576,7 +583,11 @@ export class ThgGalleryContentImporter extends BaseImporter {
       return null;
     }
 
-    const countryId = await this.resolveCountryId(partner.entity_country, partner.partner_id, result);
+    const countryId = await this.resolveCountryId(
+      partner.entity_country,
+      partner.partner_id,
+      result
+    );
 
     const partnerData: PartnerData = {
       type: 'institution',
@@ -650,7 +661,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
       const name = trimToNull(translation.entity_name) ?? trimToNull(translation.title);
       if (!name) {
-        result.warnings.push(`${sourceLabel}: entity_name and title are both empty, skipping translation`);
+        result.warnings.push(
+          `${sourceLabel}: entity_name and title are both empty, skipping translation`
+        );
         continue;
       }
 
@@ -689,7 +702,12 @@ export class ThgGalleryContentImporter extends BaseImporter {
         await this.context.strategy.writePartnerTranslation(translationData);
       }
 
-      await this.importPartnerLogo(partnerId, translation.logo, partner.partner_id, partner.display_order ?? 0);
+      await this.importPartnerLogo(
+        partnerId,
+        translation.logo,
+        partner.partner_id,
+        partner.display_order ?? 0
+      );
     }
   }
 
@@ -704,8 +722,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
       return;
     }
 
-    const trackerKey = `logo:${logoPath.toLowerCase()}`;
-    if (await this.getEntityUuidAsync(trackerKey, 'image')) {
+    // Check if already imported. partner_logos has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    if (await this.imageExistsAsync('partner_logos', partnerId, logoPath)) {
       return;
     }
 
@@ -780,13 +799,17 @@ export class ThgGalleryContentImporter extends BaseImporter {
     const sourceLanguage = trimToNull(translation.language_id);
     const sourceLabel = `exhibition_related_content_i18n.related_content_id=${translation.related_content_id}, language_id=${translation.language_id ?? 'null'}`;
     if (!sourceLanguage) {
-      result.warnings.push(`${sourceLabel}: language_id is empty, skipping related content translation`);
+      result.warnings.push(
+        `${sourceLabel}: language_id is empty, skipping related content translation`
+      );
       return;
     }
 
     const languageId = await this.getLanguageIdByLegacyCodeAsync(sourceLanguage);
     if (!languageId) {
-      result.warnings.push(`${sourceLabel}: unknown language, skipping related content translation`);
+      result.warnings.push(
+        `${sourceLabel}: unknown language, skipping related content translation`
+      );
       return;
     }
 
@@ -826,7 +849,12 @@ export class ThgGalleryContentImporter extends BaseImporter {
       });
     }
 
-    if (!link && !uploadedDocument && !trimToNull(baseContent.link) && !trimToNull(baseContent.uploaded_document)) {
+    if (
+      !link &&
+      !uploadedDocument &&
+      !trimToNull(baseContent.link) &&
+      !trimToNull(baseContent.uploaded_document)
+    ) {
       result.skipped++;
       this.showSkipped();
     }
@@ -855,12 +883,14 @@ export class ThgGalleryContentImporter extends BaseImporter {
       );
     }
 
-    const sourceTitle = trimToNull(parameters.source.title) ?? trimToNull(parameters.source.entity_name);
+    const sourceTitle =
+      trimToNull(parameters.source.title) ?? trimToNull(parameters.source.entity_name);
     let title: string;
     if (sourceTitle) {
       title = sourceTitle;
     } else {
-      const segment = path.basename(new URL(parameters.url, 'http://x').pathname).split('?')[0] || '';
+      const segment =
+        path.basename(new URL(parameters.url, 'http://x').pathname).split('?')[0] || '';
       title = segment || `Related content ${String(parameters.source.related_content_id ?? '?')}`;
       parameters.result.warnings.push(
         `related_content ${parameters.source.related_content_id ?? '?'}: missing title, derived '${title}' from URL`

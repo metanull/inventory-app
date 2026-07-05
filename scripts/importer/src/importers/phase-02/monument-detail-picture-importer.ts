@@ -141,10 +141,15 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
   private async importPicture(group: PictureGroup, result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
-
-    // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -334,34 +339,24 @@ export class MonumentDetailPictureImporter extends BaseImporter {
 
     const languageId = mapLanguageCode(translation.lang_id);
 
+    // `name` is always a short label derived from the parent detail's title —
+    // never the caption, which is long-form HTML and belongs in `description`
+    // (an unbounded text column) rather than the 255-char `name` column.
     const MAX_NAME_LENGTH = 255;
-    let name: string;
-    if (hasCaption) {
-      name = convertHtmlToMarkdown(translation.caption!);
-    } else {
-      // Metadata-only row: resolve parent detail title for a human-readable name.
-      const parentName = await this.getParentItemName(
-        translation.project_id,
-        translation.country_id,
-        translation.institution_id,
-        translation.monument_id,
-        translation.detail_id,
-        translation.lang_id
-      );
-      if (!parentName) {
-        throw new Error(
-          `Parent monument detail name not found for metadata-only translation ` +
-            `(project_id=${translation.project_id}, country_id=${translation.country_id}, ` +
-            `institution_id=${translation.institution_id}, monument_id=${translation.monument_id}, ` +
-            `detail_id=${translation.detail_id}, lang_id=${translation.lang_id})`
-        );
-      }
-      const parentTitle = convertHtmlToMarkdown(parentName);
-      name =
-        translation.picture_id != null
-          ? `${parentTitle} (${translation.picture_id})`
-          : parentTitle;
-    }
+    const parentName = await this.getCachedParentItemName(
+      translation.project_id,
+      translation.country_id,
+      translation.institution_id,
+      translation.monument_id,
+      translation.detail_id,
+      translation.lang_id
+    );
+    const parentTitle = parentName ? convertHtmlToMarkdown(parentName) : null;
+    let name = parentTitle
+      ? translation.picture_id != null
+        ? `${parentTitle} (${translation.picture_id})`
+        : parentTitle
+      : `Picture ${translation.picture_id}`;
 
     if (name.length > MAX_NAME_LENGTH) {
       this.logWarning(
@@ -369,6 +364,8 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       );
       name = name.substring(0, MAX_NAME_LENGTH);
     }
+
+    const description = hasCaption ? convertHtmlToMarkdown(translation.caption!) : '';
 
     // Build extra with copyright if present
     const translationExtra: Record<string, unknown> = { ...itemExtra };
@@ -384,7 +381,7 @@ export class MonumentDetailPictureImporter extends BaseImporter {
       language_id: languageId,
       context_id: contextId,
       name,
-      description: '',
+      description,
       alternate_name: null,
       type: null,
       holder: null,
@@ -416,6 +413,26 @@ export class MonumentDetailPictureImporter extends BaseImporter {
     };
 
     await this.context.strategy.writeItemTranslation(translationData);
+  }
+
+  private parentNameCache = new Map<string, string | null>();
+
+  private async getCachedParentItemName(
+    projectId: string,
+    countryId: string,
+    institutionId: string,
+    monumentId: number,
+    detailId: number,
+    langId: string
+  ): Promise<string | null> {
+    const key = `${projectId}:${countryId}:${institutionId}:${monumentId}:${detailId}:${langId}`;
+    if (!this.parentNameCache.has(key)) {
+      this.parentNameCache.set(
+        key,
+        await this.getParentItemName(projectId, countryId, institutionId, monumentId, detailId, langId)
+      );
+    }
+    return this.parentNameCache.get(key)!;
   }
 
   private async getParentItemName(

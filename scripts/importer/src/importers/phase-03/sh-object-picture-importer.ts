@@ -46,7 +46,11 @@ export class ShObjectPictureImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    this.tagHelper = new TagHelper(this.context.strategy, this.context.tracker, this.context.logger);
+    this.tagHelper = new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
 
     try {
       this.logInfo('Importing Sharing History object pictures...');
@@ -152,10 +156,15 @@ export class ShObjectPictureImporter extends BaseImporter {
 
   private async importPicture(group: ShPictureGroup, _result: ImportResult): Promise<boolean> {
     const backwardCompat = this.getPictureBackwardCompatibility(group);
-
-    // Check if already imported using lowercase path as unique identifier
     const imageKey = group.path.toLowerCase();
-    if (await this.entityExistsAsync(imageKey, 'image')) {
+
+    // Check if this picture (its own Item, plus the ItemImage(s) it owns)
+    // was already imported. Gate on the picture Item's own
+    // backward_compatibility rather than the image path: item_images has no
+    // backward_compatibility column, so entityExistsAsync(imageKey, 'image')
+    // can only ever consult the in-memory tracker and never detects an
+    // already-imported picture from a previous process run.
+    if (await this.entityExistsAsync(backwardCompat, 'item')) {
       return false;
     }
 
@@ -315,27 +324,17 @@ export class ShObjectPictureImporter extends BaseImporter {
 
       const languageId = mapLanguageCode(text.lang);
 
-      let name: string;
-      if (hasCaption) {
-        name = convertHtmlToMarkdown(text.caption!);
-      } else {
-        // Metadata-only row: resolve parent object title for a human-readable name.
-        const parentName = await this.getParentObjectName(
-          group.project_id,
-          group.country,
-          group.number,
-          text.lang
-        );
-        if (!parentName) {
-          throw new Error(
-            `Parent SH object name not found for metadata-only translation ` +
-              `(project_id=${group.project_id}, country=${group.country}, ` +
-              `number=${group.number}, lang=${text.lang})`
-          );
-        }
-        const parentTitle = convertHtmlToMarkdown(parentName);
-        name = `${parentTitle} (${group.image_number})`;
-      }
+      // `name` is always a short label derived from the parent object's title —
+      // never the caption, which is long-form HTML and belongs in `description`
+      // (an unbounded text column) rather than the 255-char `name` column.
+      const parentName = await this.getCachedParentObjectName(
+        group.project_id,
+        group.country,
+        group.number,
+        text.lang
+      );
+      const parentTitle = parentName ? convertHtmlToMarkdown(parentName) : null;
+      let name = parentTitle ? `${parentTitle} (${group.image_number})` : `Picture ${group.image_number}`;
 
       const MAX_NAME_LENGTH = 255;
       if (name.length > MAX_NAME_LENGTH) {
@@ -344,6 +343,8 @@ export class ShObjectPictureImporter extends BaseImporter {
         );
         name = name.substring(0, MAX_NAME_LENGTH);
       }
+
+      const description = hasCaption ? convertHtmlToMarkdown(text.caption!) : '';
 
       const translationExtra: Record<string, unknown> = { ...extra };
       if (hasPhotographer) {
@@ -359,7 +360,7 @@ export class ShObjectPictureImporter extends BaseImporter {
         context_id: contextId,
         backward_compatibility: this.getPictureBackwardCompatibility(group),
         name,
-        description: '',
+        description,
         alternate_name: null,
         type: null,
         holder: null,
@@ -376,13 +377,32 @@ export class ShObjectPictureImporter extends BaseImporter {
 
     if (group.type) {
       const defaultLangId = this.context.tracker.getMetadata('default_language_id');
-      const tagIds = await this.tagHelper.findOrCreateList(group.type, 'image-type', defaultLangId ?? 'eng');
+      const tagIds = await this.tagHelper.findOrCreateList(
+        group.type,
+        'image-type',
+        defaultLangId ?? 'eng'
+      );
       if (tagIds.length > 0) {
         await this.tagHelper.attachToItem(itemId, tagIds);
       }
     }
 
     return itemId;
+  }
+
+  private parentNameCache = new Map<string, string | null>();
+
+  private async getCachedParentObjectName(
+    projectId: string,
+    country: string,
+    number: number,
+    lang: string
+  ): Promise<string | null> {
+    const key = `${projectId}:${country}:${number}:${lang}`;
+    if (!this.parentNameCache.has(key)) {
+      this.parentNameCache.set(key, await this.getParentObjectName(projectId, country, number, lang));
+    }
+    return this.parentNameCache.get(key)!;
   }
 
   private async getParentObjectName(

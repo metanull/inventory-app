@@ -152,8 +152,9 @@ export class ShPartnerLogoImporter extends BaseImporter {
     // Use prefixed key to avoid collision with partner images
     const logoKey = `logo:${logoPath.toLowerCase()}`;
 
-    // Check if already imported
-    if (await this.entityExistsAsync(logoKey, 'image')) {
+    // Check if already imported. partner_logos has no
+    // backward_compatibility column — identity is (owner, legacy path).
+    if (await this.imageExistsAsync('partner_logos', partnerId, logoPath)) {
       return false;
     }
 

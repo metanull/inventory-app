@@ -2,12 +2,22 @@
  * MWNF3 Exhibition Importer
  *
  * Imports the mwnf3 exhibition hierarchy as nested Collections:
- * - exhibitions (27) → Collection (type='exhibition'), child of project collection
+ * - exhibitions (27, across ISL/BAR/SH/...) → Collection (type='exhibition').
+ *   ISL exhibitions (18) nest under the "Virtual Exhibitions" marker
+ *   collection created by ExhibitionsRootCollectionImporter (child of the ISL project
+ *   collection), since neither type='exhibition' nor the
+ *   mwnf3:exhibitions:{id} key are project-scoped. Every other project's
+ *   exhibitions keep nesting directly under their own project collection.
  * - exhibition_themes (~171) → Collection (type='theme'), child of exhibition
  * - exhibition_pages (200+) → Collection (type='theme'), nested child of theme
  *
- * Also imports the artintro hierarchy (identical structure):
- * - artintros (1) → Collection (type='collection'), child of ISL project collection
+ * Also imports the artintro hierarchy (identical structure), nested under the
+ * "Artistic Introduction" marker collection created by
+ * ArtintroRootCollectionImporter (child of the ISL project collection) so
+ * artintro data can be identified unambiguously by parent_id instead of
+ * internal_name matching:
+ * - artintros (1) → Collection (type='collection'), child of the Artistic
+ *   Introduction marker collection
  * - artintro_themes (10) → Collection (type='theme'), child of artintro
  * - artintro_pages (19) → Collection (type='theme'), nested child of artintro theme
  *
@@ -22,6 +32,10 @@
  *
  * Dependencies:
  * - ProjectImporter (must run first to create project collections/contexts)
+ * - ArtintroRootCollectionImporter (must run first to create the Artistic
+ *   Introduction marker collection that the artintro root nests under)
+ * - ExhibitionsRootCollectionImporter (must run first to create the
+ *   Exhibitions marker collection that ISL exhibitions nest under)
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -77,19 +91,30 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve parent: the project collection
+          // Resolve parent: for ISL, nest under the "Virtual Exhibitions"
+          // marker collection (created by ExhibitionsRootCollectionImporter) so ISL
+          // exhibitions can be identified unambiguously by parent_id —
+          // neither type='exhibition' nor the mwnf3:exhibitions:{id}
+          // backward_compatibility key are project-scoped (the legacy schema
+          // shares this table across ISL, BAR, SH, ...). Other projects keep
+          // nesting directly under their own project collection, unchanged.
+          const isIsl = legacy.project_id.toUpperCase() === 'ISL';
           const projectBackwardCompat = `${MWNF3_SCHEMA}:projects:${legacy.project_id.toUpperCase()}`;
+          const parentBackwardCompat = isIsl
+            ? `${MWNF3_SCHEMA}:exhibitions:root`
+            : projectBackwardCompat;
           const parentCollectionId = await this.getEntityUuidAsync(
-            projectBackwardCompat,
+            parentBackwardCompat,
             'collection'
           );
           if (!parentCollectionId) {
+            const label = isIsl ? 'Virtual Exhibitions root collection' : 'Project collection';
             result.errors.push(
-              `Exhibition ${legacy.exhibition_id}: Project collection not found (${projectBackwardCompat})`
+              `Exhibition ${legacy.exhibition_id}: ${label} not found (${parentBackwardCompat})`
             );
             this.logError(
               `Exhibition ${legacy.exhibition_id}`,
-              `Project collection not found (${projectBackwardCompat})`
+              `${label} not found (${parentBackwardCompat})`
             );
             this.showError();
             continue;
@@ -368,17 +393,23 @@ export class Mwnf3ExhibitionImporter extends BaseImporter {
         }
 
         const projectBackwardCompat = `${MWNF3_SCHEMA}:projects:${legacy.project_id.toUpperCase()}`;
+
+        // Nest under the "Artistic Introduction" marker collection (created by
+        // ArtintroRootCollectionImporter) instead of directly under the project
+        // collection, so artintro data can be identified unambiguously by
+        // parent_id/backward_compatibility rather than internal_name matching.
+        const artintroRootBackwardCompat = `${MWNF3_SCHEMA}:artintro:root`;
         const parentCollectionId = await this.getEntityUuidAsync(
-          projectBackwardCompat,
+          artintroRootBackwardCompat,
           'collection'
         );
         if (!parentCollectionId) {
           result.errors.push(
-            `Artintro ${legacy.artintro_id}: Project collection not found (${projectBackwardCompat})`
+            `Artintro ${legacy.artintro_id}: Artistic Introduction root collection not found (${artintroRootBackwardCompat}). Run ArtintroRootCollectionImporter first.`
           );
           this.logError(
             `Artintro ${legacy.artintro_id}`,
-            `Project collection not found (${projectBackwardCompat})`
+            `Artistic Introduction root collection not found (${artintroRootBackwardCompat})`
           );
           this.showError();
           continue;

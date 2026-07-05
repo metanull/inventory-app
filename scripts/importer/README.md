@@ -1,8 +1,28 @@
 # Unified Legacy Importer
 
-A unified import tool for migrating data from the legacy MWNF database to the new Inventory Management System.
+A CLI tool that migrates data from the legacy MWNF databases into the new
+Inventory Management System's database.
 
-**Current Status**: Completes import of the **mwnf3** database (projects, partners, items, images). Other legacy databases (travels, sh, thg, explore) remain to be implemented.
+> **Running this against the OVH-hosted deployment, or want to build a full
+> local copy fast (no SSH tunnel round-trip per row)?** Use
+> [`scripts/import-tool/`](../import-tool/README.md) — a Docker container
+> that drives this importer for you across five modes (`append` / `clean` /
+> `stage` / `ship` / `backup-permissions`), handles the SSH tunnel, sequential
+> exit-code-checked `artisan` commands, image push, and auth snapshot/restore.
+> Everything below is about running the importer directly/standalone —
+> useful for development, debugging a specific importer, or understanding
+> what `import-tool` is actually orchestrating.
+
+**Current status**: Covers the full legacy data model — the core `mwnf3`
+database (projects, partners, objects, monuments, images) plus every
+secondary legacy database this content set has: Sharing History
+(`mwnf3_sharing_history`), Explore (`mwnf3_explore`), Travels
+(`mwnf3_travels`), and Thematic Galleries (`mwnf3_thematic_gallery`), along
+with timelines/HCR and glossary linking. Run `npx tsx src/cli/import.ts
+import --list-importers` for the exact, current, numbered list — well over
+100 importers across 10 phases — rather than relying on this document to
+enumerate them (it won't stay in sync; see "Import Phases" below for the
+shape instead).
 
 ## Architecture
 
@@ -39,9 +59,16 @@ interface ILegacyDatabase {
 
 **Important Notes:**
 
-- Queries must use actual legacy table names (e.g., `mwnf3.objects`, `mwnf3.museums`)
-- The legacy schema differs from the new schema - transformers handle mapping
+- Queries must use actual legacy table names, schema-qualified where the
+  table lives outside the core `mwnf3` schema (e.g. `mwnf3.objects`,
+  `mwnf3_sharing_history.sh_objects`, `mwnf3_explore.exploremonument`,
+  `mwnf3_travels.tr_monuments`, `mwnf3_thematic_gallery.thg_gallery`)
+- Each legacy schema has its own naming quirks and structure — transformers
+  handle mapping all of them to the new, unified schema
 - Languages and countries are loaded from JSON files, NOT from the legacy database
+- `LegacyDatabase`/`ResilientConnection` race every query against a 30s
+  timeout and auto-reconnect on connection loss — a legacy MySQL connection
+  dropping mid-run is expected on long imports, not treated as fatal
 
 ### Data Flow
 
@@ -98,36 +125,28 @@ src/
 │   ├── file-logger.ts     # Dual console/file logging
 │   └── base-importer.ts   # Base importer class
 ├── domain/
-│   ├── types/             # Legacy data types
-│   │   └── legacy.ts      # LegacyObject, LegacyMuseum, etc.
-│   └── transformers/      # Business logic (pure functions)
-│       ├── language-transformer.ts
-│       ├── country-transformer.ts
-│       ├── project-transformer.ts
-│       ├── museum-transformer.ts
-│       ├── institution-transformer.ts
-│       ├── object-transformer.ts
-│       ├── monument-transformer.ts
-│       └── monument-detail-transformer.ts
-├── strategies/             # Write strategy implementations
-│   └── sql-strategy.ts    # SQL-based write strategy
-├── helpers/                # Shared helper classes
-│   ├── tag-helper.ts
-│   ├── author-helper.ts
-│   └── artist-helper.ts
-├── importers/              # Importer implementations
-│   ├── phase-00/          # Reference data (languages, countries, default context)
-│   ├── phase-01/          # Core data (projects, partners, items)
-│   └── phase-02/          # Images (item pictures, partner pictures)
-├── tools/                  # Utility tools
-│   └── image-sync.ts      # Image file synchronization
-├── utils/                  # Utility functions
-│   ├── backward-compatibility.ts
-│   ├── code-mappings.ts
-│   ├── html-to-markdown.ts
-│   └── image-sync.ts      # Image sync utilities
-└── cli/                    # CLI entry points
-    └── import.ts
+│   ├── types/              # Legacy data types (per legacy schema)
+│   └── transformers/       # Business logic (pure functions, per entity)
+├── strategies/
+│   └── sql-strategy.ts     # SQL-based write strategy
+├── helpers/                 # Shared helper classes (tags, authors, artists)
+├── importers/                # Importer implementations, one directory per phase
+│   ├── phase-00/            # Reference data (languages, countries, default context)
+│   ├── phase-01/            # Core mwnf3 data (projects, partners, items, authors, dynasties)
+│   ├── phase-02/            # Core mwnf3 images
+│   ├── phase-03/            # Sharing History (mwnf3_sharing_history)
+│   ├── phase-04/            # Glossary
+│   ├── phase-05/            # Timelines (HCR)
+│   ├── phase-06/            # Explore (mwnf3_explore)
+│   ├── phase-07/            # Travels (mwnf3_travels)
+│   ├── phase-08/            # Media & documents
+│   ├── phase-10/            # Thematic Galleries (mwnf3_thematic_gallery) + cross-schema links
+│   └── phase-11/            # Post-import linking & cleanup (needs everything else imported first)
+├── tools/
+│   └── image-sync.ts       # Image file synchronization
+├── utils/                    # HTML→Markdown, code mappings, backward-compatibility helpers
+└── cli/
+    └── import.ts            # CLI entry point (import, validate, image-sync, load-sql)
 ```
 
 ## Key Design Principles
@@ -140,8 +159,6 @@ All transformation logic is in the `domain/transformers/` directory. These are *
 - Return transformed data ready for persistence
 - Have no side effects
 - Can be easily tested in isolation
-
-**Example**: `monument-detail-transformer.ts` converts legacy monument details into Items with proper type='detail' and parent relationships.
 
 ### 2. Strategy Pattern for Write Operations
 
@@ -163,11 +180,15 @@ The `ITracker` interface provides a consistent way to track imported entities:
 
 ### 4. Resilient Connections
 
-The importer uses `ResilientConnection` with automatic retry logic:
+`LegacyDatabase` and `ResilientConnection` (the target-DB wrapper) both:
 
-- Reconnects on connection loss
-- Retries failed queries up to 3 times
-- Handles database timeouts gracefully
+- Reconnect automatically on connection loss
+- Retry failed queries up to 5 times with backoff
+- Race every query against a 30-second timeout — needed because attaching
+  a custom `'error'` listener to the underlying `mysql2` connection (for
+  reconnect handling) means a socket dying mid-query can otherwise leave
+  the query's own promise hanging forever, silently, with the retry loop
+  never getting a chance to run
 
 ### 5. Comprehensive Logging
 
@@ -184,7 +205,6 @@ Business logic is written once in transformers:
 
 - HTML to Markdown conversion
 - Field truncation and validation
-- EPM description2 handling
 - Tag parsing logic
 - Artist extraction
 
@@ -198,11 +218,16 @@ The importer is designed to run as part of a complete database initialization:
 2. **Wipe database** - Create or empty the database schema (e.g. `php artisan db:wipe --force; php artisan migrate --force`)
 3. **Seed and sync permissions** - Run `php artisan db:seed --class=MinimalDatabaseSeeder --force` and `php artisan permissions:sync`
 4. **Restore auth snapshot** - Restore users after migrations and permission sync (`php artisan auth:restore auth-snapshots/pre-import.json.enc --force`)
-5. **Run the importer** - Import legacy data from mwnf3 database
+5. **Run the importer** - `import`, then `image-sync`
 6. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
 7. **Done** - Database is ready with both reference and legacy data
 
-Auth snapshots are encrypted with Laravel's current `APP_KEY`; the key is not written into the snapshot file. Restore the snapshot only into an application using the same `APP_KEY`, because Fortify MFA secrets are encrypted with that key.
+[`import-tool`](../import-tool/README.md) automates steps 1–6 end to end
+(and adds a way to build this all locally first, then ship it — see its
+`stage`/`ship` modes). Auth snapshots are encrypted with Laravel's current
+`APP_KEY`; the key is not written into the snapshot file. Restore the
+snapshot only into an application using the same `APP_KEY`, because Fortify
+MFA secrets are encrypted with that key.
 
 All operations are logged to timestamped files in the `logs/` directory for later review.
 
@@ -234,68 +259,74 @@ npx tsx src/cli/import.ts import
 
 ### Available Commands
 
-The importer CLI provides three main commands: import, validate, image-sync.
-
-#### Quick Reference
-
 ```bash
-# Get help on the importer
 npx tsx src/cli/import.ts --help
-
-# Show command-specific help
-npx tsx src/cli/import.ts import --help
-npx tsx src/cli/import.ts validate --help
-npx tsx src/cli/import.ts image-sync --help
 ```
 
-#### 1. Import Command - Import legacy data
+#### 1. `import` — Import legacy data
 
 ```bash
-# Run all importers
 npx tsx src/cli/import.ts import
+npx tsx src/cli/import.ts import --list-importers   # numbered list of every importer, in run order
+npx tsx src/cli/import.ts import --only partner      # run a single importer
+npx tsx src/cli/import.ts import --start-at project  # resume from a given point
+npx tsx src/cli/import.ts import --stop-at partner   # run up to and including a given point
 ```
 
-**Additional paramters:**
+- `--dry-run` - Simulate without writing data
+- `--only <importer>` / `--start-at <importer>` / `--stop-at <importer>` -
+  target a subset; respects the dependency order shown by `--list-importers`
+- `--list-importers` - the authoritative, current list — use this instead of
+  looking for a hardcoded list in this document
 
-- `--help` - Syntax help
-- `--list-importers` - List available importers
-- `--dry-run` - Dry run (simulate without writing)
-- `--only {importer}` - Run specific importer only (e.g. `--only partner`)
-- `--start-at {importer}` - Run from a specific point onwards (e.g. `--start-at project`)
-- `--stop-at {importer}` - Run up to and including a specific point (e.g. `--stop-at partner`)
+Exits with code 1 whenever any individual row failed to import (tracked as
+a warning/error in its own summary, not necessarily a sign the whole run
+failed) — see [`import-tool`](../import-tool/README.md)'s note on this for
+how downstream automation handles it.
 
-#### 2. Validate Command - Test database connections
+#### 2. `validate` — Test database connections
 
 ```bash
-# Validate database connections
 npx tsx src/cli/import.ts validate
 ```
 
-#### 3. Image Sync Command - Synchronize legacy images
+#### 3. `image-sync` — Synchronize legacy images
 
 ```bash
-# Synchronize legacy images to new storage
 npx tsx src/cli/import.ts image-sync
 ```
 
-**Additional parameters:**
-
-- `--help` - Syntax help
 - `--copy` - Copy files instead of symlinking (symlink is the default)
 - `--clear-destination` - Clear destination image folder before synchronization starts
 - `--target-dir <path>` - Target image directory (overrides `NEW_IMAGES_ROOT` env var and artisan fallback)
-- `--dry-run` - Dry run (simulate without making changes)
-
-> ⚠️ **Default mode changed:** `image-sync` now uses **symlinks by default**.
-> To preserve previous behavior, pass `--copy` explicitly.
+- `--dry-run` - Simulate without making changes
 
 **Image Sync Details:**
 
-- Finds ItemImage and PartnerImage records with `size=1` (legacy placeholders)
+- Finds ItemImage/PartnerImage/etc. records with `size=1` (legacy placeholders)
 - Copies or symlinks actual image files from legacy storage
 - Updates database records with correct path, size, and metadata
 - Only connects to the new database (not the legacy database)
 - Requires `LEGACY_IMAGES_ROOT` environment variable
+- Same exit-code behavior as `import`: nonzero whenever any individual file
+  failed (e.g. a legacy path that doesn't exist on disk), not necessarily a
+  sign the whole sync failed
+
+#### 4. `load-sql` — Execute a SQL file against the target DB
+
+```bash
+npx tsx src/cli/import.ts load-sql --file /path/to/dump.sql
+```
+
+Internal plumbing for [`import-tool`](../import-tool/README.md)'s `ship`
+mode — loads a `mysqldump` of a locally-`stage`d build through the OVH
+tunnel, using the same `mysql2` driver the rest of this tool relies on
+(`mysqldump`/`mysql` CLIs can't authenticate to a modern MySQL 8 server's
+`caching_sha2_password` from `import-tool`'s Alpine-based image). Splits the
+file into individual statements and executes them inside one transaction —
+not something you'd typically run by hand; see `import-tool`'s README for
+the full `ship` mode story, including exactly which tables are (and are
+never) included in what it loads.
 
 ### Logging
 
@@ -323,38 +354,27 @@ logs/
 - Phase headers and summaries
 - Final success/failure status
 
-## Import Order
+## Import Phases
 
-Importers run in strict sequence to satisfy dependencies. Each importer logs detailed information to timestamped files in the `logs/` directory.
+Importers run in strict dependency order — each depends on its listed
+`dependencies` in the CLI registry, resolved automatically via
+`orderConfigsByDependencies`, not on the order they happen to be declared in.
+Run `--list-importers` for the definitive, numbered, current list. Shape,
+not an exhaustive enumeration:
 
-### **Phase 0: Reference Data**
-
-Foundation data loaded from JSON files and legacy database translations:
-
-- `default-context` - Create default context (is_default=true)
-- `language` - Languages from JSON file
-- `language-translation` - Language name translations from legacy DB
-- `country` - Countries from JSON file
-- `country-translation` - Country name translations from legacy DB
-
-### **Phase 1: Core Data**
-
-Primary entities imported from legacy mwnf3 database:
-
-- `project` - Projects (creates Context, Collection, and Project)
-- `partner` - Partners (Museums + Institutions)
-- `object` - Object items
-- `monument` - Monument items
-- `monument-detail` - Monument detail items (children of monuments)
-
-### **Phase 2: Images**
-
-Image records with metadata (ItemImages and PartnerImages):
-
-- `object-picture` - Object pictures (ItemImages + child picture Items)
-- `monument-picture` - Monument pictures (ItemImages + child picture Items)
-- `monument-detail-picture` - Monument detail pictures (ItemImages + child picture Items)
-- `partner-picture` - Partner pictures (PartnerImages only)
+| Phase | Legacy source | Covers |
+|---|---|---|
+| 0 | JSON files + `mwnf3` translations | Reference data: default context, languages, countries |
+| 1 | `mwnf3` | Core data: projects, partners (museums/institutions/schools), objects, monuments, monument details, authors, dynasties, item-item links, the mwnf3 exhibition system |
+| 2 | `mwnf3` | Images for the above (object/monument/monument-detail pictures, partner pictures/logos) |
+| 3 | `mwnf3_sharing_history` | Sharing History: projects, partners, objects, monuments, monument details, images, exhibitions, national context, bibliography |
+| 4 | `mwnf3` | Glossary terms, translations, spellings |
+| 5 | (HCR) | Timelines and timeline events |
+| 6 | `mwnf3_explore` | Explore: contexts, countries, regions, locations, monuments, itineraries, thematic cycles, cross-references, filters, and their images/translations |
+| 7 | `mwnf3_travels` | Travels: contexts, trails, itineraries, locations, monuments, and their images/translations |
+| 8 | `mwnf3` | Item media and documents |
+| 10 | `mwnf3_thematic_gallery` | Thematic Galleries: galleries, themes, contributors, tags, timelines, gallery content, and cross-schema links from galleries to items originating in every other legacy schema above |
+| 11 | (post-import) | Collection media (needs THG collections), partner-monument linking, project cleanup (drops projects left with no items) |
 
 ## Environment Variables
 
@@ -383,15 +403,21 @@ LEGACY_IMAGES_ROOT=C:\mwnf-server\pictures\images
 NEW_IMAGES_ROOT=C:\path\to\inventory-app\storage\app\pictures
 ```
 
+Note: only `LEGACY_DB_DATABASE` (the core `mwnf3` schema) is configurable —
+the secondary legacy schemas (`mwnf3_sharing_history`, `mwnf3_explore`,
+`mwnf3_travels`, `mwnf3_thematic_gallery`) are referenced schema-qualified
+directly in each phase's queries and are expected to exist alongside it on
+the same `LEGACY_DB_HOST`.
+
 ### Required Environment Variables
 
 | Variable             | Description                                        | Default                                           |
-| -------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| -------------------- | -------------------------------------------------- | -------------------------------------------------- |
 | `LEGACY_DB_HOST`     | Legacy database hostname                           | `localhost`                                       |
 | `LEGACY_DB_PORT`     | Legacy database port                               | `3306`                                            |
 | `LEGACY_DB_USER`     | Legacy database username                           | `root`                                            |
 | `LEGACY_DB_PASSWORD` | Legacy database password                           | (empty)                                           |
-| `LEGACY_DB_DATABASE` | Legacy database name                               | `mwnf3`                                           |
+| `LEGACY_DB_DATABASE` | Legacy database name (core `mwnf3` schema)         | `mwnf3`                                           |
 | `DB_HOST`            | Target database hostname                           | `localhost`                                       |
 | `DB_PORT`            | Target database port                               | `3306`                                            |
 | `DB_USERNAME`        | Target database username                           | `root`                                            |
@@ -421,30 +447,22 @@ Languages and countries are **NOT** imported from the legacy database. Instead, 
 
 These files are the same sources used by Laravel seeders and the API importer.
 
-### Legacy Database Data
+### Legacy Database Schemas
 
-The following entities are imported from the legacy **mwnf3** database:
-
-- **Projects**: `mwnf3.projects`, `mwnf3.projectnames`
-- **Museums**: `mwnf3.museums`, `mwnf3.museumnames`
-- **Institutions**: `mwnf3.institutions`, `mwnf3.institutionnames`
-- **Objects**: `mwnf3.objects`
-- **Monuments**: `mwnf3.monuments`
-- **Monument Details**: `mwnf3.monument_details`
-- **Object Pictures**: `mwnf3.objects_pictures`
-- **Monument Pictures**: `mwnf3.monuments_pictures`
-- **Monument Detail Pictures**: `mwnf3.monument_detail_pictures`
-- **Museum Pictures**: `mwnf3.museum_pictures`
-- **Institution Pictures**: `mwnf3.institution_pictures`
-
-**Note**: The mwnf3 database import is complete. Other legacy databases (travels, sh, thg, etc.) remain to be implemented in future phases.
+| Schema | What it holds |
+|---|---|
+| `mwnf3` | Core content: projects, partners, objects, monuments, monument details, pictures, glossary, exhibitions, media/documents |
+| `mwnf3_sharing_history` | The Sharing History sub-site's own parallel project/partner/object/monument/exhibition data |
+| `mwnf3_explore` | The Explore sub-site: countries, regions, locations, monuments, itineraries, thematic cycles |
+| `mwnf3_travels` | The Travels sub-site: trails, itineraries, locations, monuments |
+| `mwnf3_thematic_gallery` | Thematic Galleries: curated cross-cutting collections linking back to items from every schema above |
 
 ## Adding New Importers
 
-1. Create legacy type in `domain/types/legacy.ts`
+1. Create legacy type in `domain/types/`
 2. Create transformer in `domain/transformers/`
-3. Create importer in `importers/phase-XX/`
-4. Add to CLI registry in `cli/import.ts`
+3. Create importer in `importers/phase-XX/` (existing phase, or a new one if it's a genuinely new stage)
+4. Add to the CLI registry in `cli/import.ts`, with accurate `dependencies`
 
 ## Special Transformations
 
@@ -482,10 +500,6 @@ All legacy HTML content is converted to Markdown:
 - Strips unsupported HTML tags
 - Handles malformed HTML gracefully
 
-## Sample Collection
-
-**Note:** Sample collection for test fixtures is not currently implemented in this unified importer. The interface `ISampleCollector` exists in `core/base-importer.ts` but is not active.
-
 ## Extending with API Strategy
 
 To add API-based imports:
@@ -493,19 +507,6 @@ To add API-based imports:
 1. Create `strategies/api-strategy.ts` implementing `IWriteStrategy`
 2. Create CLI option to select strategy
 3. Importers automatically work with new strategy
-
-## Benefits of This Architecture
-
-✅ **Single Source of Truth** - Business logic in one place  
-✅ **Easy Testing** - Mock strategies, test transformers separately  
-✅ **Flexible** - Switch strategies at runtime  
-✅ **Extensible** - New strategies without touching business logic  
-✅ **DRY** - No code duplication between API/SQL approaches  
-✅ **KISS** - Simple, focused components  
-✅ **Single Responsibility** - Each component does one thing well  
-✅ **Resilient** - Automatic retry logic for database operations  
-✅ **Traceable** - Comprehensive logging to timestamped files  
-✅ **Type-Safe** - TypeScript ensures correctness at compile time
 
 ## Troubleshooting
 
@@ -517,19 +518,19 @@ To add API-based imports:
 ### Import Failures Mid-Process
 
 **Error**: Import stops partway through  
-**Solution**: Check the log file in `logs/` directory. The resilient connection should handle temporary issues. For persistent errors, fix the data issue and restart from the failing importer using `--start-at`.
+**Solution**: Check the log file in `logs/` directory. `LegacyDatabase`/`ResilientConnection` retry and reconnect automatically on connection loss. For a genuine data issue on one row, fix it and restart from the failing importer using `--start-at`.
 
 ### Duplicate Key Violations
 
 **Error**: `Duplicate entry for key 'backward_compatibility'`  
-**Solution**: Wipe the database before re-running. The importer is designed for clean imports, not incremental updates.
+**Solution**: This importer is idempotent by design (safe to re-run without wiping — it detects already-imported rows via `backward_compatibility` and skips them). A duplicate-key error despite that usually means the *target* schema state doesn't match what the importer expects; wiping and re-running from scratch is the reliable fallback.
 
 ### Missing Dependencies
 
 **Error**: Importer complains about missing entities  
-**Solution**: Ensure importers run in order. Use `--start-at` and `--stop-at` carefully, respecting dependencies listed in the CLI registry.
+**Solution**: Ensure importers run in order — `--list-importers` reflects the real, resolved dependency order. Use `--start-at`/`--stop-at`/`--only` carefully; skipping an importer that a later one depends on will surface as a "not found" error partway through.
 
 ### Image Sync Issues
 
 **Error**: Image files not found  
-**Solution**: Verify `LEGACY_IMAGES_ROOT` path in `.env` points to the correct legacy images directory.
+**Solution**: Verify `LEGACY_IMAGES_ROOT` path in `.env` points to the correct legacy images directory. Some legacy image paths referenced in the source database genuinely don't exist on disk — `image-sync` reports these individually rather than aborting the whole run; check its summary for the exact list.
