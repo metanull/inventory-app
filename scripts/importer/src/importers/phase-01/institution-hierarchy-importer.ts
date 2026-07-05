@@ -17,6 +17,15 @@
  * the country's generic administrative authority, e.g. a Ministry of
  * Culture, without being a listed project partner).
  *
+ * Beyond the flat per-project tier (still attached to the project's own
+ * collection, `collection_type='project'`, as before), each tier-1
+ * `partner_institutions` row also gets its own dedicated "group" collection
+ * (`collection_type='collection'`), and every associated institution legacy
+ * links to it via `associated_institutions.partner_id` is *also* attached to
+ * that same group collection — see partner-hierarchy-importer.ts's class
+ * comment for why this per-context grouping (rather than a global parent
+ * field on Partner) is the right shape.
+ *
  * Dependencies:
  * - ProjectImporter (creates collections from projects)
  * - PartnerImporter (creates partners from institutions)
@@ -93,13 +102,25 @@ export class InstitutionHierarchyImporter extends BaseImporter {
           row.country_id,
           'partner'
         );
-        if (imported) {
-          result.imported++;
-          this.showProgress();
-        } else {
+        if (!imported) {
           result.skipped++;
           this.showSkipped();
+          continue;
         }
+
+        // Best-effort: enriches the flat per-project attachment above but
+        // doesn't gate result.imported — see PartnerHierarchyImporter's
+        // importPartnerMuseums for the same reasoning.
+        await this.attachToGroupCollection(
+          row.project_id,
+          row.partner_id,
+          row.institution_id,
+          row.country_id,
+          'partner'
+        );
+
+        result.imported++;
+        this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const bc = `partner_institutions:${row.partner_id}`;
@@ -129,13 +150,25 @@ export class InstitutionHierarchyImporter extends BaseImporter {
           row.country_id,
           'associated_partner'
         );
-        if (imported) {
-          result.imported++;
-          this.showProgress();
-        } else {
+        if (!imported) {
           result.skipped++;
           this.showSkipped();
+          continue;
         }
+
+        // Best-effort — doesn't gate result.imported, see importPartnerInstitutions.
+        if (row.partner_id !== null) {
+          await this.attachToGroupCollection(
+            projectId,
+            row.partner_id,
+            row.institution_id,
+            row.country_id,
+            'associated_partner'
+          );
+        }
+
+        result.imported++;
+        this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const bc = `associated_institutions:${row.associated_id}`;
@@ -212,5 +245,105 @@ export class InstitutionHierarchyImporter extends BaseImporter {
     );
 
     return true;
+  }
+
+  /**
+   * Attaches a partner (identified by institutionId/countryId) to the
+   * dedicated per-context "group" collection for legacy top-level partner
+   * `topPartnerId` (a `partner_institutions.partner_id` — globally unique,
+   * one project per row), creating that group collection on first use.
+   */
+  private async attachToGroupCollection(
+    projectId: string,
+    topPartnerId: number | null,
+    institutionId: string,
+    countryId: string,
+    level: string
+  ): Promise<boolean> {
+    if (topPartnerId === null) {
+      return false;
+    }
+
+    const partnerBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'institutions',
+      pkValues: [institutionId, countryId],
+    });
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
+    if (!partnerId) {
+      // Already warned about by attachInstitutionToProject for the same row.
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would attach partner ${institutionId}:${countryId} to group collection for institutions:${topPartnerId} with level=${level}`
+      );
+      return true;
+    }
+
+    const groupCollectionId = await this.getOrCreateGroupCollection(projectId, topPartnerId);
+    if (!groupCollectionId) {
+      return false;
+    }
+
+    await this.context.strategy.attachPartnerToCollectionWithLevel(
+      groupCollectionId,
+      partnerId,
+      'collection',
+      level
+    );
+
+    return true;
+  }
+
+  private async getOrCreateGroupCollection(
+    projectId: string,
+    topPartnerId: number
+  ): Promise<string | null> {
+    const groupBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'partner_institutions_group',
+      pkValues: [String(topPartnerId)],
+    });
+
+    const existingId = await this.getEntityUuidAsync(groupBackwardCompat, 'collection');
+    if (existingId) {
+      return existingId;
+    }
+
+    const projectBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: [projectId],
+    });
+    const parentCollectionId = await this.getEntityUuidAsync(projectBackwardCompat, 'collection');
+    const contextId = await this.getEntityUuidAsync(projectBackwardCompat, 'context');
+    if (!parentCollectionId || !contextId) {
+      this.logWarning(
+        `Project collection/context not found for ${projectId}, skipping group collection for institutions:${topPartnerId}`
+      );
+      return null;
+    }
+
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+    const internalName = `partner_group:institutions:${topPartnerId}`;
+
+    const collectionId = await this.context.strategy.writeCollection({
+      internal_name: internalName,
+      backward_compatibility: groupBackwardCompat,
+      context_id: contextId,
+      language_id: defaultLanguageId,
+      parent_id: parentCollectionId,
+      type: 'collection',
+      latitude: null,
+      longitude: null,
+      map_zoom: null,
+      country_id: null,
+    });
+
+    this.registerEntity(collectionId, groupBackwardCompat, 'collection');
+
+    return collectionId;
   }
 }

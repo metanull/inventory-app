@@ -27,7 +27,8 @@ build` once beforehand) to be sure you're running current code.
 | `backup-permissions` | Snapshots users (incl. MFA columns), role assignments, direct permission assignments, and API tokens to an encrypted JSON on the OVH host, plus a redundant timestamped copy pulled back locally. No import, no writes to application data. |
 | `clean` | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore users → the full `append` pipeline. **Destructive.** Requires `CONFIRM_WIPE=yes-really-wipe-production` or it refuses to run. Restores from a snapshot at `AUTH_SNAPSHOT_REMOTE` if one exists (run `backup-permissions` first to create it — `clean` does not take a fresh snapshot itself); if none exists **and** both `ADMIN_EMAIL`/`REGULAR_USER_EMAIL` are set, falls back to recreating just those two accounts instead. If neither applies, aborts before anything beyond the wipe itself is lost. |
 | `stage` | `import` → `image-sync`, writing straight to a local, persistent MySQL (`local-mysql`) instead of through the OVH tunnel. **No SSH, no OVH contact at all.** Builds a fully-populated local copy of the legacy import — DB rows in `local-mysql`, image files in the `local-images-data` volume — at local-network speed. Safe to run at any time, including while a real `append`/`clean` run is in progress against OVH (they hit the same legacy source DB, which comfortably handles concurrent readers). See "Local staging" below. |
-| `ship` | Ships an already-built `stage` copy to OVH: rebuilds the app layer on OVH exactly like `clean` (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then copies local-mysql's **content tables only** to OVH and loads them there (against OVH's own local MySQL, not through the tunnel), and pushes the already-staged images. **Destructive**, same `CONFIRM_WIPE` requirement as `clean`. See "Shipping a staged build to a server" below. |
+| `local-glossary-sync` (compose service, not an entrypoint mode) | Runs `glossary:resync` and drains its queue **inline, in this container**, against `local-mysql` — no OVH contact, no dependency on OVH's `inventory-queue.service`. Run this after `stage` and before `ship`, so the item/collection/timeline-event ↔ glossary link rows are already real data in `local-mysql` by the time `ship` dumps it. Invoke directly: `docker compose -f scripts/import-tool/docker-compose.yml run --build --rm local-glossary-sync`. |
+| `ship` | Ships an already-built `stage` (+ `local-glossary-sync`) copy to OVH: rebuilds the app layer on OVH exactly like `clean` (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then copies local-mysql's **content tables only** to OVH and loads them there (against OVH's own local MySQL, not through the tunnel), and pushes the already-staged images. Does **not** resync the glossary itself — that already happened locally. **Destructive**, same `CONFIRM_WIPE` requirement as `clean`. See "Shipping a staged build to a server" below. |
 
 ## Build
 
@@ -213,10 +214,13 @@ what's missing instead of redoing everything. Concretely:
   `docker compose -f scripts/import-tool/docker-compose.yml run --build --rm stage`.
   Already-imported rows and already-copied images are detected and skipped;
   only what's new or was missing gets added.
-- **`glossary:resync`:** there's nothing to "continue" locally — `stage`
-  never touches it (it's an OVH-only side effect, consumed by
-  `inventory-queue.service` running on OVH). It happens automatically as
-  part of `ship`, once you're ready to send the build to OVH.
+- **`glossary:resync`:** `stage` itself never touches it — run the
+  `local-glossary-sync` compose service separately once `stage` has finished,
+  and again any time you rerun `stage` and pick up new/changed text. It runs
+  entirely against `local-mysql` in-container (dispatch + drain the `glossary`
+  queue synchronously, no OVH contact, no dependency on OVH's
+  `inventory-queue.service`), so by the time you `ship`, the link rows are
+  already sitting in `local-mysql` as plain data and travel with the dump.
 - **You actually want to rebuild from nothing** (e.g. to verify a truly
   clean import from scratch): `docker compose -f scripts/import-tool/docker-compose.yml down -v`
   destroys `local-mysql-data`/`local-images-data`/`local-app-vendor`, then
@@ -226,10 +230,12 @@ what's missing instead of redoing everything. Concretely:
 ## Shipping a staged build to a server
 
 Once `stage` has produced a fully-populated `local-mysql` + `local-images-data`,
+run `local-glossary-sync` once against it (see the mode table above), then
 `ship` sends that build to OVH instead of running `append`/`clean` against it
 directly over the tunnel:
 
 ```powershell
+docker compose -f scripts/import-tool/docker-compose.yml run --build --rm local-glossary-sync
 $env:CONFIRM_WIPE='yes-really-wipe-production'
 docker compose -f scripts/import-tool/docker-compose.yml run --build --rm ship
 ```
@@ -264,7 +270,15 @@ What it actually does, in order:
    just collide with it.
 3. **Pushes the already-staged images** from `local-images-data` — no
    re-running image-sync, they're already there.
-4. **Resyncs the glossary** on OVH, same as `append`/`clean`.
+
+That's it — unlike `append`/`clean`, `ship` does **not** resync the glossary
+itself. `local-glossary-sync` already computed
+`item_translation_spelling`/`collection_translation_spelling`/
+`timeline_event_translation_spelling` as plain rows in `local-mysql` before
+you ran `ship`, and those tables aren't in `SHIP_EXCLUDED_TABLES`, so step 2's
+dump already carries them. Skip `local-glossary-sync` and OVH will simply load
+whatever was (or wasn't) there from the last time you ran it — it does not
+error, it just ships stale or missing links.
 
 **Why load the dump on OVH itself, not through the tunnel?** That's the
 entire reason `stage`/`ship` exist: avoid thousands of small round-trips over

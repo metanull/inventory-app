@@ -78,6 +78,11 @@ interface ItemTagRow {
   tag: string
 }
 
+interface ItemGlossaryRow {
+  item_id: string
+  glossary_id: string
+}
+
 export class ItemExporter extends BaseExporter {
   getName(): string {
     return 'Items'
@@ -166,8 +171,8 @@ export class ItemExporter extends BaseExporter {
       )
     }
 
-    // ── 3. Dynasty, tag, and item-item links ────────────────────────────────
-    const [dynastyLinks, tagLinks, itemItemLinks] = await Promise.all([
+    // ── 3. Dynasty, tag, glossary, and item-item links ──────────────────────
+    const [dynastyLinks, tagLinks, glossaryLinks, itemItemLinks] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -177,6 +182,16 @@ export class ItemExporter extends BaseExporter {
          FROM item_tag it2
          JOIN tags t ON t.id = it2.tag_id
          WHERE it2.item_id IN (${itemPh})`,
+        itemIds
+      ),
+      // Glossary terms used anywhere in this item's translations (any language),
+      // via item_translations -> item_translation_spelling -> glossary_spellings.
+      this.db.query<ItemGlossaryRow>(
+        `SELECT DISTINCT it3.item_id, gs.glossary_id
+         FROM item_translation_spelling its
+         JOIN item_translations it3 ON it3.id = its.item_translation_id
+         JOIN glossary_spellings gs ON gs.id = its.spelling_id
+         WHERE it3.item_id IN (${itemPh})`,
         itemIds
       ),
       // Outgoing links only (source_id IN items). The legacy data model stores
@@ -308,6 +323,13 @@ export class ItemExporter extends BaseExporter {
       tagMap.get(link.item_id)!.push(link.tag)
     }
 
+    // item_id -> glossary_ids[]
+    const glossaryMap = new Map<string, string[]>()
+    for (const link of glossaryLinks) {
+      if (!glossaryMap.has(link.item_id)) glossaryMap.set(link.item_id, [])
+      glossaryMap.get(link.item_id)!.push(link.glossary_id)
+    }
+
     // item_id -> related item entries (outgoing links only; only targets present in this export)
     // source_id -> target_id -> lang_code -> justification text
     const itemIdSet = new Set(itemIds)
@@ -350,6 +372,7 @@ export class ItemExporter extends BaseExporter {
         justifications: justificationMap.get(item.id)?.get(targetId) ?? {},
       })),
       tags: tagMap.get(item.id) ?? [],
+      glossary_ids: glossaryMap.get(item.id) ?? [],
     }))
 
     await this.writeJson('items.json', output)

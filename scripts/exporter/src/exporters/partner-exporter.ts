@@ -65,6 +65,12 @@ interface PartnerLevelRow {
   level: string | null
 }
 
+interface GroupMembershipRow {
+  collection_id: string
+  partner_id: string
+  level: string | null
+}
+
 // Legacy tiers, most to least prominent. A partner attached at multiple
 // levels across the exported projects is reported at its most prominent tier.
 const LEVEL_RANK: Record<string, number> = {
@@ -90,6 +96,13 @@ export class PartnerExporter extends BaseExporter {
     // a Ministry of Culture recorded as the monument's owner), not an actual listed project
     // partner — legacy's Partners page only ever shows the curated hierarchy, never every
     // institution that happens to own an item.
+    //
+    // `level IS NOT NULL` is what actually enforces that narrowing: monument/object import
+    // also attaches every item's owning partner to collection_partner (same collection_type
+    //='project') for ownership tracking, but leaves `level` null since that generic
+    // attachment was never curated onto the legacy Partners page. Only the dedicated
+    // hierarchy importers (partner-hierarchy-importer.ts / institution-hierarchy-importer.ts)
+    // set a level, so requiring one here excludes the generic item-owner rows.
     const partners = await this.db.query<PartnerRow>(
       `SELECT DISTINCT p.id, p.type, p.internal_name, p.backward_compatibility,
               p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id
@@ -101,6 +114,7 @@ export class PartnerExporter extends BaseExporter {
          JOIN projects proj ON proj.context_id = c.context_id
          WHERE cp.collection_type = 'project'
            AND cp.visible = true
+           AND cp.level IS NOT NULL
            AND cp.partner_id = p.id
            AND proj.id IN (${ph})
        )
@@ -154,6 +168,26 @@ export class PartnerExporter extends BaseExporter {
         [...this.projectIds, ...partnerIds]
       ),
     ])
+
+    // Per-context hierarchy: partner-hierarchy-importer.ts / institution-hierarchy-importer.ts
+    // give each tier-1 partner_museums/partner_institutions row its own "group" collection
+    // (collection_type='collection', internal_name 'partner_group:...') and attach that
+    // partner plus every associated/further-associated museum or institution legacy links
+    // to it via `associated_museums.partner_id` to that same collection. The member with
+    // level='partner' in a group is that group's owner (the legacy top-level partner); every
+    // other member's parent_id is that owner's id. A partner can own or belong to at most one
+    // group per project (mirrors legacy: one partner_museums/partner_institutions row per
+    // museum/institution per project).
+    const groupMemberships = await this.db.query<GroupMembershipRow>(
+      `SELECT cp.collection_id, cp.partner_id, cp.level
+       FROM collection_partner cp
+       JOIN collections c ON c.id = cp.collection_id
+       WHERE cp.collection_type = 'collection'
+         AND c.internal_name LIKE 'partner_group:%'
+         AND c.context_id IN (SELECT p.context_id FROM projects p WHERE p.id IN (${ph}))
+         AND cp.partner_id IN (${partnerPh})`,
+      [...this.projectIds, ...partnerIds]
+    )
 
     // partner_id -> lang_code -> fields
     const translationMap = new Map<string, Record<string, Record<string, string | null>>>()
@@ -243,6 +277,20 @@ export class PartnerExporter extends BaseExporter {
       }
     }
 
+    // collection_id -> owner partner_id (the member with level='partner')
+    const groupOwnerMap = new Map<string, string>()
+    for (const row of groupMemberships) {
+      if (row.level === 'partner') groupOwnerMap.set(row.collection_id, row.partner_id)
+    }
+    // partner_id -> parent partner_id (the owner of the group(s) this partner belongs to,
+    // excluding the group(s) it owns itself)
+    const parentMap = new Map<string, string>()
+    for (const row of groupMemberships) {
+      if (row.level === 'partner') continue
+      const owner = groupOwnerMap.get(row.collection_id)
+      if (owner && owner !== row.partner_id) parentMap.set(row.partner_id, owner)
+    }
+
     const output = partners.map(p => ({
       id: p.id,
       type: p.type,
@@ -253,6 +301,7 @@ export class PartnerExporter extends BaseExporter {
       map_zoom: p.map_zoom,
       monument_item_id: p.monument_item_id,
       level: levelMap.get(p.id) ?? null,
+      parent_id: parentMap.get(p.id) ?? null,
       contact_person_1: contactMap.get(p.id)?.contact_person_1 ?? null,
       contact_person_2: contactMap.get(p.id)?.contact_person_2 ?? null,
       additional_urls: contactMap.get(p.id)?.urls ?? [],

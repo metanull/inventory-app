@@ -8,6 +8,23 @@
  *
  * These map to collection_partner.level in inventory-app.
  *
+ * Beyond the flat per-project tier (still attached to the project's own
+ * collection, `collection_type='project'`, as before — this is what
+ * partner-exporter.ts's curated-partner filter keys off), each tier-1
+ * `partner_museums` row also gets its own dedicated "group" collection
+ * (`collection_type='collection'`), and every associated/further-associated
+ * museum legacy links to it via `associated_museums.partner_id` /
+ * `further_associated_museums.partner_id` is *also* attached to that same
+ * group collection. This reproduces legacy's actual nesting — which specific
+ * associated museum belongs under which specific top-level museum — which the
+ * flat per-project tier alone cannot: two different top-level museums in the
+ * same country would otherwise have their associated museums indistinguishably
+ * merged into one country-wide bucket. Because the group collection is scoped
+ * to this project's context, the same museum can be a parent in one project
+ * and a mere sibling (or absent) in another — the hierarchy is per-context,
+ * not a global property of the partner itself, matching how legacy itself
+ * scopes `partner_museums`/`associated_museums` per `project_id`.
+ *
  * Dependencies:
  * - ProjectImporter (creates collections from projects)
  * - PartnerImporter (creates partners from museums)
@@ -54,13 +71,13 @@ export class PartnerHierarchyImporter extends BaseImporter {
       this.logInfo('Importing partner hierarchy levels...');
 
       // Import tier 1: partner_museums → level = 'partner'
-      await this.importTier(result, 'partner');
+      await this.importPartnerMuseums(result);
 
       // Import tier 2: associated_museums → level = 'associated_partner'
-      await this.importTier(result, 'associated_partner');
+      await this.importAssociatedMuseums(result);
 
       // Import tier 3: further_associated_museums → level = 'minor_contributor'
-      await this.importTier(result, 'minor_contributor');
+      await this.importFurtherAssociatedMuseums(result);
 
       this.showSummary(
         result.imported,
@@ -76,19 +93,6 @@ export class PartnerHierarchyImporter extends BaseImporter {
 
     result.success = result.errors.length === 0;
     return result;
-  }
-
-  private async importTier(
-    result: ImportResult,
-    level: 'partner' | 'associated_partner' | 'minor_contributor'
-  ): Promise<void> {
-    if (level === 'partner') {
-      await this.importPartnerMuseums(result);
-    } else if (level === 'associated_partner') {
-      await this.importAssociatedMuseums(result);
-    } else {
-      await this.importFurtherAssociatedMuseums(result);
-    }
   }
 
   private async importPartnerMuseums(result: ImportResult): Promise<void> {
@@ -108,13 +112,30 @@ export class PartnerHierarchyImporter extends BaseImporter {
           row.country_id,
           'partner'
         );
-        if (imported) {
-          result.imported++;
-          this.showProgress();
-        } else {
+        if (!imported) {
           result.skipped++;
           this.showSkipped();
+          continue;
         }
+
+        // Tier-1 museum owns a group collection for this project — create it
+        // now (before any tier-2/3 row can need it) and attach the museum
+        // itself as the group's 'partner'-level (owner) member. Best-effort:
+        // this enriches the flat per-project attachment above but doesn't
+        // gate it — a row whose group-collection step fails (e.g. project
+        // context not yet resolvable) still counts as imported, since the
+        // primary (legacy-equivalent) attachment above already succeeded.
+        await this.attachToGroupCollection(
+          row.project_id,
+          'museums',
+          row.partner_id,
+          row.museum_id,
+          row.country_id,
+          'partner'
+        );
+
+        result.imported++;
+        this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const bc = `partner_museums:${row.partner_id}`;
@@ -144,13 +165,28 @@ export class PartnerHierarchyImporter extends BaseImporter {
           row.country_id,
           'associated_partner'
         );
-        if (imported) {
-          result.imported++;
-          this.showProgress();
-        } else {
+        if (!imported) {
           result.skipped++;
           this.showSkipped();
+          continue;
         }
+
+        // Best-effort: nests under the parent's group collection if it has
+        // one (row.partner_id !== null and the parent's own tier-1 row
+        // resolved). Doesn't gate result.imported — see importPartnerMuseums.
+        if (row.partner_id !== null) {
+          await this.attachToGroupCollection(
+            projectId,
+            'museums',
+            row.partner_id,
+            row.museum_id,
+            row.country_id,
+            'associated_partner'
+          );
+        }
+
+        result.imported++;
+        this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const bc = `associated_museums:${row.associated_id}`;
@@ -195,13 +231,24 @@ export class PartnerHierarchyImporter extends BaseImporter {
           row.country_id,
           'minor_contributor'
         );
-        if (imported) {
-          result.imported++;
-          this.showProgress();
-        } else {
+        if (!imported) {
           result.skipped++;
           this.showSkipped();
+          continue;
         }
+
+        // Best-effort — doesn't gate result.imported, see importPartnerMuseums.
+        await this.attachToGroupCollection(
+          row.project_id,
+          'museums',
+          row.partner_id,
+          row.museum_id,
+          row.country_id,
+          'minor_contributor'
+        );
+
+        result.imported++;
+        this.showProgress();
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const bc = `further_associated_museums:${row.fur_associated_id}`;
@@ -261,5 +308,109 @@ export class PartnerHierarchyImporter extends BaseImporter {
     );
 
     return true;
+  }
+
+  /**
+   * Attaches a partner (identified by museumId/countryId) to the dedicated
+   * per-context "group" collection for legacy top-level partner `topPartnerId`
+   * (a `partner_museums.partner_id` — globally unique, one project per row),
+   * creating that group collection on first use. `entityType` distinguishes
+   * museums from institutions in the backward_compatibility key so the two
+   * hierarchies never collide.
+   */
+  private async attachToGroupCollection(
+    projectId: string,
+    entityType: 'museums' | 'institutions',
+    topPartnerId: number,
+    museumId: string,
+    countryId: string,
+    level: string
+  ): Promise<boolean> {
+    const partnerBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: entityType,
+      pkValues: [museumId, countryId],
+    });
+    const partnerId = await this.getEntityUuidAsync(partnerBackwardCompat, 'partner');
+    if (!partnerId) {
+      // Already warned about by attachPartnerToProject for the same row.
+      return false;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would attach partner ${museumId}:${countryId} to group collection for ${entityType}:${topPartnerId} with level=${level}`
+      );
+      return true;
+    }
+
+    const groupCollectionId = await this.getOrCreateGroupCollection(
+      projectId,
+      entityType,
+      topPartnerId
+    );
+    if (!groupCollectionId) {
+      return false;
+    }
+
+    await this.context.strategy.attachPartnerToCollectionWithLevel(
+      groupCollectionId,
+      partnerId,
+      'collection',
+      level
+    );
+
+    return true;
+  }
+
+  private async getOrCreateGroupCollection(
+    projectId: string,
+    entityType: 'museums' | 'institutions',
+    topPartnerId: number
+  ): Promise<string | null> {
+    const groupBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: `partner_${entityType}_group`,
+      pkValues: [String(topPartnerId)],
+    });
+
+    const existingId = await this.getEntityUuidAsync(groupBackwardCompat, 'collection');
+    if (existingId) {
+      return existingId;
+    }
+
+    const projectBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: [projectId],
+    });
+    const parentCollectionId = await this.getEntityUuidAsync(projectBackwardCompat, 'collection');
+    const contextId = await this.getEntityUuidAsync(projectBackwardCompat, 'context');
+    if (!parentCollectionId || !contextId) {
+      this.logWarning(
+        `Project collection/context not found for ${projectId}, skipping group collection for ${entityType}:${topPartnerId}`
+      );
+      return null;
+    }
+
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+    const internalName = `partner_group:${entityType}:${topPartnerId}`;
+
+    const collectionId = await this.context.strategy.writeCollection({
+      internal_name: internalName,
+      backward_compatibility: groupBackwardCompat,
+      context_id: contextId,
+      language_id: defaultLanguageId,
+      parent_id: parentCollectionId,
+      type: 'collection',
+      latitude: null,
+      longitude: null,
+      map_zoom: null,
+      country_id: null,
+    });
+
+    this.registerEntity(collectionId, groupBackwardCompat, 'collection');
+
+    return collectionId;
   }
 }

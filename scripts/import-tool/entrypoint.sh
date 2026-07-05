@@ -38,7 +38,11 @@ set -euo pipefail
 #                       SHIP_EXCLUDED_TABLES below) to OVH and loading them
 #                       there against OVH's own local MySQL (not through the
 #                       tunnel — see load_staged_dump), then pushing the
-#                       already-staged images and resyncing the glossary.
+#                       already-staged images. Does NOT resync the glossary on
+#                       OVH — run the `local-glossary-sync` compose service
+#                       against local-mysql before `ship` instead, so the
+#                       item/collection/timeline_event <-> glossary link rows
+#                       are already part of the dump (see README.md).
 #                       DESTRUCTIVE — same CONFIRM_WIPE requirement
 #                       as `clean`. Requires a `stage` run to have already
 #                       populated local-mysql/local-images-data.
@@ -454,6 +458,14 @@ push_staged_images() {
 # `clean` does, and never reads any of that from local-mysql (which has none
 # of it — see do_stage). Only the CONTENT tables (the actual imported legacy
 # data) come from the local build.
+#
+# No glossary resync here, unlike do_import_pipeline: the `local-glossary-sync`
+# compose service (run against local-mysql, after `stage` and before `ship`)
+# already computed item_translation_spelling/collection_translation_spelling/
+# timeline_event_translation_spelling as plain data rows, so load_staged_dump's
+# dump already carries them — nothing left to trigger on OVH. Running
+# run_glossary_resync here too would just re-dispatch the exact same work onto
+# OVH's queue for inventory-queue.service to redo a second time.
 do_ship() {
   do_wipe_and_restore
 
@@ -463,7 +475,6 @@ do_ship() {
   load_staged_dump
 
   push_staged_images
-  run_glossary_resync
 }
 
 do_backup_permissions() {

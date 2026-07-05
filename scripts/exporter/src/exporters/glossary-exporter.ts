@@ -27,8 +27,57 @@ export class GlossaryExporter extends BaseExporter {
   async export(): Promise<ExportResult> {
     this.logger.info('Exporting glossary.json...')
 
+    // `glossaries` has no project/context column — it's a single table shared across every
+    // imported project's legacy glossary variants. Scope to entries actually referenced (via
+    // a spelling) from this project's items, collection text, or timeline event text; without
+    // this every project's export would ship every other project's glossary too.
+    const ph = this.placeholders(this.projectIds.length)
+    const usedIds = await this.db.query<{ id: string }>(
+      `SELECT DISTINCT gs.glossary_id AS id
+       FROM glossary_spellings gs
+       JOIN item_translation_spelling its ON its.spelling_id = gs.id
+       JOIN item_translations it ON it.id = its.item_translation_id
+       JOIN items i ON i.id = it.item_id
+       WHERE i.project_id IN (${ph})
+         AND i.type IN ('object', 'monument', 'detail')
+
+       UNION
+
+       SELECT DISTINCT gs.glossary_id AS id
+       FROM glossary_spellings gs
+       JOIN collection_translation_spelling cts ON cts.spelling_id = gs.id
+       JOIN collection_translations ct ON ct.id = cts.collection_translation_id
+       JOIN collections c ON c.id = ct.collection_id
+       WHERE c.context_id IN (SELECT p.context_id FROM projects p WHERE p.id IN (${ph}))
+
+       UNION
+
+       SELECT DISTINCT gs.glossary_id AS id
+       FROM glossary_spellings gs
+       JOIN timeline_event_translation_spelling tets ON tets.spelling_id = gs.id
+       JOIN timeline_event_translations tet ON tet.id = tets.timeline_event_translation_id
+       JOIN timeline_events te ON te.id = tet.timeline_event_id
+       JOIN timelines t ON t.id = te.timeline_id
+       WHERE t.collection_id IN (
+         SELECT c.id FROM collections c
+         WHERE c.context_id IN (SELECT p.context_id FROM projects p WHERE p.id IN (${ph}))
+       )
+       ${this.context.projectKeys.includes('ISL') ? 'OR t.collection_id IS NULL' : ''}`,
+      [...this.projectIds, ...this.projectIds, ...this.projectIds]
+    )
+
+    if (usedIds.length === 0) {
+      await this.writeJson('glossary.json', [])
+      this.logger.warning('glossary.json (0 entries used by this project)')
+      return { file: 'glossary.json', count: 0 }
+    }
+
+    const usedPh = this.placeholders(usedIds.length)
     const entries = await this.db.query<GlossaryRow>(
-      `SELECT id, internal_name, backward_compatibility FROM glossaries ORDER BY internal_name`
+      `SELECT id, internal_name, backward_compatibility FROM glossaries
+       WHERE id IN (${usedPh})
+       ORDER BY internal_name`,
+      usedIds.map(r => r.id)
     )
 
     if (entries.length === 0) {
