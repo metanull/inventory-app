@@ -32,12 +32,14 @@ set -euo pipefail
 #                       layer — users, roles, permissions, tokens — is always
 #                       rebuilt fresh or restored from a real snapshot on OVH
 #                       itself, NEVER read from local-mysql), followed by
-#                       loading local-mysql's CONTENT tables only (legacy
+#                       copying local-mysql's CONTENT tables only (legacy
 #                       import data — explicitly excluding
 #                       users/roles/permissions/tokens/sessions/etc., see
-#                       SHIP_EXCLUDED_TABLES below) through the tunnel, then
-#                       pushing the already-staged images and resyncing the
-#                       glossary. DESTRUCTIVE — same CONFIRM_WIPE requirement
+#                       SHIP_EXCLUDED_TABLES below) to OVH and loading them
+#                       there against OVH's own local MySQL (not through the
+#                       tunnel — see load_staged_dump), then pushing the
+#                       already-staged images and resyncing the glossary.
+#                       DESTRUCTIVE — same CONFIRM_WIPE requirement
 #                       as `clean`. Requires a `stage` run to have already
 #                       populated local-mysql/local-images-data.
 #
@@ -359,21 +361,27 @@ do_stage() {
 }
 
 # Dumps LOCAL_DB_* (local-mysql, built by a prior `stage` run), excluding
-# every table in SHIP_EXCLUDED_TABLES, and loads it through the already-open
-# OVH tunnel (DB_HOST/DB_PORT/etc., set up by do_wipe_and_restore + open_tunnel
-# before this runs).
+# every table in SHIP_EXCLUDED_TABLES, copies the dump to OVH, and loads it
+# there against OVH's own local MySQL (DB_HOST=127.0.0.1 from OVH's own point
+# of view — same host) using OVH's own `mysql` client.
 #
-# The load leg deliberately does NOT pipe mysqldump's output straight into
-# this image's own `mysql` CLI: that CLI is Alpine's MariaDB client, which
-# can't authenticate to a modern MySQL 8 server's default
+# This is the entire point of `stage`/`ship`: avoid thousands of small
+# round-trips over the network that make a per-row `append`/`clean` run take
+# hours. An earlier version of this function instead opened the SSH tunnel
+# and loaded the dump *from here*, statement by statement, over that tunnel —
+# reintroducing exactly that cost one level down (confirmed in practice: over
+# an hour in, nowhere near done, for ~328k single-row statements). Copying
+# the file over and running the load on OVH itself makes it local-loopback
+# I/O instead of WAN round-trips per statement.
+#
+# This also sidesteps the reason this tool avoids piping mysqldump straight
+# into its own `mysql` CLI everywhere else: that CLI is Alpine's MariaDB
+# client, which can't authenticate to a modern MySQL 8 server's default
 # caching_sha2_password plugin at all (confirmed: "Plugin caching_sha2_password
-# could not be loaded" — the plugin's .so isn't present in this package, not
-# an SSL configuration issue) — and that's exactly what both local-mysql and
-# the real OVH target use. Instead: dump to a temp file with mysqldump
-# (--ssl=0 needed even for the dump leg — local-mysql's self-signed cert isn't
-# trusted by this client either), then load that file via the importer's own
-# `load-sql` command, which uses the same mysql2 driver already proven to talk
-# to OVH throughout every other mode in this tool.
+# could not be loaded"). That limitation is specific to this container's
+# client dialing in from outside — OVH's own `mysql` client is a real, modern
+# MySQL client matching its own server, with no such problem, because it's
+# not a different implementation and it's not Alpine.
 load_staged_dump() {
   local ignore_flags=()
   local t
@@ -383,16 +391,43 @@ load_staged_dump() {
 
   local dump_file="/tmp/staged-dump.sql"
   log "Dumping local-mysql (excluding: ${SHIP_EXCLUDED_TABLES[*]}) to $dump_file"
+  # --skip-extended-insert: one row per INSERT statement instead of mysqldump's
+  # default bulk multi-row INSERTs, so no single statement can ever exceed
+  # OVH's max_allowed_packet regardless of table size or how it's configured.
+  # The load runs locally on OVH (see below), so the extra statement count
+  # costs essentially nothing — each is local-loopback I/O, not a network
+  # round-trip.
+  # --no-create-info: data only, no DROP TABLE/CREATE TABLE. Structure is
+  # already authoritative on OVH from do_wipe_and_restore's `migrate --force`
+  # moments ago — dumping CREATE TABLE too fights it (confirmed in practice:
+  # "Table 'artist_item' already exists" loading the dump, since migrate had
+  # already created every table before this ever runs).
   mysqldump -h "$LOCAL_DB_HOST" -P "$LOCAL_DB_PORT" -u "$LOCAL_DB_USERNAME" -p"$LOCAL_DB_PASSWORD" --ssl=0 \
-    --single-transaction --routines --no-tablespaces "${ignore_flags[@]}" "$LOCAL_DB_DATABASE" \
+    --single-transaction --routines --no-tablespaces --skip-extended-insert --no-create-info \
+    "${ignore_flags[@]}" "$LOCAL_DB_DATABASE" \
     > "$dump_file" \
     || die "dumping local-mysql failed"
 
-  log "Loading $dump_file into ${DB_DATABASE}@${DB_HOST}:${DB_PORT} (through the tunnel)"
-  (cd "$IMPORTER_DIR" && npx tsx src/cli/import.ts load-sql --file "$dump_file") \
-    || die "loading staged dump into ${DB_DATABASE} failed"
-
+  local remote_dump="${OVH_SHARED_DIR}/staged-dump.sql"
+  log "Copying $dump_file to ${OVH_HOST}:${remote_dump}"
+  scp "${SSH_OPTS_BASE[@]}" -i "$SSH_KEY" "$dump_file" "${OVH_USER}@${OVH_HOST}:${remote_dump}" \
+    || die "copying staged dump to OVH failed"
   rm -f "$dump_file"
+
+  log "Loading ${remote_dump} into OVH's local MySQL (127.0.0.1:3306)"
+  # DB_PASSWORD is read from OVH's own .env, not passed from here — it's
+  # already the correct credential for OVH's own database, and this avoids
+  # ever putting our copy of it on the wire or in a remote command's argv.
+  # Assumes an unquoted value in .env (true today; every credential in this
+  # pipeline is a generated token with no spaces).
+  ssh "${SSH_OPTS_BASE[@]}" -i "$SSH_KEY" "${OVH_USER}@${OVH_HOST}" bash -s <<REMOTE_SCRIPT \
+    || die "loading staged dump on OVH failed"
+set -euo pipefail
+cd '$OVH_APP_DIR'
+DB_PASS=\$(grep -m1 '^DB_PASSWORD=' .env | cut -d= -f2-)
+MYSQL_PWD="\$DB_PASS" mysql -h 127.0.0.1 -P 3306 -u inventory inventory < '$remote_dump'
+rm -f '$remote_dump'
+REMOTE_SCRIPT
 }
 
 # Pushes images already staged by a prior `stage` run (local-images-data,
@@ -422,9 +457,10 @@ push_staged_images() {
 do_ship() {
   do_wipe_and_restore
 
-  open_tunnel
+  # No tunnel here: load_staged_dump copies the dump to OVH and loads it
+  # there directly against its own local MySQL — see load_staged_dump for why.
+  # do_wipe_and_restore already called prepare_ssh_key.
   load_staged_dump
-  close_tunnel
 
   push_staged_images
   run_glossary_resync
