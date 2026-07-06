@@ -552,3 +552,53 @@ describe('Mwnf3ExhibitionItemImporter — story #1223: artintro page image EAV f
     expect(extra.picture).toBe('images/artintro.jpg');
   });
 });
+
+// ===========================================================================
+// Tests: artintro page image dedup — same item repeated across `n` slots
+// ===========================================================================
+
+describe('Mwnf3ExhibitionItemImporter — artintro page image dedup (first occurrence wins)', () => {
+  let tracker: UnifiedTracker;
+  let writeCollectionItemMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    tracker = new UnifiedTracker();
+    tracker.set(ARTINTRO_PAGE_COLLECTION_BC, 'artintro-page-uuid', 'collection');
+    tracker.set(ITEM_BC, 'item-uuid', 'item');
+    writeCollectionItemMock = vi.fn().mockResolvedValue(undefined);
+  });
+
+  it('keeps the first (lowest n) occurrence when the same item repeats on a page, instead of the last', async () => {
+    // Same page, same resolved item, three distinct grid slots — mirrors the
+    // legacy Umayyad Mosque case (n=1, n=5, n=9 on one page). The query is
+    // already ordered by `n` ascending, matching production behavior.
+    const firstOccurrence = { ...ARTINTRO_IMAGE_ROW, image_id: 42, n: 1, picture: 'images/first.jpg' };
+    const secondOccurrence = { ...ARTINTRO_IMAGE_ROW, image_id: 43, n: 5, picture: 'images/second.jpg' };
+    const thirdOccurrence = { ...ARTINTRO_IMAGE_ROW, image_id: 44, n: 9, picture: 'images/third.jpg' };
+
+    const ctx = makeContext(
+      makeArtintroImageQueryMock([firstOccurrence, secondOccurrence, thirdOccurrence], []),
+      tracker,
+      writeCollectionItemMock
+    );
+
+    const importer = new Mwnf3ExhibitionItemImporter(ctx);
+    const result = await importer.import();
+
+    // Only the first occurrence should ever reach writeCollectionItem — not
+    // three separate INSERT...ON DUPLICATE KEY UPDATE calls that would let
+    // the last one silently overwrite it.
+    expect(writeCollectionItemMock).toHaveBeenCalledTimes(1);
+    const call = writeCollectionItemMock.mock.calls[0][0] as {
+      display_order: number | null;
+      extra: Record<string, unknown>;
+    };
+    expect(call.display_order).toBe(1);
+    expect(call.extra.n).toBe(1);
+    expect(call.extra.picture).toBe('images/first.jpg');
+
+    // The two skipped duplicates are still accounted for in the import stats.
+    expect(result.skipped).toBe(2);
+  });
+});
