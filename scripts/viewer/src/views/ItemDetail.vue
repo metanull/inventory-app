@@ -282,6 +282,16 @@ const contentSections = computed(() => {
   return sections
 })
 
+// ── Monument "Special Features" — sub-details already imported as child
+// items (type='detail', parent_id = this monument), just never surfaced ──
+
+const monumentDetails = computed(() => {
+  if (!item.value) return []
+  return items.value
+    .filter(i => i.parent_id === item.value.id && i.type === 'detail')
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+})
+
 // ── Credits ───────────────────────────────────────────────────────────
 
 const credits = computed(() => {
@@ -293,6 +303,34 @@ const credits = computed(() => {
   if (tr.translator)               c.push({ label: 'Translation by',             value: tr.translator })
   if (tr.translation_copy_editor)  c.push({ label: 'Translation copyedited by',  value: tr.translation_copy_editor })
   return c
+})
+
+// ── Citation — mirrors legacy's auto-generated citation blurb + permalink ─
+
+const citation = computed(() => {
+  if (!item.value) return ''
+  const tr = t(item.value)
+  const name = labelText(item.value)
+  if (!name) return ''
+  const year = new Date().getFullYear()
+  const permalink = `${window.location.origin}${window.location.pathname}#/item/${encodeURIComponent(item.value.id)}`
+  const author = tr.author ? `${tr.author} ` : ''
+  return `${author}"${name}" in Discover Islamic Art, ${year}. ${permalink}`
+})
+
+// ── "View on Timeline" — country + date-range proximity link. Legacy never
+// stores a direct item↔HCR-event link either; it computes this live by
+// country/date overlap, same as this link's target route already does. ──
+
+const timelineLink = computed(() => {
+  if (!item.value?.country_id) return null
+  const begin = item.value.start_date
+  const end = item.value.end_date
+  if (begin == null && end == null) return null
+  const query = { country: item.value.country_id }
+  if (begin != null) query.begin = String(begin)
+  if (end != null) query.end = String(end)
+  return { path: '/timeline/results', query }
 })
 
 // ── Navigation ─────────────────────────────────────────────────────────
@@ -315,6 +353,7 @@ function back() {
   <div v-else class="detail-wrap">
     <!-- Breadcrumb / back -->
     <a class="back-link" href="#" @click.prevent="back">← Back to results</a>
+    <router-link v-if="timelineLink" :to="timelineLink" class="timeline-link">View on Timeline →</router-link>
 
     <!-- Language selector for item content — only languages this item actually has -->
     <div v-if="itemLangs.length > 1" class="lang-selector">
@@ -362,6 +401,23 @@ function back() {
         <div v-html="mdGloss(section.value)" class="prose" :dir="contentDir" />
       </section>
 
+      <!-- Special Features (monument sub-details) -->
+      <div v-if="monumentDetails.length" class="special-features">
+        <h2 class="sub-section-title">Special Features</h2>
+        <div v-for="d in monumentDetails" :key="d.id" class="special-feature" :dir="contentDir">
+          <h3 class="special-feature-name" v-html="mdInline(t(d).name ?? d.internal_name ?? d.id)" />
+          <p v-if="t(d).location" class="special-feature-meta">{{ t(d).location }}</p>
+          <p v-if="t(d).dates" class="special-feature-meta">{{ t(d).dates }}</p>
+          <p v-if="d.artist_names?.length" class="special-feature-meta">{{ d.artist_names.join(', ') }}</p>
+          <div v-if="t(d).description" v-html="mdGloss(t(d).description)" class="prose" />
+          <div v-if="d.images?.length" class="images">
+            <figure v-for="(img, i) in d.images" :key="i">
+              <img :src="img.url" :alt="img.captions?.[activeLang] ?? ''" loading="lazy" class="detail-img" />
+            </figure>
+          </div>
+        </div>
+      </div>
+
       <!-- Credits -->
       <div v-if="credits.length" class="credits">
         <h2 class="credits-heading">Credits</h2>
@@ -374,6 +430,12 @@ function back() {
         <p v-if="item.mwnf_reference" class="mwnf-ref">
           MWNF Working Number: <strong>{{ item.mwnf_reference }}</strong>
         </p>
+      </div>
+
+      <!-- Citation -->
+      <div v-if="citation" class="citation">
+        <h2 class="credits-heading">Citation</h2>
+        <p class="citation-text">{{ citation }}</p>
       </div>
 
       <!-- Dynasty cards -->
@@ -571,6 +633,16 @@ function back() {
 .credits-list dt { font-weight: 500; color: var(--muted); }
 .credits-list dd { color: var(--text); }
 .mwnf-ref { font-size: 11px; color: var(--muted); font-family: 'Roboto', sans-serif; }
+
+/* Citation */
+.citation { margin-top: 16px; }
+.citation-text { font-size: 12px; line-height: 1.6; color: var(--muted); font-family: 'Roboto', sans-serif; }
+
+/* Special Features (monument sub-details) */
+.special-features { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.special-feature { margin-bottom: 16px; }
+.special-feature-name { font-size: 15px; font-weight: 500; color: var(--heading); margin-bottom: 4px; font-family: 'Roboto', sans-serif; }
+.special-feature-meta { font-size: 12px; color: var(--muted); margin: 0 0 4px; font-family: 'Roboto', sans-serif; }
 
 /* Dynasty cards */
 .sub-section-title {
