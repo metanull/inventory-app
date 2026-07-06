@@ -388,6 +388,16 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
     // Pre-load EAV placement metadata for artintro page images
     const artintroImageEavMap = await this.loadArtintroImageEav();
 
+    // `collection_item` has one row per (collection_id, item_id) — when the
+    // same item appears more than once on a page (distinct `n` grid slots,
+    // e.g. several photos of the same monument), only one row can survive.
+    // Legacy always treats the *first* occurrence (n=1) as the default/
+    // featured item shown on page load, and this query is already ordered by
+    // `n` ascending, so keep the first occurrence per (collection, item) and
+    // skip the rest — otherwise writeCollectionItem's "ON DUPLICATE KEY
+    // UPDATE" lets whichever occurrence is processed *last* silently win.
+    const seenCollectionItems = new Set<string>();
+
     for (const img of images) {
       try {
         const collectionBackwardCompat = `${MWNF3_SCHEMA}:artintro_pages:${img.page_id}`;
@@ -433,6 +443,14 @@ export class Mwnf3ExhibitionItemImporter extends BaseImporter {
           this.showSkipped();
           continue;
         }
+
+        const dedupeKey = `${collectionId}:${itemId}`;
+        if (seenCollectionItems.has(dedupeKey)) {
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+        seenCollectionItems.add(dedupeKey);
 
         if (this.isDryRun || this.isSampleOnlyMode) {
           result.imported++;
