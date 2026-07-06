@@ -9,6 +9,8 @@ const {
   dynasties, items,
   availableLangs, defaultLang,
   md, mdInline,
+  enCollectionTranslations,
+  artIntroThemes, exhibitions, exhibitionThemes,
 } = useInventoryData()
 
 const dynasty = computed(() => dynasties.value.find(d => d.id === decodeURIComponent(route.params.id)) ?? null)
@@ -32,6 +34,123 @@ onMounted(() => loadDynastyLangTranslations(activeLang.value))
 watch(activeLang, lang => loadDynastyLangTranslations(lang))
 
 const t = computed(() => dynastyTranslationsCache.value[activeLang.value]?.[dynasty.value?.id] ?? {})
+
+// ── Glossary term hyperlinking in dynasty history ───────────────────────
+//
+// Items link only the glossary terms actually used in their own text
+// (item.glossary_ids, resolved at export time via item_translation_spelling).
+// Dynasties have no such precomputed link — there's no dynasty_translation_spelling
+// table — so instead of a dynasty-specific 60-row schema/importer change,
+// scan the full (small, ~600-term) glossary set against this dynasty's own
+// history text client-side. Mirrors ItemDetail.vue's glossify/modal pattern.
+
+const glossaryTranslationsCache = ref({})
+
+async function loadGlossaryTranslations(lang) {
+  if (glossaryTranslationsCache.value[lang]) return
+  try {
+    const m = await import(`@inventory-data/translations/glossary.${lang}.json`)
+    glossaryTranslationsCache.value = { ...glossaryTranslationsCache.value, [lang]: m.default }
+  } catch {
+    glossaryTranslationsCache.value = { ...glossaryTranslationsCache.value, [lang]: {} }
+  }
+}
+
+onMounted(() => loadGlossaryTranslations(activeLang.value))
+watch(activeLang, lang => loadGlossaryTranslations(lang))
+
+// spelling (lowercased) -> { gid, spelling, definition }, longest spelling first
+// so multi-word phrases match before any single word they contain.
+const glossaryEntries = computed(() => {
+  const byGid = glossaryTranslationsCache.value[activeLang.value] ?? {}
+  const entries = []
+  for (const [gid, entry] of Object.entries(byGid)) {
+    if (!entry?.spellings?.length) continue
+    for (const spelling of entry.spellings) {
+      entries.push({ gid, spelling, definition: entry.definition ?? '' })
+    }
+  }
+  return entries.sort((a, b) => b.spelling.length - a.spelling.length)
+})
+
+const glossaryRegex = computed(() => {
+  const entries = glossaryEntries.value
+  if (!entries.length) return null
+  const escaped = entries.map(e => e.spelling.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  return new RegExp(`\\b(${escaped.join('|')})\\b`, 'gi')
+})
+
+const spellingToEntry = computed(() => {
+  const m = new Map()
+  for (const e of glossaryEntries.value) m.set(e.spelling.toLowerCase(), e)
+  return m
+})
+
+function glossify(text) {
+  if (!text || !glossaryRegex.value) return text
+  return text.replace(glossaryRegex.value, match => {
+    const entry = spellingToEntry.value.get(match.toLowerCase())
+    if (!entry) return match
+    return `<span class="gloss-term" data-gid="${entry.gid}">${match}</span>`
+  })
+}
+
+function mdGloss(text) {
+  return md(glossify(text))
+}
+
+const activeGlossaryTerm = ref(null)
+
+function onDetailClick(event) {
+  const el = event.target?.closest?.('.gloss-term')
+  if (!el) return
+  event.preventDefault()
+  const entry = glossaryEntries.value.find(e => e.gid === el.dataset.gid)
+  activeGlossaryTerm.value = {
+    spelling: el.textContent,
+    definition: entry?.definition ?? '',
+  }
+}
+
+function closeGlossaryModal() {
+  activeGlossaryTerm.value = null
+}
+
+// ── Artistic Introduction & Exhibitions cross-links ─────────────────────
+//
+// Both features now exist natively in this viewer — compute overlap
+// client-side from already-exported collections.json + items.json (an
+// item belongs to a collection when it appears in that collection's own
+// `items[]` array).
+
+function collectionHasAnyItem(collection, idSet) {
+  return (collection.items ?? []).some(entry => idSet.has(entry.id))
+}
+
+function collectionLabel(collection) {
+  return enCollectionTranslations.value[collection.id]?.title ?? collection.internal_name ?? collection.id
+}
+
+const relatedItemIds = computed(() => new Set(relatedItems.value.map(i => i.id)))
+
+const relatedArtIntroThemes = computed(() => {
+  const ids = relatedItemIds.value
+  if (!ids.size) return []
+  return artIntroThemes.value
+    .filter(theme => theme.pages.some(page => collectionHasAnyItem(page, ids)))
+    .map(theme => ({ id: theme.id, label: collectionLabel(theme) }))
+})
+
+const relatedExhibitions = computed(() => {
+  const ids = relatedItemIds.value
+  if (!ids.size) return []
+  return exhibitions.value
+    .filter(exh =>
+      collectionHasAnyItem(exh, ids) ||
+      exhibitionThemes(exh.id).some(theme => theme.pages.some(page => collectionHasAnyItem(page, ids)))
+    )
+    .map(exh => ({ id: exh.id, label: collectionLabel(exh) }))
+})
 
 // ── Key facts ──────────────────────────────────────────────────────────
 
@@ -91,8 +210,13 @@ function back() {
       </select>
     </div>
 
-    <div class="detail content-box">
+    <div class="detail content-box" @click="onDetailClick">
       <h1 class="detail-title" v-html="mdInline(t.name ?? dynasty.id)" />
+
+      <!-- Representative image -->
+      <figure v-if="dynasty.image" class="dynasty-image">
+        <img :src="dynasty.image" :alt="t.name ?? ''" loading="lazy" />
+      </figure>
 
       <!-- View objects / monuments -->
       <div v-if="relatedItems.length || timelineLink" class="view-items-row">
@@ -102,6 +226,22 @@ function back() {
         <RouterLink v-if="timelineLink" :to="timelineLink" class="homepage-link">
           View on Timeline →
         </RouterLink>
+      </div>
+
+      <!-- Artistic Introduction / Exhibitions cross-links -->
+      <div v-if="relatedArtIntroThemes.length || relatedExhibitions.length" class="cross-links-row">
+        <RouterLink
+          v-for="theme in relatedArtIntroThemes"
+          :key="'ai-' + theme.id"
+          :to="`/artistic-introduction/${encodeURIComponent(theme.id)}`"
+          class="homepage-link"
+        >{{ theme.label }} (Artistic Introduction) →</RouterLink>
+        <RouterLink
+          v-for="exh in relatedExhibitions"
+          :key="'exh-' + exh.id"
+          :to="`/exhibitions/${encodeURIComponent(exh.id)}`"
+          class="homepage-link"
+        >{{ exh.label }} (Exhibition) →</RouterLink>
       </div>
 
       <!-- Key facts table -->
@@ -117,7 +257,7 @@ function back() {
       <!-- History -->
       <section v-if="t.history" class="content-section">
         <h2 class="content-section-heading">History</h2>
-        <div v-html="md(t.history)" class="prose" />
+        <div v-html="mdGloss(t.history)" class="prose" />
       </section>
 
       <!-- Related items -->
@@ -145,6 +285,16 @@ function back() {
         <RouterLink v-if="relatedItems.length > 12" :to="relatedItemsLink()" class="see-all-link">
           See all {{ relatedItems.length }} objects &amp; monuments →
         </RouterLink>
+      </div>
+    </div>
+
+    <!-- Glossary term modal, mirrors ItemDetail.vue's -->
+    <div v-if="activeGlossaryTerm" class="gloss-modal-overlay" @click.self="closeGlossaryModal">
+      <div class="gloss-modal">
+        <button class="gloss-modal-close" @click="closeGlossaryModal" aria-label="Close">✕</button>
+        <h2 class="gloss-modal-heading">Glossary &amp; Spelling</h2>
+        <h3 class="gloss-modal-term">{{ activeGlossaryTerm.spelling }}</h3>
+        <p class="gloss-modal-definition">{{ activeGlossaryTerm.definition }}</p>
       </div>
     </div>
   </div>
@@ -175,16 +325,97 @@ function back() {
   font-family: 'Roboto', sans-serif;
 }
 
+.dynasty-image { margin-bottom: 20px; }
+.dynasty-image img {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  border: 1px solid var(--border);
+  display: block;
+}
+
 .view-items-row {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
 }
+.cross-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 20px;
+}
 .homepage-link {
   font-size: 13px;
   font-weight: 500;
   color: var(--nav-active);
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Glossary term links, injected as raw HTML into v-html content */
+.detail :deep(.gloss-term) {
+  color: var(--heading);
+  text-decoration: underline dotted;
+  text-decoration-color: var(--gold-dark);
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.detail :deep(.gloss-term:hover) {
+  color: var(--gold-dark);
+  text-decoration-style: solid;
+}
+
+/* Glossary modal */
+.gloss-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  z-index: 1000;
+}
+.gloss-modal {
+  position: relative;
+  background: var(--section-bg, #fff);
+  border-top: 4px solid var(--gold-dark);
+  max-width: 480px;
+  width: 100%;
+  padding: 28px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+.gloss-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+}
+.gloss-modal-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-family: 'Roboto', sans-serif;
+}
+.gloss-modal-term {
+  font-size: 20px;
+  color: var(--heading);
+  margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+.gloss-modal-definition {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
   font-family: 'Roboto', sans-serif;
 }
 

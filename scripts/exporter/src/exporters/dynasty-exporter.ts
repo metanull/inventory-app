@@ -21,6 +21,13 @@ interface DynastyTranslationRow {
   date_description_ad: string | null
 }
 
+interface DynastyImageRow {
+  dynasty_id: string
+  item_id: string
+  path: string
+  display_order: number | null
+}
+
 export class DynastyExporter extends BaseExporter {
   getName(): string {
     return 'Dynasties'
@@ -80,6 +87,25 @@ export class DynastyExporter extends BaseExporter {
       }
     }
 
+    // A representative image per dynasty — the first (by display_order) image
+    // belonging to any item linked to the dynasty via item_dynasty, mirroring
+    // the legacy dynasties micro-site's own selection logic.
+    const dynastyImages = await this.db.query<DynastyImageRow>(
+      `SELECT idyn.dynasty_id, pic.parent_id AS item_id, ii.path, pic.display_order
+       FROM item_dynasty idyn
+       JOIN items pic ON pic.parent_id = idyn.item_id AND pic.type = 'picture'
+       JOIN item_images ii ON ii.item_id = pic.id
+       WHERE idyn.dynasty_id IN (${this.placeholders(dynastyIds.length)})
+       ORDER BY idyn.dynasty_id, pic.display_order`,
+      dynastyIds
+    )
+
+    // dynasty_id -> first image URL (first row per dynasty, already ordered above)
+    const imageMap = new Map<string, string>()
+    for (const row of dynastyImages) {
+      if (!imageMap.has(row.dynasty_id)) imageMap.set(row.dynasty_id, this.imageUrl(row.path))
+    }
+
     // Write one translations/dynasties.{lang}.json per language (null fields omitted)
     const byLang = new Map<string, Record<string, unknown>>()
     for (const [dynastyId, langMap] of translationMap) {
@@ -96,6 +122,7 @@ export class DynastyExporter extends BaseExporter {
       to_ah: d.to_ah,
       from_ad: d.from_ad,
       to_ad: d.to_ad,
+      image: imageMap.get(d.id) ?? null,
     }))
 
     await this.writeJson('dynasties.json', output)
