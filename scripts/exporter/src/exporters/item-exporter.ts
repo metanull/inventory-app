@@ -88,6 +88,21 @@ interface ItemArtistRow {
   name: string
 }
 
+interface ItemMediaRow {
+  item_id: string
+  language_id: string | null
+  type: string
+  title: string
+  description: string | null
+  url: string
+}
+
+interface ItemThgGalleryRow {
+  item_id: string
+  name: string | null
+  internal_name: string
+}
+
 export class ItemExporter extends BaseExporter {
   getName(): string {
     return 'Items'
@@ -176,8 +191,8 @@ export class ItemExporter extends BaseExporter {
       )
     }
 
-    // ── 3. Dynasty, tag, glossary, artist, and item-item links ──────────────
-    const [dynastyLinks, tagLinks, glossaryLinks, artistLinks, itemItemLinks] = await Promise.all([
+    // ── 3. Dynasty, tag, glossary, artist, THG gallery, media, and item-item links ──
+    const [dynastyLinks, tagLinks, glossaryLinks, artistLinks, thgGalleryLinks, mediaRows, itemItemLinks] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -207,6 +222,30 @@ export class ItemExporter extends BaseExporter {
          FROM artist_item ai
          JOIN artists a ON a.id = ai.artist_id
          WHERE ai.item_id IN (${itemPh})`,
+        itemIds
+      ),
+      // THG (Thematic Gallery) cross-references — a separate legacy project's
+      // galleries that also feature this item, already linked via
+      // ThgGalleryMwnf3{Object,Monument}Importer (phase-10) attaching the item
+      // to the gallery's own `collection_item` row. THG's own collection tree
+      // is intentionally never exported (out of scope, separate site) — this
+      // is a lightweight, scoped-by-prefix lookup, not a full THG export.
+      this.db.query<ItemThgGalleryRow>(
+        `SELECT ci.item_id, ct.title AS name, c.internal_name
+         FROM collection_item ci
+         JOIN collections c ON c.id = ci.collection_id
+         LEFT JOIN collection_translations ct ON ct.collection_id = c.id AND ct.language_id = 'eng'
+         WHERE ci.item_id IN (${itemPh})
+           AND c.backward_compatibility LIKE 'mwnf3\\_thematic\\_gallery:thg\\_gallery:%'`,
+        itemIds
+      ),
+      // Audio/video media attached to items (item_media table) — legacy
+      // objects_video/monuments_video, already imported via ItemMediaImporter.
+      this.db.query<ItemMediaRow>(
+        `SELECT item_id, language_id, type, title, description, url
+         FROM item_media
+         WHERE item_id IN (${itemPh})
+         ORDER BY item_id, display_order`,
         itemIds
       ),
       // Outgoing links only (source_id IN items). The legacy data model stores
@@ -351,6 +390,26 @@ export class ItemExporter extends BaseExporter {
       artistMap.get(link.item_id)!.push(link.name)
     }
 
+    // item_id -> thg_galleries[]
+    const thgGalleryMap = new Map<string, { name: string }[]>()
+    for (const row of thgGalleryLinks) {
+      if (!thgGalleryMap.has(row.item_id)) thgGalleryMap.set(row.item_id, [])
+      thgGalleryMap.get(row.item_id)!.push({ name: row.name ?? row.internal_name })
+    }
+
+    // item_id -> media[] (audio/video)
+    const mediaMap = new Map<string, MediaEntry[]>()
+    for (const m of mediaRows) {
+      if (!mediaMap.has(m.item_id)) mediaMap.set(m.item_id, [])
+      mediaMap.get(m.item_id)!.push({
+        type: m.type,
+        title: m.title,
+        description: m.description,
+        url: m.url,
+        language: m.language_id ? (langCodeMap.get(m.language_id) ?? null) : null,
+      })
+    }
+
     // item_id -> related item entries (outgoing links only; only targets present in this export)
     // source_id -> target_id -> lang_code -> justification text
     const itemIdSet = new Set(itemIds)
@@ -395,6 +454,8 @@ export class ItemExporter extends BaseExporter {
       tags: tagMap.get(item.id) ?? [],
       glossary_ids: glossaryMap.get(item.id) ?? [],
       artist_names: artistMap.get(item.id) ?? [],
+      thg_galleries: thgGalleryMap.get(item.id) ?? [],
+      media: mediaMap.get(item.id) ?? [],
       languages: Object.keys(translationMap.get(item.id) ?? {}).sort(),
     }))
 
@@ -411,6 +472,14 @@ interface ImageEntry {
   captions: Record<string, string>
   photographer: string | null
   copyright: string | null
+}
+
+interface MediaEntry {
+  type: string
+  title: string
+  description: string | null
+  url: string
+  language: string | null
 }
 
 /**
