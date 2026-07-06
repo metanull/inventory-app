@@ -151,18 +151,20 @@ services:
         condition: service_completed_successfully
 
   # Runs the glossary spelling <-> translation sync against local-mysql, once
-  # `stage` has populated it — dispatches glossary:resync's jobs onto the
-  # 'glossary' queue and drains them inline in the same container run, so
-  # item_translation_spelling/collection_translation_spelling/
-  # timeline_event_translation_spelling are already fully populated as plain
-  # data rows by the time `ship` dumps local-mysql. This replaces relying on
-  # OVH's inventory-queue.service after the fact (see do_ship in entrypoint.sh
-  # and README.md): ship's dump/load has nothing left to trigger remotely.
-  # Uses QUEUE_CONNECTION=database (not the reactive Eloquent-event path —
-  # the importer writes translations via raw SQL, which never fires
-  # GlossarySpelling's `saved` event) so the jobs land in local-mysql's own
-  # `jobs` table, then `queue:work --stop-when-empty` processes them
-  # synchronously before this container exits.
+  # `stage` has populated it, so item_translation_spelling/
+  # collection_translation_spelling/timeline_event_translation_spelling are
+  # already fully populated as plain data rows by the time `ship` dumps
+  # local-mysql. This replaces relying on OVH's inventory-queue.service after
+  # the fact (see do_ship in entrypoint.sh and README.md): ship's dump/load has
+  # nothing left to trigger remotely.
+  #
+  # Uses `glossary:bulk-resync`, not `glossary:resync` + `queue:work`: the
+  # latter dispatches one job per glossary spelling (thousands), each job
+  # re-scanning every translation of its language from scratch — a full run
+  # against this dataset takes over a day. `glossary:bulk-resync` inverts the
+  # loop (one combined pattern per language, one pass per translation) and
+  # finishes the same work in under two minutes. No queue involved at all —
+  # it runs synchronously in this one command.
   local-glossary-sync:
     build:
       context: ../..
@@ -173,8 +175,7 @@ services:
       - |
         set -e
         [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
-        php artisan glossary:resync --remove-existing --force
-        php artisan queue:work --queue=glossary --stop-when-empty --tries=3
+        php artisan glossary:bulk-resync
     volumes:
       - ../..:/var/www/app
       - local-app-vendor:/var/www/app/vendor
@@ -188,7 +189,6 @@ services:
       DB_DATABASE: inventory
       DB_USERNAME: inventory
       DB_PASSWORD: secret
-      QUEUE_CONNECTION: database
     depends_on:
       local-mysql:
         condition: service_healthy
