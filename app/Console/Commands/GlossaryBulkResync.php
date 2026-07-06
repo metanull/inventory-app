@@ -19,6 +19,15 @@ class GlossaryBulkResync extends Command
      * the time, because the per-language pattern is checked once per
      * translation instead of once per spelling per translation.
      *
+     * No --remove-existing flag: every translation's link set is fully
+     * recomputed via sync() on each run, so stale links are always dropped,
+     * not just newly-matching ones added. glossary:resync needs the flag as an
+     * opt-in wipe because its per-spelling jobs only reconcile spellings that
+     * still exist; this command doesn't have an equivalent gap to opt out of —
+     * spelling deletion also detaches its links transactionally (see
+     * GlossarySpelling::delete()) and cascades at the DB level, so there is
+     * never a stale link left for a "remove existing" step to find.
+     *
      * Runs synchronously (no queue) — it's already a single pass per
      * translation, there's nothing left to usefully parallelize via jobs.
      *
