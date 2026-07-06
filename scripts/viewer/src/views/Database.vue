@@ -1,18 +1,28 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
+const { availableLangs } = useInventoryData()
 
+// Matches legacy database.php's 9 field options exactly, in order.
 const FIELD_OPTIONS = [
-  { value: 'keyword',   label: 'Name / Keyword' },
-  { value: 'location',  label: 'Location' },
+  { value: 'keyword',    label: 'Keyword(s)' },
+  { value: 'name',       label: 'Name' },
+  { value: 'location',   label: 'Location' },
   { value: 'provenance', label: 'Provenance' },
-  { value: 'dynasty',   label: 'Period / Dynasty' },
-  { value: 'patron',    label: 'Patron / Initial Owner' },
-  { value: 'artist',    label: 'Architect / Artist / Master' },
-  { value: 'material',  label: 'Material / Technique' },
+  { value: 'dynasty',    label: 'Period / Dynasty' },
+  { value: 'patron',     label: 'Patron / Initial Owner' },
+  { value: 'artist',     label: 'Architect / Artist / Master' },
+  { value: 'material',   label: 'Material / Technique' },
+  { value: 'other',      label: 'Other' },
 ]
+
+// Legacy's fixed century-boundary date dropdowns (database.php:88-124).
+// "From" runs 501-2001 (16 values), "to" runs 600-2000 (15 values) — not symmetric.
+const DATE_FROM_OPTIONS = Array.from({ length: 16 }, (_, i) => 501 + i * 100)
+const DATE_TO_OPTIONS   = Array.from({ length: 15 }, (_, i) => 600 + i * 100)
 
 const keyword1 = ref('')
 const field1   = ref('keyword')
@@ -24,6 +34,7 @@ const cond2    = ref('AND')
 const cond3    = ref('AND')
 const dateFrom = ref('')
 const dateTo   = ref('')
+const searchLanguage = ref('')
 const includeEpm = ref(false)
 
 function search() {
@@ -31,8 +42,11 @@ function search() {
   if (keyword1.value) { q.keyword1 = keyword1.value; q.field1 = field1.value }
   if (keyword2.value) { q.keyword2 = keyword2.value; q.field2 = field2.value; q.cond2 = cond2.value }
   if (keyword3.value) { q.keyword3 = keyword3.value; q.field3 = field3.value; q.cond3 = cond3.value }
+  // Date range and search language are applied once, globally, to the whole
+  // query — unlike field1/field2/field3, which are genuinely per-row.
   if (dateFrom.value) q.date_from = dateFrom.value
   if (dateTo.value)   q.date_to   = dateTo.value
+  if (searchLanguage.value) q.lang = searchLanguage.value
   if (includeEpm.value) q.epm = '1'
   router.push({ path: '/database/results', query: q })
 }
@@ -52,7 +66,7 @@ function showAll() {
       <p class="intro-text">
         Search the collection by one or more keywords. Select the field to search in and
         enter a keyword for each row. Leave a row blank to ignore it.
-        Optionally restrict results to a date range.
+        Optionally restrict results to a date range and/or a search language.
       </p>
 
       <table class="form-table db-form">
@@ -117,13 +131,30 @@ function showAll() {
           <tr>
             <th>Date (from year)</th>
             <td>
-              <input type="number" v-model="dateFrom" placeholder="e.g. 800" style="width:120px" />
+              <select v-model="dateFrom" style="width:120px">
+                <option value="">—</option>
+                <option v-for="y in DATE_FROM_OPTIONS" :key="y" :value="y">{{ y }}</option>
+              </select>
             </td>
           </tr>
           <tr>
             <th>Date (to year)</th>
             <td>
-              <input type="number" v-model="dateTo" placeholder="e.g. 1400" style="width:120px" />
+              <select v-model="dateTo" style="width:120px">
+                <option value="">—</option>
+                <option v-for="y in DATE_TO_OPTIONS" :key="y" :value="y">{{ y }}</option>
+              </select>
+            </td>
+          </tr>
+
+          <!-- Search language -->
+          <tr>
+            <th>Search language</th>
+            <td>
+              <select v-model="searchLanguage" style="width:120px">
+                <option value="">Any</option>
+                <option v-for="lang in availableLangs" :key="lang" :value="lang">{{ lang.toUpperCase() }}</option>
+              </select>
             </td>
           </tr>
 

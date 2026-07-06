@@ -83,6 +83,11 @@ interface ItemGlossaryRow {
   glossary_id: string
 }
 
+interface ItemArtistRow {
+  item_id: string
+  name: string
+}
+
 export class ItemExporter extends BaseExporter {
   getName(): string {
     return 'Items'
@@ -171,8 +176,8 @@ export class ItemExporter extends BaseExporter {
       )
     }
 
-    // ── 3. Dynasty, tag, glossary, and item-item links ──────────────────────
-    const [dynastyLinks, tagLinks, glossaryLinks, itemItemLinks] = await Promise.all([
+    // ── 3. Dynasty, tag, glossary, artist, and item-item links ──────────────
+    const [dynastyLinks, tagLinks, glossaryLinks, artistLinks, itemItemLinks] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -194,6 +199,16 @@ export class ItemExporter extends BaseExporter {
          WHERE it3.item_id IN (${itemPh})`,
         itemIds
       ),
+      // Object artists (legacy `artist_` text, parsed into structured Artist
+      // entities by the importer). Language-independent — `artists.name` has
+      // no language column — so this is a top-level item field, not per-translation.
+      this.db.query<ItemArtistRow>(
+        `SELECT ai.item_id, a.name
+         FROM artist_item ai
+         JOIN artists a ON a.id = ai.artist_id
+         WHERE ai.item_id IN (${itemPh})`,
+        itemIds
+      ),
       // Outgoing links only (source_id IN items). The legacy data model stores
       // directed links; fetching both directions and reversing doubles the list.
       // Justification texts are joined per link per language.
@@ -209,9 +224,6 @@ export class ItemExporter extends BaseExporter {
 
     // ── Build maps ───────────────────────────────────────────────────────────
 
-    // item_id -> type (needed to conditionally surface monument-specific extra fields)
-    const itemTypeMap = new Map<string, string>(items.map(i => [i.id, i.type]))
-
     // item_id -> lang_code -> translation fields
     const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
     for (const t of translations) {
@@ -219,15 +231,11 @@ export class ItemExporter extends BaseExporter {
       const code = langCodeMap.get(t.language_id)
       if (!code) continue
 
-      // For monuments, surface history and patrons stored in item_translations.extra.
-      // These fields are distinct from objects' obtention and initial_owner.
-      let history: string | null = null
-      let patrons: string | null = null
-      if (itemTypeMap.get(t.item_id) === 'monument' && t.extra) {
-        const extra = parseJson(t.extra) as Record<string, string> | null
-        history = extra?.history ?? null
-        patrons = extra?.patrons ?? null
-      }
+      // Fields without a dedicated column live in item_translations.extra JSON.
+      // Each key is only ever set by the importer for the item type it applies
+      // to (history/patrons/architects: monuments; workshop/scriber/binding_desc/
+      // catalogue_holding_link/linkcatalogs: objects), so no type gating is needed here.
+      const extra = t.extra ? (parseJson(t.extra) as Record<string, string> | null) : null
 
       translationMap.get(t.item_id)![code] = {
         name: t.name,
@@ -246,8 +254,14 @@ export class ItemExporter extends BaseExporter {
         provenance: t.provenance,
         obtention: t.obtention,
         bibliography: t.bibliography,
-        history,
-        patrons,
+        history: extra?.history ?? null,
+        patrons: extra?.patrons ?? null,
+        architects: extra?.architects ?? null,
+        workshop: extra?.workshop ?? null,
+        scriber: extra?.scriber ?? null,
+        binding_desc: extra?.binding_desc ?? null,
+        catalogue_holding_link: extra?.catalogue_holding_link ?? null,
+        linkcatalogs: extra?.linkcatalogs ?? null,
         author: t.author_name,
         copy_editor: t.copy_editor_name,
         translator: t.translator_name,
@@ -330,6 +344,13 @@ export class ItemExporter extends BaseExporter {
       glossaryMap.get(link.item_id)!.push(link.glossary_id)
     }
 
+    // item_id -> artist_names[]
+    const artistMap = new Map<string, string[]>()
+    for (const link of artistLinks) {
+      if (!artistMap.has(link.item_id)) artistMap.set(link.item_id, [])
+      artistMap.get(link.item_id)!.push(link.name)
+    }
+
     // item_id -> related item entries (outgoing links only; only targets present in this export)
     // source_id -> target_id -> lang_code -> justification text
     const itemIdSet = new Set(itemIds)
@@ -373,6 +394,7 @@ export class ItemExporter extends BaseExporter {
       })),
       tags: tagMap.get(item.id) ?? [],
       glossary_ids: glossaryMap.get(item.id) ?? [],
+      artist_names: artistMap.get(item.id) ?? [],
       languages: Object.keys(translationMap.get(item.id) ?? {}).sort(),
     }))
 

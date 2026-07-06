@@ -8,7 +8,7 @@ const router = useRouter()
 const {
   items, countries, partners, dynasties,
   countryLabel, dynastyLabel, partnerLabel,
-  itemLabel, enItemTranslations, mdInline,
+  itemLabel, enItemTranslations, mdInline, itemProjectKey,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
@@ -20,10 +20,11 @@ const filterDynasty = ref(route.query.dynasty ?? '')
 const filterPartner = ref(route.query.partner ?? '')
 const filterBegin   = ref(route.query.begin   ?? '')
 const filterEnd     = ref(route.query.end     ?? '')
+const includeEpm    = ref(route.query.epm === '1')
 const currentPage   = ref(parseInt(route.query.page ?? '1', 10) || 1)
 
 watch(
-  [filterCountry, filterDynasty, filterPartner, filterBegin, filterEnd],
+  [filterCountry, filterDynasty, filterPartner, filterBegin, filterEnd, includeEpm],
   () => { currentPage.value = 1 }
 )
 
@@ -35,6 +36,7 @@ watch(
     filterPartner.value = q.partner ?? ''
     filterBegin.value   = q.begin   ?? ''
     filterEnd.value     = q.end     ?? ''
+    includeEpm.value    = q.epm === '1'
     currentPage.value   = parseInt(q.page ?? '1', 10) || 1
   }
 )
@@ -46,6 +48,7 @@ function applyFilters() {
   if (filterPartner.value) q.partner = filterPartner.value
   if (filterBegin.value)   q.begin   = filterBegin.value
   if (filterEnd.value)     q.end     = filterEnd.value
+  if (includeEpm.value)    q.epm     = '1'
   router.push({ path: '/permanent-collection/results', query: q })
 }
 
@@ -55,6 +58,7 @@ function resetFilters() {
   filterPartner.value = ''
   filterBegin.value   = ''
   filterEnd.value     = ''
+  includeEpm.value    = false
   applyFilters()
 }
 
@@ -89,6 +93,13 @@ const availablePartners = computed(() => {
 const filteredItems = computed(() => {
   let result = items.value
 
+  // 'ISL' (Discover Islamic Art) is always browsed; other projects (e.g. 'EPM',
+  // Explore Islamic Art Collections) are opt-in, matching the Database feature.
+  result = result.filter(item => {
+    const key = itemProjectKey(item)
+    return !key || key === 'ISL' || includeEpm.value
+  })
+
   if (filterCountry.value) {
     result = result.filter(item => item.country_id === filterCountry.value)
   }
@@ -119,7 +130,23 @@ const filteredItems = computed(() => {
     }
   }
 
-  return result
+  // Legacy orders results chronologically by start date (undated items last).
+  return [...result].sort((a, b) => {
+    const ad = a.start_date ?? Infinity
+    const bd = b.start_date ?? Infinity
+    return ad - bd
+  })
+})
+
+// "[N objects, M monuments]" split, matching legacy's result-count phrasing.
+const resultCounts = computed(() => {
+  let objects = 0
+  let monuments = 0
+  for (const item of filteredItems.value) {
+    if (item.type === 'monument') monuments++
+    else objects++
+  }
+  return { objects, monuments }
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredItems.value.length / PAGE_SIZE)))
@@ -194,6 +221,13 @@ const activeFilterLabel = computed(() => {
         <input type="number" v-model="filterEnd" placeholder="e.g. 1400" style="width:100px" />
       </div>
 
+      <div class="filter-row">
+        <label class="epm-toggle">
+          <input type="checkbox" v-model="includeEpm" />
+          Include Explore Islamic Art Collections
+        </label>
+      </div>
+
       <div class="filter-actions">
         <button class="btn" @click="applyFilters">Apply</button>
         <button class="btn btn-secondary" style="margin-left:8px" @click="resetFilters">Reset</button>
@@ -203,7 +237,8 @@ const activeFilterLabel = computed(() => {
     <!-- Results -->
     <div class="content-box">
       <p class="result-count">
-        {{ filteredItems.length }} item{{ filteredItems.length !== 1 ? 's' : '' }} found
+        {{ resultCounts.objects }} object{{ resultCounts.objects !== 1 ? 's' : '' }},
+        {{ resultCounts.monuments }} monument{{ resultCounts.monuments !== 1 ? 's' : '' }}
       </p>
 
       <ul v-if="pagedItems.length" class="item-list">
@@ -222,6 +257,8 @@ const activeFilterLabel = computed(() => {
             <div class="item-list-meta">
               <span v-if="item.country_id">{{ countryLabel(item.country_id) }}</span>
               <span v-if="enItemTranslations[item.id]?.dates">{{ enItemTranslations[item.id].dates }}</span>
+              <span v-if="item.dynasty_ids.length">{{ item.dynasty_ids.map(dynastyLabel).join(', ') }}</span>
+              <span v-if="item.partner_id && partners.some(p => p.id === item.partner_id)">{{ partnerLabel(item.partner_id) }}</span>
               <span v-if="item.type" class="item-type-badge">{{ item.type }}</span>
             </div>
           </div>
@@ -258,6 +295,7 @@ const activeFilterLabel = computed(() => {
 .filter-label { font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; color: var(--muted); }
 .filter-row { display: flex; align-items: center; gap: 6px; font-family: 'Roboto', sans-serif; font-size: 12px; color: var(--muted); }
 .filter-actions { margin-left: auto; }
+.epm-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
 .result-count {
   font-family: 'Roboto', sans-serif;

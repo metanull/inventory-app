@@ -320,4 +320,14 @@ select:focus, input:focus { outline: 1px solid var(--gold-dark); }
   color: var(--muted);
 }
 .back-link:hover { color: var(--nav-active); }
+
+.timeline-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  margin-left: 16px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+}
+.timeline-link:hover { color: var(--nav-active); }
 </style>

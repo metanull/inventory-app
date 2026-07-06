@@ -29,7 +29,7 @@ function browse(type, project) {
             </td>
           </tr>
           <tr>
-            <th><label>Partner Institutions</label></th>
+            <th><label>Other Partners</label></th>
             <td>
               <button class="btn" @click="browse('institution', 'ISL')">Browse Institutions →</button>
             </td>
@@ -53,7 +53,7 @@ function browse(type, project) {
             </td>
           </tr>
           <tr>
-            <th><label>Partner Institutions</label></th>
+            <th><label>Other Partners</label></th>
             <td>
               <button class="btn" @click="browse('institution', 'EPM')">Browse Institutions →</button>
             </td>

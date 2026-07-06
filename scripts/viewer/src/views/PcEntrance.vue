@@ -46,6 +46,7 @@ const selectedDynasty = ref('')
 const selectedPartner = ref('')
 const beginDate = ref('')
 const endDate = ref('')
+const includeEpm = ref(false)
 
 function search() {
   const q = {}
@@ -54,6 +55,7 @@ function search() {
   if (filterType.value === 'partner' && selectedPartner.value)   q.partner = selectedPartner.value
   if (filterType.value === 'begin'   && beginDate.value)         q.begin   = beginDate.value
   if (filterType.value === 'end'     && endDate.value)           q.end     = endDate.value
+  if (includeEpm.value) q.epm = '1'
   router.push({ path: '/permanent-collection/results', query: q })
 }
 </script>
@@ -139,6 +141,17 @@ function search() {
             </td>
           </tr>
 
+          <!-- Collection scope -->
+          <tr>
+            <th></th>
+            <td>
+              <label class="epm-toggle">
+                <input type="checkbox" v-model="includeEpm" />
+                Include Explore Islamic Art Collections
+              </label>
+            </td>
+          </tr>
+
           <!-- Submit -->
           <tr>
             <th></th>
@@ -183,5 +196,15 @@ function search() {
 select:disabled, input:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.epm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  color: var(--text);
+  cursor: pointer;
 }
 </style>
