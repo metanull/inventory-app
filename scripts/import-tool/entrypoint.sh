@@ -5,8 +5,9 @@ set -euo pipefail
 # Entrypoint for the inventory-app legacy import tool container.
 #
 # Modes (first arg or $IMPORT_MODE, default "append"):
-#   append              import -> image-sync -> glossary-resync (idempotent,
-#                       safe to re-run any time, adds only what's missing)
+#   append              import -> image-sync -> glossary bulk resync
+#                       (idempotent, safe to re-run any time, adds only
+#                       what's missing)
 #   backup-permissions  snapshot users/MFA/roles/permissions to a fixed OVH
 #                       path + a redundant local copy. No import, no writes
 #                       to application data.
@@ -284,11 +285,11 @@ run_image_sync_local_only() {
 
 run_glossary_resync() {
   if [ "$DRY_RUN" = "1" ]; then
-    log "DRY_RUN=1 — skipping glossary:resync"
+    log "DRY_RUN=1 — skipping glossary:bulk-resync"
     return 0
   fi
-  log "Queuing glossary resync (inventory-queue.service consumes it; not waiting for drain)"
-  ssh_run "php artisan glossary:resync --remove-existing --force"
+  log "Running glossary bulk resync on the remote host (synchronous, no queue involved)"
+  ssh_run "php artisan glossary:bulk-resync"
 }
 
 # ------------------------------------------------------------------------------
@@ -309,7 +310,7 @@ do_import_pipeline() {
   close_tunnel
 
   [ "$rc_a" -eq 0 ] || die "image-sync/rsync branch failed (exit $rc_a)"
-  [ "$rc_b" -eq 0 ] || die "glossary:resync branch failed (exit $rc_b)"
+  [ "$rc_b" -eq 0 ] || die "glossary bulk-resync branch failed (exit $rc_b)"
 }
 
 # True if a snapshot file already exists on the OVH host. Checked with a
