@@ -1,8 +1,32 @@
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
-const { dynasties, items, dynastyLabel, enDynastyTranslations } = useInventoryData()
+const router = useRouter()
+const { dynasties, items, dynastyLabel, enDynastyTranslations, md } = useInventoryData()
+
+// Legacy intro copy from https://islamicart.museumwnf.org/dynasties/ — not
+// backed by any database table (confirmed: dynasty-importer.ts only imports
+// dynasty records/texts, no landing-page content), so it's hardcoded here
+// per product decision. English only for now — no source text was available
+// to hardcode for other languages. See Epic 13 in the islamicart parity backlog.
+const introHeading = 'What do we intend by ‘Islamic Dynasties’?'
+const introBody = `After the first four caliphs, the ‘Rightly Guided’, who had established the Rashidun, the first Islamic Caliphate, the Islamic world was reigned by families of great local influence who carried out an ambitious military, social and cultural programme, often with impact far beyond their geographic area of origin. Many visionary rulers shaped Islamic lands through almost thirteen centuries and left a legacy that continues inspiring in all fields: religion, arts, culture, social life and also policies.
+
+Similar to the terminology used for the succession of ruling families in other civilisations, also Islamic histography refers to those families as '**Dynasties**'. Some ruled in specific regions, others over the entire Islamic empire.
+
+In this section of the Discover Islamic Art website **we introduce the Islamic dynasties who had ruled, from the Umayyad Caliphate until the end of the Ottoman empire**. Initially focus was given on the Mediterranean region but we started to expand also to other parts of the Islamic world.
+
+You will be able to read the profile of the selected Dynasty and view related content in the MWNF database. This will include Objects, Monuments, and, if available, also an Artistic Introduction to the specific stylistic characteristics of the selected Dynasty and/or an Exhibition presenting the cultural and historical background.
+
+All texts have been compiled by local experts of the country concerned; names of authors can be found on the page itself or on the general Discover Islamic Art credits page.
+
+All texts are available in Arabic and English, and most also in French and Spanish.`
+
+function goToDynasty(id) {
+  if (id) router.push(`/dynasty/${encodeURIComponent(id)}`)
+}
 
 // Only list dynasties actually linked to items in the collection, sorted
 // chronologically (from_ad), mirroring the "Period / Dynasty" ordering
@@ -34,11 +58,20 @@ function dateRangeLabel(d) {
     <h1 class="section-heading">Islamic Dynasties</h1>
 
     <div class="content-box">
-      <p class="intro-text">
-        Browse the dynasties and ruling periods of the Islamic world. Select a
-        dynasty below to read its history and see the objects and monuments
-        linked to it.
-      </p>
+      <h2 class="intro-heading">{{ introHeading }}</h2>
+      <div class="intro-text" v-html="md(introBody)"></div>
+
+      <div class="dynasty-quicknav">
+        <label for="dynasty-quicknav-select" class="quicknav-label">Jump to a dynasty:</label>
+        <select
+          id="dynasty-quicknav-select"
+          class="quicknav-select"
+          @change="goToDynasty($event.target.value)"
+        >
+          <option value="">Select a dynasty…</option>
+          <option v-for="d in dynastyList" :key="d.id" :value="d.id">{{ d.name }}</option>
+        </select>
+      </div>
 
       <p class="result-count">
         {{ dynastyList.length }} dynast{{ dynastyList.length !== 1 ? 'ies' : 'y' }}
@@ -67,12 +100,48 @@ function dateRangeLabel(d) {
 </template>
 
 <style scoped>
+.intro-heading {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--heading);
+  margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+
 .intro-text {
   font-size: 13px;
   line-height: 1.65;
   color: var(--muted);
   margin-bottom: 16px;
   font-family: 'Roboto', sans-serif;
+}
+.intro-text :deep(p) { margin: 0 0 .75em; }
+.intro-text :deep(p:last-child) { margin-bottom: 0; }
+.intro-text :deep(strong) { font-weight: 600; color: var(--text); }
+
+.dynasty-quicknav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.quicknav-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--heading);
+  font-family: 'Roboto', sans-serif;
+  white-space: nowrap;
+}
+.quicknav-select {
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  color: var(--text);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  flex: 1;
+  max-width: 320px;
 }
 
 .result-count {
