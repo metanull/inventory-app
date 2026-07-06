@@ -137,16 +137,25 @@ export class ObjectPictureImporter extends BaseImporter {
   }
 
   private getPictureBackwardCompatibility(group: PictureGroup): string {
+    // `type` is only appended when non-empty, so the identity of default-type
+    // pictures is unchanged (matches MonumentPictureImporter's fix — see
+    // Epic 10 in the islamicart parity backlog). Without this, a typed
+    // picture sharing the same image_number as the default photo would
+    // collide with it and be silently skipped as a duplicate.
+    const pkValues: (string | number)[] = [
+      group.project_id,
+      group.country,
+      group.museum_id,
+      group.number,
+      group.image_number,
+    ];
+    if (group.type && group.type.trim() !== '') {
+      pkValues.push(group.type);
+    }
     return formatBackwardCompatibility({
       schema: 'mwnf3',
       table: 'objects_pictures',
-      pkValues: [
-        group.project_id,
-        group.country,
-        group.museum_id,
-        group.number,
-        group.image_number,
-      ],
+      pkValues,
     });
   }
 

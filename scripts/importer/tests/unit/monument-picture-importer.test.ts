@@ -265,6 +265,36 @@ describe('MonumentPictureImporter', () => {
     expect(sql).not.toContain('AND type');
   });
 
+  it('imports a typed picture (e.g. type=plan) separately from a default picture sharing the same image_number', async () => {
+    // Regression test for Epic 10 (islamicart parity backlog): a plan-type
+    // picture at image_number=1 must not collide with the default (type='')
+    // picture at image_number=1 and be silently skipped as a duplicate.
+    const rowPlan = {
+      ...rowWithCaption,
+      type: 'plan',
+      path: 'bar/hr/mon11/30/plans/1.jpg',
+      caption: 'Floor plan',
+    };
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monuments_pictures')) return [rowWithCaption, rowPlan];
+      if (sql.includes('FROM mwnf3.monuments')) return [{ name: 'Hellenbach Manor' }];
+      return [];
+    });
+    const importer = new MonumentPictureImporter(context);
+    const result = await importer.import();
+
+    expect(result.imported).toBe(2);
+    expect(result.skipped).toBe(0);
+    expect(writeItemMock).toHaveBeenCalledTimes(2);
+
+    const backwardCompats = writeItemMock.mock.calls.map(
+      (args) => (args[0] as { backward_compatibility: string }).backward_compatibility
+    );
+    expect(new Set(backwardCompats).size).toBe(2);
+    expect(backwardCompats).toContain('mwnf3:monuments_pictures:BAR:hr:Mon11:30:1');
+    expect(backwardCompats).toContain('mwnf3:monuments_pictures:BAR:hr:Mon11:30:1:plan');
+  });
+
   it('returns success=false when the main query throws', async () => {
     queryMock.mockRejectedValue(new Error('DB connection lost'));
     const importer = new MonumentPictureImporter(context);

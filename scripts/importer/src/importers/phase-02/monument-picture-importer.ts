@@ -137,16 +137,27 @@ export class MonumentPictureImporter extends BaseImporter {
   }
 
   private getPictureBackwardCompatibility(group: PictureGroup): string {
+    // `type` ('' for the default photo, 'plan' for site plans, etc.) is only
+    // appended when non-empty, so the identity of default-type pictures is
+    // unchanged (existing resolvers like thg-theme-item-resolver.ts and
+    // already-imported rows keep matching). Without this, a typed picture
+    // (e.g. type='plan') sharing the same image_number as the default photo
+    // would collide with it and be silently skipped as a duplicate — see
+    // Epic 10 in the islamicart parity backlog.
+    const pkValues: (string | number)[] = [
+      group.project_id,
+      group.country,
+      group.institution_id,
+      group.number,
+      group.image_number,
+    ];
+    if (group.type && group.type.trim() !== '') {
+      pkValues.push(group.type);
+    }
     return formatBackwardCompatibility({
       schema: 'mwnf3',
       table: 'monuments_pictures',
-      pkValues: [
-        group.project_id,
-        group.country,
-        group.institution_id,
-        group.number,
-        group.image_number,
-      ],
+      pkValues,
     });
   }
 
