@@ -89,7 +89,7 @@ destroys `local-mysql-data`/`local-images-data`/`local-app-vendor`.
 | `append` | Yes | Imports legacy data directly into the remote database (over the SSH tunnel), pushes new images via rsync, and resyncs the glossary on the remote host. No wipe. |
 | `clean` | Yes, **destructive** | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users → the same pipeline as `append`. Requires `CONFIRM_WIPE=yes-really-wipe-production`. See "Auth restore" below for the users/roles step. |
 | `stage` | No | Imports legacy data + syncs images into local `local-mysql` / `local-images-data`. No auth/seeders — this container is never meant to be logged into. |
-| `local-glossary-sync` | No | Computes glossary term ↔ item/collection/timeline-event links against `local-mysql`, in-container (dispatches `glossary:resync` and drains its queue synchronously). Run after `stage`, before `ship`. |
+| `local-glossary-sync` | No | Computes glossary term ↔ item/collection/timeline-event links against `local-mysql`, in-container, via `glossary:bulk-resync` (one combined pattern per language, one pass per translation — a couple of minutes, vs. over a day for `glossary:resync`'s one-job-per-spelling approach). Run after `stage`, before `ship`. |
 | `ship` | Yes, **destructive** | Rebuilds the remote app layer exactly like `clean`, then loads `local-mysql`'s content tables (dumped and restored directly on the remote host, not through the tunnel) and pushes the already-staged images. Requires `stage` (+ `local-glossary-sync`) to have already populated `local-mysql`/`local-images-data`. Requires `CONFIRM_WIPE`. |
 
 ### Dry runs
