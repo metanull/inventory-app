@@ -9,6 +9,7 @@ const {
   items, dynasties,
   itemLabel, countryLabel, dynastyLabel,
   enItemTranslations, mdInline, itemProjectKey,
+  translationsCache, loadLangTranslations,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
@@ -25,8 +26,11 @@ function parseQuery(q) {
     keyword3: q.keyword3 ?? '',
     field3:   q.field3   ?? 'keyword',
     cond3:    q.cond3    ?? 'AND',
+    // Date range and search language apply once, globally, to the whole
+    // query — unlike field1/field2/field3, which are genuinely per-row.
     dateFrom: q.date_from ?? '',
     dateTo:   q.date_to   ?? '',
+    lang:     q.lang      ?? '',
     includeEpm: q.epm === '1',
     page:     parseInt(q.page ?? '1', 10) || 1,
     // refine row
@@ -44,6 +48,16 @@ watch(() => route.query, q => {
   currentPage.value = search.value.page
 })
 
+watch(() => search.value.lang, lang => {
+  if (lang) loadLangTranslations(lang)
+}, { immediate: true })
+
+// Translations to search against for the currently-selected search language
+// (falls back to English when no language is chosen).
+function translationsFor(lang) {
+  return lang ? (translationsCache.value[lang] ?? {}) : enItemTranslations.value
+}
+
 // ── Refine row ────────────────────────────────────────────────────────
 
 const refineKeyword = ref('')
@@ -52,13 +66,15 @@ const refineCond    = ref('AND')
 const showRefine    = ref(false)
 
 const FIELD_OPTIONS = [
-  { value: 'keyword',   label: 'Name / Keyword' },
-  { value: 'location',  label: 'Location' },
+  { value: 'keyword',    label: 'Keyword(s)' },
+  { value: 'name',       label: 'Name' },
+  { value: 'location',   label: 'Location' },
   { value: 'provenance', label: 'Provenance' },
-  { value: 'dynasty',   label: 'Period / Dynasty' },
-  { value: 'patron',    label: 'Patron / Initial Owner' },
-  { value: 'artist',    label: 'Architect / Artist / Master' },
-  { value: 'material',  label: 'Material / Technique' },
+  { value: 'dynasty',    label: 'Period / Dynasty' },
+  { value: 'patron',     label: 'Patron / Initial Owner' },
+  { value: 'artist',     label: 'Architect / Artist / Master' },
+  { value: 'material',   label: 'Material / Technique' },
+  { value: 'other',      label: 'Other' },
 ]
 
 function fieldLabel(val) {
@@ -80,16 +96,21 @@ function applyRefine() {
 
 // ── Keyword matching ─────────────────────────────────────────────────
 
-function matchField(item, field, keyword) {
+function matchField(item, field, keyword, tr) {
   if (!keyword) return true
   const kw = keyword.toLowerCase().trim()
   if (!kw) return true
-  const tr = enItemTranslations.value[item.id] ?? {}
 
   switch (field) {
     case 'keyword':
+      // General full-text search, legacy's "Keyword(s)" option.
       return (tr.name ?? item.internal_name ?? '').toLowerCase().includes(kw) ||
-             (tr.alternate_name ?? '').toLowerCase().includes(kw)
+             (tr.alternate_name ?? '').toLowerCase().includes(kw) ||
+             (tr.description ?? '').toLowerCase().includes(kw) ||
+             item.tags.some(tag => tag.toLowerCase().includes(kw))
+    case 'name':
+      // Legacy's distinct "Name" option — the name field specifically.
+      return (tr.name ?? item.internal_name ?? '').toLowerCase().includes(kw)
     case 'location':
       return (tr.location ?? '').toLowerCase().includes(kw)
     case 'provenance':
@@ -105,6 +126,14 @@ function matchField(item, field, keyword) {
              (tr.architects ?? '').toLowerCase().includes(kw)
     case 'material':
       return (tr.type ?? '').toLowerCase().includes(kw)
+    case 'other':
+      // Catch-all across descriptive fields not covered by the other 8
+      // categories (see Open Product Question 5 in the parity backlog).
+      return [
+        tr.description, tr.method_for_datation, tr.method_for_provenance,
+        tr.obtention, tr.bibliography, tr.workshop, tr.scriber,
+        tr.binding_desc, tr.history,
+      ].filter(Boolean).join(' ').toLowerCase().includes(kw)
     default:
       return (tr.name ?? item.internal_name ?? '').toLowerCase().includes(kw)
   }
@@ -135,6 +164,9 @@ function itemMatches(item, s) {
 
   if (noSearch) return true
 
+  // Search language applies once, globally, to the whole query.
+  const tr = translationsFor(s.lang)[item.id] ?? {}
+
   // Keyword rows combined
   let result = null
 
@@ -145,16 +177,16 @@ function itemMatches(item, s) {
   }
 
   if (s.keyword1) {
-    result = combine(result, matchField(item, s.field1, s.keyword1), 'AND')
+    result = combine(result, matchField(item, s.field1, s.keyword1, tr), 'AND')
   }
   if (s.keyword2) {
-    result = combine(result, matchField(item, s.field2, s.keyword2), s.cond2)
+    result = combine(result, matchField(item, s.field2, s.keyword2, tr), s.cond2)
   }
   if (s.keyword3) {
-    result = combine(result, matchField(item, s.field3, s.keyword3), s.cond3)
+    result = combine(result, matchField(item, s.field3, s.keyword3, tr), s.cond3)
   }
   if (s.keyword4) {
-    result = combine(result, matchField(item, s.field4, s.keyword4), s.cond4)
+    result = combine(result, matchField(item, s.field4, s.keyword4, tr), s.cond4)
   }
 
   return result === null ? true : result
@@ -199,6 +231,7 @@ const searchSummary = computed(() => {
   if (s.keyword4) parts.push(`${s.cond4} ${fieldLabel(s.field4)}: "${s.keyword4}"`)
   if (s.dateFrom) parts.push(`from ${s.dateFrom}`)
   if (s.dateTo)   parts.push(`to ${s.dateTo}`)
+  if (s.lang)     parts.push(`language: ${s.lang.toUpperCase()}`)
   if (s.includeEpm) parts.push('+ Explore Islamic Art Collections')
   return parts
 })
