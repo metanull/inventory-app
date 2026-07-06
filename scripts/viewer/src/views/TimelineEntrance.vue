@@ -48,7 +48,7 @@ function search() {
   }
 
   const q = {}
-  if (selectedCountry.value) q.country = selectedCountry.value
+  if (selectedCountry.value && selectedCountry.value !== 'all') q.country = selectedCountry.value
   if (selectedBegin.value) q.begin = selectedBegin.value
   if (selectedEnd.value) q.end = selectedEnd.value
   router.push({ path: '/timeline/results', query: q })
@@ -71,7 +71,8 @@ function search() {
             <th><label for="tl-country">Country</label></th>
             <td>
               <select id="tl-country" v-model="selectedCountry" style="width:280px">
-                <option value="">— All Countries —</option>
+                <option value="" disabled>Select a Country</option>
+                <option value="all">— All Countries —</option>
                 <option v-for="c in availableCountries" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
             </td>
