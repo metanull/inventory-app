@@ -615,13 +615,24 @@ function back() {
   line-height: 1.4;
 }
 
-/* Glossary term links, injected as raw HTML into v-html content */
+/* Glossary term links, injected as raw HTML into v-html content.
+   Not using var(--link)/a plain border-bottom: --link resolves to the same
+   value as --text (#222) site-wide, and a 1px dotted border-bottom renders
+   as a barely-visible sub-pixel line at this font size — both left the term
+   visually indistinguishable from surrounding text. Underline (which scales
+   with font/DPI correctly, unlike border-bottom) plus a color actually
+   distinct from body text gives real affordance. */
 .detail :deep(.gloss-term) {
-  color: var(--link);
-  border-bottom: 1px dotted var(--gold-dark);
+  color: var(--heading);
+  text-decoration: underline dotted;
+  text-decoration-color: var(--gold-dark);
+  text-underline-offset: 2px;
   cursor: pointer;
 }
-.detail :deep(.gloss-term:hover) { color: var(--heading); }
+.detail :deep(.gloss-term:hover) {
+  color: var(--gold-dark);
+  text-decoration-style: solid;
+}
 
 /* Glossary modal */
 .gloss-modal-overlay {
