@@ -23,6 +23,7 @@ interface ItemRow {
 interface ItemTranslationRow {
   item_id: string
   language_id: string
+  context_id: string
   name: string
   alternate_name: string | null
   description: string | null
@@ -139,11 +140,33 @@ export class ItemExporter extends BaseExporter {
     const contextIds = this.context.contextIds
     const contextPh = this.placeholders(contextIds.length)
 
+    // Each item's "own" context — resolved via its project's context_id.
+    // An item can have item_translations rows in more than one context (e.g. a
+    // monument cross-cataloged under both ISL and EPM projects gets one row
+    // per context, by design — contexts are additive, not overlapping
+    // duplicates). Used below to know which row is the item's primary
+    // translation vs. a secondary one (see short_description handling).
+    const itemProjectIds = [...new Set(items.map(i => i.project_id).filter((p): p is string => !!p))]
+    const itemOwnContext = new Map<string, string>()
+    if (itemProjectIds.length > 0) {
+      const projectRows = await this.db.query<{ id: string; context_id: string | null }>(
+        `SELECT id, context_id FROM projects WHERE id IN (${this.placeholders(itemProjectIds.length)})`,
+        itemProjectIds
+      )
+      const projectContextMap = new Map(
+        projectRows.filter(p => p.context_id).map(p => [p.id, p.context_id as string])
+      )
+      for (const item of items) {
+        const ctx = item.project_id ? projectContextMap.get(item.project_id) : undefined
+        if (ctx) itemOwnContext.set(item.id, ctx)
+      }
+    }
+
     // ── 1. Content translations (name, description, …) ──────────────────────
     // Filter by context_id so that explore-context translations (which may have
     // extra=null) do not overwrite the canonical project translations.
     const translations = await this.db.query<ItemTranslationRow>(
-      `SELECT it.item_id, it.language_id,
+      `SELECT it.item_id, it.language_id, it.context_id,
               it.name, it.alternate_name, it.description,
               it.type, it.holder, it.owner, it.initial_owner, it.dates,
               it.location, it.dimensions, it.place_of_production,
@@ -264,35 +287,58 @@ export class ItemExporter extends BaseExporter {
     // ── Build maps ───────────────────────────────────────────────────────────
 
     // item_id -> lang_code -> translation fields
-    const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
+    // Group rows by item_id+language first: an item can have more than one
+    // context row for the same language (own project context + e.g. EPM).
+    // These are combined, not merged with overwrite — the own-context row
+    // supplies every field, and a second context's row (when present)
+    // contributes only its description, as `short_description` (by
+    // convention: the primary/own context holds the long description, a
+    // secondary context like EPM holds the short one). See Epic 11 in the
+    // islamicart parity backlog / memory `project_context_semantics`.
+    const translationsByItemLang = new Map<string, ItemTranslationRow[]>()
     for (const t of translations) {
-      if (!translationMap.has(t.item_id)) translationMap.set(t.item_id, {})
       const code = langCodeMap.get(t.language_id)
       if (!code) continue
+      const key = `${t.item_id} ${code}`
+      if (!translationsByItemLang.has(key)) translationsByItemLang.set(key, [])
+      translationsByItemLang.get(key)!.push(t)
+    }
+
+    const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
+    for (const [key, rows] of translationsByItemLang) {
+      const sep = key.indexOf(' ')
+      const itemId = key.slice(0, sep)
+      const code = key.slice(sep + 1)
+
+      const ownContext = itemOwnContext.get(itemId)
+      const ownRow = (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
+      const otherRow = rows.find(r => r !== ownRow)
 
       // Fields without a dedicated column live in item_translations.extra JSON.
       // Each key is only ever set by the importer for the item type it applies
       // to (history/patrons/architects: monuments; workshop/scriber/binding_desc/
       // catalogue_holding_link/linkcatalogs: objects), so no type gating is needed here.
-      const extra = t.extra ? (parseJson(t.extra) as Record<string, string> | null) : null
+      const extra = ownRow.extra ? (parseJson(ownRow.extra) as Record<string, string> | null) : null
 
-      translationMap.get(t.item_id)![code] = {
-        name: t.name,
-        alternate_name: t.alternate_name,
-        description: t.description,
-        type: t.type,
-        holder: t.holder,
-        owner: t.owner,
-        initial_owner: t.initial_owner,
-        dates: t.dates,
-        location: t.location,
-        dimensions: t.dimensions,
-        place_of_production: t.place_of_production,
-        method_for_datation: t.method_for_datation,
-        method_for_provenance: t.method_for_provenance,
-        provenance: t.provenance,
-        obtention: t.obtention,
-        bibliography: t.bibliography,
+      if (!translationMap.has(itemId)) translationMap.set(itemId, {})
+      translationMap.get(itemId)![code] = {
+        name: ownRow.name,
+        alternate_name: ownRow.alternate_name,
+        description: ownRow.description,
+        short_description: otherRow?.description ?? null,
+        type: ownRow.type,
+        holder: ownRow.holder,
+        owner: ownRow.owner,
+        initial_owner: ownRow.initial_owner,
+        dates: ownRow.dates,
+        location: ownRow.location,
+        dimensions: ownRow.dimensions,
+        place_of_production: ownRow.place_of_production,
+        method_for_datation: ownRow.method_for_datation,
+        method_for_provenance: ownRow.method_for_provenance,
+        provenance: ownRow.provenance,
+        obtention: ownRow.obtention,
+        bibliography: ownRow.bibliography,
         history: extra?.history ?? null,
         patrons: extra?.patrons ?? null,
         architects: extra?.architects ?? null,
@@ -301,10 +347,10 @@ export class ItemExporter extends BaseExporter {
         binding_desc: extra?.binding_desc ?? null,
         catalogue_holding_link: extra?.catalogue_holding_link ?? null,
         linkcatalogs: extra?.linkcatalogs ?? null,
-        author: t.author_name,
-        copy_editor: t.copy_editor_name,
-        translator: t.translator_name,
-        translation_copy_editor: t.translation_copy_editor_name,
+        author: ownRow.author_name,
+        copy_editor: ownRow.copy_editor_name,
+        translator: ownRow.translator_name,
+        translation_copy_editor: ownRow.translation_copy_editor_name,
       }
     }
 

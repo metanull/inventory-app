@@ -13,6 +13,7 @@ const {
   loadLangTranslations,
   itemById,
   itemLabel, countryLabel, partnerLabel,
+  artIntroLinksForItem, exhibitionLinksForItem,
   md, mdInline,
 } = useInventoryData()
 
@@ -282,6 +283,21 @@ const contentSections = computed(() => {
   return sections
 })
 
+// ── Short description — legacy's collapsible "view short description"
+// toggle (pc_view_sdesc), shown below the main Description when the item
+// also has a translation in a secondary context (e.g. EPM) whose
+// description is the shorter summary. See Epic 11 in the islamicart
+// parity backlog. ──
+
+const showShortDescription = ref(false)
+
+const shortDescription = computed(() => {
+  if (!item.value) return null
+  return t(item.value).short_description ?? null
+})
+
+watch(() => item.value?.id, () => { showShortDescription.value = false })
+
 // ── Monument "Special Features" — sub-details already imported as child
 // items (type='detail', parent_id = this monument), just never surfaced ──
 
@@ -341,6 +357,26 @@ const relatedMedia = computed(() => {
   if (!all.length) return []
   const inLang = all.filter(m => m.language === activeLang.value)
   return inLang.length ? inLang : all
+})
+
+// ── "Artistic Introduction" & "On display in" (Exhibitions) — which
+// Artistic-Introduction pages / Virtual Exhibitions feature this item,
+// derived client-side from collections.json (see Epic 12 in the islamicart
+// parity backlog; distinct from the THG cross-links below). ──
+
+const artIntroLinks = computed(() => {
+  if (!item.value) return []
+  return artIntroLinksForItem(item.value.id)
+})
+
+const onDisplayInLinks = computed(() => {
+  if (!item.value) return []
+  return exhibitionLinksForItem(item.value.id).map(l => ({
+    label: l.label,
+    to: l.themeId
+      ? { path: `/exhibitions/${encodeURIComponent(l.exhibitionId)}/theme/${encodeURIComponent(l.themeId)}` }
+      : { path: `/exhibitions/${encodeURIComponent(l.exhibitionId)}/introduction` },
+  }))
 })
 
 // ── THG (Thematic Gallery) cross-links — a separate legacy project's
@@ -413,14 +449,27 @@ function back() {
       </table>
 
       <!-- Content sections (markdown) -->
-      <section
-        v-for="section in contentSections"
-        :key="section.heading"
-        class="content-section"
-      >
-        <h2 class="content-section-heading">{{ section.heading }}</h2>
-        <div v-html="mdGloss(section.value)" class="prose" :dir="contentDir" />
-      </section>
+      <template v-for="section in contentSections" :key="section.heading">
+        <section class="content-section">
+          <h2 class="content-section-heading">{{ section.heading }}</h2>
+          <div v-html="mdGloss(section.value)" class="prose" :dir="contentDir" />
+        </section>
+
+        <!-- Short description toggle (legacy: pc_view_sdesc), directly below Description -->
+        <section
+          v-if="section.heading === 'Description' && shortDescription"
+          class="content-section short-description"
+        >
+          <button
+            type="button"
+            class="short-description-toggle"
+            @click="showShortDescription = !showShortDescription"
+          >
+            {{ showShortDescription ? 'Hide short description' : 'View short description' }}
+          </button>
+          <div v-if="showShortDescription" v-html="mdGloss(shortDescription)" class="prose" :dir="contentDir" />
+        </section>
+      </template>
 
       <!-- Special Features (monument sub-details) -->
       <div v-if="monumentDetails.length" class="special-features">
@@ -482,6 +531,26 @@ function back() {
           <p v-if="d.history" class="dynasty-history">{{ d.history }}</p>
           <p v-if="d.area" class="dynasty-area">Area: {{ d.area }}</p>
         </div>
+      </div>
+
+      <!-- Artistic Introduction -->
+      <div v-if="artIntroLinks.length" class="art-intro-links">
+        <h2 class="sub-section-title">Artistic Introduction</h2>
+        <ul class="gallery-list">
+          <li v-for="l in artIntroLinks" :key="l.themeId">
+            <router-link :to="`/artistic-introduction/${encodeURIComponent(l.themeId)}`" v-html="mdInline(l.label)" />
+          </li>
+        </ul>
+      </div>
+
+      <!-- On display in (Virtual Exhibitions) -->
+      <div v-if="onDisplayInLinks.length" class="on-display-in">
+        <h2 class="sub-section-title">On display in</h2>
+        <ul class="gallery-list">
+          <li v-for="l in onDisplayInLinks" :key="l.to.path">
+            <router-link :to="l.to" v-html="mdInline(l.label)" />
+          </li>
+        </ul>
       </div>
 
       <!-- Galleries (THG cross-links) -->
@@ -634,6 +703,24 @@ function back() {
   letter-spacing: 0.07em;
   color: var(--heading);
   margin-bottom: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+.content-section.short-description {
+  border-top: none;
+  padding-top: 0;
+  margin-top: -8px;
+}
+.short-description-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--link);
+  text-decoration: underline;
+  cursor: pointer;
   font-family: 'Roboto', sans-serif;
 }
 

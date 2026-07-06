@@ -191,6 +191,71 @@ function exhibitionThemeById(exhibitionId, themeId) {
   return exhibitionThemes(exhibitionId).find(t => t.id === themeId) ?? null
 }
 
+// ── Item cross-links: Artistic Introduction pages / Exhibitions that
+// feature a given item ───────────────────────────────────────────────────
+//
+// No separate export is needed for this: collections.json already lists
+// each collection's items[] (used to render Artistic Introduction pages and
+// Exhibition theme/page grids), so "which collections reference this item"
+// is just a client-side reverse lookup over the same data. See Epic 12 in
+// the islamicart parity backlog.
+
+function collectionsContainingItem(itemId) {
+  return collections.value.filter(c => c.items?.some(it => it.id === itemId))
+}
+
+function artIntroLinksForItem(itemId) {
+  const root = artIntroRoot.value
+  if (!root) return []
+  const links = []
+  const seen = new Set()
+  for (const page of collectionsContainingItem(itemId)) {
+    // Items are attached to a theme's page; the page's parent is the theme.
+    const theme = collections.value.find(c => c.id === page.parent_id)
+    if (!theme || theme.parent_id !== root.id || seen.has(theme.id)) continue
+    seen.add(theme.id)
+    links.push({
+      themeId: theme.id,
+      label: enCollectionTranslations.value[theme.id]?.title ?? theme.internal_name,
+    })
+  }
+  return links
+}
+
+function exhibitionLinksForItem(itemId) {
+  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  if (!marker) return []
+  const links = []
+  const seen = new Set()
+  for (const c of collectionsContainingItem(itemId)) {
+    // Either attached directly to the exhibition itself (an "introduction"
+    // item — see the Exhibitions section comment above), or to a page
+    // nested under a theme nested under the exhibition.
+    let exhibition = null
+    let themeId = null
+    if (c.parent_id === marker.id) {
+      exhibition = c
+    } else {
+      const theme = collections.value.find(t => t.id === c.parent_id)
+      const ex = theme && collections.value.find(e => e.id === theme.parent_id)
+      if (ex && ex.parent_id === marker.id) {
+        exhibition = ex
+        themeId = theme.id
+      }
+    }
+    if (!exhibition) continue
+    const key = `${exhibition.id}:${themeId ?? ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    links.push({
+      exhibitionId: exhibition.id,
+      themeId,
+      label: enCollectionTranslations.value[exhibition.id]?.title ?? exhibition.internal_name,
+    })
+  }
+  return links
+}
+
 // ── Markdown helpers ───────────────────────────────────────────────────────
 
 // Full block markdown → HTML (for prose sections)
@@ -254,6 +319,8 @@ export function useInventoryData() {
     exhibitionById,
     exhibitionThemes,
     exhibitionThemeById,
+    artIntroLinksForItem,
+    exhibitionLinksForItem,
     md,
     mdInline,
     mdStrip,
