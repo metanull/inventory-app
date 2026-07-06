@@ -230,18 +230,24 @@ const keyFacts = computed(() => {
     if (tr.alternate_name)  facts.push({ label: 'Also known as',    value: tr.alternate_name })
     if (tr.location)        facts.push({ label: 'Location',         value: tr.location })
     if (tr.dates)           facts.push({ label: 'Date of Monument', value: tr.dates })
+    if (tr.architects)      facts.push({ label: 'Architects',       value: tr.architects })
     if (dynastyNames)       facts.push({ label: 'Period / Dynasty', value: dynastyNames })
     const patronValue = tr.patrons ?? tr.initial_owner
     if (patronValue)        facts.push({ label: 'Patron(s)',        value: patronValue })
   } else {
+    if (tr.alternate_name)      facts.push({ label: 'Also known as',              value: tr.alternate_name })
     if (tr.location)            facts.push({ label: 'Location',                  value: tr.location })
     if (tr.holder)              facts.push({ label: 'Holding Museum',             value: tr.holder })
     if (tr.dates)               facts.push({ label: 'Date of Object',             value: tr.dates })
+    if (it.artist_names?.length) facts.push({ label: 'Artist',                    value: it.artist_names.join(', ') })
+    if (tr.scriber)             facts.push({ label: 'Scribe',                     value: tr.scriber })
     if (it.owner_reference)     facts.push({ label: 'Museum Inventory Number',    value: it.owner_reference })
     if (tr.type)                facts.push({ label: 'Material(s) / Technique(s)', value: tr.type })
     if (tr.dimensions)          facts.push({ label: 'Dimensions',                 value: tr.dimensions })
     if (dynastyNames)           facts.push({ label: 'Period / Dynasty',           value: dynastyNames })
     if (tr.provenance)          facts.push({ label: 'Provenance',                 value: tr.provenance })
+    if (tr.workshop)            facts.push({ label: 'Workshop',                   value: tr.workshop })
+    if (tr.binding_desc)        facts.push({ label: 'Binding',                    value: tr.binding_desc })
     if (tr.owner)               facts.push({ label: 'Owner',                      value: tr.owner })
     if (tr.initial_owner)       facts.push({ label: 'Initial Owner',              value: tr.initial_owner })
     if (tr.place_of_production) facts.push({ label: 'Place of Production',        value: tr.place_of_production })
@@ -270,6 +276,7 @@ const contentSections = computed(() => {
     if (tr.obtention)             sections.push({ heading: 'How Object was obtained',              value: tr.obtention })
     if (tr.method_for_provenance) sections.push({ heading: 'How provenance was established',       value: tr.method_for_provenance })
     if (tr.bibliography)          sections.push({ heading: 'Selected bibliography',                value: tr.bibliography })
+    if (tr.catalogue_holding_link) sections.push({ heading: 'Catalogue', value: `[${tr.catalogue_holding_link}](${tr.catalogue_holding_link})` })
   }
 
   return sections

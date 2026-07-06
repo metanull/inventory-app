@@ -101,7 +101,8 @@ function matchField(item, field, keyword) {
     case 'patron':
       return (tr.patrons ?? tr.initial_owner ?? '').toLowerCase().includes(kw)
     case 'artist':
-      return (tr.initial_owner ?? '').toLowerCase().includes(kw)
+      return (item.artist_names ?? []).join(' ').toLowerCase().includes(kw) ||
+             (tr.architects ?? '').toLowerCase().includes(kw)
     case 'material':
       return (tr.type ?? '').toLowerCase().includes(kw)
     default:
