@@ -333,6 +333,27 @@ const timelineLink = computed(() => {
   return { path: '/timeline/results', query }
 })
 
+// ── Related video/audio (item_media) — prefer the active content language,
+// fall back to any language the item actually has media in ────────────
+
+const relatedMedia = computed(() => {
+  const all = item.value?.media ?? []
+  if (!all.length) return []
+  const inLang = all.filter(m => m.language === activeLang.value)
+  return inLang.length ? inLang : all
+})
+
+// ── THG (Thematic Gallery) cross-links — a separate legacy project's
+// galleries also featuring this item. THG is due for a rewrite, so these
+// are placeholder same-page anchors, not real external URLs, for now. ──
+
+const thgGalleryLinks = computed(() => {
+  return (item.value?.thg_galleries ?? []).map(g => ({
+    name: g.name,
+    href: `#ThematicGallery-${g.name}`,
+  }))
+})
+
 // ── Navigation ─────────────────────────────────────────────────────────
 
 function back() {
@@ -418,6 +439,15 @@ function back() {
         </div>
       </div>
 
+      <!-- Related Video -->
+      <div v-if="relatedMedia.length" class="related-media">
+        <h2 class="sub-section-title">Related Video</h2>
+        <div v-for="(m, i) in relatedMedia" :key="i" class="media-entry">
+          <a :href="m.url" target="_blank" rel="noopener" class="media-title">{{ m.title }}</a>
+          <p v-if="m.description" class="media-description">{{ m.description }}</p>
+        </div>
+      </div>
+
       <!-- Credits -->
       <div v-if="credits.length" class="credits">
         <h2 class="credits-heading">Credits</h2>
@@ -452,6 +482,16 @@ function back() {
           <p v-if="d.history" class="dynasty-history">{{ d.history }}</p>
           <p v-if="d.area" class="dynasty-area">Area: {{ d.area }}</p>
         </div>
+      </div>
+
+      <!-- Galleries (THG cross-links) -->
+      <div v-if="thgGalleryLinks.length" class="galleries">
+        <h2 class="sub-section-title">Galleries</h2>
+        <ul class="gallery-list">
+          <li v-for="g in thgGalleryLinks" :key="g.name">
+            <a :href="g.href">{{ g.name }}</a>
+          </li>
+        </ul>
       </div>
 
       <!-- Related items -->
@@ -643,6 +683,17 @@ function back() {
 .special-feature { margin-bottom: 16px; }
 .special-feature-name { font-size: 15px; font-weight: 500; color: var(--heading); margin-bottom: 4px; font-family: 'Roboto', sans-serif; }
 .special-feature-meta { font-size: 12px; color: var(--muted); margin: 0 0 4px; font-family: 'Roboto', sans-serif; }
+
+/* Related Video */
+.related-media { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.media-entry { margin-bottom: 10px; }
+.media-title { font-size: 13px; font-weight: 500; color: var(--nav-active); font-family: 'Roboto', sans-serif; }
+.media-description { font-size: 12px; color: var(--muted); margin: 2px 0 0; font-family: 'Roboto', sans-serif; }
+
+/* Galleries (THG cross-links) */
+.galleries { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+.gallery-list { list-style: none; font-size: 13px; font-family: 'Roboto', sans-serif; }
+.gallery-list a { color: var(--nav-active); }
 
 /* Dynasty cards */
 .sub-section-title {
