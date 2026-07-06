@@ -219,7 +219,7 @@ The importer is designed to run as part of a complete database initialization:
 3. **Seed and sync permissions** - Run `php artisan db:seed --class=MinimalDatabaseSeeder --force` and `php artisan permissions:sync`
 4. **Restore auth snapshot** - Restore users after migrations and permission sync (`php artisan auth:restore auth-snapshots/pre-import.json.enc --force`)
 5. **Run the importer** - `import`, then `image-sync`
-6. **Glossary resync** - Re-link glossary spellings to imported translations (required post-import step)
+6. **Glossary resync** - Re-link glossary spellings to imported translations via `php artisan glossary:bulk-resync` (required post-import step)
 7. **Done** - Database is ready with both reference and legacy data
 
 [`import-tool`](../import-tool/README.md) automates steps 1–6 end to end
@@ -238,16 +238,16 @@ After the importer finishes, glossary-to-translation links must be rebuilt. The 
 ```bash
 # From the inventory-app root directory:
 
-# 1. Queue glossary resync jobs (removes stale links first)
-php artisan glossary:resync --remove-existing --force
-
-# 2. Process the queued jobs
-php artisan queue:work --queue=glossary
+php artisan glossary:bulk-resync
 ```
 
-The `glossary:resync` command scans all ItemTranslation, CollectionTranslation, and TimelineEventTranslation records for glossary spelling matches and creates pivot links. This is a **required post-import step** — without it, glossary terms will not be highlighted in translation content.
+`glossary:bulk-resync` scans all ItemTranslation, CollectionTranslation, and TimelineEventTranslation records for glossary spelling matches and creates pivot links, one combined regex pattern per language checked once per translation. This is a **required post-import step** — without it, glossary terms will not be highlighted in translation content. It runs synchronously (no queue, no `queue:work` step needed) and finishes in minutes even on the full dataset.
 
-> **Note:** The queue worker will process jobs until the queue is empty. For large imports, this may take several minutes. You can monitor progress in the Laravel log or run `queue:work --verbose`.
+Every run fully recomputes each translation's spelling links from the current glossary and current translation text, so stale links (spellings that no longer match, or that have since been deleted) are always dropped — there's no separate "remove existing first" flag to remember, unlike the older `glossary:resync` command below.
+
+Add `--dry-run` to report match counts without writing any links, and `--chunk=<n>` to change how many translations are processed per chunk (default 200).
+
+There is also an older, per-spelling command, `glossary:resync --remove-existing --force` followed by `php artisan queue:work --queue=glossary`, which dispatches one queued job per glossary spelling and re-scans every translation of that spelling's language for each one — O(spellings × translations), which takes hours on the full dataset. It still exists for the reactive single-spelling case (editing one glossary entry in the admin panel dispatches just its own job), but `glossary:bulk-resync` is what to run after a bulk import.
 
 ### Running the importer
 
