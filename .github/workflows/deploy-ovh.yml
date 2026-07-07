@@ -95,8 +95,31 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" whoami || \
-            { echo "::error::SSH auth failed — check VPS_SSH_KEY and VPS_SSH_USER secrets"; exit 1; }
+          max_attempts=3
+          attempt=1
+          while [[ $attempt -le $max_attempts ]]; do
+            ssh_output=$(ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o BatchMode=yes "${VPS_USER}@${VPS_HOST}" whoami 2>&1)
+            ssh_exit=$?
+            if [[ $ssh_exit -eq 0 ]]; then
+              echo "SSH authentication succeeded as: ${ssh_output}"
+              exit 0
+            fi
+
+            if echo "$ssh_output" | grep -qi "permission denied\|authentication failed"; then
+              echo "::error::SSH auth rejected — check VPS_SSH_KEY and VPS_SSH_USER secrets"
+              echo "$ssh_output"
+              exit 1
+            fi
+
+            echo "Attempt ${attempt}/${max_attempts} failed (transient network issue?): ${ssh_output}"
+            if [[ $attempt -lt $max_attempts ]]; then
+              sleep $((attempt * 5))
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::SSH connection failed after ${max_attempts} attempts (network/timeout, not an auth rejection) — ${ssh_output}"
+          exit 1
 
       - name: Upload release to VPS
         env:
