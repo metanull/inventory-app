@@ -61,6 +61,34 @@ updates:
       importer-prod-dependencies:
         dependency-type: "production"
 
+  - package-ecosystem: "npm"
+    directory: "/scripts/exporter"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-dev-dependencies:
+        dependency-type: "development"
+      exporter-prod-dependencies:
+        dependency-type: "production"
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/viewer"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-dev-dependencies:
+        dependency-type: "development"
+      viewer-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
