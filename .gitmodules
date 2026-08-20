@@ -4,3 +4,31 @@
 [submodule ".legacy-database/data"]
 	path = .legacy-database/data
 	url = https://bitbucket.org/mwnf/database-content.git
+[submodule ".legacy-code/islamicart"]
+	path = .legacy-code/islamicart
+	url = https://bitbucket.org/mwnf/islamicart.museumwnf.org.git
+	shallow = true
+[submodule ".legacy-code/baroqueart"]
+	path = .legacy-code/baroqueart
+	url = https://bitbucket.org/mwnf/baroqueart.museumwnf.org.git
+	shallow = true
+[submodule ".legacy-code/sharinghistory"]
+	path = .legacy-code/sharinghistory
+	url = https://bitbucket.org/mwnf/sharinghistory.museumwnf.org.git
+	shallow = true
+[submodule ".legacy-code/explore"]
+	path = .legacy-code/explore
+	url = https://bitbucket.org/mwnf/explore.museumwnf.net.git
+	shallow = true
+[submodule ".legacy-code/dxa-api"]
+	path = .legacy-code/dxa-api
+	url = https://bitbucket.org/mwnf/dxa-api.git
+	shallow = true
+[submodule ".legacy-code/dxa-client"]
+	path = .legacy-code/dxa-client
+	url = https://bitbucket.org/mwnf/dxa-client.git
+	shallow = true
+[submodule ".legacy-code/exhibitions-client"]
+	path = .legacy-code/exhibitions-client
+	url = https://bitbucket.org/mwnf/exhibitions-client.git
+	shallow = true
