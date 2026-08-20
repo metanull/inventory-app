@@ -1,4 +1,4 @@
-name: Mandatory Checks
+name: CI
 
 permissions:
   contents: read
@@ -17,118 +17,14 @@ concurrency:
 
 jobs:
 
-  audit-composer:
-    name: Audit - Composer (PHP)
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: "Setup > Image > Install php"
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
-          github-token: ''
-
-      - name: "Check > Composer > Validate composer.json"
-        run: |
-          composer validate --with-dependencies --strict
-
-      - name: "Setup > Composer > Install Dependencies"
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Check > Composer > Audit Vulnerabilities"
-        run: |
-            composer audit --format=summary
-
-  audit-npm-root:
-    name: Audit - npm (Root)
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: "Setup > Image > Install Node.js"
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/Krypton"
-
-      - name: "Setup > node > Enable Corepack"
-        run: |
-          corepack enable
-
-      - name: "Setup > npm > Install Dependencies"
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Check > npm > Audit Vulnerabilities"
-        run: |
-          npm audit --audit-level moderate
-
-  audit-npm-importer:
-    name: Audit - npm (Importer)
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: "Setup > Image > Install Node.js"
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/Krypton"
-
-      - name: "Setup > node > Enable Corepack"
-        run: |
-          corepack enable
-
-      - name: "Setup > npm > Install Dependencies (Importer)"
-        working-directory: scripts/importer
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Check > npm > Audit Vulnerabilities (Importer)"
-        working-directory: scripts/importer
-        run: |
-          npm audit --audit-level moderate
-
-  audit-npm-spa:
-    name: Audit - npm (SPA)
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: "Setup > Image > Install Node.js"
-        uses: actions/setup-node@v6
-        with:
-          node-version: "lts/Krypton"
-          registry-url: https://npm.pkg.github.com/
-
-      - name: "Setup > node > Enable Corepack"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          corepack enable
-
-      - name: "Setup > npm > Install Dependencies (SPA)"
-        working-directory: spa
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm ci --no-audit --no-fund
-
-      - name: "Check > npm > Audit Vulnerabilities (SPA)"
-        working-directory: spa
-        run: |
-          npm audit --audit-level moderate
-
   detect-changes:
     name: Detect Changed Paths
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.detect.outputs.backend }}
+      root-frontend: ${{ steps.detect.outputs.root-frontend }}
+      spa: ${{ steps.detect.outputs.spa }}
+      importer: ${{ steps.detect.outputs.importer }}
 
     steps:
       - uses: actions/checkout@v7
@@ -140,6 +36,9 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "backend=true" >> $GITHUB_OUTPUT
+            echo "root-frontend=true" >> $GITHUB_OUTPUT
+            echo "spa=true" >> $GITHUB_OUTPUT
+            echo "importer=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -155,6 +54,36 @@ jobs:
             echo "backend=false" >> $GITHUB_OUTPUT
           fi
 
+          if echo "$CHANGED" | grep -qE '^(resources/css|resources/js|resources/views)/|^(vite\.config\.js|tailwind\.config\.js|postcss\.config\.js|package\.json|package-lock\.json|tsconfig\.json|eslint\.config\.js)$'; then
+            echo "root-frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "root-frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+          if echo "$CHANGED" | grep -qE '^spa/'; then
+            echo "spa=true" >> $GITHUB_OUTPUT
+          else
+            echo "spa=false" >> $GITHUB_OUTPUT
+          fi
+
+          if echo "$CHANGED" | grep -qE '^scripts/importer/'; then
+            echo "importer=true" >> $GITHUB_OUTPUT
+          else
+            echo "importer=false" >> $GITHUB_OUTPUT
+          fi
+
+  dependency-review:
+    name: Dependency Review (PR)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Check > Dependency Review > Fail on new CRITICAL/HIGH severity dependencies"
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
   backend-lint:
     name: Backend Linting and Validation
     runs-on: ubuntu-latest
@@ -168,34 +97,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: "Setup > Image > Install php"
-        uses: shivammathur/setup-php@v2
+      - name: "Setup > Backend"
+        uses: ./.github/actions/setup-backend
         with:
-          php-version: '8.4'
-          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
           tools: pint
-          github-token: ''
 
       - name: "Check > Composer > Check requirements"
         run: |
           composer check-platform-reqs
-
-      - name: "Setup > Composer > Install Dependencies"
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Setup > Laravel > Create .env file from example"
-        run: |
-          cp .env.local.example .env
-          rm -rf bootstrap/cache/*.php || true
-
-      - name: "Setup > Laravel > Generate application key"
-        run: |
-          php artisan key:generate
-
-      - name: "Setup > Laravel > Create database"
-        run: |
-          php artisan migrate --force
 
       - name: "Check > Laravel > Linting"
         run: |
@@ -227,74 +136,151 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: "Setup > Image > Install php"
-        uses: shivammathur/setup-php@v2
+      - name: "Setup > Backend"
+        uses: ./.github/actions/setup-backend
         with:
-          php-version: '8.4'
-          extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
-          coverage: xdebug
           tools: phpunit, pest
-          github-token: ''
-
-      - name: "Setup > Composer > Install Dependencies"
-        run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-
-      - name: "Setup > Laravel > Create .env file from example"
-        run: |
-          cp .env.local.example .env
-          rm -rf bootstrap/cache/*.php || true
-
-      - name: "Setup > Laravel > Generate application key"
-        run: |
-          php artisan key:generate
-
-      - name: "Setup > Laravel > Create database"
-        run: |
-          php artisan migrate --force
+          coverage: xdebug
 
       - name: "Check > Laravel > Run ${{ matrix.suite }} Tests"
         run: |
           php artisan test --testsuite=${{ matrix.suite }} --coverage --parallel --no-ansi --stop-on-failure
 
+  backend-rendered-frontend-validation:
+    name: Backend Rendered Frontend Validation (Blade/Tailwind)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.root-frontend == 'true'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Setup > Node Project"
+        uses: ./.github/actions/setup-node-project
+
+      - name: "Check > npm > Build Backend Assets"
+        run: |
+          npm run build
+
+  importer-validation:
+    name: Importer Validation (TypeScript)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.importer == 'true'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Setup > Node Project (Importer)"
+        uses: ./.github/actions/setup-node-project
+        with:
+          working-directory: scripts/importer
+
+      - name: "Check > npm > Build (Importer)"
+        working-directory: scripts/importer
+        run: |
+          npm run build
+
+      - name: "Check > npm > Run Tests (Importer)"
+        working-directory: scripts/importer
+        run: |
+          npm test
+
+  spa-frontend-validation:
+    name: Frontend Validation - SPA (Vue 3)
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.spa == 'true'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: "Setup > Node Project (SPA)"
+        uses: ./.github/actions/setup-node-project
+        with:
+          working-directory: spa
+          registry-url: https://npm.pkg.github.com/
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Check > npm > Linting (SPA)"
+        working-directory: spa
+        run: |
+          npm run lint
+
+      - name: "Check > npm > Build (SPA)"
+        working-directory: spa
+        run: |
+          npm run build
+
+      - name: "Check > npm > Run Tests (SPA)"
+        working-directory: spa
+        run: |
+          npm run test:all
+
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [audit-composer, audit-npm-root, audit-npm-importer, audit-npm-spa, detect-changes, backend-lint, backend-tests]
+    needs:
+      - detect-changes
+      - dependency-review
+      - backend-lint
+      - backend-tests
+      - backend-rendered-frontend-validation
+      - importer-validation
+      - spa-frontend-validation
     if: always()
 
     steps:
       - name: Check all mandatory checks passed
         run: |
-          composerResult="${{ needs.audit-composer.result }}"
-          npmRootResult="${{ needs.audit-npm-root.result }}"
-          npmImporterResult="${{ needs.audit-npm-importer.result }}"
-          npmSpaResult="${{ needs.audit-npm-spa.result }}"
+          depReviewResult="${{ needs.dependency-review.result }}"
+
           backendChanged="${{ needs.detect-changes.outputs.backend }}"
+          rootFrontendChanged="${{ needs.detect-changes.outputs.root-frontend }}"
+          spaChanged="${{ needs.detect-changes.outputs.spa }}"
+          importerChanged="${{ needs.detect-changes.outputs.importer }}"
+
           lintResult="${{ needs.backend-lint.result }}"
           testsResult="${{ needs.backend-tests.result }}"
+          rootFrontendResult="${{ needs.backend-rendered-frontend-validation.result }}"
+          importerResult="${{ needs.importer-validation.result }}"
+          spaResult="${{ needs.spa-frontend-validation.result }}"
 
-          if [ "$composerResult" != "success" ] || \
-             [ "$npmRootResult" != "success" ] || \
-             [ "$npmImporterResult" != "success" ] || \
-             [ "$npmSpaResult" != "success" ]; then
-            echo "One or more mandatory audit checks failed"
-            echo "Composer Audit:       $composerResult"
-            echo "npm Audit (Root):     $npmRootResult"
-            echo "npm Audit (Importer): $npmImporterResult"
-            echo "npm Audit (SPA):      $npmSpaResult"
-            exit 1
+          fail=0
+
+          if [ "$depReviewResult" != "success" ]; then
+            echo "Dependency review failed (result: $depReviewResult)"
+            fail=1
           fi
 
           if [ "$backendChanged" = "true" ]; then
             if [ "$lintResult" != "success" ]; then
               echo "Backend linting failed or was not run (result: $lintResult)"
-              exit 1
+              fail=1
             fi
             if [ "$testsResult" != "success" ]; then
               echo "Backend tests failed or were not run (result: $testsResult)"
-              exit 1
+              fail=1
             fi
+          fi
+
+          if [ "$rootFrontendChanged" = "true" ] && [ "$rootFrontendResult" != "success" ]; then
+            echo "Backend rendered frontend validation failed or was not run (result: $rootFrontendResult)"
+            fail=1
+          fi
+
+          if [ "$importerChanged" = "true" ] && [ "$importerResult" != "success" ]; then
+            echo "Importer validation failed or was not run (result: $importerResult)"
+            fail=1
+          fi
+
+          if [ "$spaChanged" = "true" ] && [ "$spaResult" != "success" ]; then
+            echo "SPA validation failed or was not run (result: $spaResult)"
+            fail=1
+          fi
+
+          if [ "$fail" = "1" ]; then
+            exit 1
           fi
 
           echo "All mandatory checks passed"

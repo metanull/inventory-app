@@ -1,0 +1,46 @@
+name: "Setup Backend (PHP + Laravel)"
+description: "Install PHP, Composer dependencies, and prepare a Laravel test environment (sqlite in-memory)"
+
+inputs:
+  php-version:
+    description: "PHP version to install"
+    default: "8.4"
+  tools:
+    description: "Comma-separated Composer/PHP tools to install (e.g. pint or phpunit,pest)"
+    default: ""
+  coverage:
+    description: "Coverage driver (none or xdebug)"
+    default: "none"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup > Image > Install php"
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: fileinfo, intl, zip, sqlite3, pdo_sqlite, gd, exif
+        tools: ${{ inputs.tools }}
+        coverage: ${{ inputs.coverage }}
+        github-token: ""
+
+    - name: "Setup > Composer > Install Dependencies"
+      shell: bash
+      run: |
+        composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+    - name: "Setup > Laravel > Create .env file from example"
+      shell: bash
+      run: |
+        cp .env.local.example .env
+        rm -rf bootstrap/cache/*.php || true
+
+    - name: "Setup > Laravel > Generate application key"
+      shell: bash
+      run: |
+        php artisan key:generate
+
+    - name: "Setup > Laravel > Create database"
+      shell: bash
+      run: |
+        php artisan migrate --force
