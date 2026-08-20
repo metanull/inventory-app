@@ -17,15 +17,32 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Approve minor dependabot pull-request updates
-        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
+      - name: Determine auto-merge eligibility
+        id: policy
+        run: |
+          ECOSYSTEM="${{ steps.dependabot-metadata.outputs.package-ecosystem }}"
+          UPDATE_TYPE="${{ steps.dependabot-metadata.outputs.update-type }}"
+
+          # GitHub Actions bumps only touch the CI pipeline, never shipped app
+          # code, and a broken one fails the same PR's required checks
+          # immediately - so auto-merge them at any semver level, including
+          # major. Application dependencies (npm/composer) stay gated to
+          # minor/patch; majors always wait for manual review.
+          if [ "$ECOSYSTEM" = "github_actions" ] || [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
+            echo "auto_merge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "auto_merge=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Approve eligible dependabot pull-request updates
+        if: ${{ steps.policy.outputs.auto_merge == 'true' }}
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Enable auto-merge on minor dependabot pull-request updates
-        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
+      - name: Enable auto-merge on eligible dependabot pull-request updates
+        if: ${{ steps.policy.outputs.auto_merge == 'true' }}
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
