@@ -85,7 +85,7 @@ function back() {
 <style scoped>
 .not-found { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; }
 
-.intro-box { border-top: 3px solid var(--gold-dark); }
+.intro-box { border-top: 3px solid var(--accent); }
 .intro-subtitle {
   font-size: 16px;
   font-weight: 400;
@@ -116,7 +116,7 @@ function back() {
   align-items: center;
   justify-content: space-between;
   padding: 12px 4px;
-  border-bottom: 1px solid #e8dcc8;
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
 }
 .theme-row:last-child { border-bottom: none; }

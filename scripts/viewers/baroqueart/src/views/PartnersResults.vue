@@ -109,7 +109,7 @@ function partnerLink(partner) {
 .no-results { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; padding: 20px 0; }
 
 .country-group {
-  border-bottom: 1px solid #e8dcc8;
+  border-bottom: 1px solid var(--border-light);
   padding: 10px 0;
 }
 .country-group:last-child { border-bottom: none; }
@@ -128,7 +128,7 @@ function partnerLink(partner) {
 }
 .country-head h3::before {
   content: '▸ ';
-  color: var(--gold-dark);
+  color: var(--accent);
 }
 details[open] > .country-head h3::before { content: '▾ '; }
 

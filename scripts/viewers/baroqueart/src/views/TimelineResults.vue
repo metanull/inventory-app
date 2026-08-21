@@ -244,7 +244,7 @@ const activeFilterLabel = computed(() => {
   display: flex;
   gap: 16px;
   padding: 14px 0;
-  border-bottom: 1px solid #e8dcc8;
+  border-bottom: 1px solid var(--border-light);
 }
 .timeline-row:last-child { border-bottom: none; }
 

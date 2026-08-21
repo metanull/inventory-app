@@ -173,7 +173,7 @@ function back() {
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #f0ebdc;
+  background: var(--tile-bg);
   margin-bottom: 8px;
 }
 .intro-item-img { width: 100%; height: 100%; object-fit: cover; display: block; }
