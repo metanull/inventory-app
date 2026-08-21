@@ -374,7 +374,34 @@ not an exhaustive enumeration:
 | 7 | `mwnf3_travels` | Travels: contexts, trails, itineraries, locations, monuments, and their images/translations |
 | 8 | `mwnf3` | Item media and documents |
 | 10 | `mwnf3_thematic_gallery` | Thematic Galleries: galleries, themes, contributors, tags, timelines, gallery content, and cross-schema links from galleries to items originating in every other legacy schema above |
-| 11 | (post-import) | Collection media (needs THG collections), partner-monument linking, project cleanup (drops projects left with no items) |
+| 11 | (post-import) | Collection media (needs THG collections), partner-monument linking, project exhibition-root keying (see below), project cleanup (drops projects left with no items) |
+
+### Project exhibition-root keying (standalone-friendly)
+
+`project-exhibition-root-keying` (phase 11, before `project-cleanup`) creates
+a "Virtual Exhibitions" marker collection `mwnf3:exhibitions:root:{KEY}` under
+each non-ISL project collection and re-parents that project's exhibition
+collections beneath it. This gives every dataset's exporter/viewer an
+unambiguous structural anchor for exhibitions — neither `type='exhibition'`
+nor the `mwnf3:exhibitions:{id}` keys are project-scoped in the legacy
+schema. ISL is untouched: its exhibitions already nest under the original
+`mwnf3:exhibitions:root` marker.
+
+Because the importer is meant to run **once** (inventory-app is the source of
+truth afterwards), this step is designed to be run **standalone** against an
+already-imported database when a new dataset needs keying — seconds instead
+of a full multi-hour import:
+
+```bash
+npx tsx src/cli/import.ts import --only project-exhibition-root-keying            # dry-run first:
+npx tsx src/cli/import.ts import --only project-exhibition-root-keying --dry-run
+```
+
+It is idempotent (existing roots/parents are skipped) and only needs the
+`mwnf3.exhibitions` table on the legacy side — a scratch database loaded from
+`.legacy-database/` dumps is sufficient if the live legacy DB is unreachable.
+Sharing History and Explore use different keyspaces and are future extensions
+of this step (#1464, #1465).
 
 ## Environment Variables
 
