@@ -8,3 +8,4 @@
 export { PartnerMonumentLinker } from './partner-monument-linker.js';
 export { ProjectCleanupImporter } from './project-cleanup-importer.js';
 export { CollectionMediaImporter } from './collection-media-importer.js';
+export { ProjectExhibitionRootKeyingImporter } from './project-exhibition-root-keying-importer.js';

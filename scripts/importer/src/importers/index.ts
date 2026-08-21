@@ -139,4 +139,5 @@ export {
   PartnerMonumentLinker,
   ProjectCleanupImporter,
   CollectionMediaImporter,
+  ProjectExhibitionRootKeyingImporter,
 } from './phase-11/index.js';

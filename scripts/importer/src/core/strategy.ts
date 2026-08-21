@@ -584,6 +584,12 @@ export interface IWriteStrategy {
   // =========================================================================
 
   /**
+   * Get a collection's current parent_id (null when it has no parent).
+   * Used by re-parenting steps to detect no-op updates on reruns.
+   */
+  getCollectionParentId(collectionId: string): Promise<string | null>;
+
+  /**
    * Update a collection's parent_id (for re-parenting, e.g., locations under regions)
    */
   updateCollectionParentId(collectionId: string, parentId: string): Promise<void>;

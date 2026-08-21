@@ -1712,6 +1712,17 @@ export class SqlWriteStrategy implements IWriteStrategy {
   // Update Methods (for post-processing / re-parenting)
   // =========================================================================
 
+  async getCollectionParentId(collectionId: string): Promise<string | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT parent_id FROM collections WHERE id = ?`,
+      [collectionId]
+    );
+    if (rows.length === 0) {
+      return null;
+    }
+    return (rows[0].parent_id as string | null) ?? null;
+  }
+
   async updateCollectionParentId(collectionId: string, parentId: string): Promise<void> {
     await this.db.execute(`UPDATE collections SET parent_id = ?, updated_at = ? WHERE id = ?`, [
       parentId,
