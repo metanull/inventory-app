@@ -121,6 +121,7 @@ import {
   ThgGalleryExploreMonumentImporter,
   ProjectCleanupImporter,
   PartnerMonumentLinker,
+  ProjectExhibitionRootKeyingImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -445,7 +446,12 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'MWNF3 Exhibitions',
     description: 'Import mwnf3 exhibition + artintro hierarchy as nested collections',
     importerClass: Mwnf3ExhibitionImporter,
-    dependencies: ['project', 'language', 'artintro-root-collection', 'exhibitions-root-collection'],
+    dependencies: [
+      'project',
+      'language',
+      'artintro-root-collection',
+      'exhibitions-root-collection',
+    ],
   },
   {
     key: 'mwnf3-exhibition-translation',
@@ -771,7 +777,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-gallery-translation',
     name: 'THG Gallery Translations',
-    description: 'Import thematic gallery translations (exhibition_i18n — exhibition-specific extra data)',
+    description:
+      'Import thematic gallery translations (exhibition_i18n — exhibition-specific extra data)',
     importerClass: ThgGalleryTranslationImporter,
     dependencies: ['thg-gallery', 'language'],
   },
@@ -912,7 +919,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-gallery-content',
     name: 'THG Gallery Content',
-    description: 'Import exhibition logos as collection images and related content as collection media',
+    description:
+      'Import exhibition logos as collection images and related content as collection media',
     importerClass: ThgGalleryContentImporter,
     dependencies: ['thg-gallery', 'language'],
   },
@@ -923,6 +931,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description: 'Link partners (museums) to their monument locations',
     importerClass: PartnerMonumentLinker,
     dependencies: ['partner', 'monument'],
+  },
+  {
+    key: 'project-exhibition-root-keying',
+    name: 'Project Exhibition Root Keying',
+    description:
+      'Create per-project Virtual Exhibitions root collections (non-ISL) and re-parent their exhibitions',
+    importerClass: ProjectExhibitionRootKeyingImporter,
+    dependencies: ['project', 'mwnf3-exhibition'],
   },
   {
     key: 'project-cleanup',
