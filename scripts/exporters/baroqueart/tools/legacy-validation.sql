@@ -32,8 +32,12 @@ SELECT COUNT(*) AS details_raw FROM (
   FROM monument_details WHERE project_id = 'BAR'
 ) d;
 
--- BAR exhibitions — expect the 9 collections under mwnf3:exhibitions:root:BAR
-SELECT exhibition_id, name FROM exhibitions
+-- BAR exhibitions — expect the PUBLISHED (show='y') ones under
+-- mwnf3:exhibitions:root:BAR in collections.json: 8. Exhibition 49
+-- "Academia" is show='n' (never listed on the legacy site; has themes but
+-- no object links) — it stays in the inventory DB but is excluded from the
+-- package by the collection exporter.
+SELECT exhibition_id, name, `show` FROM exhibitions
 WHERE project_id = 'BAR' ORDER BY exhibition_id;
 
 -- Timeline countries: legacy hcr_home.php derives the DBA timeline country
