@@ -41,20 +41,28 @@ const translationsCache = ref({}) // lang -> item translations (for detail view)
 
 let enLoaded = false
 
+// Glob instead of literal imports: which translation files exist varies by
+// dataset/export (e.g. BAR timeline events currently ship without
+// translations), and a literal import of an absent file fails the build.
+// The glob only binds files that actually exist in the installed package;
+// absent ones resolve to empty maps.
+const enTranslationLoaders = import.meta.glob('@inventory-data/translations/*.en.json')
+
+function loadEnFile(entity) {
+  const suffix = `/translations/${entity}.en.json`
+  const key = Object.keys(enTranslationLoaders).find(k => k.endsWith(suffix))
+  return key ? enTranslationLoaders[key]() : Promise.resolve({ default: {} })
+}
+
 async function loadEnglishTranslations() {
   if (enLoaded) return
   enLoaded = true
   await Promise.allSettled([
-    import('@inventory-data/translations/items.en.json')
-      .then(m => { enItemTranslations.value = m.default }),
-    import('@inventory-data/translations/countries.en.json')
-      .then(m => { enCountryTranslations.value = m.default }),
-    import('@inventory-data/translations/partners.en.json')
-      .then(m => { enPartnerTranslations.value = m.default }),
-    import('@inventory-data/translations/timeline_events.en.json')
-      .then(m => { enTimelineEventTranslations.value = m.default }),
-    import('@inventory-data/translations/collections.en.json')
-      .then(m => { enCollectionTranslations.value = m.default }),
+    loadEnFile('items').then(m => { enItemTranslations.value = m.default }),
+    loadEnFile('countries').then(m => { enCountryTranslations.value = m.default }),
+    loadEnFile('partners').then(m => { enPartnerTranslations.value = m.default }),
+    loadEnFile('timeline_events').then(m => { enTimelineEventTranslations.value = m.default }),
+    loadEnFile('collections').then(m => { enCollectionTranslations.value = m.default }),
   ])
   // Seed English into the detail-view cache too
   if (!translationsCache.value['en']) {

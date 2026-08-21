@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4173", "--strictPort"],
       "cwd": "scripts/viewers/islamicart",
       "port": 4173
+    },
+    {
+      "name": "baroqueart-viewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4174", "--strictPort"],
+      "cwd": "scripts/viewers/baroqueart",
+      "port": 4174
     }
   ]
 }
