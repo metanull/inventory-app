@@ -140,4 +140,6 @@ export {
   ProjectCleanupImporter,
   CollectionMediaImporter,
   ProjectExhibitionRootKeyingImporter,
+  ShExhibitionRootKeyingImporter,
+  ShExhibitionShowFlagImporter,
 } from './phase-11/index.js';
