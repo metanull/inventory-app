@@ -204,7 +204,7 @@ function back() {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--heading);
-  border: 1px solid var(--gold-dark);
+  border: 1px solid var(--accent);
   padding: 2px 8px;
   margin-bottom: 10px;
   font-family: 'Roboto', sans-serif;
@@ -293,7 +293,7 @@ function back() {
 }
 .contact-person {
   padding-left: 12px;
-  border-left: 3px solid var(--gold-dark);
+  border-left: 3px solid var(--accent);
 }
 .contact-person-title { font-weight: 500; color: var(--heading); }
 .contact-address { white-space: pre-line; }

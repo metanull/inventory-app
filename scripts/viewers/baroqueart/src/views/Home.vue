@@ -111,7 +111,7 @@ function goToItem(item) {
 <style scoped>
 .home { display: flex; flex-direction: column; gap: 16px; }
 
-.home-banner { border-top: 3px solid var(--gold-dark); }
+.home-banner { border-top: 3px solid var(--accent); }
 .home-title {
   font-size: 20px;
   font-weight: 400;
@@ -134,7 +134,7 @@ function goToItem(item) {
 
 .home-card {
   cursor: pointer;
-  border-top: 3px solid var(--gold-dark);
+  border-top: 3px solid var(--accent);
   transition: box-shadow 0.15s;
 }
 .home-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
@@ -154,7 +154,7 @@ function goToItem(item) {
 }
 
 /* Featured */
-.home-featured { border-top: 3px solid var(--gold-dark); }
+.home-featured { border-top: 3px solid var(--accent); }
 .featured-inner {
   display: flex;
   gap: 20px;

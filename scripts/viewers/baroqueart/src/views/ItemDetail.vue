@@ -553,7 +553,7 @@ function back() {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--heading);
-  border: 1px solid var(--gold-dark);
+  border: 1px solid var(--accent);
   padding: 2px 8px;
   margin-bottom: 10px;
   font-family: 'Roboto', sans-serif;
@@ -607,7 +607,7 @@ function back() {
   text-align: left;
 }
 .key-facts th {
-  background: var(--gold-pale);
+  background: var(--field-bg);
   width: 36%;
   font-weight: 500;
   color: var(--heading);
@@ -750,12 +750,12 @@ function back() {
 .detail :deep(.gloss-term) {
   color: var(--heading);
   text-decoration: underline dotted;
-  text-decoration-color: var(--gold-dark);
+  text-decoration-color: var(--accent);
   text-underline-offset: 2px;
   cursor: pointer;
 }
 .detail :deep(.gloss-term:hover) {
-  color: var(--gold-dark);
+  color: var(--accent);
   text-decoration-style: solid;
 }
 
@@ -773,7 +773,7 @@ function back() {
 .gloss-modal {
   position: relative;
   background: var(--section-bg, #fff);
-  border-top: 4px solid var(--gold-dark);
+  border-top: 4px solid var(--accent);
   max-width: 480px;
   width: 100%;
   padding: 28px 24px;

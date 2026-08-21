@@ -56,7 +56,7 @@ const exhibitionList = computed(() =>
   align-items: center;
   justify-content: space-between;
   padding: 12px 4px;
-  border-bottom: 1px solid #e8dcc8;
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
 }
 .theme-row:last-child { border-bottom: none; }

@@ -45,39 +45,46 @@ import { RouterView, RouterLink } from 'vue-router'
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* Legacy Discover Baroque Art palette (www.discoverbaroqueart.org css):
+     header/footer #14214E, nav #12376B alternating #3F6289 (ul.nav),
+     content panels #12376B / #3F6289, pale-gold #F5DA66 nav hover. */
+
   /* Header / nav / footer backgrounds */
-  --header-bg:   #EEC201;   /* amber gold — legacy header bar */
-  --nav-bg:      #FFD600;   /* bright yellow — legacy nav bar */
-  --nav-alt-bg:  #E0B700;   /* alternating nav item */
-  --footer-bg:   #E0B700;   /* footer bar */
+  --header-bg:   #14214E;   /* dark navy — legacy header bar */
+  --nav-bg:      #12376B;   /* deep blue — legacy nav bar */
+  --nav-alt-bg:  #3F6289;   /* alternating nav item (legacy nth-child(even)) */
+  --footer-bg:   #14214E;   /* footer bar */
 
   /* Text on those backgrounds */
-  --header-fg:   #4C420E;   /* dark brown on amber header */
-  --nav-fg:      #4C4214;   /* dark brown on yellow nav */
-  --nav-active:  #990000;   /* hover / active nav link */
-  --footer-fg:   #4C4214;   /* footer text */
+  --header-fg:   #ffffff;   /* white on navy header */
+  --nav-fg:      #ffffff;   /* white on blue nav */
+  --nav-hover-fg:#F5DA66;   /* pale gold — legacy nav link hover */
+  --nav-active:  #12376B;   /* hover / active emphasis on light surfaces */
+  --footer-fg:   #ffffff;   /* footer text */
 
   /* Heading & body text */
-  --heading:     #4C420E;   /* section headings */
+  --heading:     #12376B;   /* section headings */
   --text:        #222222;   /* body text */
-  --muted:       #4c4000;   /* secondary / label text */
+  --muted:       #5a5a5a;   /* secondary / label text */
   --link:        #222222;
-  --link-hover:  #990000;
+  --link-hover:  #12376B;
 
-  /* Gold accent palette */
-  --gold:        #FFD600;
-  --gold-amber:  #EEC201;
-  --gold-dark:   #E0B700;
-  --gold-light:  #F5DA66;
-  --gold-pale:   #fdfbed;
+  /* Blue accent palette */
+  --accent:      #12376B;   /* primary deep blue */
+  --accent-soft: #3F6289;   /* secondary slate blue */
+  --accent-dark: #14214E;   /* darkest navy */
+  --accent-pale: #6A88AE;   /* light blue (legacy timeline header) */
+  --field-bg:    #f4f7fa;   /* pale blue-gray for inputs / subtle fills */
+  --tile-bg:     #e9eef4;   /* thumbnail / grid-cell placeholder */
 
   /* Surfaces */
   --page-bg:     #ffffff;
   --content-bg:  #ffffff;
-  --section-bg:  #fffff0;   /* ivory for info sections */
+  --section-bg:  #f4f7fa;   /* pale blue-gray for info sections */
 
   /* Borders */
-  --border:      #a19869;   /* muted gold-brown */
+  --border:      #8fa3ba;   /* muted blue-gray */
+  --border-light:#d4dde7;   /* light separator lines */
 }
 
 body {
@@ -124,7 +131,6 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   letter-spacing: 0.02em;
   font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
-  text-shadow: 2px 2px 4px var(--gold-light);
 }
 
 /* ── Navigation ─────────────────────────────────────────────────────────── */
@@ -151,8 +157,8 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
 }
 .site-nav a:hover,
 .site-nav a.nav-active {
-  color: var(--nav-active);
-  background: rgba(0,0,0,0.08);
+  color: var(--nav-hover-fg);
+  background: rgba(0,0,0,0.15);
 }
 
 /* ── Main content ────────────────────────────────────────────────────────── */
@@ -183,7 +189,7 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   font-size: 18px;
   font-weight: 400;
   color: var(--heading);
-  border-bottom: 2px solid var(--gold-dark);
+  border-bottom: 2px solid var(--accent);
   padding-bottom: 4px;
   margin-bottom: 14px;
   font-family: 'Roboto', sans-serif;
@@ -196,7 +202,7 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   align-items: flex-start;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid #e8dcc8;
+  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
 }
 .item-list-row:last-child { border-bottom: none; }
@@ -208,7 +214,7 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   height: 64px;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #f0ebdc;
+  background: var(--tile-bg);
 }
 .item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .item-thumb-placeholder { width: 100%; height: 100%; }
@@ -252,7 +258,7 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   font-size: 12px;
   font-family: 'Roboto', sans-serif;
 }
-.page-btn:hover { background: var(--gold-pale); }
+.page-btn:hover { background: var(--field-bg); }
 .page-btn.active {
   background: var(--nav-bg);
   color: var(--nav-fg);
@@ -283,12 +289,12 @@ select, input[type="text"], input[type="number"] {
   font-size: 13px;
   padding: 4px 8px;
   border: 1px solid var(--border);
-  background: var(--gold-pale);
+  background: var(--field-bg);
   color: var(--text);
   border-radius: 0;
   width: auto;
 }
-select:focus, input:focus { outline: 1px solid var(--gold-dark); }
+select:focus, input:focus { outline: 1px solid var(--accent); }
 
 .btn {
   display: inline-block;
@@ -307,7 +313,7 @@ select:focus, input:focus { outline: 1px solid var(--gold-dark); }
   background: var(--border);
   color: var(--text);
 }
-.btn-secondary:hover { background: #8a7d52; color: #fff; }
+.btn-secondary:hover { background: var(--accent-pale); color: #fff; }
 
 /* ── Back link ──────────────────────────────────────────────────────────── */
 .back-link {

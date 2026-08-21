@@ -15,7 +15,7 @@ importer step had been executed and DB-verified in production.
 | Objects | 304 (distinct PK minus lang) | 304 | **exact** |
 | Monuments | 293 | 293 | **exact** |
 | Monument details | 1362 raw; **1207 with a non-empty name** | 1207 | **intentional** — the importer skips name-less rows by policy (no synthesized titles); the 155 skipped legacy rows are empty-name stubs with no displayable content |
-| Exhibitions | 9 (ids 43–51) | 9, all under `mwnf3:exhibitions:root:BAR` (`e4318b5c-d592-53f9-a9fd-7f05d87c09e6`) | **exact** |
+| Exhibitions | **8 published** (ids 43–51 minus 49 "Academia", which is `show='n'` and was never listed on the legacy site) | initially 9 (finding 4); 8 after the exporter fix, all under `mwnf3:exhibitions:root:BAR` (`e4318b5c-d592-53f9-a9fd-7f05d87c09e6`) | **exact after fix** |
 | Timelines | 6 — legacy `hcr_home.php` lists timeline countries from **objects only** (`cz,de,hr,hu,it,pt`); Austria (`at`) has only monuments and never had a legacy timeline | 6 timelines, 356 events | **exact legacy behavior** |
 | Partners, tier-1 (`level='partner'`) | 12 museums + 10 institutions | 12 museums + 10 institutions | **exact** |
 | Partners, other tiers | associated/minor tables | 24 `associated_partner` + 1 `minor_contributor` (total 47) | consistent |
@@ -52,6 +52,15 @@ importer step had been executed and DB-verified in production.
 3. The two count deltas (details, timeline countries) are explained above
    as intentional importer policy and exact legacy behavior respectively —
    no follow-up needed.
+4. **Unpublished exhibition leaked into the package** (found post-launch,
+   fixed same day). Legacy `mwnf3.exhibitions` row 49 "Academia,
+   Universities, Sciences" has `show='n'` — the legacy site filtered on
+   `show='y'` so it was never listed (it has 3 themes but zero object
+   links). The importer rightly preserves it (with the flag in
+   `collection_translations.extra.legacy_exhibition.show`); the collection
+   exporter now excludes `show='n'` exhibitions and their theme/page
+   subtrees, bringing the package to the 8 exhibitions the legacy site
+   actually displayed.
 
 ## Viewer verification (real published data, dev server)
 
