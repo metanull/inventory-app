@@ -98,7 +98,7 @@ export class CollectionExporter extends BaseExporter {
     const colPh = this.placeholders(collectionIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
-    const [translations, images, itemLinks] = await Promise.all([
+    const [allTranslations, images, itemLinks] = await Promise.all([
       this.db.query<CollectionTranslationRow>(
         `SELECT collection_id, language_id, title, description, quote, url, extra
          FROM collection_translations
@@ -124,6 +124,22 @@ export class CollectionExporter extends BaseExporter {
         [...collectionIds, ...this.projectIds]
       ),
     ])
+
+    // The legacy site only listed exhibitions with show='y'
+    // (mwnf3.exhibitions.show, preserved by the importer in
+    // collection_translations.extra.legacy_exhibition.show). Unpublished
+    // exhibitions — and their theme/page subtrees — stay in the inventory DB
+    // as source of truth but must not ship in the data-package. No ISL
+    // exhibition is show='n' today; this guards future re-imports (the BAR
+    // package leaked exhibition 49 "Academia" exactly this way).
+    const excludedIds = computeUnpublishedExhibitionSubtree(collections, allTranslations)
+    const publishedCollections = collections.filter(c => !excludedIds.has(c.id))
+    const translations = allTranslations.filter(t => !excludedIds.has(t.collection_id))
+    if (excludedIds.size > 0) {
+      this.logger.info(
+        `Excluding ${excludedIds.size} collection(s) under unpublished (show='n') exhibitions`
+      )
+    }
 
     // collection_id -> lang_code -> fields
     const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
@@ -172,7 +188,7 @@ export class CollectionExporter extends BaseExporter {
       itemMap.get(link.collection_id)!.push(buildCollectionItemEntry(link, imageUrlFn))
     }
 
-    const output = collections.map(c => ({
+    const output = publishedCollections.map(c => ({
       id: c.id,
       type: c.type,
       internal_name: c.internal_name,
@@ -191,6 +207,44 @@ export class CollectionExporter extends BaseExporter {
 
     return { file: 'collections.json', count: output.length }
   }
+}
+
+/**
+ * Returns the ids of every collection that is an unpublished legacy
+ * exhibition (extra.legacy_exhibition.show === 'n' on any of its translation
+ * rows) plus all of its descendants (themes, pages). Exported for unit tests.
+ */
+export function computeUnpublishedExhibitionSubtree(
+  collections: Pick<CollectionRow, 'id' | 'parent_id'>[],
+  translations: Pick<CollectionTranslationRow, 'collection_id' | 'extra'>[]
+): Set<string> {
+  const excluded = new Set<string>()
+  for (const t of translations) {
+    const extra = parseJson(t.extra) as Record<string, unknown> | null
+    const legacy = extra?.legacy_exhibition as Record<string, unknown> | undefined
+    if (typeof legacy?.show === 'string' && legacy.show.trim().toLowerCase() === 'n') {
+      excluded.add(t.collection_id)
+    }
+  }
+  if (excluded.size === 0) return excluded
+
+  const childrenByParent = new Map<string, string[]>()
+  for (const c of collections) {
+    if (!c.parent_id) continue
+    if (!childrenByParent.has(c.parent_id)) childrenByParent.set(c.parent_id, [])
+    childrenByParent.get(c.parent_id)!.push(c.id)
+  }
+  const queue = [...excluded]
+  while (queue.length > 0) {
+    const id = queue.pop()!
+    for (const childId of childrenByParent.get(id) ?? []) {
+      if (!excluded.has(childId)) {
+        excluded.add(childId)
+        queue.push(childId)
+      }
+    }
+  }
+  return excluded
 }
 
 /**
