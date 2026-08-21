@@ -62,7 +62,7 @@ updates:
         dependency-type: "production"
 
   - package-ecosystem: "npm"
-    directory: "/scripts/exporter"
+    directory: "/scripts/exporters/islamicart"
     schedule:
       interval: "weekly"
     labels:
@@ -75,7 +75,7 @@ updates:
         dependency-type: "production"
 
   - package-ecosystem: "npm"
-    directory: "/scripts/viewer"
+    directory: "/scripts/viewers/islamicart"
     schedule:
       interval: "weekly"
     labels:

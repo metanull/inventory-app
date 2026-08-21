@@ -1,15 +1,15 @@
-name: Deploy Viewer to OVH
+name: Deploy islamicart Viewer to OVH
 
 on:
   push:
     branches: ["main"]
     paths:
-      - "scripts/viewer/**"
+      - "scripts/viewers/islamicart/**"
 
   workflow_dispatch:
 
 concurrency:
-  group: deploy-viewer-ovh
+  group: deploy-viewer-islamicart-ovh
   cancel-in-progress: false
 
 permissions:
@@ -37,13 +37,13 @@ jobs:
           scope: "@metanull"
 
       - name: Install dependencies
-        working-directory: scripts/viewer
+        working-directory: scripts/viewers/islamicart
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm ci --no-audit --no-fund
 
       - name: Update data package to latest published version
-        working-directory: scripts/viewer
+        working-directory: scripts/viewers/islamicart
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Always pull the newest @metanull/islamicart-data regardless of what
@@ -51,7 +51,7 @@ jobs:
         run: npm install @metanull/islamicart-data@latest --no-audit --no-fund
 
       - name: Build viewer
-        working-directory: scripts/viewer
+        working-directory: scripts/viewers/islamicart
         run: npm run build -- --base=/islamicart/
 
       - name: Setup SSH
@@ -83,7 +83,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_SSH_USER }}
         run: |
           scp -i ~/.ssh/deploy_key -o ConnectTimeout=30 -r \
-            scripts/viewer/dist/. "${VPS_USER}@${VPS_HOST}:/opt/islamicart/"
+            scripts/viewers/islamicart/dist/. "${VPS_USER}@${VPS_HOST}:/opt/islamicart/"
 
       - name: Cleanup
         if: always()

@@ -1,16 +1,19 @@
-# Exporter
+# Islamic Art Exporter
 
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
 output as a private npm package via GitHub Packages, which is how
-[`scripts/viewer`](../viewer/README.md) and the deployed Discover Islamic Art
-site actually consume it.
+[`scripts/viewers/islamicart`](../../viewers/islamicart/README.md) and the
+deployed Discover Islamic Art site actually consume it.
+
+Exporters are forked per dataset (`scripts/exporters/<dataset>`): this one
+produces the Discover Islamic Art data-package.
 
 ## Run (TL;DR)
 
 ```powershell
-cd scripts/exporter
+cd scripts/exporters/islamicart
 npm install                # first run only
 npm run export -- islamicart ISL `
   --force `
@@ -112,10 +115,10 @@ and the consumer-side install/import story.
 inventory-app DB
       │  (exporter reads directly — no API involved)
       ▼
-scripts/exporter  ──npm publish──▶  @metanull/islamicart-data (GitHub Packages)
-                                             │  npm install
-                                             ▼
-                                     scripts/viewer (or any consumer)
+scripts/exporters/islamicart  ──npm publish──▶  @metanull/islamicart-data (GitHub Packages)
+                                                       │  npm install
+                                                       ▼
+                                          scripts/viewers/islamicart (or any consumer)
 ```
 
 The exporter and the viewer are decoupled entirely through the published
@@ -123,7 +126,7 @@ package — the viewer never talks to the exporter or the database directly,
 it just depends on whatever version of the data package is installed.
 Routine content updates mean: re-export with `--publish --force`, `npm
 publish`, then either let the viewer's deploy workflow pick up `@latest`
-automatically (see [`scripts/viewer/README.md`](../viewer/README.md)) or
+automatically (see [`scripts/viewers/islamicart/README.md`](../../viewers/islamicart/README.md)) or
 bump it manually for other consumers. `@metanull/islamicart-data` is the
 package actually deployed today; the code's own default naming
 (`@mwnf/{subdirectory}-data`, see the option table above) is there for

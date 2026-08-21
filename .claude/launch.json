@@ -5,7 +5,7 @@
       "name": "viewer",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "4173", "--strictPort"],
-      "cwd": "scripts/viewer",
+      "cwd": "scripts/viewers/islamicart",
       "port": 4173
     }
   ]

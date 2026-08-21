@@ -56,11 +56,11 @@ jobs:
           - name: Importer
             directory: scripts/importer
             registry-url: ""
-          - name: Exporter
-            directory: scripts/exporter
+          - name: Exporter (islamicart)
+            directory: scripts/exporters/islamicart
             registry-url: ""
-          - name: Viewer
-            directory: scripts/viewer
+          - name: Viewer (islamicart)
+            directory: scripts/viewers/islamicart
             registry-url: https://npm.pkg.github.com/
 
     steps:
