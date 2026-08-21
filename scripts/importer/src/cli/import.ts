@@ -122,6 +122,8 @@ import {
   ProjectCleanupImporter,
   PartnerMonumentLinker,
   ProjectExhibitionRootKeyingImporter,
+  ShExhibitionRootKeyingImporter,
+  ShExhibitionShowFlagImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -939,6 +941,22 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Create per-project Virtual Exhibitions root collections (non-ISL) and re-parent their exhibitions',
     importerClass: ProjectExhibitionRootKeyingImporter,
     dependencies: ['project', 'mwnf3-exhibition'],
+  },
+  {
+    key: 'sh-exhibition-root-keying',
+    name: 'SH Exhibition Root Keying',
+    description:
+      'Create per-project Virtual Exhibitions root collections for Sharing History and re-parent their exhibitions (#1464)',
+    importerClass: ShExhibitionRootKeyingImporter,
+    dependencies: ['sh-project', 'sh-exhibition'],
+  },
+  {
+    key: 'sh-exhibition-show-flag',
+    name: 'SH Exhibition Show Flag',
+    description:
+      'Stamp legacy sh_exhibitions.show into collection_translations.extra.legacy_exhibition for SH exhibitions',
+    importerClass: ShExhibitionShowFlagImporter,
+    dependencies: ['sh-exhibition', 'sh-exhibition-translation'],
   },
   {
     key: 'project-cleanup',
