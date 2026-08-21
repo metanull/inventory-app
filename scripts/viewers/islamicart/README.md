@@ -1,23 +1,31 @@
-# Inventory Viewer
+# Islamic Art Viewer
 
-A minimal Vue 3 single-page application that renders items exported from the MWNF
-Inventory API. Intended as a working sample for developers who want to consume the
-`@metanull/islamicart-data` npm package.
+A Vue 3 single-page application rendering the Discover Islamic Art data-package
+(`@metanull/islamicart-data`). It serves two purposes:
+
+1. A visual verification tool for the owner to assert that the data-package
+   produced by the exporter is correct.
+2. A model/blueprint for frontend developers building products on top of a
+   data-package.
+
+It is a full multi-view application (Vue Router, ~19 views: Home, Database
+search/results, Item detail, Permanent Collection, Timeline, Partners, Dynasties,
+Exhibitions, Artistic Introduction, …), not a single-component sample.
 
 ## Structure
 
 ```
-scripts/viewer/
+scripts/viewers/islamicart/
 ├── index.html          # Shell HTML — mounts #app
 ├── src/
-│   ├── main.js         # Creates and mounts the Vue app
-│   └── App.vue         # Entire application: data loading, list, detail view
+│   ├── main.js         # Creates and mounts the Vue app + router
+│   ├── App.vue         # Layout shell (header, nav, footer)
+│   ├── router/         # Route table (one route per view)
+│   ├── views/          # One component per page
+│   └── composables/    # Data loading (useInventoryData.js) and helpers
 ├── vite.config.js      # Resolves the data package path; sets @inventory-data alias
-└── package.json        # Dependencies: vue + the data package
+└── package.json        # Dependencies: vue, vue-router + the data package
 ```
-
-The application is intentionally contained in a single component (`App.vue`) to keep
-it easy to read top-to-bottom.
 
 Scoping `@metanull` to `https://npm.pkg.github.com` (with the auth token)
 happens in the repo-**root** `.npmrc` (gitignored, not this directory) —
@@ -68,11 +76,11 @@ npm run preview      # serve the production build locally
 
 ## Deployment (OVH)
 
-[`.github/workflows/deploy-viewer-ovh.yml`](../../.github/workflows/deploy-viewer-ovh.yml)
+[`.github/workflows/deploy-viewer-islamicart-ovh.yml`](../../../.github/workflows/deploy-viewer-islamicart-ovh.yml)
 builds and deploys this viewer to `https://inventory.metanull.eu/islamicart/`
 automatically. It triggers on:
 
-- Any push to `main` that touches `scripts/viewer/**`
+- Any push to `main` that touches `scripts/viewers/islamicart/**`
 - Manual dispatch (`workflow_dispatch`), e.g. to redeploy after a new data
   package version is published without changing any viewer code
 
@@ -103,6 +111,6 @@ which needs a real PAT in `~/.npmrc`).
 
 This workflow only builds and ships the *viewer* — it never runs the
 exporter or touches the database. Publishing a new data package version is
-a separate, manual step (see [`scripts/exporter/README.md`](../exporter/README.md));
+a separate, manual step (see [`scripts/exporters/islamicart/README.md`](../../exporters/islamicart/README.md));
 this workflow just needs to be triggered (a push, or manually) afterward to
 pick it up.

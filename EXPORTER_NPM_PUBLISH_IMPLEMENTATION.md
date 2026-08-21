@@ -8,19 +8,19 @@ Added `--publish` flag to the data exporter to generate npm packages ready for p
 
 ### 1. New Files
 
-- **`scripts/exporter/src/core/publish-manager.ts`** — Core class for:
+- **`scripts/exporters/islamicart/src/core/publish-manager.ts`** — Core class for:
   - Semantic version management (1.0.0 → 1.0.1 → 1.0.2)
   - Generating `package.json` with proper exports
   - Generating `README.md` with usage instructions
 
-- **`scripts/exporter/NPM_PUBLISH.md`** — Complete guide for:
+- **`scripts/exporters/islamicart/NPM_PUBLISH.md`** — Complete guide for:
   - Quick start workflow
   - Version management
   - GitHub authentication setup
   - Consumer usage examples
   - Troubleshooting
 
-### 2. Updated CLI (`scripts/exporter/src/cli/export.ts`)
+### 2. Updated CLI (`scripts/exporters/islamicart/src/cli/export.ts`)
 
 Added two new options:
 - `--publish` — Flag to enable npm package generation
@@ -127,7 +127,7 @@ The implementation follows:
 
 ## Documentation
 
-Comprehensive guide available at: `scripts/exporter/NPM_PUBLISH.md`
+Comprehensive guide available at: `scripts/exporters/islamicart/NPM_PUBLISH.md`
 
 Covers:
 - Quick start
