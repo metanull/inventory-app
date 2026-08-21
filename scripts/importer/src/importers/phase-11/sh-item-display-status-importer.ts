@@ -1,0 +1,135 @@
+/**
+ * Sharing History Item Display-Status Importer
+ *
+ * Stamps the legacy `display_status = 'N'` flag ("HB/HCR illustration only")
+ * into `item_translations.extra.legacy_display_status` for the affected SH
+ * objects and monuments.
+ *
+ * Why: legacy excludes `display_status='N'` items from database search and
+ * Permanent Collection browsing (`modules/database_results.php:444,458`)
+ * while still using them to illustrate Historical Background and timeline
+ * pages. ShObjectImporter/ShMonumentImporter read the column but never
+ * persisted it (`items` has no extra column), leaving the ~462 `N` items
+ * indistinguishable in the inventory DB.
+ *
+ * Only `N` is stamped — `A` (active) is the implied default, keeping the
+ * touch surface minimal. The flag is MERGED into each translation row's
+ * existing `extra` (bibliography etc. preserved).
+ *
+ * Standalone (`--only sh-item-display-status`) and idempotent; also safe at
+ * the end of a full fresh import.
+ *
+ * Dependencies:
+ * - ShObjectImporter / ShMonumentImporter (items + translations must exist)
+ */
+
+import { BaseImporter } from '../../core/base-importer.js';
+import type { ImportResult } from '../../core/types.js';
+
+const SH_SCHEMA = 'mwnf3_sharing_history';
+
+interface ShLegacyDisplayStatusRow {
+  project_id: string;
+  country: string;
+  number: number;
+}
+
+export class ShItemDisplayStatusImporter extends BaseImporter {
+  getName(): string {
+    return 'ShItemDisplayStatusImporter';
+  }
+
+  async import(): Promise<ImportResult> {
+    const result = this.createResult();
+
+    try {
+      this.logInfo('Stamping legacy display_status=N on SH item translations...');
+
+      await this.stampTable('sh_objects', result);
+      await this.stampTable('sh_monuments', result);
+
+      this.showSummary(result.imported, result.skipped, result.errors.length);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`Failed to stamp SH display_status: ${message}`);
+      this.logError('ShItemDisplayStatusImporter', message);
+      this.showError();
+    }
+
+    result.success = result.errors.length === 0;
+    return result;
+  }
+
+  private async stampTable(table: 'sh_objects' | 'sh_monuments', result: ImportResult) {
+    const rows = await this.context.legacyDb.query<ShLegacyDisplayStatusRow>(
+      `SELECT project_id, country, number
+       FROM ${SH_SCHEMA}.${table}
+       WHERE display_status = 'N'
+       ORDER BY project_id, country, number`
+    );
+
+    this.logInfo(`Found ${rows.length} ${table} rows with display_status=N`);
+
+    for (const legacy of rows) {
+      const itemBackwardCompat = `${SH_SCHEMA}:${table}:${legacy.project_id.toLowerCase()}:${legacy.country.toLowerCase()}:${legacy.number}`;
+
+      try {
+        await this.stampItem(itemBackwardCompat, result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        result.errors.push(`${itemBackwardCompat}: ${message}`);
+        this.logError(itemBackwardCompat, message);
+        this.showError();
+      }
+    }
+  }
+
+  private async stampItem(itemBackwardCompat: string, result: ImportResult): Promise<void> {
+    const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
+    if (!itemId) {
+      this.logWarning(`SH item not found (${itemBackwardCompat}), skipping`);
+      result.skipped++;
+      this.showSkipped();
+      return;
+    }
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would stamp legacy_display_status=N on ${itemBackwardCompat}`
+      );
+      result.imported++;
+      this.showProgress();
+      return;
+    }
+
+    const languageIds = await this.context.strategy.getItemTranslationLanguages(itemId);
+    if (languageIds.length === 0) {
+      this.logWarning(`No translations found for ${itemBackwardCompat}`);
+      result.skipped++;
+      this.showSkipped();
+      return;
+    }
+
+    let changed = false;
+    for (const langId of languageIds) {
+      const existing = await this.context.strategy.getItemTranslationExtra(itemId, langId);
+
+      // Idempotency: skip the write when the flag is already present.
+      if (existing && existing.legacy_display_status === 'N') {
+        continue;
+      }
+
+      const merged = { ...(existing || {}), legacy_display_status: 'N' };
+      await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(merged));
+      changed = true;
+    }
+
+    if (changed) {
+      result.imported++;
+      this.showProgress();
+    } else {
+      result.skipped++;
+      this.showSkipped();
+    }
+  }
+}

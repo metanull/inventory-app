@@ -124,6 +124,8 @@ import {
   ProjectExhibitionRootKeyingImporter,
   ShExhibitionRootKeyingImporter,
   ShExhibitionShowFlagImporter,
+  ShItemDisplayStatusImporter,
+  ShExhibitionItemJustificationsImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -957,6 +959,22 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Stamp legacy sh_exhibitions.show into collection_translations.extra.legacy_exhibition for SH exhibitions',
     importerClass: ShExhibitionShowFlagImporter,
     dependencies: ['sh-exhibition', 'sh-exhibition-translation'],
+  },
+  {
+    key: 'sh-item-display-status',
+    name: 'SH Item Display Status',
+    description:
+      "Stamp legacy display_status='N' (HB/HCR-only items) into item_translations.extra for SH objects/monuments",
+    importerClass: ShItemDisplayStatusImporter,
+    dependencies: ['sh-object', 'sh-monument'],
+  },
+  {
+    key: 'sh-exhibition-item-justifications',
+    name: 'SH Exhibition Item Justifications',
+    description:
+      'Merge SH theme/subtheme justification texts and curator_status into collection_item.extra',
+    importerClass: ShExhibitionItemJustificationsImporter,
+    dependencies: ['sh-exhibition', 'sh-exhibition-item'],
   },
   {
     key: 'project-cleanup',

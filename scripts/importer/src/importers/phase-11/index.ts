@@ -11,3 +11,5 @@ export { CollectionMediaImporter } from './collection-media-importer.js';
 export { ProjectExhibitionRootKeyingImporter } from './project-exhibition-root-keying-importer.js';
 export { ShExhibitionRootKeyingImporter } from './sh-exhibition-root-keying-importer.js';
 export { ShExhibitionShowFlagImporter } from './sh-exhibition-show-flag-importer.js';
+export { ShItemDisplayStatusImporter } from './sh-item-display-status-importer.js';
+export { ShExhibitionItemJustificationsImporter } from './sh-exhibition-item-justifications-importer.js';
