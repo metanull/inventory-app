@@ -61,8 +61,7 @@ export class GlossaryExporter extends BaseExporter {
        WHERE t.collection_id IN (
          SELECT c.id FROM collections c
          WHERE c.context_id IN (SELECT p.context_id FROM projects p WHERE p.id IN (${ph}))
-       )
-       ${this.context.projectKeys.includes('ISL') ? 'OR t.collection_id IS NULL' : ''}`,
+       )`,
       [...this.projectIds, ...this.projectIds, ...this.projectIds]
     )
 

@@ -1,9 +1,9 @@
 {
-  "name": "exporter",
+  "name": "baroqueart-exporter",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static JSON data exporter for MWNF public websites",
+  "description": "Static JSON data exporter for the Discover Baroque Art website (@metanull/baroqueart-data)",
   "scripts": {
     "build": "tsc",
     "export": "tsx src/cli/export.ts",

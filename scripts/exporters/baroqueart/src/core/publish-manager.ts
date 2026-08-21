@@ -138,7 +138,9 @@ const { default: translations } = await import(\`${packageName}/translations/ite
 \`\`\`
 
 Available top-level JSON files: \`manifest.json\`, \`items.json\`, \`partners.json\`,
-\`collections.json\`, \`dynasties.json\`, \`countries.json\`, \`glossary.json\`, \`languages.json\`.
+\`collections.json\`, \`countries.json\`, \`glossary.json\`, \`languages.json\`,
+\`timelines.json\`, \`timeline_events.json\`. (No \`dynasties.json\` — dynasties are
+a Discover Islamic Art concept and are absent from this dataset.)
 
 Each has a per-language translation file under \`translations/{entity}.{lang}.json\`.
 `

@@ -9,7 +9,7 @@ The exporter now supports publishing data as a private npm package to GitHub Pac
 ### Step 1: Export and prepare the package
 
 ```bash
-npm run export -- islamicart ISL --publish
+npm run export -- --publish
 ```
 
 This will:
@@ -21,7 +21,7 @@ This will:
 ### Step 2: Publish to GitHub Packages
 
 ```bash
-cd output/islamicart
+cd output/baroqueart
 npm publish
 ```
 
@@ -34,7 +34,7 @@ The package is published to the private GitHub Packages registry and becomes ava
 Versions are stored in a `.version` file in the output directory:
 
 ```
-output/islamicart/.version
+output/baroqueart/.version
 ```
 
 **First run:** Creates version `1.0.0`  
@@ -49,7 +49,7 @@ The version follows [Semantic Versioning](https://semver.org/) with patch bumps 
 When `--publish` is used, the output directory becomes a valid npm package:
 
 ```
-output/islamicart/
+output/baroqueart/
 ├── package.json              ← Auto-generated with version
 ├── README.md                 ← Usage guide for consumers
 ├── .version                  ← Persisted version state
@@ -64,8 +64,10 @@ output/islamicart/
 │   ├── collections.json.gz
 │   ├── countries.json
 │   ├── countries.json.gz
-│   ├── dynasties.json
-│   ├── dynasties.json.gz
+│   ├── timelines.json
+│   ├── timelines.json.gz
+│   ├── timeline_events.json
+│   ├── timeline_events.json.gz
 │   ├── glossary.json
 │   ├── glossary.json.gz
 │   ├── languages.json
@@ -80,7 +82,7 @@ output/islamicart/
 ### Package Metadata
 
 The generated `package.json` includes:
-- **name:** `@mwnf/islamicart-data` (or custom via `--package-name`)
+- **name:** `@metanull/baroqueart-data` (or custom via `--package-name`)
 - **version:** Auto-incremented semantic version
 - **description:** Reflects the projects included
 - **exports:** Points to the JSON data files
@@ -104,8 +106,8 @@ For more details, see [GitHub Packages npm documentation](https://docs.github.co
 Package name is derived from the subdirectory:
 
 ```bash
-npm run export -- islamicart ISL --publish
-# Creates: @mwnf/islamicart-data
+npm run export -- --publish
+# Creates: @metanull/baroqueart-data
 ```
 
 ### Custom package name
@@ -113,8 +115,8 @@ npm run export -- islamicart ISL --publish
 Override the package name if needed:
 
 ```bash
-npm run export -- islamicart ISL --publish --package-name @mwnf/islamic-art-data
-# Creates: @mwnf/islamic-art-data
+npm run export -- --publish --package-name @mwnf/baroque-art-data
+# Creates: @mwnf/baroque-art-data
 ```
 
 ### Multiple projects in one package
@@ -122,8 +124,8 @@ npm run export -- islamicart ISL --publish --package-name @mwnf/islamic-art-data
 Export multiple projects and publish together:
 
 ```bash
-npm run export -- combined ISL WHS --publish --package-name @mwnf/mwnf-data
-# Includes both ISL and WHS projects in one package
+npm run export -- combined BAR OTHER --publish --package-name @mwnf/mwnf-data
+# Includes both projects in one package (BAR is the standard single-key export)
 ```
 
 ### Keeping JSON and .gz files
@@ -139,13 +141,13 @@ Once published, frontend developers can use the package like this:
 ### Installation
 
 ```bash
-npm install @mwnf/islamicart-data
+npm install @metanull/baroqueart-data
 ```
 
 ### Import items
 
 ```javascript
-import items from '@mwnf/islamicart-data/data/items.json' assert { type: 'json' }
+import items from '@metanull/baroqueart-data/data/items.json' assert { type: 'json' }
 
 items.forEach(item => {
   console.log(item.id, item.type, item.translations)
@@ -155,14 +157,13 @@ items.forEach(item => {
 ### Import all data
 
 ```javascript
-import manifest from '@mwnf/islamicart-data/data/manifest.json' assert { type: 'json' }
-import items from '@mwnf/islamicart-data/data/items.json' assert { type: 'json' }
-import partners from '@mwnf/islamicart-data/data/partners.json' assert { type: 'json' }
-import collections from '@mwnf/islamicart-data/data/collections.json' assert { type: 'json' }
-import dynasties from '@mwnf/islamicart-data/data/dynasties.json' assert { type: 'json' }
-import countries from '@mwnf/islamicart-data/data/countries.json' assert { type: 'json' }
-import glossary from '@mwnf/islamicart-data/data/glossary.json' assert { type: 'json' }
-import languages from '@mwnf/islamicart-data/data/languages.json' assert { type: 'json' }
+import manifest from '@metanull/baroqueart-data/data/manifest.json' assert { type: 'json' }
+import items from '@metanull/baroqueart-data/data/items.json' assert { type: 'json' }
+import partners from '@metanull/baroqueart-data/data/partners.json' assert { type: 'json' }
+import collections from '@metanull/baroqueart-data/data/collections.json' assert { type: 'json' }
+import countries from '@metanull/baroqueart-data/data/countries.json' assert { type: 'json' }
+import glossary from '@metanull/baroqueart-data/data/glossary.json' assert { type: 'json' }
+import languages from '@metanull/baroqueart-data/data/languages.json' assert { type: 'json' }
 ```
 
 ## Workflow
@@ -172,22 +173,22 @@ import languages from '@mwnf/islamicart-data/data/languages.json' assert { type:
 1. Configure GitHub authentication in `~/.npmrc` (see above)
 2. Export and publish the first version:
    ```bash
-   npm run export -- islamicart ISL --publish
-   cd output/islamicart
+   npm run export -- --publish
+   cd output/baroqueart
    npm publish
    ```
-3. Frontend developer installs: `npm install @mwnf/islamicart-data`
+3. Frontend developer installs: `npm install @metanull/baroqueart-data`
 
 ### Routine updates
 
 1. Update content in the Filament admin or inventory database
 2. Re-export and republish:
    ```bash
-   npm run export -- islamicart ISL --publish --force
-   cd output/islamicart
+   npm run export -- --publish --force
+   cd output/baroqueart
    npm publish
    ```
-3. Frontend developer updates: `npm update @mwnf/islamicart-data`
+3. Frontend developer updates: `npm update @metanull/baroqueart-data`
 
 ## Troubleshooting
 
@@ -206,8 +207,8 @@ If missing, add it (see [GitHub Packages Authentication](#github-packages-authen
 Delete it and re-export. It will be recreated:
 
 ```bash
-rm output/islamicart/.version
-npm run export -- islamicart ISL --publish --force
+rm output/baroqueart/.version
+npm run export -- --publish --force
 ```
 
 ### Package already published with this version
@@ -215,7 +216,7 @@ npm run export -- islamicart ISL --publish --force
 This means the version was already published. The next `--publish` run will auto-increment:
 
 ```bash
-npm run export -- islamicart ISL --publish --force
+npm run export -- --publish --force
 # Version is now 1.0.X (next patch)
 npm publish
 ```
@@ -226,7 +227,7 @@ If you want to manually control the version instead of auto-incrementing:
 
 1. Edit `.version` directly:
    ```bash
-   echo "2.0.0" > output/islamicart/.version
+   echo "2.0.0" > output/baroqueart/.version
    ```
 
 2. Regenerate package.json without re-exporting:

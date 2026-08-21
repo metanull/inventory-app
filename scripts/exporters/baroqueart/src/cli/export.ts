@@ -1,29 +1,27 @@
 #!/usr/bin/env node
 /**
- * Static JSON Exporter CLI
+ * Static JSON Exporter CLI — Discover Baroque Art
  *
  * Reads the inventory database and writes a set of denormalized JSON files
- * for consumption by frontend applications (e.g., the new Discover Islamic Art site).
+ * for consumption by frontend applications (the new Discover Baroque Art site).
+ *
+ * This is the baroqueart fork of the exporter: it defaults to the BAR
+ * project, the `baroqueart` output subdirectory, and the
+ * `@metanull/baroqueart-data` package name, and it has no dynasty exporter
+ * (dynasties are a Discover Islamic Art concept — all legacy dynasty rows
+ * are ISL).
  *
  * Usage:
- *   npm run export -- <subdirectory> <project-key> [more-project-keys...]
+ *   npm run export --                     # exports baroqueart BAR
+ *   npm run export -- [subdirectory] [project-keys...] [options]
  *
  * Examples:
- *   # Export ISL project data only
- *   npm run export -- islamicart ISL
- *
- *   # Export multiple projects
- *   npm run export -- combined ISL WHS --force
- *
- *   # Custom output and base URLs
- *   npm run export -- islamicart ISL --output-dir /tmp/export --base-url https://cdn.example.com/storage
+ *   # Standard export (defaults: subdirectory=baroqueart, keys=BAR)
+ *   npm run export -- --force --base-url https://inventory.metanull.eu
  *
  *   # Export and prepare for npm publishing (auto-increment version, generate package.json)
- *   npm run export -- islamicart ISL --publish
- *   # Then: cd output/islamicart && npm publish
- *
- *   # Publish with custom package name
- *   npm run export -- islamicart ISL --publish --package-name @mwnf/islamic-art-data
+ *   npm run export -- --publish
+ *   # Then: cd output/baroqueart && npm publish
  */
 
 import dotenv from 'dotenv'
@@ -40,7 +38,6 @@ import {
   ManifestExporter,
   LanguageExporter,
   CountryExporter,
-  DynastyExporter,
   TimelineExporter,
   PartnerExporter,
   ItemExporter,
@@ -53,11 +50,11 @@ dotenv.config({ path: resolve(process.cwd(), '.env') })
 const program = new Command()
 
 program
-  .name('exporter')
-  .description('Static JSON data exporter for MWNF public websites')
+  .name('baroqueart-exporter')
+  .description('Static JSON data exporter for the Discover Baroque Art website')
   .version('1.0.0')
-  .argument('<subdirectory>', 'Name of the output subdirectory to create')
-  .argument('<project-keys...>', 'One or more legacy project keys to export (e.g., ISL WHS)')
+  .argument('[subdirectory]', 'Name of the output subdirectory to create', 'baroqueart')
+  .argument('[project-keys...]', 'Legacy project keys to export (defaults to BAR)')
   .option('--force', 'Overwrite output directory if it already exists', false)
   .option('--output-dir <path>', 'Base output directory (relative to cwd or absolute)', 'output')
   .option(
@@ -68,8 +65,8 @@ program
   .option('--publish', 'Generate npm package.json, bump version, and publish to registry', false)
   .option(
     '--package-name <name>',
-    'NPM package name (defaults to @mwnf/{subdirectory}-data)',
-    ''
+    'NPM package name',
+    '@metanull/baroqueart-data'
   )
   .option(
     '--package-version <semver>',
@@ -93,6 +90,10 @@ program
         npmRegistry?: string
       }
     ) => {
+      if (projectKeys.length === 0) {
+        projectKeys = ['BAR']
+      }
+
       const logger = new Logger('Exporter')
 
       console.log(chalk.bold('='.repeat(70)))
@@ -152,11 +153,12 @@ program
           logger,
         }
 
+        // No DynastyExporter: dynasties are Discover Islamic Art data (every
+        // legacy dynasty row is ISL) — the BAR package ships no dynasty files.
         const exporters = [
           new ManifestExporter(context),
           new LanguageExporter(context),
           new CountryExporter(context),
-          new DynastyExporter(context),
           new TimelineExporter(context),
           new PartnerExporter(context),
           new ItemExporter(context),
@@ -186,7 +188,7 @@ program
           console.log(chalk.bold('='.repeat(70)))
 
           try {
-            const packageName = options.packageName || `@mwnf/${subdirectory}-data`
+            const packageName = options.packageName || '@metanull/baroqueart-data'
             const registry =
               options.npmRegistry ||
               process.env['NPM_REGISTRY'] ||

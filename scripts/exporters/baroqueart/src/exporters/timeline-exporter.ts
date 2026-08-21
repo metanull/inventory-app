@@ -55,14 +55,11 @@ export class TimelineExporter extends BaseExporter {
     const ph = this.placeholders(this.projectIds.length)
 
     // Timelines are scoped to a project the same way collections are: via the
-    // collection's context_id chain to the project. Timelines with no
-    // collection_id are the direct mwnf3 HCR import (per-country history),
-    // which the importer only ever produces for the ISL project — every other
-    // project's timelines (BAR, SH exhibitions, THG) are always bound to a
-    // project-specific collection. So a null collection_id unambiguously means
-    // ISL, not a guess: it's an invariant of how the importer writes this data.
-    const includeUnlinkedIslTimelines = this.context.projectKeys.includes('ISL')
-
+    // collection's context_id chain to the project. BAR timelines are always
+    // bound to a project-specific collection (the importer's per-country
+    // "— Baroque Art" timelines), so no unlinked-timeline handling is needed
+    // here — timelines with a null collection_id are the ISL-only direct
+    // mwnf3 HCR import and belong to the islamicart exporter alone.
     const timelines = await this.db.query<TimelineRow>(
       `SELECT t.id, t.internal_name, t.backward_compatibility, t.country_id, t.collection_id
        FROM timelines t
@@ -72,7 +69,6 @@ export class TimelineExporter extends BaseExporter {
            SELECT p.context_id FROM projects p WHERE p.id IN (${ph})
          )
        )
-       ${includeUnlinkedIslTimelines ? 'OR t.collection_id IS NULL' : ''}
        ORDER BY t.country_id, t.internal_name`,
       this.projectIds
     )
