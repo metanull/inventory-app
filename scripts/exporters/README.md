@@ -17,6 +17,7 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 |---|---|---|---|
 | [`islamicart/`](islamicart/README.md) | `ISL` (+ `EPM` extras) | `@metanull/islamicart-data` | `scripts/viewers/islamicart` |
 | [`baroqueart/`](baroqueart/README.md) | `BAR` | `@metanull/baroqueart-data` | `scripts/viewers/baroqueart` |
+| [`sharinghistory/`](sharinghistory/README.md) | `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
 
 Each directory is a **self-contained Node/TypeScript project** (own
 `package.json`, `tsconfig.json`, `vitest.config.ts`, `.env`). See the README
@@ -57,9 +58,11 @@ display order); all human-readable text lives in `translations/`. Image URLs
 are absolute, built from `BASE_URL` (the inventory app's public storage).
 
 Exhibitions are identified structurally, not by type: children of the marker
-collection `mwnf3:exhibitions:root` (Islamic Art) or
-`mwnf3:exhibitions:root:<KEY>` (every other project — created by the
-importer's `project-exhibition-root-keying` step). Exhibitions whose legacy
+collection `mwnf3:exhibitions:root` (Islamic Art),
+`mwnf3:exhibitions:root:<KEY>` (other mwnf3 projects — created by the
+importer's `project-exhibition-root-keying` step), or
+`mwnf3_sharing_history:sh_exhibitions:root:<key>` (Sharing History —
+`sh-exhibition-root-keying` step, lowercase keys). Exhibitions whose legacy
 `show` flag is `'n'` (preserved in
 `collection_translations.extra.legacy_exhibition.show`) are excluded from the
 package, as the legacy sites never listed them.
