@@ -142,4 +142,6 @@ export {
   ProjectExhibitionRootKeyingImporter,
   ShExhibitionRootKeyingImporter,
   ShExhibitionShowFlagImporter,
+  ShItemDisplayStatusImporter,
+  ShExhibitionItemJustificationsImporter,
 } from './phase-11/index.js';

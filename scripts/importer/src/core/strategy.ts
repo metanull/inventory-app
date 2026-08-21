@@ -565,6 +565,13 @@ export interface IWriteStrategy {
   setCollectionItemExtra(collectionId: string, itemId: string, extra: string): Promise<void>;
 
   /**
+   * Check whether a collection_item pivot row exists. Needed to distinguish
+   * "no pivot" from "pivot with null extra" (getCollectionItemExtra returns
+   * null for both).
+   */
+  collectionItemPivotExists(collectionId: string, itemId: string): Promise<boolean>;
+
+  /**
    * Attach tags to a collection image via collection_image_tag pivot.
    */
   attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void>;

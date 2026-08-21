@@ -1678,6 +1678,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
   }
 
+  async collectionItemPivotExists(collectionId: string, itemId: string): Promise<boolean> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT 1 FROM collection_item WHERE collection_id = ? AND item_id = ? LIMIT 1`,
+      [collectionId, itemId]
+    );
+    return rows.length > 0;
+  }
+
   async attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void> {
     for (const tagId of tagIds) {
       try {
