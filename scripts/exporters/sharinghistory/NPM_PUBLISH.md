@@ -21,7 +21,7 @@ This will:
 ### Step 2: Publish to GitHub Packages
 
 ```bash
-cd output/baroqueart
+cd output/sharinghistory
 npm publish
 ```
 
@@ -34,7 +34,7 @@ The package is published to the private GitHub Packages registry and becomes ava
 Versions are stored in a `.version` file in the output directory:
 
 ```
-output/baroqueart/.version
+output/sharinghistory/.version
 ```
 
 **First run:** Creates version `1.0.0`  
@@ -49,7 +49,7 @@ The version follows [Semantic Versioning](https://semver.org/) with patch bumps 
 When `--publish` is used, the output directory becomes a valid npm package:
 
 ```
-output/baroqueart/
+output/sharinghistory/
 ├── package.json              ← Auto-generated with version
 ├── README.md                 ← Usage guide for consumers
 ├── .version                  ← Persisted version state
@@ -82,7 +82,7 @@ output/baroqueart/
 ### Package Metadata
 
 The generated `package.json` includes:
-- **name:** `@metanull/baroqueart-data` (or custom via `--package-name`)
+- **name:** `@metanull/sharinghistory-data` (or custom via `--package-name`)
 - **version:** Auto-incremented semantic version
 - **description:** Reflects the projects included
 - **exports:** Points to the JSON data files
@@ -107,7 +107,7 @@ Package name is derived from the subdirectory:
 
 ```bash
 npm run export -- --publish
-# Creates: @metanull/baroqueart-data
+# Creates: @metanull/sharinghistory-data
 ```
 
 ### Custom package name
@@ -124,8 +124,8 @@ npm run export -- --publish --package-name @mwnf/baroque-art-data
 Export multiple projects and publish together:
 
 ```bash
-npm run export -- combined BAR OTHER --publish --package-name @mwnf/mwnf-data
-# Includes both projects in one package (BAR is the standard single-key export)
+npm run export -- combined awe OTHER --publish --package-name @mwnf/mwnf-data
+# Includes both projects in one package (awe is the standard single-key export)
 ```
 
 ### Keeping JSON and .gz files
@@ -141,13 +141,13 @@ Once published, frontend developers can use the package like this:
 ### Installation
 
 ```bash
-npm install @metanull/baroqueart-data
+npm install @metanull/sharinghistory-data
 ```
 
 ### Import items
 
 ```javascript
-import items from '@metanull/baroqueart-data/data/items.json' assert { type: 'json' }
+import items from '@metanull/sharinghistory-data/data/items.json' assert { type: 'json' }
 
 items.forEach(item => {
   console.log(item.id, item.type, item.translations)
@@ -157,13 +157,13 @@ items.forEach(item => {
 ### Import all data
 
 ```javascript
-import manifest from '@metanull/baroqueart-data/data/manifest.json' assert { type: 'json' }
-import items from '@metanull/baroqueart-data/data/items.json' assert { type: 'json' }
-import partners from '@metanull/baroqueart-data/data/partners.json' assert { type: 'json' }
-import collections from '@metanull/baroqueart-data/data/collections.json' assert { type: 'json' }
-import countries from '@metanull/baroqueart-data/data/countries.json' assert { type: 'json' }
-import glossary from '@metanull/baroqueart-data/data/glossary.json' assert { type: 'json' }
-import languages from '@metanull/baroqueart-data/data/languages.json' assert { type: 'json' }
+import manifest from '@metanull/sharinghistory-data/data/manifest.json' assert { type: 'json' }
+import items from '@metanull/sharinghistory-data/data/items.json' assert { type: 'json' }
+import partners from '@metanull/sharinghistory-data/data/partners.json' assert { type: 'json' }
+import collections from '@metanull/sharinghistory-data/data/collections.json' assert { type: 'json' }
+import countries from '@metanull/sharinghistory-data/data/countries.json' assert { type: 'json' }
+import glossary from '@metanull/sharinghistory-data/data/glossary.json' assert { type: 'json' }
+import languages from '@metanull/sharinghistory-data/data/languages.json' assert { type: 'json' }
 ```
 
 ## Workflow
@@ -174,10 +174,10 @@ import languages from '@metanull/baroqueart-data/data/languages.json' assert { t
 2. Export and publish the first version:
    ```bash
    npm run export -- --publish
-   cd output/baroqueart
+   cd output/sharinghistory
    npm publish
    ```
-3. Frontend developer installs: `npm install @metanull/baroqueart-data`
+3. Frontend developer installs: `npm install @metanull/sharinghistory-data`
 
 ### Routine updates
 
@@ -185,10 +185,10 @@ import languages from '@metanull/baroqueart-data/data/languages.json' assert { t
 2. Re-export and republish:
    ```bash
    npm run export -- --publish --force
-   cd output/baroqueart
+   cd output/sharinghistory
    npm publish
    ```
-3. Frontend developer updates: `npm update @metanull/baroqueart-data`
+3. Frontend developer updates: `npm update @metanull/sharinghistory-data`
 
 ## Troubleshooting
 
@@ -207,7 +207,7 @@ If missing, add it (see [GitHub Packages Authentication](#github-packages-authen
 Delete it and re-export. It will be recreated:
 
 ```bash
-rm output/baroqueart/.version
+rm output/sharinghistory/.version
 npm run export -- --publish --force
 ```
 
@@ -227,7 +227,7 @@ If you want to manually control the version instead of auto-incrementing:
 
 1. Edit `.version` directly:
    ```bash
-   echo "2.0.0" > output/baroqueart/.version
+   echo "2.0.0" > output/sharinghistory/.version
    ```
 
 2. Regenerate package.json without re-exporting:

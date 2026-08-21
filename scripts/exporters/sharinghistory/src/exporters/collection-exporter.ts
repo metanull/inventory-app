@@ -284,6 +284,8 @@ function buildCollectionItemEntry(
   variant_order: number | null
   caption?: Record<string, CollectionItemCaption>
   details?: CollectionItemDetailEntry[]
+  justifications?: Record<string, { partner: string | null; curator: string | null }>
+  curator_status?: string
 } {
   const extra = parseJson(link.extra) as Record<string, unknown> | null
   const variantOrder = extra && typeof extra.n2 === 'number' ? extra.n2 : null
@@ -301,12 +303,24 @@ function buildCollectionItemEntry(
     }
   }
 
+  // SH-specific placement metadata (importers ShExhibitionItemImporter +
+  // sh-exhibition-item-justifications): per-language curator/partner
+  // justification texts and the relation's curator_status flag — rendered by
+  // the legacy PC browser as the curator-vs-partner hover cards.
+  const justifications =
+    extra && typeof extra.justifications === 'object' && extra.justifications
+      ? (extra.justifications as Record<string, { partner: string | null; curator: string | null }>)
+      : null
+  const curatorStatus = typeof extra?.curator_status === 'string' ? extra.curator_status : null
+
   return {
     id: link.item_id,
     display_order: link.display_order,
     variant_order: variantOrder,
     ...(Object.keys(caption).length > 0 ? { caption } : {}),
     ...(details.length > 0 ? { details } : {}),
+    ...(justifications && Object.keys(justifications).length > 0 ? { justifications } : {}),
+    ...(curatorStatus ? { curator_status: curatorStatus } : {}),
   }
 }
 

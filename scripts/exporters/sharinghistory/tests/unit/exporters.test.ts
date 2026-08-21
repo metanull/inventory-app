@@ -10,12 +10,12 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 const srcDir = join(testDir, '..', '..', 'src')
 
 /**
- * The Baroque Art dataset has no dynasties (every legacy mwnf3.dynasties row
- * belongs to ISL). This fork must therefore ship no dynasty exporter — a BAR
- * package containing dynasties.json would leak the full Islamic Art dynasty
- * list.
+ * Sharing History has no dynasty entity at all (dynasty survives only as a
+ * legacy free-text field). This fork must therefore ship no dynasty exporter.
+ * The glossary exporter STAYS: SH content carries ~2,800 glossary spelling
+ * links (usage-scoped; verified on production 2026-08-22).
  */
-describe('baroqueart exporter run list', () => {
+describe('sharinghistory exporter run list', () => {
   it('exposes no DynastyExporter', () => {
     expect(Object.keys(exporters)).not.toContain('DynastyExporter')
   })
@@ -29,7 +29,7 @@ describe('baroqueart exporter run list', () => {
     expect(cliSource).not.toMatch(/new DynastyExporter/)
   })
 
-  it('exposes the exporters the BAR package is built from', () => {
+  it('exposes the exporters the SH package is built from (incl. glossary)', () => {
     expect(Object.keys(exporters).sort()).toEqual(
       [
         'CollectionExporter',

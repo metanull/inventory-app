@@ -31,12 +31,15 @@ export class Database {
   /**
    * Resolve project UUIDs from the user-supplied legacy project keys.
    *
-   * The user supplies short keys like "ISL". The inventory DB stores these as
-   * backward_compatibility = "mwnf3:projects:ISL". This method builds the
-   * lookup values and returns the matching project UUIDs.
+   * The user supplies short keys like "awe". The inventory DB stores Sharing
+   * History projects as backward_compatibility =
+   * "mwnf3_sharing_history:sh_projects:awe" — the SH keyspace is LOWERCASE
+   * (formatShBackwardCompatibility convention in the importer), unlike the
+   * uppercase mwnf3 keys the islamicart/baroqueart exporters use. This method
+   * builds the lookup values and returns the matching project UUIDs.
    */
   async resolveProjectIds(projectKeys: string[]): Promise<string[]> {
-    const bcValues = projectKeys.map(k => `mwnf3:projects:${k}`)
+    const bcValues = projectKeys.map(k => `mwnf3_sharing_history:sh_projects:${k.toLowerCase()}`)
     const placeholders = bcValues.map(() => '?').join(', ')
 
     const rows = await this.query<{ id: string; backward_compatibility: string }>(
@@ -67,13 +70,14 @@ export class Database {
   /**
    * Resolve context UUIDs for the given project keys.
    *
-   * Each legacy project (e.g. "ISL") has a corresponding context row whose
-   * backward_compatibility matches the project: "mwnf3:projects:ISL".
-   * Item translations must be filtered to these context IDs so that
-   * explore-context translations (mwnf3_explore:context) are excluded.
+   * Each SH project (e.g. "awe") has a Context, Collection and Project all
+   * sharing the identical backward_compatibility string
+   * "mwnf3_sharing_history:sh_projects:awe" (sh-project-transformer). Item
+   * translations must be filtered to these context IDs so that translations
+   * from other contexts are excluded.
    */
   async resolveContextIds(projectKeys: string[]): Promise<string[]> {
-    const bcValues = projectKeys.map(k => `mwnf3:projects:${k}`)
+    const bcValues = projectKeys.map(k => `mwnf3_sharing_history:sh_projects:${k.toLowerCase()}`)
     const placeholders = bcValues.map(() => '?').join(', ')
 
     const rows = await this.query<{ id: string; backward_compatibility: string }>(

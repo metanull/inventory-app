@@ -1,27 +1,28 @@
 #!/usr/bin/env node
 /**
- * Static JSON Exporter CLI — Discover Baroque Art
+ * Static JSON Exporter CLI — Sharing History
  *
  * Reads the inventory database and writes a set of denormalized JSON files
- * for consumption by frontend applications (the new Discover Baroque Art site).
+ * for consumption by frontend applications (the new Sharing History site).
  *
- * This is the baroqueart fork of the exporter: it defaults to the BAR
- * project, the `baroqueart` output subdirectory, and the
- * `@metanull/baroqueart-data` package name, and it has no dynasty exporter
- * (dynasties are a Discover Islamic Art concept — all legacy dynasty rows
- * are ISL).
+ * This is the sharinghistory fork of the exporter: it defaults to the `awe`
+ * project (Sharing History "Arab World – Europe", lowercase SH keyspace),
+ * the `sharinghistory` output subdirectory, and the
+ * `@metanull/sharinghistory-data` package name. It has no dynasty exporter
+ * (SH has no dynasty entity) but keeps the usage-scoped glossary exporter
+ * (SH content carries glossary spelling links).
  *
  * Usage:
- *   npm run export --                     # exports baroqueart BAR
+ *   npm run export --                     # exports sharinghistory awe
  *   npm run export -- [subdirectory] [project-keys...] [options]
  *
  * Examples:
- *   # Standard export (defaults: subdirectory=baroqueart, keys=BAR)
+ *   # Standard export (defaults: subdirectory=sharinghistory, keys=awe)
  *   npm run export -- --force --base-url https://inventory.metanull.eu
  *
  *   # Export and prepare for npm publishing (auto-increment version, generate package.json)
  *   npm run export -- --publish
- *   # Then: cd output/baroqueart && npm publish
+ *   # Then: cd output/sharinghistory && npm publish
  */
 
 import dotenv from 'dotenv'
@@ -50,11 +51,11 @@ dotenv.config({ path: resolve(process.cwd(), '.env') })
 const program = new Command()
 
 program
-  .name('baroqueart-exporter')
-  .description('Static JSON data exporter for the Discover Baroque Art website')
+  .name('sharinghistory-exporter')
+  .description('Static JSON data exporter for the Sharing History website')
   .version('1.0.0')
-  .argument('[subdirectory]', 'Name of the output subdirectory to create', 'baroqueart')
-  .argument('[project-keys...]', 'Legacy project keys to export (defaults to BAR)')
+  .argument('[subdirectory]', 'Name of the output subdirectory to create', 'sharinghistory')
+  .argument('[project-keys...]', 'Legacy SH project keys to export (defaults to awe)')
   .option('--force', 'Overwrite output directory if it already exists', false)
   .option('--output-dir <path>', 'Base output directory (relative to cwd or absolute)', 'output')
   .option(
@@ -66,7 +67,7 @@ program
   .option(
     '--package-name <name>',
     'NPM package name',
-    '@metanull/baroqueart-data'
+    '@metanull/sharinghistory-data'
   )
   .option(
     '--package-version <semver>',
@@ -91,7 +92,7 @@ program
       }
     ) => {
       if (projectKeys.length === 0) {
-        projectKeys = ['BAR']
+        projectKeys = ['awe']
       }
 
       const logger = new Logger('Exporter')
@@ -153,8 +154,10 @@ program
           logger,
         }
 
-        // No DynastyExporter: dynasties are Discover Islamic Art data (every
-        // legacy dynasty row is ISL) — the BAR package ships no dynasty files.
+        // No DynastyExporter: Sharing History has no dynasty entity at all
+        // (dynasty survives only as a free-text field in legacy SH).
+        // GlossaryExporter stays: SH content carries ~2,800 glossary spelling
+        // links (usage-scoped, verified on production 2026-08-22).
         const exporters = [
           new ManifestExporter(context),
           new LanguageExporter(context),
@@ -188,7 +191,7 @@ program
           console.log(chalk.bold('='.repeat(70)))
 
           try {
-            const packageName = options.packageName || '@metanull/baroqueart-data'
+            const packageName = options.packageName || '@metanull/sharinghistory-data'
             const registry =
               options.npmRegistry ||
               process.env['NPM_REGISTRY'] ||

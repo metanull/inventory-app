@@ -1,52 +1,78 @@
-# Baroque Art Exporter
+# Sharing History Exporter
 
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package (`@metanull/baroqueart-data`) via GitHub
-Packages, which is how [`scripts/viewers/baroqueart`](../../viewers/baroqueart/README.md)
-and the deployed Discover Baroque Art site consume it.
+output as a private npm package (`@metanull/sharinghistory-data`) via GitHub
+Packages, which is how [`scripts/viewers/sharinghistory`](../../viewers/sharinghistory/README.md)
+and the deployed Sharing History site consume it.
 
 Exporters are forked per dataset (`scripts/exporters/<dataset>`): this is the
-Discover Baroque Art fork of the [islamicart exporter](../islamicart/README.md).
+Sharing History fork of the [baroqueart exporter](../baroqueart/README.md)
+(itself a fork of [islamicart](../islamicart/README.md)).
 
-## Differences from islamicart-data
+## Differences from baroqueart-data
 
-The BAR data-package is shaped by what the Baroque Art dataset actually
-contains — consistency with `@metanull/islamicart-data` is kept where the data
+The SH data-package is shaped by what the Sharing History dataset actually
+contains — consistency with the sibling packages is kept where the data
 allows, not forced:
 
-- **No dynasty exporter, no `dynasties.json`, no `translations/dynasties.*`** —
-  dynasties are a Discover Islamic Art concept (every legacy `mwnf3.dynasties`
-  row belongs to ISL).
-- **Single project key** — defaults to `BAR`; there is no EPM-style companion
-  project.
-- **Exhibitions root** — the collection export includes the per-project
-  exhibitions root marker `mwnf3:exhibitions:root:BAR` (created by the
-  importer's `project-exhibition-root-keying` step) with the 9 BAR exhibitions
-  under it.
-- **Timelines/glossary** — the ISL-only "unlinked timeline" branches were
-  removed: BAR timelines are always collection-bound, and glossary entries are
-  usage-scoped to BAR items/collections/timeline events (the glossary is kept —
-  BAR item pages use glossary tooltips).
-- **Multilingual** — every translation present for the BAR context is exported
-  (the legacy DBA site was English-only in its UI, but the data layer is
-  multilingual).
+- **Different keyspace** — Sharing History has its own legacy database;
+  project keys resolve through `mwnf3_sharing_history:sh_projects:{key}`
+  with **lowercase** keys. Default project key: `awe` ("Arab World – Europe",
+  the single real SH project — `rus`/`usa` are legacy test placeholders).
+- **3-level exhibitions** — `collections.json` carries
+  exhibition → theme → **subtheme** ("Chapter" in the legacy UI); no other
+  dataset has the third level. The exhibitions root marker is
+  `mwnf3_sharing_history:sh_exhibitions:root:awe` (importer step
+  `sh-exhibition-root-keying`).
+- **`display_status` on items** — `'N'` marks the ~462 items legacy kept
+  only to illustrate Historical Background / timeline pages; viewers must
+  exclude them from database search and Permanent Collection browse (`'A'`
+  is the default).
+- **Dual justifications on collection items** — collection item entries can
+  carry `justifications: {lang: {partner, curator}}` and `curator_status`,
+  at exhibition, theme AND subtheme level (legacy's curator-vs-partner hover
+  cards).
+- **Permanent Collection timelines** — SH timelines are per
+  (country × exhibition). Timelines bound to an unpublished exhibition
+  (legacy sentinel: exhibition 2 "Political Context", `show='n'`) are
+  exported with `collection_id: null` — they are the project-level
+  "Permanent Collection timeline" of the legacy site. `timelines.json`
+  entries also carry `extra` (per-language bibliography), and
+  `timeline_events.json` entries can carry `item_extras` (legacy per-item
+  caption texts from `sh_hcr_image_texts`).
+- **Historical Background / National Context** — exported as regular
+  collections (children of the project collection); viewers resolve them
+  structurally by backward-compatibility prefix
+  (`mwnf3_sharing_history:sh_countries_historicalbackground…`).
+- **Item translations spread their `extra`** — the SH importer stores a
+  wider, item-type-dependent field set in `item_translations.extra`
+  (archival, materials, artist + artist_* details, notices,
+  monument_contact, external_sources, structured_bibliography, …); the
+  translation files include all of them (dedicated columns win on
+  collision).
+- **No dynasty exporter** — SH has no dynasty entity (free-text field only).
+- **Glossary kept** — SH content carries ~2,800 glossary spelling links
+  (usage-scoped, like the siblings).
+- **Multilingual** — every translation present for the SH context is
+  exported. In practice `en` is complete and `fr` a substantial partial
+  (~16% of item texts); other languages are scraps.
 
 ## Run (TL;DR)
 
 ```powershell
-cd scripts/exporters/baroqueart
+cd scripts/exporters/sharinghistory
 npm install                # first run only
 npm run export -- `
   --force `
   --base-url https://inventory.metanull.eu `
   --publish
-cd output/baroqueart && npm publish
+cd output/sharinghistory && npm publish
 ```
 
-Defaults: subdirectory `baroqueart`, project key `BAR`, package name
-`@metanull/baroqueart-data`. (`--package-version` is optional — omit it to
+Defaults: subdirectory `sharinghistory`, project key `awe`, package name
+`@metanull/sharinghistory-data`. (`--package-version` is optional — omit it to
 auto-increment instead; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
 
 ## What it exports
@@ -59,11 +85,11 @@ files, written to `output/<subdirectory>/`:
 | `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) |
 | `languages.json` | `LanguageExporter` | Language reference data |
 | `countries.json` | `CountryExporter` | Country reference data + translations |
-| `timelines.json` / `timeline_events.json` | `TimelineExporter` | Per-country BAR timelines and their events |
-| `partners.json` | `PartnerExporter` | Museums/institutions + translations + images |
-| `items.json` | `ItemExporter` | Items (objects/monuments/details), with images, tag links, related-item links |
-| `collections.json` | `CollectionExporter` | Collections (project, exhibitions root + exhibitions), with images and item membership |
-| `glossary.json` | `GlossaryExporter` | Glossary terms used by BAR content + translations |
+| `timelines.json` / `timeline_events.json` | `TimelineExporter` | Per-(country × exhibition) SH timelines (+ Permanent Collection timelines with `collection_id: null`), events with images, item links and legacy captions |
+| `partners.json` | `PartnerExporter` | SH partners (flat tiers via `level`: `partner` / `associated_partner`) + translations + logos + images |
+| `items.json` | `ItemExporter` | Items (objects/monuments), with `display_status`, images, media/documents, related-item links |
+| `collections.json` | `CollectionExporter` | Project, exhibitions root, exhibitions → themes → subthemes, Historical Background and National Context collections — with images, item membership, justifications |
+| `glossary.json` | `GlossaryExporter` | Glossary terms used by SH content + translations |
 | `translations/<entity>.<lang>.json` | (several) | Per-language translation fields, lazy-loadable separately |
 
 There is deliberately **no `dynasties.json`** (see above).
@@ -74,11 +100,11 @@ below) but are there for CDN/static-hosting use.
 
 ### Scoping to specific projects
 
-Export is always scoped to one or more legacy project keys (default `BAR`),
-resolved against `projects.backward_compatibility` (`mwnf3:projects:{KEY}`).
-The same keys resolve a matching set of context IDs, used internally to
-exclude explore-context translations from overwriting the canonical project
-translations for items/collections.
+Export is always scoped to one or more legacy SH project keys (default
+`awe`), resolved against `projects.backward_compatibility`
+(`mwnf3_sharing_history:sh_projects:{key}`, lowercase). The same keys resolve
+a matching set of context IDs, used internally to filter item translations to
+the project's own context.
 
 ## Configure
 
@@ -103,7 +129,7 @@ npm run export -- [subdirectory] [project-keys...] [options]
 ```
 
 ```bash
-# Standard export (defaults: baroqueart BAR)
+# Standard export (defaults: sharinghistory awe)
 npm run export --
 
 # Custom output location and image base URL
@@ -119,7 +145,7 @@ npm run export -- --publish
 | `--output-dir <path>` | Base output directory (default: `output`, relative to cwd) |
 | `--base-url <url>` | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`) |
 | `--publish` | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
-| `--package-name <name>` | Override the package name (default: `@metanull/baroqueart-data`) |
+| `--package-name <name>` | Override the package name (default: `@metanull/sharinghistory-data`) |
 | `--package-version <semver>` | Set an explicit version instead of auto-incrementing |
 | `--npm-registry <url>` | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages) |
 
@@ -133,10 +159,10 @@ and the consumer-side install/import story.
 inventory-app DB
       │  (exporter reads directly — no API involved)
       ▼
-scripts/exporters/baroqueart  ──npm publish──▶  @metanull/baroqueart-data (GitHub Packages)
+scripts/exporters/sharinghistory  ──npm publish──▶  @metanull/sharinghistory-data (GitHub Packages)
                                                        │  npm install
                                                        ▼
-                                          scripts/viewers/baroqueart (or any consumer)
+                                          scripts/viewers/sharinghistory (or any consumer)
 ```
 
 The exporter and the viewer are decoupled entirely through the published
@@ -158,9 +184,12 @@ entirely if any exporter errored. Check the per-exporter error line in the
 final summary for which one failed and why.
 
 **`collections.json` is missing the exhibitions root** — the importer's
-`project-exhibition-root-keying` step has not been run against this database
-yet; run `npm run import -- --only project-exhibition-root-keying` from
-`scripts/importer` (after verifying the `.env` target) and re-export.
+`sh-exhibition-root-keying` step has not been run against this database
+yet; run `npm run import -- --only sh-exhibition-root-keying` from
+`scripts/importer` (after verifying the `.env` target) and re-export. The
+same applies to `sh-exhibition-show-flag` (unpublished-exhibition filter),
+`sh-item-display-status`, `sh-exhibition-item-justifications` and
+`sh-partner-project-linker` (without the latter, `partners.json` is empty).
 
 **`npm publish` fails with "not authorized"** — GitHub Packages
 authentication isn't configured; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md#github-packages-authentication).

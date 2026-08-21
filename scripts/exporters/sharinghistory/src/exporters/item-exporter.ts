@@ -304,6 +304,13 @@ export class ItemExporter extends BaseExporter {
       translationsByItemLang.get(key)!.push(t)
     }
 
+    // Items whose legacy display_status is 'N' ("HB/HCR illustration only" —
+    // excluded from database search and PC browse by the legacy site). The
+    // importer's sh-item-display-status step stamps
+    // item_translations.extra.legacy_display_status; items.json surfaces it
+    // as a top-level display_status field ('A' default / 'N').
+    const hbHcrOnlyItems = new Set<string>()
+
     const translationMap = new Map<string, Record<string, Record<string, unknown>>>()
     for (const [key, rows] of translationsByItemLang) {
       const sep = key.indexOf(' ')
@@ -314,14 +321,18 @@ export class ItemExporter extends BaseExporter {
       const ownRow = (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
       const otherRow = rows.find(r => r !== ownRow)
 
-      // Fields without a dedicated column live in item_translations.extra JSON.
-      // Each key is only ever set by the importer for the item type it applies
-      // to (history/patrons/architects: monuments; workshop/scriber/binding_desc/
-      // catalogue_holding_link/linkcatalogs: objects), so no type gating is needed here.
-      const extra = ownRow.extra ? (parseJson(ownRow.extra) as Record<string, string> | null) : null
+      // Fields without a dedicated column live in item_translations.extra
+      // JSON. Unlike the mwnf3 forks (fixed key list), the SH importer stores
+      // a wider, item-type-dependent set there (archival, materials, artist
+      // + artist_* details, notices, monument_contact, external_sources,
+      // structured_bibliography, …) — spread every extra key into the
+      // translation output, letting dedicated columns win on collision, and
+      // lift the legacy_display_status marker out into items.json instead.
+      const extra = ownRow.extra ? (parseJson(ownRow.extra) as Record<string, unknown> | null) : null
+      if (extra?.legacy_display_status === 'N') hbHcrOnlyItems.add(itemId)
 
       if (!translationMap.has(itemId)) translationMap.set(itemId, {})
-      translationMap.get(itemId)![code] = {
+      const fields: Record<string, unknown> = {
         name: ownRow.name,
         alternate_name: ownRow.alternate_name,
         description: ownRow.description,
@@ -339,19 +350,18 @@ export class ItemExporter extends BaseExporter {
         provenance: ownRow.provenance,
         obtention: ownRow.obtention,
         bibliography: ownRow.bibliography,
-        history: extra?.history ?? null,
-        patrons: extra?.patrons ?? null,
-        architects: extra?.architects ?? null,
-        workshop: extra?.workshop ?? null,
-        scriber: extra?.scriber ?? null,
-        binding_desc: extra?.binding_desc ?? null,
-        catalogue_holding_link: extra?.catalogue_holding_link ?? null,
-        linkcatalogs: extra?.linkcatalogs ?? null,
         author: ownRow.author_name,
         copy_editor: ownRow.copy_editor_name,
         translator: ownRow.translator_name,
         translation_copy_editor: ownRow.translation_copy_editor_name,
       }
+      if (extra) {
+        for (const [k, v] of Object.entries(extra)) {
+          if (k === 'legacy_display_status') continue
+          if (fields[k] == null) fields[k] = v
+        }
+      }
+      translationMap.get(itemId)![code] = fields
     }
 
     // Write one translations/items.{lang}.json per language (null fields omitted)
@@ -485,6 +495,7 @@ export class ItemExporter extends BaseExporter {
       partner_id: item.partner_id,
       country_id: item.country_id,
       project_id: item.project_id,
+      display_status: hbHcrOnlyItems.has(item.id) ? 'N' : 'A',
       owner_reference: item.owner_reference,
       mwnf_reference: item.mwnf_reference,
       start_date: item.start_date,
