@@ -5,12 +5,12 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
 const {
-  items, countries, partners, dynasties,
-  countryLabel, dynastyLabel, partnerLabel,
-  enCountryTranslations, enDynastyTranslations, enPartnerTranslations,
+  items, countries, partners,
+  countryLabel, partnerLabel,
+  enCountryTranslations, enPartnerTranslations,
 } = useInventoryData()
 
-const filterType = ref('country') // country | dynasty | partner | begin | end
+const filterType = ref('country') // country | partner | begin | end
 
 // Build option lists from items actually present
 const availableCountries = computed(() => {
@@ -19,18 +19,6 @@ const availableCountries = computed(() => {
     .filter(c => ids.has(c.id))
     .map(c => ({ id: c.id, name: countryLabel(c.id) }))
     .sort((a, b) => a.name.localeCompare(b.name))
-})
-
-const availableDynasties = computed(() => {
-  const ids = new Set(items.value.flatMap(i => i.dynasty_ids))
-  return dynasties.value
-    .filter(d => ids.has(d.id))
-    .map(d => ({
-      id: d.id,
-      name: dynastyLabel(d.id),
-      from_ad: d.from_ad,
-    }))
-    .sort((a, b) => (a.from_ad ?? 9999) - (b.from_ad ?? 9999))
 })
 
 const availablePartners = computed(() => {
@@ -42,20 +30,16 @@ const availablePartners = computed(() => {
 })
 
 const selectedCountry = ref('')
-const selectedDynasty = ref('')
 const selectedPartner = ref('')
 const beginDate = ref('')
 const endDate = ref('')
-const includeEpm = ref(false)
 
 function search() {
   const q = {}
   if (filterType.value === 'country' && selectedCountry.value)   q.country = selectedCountry.value
-  if (filterType.value === 'dynasty' && selectedDynasty.value)   q.dynasty = selectedDynasty.value
   if (filterType.value === 'partner' && selectedPartner.value)   q.partner = selectedPartner.value
   if (filterType.value === 'begin'   && beginDate.value)         q.begin   = beginDate.value
   if (filterType.value === 'end'     && endDate.value)           q.end     = endDate.value
-  if (includeEpm.value) q.epm = '1'
   router.push({ path: '/permanent-collection/results', query: q })
 }
 </script>
@@ -75,7 +59,6 @@ function search() {
           <!-- Filter type selector -->
           <tr v-for="opt in [
             { value: 'country', label: 'Country' },
-            { value: 'dynasty', label: 'Period / Dynasty' },
             { value: 'partner', label: 'Holding Institution' },
             { value: 'begin',   label: 'Start Date (from year)' },
             { value: 'end',     label: 'End Date (up to year)' },
@@ -98,14 +81,6 @@ function search() {
                 <select v-model="selectedCountry" :disabled="filterType !== 'country'" style="width:280px">
                   <option value="">— select a country —</option>
                   <option v-for="c in availableCountries" :key="c.id" :value="c.id">{{ c.name }}</option>
-                </select>
-              </template>
-
-              <!-- Dynasty -->
-              <template v-else-if="opt.value === 'dynasty'">
-                <select v-model="selectedDynasty" :disabled="filterType !== 'dynasty'" style="width:280px">
-                  <option value="">— select a period / dynasty —</option>
-                  <option v-for="d in availableDynasties" :key="d.id" :value="d.id">{{ d.name }}</option>
                 </select>
               </template>
 
@@ -138,17 +113,6 @@ function search() {
                   style="width:120px"
                 />
               </template>
-            </td>
-          </tr>
-
-          <!-- Collection scope -->
-          <tr>
-            <th></th>
-            <td>
-              <label class="epm-toggle">
-                <input type="checkbox" v-model="includeEpm" />
-                Include Explore Islamic Art Collections
-              </label>
             </td>
           </tr>
 
@@ -196,15 +160,5 @@ function search() {
 select:disabled, input:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-.epm-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-family: 'Roboto', sans-serif;
-  color: var(--text);
-  cursor: pointer;
 }
 </style>

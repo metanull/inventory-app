@@ -6,13 +6,12 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const router = useRouter()
 const { availableLangs } = useInventoryData()
 
-// Matches legacy database.php's 9 field options exactly, in order.
+// Matches legacy database.php's field options, in order.
 const FIELD_OPTIONS = [
   { value: 'keyword',    label: 'Keyword(s)' },
   { value: 'name',       label: 'Name' },
   { value: 'location',   label: 'Location' },
   { value: 'provenance', label: 'Provenance' },
-  { value: 'dynasty',    label: 'Period / Dynasty' },
   { value: 'patron',     label: 'Patron / Initial Owner' },
   { value: 'artist',     label: 'Architect / Artist / Master' },
   { value: 'material',   label: 'Material / Technique' },
@@ -35,7 +34,6 @@ const cond3    = ref('AND')
 const dateFrom = ref('')
 const dateTo   = ref('')
 const searchLanguage = ref('')
-const includeEpm = ref(false)
 
 function search() {
   const q = {}
@@ -47,14 +45,11 @@ function search() {
   if (dateFrom.value) q.date_from = dateFrom.value
   if (dateTo.value)   q.date_to   = dateTo.value
   if (searchLanguage.value) q.lang = searchLanguage.value
-  if (includeEpm.value) q.epm = '1'
   router.push({ path: '/database/results', query: q })
 }
 
 function showAll() {
-  const q = {}
-  if (includeEpm.value) q.epm = '1'
-  router.push({ path: '/database/results', query: q })
+  router.push({ path: '/database/results', query: {} })
 }
 </script>
 
@@ -109,19 +104,6 @@ function showAll() {
                 <option v-for="f in FIELD_OPTIONS" :key="f.value" :value="f.value">{{ f.label }}</option>
               </select>
               <input type="text" v-model="keyword3" placeholder="keyword…" style="width:220px; margin-left:8px" />
-            </td>
-          </tr>
-
-          <tr><td colspan="2"><hr class="form-divider" /></td></tr>
-
-          <!-- Collection scope -->
-          <tr>
-            <th></th>
-            <td>
-              <label class="epm-toggle">
-                <input type="checkbox" v-model="includeEpm" />
-                Include Explore Islamic Art Collections
-              </label>
             </td>
           </tr>
 
@@ -194,14 +176,5 @@ function showAll() {
   border: none;
   border-top: 1px solid var(--border);
   margin: 8px 0;
-}
-.epm-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-family: 'Roboto', sans-serif;
-  color: var(--text);
-  cursor: pointer;
 }
 </style>

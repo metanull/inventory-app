@@ -23,10 +23,10 @@ function goToItem(item) {
   <div class="home">
     <!-- Welcome banner -->
     <div class="home-banner content-box">
-      <h1 class="home-title">Welcome to Islamic Art</h1>
+      <h1 class="home-title">Welcome to Baroque Art</h1>
       <p class="home-intro">
-        Discover Islamic Art presents a wide range of objects and monuments
-        from the Islamic world, held in museums and historic sites across numerous countries.
+        Discover Baroque Art presents a wide range of objects and monuments
+        from the Baroque period, held in museums and historic sites across Europe and beyond.
         Explore the collection through the Permanent Collection browser or the full-text
         Database search.
       </p>
@@ -37,7 +37,7 @@ function goToItem(item) {
       <div class="home-card content-box" @click="$router.push('/permanent-collection')">
         <h2 class="home-card-title">Permanent Collection</h2>
         <p class="home-card-desc">
-          Browse the collection by country, period&nbsp;/&nbsp;dynasty, holding institution,
+          Browse the collection by country, holding institution,
           or date range.
         </p>
         <span class="home-card-link">Browse →</span>
@@ -64,36 +64,17 @@ function goToItem(item) {
       <div class="home-card content-box" @click="$router.push('/partners')">
         <h2 class="home-card-title">Partners</h2>
         <p class="home-card-desc">
-          Meet the partner museums and institutions across the Islamic world
+          Meet the partner museums and institutions across Europe and beyond
           that hold and share the objects and monuments in the collection.
         </p>
         <span class="home-card-link">Browse →</span>
-      </div>
-
-      <div class="home-card content-box" @click="$router.push('/dynasties')">
-        <h2 class="home-card-title">Islamic Dynasties</h2>
-        <p class="home-card-desc">
-          Discover the dynasties and ruling periods of the Islamic world, and
-          see the objects and monuments linked to each one.
-        </p>
-        <span class="home-card-link">Explore →</span>
-      </div>
-
-      <div class="home-card content-box" @click="$router.push('/artistic-introduction')">
-        <h2 class="home-card-title">Artistic Introduction</h2>
-        <p class="home-card-desc">
-          Read curated introductions to the major artistic traditions of
-          Islamic art, illustrated with monuments and objects from the
-          collection.
-        </p>
-        <span class="home-card-link">Explore →</span>
       </div>
 
       <div class="home-card content-box" @click="$router.push('/exhibitions')">
         <h2 class="home-card-title">Exhibitions</h2>
         <p class="home-card-desc">
           Discover curated virtual exhibitions exploring specific themes,
-          monuments, and objects from the Islamic art collection.
+          monuments, and objects from the Baroque art collection.
         </p>
         <span class="home-card-link">Explore →</span>
       </div>

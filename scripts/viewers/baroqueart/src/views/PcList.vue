@@ -6,9 +6,9 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const route = useRoute()
 const router = useRouter()
 const {
-  items, countries, partners, dynasties,
-  countryLabel, dynastyLabel, partnerLabel,
-  itemLabel, enItemTranslations, mdInline, itemProjectKey,
+  items, countries, partners,
+  countryLabel, partnerLabel,
+  itemLabel, enItemTranslations, mdInline,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
@@ -16,15 +16,13 @@ const PAGE_SIZE = 20
 // ── Filter state (synced with URL query) ────────────────────────────────
 
 const filterCountry = ref(route.query.country ?? '')
-const filterDynasty = ref(route.query.dynasty ?? '')
 const filterPartner = ref(route.query.partner ?? '')
 const filterBegin   = ref(route.query.begin   ?? '')
 const filterEnd     = ref(route.query.end     ?? '')
-const includeEpm    = ref(route.query.epm === '1')
 const currentPage   = ref(parseInt(route.query.page ?? '1', 10) || 1)
 
 watch(
-  [filterCountry, filterDynasty, filterPartner, filterBegin, filterEnd, includeEpm],
+  [filterCountry, filterPartner, filterBegin, filterEnd],
   () => { currentPage.value = 1 }
 )
 
@@ -32,11 +30,9 @@ watch(
   () => route.query,
   q => {
     filterCountry.value = q.country ?? ''
-    filterDynasty.value = q.dynasty ?? ''
     filterPartner.value = q.partner ?? ''
     filterBegin.value   = q.begin   ?? ''
     filterEnd.value     = q.end     ?? ''
-    includeEpm.value    = q.epm === '1'
     currentPage.value   = parseInt(q.page ?? '1', 10) || 1
   }
 )
@@ -44,21 +40,17 @@ watch(
 function applyFilters() {
   const q = {}
   if (filterCountry.value) q.country = filterCountry.value
-  if (filterDynasty.value) q.dynasty = filterDynasty.value
   if (filterPartner.value) q.partner = filterPartner.value
   if (filterBegin.value)   q.begin   = filterBegin.value
   if (filterEnd.value)     q.end     = filterEnd.value
-  if (includeEpm.value)    q.epm     = '1'
   router.push({ path: '/permanent-collection/results', query: q })
 }
 
 function resetFilters() {
   filterCountry.value = ''
-  filterDynasty.value = ''
   filterPartner.value = ''
   filterBegin.value   = ''
   filterEnd.value     = ''
-  includeEpm.value    = false
   applyFilters()
 }
 
@@ -70,14 +62,6 @@ const availableCountries = computed(() => {
     .filter(c => ids.has(c.id))
     .map(c => ({ id: c.id, name: countryLabel(c.id) }))
     .sort((a, b) => a.name.localeCompare(b.name))
-})
-
-const availableDynasties = computed(() => {
-  const ids = new Set(items.value.flatMap(i => i.dynasty_ids))
-  return dynasties.value
-    .filter(d => ids.has(d.id))
-    .map(d => ({ id: d.id, name: dynastyLabel(d.id), from_ad: d.from_ad }))
-    .sort((a, b) => (a.from_ad ?? 9999) - (b.from_ad ?? 9999))
 })
 
 const availablePartners = computed(() => {
@@ -93,18 +77,8 @@ const availablePartners = computed(() => {
 const filteredItems = computed(() => {
   let result = items.value
 
-  // 'ISL' (Discover Islamic Art) is always browsed; other projects (e.g. 'EPM',
-  // Explore Islamic Art Collections) are opt-in, matching the Database feature.
-  result = result.filter(item => {
-    const key = itemProjectKey(item)
-    return !key || key === 'ISL' || includeEpm.value
-  })
-
   if (filterCountry.value) {
     result = result.filter(item => item.country_id === filterCountry.value)
-  }
-  if (filterDynasty.value) {
-    result = result.filter(item => item.dynasty_ids.includes(filterDynasty.value))
   }
   if (filterPartner.value) {
     result = result.filter(item => item.partner_id === filterPartner.value)
@@ -168,7 +142,6 @@ function goToPage(n) {
 
 const activeFilterLabel = computed(() => {
   if (filterCountry.value) return countryLabel(filterCountry.value)
-  if (filterDynasty.value) return dynastyLabel(filterDynasty.value)
   if (filterPartner.value) return partnerLabel(filterPartner.value)
   if (filterBegin.value)   return `from ${filterBegin.value}`
   if (filterEnd.value)     return `up to ${filterEnd.value}`
@@ -196,14 +169,6 @@ const activeFilterLabel = computed(() => {
       </div>
 
       <div class="filter-row">
-        <label>Period / Dynasty</label>
-        <select v-model="filterDynasty" style="width:200px">
-          <option value="">— any —</option>
-          <option v-for="d in availableDynasties" :key="d.id" :value="d.id">{{ d.name }}</option>
-        </select>
-      </div>
-
-      <div class="filter-row">
         <label>Holding Institution</label>
         <select v-model="filterPartner" style="width:200px">
           <option value="">— any —</option>
@@ -219,13 +184,6 @@ const activeFilterLabel = computed(() => {
       <div class="filter-row">
         <label>To year</label>
         <input type="number" v-model="filterEnd" placeholder="e.g. 1400" style="width:100px" />
-      </div>
-
-      <div class="filter-row">
-        <label class="epm-toggle">
-          <input type="checkbox" v-model="includeEpm" />
-          Include Explore Islamic Art Collections
-        </label>
       </div>
 
       <div class="filter-actions">
@@ -257,7 +215,6 @@ const activeFilterLabel = computed(() => {
             <div class="item-list-meta">
               <span v-if="item.country_id">{{ countryLabel(item.country_id) }}</span>
               <span v-if="enItemTranslations[item.id]?.dates">{{ enItemTranslations[item.id].dates }}</span>
-              <span v-if="item.dynasty_ids.length">{{ item.dynasty_ids.map(dynastyLabel).join(', ') }}</span>
               <span v-if="item.partner_id && partners.some(p => p.id === item.partner_id)">{{ partnerLabel(item.partner_id) }}</span>
               <span v-if="item.type" class="item-type-badge">{{ item.type }}</span>
             </div>
@@ -295,7 +252,6 @@ const activeFilterLabel = computed(() => {
 .filter-label { font-family: 'Roboto', sans-serif; font-size: 12px; font-weight: bold; color: var(--muted); }
 .filter-row { display: flex; align-items: center; gap: 6px; font-family: 'Roboto', sans-serif; font-size: 12px; color: var(--muted); }
 .filter-actions { margin-left: auto; }
-.epm-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
 .result-count {
   font-family: 'Roboto', sans-serif;

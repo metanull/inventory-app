@@ -6,7 +6,7 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const route = useRoute()
 const router = useRouter()
 const {
-  itemById, dynastyLabel, partnerLabel,
+  itemById, partnerLabel,
   availableLangs, defaultLang,
   translationsCache, loadLangTranslations,
   exhibitionById,
@@ -62,7 +62,7 @@ const introItems = computed(() => {
         image: item.images?.[0]?.url ?? null,
         name: caption.name ?? t.name ?? item.internal_name ?? item.id,
         date: caption.date ?? t.dates ?? '',
-        dynasty: caption.dynasty ?? (item.dynasty_ids?.[0] ? dynastyLabel(item.dynasty_ids[0]) : ''),
+        dynasty: caption.dynasty ?? '',
         location: caption.location ?? t.location ?? '',
         museum: caption.museum ?? (item.partner_id ? partnerLabel(item.partner_id) : ''),
       }

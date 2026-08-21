@@ -8,7 +8,7 @@ import { RouterView, RouterLink } from 'vue-router'
       <div class="container">
         <RouterLink to="/" class="site-logo">
           <span class="site-logo-org">Museum With No Frontiers</span>
-          <span class="site-logo-title">Islamic Art</span>
+          <span class="site-logo-title">Baroque Art</span>
         </RouterLink>
       </div>
     </header>
@@ -20,8 +20,6 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/database" active-class="nav-active">Database</RouterLink>
         <RouterLink to="/timeline" active-class="nav-active">Timeline</RouterLink>
         <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
-        <RouterLink to="/dynasties" active-class="nav-active">Dynasties</RouterLink>
-        <RouterLink to="/artistic-introduction" active-class="nav-active">Artistic Introduction</RouterLink>
         <RouterLink to="/exhibitions" active-class="nav-active">Exhibitions</RouterLink>
       </div>
     </nav>

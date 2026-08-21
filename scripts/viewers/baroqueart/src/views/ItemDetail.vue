@@ -7,13 +7,13 @@ const route  = useRoute()
 const router = useRouter()
 
 const {
-  items, dynasties,
+  items,
   availableLangs, defaultLang,
   translationsCache,
   loadLangTranslations,
   itemById,
   itemLabel, countryLabel, partnerLabel,
-  artIntroLinksForItem, exhibitionLinksForItem,
+  exhibitionLinksForItem,
   md, mdInline,
 } = useInventoryData()
 
@@ -64,21 +64,6 @@ function labelHtml(it) {
 // Item content (not the app's own English interface) follows the active
 // language's natural direction — Arabic reads right-to-left.
 const contentDir = computed(() => (activeLang.value === 'ar' ? 'rtl' : 'ltr'))
-
-// ── Dynasties for this item ───────────────────────────────────────────
-
-const dynastyTranslationsCache = ref({})
-
-async function loadDynastyTranslations(lang) {
-  if (dynastyTranslationsCache.value[lang]) return
-  try {
-    const m = await import(`@inventory-data/translations/dynasties.${lang}.json`)
-    dynastyTranslationsCache.value = { ...dynastyTranslationsCache.value, [lang]: m.default }
-  } catch {}
-}
-
-onMounted(() => loadDynastyTranslations(activeLang.value))
-watch(activeLang, lang => loadDynastyTranslations(lang))
 
 // ── Glossary term hyperlinking ────────────────────────────────────────
 //
@@ -178,28 +163,6 @@ function closeGlossaryModal() {
   activeGlossaryTerm.value = null
 }
 
-const dynastyById = computed(() => {
-  const m = {}
-  for (const d of dynasties.value) m[d.id] = d
-  return m
-})
-
-function tDynasty(dynastyId) {
-  return dynastyTranslationsCache.value[activeLang.value]?.[dynastyId] ?? {}
-}
-
-const selectedDynasties = computed(() => {
-  if (!item.value?.dynasty_ids?.length) return []
-  return item.value.dynasty_ids
-    .map(id => {
-      const d = dynastyById.value[id]
-      if (!d) return null
-      const tr = tDynasty(id)
-      return { ...d, ...tr }
-    })
-    .filter(Boolean)
-})
-
 // ── Related items ─────────────────────────────────────────────────────
 
 const relatedItems = computed(() => {
@@ -224,7 +187,6 @@ const keyFacts = computed(() => {
   if (!item.value) return []
   const it = item.value
   const tr = t(it)
-  const dynastyNames = selectedDynasties.value.map(d => d.name).filter(Boolean).join(', ')
   const facts = []
 
   if (isMonument.value) {
@@ -232,7 +194,6 @@ const keyFacts = computed(() => {
     if (tr.location)        facts.push({ label: 'Location',         value: tr.location })
     if (tr.dates)           facts.push({ label: 'Date of Monument', value: tr.dates })
     if (tr.architects)      facts.push({ label: 'Architects',       value: tr.architects })
-    if (dynastyNames)       facts.push({ label: 'Period / Dynasty', value: dynastyNames })
     const patronValue = tr.patrons ?? tr.initial_owner
     if (patronValue)        facts.push({ label: 'Patron(s)',        value: patronValue })
   } else {
@@ -245,7 +206,6 @@ const keyFacts = computed(() => {
     if (it.owner_reference)     facts.push({ label: 'Museum Inventory Number',    value: it.owner_reference })
     if (tr.type)                facts.push({ label: 'Material(s) / Technique(s)', value: tr.type })
     if (tr.dimensions)          facts.push({ label: 'Dimensions',                 value: tr.dimensions })
-    if (dynastyNames)           facts.push({ label: 'Period / Dynasty',           value: dynastyNames })
     if (tr.provenance)          facts.push({ label: 'Provenance',                 value: tr.provenance })
     if (tr.workshop)            facts.push({ label: 'Workshop',                   value: tr.workshop })
     if (tr.binding_desc)        facts.push({ label: 'Binding',                    value: tr.binding_desc })
@@ -285,9 +245,8 @@ const contentSections = computed(() => {
 
 // ── Short description — legacy's collapsible "view short description"
 // toggle (pc_view_sdesc), shown below the main Description when the item
-// also has a translation in a secondary context (e.g. EPM) whose
-// description is the shorter summary. See Epic 11 in the islamicart
-// parity backlog. ──
+// also has a translation in a secondary context whose description is the
+// shorter summary. See Epic 11 in the islamicart parity backlog. ──
 
 const showShortDescription = ref(false)
 
@@ -331,7 +290,7 @@ const citation = computed(() => {
   const year = new Date().getFullYear()
   const permalink = `${window.location.origin}${window.location.pathname}#/item/${encodeURIComponent(item.value.id)}`
   const author = tr.author ? `${tr.author} ` : ''
-  return `${author}"${name}" in Discover Islamic Art, ${year}. ${permalink}`
+  return `${author}"${name}" in Discover Baroque Art, ${year}. ${permalink}`
 })
 
 // ── "View on Timeline" — country + date-range proximity link. Legacy never
@@ -359,15 +318,9 @@ const relatedMedia = computed(() => {
   return inLang.length ? inLang : all
 })
 
-// ── "Artistic Introduction" & "On display in" (Exhibitions) — which
-// Artistic-Introduction pages / Virtual Exhibitions feature this item,
-// derived client-side from collections.json (see Epic 12 in the islamicart
-// parity backlog; distinct from the THG cross-links below). ──
-
-const artIntroLinks = computed(() => {
-  if (!item.value) return []
-  return artIntroLinksForItem(item.value.id)
-})
+// ── "On display in" (Exhibitions) — which Virtual Exhibitions feature
+// this item, derived client-side from collections.json (see Epic 12 in the
+// islamicart parity backlog; distinct from the THG cross-links below). ──
 
 const onDisplayInLinks = computed(() => {
   if (!item.value) return []
@@ -515,32 +468,6 @@ function back() {
       <div v-if="citation" class="citation">
         <h2 class="credits-heading">Citation</h2>
         <p class="citation-text">{{ citation }}</p>
-      </div>
-
-      <!-- Dynasty cards -->
-      <div v-if="selectedDynasties.length" class="dynasties">
-        <h2 class="sub-section-title">{{ selectedDynasties.length === 1 ? 'Dynasty' : 'Dynasties' }}</h2>
-        <div v-for="d in selectedDynasties" :key="d.id" class="dynasty-card" :dir="contentDir">
-          <div class="dynasty-header">
-            <span class="dynasty-name" v-html="d.name ? mdInline(d.name) : '—'" />
-            <span v-if="d.also_known_as" class="dynasty-aka">also known as {{ d.also_known_as }}</span>
-            <span v-if="d.from_ad || d.to_ad" class="dynasty-dates">
-              {{ d.date_description_ad ?? (d.from_ad + (d.to_ad ? ' – ' + d.to_ad : '')) }}
-            </span>
-          </div>
-          <p v-if="d.history" class="dynasty-history">{{ d.history }}</p>
-          <p v-if="d.area" class="dynasty-area">Area: {{ d.area }}</p>
-        </div>
-      </div>
-
-      <!-- Artistic Introduction -->
-      <div v-if="artIntroLinks.length" class="art-intro-links">
-        <h2 class="sub-section-title">Artistic Introduction</h2>
-        <ul class="gallery-list">
-          <li v-for="l in artIntroLinks" :key="l.themeId">
-            <router-link :to="`/artistic-introduction/${encodeURIComponent(l.themeId)}`" v-html="mdInline(l.label)" />
-          </li>
-        </ul>
       </div>
 
       <!-- On display in (Virtual Exhibitions) -->
@@ -782,7 +709,7 @@ function back() {
 .gallery-list { list-style: none; font-size: 13px; font-family: 'Roboto', sans-serif; }
 .gallery-list a { color: var(--nav-active); }
 
-/* Dynasty cards */
+/* Sub-section titles */
 .sub-section-title {
   font-size: 12px;
   font-weight: 500;
@@ -792,25 +719,6 @@ function back() {
   margin-bottom: 10px;
   font-family: 'Roboto', sans-serif;
 }
-.dynasties { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
-.dynasty-card {
-  background: var(--section-bg);
-  border-left: 3px solid var(--gold-dark);
-  padding: 10px 14px;
-  margin-bottom: 8px;
-}
-.dynasty-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: .4rem 1rem;
-  margin-bottom: 4px;
-}
-.dynasty-name { font-weight: 500; font-size: 14px; font-family: 'Roboto', sans-serif; }
-.dynasty-aka  { font-size: 12px; color: var(--muted); font-style: italic; font-family: 'Roboto', sans-serif; }
-.dynasty-dates { font-size: 12px; color: var(--muted); margin-left: auto; font-family: 'Roboto', sans-serif; }
-.dynasty-history { font-size: 13px; line-height: 1.6; color: var(--text); margin: 0 0 4px; font-family: 'Roboto', sans-serif; }
-.dynasty-area { font-size: 12px; color: var(--muted); margin: 0; font-family: 'Roboto', sans-serif; }
 
 /* Related */
 .related { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }

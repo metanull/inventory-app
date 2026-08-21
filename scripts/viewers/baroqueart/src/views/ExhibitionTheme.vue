@@ -9,7 +9,7 @@ const {
   itemById,
   availableLangs, defaultLang,
   translationsCache, loadLangTranslations,
-  dynastyLabel, partnerLabel,
+  partnerLabel,
   exhibitionById, exhibitionThemeById,
   enCollectionTranslations,
   md, mdInline,
@@ -71,7 +71,7 @@ function collectionText(collectionId) {
 // The importer synthesizes a placeholder title ("Theme 5", "Page 17") when
 // the legacy source has no page_title/theme_title for a given language.
 // Treat that pattern as "missing" and fall back to the English title.
-const PLACEHOLDER_TITLE = /^(Artintro )?(Theme|Page) \d+$/
+const PLACEHOLDER_TITLE = /^(Theme|Page) \d+$/
 
 function resolveTitle(collectionId, fallbackName) {
   const local = collectionText(collectionId).title
@@ -154,7 +154,7 @@ const selectedDisplay = computed(() => {
   return {
     name: caption.name ?? t.name ?? sel.item.internal_name ?? sel.item.id,
     date: caption.date ?? t.dates ?? '',
-    dynasty: caption.dynasty ?? (sel.item.dynasty_ids?.[0] ? dynastyLabel(sel.item.dynasty_ids[0]) : ''),
+    dynasty: caption.dynasty ?? '',
     location: caption.location ?? t.location ?? '',
     museum: caption.museum ?? (sel.item.partner_id ? partnerLabel(sel.item.partner_id) : ''),
     justification: caption.justification ?? '',

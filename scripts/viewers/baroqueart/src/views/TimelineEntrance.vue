@@ -6,7 +6,7 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const router = useRouter()
 const { timelines, timelineEvents, countryLabel } = useInventoryData()
 
-// Countries available in the timeline data (one Timeline per ISL country)
+// Countries available in the timeline data (one Timeline per country)
 const availableCountries = computed(() =>
   timelines.value
     .filter(t => t.country_id)
@@ -61,7 +61,7 @@ function search() {
 
     <div class="content-box">
       <p class="intro-text">
-        Explore historical events from the Islamic world. Select a country and/or a time
+        Explore historical events from the Baroque period. Select a country and/or a time
         period below, then click <strong>Go</strong>.
       </p>
 

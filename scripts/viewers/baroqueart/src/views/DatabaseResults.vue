@@ -6,9 +6,9 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const route = useRoute()
 const router = useRouter()
 const {
-  items, dynasties,
-  itemLabel, countryLabel, dynastyLabel,
-  enItemTranslations, mdInline, itemProjectKey,
+  items,
+  itemLabel, countryLabel,
+  enItemTranslations, mdInline,
   translationsCache, loadLangTranslations,
 } = useInventoryData()
 
@@ -31,7 +31,6 @@ function parseQuery(q) {
     dateFrom: q.date_from ?? '',
     dateTo:   q.date_to   ?? '',
     lang:     q.lang      ?? '',
-    includeEpm: q.epm === '1',
     page:     parseInt(q.page ?? '1', 10) || 1,
     // refine row
     keyword4: q.keyword4 ?? '',
@@ -70,7 +69,6 @@ const FIELD_OPTIONS = [
   { value: 'name',       label: 'Name' },
   { value: 'location',   label: 'Location' },
   { value: 'provenance', label: 'Provenance' },
-  { value: 'dynasty',    label: 'Period / Dynasty' },
   { value: 'patron',     label: 'Patron / Initial Owner' },
   { value: 'artist',     label: 'Architect / Artist / Master' },
   { value: 'material',   label: 'Material / Technique' },
@@ -115,10 +113,6 @@ function matchField(item, field, keyword, tr) {
       return (tr.location ?? '').toLowerCase().includes(kw)
     case 'provenance':
       return (tr.provenance ?? '').toLowerCase().includes(kw)
-    case 'dynasty': {
-      const names = item.dynasty_ids.map(id => dynastyLabel(id)).join(' ')
-      return names.toLowerCase().includes(kw)
-    }
     case 'patron':
       return (tr.patrons ?? tr.initial_owner ?? '').toLowerCase().includes(kw)
     case 'artist':
@@ -196,13 +190,7 @@ function itemMatches(item, s) {
 
 const filteredItems = computed(() => {
   const s = search.value
-  return items.value.filter(item => {
-    // 'ISL' (Discover Islamic Art) is always searched; other projects (e.g. 'EPM',
-    // Explore Islamic Art Collections) are opt-in via the "Include..." checkbox.
-    const key = itemProjectKey(item)
-    if (key && key !== 'ISL' && !s.includeEpm) return false
-    return itemMatches(item, s)
-  })
+  return items.value.filter(item => itemMatches(item, s))
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredItems.value.length / PAGE_SIZE)))
@@ -232,7 +220,6 @@ const searchSummary = computed(() => {
   if (s.dateFrom) parts.push(`from ${s.dateFrom}`)
   if (s.dateTo)   parts.push(`to ${s.dateTo}`)
   if (s.lang)     parts.push(`language: ${s.lang.toUpperCase()}`)
-  if (s.includeEpm) parts.push('+ Explore Islamic Art Collections')
   return parts
 })
 </script>

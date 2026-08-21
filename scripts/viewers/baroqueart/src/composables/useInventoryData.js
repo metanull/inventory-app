@@ -4,7 +4,6 @@ import manifestData from '@inventory-data/manifest.json'
 import itemsData from '@inventory-data/items.json'
 import countriesData from '@inventory-data/countries.json'
 import partnersData from '@inventory-data/partners.json'
-import dynastiesData from '@inventory-data/dynasties.json'
 import timelinesData from '@inventory-data/timelines.json'
 import timelineEventsData from '@inventory-data/timeline_events.json'
 import collectionsData from '@inventory-data/collections.json'
@@ -13,7 +12,6 @@ import collectionsData from '@inventory-data/collections.json'
 const items = ref(itemsData)
 const countries = ref(countriesData)
 const partners = ref(partnersData)
-const dynasties = ref(dynastiesData)
 const timelines = ref(timelinesData)
 const timelineEvents = ref(timelineEventsData)
 const collections = ref(collectionsData)
@@ -28,16 +26,14 @@ const projectKeyById = new Map(
   (manifestData.projectIds ?? []).map((id, i) => [id, manifestData.projectKeys?.[i]])
 )
 
-// 'ISL' ("Discover Islamic Art") is always the default/primary project; any other
-// exported project (e.g. 'EPM', "Explore Islamic Art Collections") is opt-in —
-// mirrors legacy's database.php "Include Explore Islamic Art Collections" checkbox.
+// The Baroque Art package exports a single project ('BAR'); this helper stays
+// generic in case a companion project is ever exported alongside it.
 function itemProjectKey(item) {
   return projectKeyById.get(item.project_id) ?? null
 }
 
 const enItemTranslations = ref({})
 const enCountryTranslations = ref({})
-const enDynastyTranslations = ref({})
 const enPartnerTranslations = ref({})
 const enTimelineEventTranslations = ref({})
 const enCollectionTranslations = ref({})
@@ -53,8 +49,6 @@ async function loadEnglishTranslations() {
       .then(m => { enItemTranslations.value = m.default }),
     import('@inventory-data/translations/countries.en.json')
       .then(m => { enCountryTranslations.value = m.default }),
-    import('@inventory-data/translations/dynasties.en.json')
-      .then(m => { enDynastyTranslations.value = m.default }),
     import('@inventory-data/translations/partners.en.json')
       .then(m => { enPartnerTranslations.value = m.default }),
     import('@inventory-data/translations/timeline_events.en.json')
@@ -94,11 +88,6 @@ function countryLabel(countryId) {
   return mdStrip(enCountryTranslations.value[countryId]?.name ?? fallback?.internal_name ?? countryId)
 }
 
-function dynastyLabel(dynastyId) {
-  if (!dynastyId) return ''
-  return mdStrip(enDynastyTranslations.value[dynastyId]?.name ?? dynastyId)
-}
-
 function partnerLabel(partnerId) {
   if (!partnerId) return ''
   const fallback = partners.value.find(p => p.id === partnerId)
@@ -113,55 +102,22 @@ const itemById = computed(() => {
   return m
 })
 
-// ── Artistic Introduction (legacy "gai") ──────────────────────────────────
-//
-// Imported as generic Collections, nested under a dedicated "Artistic
-// Introduction" marker collection (backward_compatibility
-// "mwnf3:artintro:root", a child of the Islamic Art project collection).
-// From that single, unambiguous anchor the rest of the tree — root, themes
-// (e.g. "The Umayyads"), pages (tabs within a theme, e.g. "Monuments" /
-// "Objects") — is just parent_id lookups, no internal_name guessing.
-
-const ARTINTRO_MARKER_BC = 'mwnf3:artintro:root'
-
-const artIntroRoot = computed(() => {
-  const marker = collections.value.find(c => c.backward_compatibility === ARTINTRO_MARKER_BC)
-  if (!marker) return null
-  return collections.value.find(c => c.parent_id === marker.id) ?? null
-})
-
-const artIntroThemes = computed(() => {
-  const root = artIntroRoot.value
-  if (!root) return []
-  const themes = collections.value
-    .filter(c => c.parent_id === root.id)
-    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
-  return themes.map(theme => ({
-    ...theme,
-    pages: collections.value
-      .filter(c => c.parent_id === theme.id)
-      .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)),
-  }))
-})
-
-function artIntroThemeById(id) {
-  return artIntroThemes.value.find(t => t.id === id) ?? null
-}
-
 // ── Exhibitions ────────────────────────────────────────────────────────────
 //
 // Imported as generic Collections, nested under a dedicated "Virtual
-// Exhibitions" marker collection (backward_compatibility "mwnf3:exhibitions:root", a
-// child of the Islamic Art project collection) — needed because neither
-// type='exhibition' nor the mwnf3:exhibitions:{id} backward_compatibility
-// key are project-scoped in the legacy schema (shared with Baroque Art,
-// Sharing History, etc). From that anchor: exhibitions are its children,
-// themes are an exhibition's children, pages are a theme's children (tabs).
-// "Introduction" is not a theme — it's the exhibition's own translation
-// (extra.intro_header / extra.intro_text) plus items attached directly to
-// the exhibition collection itself (not to any theme/page).
+// Exhibitions" marker collection (backward_compatibility
+// "mwnf3:exhibitions:root:BAR", a child of the Baroque Art project
+// collection, created by the importer's project-exhibition-root-keying
+// step) — needed because neither type='exhibition' nor the
+// mwnf3:exhibitions:{id} backward_compatibility key are project-scoped in
+// the legacy schema (shared with Islamic Art, Sharing History, etc). From
+// that anchor: exhibitions are its children, themes are an exhibition's
+// children, pages are a theme's children (tabs). "Introduction" is not a
+// theme — it's the exhibition's own translation (extra.intro_header /
+// extra.intro_text) plus items attached directly to the exhibition
+// collection itself (not to any theme/page).
 
-const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root'
+const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root:BAR'
 
 const exhibitions = computed(() => {
   const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
@@ -202,24 +158,6 @@ function exhibitionThemeById(exhibitionId, themeId) {
 
 function collectionsContainingItem(itemId) {
   return collections.value.filter(c => c.items?.some(it => it.id === itemId))
-}
-
-function artIntroLinksForItem(itemId) {
-  const root = artIntroRoot.value
-  if (!root) return []
-  const links = []
-  const seen = new Set()
-  for (const page of collectionsContainingItem(itemId)) {
-    // Items are attached to a theme's page; the page's parent is the theme.
-    const theme = collections.value.find(c => c.id === page.parent_id)
-    if (!theme || theme.parent_id !== root.id || seen.has(theme.id)) continue
-    seen.add(theme.id)
-    links.push({
-      themeId: theme.id,
-      label: enCollectionTranslations.value[theme.id]?.title ?? theme.internal_name,
-    })
-  }
-  return links
 }
 
 function exhibitionLinksForItem(itemId) {
@@ -291,7 +229,6 @@ export function useInventoryData() {
     items,
     countries,
     partners,
-    dynasties,
     timelines,
     timelineEvents,
     collections,
@@ -299,7 +236,6 @@ export function useInventoryData() {
     defaultLang,
     enItemTranslations,
     enCountryTranslations,
-    enDynastyTranslations,
     enPartnerTranslations,
     enTimelineEventTranslations,
     enCollectionTranslations,
@@ -308,18 +244,13 @@ export function useInventoryData() {
     loadLangTranslations,
     itemLabel,
     countryLabel,
-    dynastyLabel,
     partnerLabel,
     itemProjectKey,
     itemById,
-    artIntroRoot,
-    artIntroThemes,
-    artIntroThemeById,
     exhibitions,
     exhibitionById,
     exhibitionThemes,
     exhibitionThemeById,
-    artIntroLinksForItem,
     exhibitionLinksForItem,
     md,
     mdInline,
