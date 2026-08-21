@@ -13,3 +13,4 @@ export { ShExhibitionRootKeyingImporter } from './sh-exhibition-root-keying-impo
 export { ShExhibitionShowFlagImporter } from './sh-exhibition-show-flag-importer.js';
 export { ShItemDisplayStatusImporter } from './sh-item-display-status-importer.js';
 export { ShExhibitionItemJustificationsImporter } from './sh-exhibition-item-justifications-importer.js';
+export { ShPartnerProjectLinkerImporter } from './sh-partner-project-linker-importer.js';
