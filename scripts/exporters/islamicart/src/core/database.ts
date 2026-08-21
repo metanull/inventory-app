@@ -57,7 +57,11 @@ export class Database {
       throw new Error(`Projects not found for: ${missing.join(', ')}`)
     }
 
-    return rows.map(r => r.id)
+    // Return ids in ARGUMENT order, not DB order: callers pair
+    // projectIds[i] with projectKeys[i] (e.g. partner-exporter), and the
+    // IN (...) query gives no ordering guarantee.
+    const idByBc = new Map(rows.map(r => [r.backward_compatibility, r.id]))
+    return bcValues.map(bc => idByBc.get(bc)!)
   }
 
   /**
@@ -90,6 +94,8 @@ export class Database {
       throw new Error(`Contexts not found for: ${missing.join(', ')}`)
     }
 
-    return rows.map(r => r.id)
+    // Same argument-order guarantee as resolveProjectIds.
+    const idByBc = new Map(rows.map(r => [r.backward_compatibility, r.id]))
+    return bcValues.map(bc => idByBc.get(bc)!)
   }
 }

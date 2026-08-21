@@ -42,9 +42,12 @@ export class DynastyExporter extends BaseExporter {
     // legacy's dynasty list exactly. Scoping via item_dynasty instead (as this used to)
     // silently dropped the ~17 dynasties legacy lists that no cataloged item happens to
     // reference — legacy shows all defined dynasties regardless of item usage.
-    // If a second project's dynasties are ever imported into this same table, this will
-    // need real project scoping (a column on `dynasties`, mirroring the still-open
-    // cross-project scoping problem in glossary-exporter.ts) rather than exporting everything.
+    // INVARIANT: this only stays correct while the `dynasties` table holds ISL rows
+    // exclusively — it MUST be revisited if any non-ISL project ever gets dynasties
+    // (real project scoping — a column on `dynasties`, mirroring the still-open
+    // cross-project scoping problem in glossary-exporter.ts — rather than exporting
+    // everything). Note: the baroqueart exporter fork deliberately has no dynasty
+    // exporter at all; this concern is islamicart-only.
     const dynasties = await this.db.query<DynastyRow>(
       `SELECT id, backward_compatibility, from_ah, to_ah, from_ad, to_ad
        FROM dynasties
