@@ -144,4 +144,5 @@ export {
   ShExhibitionShowFlagImporter,
   ShItemDisplayStatusImporter,
   ShExhibitionItemJustificationsImporter,
+  ShPartnerProjectLinkerImporter,
 } from './phase-11/index.js';

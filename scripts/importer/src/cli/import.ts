@@ -126,6 +126,7 @@ import {
   ShExhibitionShowFlagImporter,
   ShItemDisplayStatusImporter,
   ShExhibitionItemJustificationsImporter,
+  ShPartnerProjectLinkerImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -975,6 +976,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Merge SH theme/subtheme justification texts and curator_status into collection_item.extra',
     importerClass: ShExhibitionItemJustificationsImporter,
     dependencies: ['sh-exhibition', 'sh-exhibition-item'],
+  },
+  {
+    key: 'sh-partner-project-linker',
+    name: 'SH Partner Project Linker',
+    description:
+      'Attach SH partners to their project collection via collection_partner with flat tier levels',
+    importerClass: ShPartnerProjectLinkerImporter,
+    dependencies: ['sh-project', 'sh-partner'],
   },
   {
     key: 'project-cleanup',
