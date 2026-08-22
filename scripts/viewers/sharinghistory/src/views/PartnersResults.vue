@@ -1,25 +1,21 @@
 <script setup>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
-const route = useRoute()
-const { partners, countryLabel, partnerLabel } = useInventoryData()
+const { partners, countryLabel, partnerLabel, enPartnerTranslations } = useInventoryData()
 
-const filterType = computed(() => (route.query.type === 'institution' ? 'institution' : 'museum'))
-const otherType = computed(() => (filterType.value === 'museum' ? 'institution' : 'museum'))
-const typeLabel = computed(() => (filterType.value === 'museum' ? 'Museums' : 'Institutions'))
-const otherTypeLabel = computed(() => (otherType.value === 'museum' ? 'Partner Museums' : 'Partner Institutions'))
-
-// Associated tiers are nested under the main "Partners" list per country,
-// mirroring the legacy pm_partner_list.php accordion (level is only present
-// once the exporter's partner-hierarchy join has been re-published; a
-// partner without a level is treated as a main partner).
+// SH has a single Partners concept (no museum/institution split — the
+// legacy pm_partner_list.php lists ALL sh_partners grouped by country).
+// Like legacy's INNER JOINs on sh_partner_names + mwnf3.countrynames, only
+// partners with a name translation AND a country are listed — this
+// reproduces the live site's 114-partner list (27 main + 87 associated) out
+// of the 120 in the package (the rest are placeholder rows: "Not know yet",
+// "Public Domain", or nameless).
 const groupedByCountry = computed(() => {
-  const byType = partners.value.filter(p => p.type === filterType.value)
+  const named = partners.value.filter(p => enPartnerTranslations.value[p.id]?.name && p.country_id)
 
   const countries = new Map()
-  for (const p of byType) {
+  for (const p of named) {
     const key = p.country_id ?? ''
     if (!countries.has(key)) countries.set(key, { main: [], associated: [] })
     const bucket = countries.get(key)
@@ -54,16 +50,13 @@ function partnerLink(partner) {
     <RouterLink to="/partners" class="back-link">‹ Back to Partners</RouterLink>
 
     <h1 class="section-heading">
-      Partner {{ typeLabel }}
-      <span class="heading-project"> — Discover Baroque Art</span>
+      Partners
+      <span class="heading-project"> — Sharing History</span>
     </h1>
 
     <div class="content-box">
       <p class="result-count">
-        {{ totalCount }} partner{{ totalCount !== 1 ? 's' : '' }} found —
-        <RouterLink :to="{ path: '/partners/results', query: { type: otherType } }">
-          view {{ otherTypeLabel }} instead
-        </RouterLink>
+        {{ totalCount }} partner{{ totalCount !== 1 ? 's' : '' }} found
       </p>
 
       <div v-if="groupedByCountry.length" class="country-accordion">
@@ -80,7 +73,7 @@ function partnerLink(partner) {
             </div>
 
             <div v-if="group.associated.length" class="partner-col associated-col">
-              <p class="associated-label">Associated {{ typeLabel }}</p>
+              <p class="associated-label">Associated Partners</p>
               <p v-for="p in group.associated" :key="p.id">
                 <RouterLink :to="partnerLink(p)">{{ partnerLabel(p.id) }}</RouterLink>
               </p>
@@ -89,7 +82,7 @@ function partnerLink(partner) {
         </details>
       </div>
 
-      <p v-else class="no-results">No partner {{ typeLabel.toLowerCase() }} found.</p>
+      <p v-else class="no-results">No partners found.</p>
     </div>
   </div>
 </template>

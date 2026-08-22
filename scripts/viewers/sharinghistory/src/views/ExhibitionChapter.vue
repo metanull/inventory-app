@@ -10,7 +10,7 @@ const {
   availableLangs, defaultLang,
   translationsCache, loadLangTranslations,
   partnerLabel,
-  exhibitionById, exhibitionThemeById,
+  exhibitionById, exhibitionThemeById, chapterById,
   enCollectionTranslations,
   md, mdInline,
 } = useInventoryData()
@@ -21,12 +21,29 @@ const theme = computed(() => {
   if (!e) return null
   return exhibitionThemeById(e.id, decodeURIComponent(route.params.themeId)) ?? null
 })
+const chapter = computed(() => {
+  const e = exhibition.value
+  const t = theme.value
+  if (!e || !t) return null
+  return chapterById(e.id, t.id, decodeURIComponent(route.params.chapterId)) ?? null
+})
 
-// SH themes have no "pages" — their children are chapters (subthemes), each
-// a full narrative level of its own with a dedicated view.
-const chapters = computed(() => theme.value?.chapters ?? [])
+// Chapter position within the theme, for Previous/Next navigation (the
+// legacy site navigates chapters sequentially inside a theme).
+const chapterIndex = computed(() => {
+  const t = theme.value
+  const c = chapter.value
+  if (!t || !c) return -1
+  return t.chapters.findIndex(ch => ch.id === c.id)
+})
 
-// ── Language selector (collection text loaded on demand, per-lang) ──────
+function goToChapter(idx) {
+  const t = theme.value
+  if (!t || idx < 0 || idx >= t.chapters.length) return
+  router.push(`/exhibitions/${exhibition.value.id}/theme/${t.id}/chapter/${t.chapters[idx].id}`)
+}
+
+// ── Language selector ───────────────────────────────────────────────────
 
 const activeLang = ref(defaultLang)
 const collectionLangCache = ref({})
@@ -54,45 +71,74 @@ function collectionText(collectionId) {
   return collectionLangCache.value[activeLang.value]?.[collectionId] ?? {}
 }
 
-// The importer synthesizes a placeholder internal name when the legacy
-// source has no title for a given language (e.g. SH theme 26 has no name
-// row at all). Fall back gracefully.
 function resolveTitle(collectionId, fallbackName) {
-  const local = collectionText(collectionId).title
-  if (local) return local
-  const en = enCollectionTranslations.value[collectionId]?.title
-  if (en) return en
-  return fallbackName
+  return collectionText(collectionId).title
+    ?? enCollectionTranslations.value[collectionId]?.title
+    ?? fallbackName
 }
 
-// ── Theme's own item grid (items attached at theme level) ───────────────
+// See-also / further-reading blocks live in the collection translation's
+// extra (imported from sh_exhibition_subthemenames).
+const chapterExtra = computed(() => {
+  const c = chapter.value
+  if (!c) return {}
+  return collectionText(c.id).extra ?? enCollectionTranslations.value[c.id]?.extra ?? {}
+})
+
+// ── Item grid with curated justifications ───────────────────────────────
 
 const selectedItemId = ref(null)
+const selectedVariantIndex = ref(0)
 
-watch(theme, t => {
-  selectedItemId.value = t?.items?.[0]?.id ?? null
+watch(chapter, c => {
+  selectedItemId.value = c?.items?.[0]?.id ?? null
+  selectedVariantIndex.value = 0
 }, { immediate: true })
 
 const gridItems = computed(() => {
-  const t = theme.value
-  if (!t) return []
-  return (t.items ?? [])
+  const c = chapter.value
+  if (!c) return []
+  return (c.items ?? [])
     .map(entry => ({ entry, item: itemById.value[entry.id] }))
     .filter(({ item }) => item)
 })
 
 const selected = computed(() => gridItems.value.find(g => g.item.id === selectedItemId.value) ?? gridItems.value[0] ?? null)
+const selectedVariants = computed(() => selected.value?.entry.details ?? [])
 
 function selectItem(itemId) {
   selectedItemId.value = itemId
+  selectedVariantIndex.value = 0
+}
+
+function selectVariant(idx) {
+  selectedVariantIndex.value = idx
 }
 
 const selectedDisplay = computed(() => {
   const sel = selected.value
   if (!sel) return null
-  const caption = sel.entry.caption?.[activeLang.value] ?? {}
+
+  const variantIdx = selectedVariantIndex.value
+  const variant = variantIdx > 0 ? selectedVariants.value[variantIdx - 1] : null
+
   const just = sel.entry.justifications?.[activeLang.value]
     ?? sel.entry.justifications?.[defaultLang] ?? null
+
+  if (variant) {
+    const caption = variant.caption?.[activeLang.value] ?? {}
+    return {
+      name: caption.detail_name ?? caption.name ?? '',
+      date: caption.date ?? '',
+      location: caption.location ?? '',
+      museum: caption.museum ?? '',
+      justificationCurator: caption.justification ?? just?.curator ?? '',
+      justificationPartner: just?.partner ?? '',
+      image: variant.image_url ?? sel.item.images?.[0]?.url ?? null,
+    }
+  }
+
+  const caption = sel.entry.caption?.[activeLang.value] ?? {}
   const t = translationsCache.value[activeLang.value]?.[sel.item.id] ?? {}
   return {
     name: caption.name ?? t.name ?? sel.item.internal_name ?? sel.item.id,
@@ -106,10 +152,8 @@ const selectedDisplay = computed(() => {
 })
 
 function back() {
-  if (window.history.length > 2) {
-    router.back()
-  } else if (exhibition.value) {
-    router.push(`/exhibitions/${exhibition.value.id}`)
+  if (exhibition.value && theme.value) {
+    router.push(`/exhibitions/${exhibition.value.id}/theme/${theme.value.id}`)
   } else {
     router.push('/exhibitions')
   }
@@ -117,14 +161,13 @@ function back() {
 </script>
 
 <template>
-  <div v-if="!theme" class="content-box not-found">
-    <p>Theme not found.</p>
-    <router-link v-if="exhibition" :to="`/exhibitions/${exhibition.id}`">← Return to exhibition</router-link>
-    <router-link v-else to="/exhibitions">← Return to Exhibitions</router-link>
+  <div v-if="!chapter" class="content-box not-found">
+    <p>Chapter not found.</p>
+    <router-link to="/exhibitions">← Return to Exhibitions</router-link>
   </div>
 
-  <div v-else class="theme-wrap">
-    <a class="back-link" href="#" @click.prevent="back">← Back to {{ resolveTitle(exhibition.id, exhibition.internal_name) }}</a>
+  <div v-else class="chapter-wrap">
+    <a class="back-link" href="#" @click.prevent="back">← Back to {{ resolveTitle(theme.id, theme.internal_name) }}</a>
 
     <div v-if="availableLangs.length > 1" class="lang-selector">
       <label class="lang-label">Text language:</label>
@@ -134,35 +177,65 @@ function back() {
     </div>
 
     <div class="content-box">
-      <h1 class="theme-title" v-html="mdInline(resolveTitle(theme.id, theme.internal_name))" />
+      <p class="chapter-crumb">
+        <span v-html="mdInline(resolveTitle(exhibition.id, exhibition.internal_name))" /> ·
+        <span v-html="mdInline(resolveTitle(theme.id, theme.internal_name))" />
+      </p>
+      <h1 class="chapter-title" v-html="mdInline(resolveTitle(chapter.id, chapter.internal_name))" />
 
-      <div class="theme-grid">
-        <!-- Left: theme introduction + chapter list -->
-        <div class="theme-text-col">
-          <p v-if="collectionText(theme.id).quote" class="page-quote" v-html="mdInline(collectionText(theme.id).quote)" />
-          <div v-if="collectionText(theme.id).description" class="prose" v-html="md(collectionText(theme.id).description)" />
+      <div v-if="theme.chapters.length > 1" class="page-nav-row">
+        <button class="page-nav-btn" :disabled="chapterIndex <= 0" @click="goToChapter(chapterIndex - 1)">
+          ← Previous chapter
+        </button>
+        <span class="page-nav-count">Chapter {{ chapterIndex + 1 }} of {{ theme.chapters.length }}</span>
+        <button class="page-nav-btn" :disabled="chapterIndex >= theme.chapters.length - 1" @click="goToChapter(chapterIndex + 1)">
+          Next chapter →
+        </button>
+      </div>
 
-          <div v-if="chapters.length" class="chapter-list">
-            <h2 class="chapter-list-heading">Chapters</h2>
-            <RouterLink
-              v-for="(chapter, idx) in chapters"
-              :key="chapter.id"
-              :to="`/exhibitions/${exhibition.id}/theme/${theme.id}/chapter/${chapter.id}`"
-              class="chapter-row"
-            >
-              <span class="chapter-num">{{ idx + 1 }}</span>
-              <span class="chapter-name" v-html="mdInline(resolveTitle(chapter.id, chapter.internal_name))" />
-              <span class="chapter-count" v-if="chapter.items?.length">{{ chapter.items.length }} items</span>
-            </RouterLink>
+      <div class="chapter-grid">
+        <!-- Left: quotation + narrative -->
+        <div class="chapter-text-col">
+          <blockquote v-if="collectionText(chapter.id).quote" class="chapter-quote" v-html="md(collectionText(chapter.id).quote)" />
+          <div v-if="collectionText(chapter.id).description" class="prose" v-html="md(collectionText(chapter.id).description)" />
+
+          <div v-if="chapterExtra.see_also_links" class="chapter-extra">
+            <h3 class="chapter-extra-heading">See also</h3>
+            <div class="prose" v-html="md(chapterExtra.see_also_links)" />
+          </div>
+          <div v-if="chapterExtra.further_reading" class="chapter-extra">
+            <h3 class="chapter-extra-heading">Further reading</h3>
+            <div class="prose" v-html="md(chapterExtra.further_reading)" />
           </div>
         </div>
 
-        <!-- Right: theme-level item highlight panel -->
-        <div class="theme-side-col" v-if="gridItems.length">
+        <!-- Right: detail panel + thumbnail grid -->
+        <div class="chapter-side-col" v-if="gridItems.length">
           <div v-if="selectedDisplay" class="item-detail-panel">
             <div class="item-detail-img-wrap">
               <img v-if="selectedDisplay.image" :src="selectedDisplay.image" :alt="selectedDisplay.name" class="item-detail-img" />
               <div v-else class="item-detail-img-placeholder" />
+            </div>
+
+            <div v-if="selectedVariants.length" class="variant-row">
+              <button
+                class="variant-btn"
+                :class="{ active: selectedVariantIndex === 0 }"
+                title="Main view"
+                @click="selectVariant(0)"
+              >
+                <img v-if="selected.item.images?.[0]?.url" :src="selected.item.images[0].url" alt="Main view" />
+              </button>
+              <button
+                v-for="(variant, idx) in selectedVariants"
+                :key="idx"
+                class="variant-btn"
+                :class="{ active: selectedVariantIndex === idx + 1 }"
+                title="Detail view"
+                @click="selectVariant(idx + 1)"
+              >
+                <img v-if="variant.image_url" :src="variant.image_url" alt="Detail view" />
+              </button>
             </div>
 
             <h3 class="item-detail-name" v-html="mdInline(selectedDisplay.name)" />
@@ -203,7 +276,7 @@ function back() {
 <style scoped>
 .not-found { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; }
 
-.theme-wrap { display: flex; flex-direction: column; gap: 10px; }
+.chapter-wrap { display: flex; flex-direction: column; gap: 10px; }
 
 .lang-selector {
   display: flex;
@@ -216,7 +289,13 @@ function back() {
 }
 .lang-select { font-size: 12px; padding: 3px 6px; }
 
-.theme-title {
+.chapter-crumb {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.chapter-title {
   font-size: 22px;
   font-weight: 400;
   color: var(--heading);
@@ -225,19 +304,46 @@ function back() {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Two-column layout */
-.theme-grid {
+.page-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.page-nav-btn {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--heading);
+  cursor: pointer;
+}
+.page-nav-btn:hover:not(:disabled) { color: var(--nav-active); border-color: var(--accent); }
+.page-nav-btn:disabled { opacity: 0.4; cursor: default; }
+.page-nav-count {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chapter-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 24px;
 }
-@media (max-width: 700px) { .theme-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .chapter-grid { grid-template-columns: 1fr; } }
 
-.theme-text-col { min-width: 0; }
-.page-quote {
+.chapter-text-col { min-width: 0; }
+.chapter-quote {
   font-size: 15px;
   font-style: italic;
   color: var(--heading);
+  border-left: 3px solid var(--gold-band);
+  padding-left: 12px;
   margin-bottom: 14px;
   line-height: 1.5;
   font-family: 'Roboto', sans-serif;
@@ -246,48 +352,18 @@ function back() {
 .prose :deep(p) { margin: 0 0 .75em; }
 .prose :deep(p:last-child) { margin-bottom: 0; }
 
-/* Chapter list */
-.chapter-list { margin-top: 20px; }
-.chapter-list-heading {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--heading);
-  border-bottom: 2px solid var(--accent-soft);
-  padding-bottom: 4px;
-  margin-bottom: 8px;
-  font-family: 'Roboto', sans-serif;
-}
-.chapter-row {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 8px 4px;
-  border-bottom: 1px solid var(--border-light);
-  text-decoration: none !important;
-}
-.chapter-row:hover .chapter-name { color: var(--nav-active); }
-.chapter-num {
-  font-family: 'Roboto Condensed', 'Roboto', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent-soft);
-  min-width: 20px;
-}
-.chapter-name {
-  flex: 1;
-  font-family: 'Roboto', sans-serif;
+.chapter-extra { margin-top: 18px; }
+.chapter-extra-heading {
   font-size: 14px;
   font-weight: 500;
-  color: var(--text);
-}
-.chapter-count {
+  color: var(--heading);
+  border-bottom: 1px solid var(--accent-soft);
+  padding-bottom: 3px;
+  margin-bottom: 6px;
   font-family: 'Roboto', sans-serif;
-  font-size: 11px;
-  color: var(--muted);
 }
 
-/* Detail panel */
-.theme-side-col { display: flex; flex-direction: column; gap: 14px; }
+.chapter-side-col { display: flex; flex-direction: column; gap: 14px; }
 
 .item-detail-panel {
   border: 1px solid var(--border);
@@ -304,6 +380,25 @@ function back() {
 }
 .item-detail-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .item-detail-img-placeholder { width: 100%; height: 100%; }
+
+.variant-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.variant-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid transparent;
+  background: var(--tile-bg);
+  cursor: pointer;
+  overflow: hidden;
+}
+.variant-btn.active { border-color: var(--accent); }
+.variant-btn:hover { border-color: var(--accent-soft); }
+.variant-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .item-detail-name {
   font-size: 16px;
@@ -346,7 +441,6 @@ function back() {
   font-family: 'Roboto', sans-serif;
 }
 
-/* Thumbnail grid */
 .thumb-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -290,7 +290,7 @@ const citation = computed(() => {
   const year = new Date().getFullYear()
   const permalink = `${window.location.origin}${window.location.pathname}#/item/${encodeURIComponent(item.value.id)}`
   const author = tr.author ? `${tr.author} ` : ''
-  return `${author}"${name}" in Discover Baroque Art, ${year}. ${permalink}`
+  return `${author}"${name}" in Sharing History, ${year}. ${permalink}`
 })
 
 // ── "View on Timeline" — country + date-range proximity link. Legacy never

@@ -5,55 +5,81 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 
 const route = useRoute()
 const router = useRouter()
-const { timelines, timelineEvents, countryLabel, enTimelineEventTranslations, md } = useInventoryData()
+const {
+  timelines, timelineEvents, countryLabel, enTimelineEventTranslations, md,
+  exhibitions, enCollectionTranslations, itemById, itemLabel,
+} = useInventoryData()
 
 const PAGE_SIZE = 15
 
 // ── Filter state (synced with URL query) ────────────────────────────────
+// `exhibition`: '' = all timelines, 'pc' = Permanent Collection timelines
+// (collection_id null — the legacy hidden-sentinel toggle), or an
+// exhibition id for that exhibition's thematic timeline.
 
-const filterCountry = ref(route.query.country ?? '')
-const filterBegin   = ref(route.query.begin   ?? '')
-const filterEnd     = ref(route.query.end     ?? '')
-const currentPage    = ref(parseInt(route.query.page ?? '1', 10) || 1)
+const filterCountry    = ref(route.query.country ?? '')
+const filterExhibition = ref(route.query.exhibition ?? '')
+const filterBegin      = ref(route.query.begin   ?? '')
+const filterEnd        = ref(route.query.end     ?? '')
+const currentPage      = ref(parseInt(route.query.page ?? '1', 10) || 1)
 
 watch(
-  [filterCountry, filterBegin, filterEnd],
+  [filterCountry, filterExhibition, filterBegin, filterEnd],
   () => { currentPage.value = 1 }
 )
 
 watch(
   () => route.query,
   q => {
-    filterCountry.value = q.country ?? ''
-    filterBegin.value   = q.begin   ?? ''
-    filterEnd.value     = q.end     ?? ''
-    currentPage.value   = parseInt(q.page ?? '1', 10) || 1
+    filterCountry.value    = q.country ?? ''
+    filterExhibition.value = q.exhibition ?? ''
+    filterBegin.value      = q.begin   ?? ''
+    filterEnd.value        = q.end     ?? ''
+    currentPage.value      = parseInt(q.page ?? '1', 10) || 1
   }
 )
 
 function applyFilters() {
   const q = {}
-  if (filterCountry.value) q.country = filterCountry.value
-  if (filterBegin.value)   q.begin   = filterBegin.value
-  if (filterEnd.value)     q.end     = filterEnd.value
+  if (filterCountry.value)    q.country    = filterCountry.value
+  if (filterExhibition.value) q.exhibition = filterExhibition.value
+  if (filterBegin.value)      q.begin      = filterBegin.value
+  if (filterEnd.value)        q.end        = filterEnd.value
   router.push({ path: '/timeline/results', query: q })
 }
 
 function resetFilters() {
   filterCountry.value = ''
+  filterExhibition.value = ''
   filterBegin.value = ''
   filterEnd.value = ''
   applyFilters()
 }
 
-// ── Available countries (from timeline data) ────────────────────────────
+// ── Available countries / exhibitions (from timeline data) ──────────────
 
-const availableCountries = computed(() =>
-  timelines.value
-    .filter(t => t.country_id)
-    .map(t => ({ id: t.country_id, name: countryLabel(t.country_id) }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-)
+const availableCountries = computed(() => {
+  const seen = new Map()
+  for (const t of timelines.value) {
+    if (t.country_id && !seen.has(t.country_id)) {
+      seen.set(t.country_id, { id: t.country_id, name: countryLabel(t.country_id) })
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))
+})
+
+const availableExhibitions = computed(() => {
+  const boundIds = new Set(timelines.value.map(t => t.collection_id).filter(Boolean))
+  return exhibitions.value
+    .filter(e => boundIds.has(e.id))
+    .map(e => ({ id: e.id, name: enCollectionTranslations.value[e.id]?.title ?? e.internal_name }))
+})
+
+const timelineById = computed(() => {
+  const m = {}
+  for (const t of timelines.value) m[t.id] = t
+  return m
+})
 
 // ── Filtered + sorted events ─────────────────────────────────────────────
 
@@ -85,6 +111,12 @@ const filteredEvents = computed(() => {
     result = result.filter(e => e.country_id === filterCountry.value)
   }
 
+  if (filterExhibition.value === 'pc') {
+    result = result.filter(e => timelineById.value[e.timeline_id]?.collection_id === null)
+  } else if (filterExhibition.value) {
+    result = result.filter(e => timelineById.value[e.timeline_id]?.collection_id === filterExhibition.value)
+  }
+
   const begin = filterBegin.value ? parseInt(filterBegin.value, 10) : null
   const end = filterEnd.value ? parseInt(filterEnd.value, 10) : null
   if (begin != null || end != null) {
@@ -93,6 +125,12 @@ const filteredEvents = computed(() => {
 
   return [...result].sort((a, b) => a.year_from - b.year_from)
 })
+
+// Items linked to an event (real curated links from the legacy timeline
+// illustrations); tolerate ids not present in the export.
+function eventItems(event) {
+  return (event.item_ids ?? []).map(id => itemById.value[id]).filter(Boolean)
+}
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredEvents.value.length / PAGE_SIZE)))
 
@@ -160,6 +198,15 @@ const activeFilterLabel = computed(() => {
       </div>
 
       <div class="filter-row">
+        <label>Timeline</label>
+        <select v-model="filterExhibition" style="width:200px">
+          <option value="">— all —</option>
+          <option value="pc">Permanent Collection</option>
+          <option v-for="e in availableExhibitions" :key="e.id" :value="e.id">{{ e.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-row">
         <label>From year</label>
         <input type="number" v-model="filterBegin" placeholder="e.g. 800" style="width:100px" />
       </div>
@@ -190,6 +237,27 @@ const activeFilterLabel = computed(() => {
               class="timeline-description"
               v-html="md(enTimelineEventTranslations[event.id]?.description ?? '')"
             />
+
+            <div v-if="event.images?.length || eventItems(event).length" class="timeline-media-row">
+              <img
+                v-for="(img, idx) in event.images"
+                :key="'img' + idx"
+                :src="img.url"
+                :alt="img.alt_text ?? ''"
+                class="timeline-media-img"
+                loading="lazy"
+              />
+              <RouterLink
+                v-for="item in eventItems(event)"
+                :key="item.id"
+                :to="`/item/${encodeURIComponent(item.id)}`"
+                class="timeline-media-item"
+                :title="itemLabel(item)"
+              >
+                <img v-if="item.images?.length" :src="item.images[0].url" :alt="itemLabel(item)" loading="lazy" />
+              </RouterLink>
+            </div>
+
             <RouterLink :to="itemsLink(event)" class="timeline-items-link">
               View items from this period →
             </RouterLink>
@@ -240,6 +308,20 @@ const activeFilterLabel = computed(() => {
 .no-results { color: var(--muted); font-family: 'Roboto', sans-serif; font-size: 13px; padding: 20px 0; }
 
 .timeline-list { list-style: none; }
+.timeline-media-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.timeline-media-img,
+.timeline-media-item img {
+  height: 64px;
+  border: 1px solid var(--border);
+  background: var(--tile-bg);
+  display: block;
+}
+.timeline-media-item:hover img { border-color: var(--accent); }
 .timeline-row {
   display: flex;
   gap: 16px;

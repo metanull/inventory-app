@@ -5,7 +5,7 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
 const {
-  items, countries, partners,
+  publicItems: items, countries, partners,
   countryLabel, partnerLabel,
   enCountryTranslations, enPartnerTranslations,
 } = useInventoryData()

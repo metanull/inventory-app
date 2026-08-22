@@ -4,15 +4,30 @@ import { useRouter } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
-const { timelines, timelineEvents, countryLabel } = useInventoryData()
+const { timelines, timelineEvents, countryLabel, exhibitions, enCollectionTranslations } = useInventoryData()
 
-// Countries available in the timeline data (one Timeline per country)
-const availableCountries = computed(() =>
-  timelines.value
-    .filter(t => t.country_id)
-    .map(t => ({ id: t.country_id, name: countryLabel(t.country_id) }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-)
+// Countries available in the timeline data (SH: one timeline per
+// country × exhibition — collapse to distinct countries here)
+const availableCountries = computed(() => {
+  const seen = new Map()
+  for (const t of timelines.value) {
+    if (t.country_id && !seen.has(t.country_id)) {
+      seen.set(t.country_id, { id: t.country_id, name: countryLabel(t.country_id) })
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))
+})
+
+// Exhibitions that actually have a timeline bound to them (thematic
+// timelines). The legacy page offers a thematic-vs-Permanent-Collection
+// toggle: "pc" selects the timelines the exporter remapped to
+// collection_id null (legacy hidden sentinel exhibition 2).
+const availableExhibitions = computed(() => {
+  const boundIds = new Set(timelines.value.map(t => t.collection_id).filter(Boolean))
+  return exhibitions.value
+    .filter(e => boundIds.has(e.id))
+    .map(e => ({ id: e.id, name: enCollectionTranslations.value[e.id]?.title ?? e.internal_name }))
+})
 
 // Century marks spanning the actual event data, mirroring the legacy
 // hcr_home.php generation (100-year increments from min to max year_from/year_to).
@@ -31,6 +46,7 @@ const centuryMarks = computed(() => {
 })
 
 const selectedCountry = ref('')
+const selectedExhibition = ref('pc') // 'pc' = Permanent Collection timeline (legacy default toggle)
 const selectedBegin = ref('')
 const selectedEnd = ref('')
 const errorMessage = ref('')
@@ -49,6 +65,7 @@ function search() {
 
   const q = {}
   if (selectedCountry.value && selectedCountry.value !== 'all') q.country = selectedCountry.value
+  if (selectedExhibition.value) q.exhibition = selectedExhibition.value
   if (selectedBegin.value) q.begin = selectedBegin.value
   if (selectedEnd.value) q.end = selectedEnd.value
   router.push({ path: '/timeline/results', query: q })
@@ -61,8 +78,9 @@ function search() {
 
     <div class="content-box">
       <p class="intro-text">
-        Explore historical events from the Baroque period. Select a country and/or a time
-        period below, then click <strong>Go</strong>.
+        Explore historical events of the period 1815 – 1918. Select a country
+        and/or a time period, choose the Permanent Collection timeline or one
+        of the thematic exhibition timelines, then click <strong>Go</strong>.
       </p>
 
       <table class="form-table filter-table">
@@ -74,6 +92,16 @@ function search() {
                 <option value="" disabled>Select a Country</option>
                 <option value="all">— All Countries —</option>
                 <option v-for="c in availableCountries" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="tl-exh">Timeline</label></th>
+            <td>
+              <select id="tl-exh" v-model="selectedExhibition" style="width:280px">
+                <option value="pc">Permanent Collection</option>
+                <option value="">— All thematic timelines —</option>
+                <option v-for="e in availableExhibitions" :key="e.id" :value="e.id">{{ e.name }}</option>
               </select>
             </td>
           </tr>

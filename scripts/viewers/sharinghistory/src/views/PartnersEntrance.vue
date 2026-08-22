@@ -3,8 +3,8 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-function browse(type) {
-  router.push({ path: '/partners/results', query: { type } })
+function browse() {
+  router.push({ path: '/partners/results' })
 }
 </script>
 
@@ -14,24 +14,18 @@ function browse(type) {
 
     <div class="content-box">
       <p class="intro-text">
-        Discover Baroque Art is a collaborative project bringing together museums and
-        institutions from across Europe and beyond. Browse the partner
-        museums that lend and hold the objects in the collection, or the partner
-        institutions responsible for the monuments and historic sites.
+        Sharing History — Arab World – Europe is a collaborative project
+        bringing together museums, archives, universities, libraries and
+        cultural heritage authorities from the Arab world and Europe. Browse
+        the partners — and their associated partners — grouped by country.
       </p>
 
       <table class="form-table filter-table">
         <tbody>
           <tr>
-            <th><label>Partner Museums</label></th>
+            <th><label>Partners</label></th>
             <td>
-              <button class="btn" @click="browse('museum')">Browse Museums →</button>
-            </td>
-          </tr>
-          <tr>
-            <th><label>Other Partners</label></th>
-            <td>
-              <button class="btn" @click="browse('institution')">Browse Institutions →</button>
+              <button class="btn" @click="browse()">Browse Partners →</button>
             </td>
           </tr>
         </tbody>

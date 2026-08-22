@@ -8,7 +8,8 @@ import { RouterView, RouterLink } from 'vue-router'
       <div class="container">
         <RouterLink to="/" class="site-logo">
           <span class="site-logo-org">Museum With No Frontiers</span>
-          <span class="site-logo-title">Baroque Art</span>
+          <span class="site-logo-title">Sharing History</span>
+          <span class="site-logo-sub">Arab World – Europe | 1815 – 1918</span>
         </RouterLink>
       </div>
     </header>
@@ -16,11 +17,12 @@ import { RouterView, RouterLink } from 'vue-router'
     <nav class="site-nav">
       <div class="container nav-inner">
         <RouterLink to="/" active-class="nav-active" exact-active-class="nav-exact-active">Home</RouterLink>
+        <RouterLink to="/exhibitions" active-class="nav-active">Exhibitions</RouterLink>
         <RouterLink to="/permanent-collection" active-class="nav-active">Permanent Collection</RouterLink>
         <RouterLink to="/database" active-class="nav-active">Database</RouterLink>
         <RouterLink to="/timeline" active-class="nav-active">Timeline</RouterLink>
+        <RouterLink to="/historical-background" active-class="nav-active">Historical Background</RouterLink>
         <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
-        <RouterLink to="/exhibitions" active-class="nav-active">Exhibitions</RouterLink>
       </div>
     </nav>
 
@@ -45,46 +47,49 @@ import { RouterView, RouterLink } from 'vue-router'
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Legacy Discover Baroque Art palette (www.discoverbaroqueart.org css):
-     header/footer #14214E, nav #12376B alternating #3F6289 (ul.nav),
-     content panels #12376B / #3F6289, pale-gold #F5DA66 nav hover. */
+  /* Legacy Sharing History palette (sharinghistory.museumwnf.org css):
+     header #750101, nav/footer/buttons #990000, deep divider #500101,
+     underline rules #AF2626, gold accents #FFC000 (banner) / #E0B700 (nav
+     hover) / #FEBE40 (timeline ruler), warm ivory #F0EDE4 zebra rows. */
 
   /* Header / nav / footer backgrounds */
-  --header-bg:   #14214E;   /* dark navy — legacy header bar */
-  --nav-bg:      #12376B;   /* deep blue — legacy nav bar */
-  --nav-alt-bg:  #3F6289;   /* alternating nav item (legacy nth-child(even)) */
-  --footer-bg:   #14214E;   /* footer bar */
+  --header-bg:   #750101;   /* dark oxblood — legacy header bar */
+  --nav-bg:      #990000;   /* dark red — legacy nav bar */
+  --nav-alt-bg:  #750101;   /* darker red (legacy dropdown / secondary nav) */
+  --footer-bg:   #990000;   /* footer bar (legacy footer #990000, border #750101) */
 
   /* Text on those backgrounds */
-  --header-fg:   #ffffff;   /* white on navy header */
-  --nav-fg:      #ffffff;   /* white on blue nav */
-  --nav-hover-fg:#F5DA66;   /* pale gold — legacy nav link hover */
-  --nav-active:  #12376B;   /* hover / active emphasis on light surfaces */
+  --header-fg:   #ffffff;   /* white on oxblood header */
+  --nav-fg:      #ffffff;   /* white on red nav */
+  --nav-hover-fg:#E0B700;   /* gold — legacy nav link hover */
+  --nav-active:  #990000;   /* hover / active emphasis on light surfaces */
   --footer-fg:   #ffffff;   /* footer text */
 
   /* Heading & body text */
-  --heading:     #12376B;   /* section headings */
+  --heading:     #750101;   /* section headings */
   --text:        #222222;   /* body text */
   --muted:       #5a5a5a;   /* secondary / label text */
   --link:        #222222;
-  --link-hover:  #12376B;
+  --link-hover:  #990000;
 
-  /* Blue accent palette */
-  --accent:      #12376B;   /* primary deep blue */
-  --accent-soft: #3F6289;   /* secondary slate blue */
-  --accent-dark: #14214E;   /* darkest navy */
-  --accent-pale: #6A88AE;   /* light blue (legacy timeline header) */
-  --field-bg:    #f4f7fa;   /* pale blue-gray for inputs / subtle fills */
-  --tile-bg:     #e9eef4;   /* thumbnail / grid-cell placeholder */
+  /* Red/gold accent palette */
+  --accent:      #990000;   /* primary dark red */
+  --accent-soft: #AF2626;   /* lighter red — legacy underline rules */
+  --accent-dark: #500101;   /* deepest red — legacy separators */
+  --accent-pale: #C46A6A;   /* washed red for subtle emphasis */
+  --gold:        #FFC000;   /* legacy banner-heading gold */
+  --gold-band:   #FEBE40;   /* legacy timeline ruler gold */
+  --field-bg:    #faf6f0;   /* warm off-white for inputs / subtle fills */
+  --tile-bg:     #f0ede4;   /* warm ivory — legacy timeline zebra rows */
 
   /* Surfaces */
   --page-bg:     #ffffff;
   --content-bg:  #ffffff;
-  --section-bg:  #f4f7fa;   /* pale blue-gray for info sections */
+  --section-bg:  #f0ede4;   /* warm ivory for info sections */
 
   /* Borders */
-  --border:      #8fa3ba;   /* muted blue-gray */
-  --border-light:#d4dde7;   /* light separator lines */
+  --border:      #b08c8c;   /* muted warm red-gray */
+  --border-light:#e5dada;   /* light separator lines */
 }
 
 body {
@@ -131,6 +136,12 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   letter-spacing: 0.02em;
   font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
+}
+.site-logo-sub {
+  font-size: 12px;
+  color: var(--gold);
+  font-family: 'Roboto Condensed', 'Roboto', sans-serif;
+  letter-spacing: 0.06em;
 }
 
 /* ── Navigation ─────────────────────────────────────────────────────────── */

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useInventoryData } from '../composables/useInventoryData.js'
 
 const router = useRouter()
-const { items, itemLabel, enItemTranslations, mdInline } = useInventoryData()
+const { publicItems: items, itemLabel, enItemTranslations, mdInline } = useInventoryData()
 
 // Pick a random item that has an image, as the featured spotlight
 const featured = computed(() => {
@@ -23,10 +23,10 @@ function goToItem(item) {
   <div class="home">
     <!-- Welcome banner -->
     <div class="home-banner content-box">
-      <h1 class="home-title">Welcome to Baroque Art</h1>
+      <h1 class="home-title">Welcome to Sharing History</h1>
       <p class="home-intro">
-        Discover Baroque Art presents a wide range of objects and monuments
-        from the Baroque period, held in museums and historic sites across Europe and beyond.
+        Sharing History — Arab World – Europe presents objects, monuments and archival documents
+        from the period 1815 – 1918, held by partner museums, archives and institutions across the Arab world and Europe.
         Explore the collection through the Permanent Collection browser or the full-text
         Database search.
       </p>
@@ -74,7 +74,7 @@ function goToItem(item) {
         <h2 class="home-card-title">Exhibitions</h2>
         <p class="home-card-desc">
           Discover curated virtual exhibitions exploring specific themes,
-          monuments, and objects from the Baroque art collection.
+          monuments, and objects from the Sharing History collection.
         </p>
         <span class="home-card-link">Explore →</span>
       </div>

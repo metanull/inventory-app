@@ -14,6 +14,9 @@ import ExhibitionsEntrance from '../views/ExhibitionsEntrance.vue'
 import ExhibitionSplash from '../views/ExhibitionSplash.vue'
 import ExhibitionIntroduction from '../views/ExhibitionIntroduction.vue'
 import ExhibitionTheme from '../views/ExhibitionTheme.vue'
+import ExhibitionChapter from '../views/ExhibitionChapter.vue'
+import HistoricalBackground from '../views/HistoricalBackground.vue'
+import HistoricalBackgroundCountry from '../views/HistoricalBackgroundCountry.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -30,6 +33,9 @@ const routes = [
   { path: '/exhibitions/:exhibitionId', component: ExhibitionSplash },
   { path: '/exhibitions/:exhibitionId/introduction', component: ExhibitionIntroduction },
   { path: '/exhibitions/:exhibitionId/theme/:themeId', component: ExhibitionTheme },
+  { path: '/exhibitions/:exhibitionId/theme/:themeId/chapter/:chapterId', component: ExhibitionChapter },
+  { path: '/historical-background', component: HistoricalBackground },
+  { path: '/historical-background/:recordId', component: HistoricalBackgroundCountry },
   { path: '/item/:id', component: ItemDetail },
 ]
 
