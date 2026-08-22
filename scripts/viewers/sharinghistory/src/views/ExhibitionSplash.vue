@@ -5,7 +5,7 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 
 const route = useRoute()
 const router = useRouter()
-const { exhibitionById, exhibitionThemes, enCollectionTranslations, md, mdInline } = useInventoryData()
+const { exhibitionById, exhibitionThemes, enCollectionTranslations, timelines, md, mdInline } = useInventoryData()
 
 const exhibition = computed(() => exhibitionById(decodeURIComponent(route.params.exhibitionId)) ?? null)
 
@@ -42,6 +42,22 @@ const themeList = computed(() => {
     ...t,
     title: enCollectionTranslations.value[t.id]?.title ?? t.internal_name,
   }))
+})
+
+// ── "Related Content" — legacy exh_items.php sidebar: Political Context
+// Timeline, this exhibition's Thematic Timeline, its Permanent Collection
+// gallery, and the Further Reading bibliography. ──
+
+const hasThematicTimeline = computed(() => {
+  const e = exhibition.value
+  return !!e && timelines.value.some(t => t.collection_id === e.id)
+})
+
+// The importer injects the legacy per-exhibition bibliography into every
+// translation's extra.bibliography as the same language-keyed map.
+const hasFurtherReading = computed(() => {
+  const bib = text.value.extra?.bibliography
+  return !!bib && Object.values(bib).some(entries => entries?.length)
 })
 
 function back() {
@@ -91,6 +107,33 @@ function back() {
         </li>
       </ul>
       <p v-if="!hasIntroduction && !themeList.length" class="no-results">No content available for this exhibition yet.</p>
+    </div>
+
+    <!-- Legacy exhibition homepage "Related Content" box -->
+    <div class="content-box related-box">
+      <h3 class="related-heading">Related Content</h3>
+      <ul class="related-list">
+        <li>
+          <router-link :to="{ path: '/timeline/results', query: { exhibition: 'pc' } }">
+            Political Context Timeline
+          </router-link>
+        </li>
+        <li v-if="hasThematicTimeline">
+          <router-link :to="{ path: '/timeline/results', query: { exhibition: exhibition.id } }">
+            Thematic Timeline
+          </router-link>
+        </li>
+        <li>
+          <router-link :to="{ path: '/permanent-collection/results', query: { exhibition: exhibition.id } }">
+            See Gallery for this Theme
+          </router-link>
+        </li>
+        <li v-if="hasFurtherReading">
+          <router-link :to="`/exhibitions/${exhibition.id}/further-reading`">
+            Further Reading
+          </router-link>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -145,4 +188,21 @@ function back() {
   color: var(--muted);
   font-size: 14px;
 }
+
+/* Related Content */
+.related-box { border-top: 3px solid var(--accent); }
+.related-heading {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--heading);
+  margin-bottom: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+.related-list {
+  list-style: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+}
+.related-list li { padding: 3px 0; }
+.related-list a { color: var(--nav-active); }
 </style>

@@ -7,7 +7,7 @@ const route  = useRoute()
 const router = useRouter()
 
 const {
-  items,
+  items, partners,
   availableLangs, defaultLang,
   translationsCache,
   loadLangTranslations,
@@ -183,28 +183,58 @@ const relatedItems = computed(() => {
 
 const isMonument = computed(() => item.value?.type === 'monument')
 
+// Legacy shows "City, Country" (e.g. "Algiers, Algeria"), not the bare city
+// stored in the translation's location field.
+function locationWithCountry(it, tr) {
+  return [tr.location, countryLabel(it.country_id)].filter(Boolean).join(', ')
+}
+
+// Legacy "Author:" line — the artwork's creator with life dates, e.g.
+// "Wolffgang Andreas Matthäus (1660, Chemnitz–1736, Augsbourg)". SH exports
+// the creator as tr.artist (+ artist_* detail fields); artist_names carries
+// the structured Artist entities where the importer parsed them.
+function authorWithDates(it, tr) {
+  if (!tr.artist) return it.artist_names?.length ? it.artist_names.join(', ') : null
+  const birth = [tr.artist_birthdate, tr.artist_birthplace].filter(Boolean).join(', ')
+  const death = [tr.artist_deathdate, tr.artist_deathplace].filter(Boolean).join(', ')
+  const dates = birth || death ? ` (${birth}${birth && death ? '–' : ''}${death})` : ''
+  return `${tr.artist}${dates}`
+}
+
+// "About {partner}" link under Holding Institution, mirroring legacy's
+// pm_partner.php link — only when the partner is part of the exported set.
+function partnerLink(it) {
+  if (!it.partner_id || !partners.value.some(p => p.id === it.partner_id)) return null
+  return {
+    to: `/partner/${encodeURIComponent(it.partner_id)}`,
+    text: `About ${partnerLabel(it.partner_id)}`,
+  }
+}
+
 const keyFacts = computed(() => {
   if (!item.value) return []
   const it = item.value
   const tr = t(it)
   const facts = []
+  const location = locationWithCountry(it, tr)
 
   if (isMonument.value) {
     if (tr.alternate_name)  facts.push({ label: 'Also known as',    value: tr.alternate_name })
-    if (tr.location)        facts.push({ label: 'Location',         value: tr.location })
+    if (location)           facts.push({ label: 'Location',         value: location })
     if (tr.dates)           facts.push({ label: 'Date of Monument', value: tr.dates })
     if (tr.architects)      facts.push({ label: 'Architects',       value: tr.architects })
     const patronValue = tr.patrons ?? tr.initial_owner
     if (patronValue)        facts.push({ label: 'Patron(s)',        value: patronValue })
   } else {
+    const author = authorWithDates(it, tr)
     if (tr.alternate_name)      facts.push({ label: 'Also known as',              value: tr.alternate_name })
-    if (tr.location)            facts.push({ label: 'Location',                  value: tr.location })
-    if (tr.holder)              facts.push({ label: 'Holding Museum',             value: tr.holder })
+    if (location)               facts.push({ label: 'Location',                   value: location })
+    if (tr.holder)              facts.push({ label: 'Holding Institution',        value: tr.holder, link: partnerLink(it) })
     if (tr.dates)               facts.push({ label: 'Date of Object',             value: tr.dates })
-    if (it.artist_names?.length) facts.push({ label: 'Artist',                    value: it.artist_names.join(', ') })
+    if (author)                 facts.push({ label: 'Author',                     value: author })
     if (tr.scriber)             facts.push({ label: 'Scribe',                     value: tr.scriber })
-    if (it.owner_reference)     facts.push({ label: 'Museum Inventory Number',    value: it.owner_reference })
-    if (tr.type)                facts.push({ label: 'Material(s) / Technique(s)', value: tr.type })
+    if (it.owner_reference)     facts.push({ label: 'Inventory Number',           value: it.owner_reference })
+    if (tr.materials)           facts.push({ label: 'Material(s) / Technique(s)', value: tr.materials })
     if (tr.dimensions)          facts.push({ label: 'Dimensions',                 value: tr.dimensions })
     if (tr.provenance)          facts.push({ label: 'Provenance',                 value: tr.provenance })
     if (tr.workshop)            facts.push({ label: 'Workshop',                   value: tr.workshop })
@@ -230,12 +260,17 @@ const contentSections = computed(() => {
     if (tr.description)           sections.push({ heading: 'Description',                    value: tr.description })
     if (tr.method_for_datation)   sections.push({ heading: 'How Monument was dated',         value: tr.method_for_datation })
     if (tr.method_for_provenance) sections.push({ heading: 'How provenance was established', value: tr.method_for_provenance })
+    if (tr.archival)              sections.push({ heading: 'Archival or Bibliographical Reference', value: tr.archival })
     if (tr.bibliography)          sections.push({ heading: 'Selected bibliography',          value: tr.bibliography })
   } else {
     if (tr.description)           sections.push({ heading: 'Description',                          value: tr.description })
     if (tr.method_for_datation)   sections.push({ heading: 'How date and origin were established', value: tr.method_for_datation })
     if (tr.obtention)             sections.push({ heading: 'How Object was obtained',              value: tr.obtention })
     if (tr.method_for_provenance) sections.push({ heading: 'How provenance was established',       value: tr.method_for_provenance })
+    // Legacy order after Description: "Type of Object", then "Archival or
+    // Bibliographical Reference" (see database_item.php, e.g. it;63).
+    if (tr.type)                  sections.push({ heading: 'Type of Object',                       value: tr.type })
+    if (tr.archival)              sections.push({ heading: 'Archival or Bibliographical Reference', value: tr.archival })
     if (tr.bibliography)          sections.push({ heading: 'Selected bibliography',                value: tr.bibliography })
     if (tr.catalogue_holding_link) sections.push({ heading: 'Catalogue', value: `[${tr.catalogue_holding_link}](${tr.catalogue_holding_link})` })
   }
@@ -396,7 +431,12 @@ function back() {
         <tbody>
           <tr v-for="fact in keyFacts" :key="fact.label">
             <th>{{ fact.label }}</th>
-            <td :dir="contentDir" v-html="glossifyPlain(fact.value)"></td>
+            <td :dir="contentDir">
+              <span v-html="glossifyPlain(fact.value)"></span>
+              <div v-if="fact.link" class="fact-link">
+                <router-link :to="fact.link.to">→ {{ fact.link.text }}</router-link>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -450,10 +490,11 @@ function back() {
         </div>
       </div>
 
-      <!-- Credits -->
-      <div v-if="credits.length" class="credits">
+      <!-- Credits (MWNF Working Number shows even when no credit names exist,
+           like legacy) -->
+      <div v-if="credits.length || item.mwnf_reference" class="credits">
         <h2 class="credits-heading">Credits</h2>
-        <dl class="credits-list">
+        <dl v-if="credits.length" class="credits-list">
           <template v-for="c in credits" :key="c.label">
             <dt>{{ c.label }}</dt>
             <dd :dir="contentDir">{{ c.value }}</dd>
@@ -616,6 +657,8 @@ function back() {
   white-space: nowrap;
 }
 .key-facts td { color: var(--text); font-family: 'Roboto', sans-serif; }
+.fact-link { margin-top: 4px; font-size: 13px; }
+.fact-link a { color: var(--nav-active); }
 
 /* Content sections */
 .content-section {

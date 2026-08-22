@@ -6,51 +6,75 @@ import { useInventoryData } from '../composables/useInventoryData.js'
 const route = useRoute()
 const router = useRouter()
 const {
-  publicItems: items, countries, partners,
+  publicItems: items, countries, partners, collections,
   countryLabel, partnerLabel,
-  itemLabel, enItemTranslations, mdInline,
+  itemLabel, enItemTranslations, mdInline, mdStrip,
+  exhibitions, exhibitionThemes, enCollectionTranslations,
 } = useInventoryData()
 
 const PAGE_SIZE = 20
 
 // ── Filter state (synced with URL query) ────────────────────────────────
 
-const filterCountry = ref(route.query.country ?? '')
-const filterPartner = ref(route.query.partner ?? '')
-const filterBegin   = ref(route.query.begin   ?? '')
-const filterEnd     = ref(route.query.end     ?? '')
-const currentPage   = ref(parseInt(route.query.page ?? '1', 10) || 1)
+const filterCountry    = ref(route.query.country    ?? '')
+const filterExhibition = ref(route.query.exhibition ?? '')
+const filterTheme      = ref(route.query.theme      ?? '')
+const filterChapter    = ref(route.query.chapter    ?? '')
+const filterPartner    = ref(route.query.partner    ?? '')
+const filterBegin      = ref(route.query.begin      ?? '')
+const filterEnd        = ref(route.query.end        ?? '')
+const currentPage      = ref(parseInt(route.query.page ?? '1', 10) || 1)
 
 watch(
-  [filterCountry, filterPartner, filterBegin, filterEnd],
+  [filterCountry, filterExhibition, filterTheme, filterChapter, filterPartner, filterBegin, filterEnd],
   () => { currentPage.value = 1 }
 )
 
 watch(
   () => route.query,
   q => {
-    filterCountry.value = q.country ?? ''
-    filterPartner.value = q.partner ?? ''
-    filterBegin.value   = q.begin   ?? ''
-    filterEnd.value     = q.end     ?? ''
-    currentPage.value   = parseInt(q.page ?? '1', 10) || 1
+    filterCountry.value    = q.country    ?? ''
+    filterExhibition.value = q.exhibition ?? ''
+    filterTheme.value      = q.theme      ?? ''
+    filterChapter.value    = q.chapter    ?? ''
+    filterPartner.value    = q.partner    ?? ''
+    filterBegin.value      = q.begin      ?? ''
+    filterEnd.value        = q.end        ?? ''
+    currentPage.value      = parseInt(q.page ?? '1', 10) || 1
   }
 )
 
+// Cascade resets on user interaction only (not on URL sync, which sets all
+// three fields together): picking another Theme clears Subtheme + Chapter,
+// picking another Subtheme clears Chapter — like legacy's dependent selects.
+function onExhibitionChange() {
+  filterTheme.value = ''
+  filterChapter.value = ''
+}
+function onThemeChange() {
+  filterChapter.value = ''
+}
+
 function applyFilters() {
   const q = {}
-  if (filterCountry.value) q.country = filterCountry.value
-  if (filterPartner.value) q.partner = filterPartner.value
-  if (filterBegin.value)   q.begin   = filterBegin.value
-  if (filterEnd.value)     q.end     = filterEnd.value
+  if (filterCountry.value)    q.country    = filterCountry.value
+  if (filterExhibition.value) q.exhibition = filterExhibition.value
+  if (filterTheme.value)      q.theme      = filterTheme.value
+  if (filterChapter.value)    q.chapter    = filterChapter.value
+  if (filterPartner.value)    q.partner    = filterPartner.value
+  if (filterBegin.value)      q.begin      = filterBegin.value
+  if (filterEnd.value)        q.end        = filterEnd.value
   router.push({ path: '/permanent-collection/results', query: q })
 }
 
 function resetFilters() {
-  filterCountry.value = ''
-  filterPartner.value = ''
-  filterBegin.value   = ''
-  filterEnd.value     = ''
+  filterCountry.value    = ''
+  filterExhibition.value = ''
+  filterTheme.value      = ''
+  filterChapter.value    = ''
+  filterPartner.value    = ''
+  filterBegin.value      = ''
+  filterEnd.value        = ''
   applyFilters()
 }
 
@@ -72,6 +96,79 @@ const availablePartners = computed(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
+// ── Theme / Subtheme / Chapter (Virtual Exhibition membership) ──────────
+//
+// Legacy pclist_all.php filters the Permanent Collection by exhibition
+// ("Theme"), exhibition theme ("Subtheme") and subtheme ("Chapter").
+// Membership is the collections' items[] lists; an exhibition-level filter
+// covers the exhibition and every theme/chapter below it.
+
+function collectionTitle(c) {
+  return mdStrip(enCollectionTranslations.value[c.id]?.title ?? c.internal_name)
+}
+
+const availableExhibitions = computed(() =>
+  exhibitions.value
+    .map(e => ({ id: e.id, name: collectionTitle(e) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+)
+
+const availableSubthemes = computed(() => {
+  if (!filterExhibition.value) return []
+  return exhibitionThemes(filterExhibition.value)
+    .map(t => ({ id: t.id, name: collectionTitle(t) }))
+})
+
+const availableChapters = computed(() => {
+  if (!filterTheme.value) return []
+  const theme = exhibitionThemes(filterExhibition.value).find(t => t.id === filterTheme.value)
+  return (theme?.chapters ?? []).map(c => ({ id: c.id, name: collectionTitle(c) }))
+})
+
+// Country-specific National Context variants hang under exhibitions but are
+// not part of the theme tree — keep their items out of exhibition scopes.
+const NC_BC_PREFIX = 'mwnf3_sharing_history:sh_national_context_'
+
+const collectionById = computed(() => {
+  const m = new Map()
+  for (const c of collections.value) m.set(c.id, c)
+  return m
+})
+
+const childrenByParent = computed(() => {
+  const m = new Map()
+  for (const c of collections.value) {
+    if (!c.parent_id) continue
+    if (!m.has(c.parent_id)) m.set(c.parent_id, [])
+    m.get(c.parent_id).push(c)
+  }
+  return m
+})
+
+// All item ids attached to `collectionId` or any descendant (NC excluded).
+function collectItemIds(collectionId) {
+  const set = new Set()
+  const stack = [collectionId]
+  while (stack.length) {
+    const id = stack.pop()
+    const c = collectionById.value.get(id)
+    if (!c) continue
+    for (const entry of c.items ?? []) set.add(entry.id)
+    for (const child of childrenByParent.value.get(id) ?? []) {
+      if (child.backward_compatibility?.startsWith(NC_BC_PREFIX)) continue
+      stack.push(child.id)
+    }
+  }
+  return set
+}
+
+const collectionScopeIds = computed(() => {
+  if (filterChapter.value)    return collectItemIds(filterChapter.value)
+  if (filterTheme.value)      return collectItemIds(filterTheme.value)
+  if (filterExhibition.value) return collectItemIds(filterExhibition.value)
+  return null
+})
+
 // ── Filtered items ────────────────────────────────────────────────────
 
 const filteredItems = computed(() => {
@@ -79,6 +176,9 @@ const filteredItems = computed(() => {
 
   if (filterCountry.value) {
     result = result.filter(item => item.country_id === filterCountry.value)
+  }
+  if (collectionScopeIds.value) {
+    result = result.filter(item => collectionScopeIds.value.has(item.id))
   }
   if (filterPartner.value) {
     result = result.filter(item => item.partner_id === filterPartner.value)
@@ -141,11 +241,17 @@ function goToPage(n) {
 // ── Active filter label ───────────────────────────────────────────────
 
 const activeFilterLabel = computed(() => {
-  if (filterCountry.value) return countryLabel(filterCountry.value)
-  if (filterPartner.value) return partnerLabel(filterPartner.value)
-  if (filterBegin.value)   return `from ${filterBegin.value}`
-  if (filterEnd.value)     return `up to ${filterEnd.value}`
-  return 'All Items'
+  const parts = []
+  if (filterCountry.value) parts.push(countryLabel(filterCountry.value))
+  const scopeId = filterChapter.value || filterTheme.value || filterExhibition.value
+  if (scopeId) {
+    const c = collectionById.value.get(scopeId)
+    if (c) parts.push(collectionTitle(c))
+  }
+  if (filterPartner.value) parts.push(partnerLabel(filterPartner.value))
+  if (filterBegin.value)   parts.push(`from ${filterBegin.value}`)
+  if (filterEnd.value)     parts.push(`up to ${filterEnd.value}`)
+  return parts.length ? parts.join(' — ') : 'All Items'
 })
 </script>
 
@@ -165,6 +271,30 @@ const activeFilterLabel = computed(() => {
         <select v-model="filterCountry" style="width:200px">
           <option value="">— any —</option>
           <option v-for="c in availableCountries" :key="c.id" :value="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-row">
+        <label>Theme</label>
+        <select v-model="filterExhibition" style="width:200px" @change="onExhibitionChange">
+          <option value="">— any —</option>
+          <option v-for="e in availableExhibitions" :key="e.id" :value="e.id">{{ e.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-row">
+        <label>Subtheme</label>
+        <select v-model="filterTheme" style="width:200px" :disabled="!filterExhibition" @change="onThemeChange">
+          <option value="">— any —</option>
+          <option v-for="t in availableSubthemes" :key="t.id" :value="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+
+      <div class="filter-row">
+        <label>Chapter</label>
+        <select v-model="filterChapter" style="width:200px" :disabled="!filterTheme">
+          <option value="">— any —</option>
+          <option v-for="c in availableChapters" :key="c.id" :value="c.id">{{ c.name }}</option>
         </select>
       </div>
 
