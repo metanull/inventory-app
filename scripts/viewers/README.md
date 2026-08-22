@@ -17,6 +17,7 @@ runtime.
 |---|---|---|---|
 | [`islamicart/`](islamicart/README.md) | `@metanull/islamicart-data` | https://inventory.metanull.eu/islamicart/ | `.github/workflows/deploy-viewer-islamicart-ovh.yml` |
 | [`baroqueart/`](baroqueart/README.md) | `@metanull/baroqueart-data` | https://inventory.metanull.eu/baroqueart/ | `.github/workflows/deploy-viewer-baroqueart-ovh.yml` |
+| [`sharinghistory/`](sharinghistory/README.md) | `@metanull/sharinghistory-data` | https://inventory.metanull.eu/sharinghistory/ | `.github/workflows/deploy-viewer-sharinghistory-ovh.yml` |
 
 Each directory is a self-contained Node project. Viewers are **forked per
 dataset by design** (same decision as the exporters): each website has its
