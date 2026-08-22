@@ -128,6 +128,7 @@ import {
   ShExhibitionItemJustificationsImporter,
   ShPartnerProjectLinkerImporter,
   ShHbGeneralImporter,
+  ShHbRecontextImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -993,6 +994,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import the SH project-level Historical Background module (perspective pages + Read-more topics) as collections (#1498)',
     importerClass: ShHbGeneralImporter,
     dependencies: ['sh-project'],
+  },
+  {
+    key: 'sh-hb-recontext',
+    name: 'SH HB Recontext',
+    description:
+      "Move SH Historical Background collections (and their pages) into their legacy project's context (#1494)",
+    importerClass: ShHbRecontextImporter,
+    dependencies: ['sh-project', 'sh-bibliography-hb'],
   },
   {
     key: 'project-cleanup',

@@ -15,3 +15,4 @@ export { ShItemDisplayStatusImporter } from './sh-item-display-status-importer.j
 export { ShExhibitionItemJustificationsImporter } from './sh-exhibition-item-justifications-importer.js';
 export { ShPartnerProjectLinkerImporter } from './sh-partner-project-linker-importer.js';
 export { ShHbGeneralImporter } from './sh-hb-general-importer.js';
+export { ShHbRecontextImporter } from './sh-hb-recontext-importer.js';

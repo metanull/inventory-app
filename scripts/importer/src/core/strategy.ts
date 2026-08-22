@@ -602,6 +602,24 @@ export interface IWriteStrategy {
   updateCollectionParentId(collectionId: string, parentId: string): Promise<void>;
 
   /**
+   * Get a collection's current context_id.
+   * Used by re-context steps to detect no-op updates on reruns.
+   */
+  getCollectionContextId(collectionId: string): Promise<string | null>;
+
+  /**
+   * Move a collection to another context (for re-context steps, e.g., #1494).
+   */
+  updateCollectionContextId(collectionId: string, contextId: string): Promise<void>;
+
+  /**
+   * Move all of a collection's translations to another context.
+   * Rows already in the target context are left untouched, so the call is
+   * idempotent and safe to repeat after a partial failure.
+   */
+  updateCollectionTranslationsContextId(collectionId: string, contextId: string): Promise<void>;
+
+  /**
    * Update an entity's backward_compatibility value.
    * Used for dedup scenarios where a second BC needs to be appended (semicolon-delimited).
    * @param table The table name (e.g., 'tags')
