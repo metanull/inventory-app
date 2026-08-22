@@ -64,6 +64,38 @@ export class ShBibliographyHbImporter extends BaseImporter {
   private biblioEntries: Map<number, Array<{ lang: string; desc: string; status: string }>> | null =
     null;
 
+  // Per-SH-project scope (project root collection + context), resolved lazily
+  // by backward-compatibility key. `null` caches a project whose root/context
+  // is missing so we only warn once.
+  private projectScopes = new Map<string, { rootId: string; contextId: string } | null>();
+
+  /**
+   * Resolve the root collection + context of an SH project (#1494: HB records
+   * carry their own project_id — never assume AWE).
+   */
+  private async resolveProjectScope(
+    projectId: string
+  ): Promise<{ rootId: string; contextId: string } | null> {
+    const key = projectId.toLowerCase();
+    const cached = this.projectScopes.get(key);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const projectBackwardCompat = `${SH_SCHEMA}:sh_projects:${key}`;
+    const rootId = await this.getEntityUuidAsync(projectBackwardCompat, 'collection');
+    const contextId = await this.getEntityUuidAsync(projectBackwardCompat, 'context');
+
+    const scope = rootId && contextId ? { rootId, contextId } : null;
+    if (!scope) {
+      this.logWarning(
+        `SH project ${key}: root collection or context not found (${projectBackwardCompat}) — its HB content will be skipped`
+      );
+    }
+    this.projectScopes.set(key, scope);
+    return scope;
+  }
+
   getName(): string {
     return 'ShBibliographyHbImporter';
   }
@@ -501,22 +533,6 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
     this.logInfo(`Found ${hbs.length} HB parent records`);
 
-    // Resolve SH root collection
-    const shRootBackwardCompat = `${SH_SCHEMA}:sh_projects:awe`;
-    const shRootId = await this.getEntityUuidAsync(shRootBackwardCompat, 'collection');
-    if (!shRootId) {
-      result.errors.push('SH root collection (AWE) not found — cannot import HB');
-      this.logError('HB', 'SH root collection (AWE) not found');
-      return;
-    }
-
-    const contextId = await this.getEntityUuidAsync(shRootBackwardCompat, 'context');
-    if (!contextId) {
-      result.errors.push('SH context (AWE) not found — cannot import HB');
-      this.logError('HB', 'SH context (AWE) not found');
-      return;
-    }
-
     const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
     for (const hb of hbs) {
@@ -524,6 +540,18 @@ export class ShBibliographyHbImporter extends BaseImporter {
         const backwardCompat = `${SH_SCHEMA}:sh_countries_historicalbackground:${hb.hb_id}`;
 
         if (await this.entityExistsAsync(backwardCompat, 'collection')) {
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
+        // Each HB record belongs to its own SH project (#1494)
+        const scope = await this.resolveProjectScope(hb.project_id);
+        if (!scope) {
+          result.warnings = result.warnings || [];
+          result.warnings.push(
+            `HB ${hb.hb_id}: SH project ${hb.project_id} root/context not found, skipping`
+          );
           result.skipped++;
           this.showSkipped();
           continue;
@@ -554,9 +582,9 @@ export class ShBibliographyHbImporter extends BaseImporter {
         const collectionId = await this.context.strategy.writeCollection({
           internal_name: internalName,
           backward_compatibility: backwardCompat,
-          context_id: contextId,
+          context_id: scope.contextId,
           language_id: defaultLanguageId,
-          parent_id: shRootId,
+          parent_id: scope.rootId,
           type: 'collection',
           country_id: countryId,
         });
@@ -577,7 +605,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
             await this.context.strategy.writeCollectionTranslation({
               collection_id: collectionId,
               language_id: languageId,
-              context_id: contextId,
+              context_id: scope.contextId,
               title: t.name,
               description: null,
               extra: JSON.stringify(extra),
@@ -626,13 +654,13 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
     this.logInfo(`Found ${pages.length} HB pages, ${pageTexts.length} page texts`);
 
-    const contextBackwardCompat = `${SH_SCHEMA}:sh_projects:awe`;
-    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
-    if (!contextId) {
-      result.errors.push('SH context (AWE) not found — cannot import HB pages');
-      this.logError('HB pages', 'SH context (AWE) not found');
-      return;
-    }
+    // Pages inherit the project of their parent HB record (#1494)
+    const hbProjects = await this.context.legacyDb.query<{ hb_id: number; project_id: string }>(
+      `SELECT hb_id, project_id
+       FROM ${SH_SCHEMA}.sh_countries_historicalbackground
+       ORDER BY hb_id`
+    );
+    const hbProjectMap = new Map(hbProjects.map((r) => [r.hb_id, r.project_id]));
 
     const defaultLanguageId = await this.getDefaultLanguageIdAsync();
 
@@ -659,6 +687,18 @@ export class ShBibliographyHbImporter extends BaseImporter {
           continue;
         }
 
+        const project = hbProjectMap.get(page.hb_id);
+        const scope = project ? await this.resolveProjectScope(project) : null;
+        if (!scope) {
+          result.warnings = result.warnings || [];
+          result.warnings.push(
+            `HB page ${page.page_id}: SH project ${project ?? '?'} root/context not found, skipping`
+          );
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         const pTexts = pageTextMap.get(page.page_id) || [];
         const firstSubtitle = pTexts.find((t) => t.subtitle)?.subtitle;
         const internalName = `sh_hb_page_${page.page_id}_${(firstSubtitle || 'page').substring(0, 40)}`;
@@ -673,7 +713,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
         const collectionId = await this.context.strategy.writeCollection({
           internal_name: internalName,
           backward_compatibility: backwardCompat,
-          context_id: contextId,
+          context_id: scope.contextId,
           language_id: defaultLanguageId,
           parent_id: parentId,
           type: 'collection',
@@ -699,7 +739,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
             await this.context.strategy.writeCollectionTranslation({
               collection_id: collectionId,
               language_id: languageId,
-              context_id: contextId,
+              context_id: scope.contextId,
               title: t.subtitle || `Page ${page.sort_order}`,
               description: t.text ? convertHtmlToMarkdown(t.text) : null,
               extra: Object.keys(extra).length > 0 ? JSON.stringify(extra) : null,

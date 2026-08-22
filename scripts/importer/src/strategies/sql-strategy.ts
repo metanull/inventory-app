@@ -1739,6 +1739,36 @@ export class SqlWriteStrategy implements IWriteStrategy {
     ]);
   }
 
+  async getCollectionContextId(collectionId: string): Promise<string | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT context_id FROM collections WHERE id = ?`,
+      [collectionId]
+    );
+    if (rows.length === 0) {
+      return null;
+    }
+    return (rows[0].context_id as string | null) ?? null;
+  }
+
+  async updateCollectionContextId(collectionId: string, contextId: string): Promise<void> {
+    await this.db.execute(`UPDATE collections SET context_id = ?, updated_at = ? WHERE id = ?`, [
+      contextId,
+      this.now,
+      collectionId,
+    ]);
+  }
+
+  async updateCollectionTranslationsContextId(
+    collectionId: string,
+    contextId: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_translations SET context_id = ?, updated_at = ?
+       WHERE collection_id = ? AND context_id != ?`,
+      [contextId, this.now, collectionId, contextId]
+    );
+  }
+
   async updateBackwardCompatibility(
     table: string,
     id: string,
