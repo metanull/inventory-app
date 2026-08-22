@@ -78,6 +78,24 @@ function goToItem(item) {
         </p>
         <span class="home-card-link">Explore →</span>
       </div>
+
+      <div class="home-card content-box" @click="$router.push('/historical-background')">
+        <h2 class="home-card-title">Historical Background</h2>
+        <p class="home-card-desc">
+          The Arab, Ottoman and European perspectives on the shared history
+          of the period 1815 – 1918.
+        </p>
+        <span class="home-card-link">Read →</span>
+      </div>
+
+      <div class="home-card content-box" @click="$router.push('/historical-profiles')">
+        <h2 class="home-card-title">Historical Profiles</h2>
+        <p class="home-card-desc">
+          Illustrated country-by-country profiles of the period, each written
+          from the perspective of the partner concerned.
+        </p>
+        <span class="home-card-link">Browse →</span>
+      </div>
     </div>
 
     <!-- Featured item spotlight -->

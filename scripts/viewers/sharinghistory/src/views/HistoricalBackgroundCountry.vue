@@ -89,11 +89,11 @@ const pageItems = computed(() => {
 <template>
   <div v-if="!record" class="content-box not-found">
     <p>Historical profile not found.</p>
-    <router-link to="/historical-background">← Return to Historical Background</router-link>
+    <router-link to="/historical-profiles">← Return to Historical Profiles</router-link>
   </div>
 
   <div v-else class="hb-wrap">
-    <router-link class="back-link" to="/historical-background">← Historical Background</router-link>
+    <router-link class="back-link" to="/historical-profiles">← Historical Profiles</router-link>
 
     <div v-if="availableLangs.length > 1" class="lang-selector">
       <label class="lang-label">Text language:</label>
@@ -106,16 +106,6 @@ const pageItems = computed(() => {
       <p v-if="record.country_id" class="hb-country-tag">{{ countryLabel(record.country_id) }}</p>
       <h1 class="hb-title" v-html="mdInline(recordText.title ?? record.internal_name)" />
       <div v-if="recordText.description" class="prose" v-html="md(recordText.description)" />
-
-      <div v-if="record.images?.length" class="hb-image-strip">
-        <img
-          v-for="(img, idx) in record.images"
-          :key="idx"
-          :src="img.url"
-          :alt="img.alt_text ?? ''"
-          loading="lazy"
-        />
-      </div>
 
       <div v-if="pages.length" class="page-nav-row">
         <button class="page-nav-btn" :disabled="activePageIndex === 0" @click="goToPage(activePageIndex - 1)">
@@ -158,7 +148,38 @@ const pageItems = computed(() => {
         </div>
       </div>
 
-      <div v-if="bibliography" class="hb-bibliography">
+      <!-- Legacy hb_result.php "Related Content" box -->
+      <div class="hb-related">
+        <h3 class="hb-item-heading">Related Content</h3>
+        <ul class="hb-related-list">
+          <li><RouterLink to="/historical-background">Historical Background</RouterLink></li>
+          <li v-if="record.country_id">
+            <RouterLink
+              :to="{ path: '/timeline/results', query: { country: record.country_id, exhibition: 'pc' } }"
+            >
+              Political Context Timeline {{ countryLabel(record.country_id) }}
+            </RouterLink>
+          </li>
+          <li v-if="bibliography"><a href="#hb-bibliography">Bibliography</a></li>
+          <li v-if="record.images?.length"><a href="#hb-maps">View Map(s)</a></li>
+        </ul>
+      </div>
+
+      <!-- Record-level images are the legacy historical maps -->
+      <div v-if="record.images?.length" id="hb-maps" class="hb-maps">
+        <h3 class="hb-item-heading">Maps</h3>
+        <div class="hb-image-strip">
+          <img
+            v-for="(img, idx) in record.images"
+            :key="idx"
+            :src="img.url"
+            :alt="img.alt_text ?? 'Historical map'"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <div v-if="bibliography" id="hb-bibliography" class="hb-bibliography">
         <h3 class="hb-item-heading">Bibliography</h3>
         <div class="prose" v-html="md(bibliography)" />
       </div>
@@ -280,4 +301,13 @@ const pageItems = computed(() => {
 }
 
 .hb-bibliography { margin-top: 18px; }
+.hb-maps { margin-top: 18px; }
+.hb-related { margin-top: 18px; }
+.hb-related-list {
+  list-style: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+}
+.hb-related-list li { padding: 3px 0; }
+.hb-related-list a { color: var(--nav-active); }
 </style>

@@ -10,6 +10,7 @@ const {
   availableLangs, defaultLang,
   translationsCache, loadLangTranslations,
   exhibitionById,
+  timelines,
   md, mdInline,
 } = useInventoryData()
 
@@ -43,6 +44,18 @@ const text = computed(() => {
   const e = exhibition.value
   if (!e) return {}
   return collectionLangCache.value[activeLang.value]?.[e.id] ?? {}
+})
+
+// The SH importer merges the legacy sh_exhibitionnames fields (subtitle,
+// introduction, curated_by, further_reading, see_also) into the translation
+// description — there is no separate extra.intro_text like other datasets,
+// so the description IS the legacy exh_introduction.php text.
+const introText = computed(() => text.value.extra?.intro_text ?? text.value.description ?? '')
+
+// Does any timeline reference this exhibition (thematic timeline link)?
+const hasThematicTimeline = computed(() => {
+  const e = exhibition.value
+  return !!e && timelines.value.some(t => t.collection_id === e.id)
 })
 
 // ── Introduction items: attached directly to the exhibition collection ────
@@ -97,11 +110,11 @@ function back() {
     </div>
 
     <div class="content-box">
-      <h1 class="intro-title" v-html="mdInline(text.extra?.intro_header ?? 'Introduction')" />
+      <h1 class="intro-title" v-html="mdInline(text.extra?.intro_header ?? 'About the Exhibition')" />
 
       <div class="intro-grid">
         <div class="intro-text-col">
-          <div v-if="text.extra?.intro_text" class="prose" v-html="md(text.extra.intro_text)" />
+          <div v-if="introText" class="prose" v-html="md(introText)" />
         </div>
 
         <div v-if="introItems.length" class="intro-items-col">
@@ -117,6 +130,23 @@ function back() {
             <p v-if="i.museum" class="intro-item-meta">{{ i.museum }}</p>
           </div>
         </div>
+      </div>
+
+      <!-- Legacy exh_introduction.php "Related Content" box -->
+      <div class="intro-related">
+        <h3 class="intro-related-heading">Related Content</h3>
+        <ul class="intro-related-list">
+          <li>
+            <RouterLink :to="{ path: '/timeline/results', query: { exhibition: 'pc' } }">
+              Political Context Timeline
+            </RouterLink>
+          </li>
+          <li v-if="hasThematicTimeline">
+            <RouterLink :to="{ path: '/timeline/results', query: { exhibition: exhibition.id } }">
+              Thematic Timeline
+            </RouterLink>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -193,4 +223,24 @@ function back() {
   font-family: 'Roboto', sans-serif;
   margin-bottom: 2px;
 }
+
+.intro-related {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.intro-related-heading {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--heading);
+  margin-bottom: 6px;
+  font-family: 'Roboto', sans-serif;
+}
+.intro-related-list {
+  list-style: none;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+}
+.intro-related-list li { padding: 3px 0; }
+.intro-related-list a { color: var(--nav-active); }
 </style>

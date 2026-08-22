@@ -132,6 +132,15 @@ function eventItems(event) {
   return (event.item_ids ?? []).map(id => itemById.value[id]).filter(Boolean)
 }
 
+// Legacy hcr_result.php labels every row "Country | Theme"; PC-timeline
+// events (collection_id null) are labelled "Political Context".
+function eventThemeLabel(event) {
+  const t = timelineById.value[event.timeline_id]
+  if (!t) return ''
+  if (t.collection_id === null) return 'Political Context'
+  return enCollectionTranslations.value[t.collection_id]?.title ?? ''
+}
+
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredEvents.value.length / PAGE_SIZE)))
 
 const pagedEvents = computed(() => {
@@ -232,7 +241,9 @@ const activeFilterLabel = computed(() => {
         <li v-for="event in pagedEvents" :key="event.id" class="timeline-row">
           <div class="timeline-date">{{ dateRangeLabel(event) }}</div>
           <div class="timeline-body">
-            <div class="timeline-country">{{ countryLabel(event.country_id) }}</div>
+            <div class="timeline-country">
+              {{ countryLabel(event.country_id) }}<span v-if="eventThemeLabel(event)"> | {{ eventThemeLabel(event) }}</span>
+            </div>
             <div
               class="timeline-description"
               v-html="md(enTimelineEventTranslations[event.id]?.description ?? '')"
@@ -252,9 +263,12 @@ const activeFilterLabel = computed(() => {
                 :key="item.id"
                 :to="`/item/${encodeURIComponent(item.id)}`"
                 class="timeline-media-item"
-                :title="itemLabel(item)"
               >
                 <img v-if="item.images?.length" :src="item.images[0].url" :alt="itemLabel(item)" loading="lazy" />
+                <span class="timeline-media-caption">
+                  {{ itemLabel(item) }}
+                  <span class="timeline-media-see">See Database Entry →</span>
+                </span>
               </RouterLink>
             </div>
 
@@ -322,6 +336,29 @@ const activeFilterLabel = computed(() => {
   display: block;
 }
 .timeline-media-item:hover img { border-color: var(--accent); }
+.timeline-media-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 320px;
+  text-decoration: none !important;
+}
+.timeline-media-caption {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+.timeline-media-see {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--nav-active);
+}
+.timeline-media-item:hover .timeline-media-caption { color: var(--nav-active); }
 .timeline-row {
   display: flex;
   gap: 16px;
