@@ -102,3 +102,30 @@ Spaces = exactly the legacy 8 events (1858–1910); Austria Political Context
 = exactly the legacy 22 events (1797–1920) — package and deployed bundle
 both match `hcr_result.php` row-for-row. The reported mismatch was traced
 to a crashed local dev server, not to data.
+
+## Addendum — 1.1.1 (2026-08-22, #1494)
+
+Finding 1 of the original validation (the +1 HB record) is resolved.
+`ShBibliographyHbImporter` had hardcoded its parent/context to
+`sh_projects:awe`, leaking the USA test project's HB record
+(`sh_countries_historicalbackground` hb_id=20, "Historical Profile /
+Germany") and its 3 pages into the awe context. PR #1501 fixed the importer
+(per-record `project_id` scoping) and added the standalone repair step
+`--only sh-hb-recontext`, which was run on production the same way (local
+dump-loaded MariaDB as the legacy side): 4 collections moved (hb 20 + pages
+61/62/63) into the USA context, 79 skips; an immediate rerun was a full
+no-op (0 imported / 83 skipped), and after a full re-import the fixed
+importer converges to the same state.
+
+| Check | Legacy | Package 1.1.1 | Status |
+|---|---|---|---|
+| AWE country profiles | 18 (`hb_result.php` country nav) | 18 (`…historicalbackground:2`–`19`) | ✅ exact |
+| General HB record (hb 1, gn='yes' placeholder) | never rendered | present, never rendered by viewer | ✅ as designed |
+| USA "Historical Profile / Germany" (hb 20 + 3 pages) | never shown on AWE site | excluded (moved to USA context) | ✅ fixed |
+| Total collections | — | 336 (340 in 1.1.0 − 4 moved) | ✅ |
+
+Production DB verified directly after the run: hb 20's collection sits in
+context `sh_projects:usa` with parent = the USA project root; its 3 page
+collections are in the USA context with parent = hb 20; all their
+collection_translations are in the USA context; the awe context retains
+exactly 19 HB-record collections (18 country + 1 general).
