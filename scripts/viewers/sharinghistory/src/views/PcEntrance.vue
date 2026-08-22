@@ -8,9 +8,10 @@ const {
   publicItems: items, countries, partners,
   countryLabel, partnerLabel,
   enCountryTranslations, enPartnerTranslations,
+  exhibitions, enCollectionTranslations, mdStrip,
 } = useInventoryData()
 
-const filterType = ref('country') // country | partner | begin | end
+const filterType = ref('country') // country | theme | partner | begin | end
 
 // Build option lists from items actually present
 const availableCountries = computed(() => {
@@ -29,17 +30,28 @@ const availablePartners = computed(() => {
     .sort((a, b) => a.name.localeCompare(b.name))
 })
 
+// Legacy's "Theme" entry point lists the ten Virtual Exhibitions
+// (pc_entrance.php's exhibition selector) — the Permanent Collection is
+// browsable by exhibition membership, labelled "Theme" in the PC UI.
+const availableThemes = computed(() =>
+  exhibitions.value
+    .map(e => ({ id: e.id, name: mdStrip(enCollectionTranslations.value[e.id]?.title ?? e.internal_name) }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+)
+
 const selectedCountry = ref('')
+const selectedTheme = ref('')
 const selectedPartner = ref('')
 const beginDate = ref('')
 const endDate = ref('')
 
 function search() {
   const q = {}
-  if (filterType.value === 'country' && selectedCountry.value)   q.country = selectedCountry.value
-  if (filterType.value === 'partner' && selectedPartner.value)   q.partner = selectedPartner.value
-  if (filterType.value === 'begin'   && beginDate.value)         q.begin   = beginDate.value
-  if (filterType.value === 'end'     && endDate.value)           q.end     = endDate.value
+  if (filterType.value === 'country' && selectedCountry.value)   q.country    = selectedCountry.value
+  if (filterType.value === 'theme'   && selectedTheme.value)     q.exhibition = selectedTheme.value
+  if (filterType.value === 'partner' && selectedPartner.value)   q.partner    = selectedPartner.value
+  if (filterType.value === 'begin'   && beginDate.value)         q.begin      = beginDate.value
+  if (filterType.value === 'end'     && endDate.value)           q.end        = endDate.value
   router.push({ path: '/permanent-collection/results', query: q })
 }
 </script>
@@ -59,6 +71,7 @@ function search() {
           <!-- Filter type selector -->
           <tr v-for="opt in [
             { value: 'country', label: 'Country' },
+            { value: 'theme',   label: 'Theme' },
             { value: 'partner', label: 'Holding Institution' },
             { value: 'begin',   label: 'Start Date (from year)' },
             { value: 'end',     label: 'End Date (up to year)' },
@@ -81,6 +94,14 @@ function search() {
                 <select v-model="selectedCountry" :disabled="filterType !== 'country'" style="width:280px">
                   <option value="">— select a country —</option>
                   <option v-for="c in availableCountries" :key="c.id" :value="c.id">{{ c.name }}</option>
+                </select>
+              </template>
+
+              <!-- Theme (Virtual Exhibition) -->
+              <template v-else-if="opt.value === 'theme'">
+                <select v-model="selectedTheme" :disabled="filterType !== 'theme'" style="width:280px">
+                  <option value="">— select a theme —</option>
+                  <option v-for="e in availableThemes" :key="e.id" :value="e.id">{{ e.name }}</option>
                 </select>
               </template>
 

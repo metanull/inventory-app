@@ -58,6 +58,13 @@ const hasThematicTimeline = computed(() => {
   return !!e && timelines.value.some(t => t.collection_id === e.id)
 })
 
+// Legacy per-exhibition bibliography ("Further Reading"), injected by the
+// importer into every translation's extra.bibliography (language-keyed map).
+const hasFurtherReading = computed(() => {
+  const bib = text.value.extra?.bibliography
+  return !!bib && Object.values(bib).some(entries => entries?.length)
+})
+
 // ── Introduction items: attached directly to the exhibition collection ────
 
 const introItems = computed(() => {
@@ -144,6 +151,16 @@ function back() {
           <li v-if="hasThematicTimeline">
             <RouterLink :to="{ path: '/timeline/results', query: { exhibition: exhibition.id } }">
               Thematic Timeline
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink :to="{ path: '/permanent-collection/results', query: { exhibition: exhibition.id } }">
+              See Gallery for this Theme
+            </RouterLink>
+          </li>
+          <li v-if="hasFurtherReading">
+            <RouterLink :to="`/exhibitions/${exhibition.id}/further-reading`">
+              Further Reading
             </RouterLink>
           </li>
         </ul>
