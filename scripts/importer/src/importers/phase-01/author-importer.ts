@@ -512,10 +512,12 @@ export class AuthorImporter extends BaseImporter {
 
     for (const link of shAuthorObjects) {
       try {
+        // SH items are keyed project:country:number (no museum segment, unlike
+        // mwnf3), with the project id lowercased ('AWE' in legacy → 'awe').
         await this.resolveAuthorItemAssignment(
           link,
           `mwnf3_sharing_history:sh_authors:${link.author_id}`,
-          `mwnf3_sharing_history:sh_objects:${link.project_id}:${link.country}:${link.museum_id}:${link.number}`,
+          `mwnf3_sharing_history:sh_objects:${link.project_id.toLowerCase()}:${link.country.toLowerCase()}:${link.number}`,
           result
         );
       } catch (error) {
@@ -536,7 +538,7 @@ export class AuthorImporter extends BaseImporter {
         await this.resolveAuthorItemAssignment(
           link,
           `mwnf3_sharing_history:sh_authors:${link.author_id}`,
-          `mwnf3_sharing_history:sh_monuments:${link.project_id}:${link.country}:${link.institution_id}:${link.number}`,
+          `mwnf3_sharing_history:sh_monuments:${link.project_id.toLowerCase()}:${link.country.toLowerCase()}:${link.number}`,
           result
         );
       } catch (error) {

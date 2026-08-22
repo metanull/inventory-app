@@ -523,10 +523,11 @@ export interface LegacyAuthorMonument {
   priority?: number | null;
 }
 
+// Unlike mwnf3's authors_objects/authors_monuments, the SH junction tables
+// carry no museum/institution column — items are keyed project:country:number.
 export interface LegacyShAuthorObject {
   project_id: string;
   country: string;
-  museum_id: string;
   number: string;
   author_id: number;
   type: string;
@@ -537,7 +538,6 @@ export interface LegacyShAuthorObject {
 export interface LegacyShAuthorMonument {
   project_id: string;
   country: string;
-  institution_id: string;
   number: string;
   author_id: number;
   type: string;
