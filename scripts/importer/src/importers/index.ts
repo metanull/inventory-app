@@ -145,4 +145,5 @@ export {
   ShItemDisplayStatusImporter,
   ShExhibitionItemJustificationsImporter,
   ShPartnerProjectLinkerImporter,
+  ShHbGeneralImporter,
 } from './phase-11/index.js';
