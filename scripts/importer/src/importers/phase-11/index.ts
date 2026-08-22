@@ -14,3 +14,4 @@ export { ShExhibitionShowFlagImporter } from './sh-exhibition-show-flag-importer
 export { ShItemDisplayStatusImporter } from './sh-item-display-status-importer.js';
 export { ShExhibitionItemJustificationsImporter } from './sh-exhibition-item-justifications-importer.js';
 export { ShPartnerProjectLinkerImporter } from './sh-partner-project-linker-importer.js';
+export { ShHbGeneralImporter } from './sh-hb-general-importer.js';

@@ -127,6 +127,7 @@ import {
   ShItemDisplayStatusImporter,
   ShExhibitionItemJustificationsImporter,
   ShPartnerProjectLinkerImporter,
+  ShHbGeneralImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -984,6 +985,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Attach SH partners to their project collection via collection_partner with flat tier levels',
     importerClass: ShPartnerProjectLinkerImporter,
     dependencies: ['sh-project', 'sh-partner'],
+  },
+  {
+    key: 'sh-hb-general',
+    name: 'SH General Historical Background',
+    description:
+      'Import the SH project-level Historical Background module (perspective pages + Read-more topics) as collections (#1498)',
+    importerClass: ShHbGeneralImporter,
+    dependencies: ['sh-project'],
   },
   {
     key: 'project-cleanup',
