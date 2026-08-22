@@ -14,6 +14,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4174", "--strictPort"],
       "cwd": "scripts/viewers/baroqueart",
       "port": 4174
+    },
+    {
+      "name": "sharinghistory-viewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4175", "--strictPort"],
+      "cwd": "scripts/viewers/sharinghistory",
+      "port": 4175
     }
   ]
 }
