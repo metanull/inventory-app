@@ -22,6 +22,7 @@ import { RouterView, RouterLink } from 'vue-router'
         <RouterLink to="/database" active-class="nav-active">Database</RouterLink>
         <RouterLink to="/timeline" active-class="nav-active">Timeline</RouterLink>
         <RouterLink to="/historical-background" active-class="nav-active">Historical Background</RouterLink>
+        <RouterLink to="/historical-profiles" active-class="nav-active">Historical Profiles</RouterLink>
         <RouterLink to="/partners" active-class="nav-active">Partners</RouterLink>
       </div>
     </nav>

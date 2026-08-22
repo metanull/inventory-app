@@ -83,3 +83,22 @@ tracked). **Validation passed — `@metanull/sharinghistory-data` v1 cleared
 for publish.** (A placeholder 0.0.1 was published 2026-08-22 to allow the
 GitHub Packages repo-link/Actions-access grant ahead of time; v1.0.0 is the
 first real release.)
+
+## Addendum — 1.1.0 (2026-08-22, #1498)
+
+The parity follow-up added the general Historical Background module (new
+importer step `--only sh-hb-general`, run on production the same way as the
+five steps above — local dump-loaded MariaDB as the legacy side):
+
+| Check | Legacy | Package 1.1.0 | Status |
+|---|---|---|---|
+| Perspective pages (`sh_project_about_historical_background`, AWE) | 3 (Arab/Ottoman/European Perspective, en) | 3, under `…:sh_project_about_historical_background:root:awe` | ✅ exact |
+| "Read more" topics (`sh_project_about_topics`, AWE) | 10 (en, **titles only** — legacy `about_hb_topics.php` popup renders the bare title; `desc` is empty for every row) | 10, under `…:sh_project_about_topics:root:awe`, titles only | ✅ exact |
+| USA test project's topic row (topic 1, USA) | present in legacy table | excluded (`show='Y' AND category='SP'` scoping) | ✅ intended |
+| Total collections | — | 340 (325 in 1.0.x + 15 new) | ✅ |
+
+Timeline re-verification (user report, #1498): Austria × Cities and Urban
+Spaces = exactly the legacy 8 events (1858–1910); Austria Political Context
+= exactly the legacy 22 events (1797–1920) — package and deployed bundle
+both match `hcr_result.php` row-for-row. The reported mismatch was traced
+to a crashed local dev server, not to data.

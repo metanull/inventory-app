@@ -14,13 +14,26 @@ const text = computed(() => {
   return e ? (enCollectionTranslations.value[e.id] ?? {}) : {}
 })
 
-// "Introduction" is not a theme — it's the exhibition's own intro text plus
-// items attached directly to the exhibition collection (not to any theme/page).
+// "Introduction" is not a theme — it's the exhibition's own "About the
+// Exhibition" text (the SH importer merges the legacy sh_exhibitionnames
+// subtitle + introduction + curated_by into description) plus items attached
+// directly to the exhibition collection (not to any theme/chapter).
 const hasIntroduction = computed(() => {
   const e = exhibition.value
   if (!e) return false
-  return (e.items?.length ?? 0) > 0 || !!text.value.extra?.intro_text || !!text.value.extra?.intro_header
+  return (
+    (e.items?.length ?? 0) > 0 ||
+    !!text.value.description ||
+    !!text.value.extra?.intro_text ||
+    !!text.value.extra?.intro_header
+  )
 })
+
+// The splash shows only the legacy subtitle teaser — the description's
+// first paragraph (the importer writes the subtitle first). The full text
+// lives on the introduction page, like legacy's exhibition homepage vs
+// exh_introduction.php.
+const teaser = computed(() => (text.value.description ?? '').split('\n\n')[0] ?? '')
 
 const themeList = computed(() => {
   const e = exhibition.value
@@ -53,7 +66,7 @@ function back() {
 
     <div class="content-box intro-box">
       <h2 v-if="text.extra?.subtitle" class="intro-subtitle" v-html="mdInline(text.extra.subtitle)" />
-      <div v-if="text.description" class="prose" v-html="md(text.description)" />
+      <div v-if="teaser" class="prose" v-html="md(teaser)" />
       <p v-if="text.extra?.credits" class="intro-credits" v-html="mdInline(text.extra.credits)" />
     </div>
 
@@ -64,7 +77,7 @@ function back() {
           class="theme-row"
           @click="$router.push(`/exhibitions/${exhibition.id}/introduction`)"
         >
-          <span class="theme-name">Introduction</span>
+          <span class="theme-name">About the Exhibition</span>
           <span class="theme-arrow">→</span>
         </li>
         <li

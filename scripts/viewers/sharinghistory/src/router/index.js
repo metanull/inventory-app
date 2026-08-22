@@ -16,6 +16,7 @@ import ExhibitionIntroduction from '../views/ExhibitionIntroduction.vue'
 import ExhibitionTheme from '../views/ExhibitionTheme.vue'
 import ExhibitionChapter from '../views/ExhibitionChapter.vue'
 import HistoricalBackground from '../views/HistoricalBackground.vue'
+import HistoricalProfiles from '../views/HistoricalProfiles.vue'
 import HistoricalBackgroundCountry from '../views/HistoricalBackgroundCountry.vue'
 
 const routes = [
@@ -35,7 +36,10 @@ const routes = [
   { path: '/exhibitions/:exhibitionId/theme/:themeId', component: ExhibitionTheme },
   { path: '/exhibitions/:exhibitionId/theme/:themeId/chapter/:chapterId', component: ExhibitionChapter },
   { path: '/historical-background', component: HistoricalBackground },
-  { path: '/historical-background/:recordId', component: HistoricalBackgroundCountry },
+  { path: '/historical-profiles', component: HistoricalProfiles },
+  { path: '/historical-profiles/:recordId', component: HistoricalBackgroundCountry },
+  // Pre-#1498 URLs pointed country profiles at /historical-background/:id.
+  { path: '/historical-background/:recordId', redirect: to => `/historical-profiles/${to.params.recordId}` },
   { path: '/item/:id', component: ItemDetail },
 ]
 

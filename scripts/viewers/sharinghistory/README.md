@@ -24,10 +24,15 @@ lowercase keyspace):
   `ExhibitionChapter` view renders each chapter's introduction, quotation,
   see-also / further-reading blocks and item grid with the
   **curator-vs-partner justification** panel.
-- **Historical Background** — SH-only feature: a general introduction plus
-  per-country multi-page illustrated historical profiles (with related
-  items and bibliography), resolved structurally from the
-  `sh_countries_historicalbackground` collections.
+- **Historical Background** — SH-only feature, two distinct sections like
+  legacy: the general **Historical Background** (the Arab / Ottoman /
+  European Perspective essays plus the "Read more" topic list and a Country
+  Insight table, resolved from the `sh_project_about_*` marker subtree
+  created by the importer's `sh-hb-general` step, #1498), and the
+  per-country **Historical Profiles** (multi-page illustrated essays with
+  related items, historical maps, bibliography and the legacy
+  Related-Content links, from the `sh_countries_historicalbackground`
+  collections).
 - **Timeline** — SH timelines are per (country × exhibition); the results
   view filters by both and offers the legacy
   thematic-vs-**Permanent-Collection** toggle (PC = the timelines the

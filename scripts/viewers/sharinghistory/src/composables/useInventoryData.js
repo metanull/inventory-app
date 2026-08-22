@@ -141,9 +141,16 @@ function exhibitionById(id) {
   return exhibitions.value.find(e => e.id === id) ?? null
 }
 
+// Country-specific "National Context" variants of an exhibition
+// (…:sh_national_context_exhibitions:{country}:{exh}) are attached under
+// the exhibition collection but are NOT themes — they carry no English
+// translations and legacy renders them through a separate country
+// selector. Keep them out of the theme tree.
+const NC_BC_PREFIX = 'mwnf3_sharing_history:sh_national_context_'
+
 function exhibitionThemes(exhibitionId) {
   return collections.value
-    .filter(c => c.parent_id === exhibitionId)
+    .filter(c => c.parent_id === exhibitionId && !c.backward_compatibility?.startsWith(NC_BC_PREFIX))
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
     .map(theme => ({
       ...theme,
@@ -195,6 +202,35 @@ function historicalBackgroundPages(recordId) {
     .filter(c => c.parent_id === recordId)
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
 }
+
+// ── General Historical Background (project-level) ──────────────────────────
+//
+// The legacy "Historical Background" nav section — distinct from the
+// per-country Historical Profiles above. Imported by the sh-hb-general
+// step (#1498) as a marker subtree under the project root:
+// perspectives (Arab / Ottoman / European Perspective,
+// historical_background_pages.php) and the "Read more" topics
+// (historical_background_readmore.php — titles only; legacy never filled
+// their texts in).
+
+const HB_GENERAL_ROOT_BC = 'mwnf3_sharing_history:sh_project_about_historical_background:root:awe'
+const HB_TOPICS_ROOT_BC = 'mwnf3_sharing_history:sh_project_about_topics:root:awe'
+
+const hbGeneralPerspectives = computed(() => {
+  const root = collections.value.find(c => c.backward_compatibility === HB_GENERAL_ROOT_BC)
+  if (!root) return []
+  return collections.value
+    .filter(c => c.parent_id === root.id && c.backward_compatibility !== HB_TOPICS_ROOT_BC)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+})
+
+const hbGeneralTopics = computed(() => {
+  const root = collections.value.find(c => c.backward_compatibility === HB_TOPICS_ROOT_BC)
+  if (!root) return []
+  return collections.value
+    .filter(c => c.parent_id === root.id)
+    .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
+})
 
 // ── Timelines ──────────────────────────────────────────────────────────────
 //
@@ -351,6 +387,8 @@ export function useInventoryData() {
     historicalBackgroundGeneral,
     historicalBackgroundProfiles,
     historicalBackgroundPages,
+    hbGeneralPerspectives,
+    hbGeneralTopics,
     md,
     mdInline,
     mdStrip,
