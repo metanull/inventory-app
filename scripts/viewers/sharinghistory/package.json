@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@metanull/sharinghistory-data": "^1.1.0",
+    "@metanull/sharinghistory-data": "^1.1.1",
     "marked": "^18.0.5",
     "vue": "^3.5.39",
     "vue-router": "^4.6.4"
