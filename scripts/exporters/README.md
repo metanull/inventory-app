@@ -102,9 +102,12 @@ npm run export -- --force --publish
 ```
 
 (The islamicart fork is the oldest: its subdirectory/project-key arguments
-are required — the deployed package covers **both** `ISL` and `EPM` — and
-its default package name is `@mwnf/…`, so `--package-name` is required too.
-The baroqueart/sharinghistory forks default to the right values.)
+are required and its default package name is `@mwnf/…`, so `--package-name`
+is required too; the baroqueart/sharinghistory forks default to the right
+values. ⚠ The islamicart package covers **both** `ISL` and `EPM` — an
+export with `ISL` alone completes without error but silently drops 29
+collections; see the warning in
+[`islamicart/README.md`](islamicart/README.md).)
 
 A single `--publish` run does everything: auto-increments the patch version
 persisted in `output/.version-<dataset>` (or use `--package-version` for an

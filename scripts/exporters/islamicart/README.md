@@ -20,9 +20,16 @@ npm run export -- islamicart ISL EPM `
   --package-name @metanull/islamicart-data
 ```
 
-The `@metanull/islamicart-data` package covers **both** project keys —
-`ISL` (Discover Islamic Art) and `EPM` (Explore Islamic Art Collections) —
-and `--package-name` is required because this exporter's built-in default is
+> **⚠ Always export with both project keys: `ISL EPM`.** The
+> `@metanull/islamicart-data` package covers `ISL` (Discover Islamic Art)
+> **and** `EPM` (Explore Islamic Art Collections). An export with `ISL`
+> alone **completes without any error but silently drops 29 collections**
+> (the EPM project collection and all `partner_group:museums:*`
+> collections) — a wrong package that only shows up as missing content
+> downstream. Sanity check before publishing: `manifest.json` must list
+> `"projectKeys": ["ISL", "EPM"]`.
+
+`--package-name` is required because this exporter's built-in default is
 `@mwnf/{subdirectory}-data`. Image URLs in the exported JSON are built from
 `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
 go: version bump, `package.json`/`README.md` generation, and the actual
@@ -85,17 +92,17 @@ npm run export -- <subdirectory> <project-key> [more-project-keys...] [options]
 ```
 
 ```bash
-# Export a single project
-npm run export -- islamicart ISL
-
-# Export multiple projects into one output
-npm run export -- combined ISL WHS
+# The islamicart data-package (always both keys — see the warning above)
+npm run export -- islamicart ISL EPM
 
 # Custom output location and image base URL
-npm run export -- islamicart ISL --output-dir /tmp/export --base-url https://cdn.example.com/storage
+npm run export -- islamicart ISL EPM --output-dir /tmp/export --base-url https://cdn.example.com/storage
 
 # Export, bump the package version, generate package.json/README.md, and publish
-npm run export -- islamicart ISL --publish
+npm run export -- islamicart ISL EPM --publish --package-name @metanull/islamicart-data
+
+# Any other subdirectory/key combination is possible for ad-hoc exports
+npm run export -- combined ISL WHS
 ```
 
 | Option | Description |
@@ -135,6 +142,11 @@ there for anyone exporting a differently-scoped or differently-named
 package.
 
 ## Troubleshooting
+
+**Content missing from the package (e.g. the "Explore Islamic Art
+Collections" project or `partner_group:*` collections)** — the export was
+run with `ISL` only. It must be run with **both** keys, `ISL EPM` (see the
+warning at the top); check `manifest.json`'s `projectKeys` and re-export.
 
 **`Output directory already exists`** — pass `--force` to overwrite it, or
 pick a different `--output-dir`/subdirectory.
