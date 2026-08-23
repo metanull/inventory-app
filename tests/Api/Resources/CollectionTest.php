@@ -125,6 +125,35 @@ class CollectionTest extends TestCase
         ]);
     }
 
+    public function test_by_type_returns_only_collections_of_the_requested_type(): void
+    {
+        Collection::factory()->subtheme()->count(2)->create();
+        Collection::factory()->exhibition()->create();
+
+        $response = $this->getJson(route('collection.byType', ['type' => 'subtheme']));
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+        foreach ($response->json('data') as $row) {
+            $this->assertEquals('subtheme', $row['type']);
+        }
+    }
+
+    public function test_by_type_accepts_every_type_in_the_vocabulary(): void
+    {
+        foreach (Collection::TYPES as $type) {
+            $this->getJson(route('collection.byType', ['type' => $type]))->assertOk();
+        }
+    }
+
+    public function test_by_type_rejects_an_unknown_type(): void
+    {
+        $response = $this->getJson(route('collection.byType', ['type' => 'not-a-type']));
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['type']);
+    }
+
     public function test_updating_a_root_purpose_collection_does_not_collide_with_itself(): void
     {
         $collection = Collection::factory()

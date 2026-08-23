@@ -55,6 +55,23 @@ class Collection extends Model
 
     public const TYPE_REGION = 'region';
 
+    /**
+     * All valid collection types.
+     *
+     * @var list<string>
+     */
+    public const TYPES = [
+        self::TYPE_COLLECTION,
+        self::TYPE_EXHIBITION,
+        self::TYPE_GALLERY,
+        self::TYPE_THEME,
+        self::TYPE_EXHIBITION_TRAIL,
+        self::TYPE_ITINERARY,
+        self::TYPE_LOCATION,
+        self::TYPE_SUBTHEME,
+        self::TYPE_REGION,
+    ];
+
     // Purpose constants: machine-readable functional role of a collection within
     // its context (section anchors, editorial overlays). Orthogonal to `type`,
     // which describes the presentation shape. Null for ordinary collections.
@@ -348,6 +365,28 @@ class Collection extends Model
     public function scopeLocations(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_LOCATION);
+    }
+
+    /**
+     * Scope to get only subtheme type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeSubthemes(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_SUBTHEME);
+    }
+
+    /**
+     * Scope to get only region type collections.
+     *
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeRegions(Builder $query): Builder
+    {
+        return $query->where('type', self::TYPE_REGION);
     }
 
     /**

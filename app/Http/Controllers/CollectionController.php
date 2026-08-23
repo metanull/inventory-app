@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\AttachItemCollectionRequest;
 use App\Http\Requests\Api\AttachItemsCollectionRequest;
+use App\Http\Requests\Api\ByTypeCollectionRequest;
 use App\Http\Requests\Api\DetachItemCollectionRequest;
 use App\Http\Requests\Api\DetachItemsCollectionRequest;
 use App\Http\Requests\Api\IndexCollectionRequest;
@@ -15,7 +16,6 @@ use App\Models\Collection;
 use App\Models\Item;
 use App\Support\Includes\AllowList;
 use App\Support\Includes\IncludeParser;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
@@ -93,13 +93,11 @@ class CollectionController extends Controller
     /**
      * Get collections by type.
      */
-    public function byType(Request $request, string $type): AnonymousResourceCollection
+    public function byType(ByTypeCollectionRequest $request, string $type): AnonymousResourceCollection
     {
-        $request->validate([
-            'type' => 'required|in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location',
-        ]);
+        $request->validated();
 
-        $includes = IncludeParser::fromRequest($request, AllowList::for('collection'));
+        $includes = $request->getIncludeParams();
 
         $query = Collection::query()->with($includes);
 
@@ -124,6 +122,12 @@ class CollectionController extends Controller
                 break;
             case 'location':
                 $query->locations();
+                break;
+            case 'subtheme':
+                $query->subthemes();
+                break;
+            case 'region':
+                $query->regions();
                 break;
         }
 

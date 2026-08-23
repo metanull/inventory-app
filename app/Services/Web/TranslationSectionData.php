@@ -11,16 +11,17 @@ class TranslationSectionData
     /**
      * @template TTranslation
      *
+     * Collection's TValue is invariant, and inline `@var` casts cannot bind
+     * the method's template type — so the return type uses call-site
+     * variance (`covariant`) and the body relies on plain inference.
+     *
      * @param  Collection<int, TTranslation>  $translations
-     * @return Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}>
+     * @return Collection<int, covariant array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}>
      */
     public function build(Collection $translations, bool $groupByContext = true): Collection
     {
         if ($translations->isEmpty()) {
-            /** @var Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}> $empty */
-            $empty = collect([]);
-
-            return $empty;
+            return collect([]);
         }
 
         $defaultLanguageId = Language::query()
@@ -55,8 +56,7 @@ class TranslationSectionData
             ->where('is_default', true)
             ->value('id');
 
-        /** @var Collection<int, array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>}> $result */
-        $result = $sortedTranslations
+        return $sortedTranslations
             ->groupBy(function ($translation): string {
                 /** @var object{context_id: string|null} $translation */
                 return $translation->context_id ?? '__none__';
@@ -83,14 +83,11 @@ class TranslationSectionData
             ->sortBy('sort_key')
             ->values()
             ->map(function (array $group): array {
-                /** @var array{label: string|null, is_default: bool, translations: Collection<int, TTranslation>, sort_key: string} $group */
                 return [
                     'label' => $group['label'],
                     'is_default' => $group['is_default'],
                     'translations' => $group['translations'],
                 ];
             });
-
-        return $result;
     }
 }
