@@ -24,6 +24,7 @@ interface RootCollectionConfig {
   internalName: string;
   backwardCompat: string;
   type: string;
+  purpose: string;
   title: string;
   description: string;
 }
@@ -68,6 +69,7 @@ export class ThgRootCollectionsImporter extends BaseImporter {
           internalName: 'thg_galleries_root',
           backwardCompat: 'mwnf3_thematic_gallery:galleries_root',
           type: 'collection',
+          purpose: 'galleries-root',
           title: 'Galleries',
           description:
             'Thematic galleries showcasing curated collections from the Museum With No Frontiers.',
@@ -76,6 +78,7 @@ export class ThgRootCollectionsImporter extends BaseImporter {
           internalName: 'thg_exhibitions_root',
           backwardCompat: 'mwnf3_thematic_gallery:exhibitions_root',
           type: 'collection',
+          purpose: 'exhibitions-root',
           title: 'Exhibitions',
           description:
             'Virtual exhibitions presenting themed selections from the Museum With No Frontiers collections.',
@@ -110,7 +113,20 @@ export class ThgRootCollectionsImporter extends BaseImporter {
   ): Promise<void> {
     // Check if already exists
     if (await this.entityExistsAsync(config.backwardCompat, 'collection')) {
-      this.logInfo(`${config.title} root collection already exists, skipping`);
+      this.logInfo(`${config.title} root collection already exists`);
+      // Ensure-semantics (#1505): a marker created before the purpose column
+      // existed must still end up purposed, without a full re-import.
+      const existingId = await this.getEntityUuidAsync(config.backwardCompat, 'collection');
+      if (existingId && !this.isDryRun && !this.isSampleOnlyMode) {
+        const currentPurpose = await this.context.strategy.getCollectionPurpose(existingId);
+        if (currentPurpose === null) {
+          await this.context.strategy.updateCollectionPurpose(existingId, config.purpose);
+          this.logInfo(`Set purpose '${config.purpose}' on ${config.backwardCompat}`);
+          result.imported++;
+          this.showProgress();
+          return;
+        }
+      }
       result.skipped++;
       this.showSkipped();
       return;
@@ -142,6 +158,7 @@ export class ThgRootCollectionsImporter extends BaseImporter {
       language_id: this.defaultLanguageId,
       parent_id: null,
       type: config.type,
+      purpose: config.purpose,
       latitude: null,
       longitude: null,
       map_zoom: null,

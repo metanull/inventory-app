@@ -27,12 +27,13 @@ lowercase keyspace):
 - **Historical Background** — SH-only feature, two distinct sections like
   legacy: the general **Historical Background** (the Arab / Ottoman /
   European Perspective essays plus the "Read more" topic list and a Country
-  Insight table, resolved from the `sh_project_about_*` marker subtree
-  created by the importer's `sh-hb-general` step, #1498), and the
-  per-country **Historical Profiles** (multi-page illustrated essays with
-  related items, historical maps, bibliography and the legacy
-  Related-Content links, from the `sh_countries_historicalbackground`
-  collections).
+  Insight table, resolved from the marker subtree created by the importer's
+  `sh-hb-general` step, #1498 — anchors `purpose: historical-background-root`
+  and `purpose: topics-root`), and the per-country **Historical Profiles**
+  (multi-page illustrated essays with related items, historical maps,
+  bibliography and the legacy Related-Content links — children of the
+  `purpose: historical-profiles-root` marker created by the importer's
+  `sh-historical-profiles-root` step, #1505).
 - **Timeline** — SH timelines are per (country × exhibition); the results
   view filters by both and offers the legacy
   thematic-vs-**Permanent-Collection** toggle (PC = the timelines the
@@ -46,8 +47,13 @@ lowercase keyspace):
   split) with the Associated-partners accordion (from `level`). Requiring a
   name translation and a country reproduces the live legacy list of 114
   partners exactly.
-- **Exhibitions** are anchored at the
-  `mwnf3_sharing_history:sh_exhibitions:root:awe` marker collection.
+- **Exhibitions** are anchored at the `purpose: exhibitions-root` marker
+  collection; themes are its exhibitions' children with `type: theme` (which
+  naturally excludes the `purpose: national-context` overlays).
+- **No legacy knowledge** (#1505) — all section anchors are resolved via the
+  `purpose` field shipped in `collections.json`
+  (`@metanull/sharinghistory-data` >= 1.2.0); `backward_compatibility` is
+  informational only and never parsed by this viewer.
 - **Palette** — the legacy oxblood red + gold scheme (header `#750101`,
   nav/footer `#990000`, deep `#500101`, rules `#AF2626`, golds
   `#FFC000`/`#E0B700`/`#FEBE40`, warm ivory `#F0EDE4`), centralized in the

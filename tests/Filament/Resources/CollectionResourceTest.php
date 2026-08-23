@@ -90,6 +90,7 @@ class CollectionResourceTest extends TestCase
             ->fillForm([
                 'internal_name' => 'Archive collection',
                 'type' => 'exhibition',
+                'purpose' => 'exhibitions-root',
                 'backward_compatibility' => 'col-02',
                 'context_id' => $context->id,
                 'language_id' => $language->id,
@@ -100,6 +101,7 @@ class CollectionResourceTest extends TestCase
         $this->assertDatabaseHas('collections', [
             'internal_name' => 'Archive collection',
             'type' => 'exhibition',
+            'purpose' => 'exhibitions-root',
             'backward_compatibility' => 'col-02',
             'context_id' => $context->id,
             'language_id' => $language->id,
@@ -112,6 +114,7 @@ class CollectionResourceTest extends TestCase
             ->assertFormSet([
                 'internal_name' => 'Temple collection',
                 'type' => 'collection',
+                'purpose' => null,
                 'backward_compatibility' => 'col-01',
                 'context_id' => $context->id,
                 'language_id' => $language->id,
@@ -119,6 +122,7 @@ class CollectionResourceTest extends TestCase
             ->fillForm([
                 'internal_name' => 'Temple migration',
                 'type' => 'gallery',
+                'purpose' => 'galleries-root',
                 'backward_compatibility' => 'col-11',
                 'context_id' => $context->id,
                 'language_id' => $language->id,
@@ -130,6 +134,7 @@ class CollectionResourceTest extends TestCase
             'id' => $collection->id,
             'internal_name' => 'Temple migration',
             'type' => 'gallery',
+            'purpose' => 'galleries-root',
             'backward_compatibility' => 'col-11',
         ]);
 

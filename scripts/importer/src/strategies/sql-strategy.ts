@@ -12,7 +12,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import { deterministicUuid } from '../utils/deterministic-uuid.js';
-import type { RowDataPacket } from 'mysql2/promise';
+import type { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
 import type { IWriteStrategy } from '../core/strategy.js';
 import type {
   EntityType,
@@ -273,14 +273,15 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = deterministicUuid(`collection:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, language_id, parent_id, type, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collections (id, context_id, language_id, parent_id, type, purpose, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.context_id,
         sanitized.language_id,
         sanitized.parent_id ?? null,
         sanitized.type ?? 'collection',
+        sanitized.purpose ?? null,
         data.display_order ?? null,
         sanitized.internal_name,
         sanitized.backward_compatibility,
@@ -1767,6 +1768,37 @@ export class SqlWriteStrategy implements IWriteStrategy {
        WHERE collection_id = ? AND context_id != ?`,
       [contextId, this.now, collectionId, contextId]
     );
+  }
+
+  async getCollectionPurpose(collectionId: string): Promise<string | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT purpose FROM collections WHERE id = ?`,
+      [collectionId]
+    );
+    if (rows.length === 0) {
+      return null;
+    }
+    return (rows[0].purpose as string | null) ?? null;
+  }
+
+  async updateCollectionPurpose(collectionId: string, purpose: string): Promise<void> {
+    await this.db.execute(`UPDATE collections SET purpose = ?, updated_at = ? WHERE id = ?`, [
+      purpose,
+      this.now,
+      collectionId,
+    ]);
+  }
+
+  async backfillCollectionPurposeByBackwardCompatibility(
+    bcPattern: string,
+    purpose: string
+  ): Promise<number> {
+    const [result] = await this.db.execute<ResultSetHeader>(
+      `UPDATE collections SET purpose = ?, updated_at = ?
+       WHERE backward_compatibility LIKE ? AND purpose IS NULL`,
+      [purpose, this.now, bcPattern]
+    );
+    return result.affectedRows;
   }
 
   async updateBackwardCompatibility(

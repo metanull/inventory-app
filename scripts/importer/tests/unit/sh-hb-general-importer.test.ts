@@ -13,6 +13,8 @@ describe('ShHbGeneralImporter', () => {
   let queryMock: ReturnType<typeof vi.fn>;
   let writeCollectionMock: ReturnType<typeof vi.fn>;
   let writeTranslationMock: ReturnType<typeof vi.fn>;
+  let getCollectionPurposeMock: ReturnType<typeof vi.fn>;
+  let updateCollectionPurposeMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
     info: vi.fn(),
@@ -71,12 +73,16 @@ describe('ShHbGeneralImporter', () => {
     let nextId = 0;
     writeCollectionMock = vi.fn(async () => `col-uuid-${++nextId}`);
     writeTranslationMock = vi.fn().mockResolvedValue(undefined);
+    getCollectionPurposeMock = vi.fn().mockResolvedValue('historical-background-root');
+    updateCollectionPurposeMock = vi.fn().mockResolvedValue(undefined);
 
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       writeCollection: writeCollectionMock,
       writeCollectionTranslation: writeTranslationMock,
+      getCollectionPurpose: getCollectionPurposeMock,
+      updateCollectionPurpose: updateCollectionPurposeMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -185,6 +191,7 @@ describe('ShHbGeneralImporter', () => {
     expect(result.skipped).toBe(1);
     // Root skipped, the other 6 still created under the existing root.
     expect(writeCollectionMock).toHaveBeenCalledTimes(6);
+    expect(updateCollectionPurposeMock).not.toHaveBeenCalled();
     const page1 = writeCollectionMock.mock.calls
       .map((c) => c[0])
       .find(
@@ -193,6 +200,32 @@ describe('ShHbGeneralImporter', () => {
           'mwnf3_sharing_history:sh_project_about_historical_background:awe:1'
       );
     expect(page1.parent_id).toBe('existing-root-uuid');
+  });
+
+  it('backfills purpose on an existing unpurposed marker (#1505 ensure-semantics)', async () => {
+    tracker.set(
+      'mwnf3_sharing_history:sh_project_about_historical_background:root:awe',
+      'existing-root-uuid',
+      'collection'
+    );
+    getCollectionPurposeMock.mockResolvedValue(null);
+
+    const importer = new ShHbGeneralImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(true);
+    expect(updateCollectionPurposeMock).toHaveBeenCalledWith(
+      'existing-root-uuid',
+      'historical-background-root'
+    );
+    // Marker payloads carry their purpose; ordinary children stay null.
+    const byBc = new Map(
+      writeCollectionMock.mock.calls.map((c) => [c[0].backward_compatibility, c[0]])
+    );
+    expect(byBc.get('mwnf3_sharing_history:sh_project_about_topics:root:awe').purpose).toBe(
+      'topics-root'
+    );
+    expect(byBc.get('mwnf3_sharing_history:sh_project_about_topics:awe:1').purpose).toBeNull();
   });
 
   it('performs no writes in dry-run mode but walks the whole subtree', async () => {

@@ -23,8 +23,9 @@
  *
  * The marker is a child of the project root collection
  * ({SH_SCHEMA}:sh_projects:{k}), so context-scoped exporters pick the whole
- * subtree up without changes; viewers resolve it structurally by
- * backward_compatibility, like the exhibitions root marker.
+ * subtree up without changes. The markers carry purpose
+ * 'historical-background-root' / 'topics-root' (#1505, ensured on reruns
+ * over older DBs) so viewers resolve them without backward_compatibility.
  *
  * Only projects legacy actually renders are imported (`show='Y' AND
  * category='SP'` — libs/class.project.inc.php:48): in practice AWE. This
@@ -147,6 +148,7 @@ export class ShHbGeneralImporter extends BaseImporter {
         contextId,
         defaultLanguageId,
         displayOrder: 1,
+        purpose: 'historical-background-root',
         translations: [{ lang: 'en', title: 'Historical Background', description: null, extra: null }],
       },
       result
@@ -213,6 +215,7 @@ export class ShHbGeneralImporter extends BaseImporter {
         contextId,
         defaultLanguageId,
         displayOrder: 90,
+        purpose: 'topics-root',
         translations: [{ lang: 'en', title: 'Read more', description: null, extra: null }],
       },
       result
@@ -255,6 +258,7 @@ export class ShHbGeneralImporter extends BaseImporter {
       contextId: string;
       defaultLanguageId: string;
       displayOrder: number;
+      purpose?: string;
       translations: Array<{
         lang: string;
         title: string;
@@ -266,9 +270,22 @@ export class ShHbGeneralImporter extends BaseImporter {
   ): Promise<string | null> {
     try {
       if (await this.entityExistsAsync(spec.backwardCompat, 'collection')) {
+        const existingId = await this.getEntityUuidAsync(spec.backwardCompat, 'collection');
+        // Ensure-semantics (#1505): a marker created before the purpose column
+        // existed must still end up purposed, without a full re-import.
+        if (spec.purpose && existingId && !this.isDryRun && !this.isSampleOnlyMode) {
+          const currentPurpose = await this.context.strategy.getCollectionPurpose(existingId);
+          if (currentPurpose === null) {
+            await this.context.strategy.updateCollectionPurpose(existingId, spec.purpose);
+            this.logInfo(`Set purpose '${spec.purpose}' on ${spec.backwardCompat}`);
+            result.imported++;
+            this.showProgress();
+            return existingId;
+          }
+        }
         result.skipped++;
         this.showSkipped();
-        return this.getEntityUuidAsync(spec.backwardCompat, 'collection');
+        return existingId;
       }
 
       if (this.isDryRun || this.isSampleOnlyMode) {
@@ -289,6 +306,7 @@ export class ShHbGeneralImporter extends BaseImporter {
         language_id: spec.defaultLanguageId,
         parent_id: spec.parentId,
         type: 'collection',
+        purpose: spec.purpose ?? null,
         display_order: spec.displayOrder,
       });
 

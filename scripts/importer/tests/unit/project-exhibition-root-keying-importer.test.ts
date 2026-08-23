@@ -19,6 +19,8 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
   let writeCollectionTranslationMock: ReturnType<typeof vi.fn>;
   let getCollectionParentIdMock: ReturnType<typeof vi.fn>;
   let updateCollectionParentIdMock: ReturnType<typeof vi.fn>;
+  let getCollectionPurposeMock: ReturnType<typeof vi.fn>;
+  let updateCollectionPurposeMock: ReturnType<typeof vi.fn>;
   let findByBackwardCompatibilityMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
@@ -61,6 +63,8 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
     writeCollectionTranslationMock = vi.fn().mockResolvedValue(undefined);
     getCollectionParentIdMock = vi.fn().mockResolvedValue('bar-project-collection-uuid');
     updateCollectionParentIdMock = vi.fn().mockResolvedValue(undefined);
+    getCollectionPurposeMock = vi.fn().mockResolvedValue('exhibitions-root');
+    updateCollectionPurposeMock = vi.fn().mockResolvedValue(undefined);
     findByBackwardCompatibilityMock = vi.fn(async (table: string, bc: string) => {
       if (table === 'languages' && bc === 'en') {
         return 'eng';
@@ -75,6 +79,8 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
       writeCollectionTranslation: writeCollectionTranslationMock,
       getCollectionParentId: getCollectionParentIdMock,
       updateCollectionParentId: updateCollectionParentIdMock,
+      getCollectionPurpose: getCollectionPurposeMock,
+      updateCollectionPurpose: updateCollectionPurposeMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -107,6 +113,7 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
         parent_id: 'bar-project-collection-uuid',
         context_id: 'bar-context-uuid',
         type: 'collection',
+        purpose: 'exhibitions-root',
       })
     );
 
@@ -144,7 +151,7 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
     );
   });
 
-  it('is a no-op on a second run (root exists, exhibitions already parented to it)', async () => {
+  it('is a no-op on a second run (root exists with purpose, exhibitions already parented to it)', async () => {
     tracker.set('mwnf3:exhibitions:root:BAR', 'bar-root-uuid', 'collection');
     getCollectionParentIdMock.mockResolvedValue('bar-root-uuid');
 
@@ -155,9 +162,24 @@ describe('ProjectExhibitionRootKeyingImporter', () => {
     expect(writeCollectionMock).not.toHaveBeenCalled();
     expect(writeCollectionTranslationMock).not.toHaveBeenCalled();
     expect(updateCollectionParentIdMock).not.toHaveBeenCalled();
+    expect(updateCollectionPurposeMock).not.toHaveBeenCalled();
     expect(result.imported).toBe(0);
     // root existed (1) + two already-parented exhibitions (2)
     expect(result.skipped).toBe(3);
+  });
+
+  it('backfills purpose on an existing unpurposed root (#1505 ensure-semantics)', async () => {
+    tracker.set('mwnf3:exhibitions:root:BAR', 'bar-root-uuid', 'collection');
+    getCollectionParentIdMock.mockResolvedValue('bar-root-uuid');
+    getCollectionPurposeMock.mockResolvedValue(null);
+
+    const importer = new ProjectExhibitionRootKeyingImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(true);
+    expect(writeCollectionMock).not.toHaveBeenCalled();
+    expect(updateCollectionPurposeMock).toHaveBeenCalledWith('bar-root-uuid', 'exhibitions-root');
+    expect(result.imported).toBe(1);
   });
 
   it('skips a project whose collection was never imported, with a warning', async () => {

@@ -129,6 +129,8 @@ import {
   ShPartnerProjectLinkerImporter,
   ShHbGeneralImporter,
   ShHbRecontextImporter,
+  ShHistoricalProfilesRootImporter,
+  CollectionPurposeBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -1002,6 +1004,21 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       "Move SH Historical Background collections (and their pages) into their legacy project's context (#1494)",
     importerClass: ShHbRecontextImporter,
     dependencies: ['sh-project', 'sh-bibliography-hb'],
+  },
+  {
+    key: 'sh-historical-profiles-root',
+    name: 'SH Historical Profiles Root Keying',
+    description:
+      'Create per-project Historical Profiles root collections for Sharing History and re-parent the HB record collections under them (#1505)',
+    importerClass: ShHistoricalProfilesRootImporter,
+    dependencies: ['sh-project', 'sh-bibliography-hb', 'sh-hb-recontext'],
+  },
+  {
+    key: 'collection-purpose-backfill',
+    name: 'Collection Purpose Backfill',
+    description:
+      'Backfill collections.purpose from known marker backward_compatibility keyspaces on an already-populated database (#1505)',
+    importerClass: CollectionPurposeBackfillImporter,
   },
   {
     key: 'project-cleanup',

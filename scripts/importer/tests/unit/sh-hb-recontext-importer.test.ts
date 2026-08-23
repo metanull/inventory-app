@@ -177,6 +177,40 @@ describe('ShHbRecontextImporter', () => {
     expect(result.success).toBe(true);
   });
 
+  it('targets the Historical Profiles marker as desired parent when it exists (#1505)', async () => {
+    tracker.set(
+      'mwnf3_sharing_history:sh_countries_historicalbackground:root:usa',
+      'usa-profiles-root',
+      'collection'
+    );
+
+    const importer = new ShHbRecontextImporter(context);
+    const result = await importer.import();
+
+    // hb 20 moves under the USA profiles marker, not the project root.
+    expect(updateParentMock).toHaveBeenCalledWith('hb20', 'usa-profiles-root');
+    expect(updateParentMock).not.toHaveBeenCalledWith('hb20', 'usa-root');
+    expect(result.success).toBe(true);
+  });
+
+  it('does not undo the marker re-parenting on a rerun (#1505)', async () => {
+    tracker.set(
+      'mwnf3_sharing_history:sh_countries_historicalbackground:root:usa',
+      'usa-profiles-root',
+      'collection'
+    );
+    contextByCollection.hb20 = 'usa-ctx';
+    contextByCollection.page100 = 'usa-ctx';
+    parentByCollection.hb20 = 'usa-profiles-root';
+
+    const importer = new ShHbRecontextImporter(context);
+    const result = await importer.import();
+
+    expect(updateParentMock).not.toHaveBeenCalledWith('hb20', expect.anything());
+    expect(updateContextMock).not.toHaveBeenCalledWith('hb20', expect.anything());
+    expect(result.success).toBe(true);
+  });
+
   it('performs no writes in dry-run mode', async () => {
     context.dryRun = true;
     const importer = new ShHbRecontextImporter(context);

@@ -97,6 +97,19 @@ export class ShNationalContextImporter extends BaseImporter {
         const backwardCompat = `${SH_SCHEMA}:sh_national_context_exhibitions:${legacy.country.toLowerCase()}:${legacy.exhibition_id}`;
 
         if (await this.entityExistsAsync(backwardCompat, 'collection')) {
+          // Ensure-semantics (#1505): overlays created before the purpose
+          // column existed must still end up purposed on a rerun.
+          const existingId = await this.getEntityUuidAsync(backwardCompat, 'collection');
+          if (existingId && !this.isDryRun && !this.isSampleOnlyMode) {
+            const currentPurpose = await this.context.strategy.getCollectionPurpose(existingId);
+            if (currentPurpose === null) {
+              await this.context.strategy.updateCollectionPurpose(existingId, 'national-context');
+              this.logInfo(`Set purpose 'national-context' on ${backwardCompat}`);
+              result.imported++;
+              this.showProgress();
+              continue;
+            }
+          }
           result.skipped++;
           this.showSkipped();
           continue;
@@ -162,6 +175,7 @@ export class ShNationalContextImporter extends BaseImporter {
           language_id: defaultLanguageId,
           parent_id: parentCollectionId,
           type: 'collection',
+          purpose: 'national-context',
           country_id: countryId,
         });
 

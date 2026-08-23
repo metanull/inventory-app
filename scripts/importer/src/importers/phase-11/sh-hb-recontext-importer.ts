@@ -17,7 +17,11 @@
  *   partial failure — the translations update itself is a guarded no-op when
  *   already in the target context)
  * - collections.context_id
- * - collections.parent_id → the project's root collection
+ * - collections.parent_id → the project's Historical Profiles marker when it
+ *   exists (`sh_countries_historicalbackground:root:{k}`, created by
+ *   ShHistoricalProfilesRootImporter, #1505), else the project's root
+ *   collection — so this step never undoes the marker re-parenting,
+ *   whichever order the two steps run in
  * and the record's page collections (context + translations only — their
  * parent is the HB record itself, which is already correct).
  *
@@ -139,6 +143,12 @@ export class ShHbRecontextImporter extends BaseImporter {
       return;
     }
 
+    // #1505: when the per-project Historical Profiles marker exists, HB
+    // records belong under it, not directly under the project root.
+    const profilesRootBackwardCompat = `${SH_SCHEMA}:sh_countries_historicalbackground:root:${projectKey}`;
+    const profilesRootId = await this.getEntityUuidAsync(profilesRootBackwardCompat, 'collection');
+    const desiredParentId = profilesRootId ?? rootId;
+
     if (this.isDryRun || this.isSampleOnlyMode) {
       this.logInfo(
         `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would ensure ${backwardCompat} (+${pageIds.length} pages) sits in project ${projectKey} context`
@@ -152,7 +162,7 @@ export class ShHbRecontextImporter extends BaseImporter {
     const currentContextId = await this.context.strategy.getCollectionContextId(collectionId);
     const currentParentId = await this.context.strategy.getCollectionParentId(collectionId);
     const needsContext = currentContextId !== contextId;
-    const needsParent = currentParentId !== rootId;
+    const needsParent = currentParentId !== desiredParentId;
 
     if (!needsContext && !needsParent) {
       result.skipped++;
@@ -166,7 +176,7 @@ export class ShHbRecontextImporter extends BaseImporter {
         await this.context.strategy.updateCollectionContextId(collectionId, contextId);
       }
       if (needsParent) {
-        await this.context.strategy.updateCollectionParentId(collectionId, rootId);
+        await this.context.strategy.updateCollectionParentId(collectionId, desiredParentId);
       }
       this.logInfo(`Moved ${backwardCompat} into project ${projectKey} context`);
       result.imported++;

@@ -620,6 +620,27 @@ export interface IWriteStrategy {
   updateCollectionTranslationsContextId(collectionId: string, contextId: string): Promise<void>;
 
   /**
+   * Get a collection's current purpose (null when unset).
+   * Used by marker steps' ensure-semantics to detect no-op updates on reruns.
+   */
+  getCollectionPurpose(collectionId: string): Promise<string | null>;
+
+  /**
+   * Set a collection's purpose (functional role within its context, #1505).
+   */
+  updateCollectionPurpose(collectionId: string, purpose: string): Promise<void>;
+
+  /**
+   * Backfill purpose on collections matched by a backward_compatibility
+   * pattern (SQL LIKE), only where purpose is still null (#1505).
+   * @returns The number of rows updated.
+   */
+  backfillCollectionPurposeByBackwardCompatibility(
+    bcPattern: string,
+    purpose: string
+  ): Promise<number>;
+
+  /**
    * Update an entity's backward_compatibility value.
    * Used for dedup scenarios where a second BC needs to be appended (semicolon-delimited).
    * @param table The table name (e.g., 'tags')

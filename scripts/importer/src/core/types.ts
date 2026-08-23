@@ -158,6 +158,7 @@ export interface CollectionData extends BaseEntityData {
   language_id: string; // Required: ISO 639-3 code
   parent_id?: string | null;
   type?: string | null; // collection, exhibition, gallery, theme, exhibition trail, itinerary, location
+  purpose?: string | null; // functional role within the context (e.g. exhibitions-root); null for ordinary collections
   display_order?: number | null;
   // GPS Location (optional)
   latitude?: number | null;

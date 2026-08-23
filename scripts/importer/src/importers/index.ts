@@ -147,4 +147,6 @@ export {
   ShPartnerProjectLinkerImporter,
   ShHbGeneralImporter,
   ShHbRecontextImporter,
+  ShHistoricalProfilesRootImporter,
+  CollectionPurposeBackfillImporter,
 } from './phase-11/index.js';

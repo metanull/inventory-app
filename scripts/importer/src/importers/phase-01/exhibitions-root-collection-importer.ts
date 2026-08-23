@@ -50,7 +50,20 @@ export class ExhibitionsRootCollectionImporter extends BaseImporter {
       const backwardCompat = `${MWNF3_SCHEMA}:exhibitions:root`;
 
       if (await this.entityExistsAsync(backwardCompat, 'collection')) {
-        this.logInfo('Virtual Exhibitions root collection already exists, skipping');
+        this.logInfo('Virtual Exhibitions root collection already exists');
+        // Ensure-semantics (#1505): a marker created before the purpose column
+        // existed must still end up purposed, without a full re-import.
+        const existingId = await this.getEntityUuidAsync(backwardCompat, 'collection');
+        if (existingId && !this.isDryRun && !this.isSampleOnlyMode) {
+          const currentPurpose = await this.context.strategy.getCollectionPurpose(existingId);
+          if (currentPurpose === null) {
+            await this.context.strategy.updateCollectionPurpose(existingId, 'exhibitions-root');
+            this.logInfo(`Set purpose 'exhibitions-root' on ${backwardCompat}`);
+            result.imported++;
+            this.showProgress();
+            return result;
+          }
+        }
         result.skipped++;
         this.showSkipped();
         return result;
@@ -97,6 +110,7 @@ export class ExhibitionsRootCollectionImporter extends BaseImporter {
         language_id: defaultLanguageId,
         parent_id: parentCollectionId,
         type: 'collection',
+        purpose: 'exhibitions-root',
         latitude: null,
         longitude: null,
         map_zoom: null,

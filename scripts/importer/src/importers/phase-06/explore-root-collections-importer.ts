@@ -30,6 +30,7 @@ interface RootCollectionConfig {
   internal_name: string;
   backward_compatibility: string;
   type: 'collection' | 'itinerary';
+  purpose: string;
   title: string;
   description: string;
 }
@@ -51,6 +52,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
         internal_name: 'explore_by_theme',
         backward_compatibility: 'mwnf3_explore:root:explore_by_theme',
         type: 'collection',
+        purpose: 'explore-themes-root',
         title: 'Explore by Theme',
         description: 'Discover Islamic art and architecture organized by thematic cycles',
       },
@@ -58,6 +60,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
         internal_name: 'explore_by_country',
         backward_compatibility: 'mwnf3_explore:root:explore_by_country',
         type: 'collection',
+        purpose: 'explore-countries-root',
         title: 'Explore by Country',
         description: 'Browse monuments and sites by country and region',
       },
@@ -65,6 +68,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
         internal_name: 'explore_by_itinerary',
         backward_compatibility: 'mwnf3_explore:root:explore_by_itinerary',
         type: 'itinerary',
+        purpose: 'explore-itineraries-root',
         title: 'Explore by Itinerary',
         description: 'Follow curated routes through Islamic heritage sites',
       },
@@ -103,7 +107,23 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
         try {
           // Check if already exists
           if (await this.entityExistsAsync(config.backward_compatibility, 'collection')) {
-            this.logInfo(`Collection ${config.internal_name} already exists, skipping`);
+            this.logInfo(`Collection ${config.internal_name} already exists`);
+            // Ensure-semantics (#1505): a marker created before the purpose
+            // column existed must still end up purposed, without a re-import.
+            const existingId = await this.getEntityUuidAsync(
+              config.backward_compatibility,
+              'collection'
+            );
+            if (existingId && !this.isDryRun && !this.isSampleOnlyMode) {
+              const currentPurpose = await this.context.strategy.getCollectionPurpose(existingId);
+              if (currentPurpose === null) {
+                await this.context.strategy.updateCollectionPurpose(existingId, config.purpose);
+                this.logInfo(`Set purpose '${config.purpose}' on ${config.backward_compatibility}`);
+                result.imported++;
+                this.showProgress();
+                continue;
+              }
+            }
             result.skipped++;
             this.showSkipped();
             continue;
@@ -142,6 +162,7 @@ export class ExploreRootCollectionsImporter extends BaseImporter {
             language_id: this.defaultLanguageId,
             parent_id: null,
             type: config.type,
+            purpose: config.purpose,
             latitude: null,
             longitude: null,
             map_zoom: null,
