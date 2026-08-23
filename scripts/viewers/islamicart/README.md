@@ -62,6 +62,11 @@ The data package to use is configured by `DATA_PACKAGE` in `.env` (defaults to
 `@metanull/islamicart-data`). Changing it to another compatible package requires only
 updating `.env` and re-running `npm install`.
 
+Section anchors (the exhibitions and artistic-introduction roots) are
+resolved via the `purpose` field in `collections.json` (#1505);
+`backward_compatibility` is informational only and never parsed by this
+viewer.
+
 ## Build and run
 
 ```bash

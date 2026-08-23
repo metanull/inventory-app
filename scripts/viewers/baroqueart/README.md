@@ -12,20 +12,19 @@ It is a full multi-view application (Vue Router: Home, Database
 search/results, Item detail, Permanent Collection, Timeline, Partners,
 Exhibitions, …), not a single-component sample.
 
-## Differences from the islamicart viewer
+## Dataset specifics
 
-This viewer was forked from `scripts/viewers/islamicart/` and adapted for the
-Discover Baroque Art project (legacy project key `BAR`):
+The viewer renders the Discover Baroque Art project (legacy project key
+`BAR`):
 
-- **No Dynasties** — the Baroque Art dataset has no dynasties; the Dynasties
-  views, dynasty filters, and dynasty metadata rows were removed.
-- **No Artistic Introduction** — that feature exists only for Islamic Art;
-  its views and item cross-links were removed.
-- **No companion-project toggle** — Islamic Art offered an "Include Explore
-  Islamic Art Collections" (EPM) checkbox; Baroque Art is a single project,
-  so all project filtering was dropped.
-- **Exhibitions** are anchored at the `mwnf3:exhibitions:root:BAR` marker
-  collection in the data package.
+- **Single project** — the whole dataset belongs to one project, so there is
+  no project filtering anywhere in the UI.
+- **No dynasties, no artistic introduction** — the Baroque Art dataset has
+  neither, so the viewer has no views for them.
+- **Exhibitions** are anchored at the marker collection with
+  `purpose: "exhibitions-root"` in the data package (#1505);
+  `backward_compatibility` is informational only and never parsed by this
+  viewer.
 
 ## Structure
 
@@ -77,14 +76,6 @@ The data package to use is configured by `DATA_PACKAGE` in `.env` (defaults to
 `@metanull/baroqueart-data`). Changing it to another compatible package requires only
 updating `.env` and re-running `npm install`.
 
-**Note:** `npm install` requires `@metanull/baroqueart-data` to be published
-first. Until it is, `DATA_PACKAGE=@metanull/islamicart-data` can be used as a
-stand-in during development to verify builds — it is a superset of the files
-this viewer needs. For the same reason there is deliberately **no
-`package-lock.json` yet**: it will be generated and committed right after the
-first data-package publish (see the validation story), which is also the
-precondition for the deploy workflow's `npm ci`.
-
 ## Build and run
 
 ```bash
@@ -99,7 +90,7 @@ npm run preview      # serve the production build locally
 
 ## Deployment (OVH)
 
-The (future) `.github/workflows/deploy-viewer-baroqueart-ovh.yml` workflow
+[`.github/workflows/deploy-viewer-baroqueart-ovh.yml`](../../../.github/workflows/deploy-viewer-baroqueart-ovh.yml)
 builds and deploys this viewer to `https://inventory.metanull.eu/baroqueart/`
 automatically. It triggers on:
 

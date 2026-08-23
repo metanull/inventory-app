@@ -113,22 +113,26 @@ const itemById = computed(() => {
 // ── Exhibitions ────────────────────────────────────────────────────────────
 //
 // Imported as generic Collections, nested under a dedicated "Virtual
-// Exhibitions" marker collection (backward_compatibility
-// "mwnf3:exhibitions:root:BAR", a child of the Baroque Art project
-// collection, created by the importer's project-exhibition-root-keying
-// step) — needed because neither type='exhibition' nor the
-// mwnf3:exhibitions:{id} backward_compatibility key are project-scoped in
-// the legacy schema (shared with Islamic Art, Sharing History, etc). From
-// that anchor: exhibitions are its children, themes are an exhibition's
-// children, pages are a theme's children (tabs). "Introduction" is not a
-// theme — it's the exhibition's own translation (extra.intro_header /
-// extra.intro_text) plus items attached directly to the exhibition
-// collection itself (not to any theme/page).
-
-const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root:BAR'
+// Exhibitions" marker collection (purpose "exhibitions-root", a child of
+// the Baroque Art project collection, created by the importer's
+// project-exhibition-root-keying step) — needed because type='exhibition'
+// alone is not project-scoped in the legacy schema (shared with Islamic
+// Art, Sharing History, etc). From that anchor: exhibitions are its
+// children, themes are an exhibition's children, pages are a theme's
+// children (tabs). "Introduction" is not a theme — it's the exhibition's
+// own translation (extra.intro_header / extra.intro_text) plus items
+// attached directly to the exhibition collection itself (not to any
+// theme/page).
+//
+// The anchor is resolved by `purpose` (#1505) — `backward_compatibility`
+// is informational only and never parsed. The export is scoped to the BAR
+// project context, within which each root purpose occurs at most once.
+function findByPurpose(purpose) {
+  return collections.value.find(c => c.purpose === purpose) ?? null
+}
 
 const exhibitions = computed(() => {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   return collections.value
     .filter(c => c.parent_id === marker.id)
@@ -169,7 +173,7 @@ function collectionsContainingItem(itemId) {
 }
 
 function exhibitionLinksForItem(itemId) {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   const links = []
   const seen = new Set()

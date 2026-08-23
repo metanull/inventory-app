@@ -3,34 +3,37 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package via GitHub Packages, which is how
-[`scripts/viewers/islamicart`](../../viewers/islamicart/README.md) and the
-deployed Discover Islamic Art site actually consume it.
+output as a private npm package (`@metanull/islamicart-data`) on GitHub
+Packages, for any consumer to install.
 
-Exporters are forked per dataset (`scripts/exporters/<dataset>`): this one
-produces the Discover Islamic Art data-package.
+This exporter produces the Discover Islamic Art data-package (one exporter
+per dataset lives under `scripts/exporters/<dataset>`).
 
 ## Run (TL;DR)
 
 ```powershell
 cd scripts/exporters/islamicart
 npm install                # first run only
-npm run export -- islamicart ISL `
+npm run export -- islamicart ISL EPM `
   --force `
-  --base-url https://inventory.metanull.eu `
   --publish `
-  --package-name @metanull/islamicart-data `
-  --package-version 1.0.15
-cd output/islamicart && npm publish
+  --package-name @metanull/islamicart-data
 ```
 
-(`--package-version` is optional — omit it to auto-increment instead; see
-[`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
+The `@metanull/islamicart-data` package covers **both** project keys —
+`ISL` (Discover Islamic Art) and `EPM` (Explore Islamic Art Collections) —
+and `--package-name` is required because this exporter's built-in default is
+`@mwnf/{subdirectory}-data`. Image URLs in the exported JSON are built from
+`BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
+go: version bump, `package.json`/`README.md` generation, and the actual
+`npm publish` (no separate manual publish step). `--package-version` is
+optional — omit it to auto-increment the patch version; see
+[`NPM_PUBLISH.md`](NPM_PUBLISH.md).
 
 ## What it exports
 
 One JSON file per entity type, plus a manifest and per-language translation
-files, written to `output/<subdirectory>/data/`:
+files, written to `output/<subdirectory>/`:
 
 | File | Exporter | Contents |
 |---|---|---|
@@ -118,19 +121,18 @@ inventory-app DB
 scripts/exporters/islamicart  ──npm publish──▶  @metanull/islamicart-data (GitHub Packages)
                                                        │  npm install
                                                        ▼
-                                          scripts/viewers/islamicart (or any consumer)
+                                                 any consumer
 ```
 
-The exporter and the viewer are decoupled entirely through the published
-package — the viewer never talks to the exporter or the database directly,
-it just depends on whatever version of the data package is installed.
-Routine content updates mean: re-export with `--publish --force`, `npm
-publish`, then either let the viewer's deploy workflow pick up `@latest`
-automatically (see [`scripts/viewers/islamicart/README.md`](../../viewers/islamicart/README.md)) or
-bump it manually for other consumers. `@metanull/islamicart-data` is the
-package actually deployed today; the code's own default naming
-(`@mwnf/{subdirectory}-data`, see the option table above) is there for
-anyone exporting a differently-scoped or differently-named package.
+The exporter and its consumers are decoupled entirely through the published
+package — a consumer never talks to the exporter or the database, it just
+depends on whatever version of the data package it installs. A routine
+content update is one re-export with `--publish --force` (which publishes by
+itself); consumers pick the new version up on their own schedule.
+`@metanull/islamicart-data` is the package name in use today; the code's own
+default naming (`@mwnf/{subdirectory}-data`, see the option table above) is
+there for anyone exporting a differently-scoped or differently-named
+package.
 
 ## Troubleshooting
 

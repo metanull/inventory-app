@@ -3,32 +3,28 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package (`@metanull/baroqueart-data`) via GitHub
-Packages, which is how [`scripts/viewers/baroqueart`](../../viewers/baroqueart/README.md)
-and the deployed Discover Baroque Art site consume it.
+output as a private npm package (`@metanull/baroqueart-data`) on GitHub
+Packages, for any consumer to install.
 
-Exporters are forked per dataset (`scripts/exporters/<dataset>`): this is the
-Discover Baroque Art fork of the [islamicart exporter](../islamicart/README.md).
+This exporter produces the Discover Baroque Art data-package (one exporter
+per dataset lives under `scripts/exporters/<dataset>`).
 
-## Differences from islamicart-data
+## The BAR data-package
 
-The BAR data-package is shaped by what the Baroque Art dataset actually
-contains — consistency with `@metanull/islamicart-data` is kept where the data
-allows, not forced:
+The package is shaped by what the Baroque Art dataset actually contains:
 
-- **No dynasty exporter, no `dynasties.json`, no `translations/dynasties.*`** —
-  dynasties are a Discover Islamic Art concept (every legacy `mwnf3.dynasties`
-  row belongs to ISL).
-- **Single project key** — defaults to `BAR`; there is no EPM-style companion
-  project.
+- **Single project key** — defaults to `BAR`; there is no companion project.
+- **No dynasties** — the Baroque Art dataset has no dynasty entity, so there
+  is no `dynasties.json` and no `translations/dynasties.*`.
 - **Exhibitions root** — the collection export includes the per-project
-  exhibitions root marker `mwnf3:exhibitions:root:BAR` (created by the
-  importer's `project-exhibition-root-keying` step) with the 9 BAR exhibitions
-  under it.
-- **Timelines/glossary** — the ISL-only "unlinked timeline" branches were
-  removed: BAR timelines are always collection-bound, and glossary entries are
-  usage-scoped to BAR items/collections/timeline events (the glossary is kept —
-  BAR item pages use glossary tooltips).
+  exhibitions root marker (`purpose: "exhibitions-root"`, created by the
+  importer's `project-exhibition-root-keying` step; legacy key
+  `mwnf3:exhibitions:root:BAR` kept as informational
+  `backward_compatibility`) with the 9 BAR exhibitions under it. Consumers
+  resolve the marker by `purpose` (#1505).
+- **Timelines/glossary** — BAR timelines are always collection-bound, and
+  glossary entries are usage-scoped to BAR items/collections/timeline events
+  (the glossary is kept — BAR item pages use glossary tooltips).
 - **Multilingual** — every translation present for the BAR context is exported
   (the legacy DBA site was English-only in its UI, but the data layer is
   multilingual).
@@ -40,14 +36,16 @@ cd scripts/exporters/baroqueart
 npm install                # first run only
 npm run export -- `
   --force `
-  --base-url https://inventory.metanull.eu `
   --publish
-cd output/baroqueart && npm publish
 ```
 
 Defaults: subdirectory `baroqueart`, project key `BAR`, package name
-`@metanull/baroqueart-data`. (`--package-version` is optional — omit it to
-auto-increment instead; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
+`@metanull/baroqueart-data`. Image URLs in the exported JSON are built from
+`BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
+go: version bump, `package.json`/`README.md` generation, and the actual
+`npm publish` — no separate manual publish step. (`--package-version` is
+optional — omit it to auto-increment instead; see
+[`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
 
 ## What it exports
 
@@ -136,15 +134,14 @@ inventory-app DB
 scripts/exporters/baroqueart  ──npm publish──▶  @metanull/baroqueart-data (GitHub Packages)
                                                        │  npm install
                                                        ▼
-                                          scripts/viewers/baroqueart (or any consumer)
+                                                 any consumer
 ```
 
-The exporter and the viewer are decoupled entirely through the published
-package — the viewer never talks to the exporter or the database directly,
-it just depends on whatever version of the data package is installed.
-Routine content updates mean: re-export with `--publish --force`, `npm
-publish`, then either let the viewer's deploy workflow pick up `@latest`
-automatically or bump it manually for other consumers.
+The exporter and its consumers are decoupled entirely through the published
+package — a consumer never talks to the exporter or the database, it just
+depends on whatever version of the data package it installs. A routine
+content update is one re-export with `--publish --force` (which publishes by
+itself); consumers pick the new version up on their own schedule.
 
 ## Troubleshooting
 

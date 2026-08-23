@@ -13,11 +13,10 @@ search/results, Item detail, Permanent Collection, Timeline, Historical
 Background, Partners, Exhibitions with themes and chapters, …), not a
 single-component sample.
 
-## Differences from the baroqueart viewer
+## Dataset specifics
 
-This viewer was forked from `scripts/viewers/baroqueart/` and adapted for
-Sharing History — Arab World – Europe (legacy SH project key `awe`,
-lowercase keyspace):
+The viewer renders Sharing History — Arab World – Europe (legacy SH project
+key `awe`, lowercase keyspace):
 
 - **Chapters** — SH exhibitions are 3-level (exhibition → theme → subtheme,
   "Chapter" in the legacy UI). Theme pages list their chapters; the new
@@ -51,8 +50,7 @@ lowercase keyspace):
   collection; themes are its exhibitions' children with `type: theme` (which
   naturally excludes the `purpose: national-context` overlays).
 - **No legacy knowledge** (#1505) — all section anchors are resolved via the
-  `purpose` field shipped in `collections.json`
-  (`@metanull/sharinghistory-data` >= 1.2.0); `backward_compatibility` is
+  `purpose` field shipped in `collections.json`; `backward_compatibility` is
   informational only and never parsed by this viewer.
 - **Palette** — the legacy oxblood red + gold scheme (header `#750101`,
   nav/footer `#990000`, deep `#500101`, rules `#AF2626`, golds
@@ -61,7 +59,7 @@ lowercase keyspace):
 
 ## Structure
 
-Same layout as the sibling viewers: `src/views/*` one component per route,
+`src/views/*` one component per route,
 `src/composables/useInventoryData.js` as the single data access layer
 (module-level singletons over the statically imported package JSON, lazy
 per-language translation loading), `src/router/index.js` with hash-based
