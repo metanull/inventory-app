@@ -4,6 +4,7 @@ import { BaseExporter } from './base-exporter.js'
 interface CollectionRow {
   id: string
   type: string
+  purpose: string | null
   internal_name: string
   backward_compatibility: string | null
   parent_id: string | null
@@ -78,7 +79,7 @@ export class CollectionExporter extends BaseExporter {
     const ph = this.placeholders(this.projectIds.length)
 
     const collections = await this.db.query<CollectionRow>(
-      `SELECT c.id, c.type, c.internal_name, c.backward_compatibility,
+      `SELECT c.id, c.type, c.purpose, c.internal_name, c.backward_compatibility,
               c.parent_id, c.display_order, c.country_id, c.latitude, c.longitude
        FROM collections c
        WHERE c.context_id IN (
@@ -191,6 +192,7 @@ export class CollectionExporter extends BaseExporter {
     const output = publishedCollections.map(c => ({
       id: c.id,
       type: c.type,
+      purpose: c.purpose,
       internal_name: c.internal_name,
       backward_compatibility: c.backward_compatibility,
       parent_id: c.parent_id,

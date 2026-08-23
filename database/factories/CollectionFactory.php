@@ -32,6 +32,8 @@ class CollectionFactory extends Factory
         return [
             'internal_name' => $this->faker->unique()->slug(2),
             'type' => $this->faker->randomElement(['collection', 'exhibition', 'gallery', 'theme', 'exhibition trail', 'itinerary', 'location', 'subtheme', 'region']),
+            // Functional purpose (nullable by default; null is the norm)
+            'purpose' => null,
             'language_id' => Language::factory(),
             'context_id' => Context::factory(),
             'parent_id' => null,
@@ -189,6 +191,16 @@ class CollectionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'region',
+        ]);
+    }
+
+    /**
+     * Configure the factory with a functional purpose (see Collection::PURPOSES).
+     */
+    public function withPurpose(string $purpose): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'purpose' => $purpose,
         ]);
     }
 

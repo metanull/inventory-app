@@ -119,18 +119,25 @@ const itemById = computed(() => {
 // ── Exhibitions ────────────────────────────────────────────────────────────
 //
 // Imported as generic Collections, nested under a dedicated "Virtual
-// Exhibitions" marker collection (backward_compatibility
-// "mwnf3_sharing_history:sh_exhibitions:root:awe", a child of the Sharing
-// History project collection, created by the importer's
-// sh-exhibition-root-keying step). From that anchor: exhibitions are its
-// children, themes are an exhibition's children, and — unlike the mwnf3
+// Exhibitions" marker collection (purpose "exhibitions-root", a child of the
+// Sharing History project collection, created by the importer's
+// sh-exhibition-root-keying step, #1505). From that anchor: exhibitions are
+// its children, themes are an exhibition's children, and — unlike the mwnf3
 // datasets — a theme's children are SUBTHEMES ("Chapters" in the legacy UI),
 // a full third narrative level with its own intro, quotation and item grid.
+//
+// Section anchors are resolved by `purpose` (requires
+// @metanull/sharinghistory-data >= 1.2.0); backward_compatibility is
+// informational only and never load-bearing here.
 
-const EXHIBITIONS_MARKER_BC = 'mwnf3_sharing_history:sh_exhibitions:root:awe'
+// The data package is single-context (one SH project), so each `*-root`
+// purpose occurs at most once.
+function findByPurpose(purpose) {
+  return collections.value.find(c => c.purpose === purpose) ?? null
+}
 
 const exhibitions = computed(() => {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   return collections.value
     .filter(c => c.parent_id === marker.id)
@@ -142,15 +149,16 @@ function exhibitionById(id) {
 }
 
 // Country-specific "National Context" variants of an exhibition
-// (…:sh_national_context_exhibitions:{country}:{exh}) are attached under
-// the exhibition collection but are NOT themes — they carry no English
+// (purpose "national-context", type "collection") are attached under the
+// exhibition collection but are NOT themes — they carry no English
 // translations and legacy renders them through a separate country
-// selector. Keep them out of the theme tree.
-const NC_BC_PREFIX = 'mwnf3_sharing_history:sh_national_context_'
+// selector. Filtering on type "theme" keeps them out of the theme tree
+// naturally (and they stay positively identifiable by purpose if National
+// Context is ever rendered).
 
 function exhibitionThemes(exhibitionId) {
   return collections.value
-    .filter(c => c.parent_id === exhibitionId && !c.backward_compatibility?.startsWith(NC_BC_PREFIX))
+    .filter(c => c.parent_id === exhibitionId && c.type === 'theme')
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
     .map(theme => ({
       ...theme,
@@ -173,19 +181,18 @@ function chapterById(exhibitionId, themeId, chapterId) {
 //
 // SH-only: per-country multi-page illustrated essays (+ historical maps),
 // plus one "general text" record (country_id null). Imported as regular
-// collections; resolved structurally by backward_compatibility prefix.
-// Records: …:sh_countries_historicalbackground:{hb_id}; each record's pages
-// are its child collections (…_pages:{page_id}). Note: record 20 is the USA
-// project's "Historical Profile / Germany", leaked into awe by a known
-// importer hard-coding (#1494) — shipped with a written disposition.
+// collections under a per-project "Historical Profiles" marker (purpose
+// "historical-profiles-root", created by the importer's
+// sh-historical-profiles-root step, #1505); each record's pages are its
+// child collections.
 
-const HB_RECORD_BC_PREFIX = 'mwnf3_sharing_history:sh_countries_historicalbackground:'
-
-const historicalBackgroundRecords = computed(() =>
-  collections.value
-    .filter(c => c.backward_compatibility?.startsWith(HB_RECORD_BC_PREFIX))
+const historicalBackgroundRecords = computed(() => {
+  const marker = findByPurpose('historical-profiles-root')
+  if (!marker) return []
+  return collections.value
+    .filter(c => c.parent_id === marker.id)
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
-)
+})
 
 // The project-level introduction (legacy gn='yes'), if present.
 const historicalBackgroundGeneral = computed(
@@ -207,25 +214,23 @@ function historicalBackgroundPages(recordId) {
 //
 // The legacy "Historical Background" nav section — distinct from the
 // per-country Historical Profiles above. Imported by the sh-hb-general
-// step (#1498) as a marker subtree under the project root:
+// step (#1498) as a marker subtree (purpose "historical-background-root",
+// with a nested purpose "topics-root" marker) under the project root:
 // perspectives (Arab / Ottoman / European Perspective,
 // historical_background_pages.php) and the "Read more" topics
 // (historical_background_readmore.php — titles only; legacy never filled
 // their texts in).
 
-const HB_GENERAL_ROOT_BC = 'mwnf3_sharing_history:sh_project_about_historical_background:root:awe'
-const HB_TOPICS_ROOT_BC = 'mwnf3_sharing_history:sh_project_about_topics:root:awe'
-
 const hbGeneralPerspectives = computed(() => {
-  const root = collections.value.find(c => c.backward_compatibility === HB_GENERAL_ROOT_BC)
+  const root = findByPurpose('historical-background-root')
   if (!root) return []
   return collections.value
-    .filter(c => c.parent_id === root.id && c.backward_compatibility !== HB_TOPICS_ROOT_BC)
+    .filter(c => c.parent_id === root.id && c.purpose !== 'topics-root')
     .sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999))
 })
 
 const hbGeneralTopics = computed(() => {
-  const root = collections.value.find(c => c.backward_compatibility === HB_TOPICS_ROOT_BC)
+  const root = findByPurpose('topics-root')
   if (!root) return []
   return collections.value
     .filter(c => c.parent_id === root.id)
@@ -257,7 +262,7 @@ function collectionsContainingItem(itemId) {
 }
 
 function exhibitionLinksForItem(itemId) {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   const links = []
   const seen = new Set()
@@ -301,7 +306,7 @@ function exhibitionLinksForItem(itemId) {
 // SH adds a third level: an item can also be attached to a chapter
 // (subtheme). Walk one extra parent step: chapter → theme → exhibition.
 function chapterLinksForItem(itemId) {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   const links = []
   for (const c of collectionsContainingItem(itemId)) {

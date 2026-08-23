@@ -69,6 +69,20 @@ class CollectionResource extends Resource
         'region' => 'Region',
     ];
 
+    private const PURPOSE_OPTIONS = [
+        'exhibitions-root' => 'Exhibitions root',
+        'artistic-introduction-root' => 'Artistic introduction root',
+        'historical-profiles-root' => 'Historical profiles root',
+        'historical-background-root' => 'Historical background root',
+        'topics-root' => 'Topics root',
+        'galleries-root' => 'Galleries root',
+        'travels-root' => 'Travels root',
+        'explore-themes-root' => 'Explore themes root',
+        'explore-countries-root' => 'Explore countries root',
+        'explore-itineraries-root' => 'Explore itineraries root',
+        'national-context' => 'National context',
+    ];
+
     protected static ?string $model = Collection::class;
 
     protected static function changeParentModelClass(): string
@@ -166,6 +180,9 @@ class CollectionResource extends Resource
                         Select::make('type')
                             ->options(self::TYPE_OPTIONS)
                             ->required(),
+                        Select::make('purpose')
+                            ->options(self::PURPOSE_OPTIONS)
+                            ->nullable(),
                         Select::make('language_id')
                             ->label('Language')
                             ->relationship('language', 'internal_name')
@@ -246,6 +263,10 @@ class CollectionResource extends Resource
                 TextColumn::make('type')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('purpose')
+                    ->badge()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('parent_display_label')
                     ->label('Parent')
                     ->getStateUsing(function (Collection $record): ?string {
@@ -285,6 +306,8 @@ class CollectionResource extends Resource
                 ...static::translationCoverageFilters(),
                 SelectFilter::make('type')
                     ->options(self::TYPE_OPTIONS),
+                SelectFilter::make('purpose')
+                    ->options(self::PURPOSE_OPTIONS),
                 SelectFilter::make('parent_id')
                     ->label('Parent')
                     ->relationship('parent', 'internal_name')
@@ -366,6 +389,7 @@ class CollectionResource extends Resource
                     FiltersSection::make('Collection Filters')
                         ->schema([
                             $filters['type'],
+                            $filters['purpose'],
                             $filters['parent_id'],
                             $filters['partner'],
                             $filters['project'],
@@ -393,6 +417,8 @@ class CollectionResource extends Resource
                 InfolistSection::make('Core Information')
                     ->schema([
                         TextEntry::make('type'),
+                        TextEntry::make('purpose')
+                            ->placeholder('None'),
                         TextEntry::make('parent_display_label')
                             ->label('Parent')
                             ->getStateUsing(fn (Collection $record): ?string => $record->parent_id

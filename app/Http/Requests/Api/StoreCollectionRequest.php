@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Collection;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCollectionRequest extends FormRequest
 {
@@ -25,6 +27,16 @@ class StoreCollectionRequest extends FormRequest
         return [
             'internal_name' => ['required', 'string', 'max:255', 'unique:collections,internal_name'],
             'type' => ['required', 'in:collection,exhibition,gallery,theme,exhibition trail,itinerary,location,subtheme,region'],
+            'purpose' => [
+                'nullable',
+                'string',
+                Rule::in(Collection::PURPOSES),
+                // Section anchors ('*-root') are unique per context
+                Rule::when(
+                    str_ends_with((string) $this->input('purpose'), '-root'),
+                    [Rule::unique('collections', 'purpose')->where('context_id', $this->input('context_id'))]
+                ),
+            ],
             'language_id' => ['required', 'string', 'size:3', 'exists:languages,id'],
             'context_id' => ['required', 'string', 'exists:contexts,id'],
             'parent_id' => ['nullable', 'string', 'exists:collections,id'],

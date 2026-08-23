@@ -16,3 +16,5 @@ export { ShExhibitionItemJustificationsImporter } from './sh-exhibition-item-jus
 export { ShPartnerProjectLinkerImporter } from './sh-partner-project-linker-importer.js';
 export { ShHbGeneralImporter } from './sh-hb-general-importer.js';
 export { ShHbRecontextImporter } from './sh-hb-recontext-importer.js';
+export { ShHistoricalProfilesRootImporter } from './sh-historical-profiles-root-importer.js';
+export { CollectionPurposeBackfillImporter } from './collection-purpose-backfill-importer.js';

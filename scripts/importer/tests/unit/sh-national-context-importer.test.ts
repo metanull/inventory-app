@@ -13,6 +13,8 @@ describe('ShNationalContextImporter', () => {
   let queryMock: ReturnType<typeof vi.fn>;
   let writeCollectionMock: ReturnType<typeof vi.fn>;
   let writeCollectionItemMock: ReturnType<typeof vi.fn>;
+  let getCollectionPurposeMock: ReturnType<typeof vi.fn>;
+  let updateCollectionPurposeMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
     info: vi.fn(),
@@ -57,6 +59,8 @@ describe('ShNationalContextImporter', () => {
 
     writeCollectionMock = vi.fn().mockResolvedValue('nc-collection-uuid');
     writeCollectionItemMock = vi.fn().mockResolvedValue(undefined);
+    getCollectionPurposeMock = vi.fn().mockResolvedValue('national-context');
+    updateCollectionPurposeMock = vi.fn().mockResolvedValue(undefined);
 
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
@@ -66,6 +70,8 @@ describe('ShNationalContextImporter', () => {
       writeCollectionItem: writeCollectionItemMock,
       writeItemItemLink: vi.fn().mockResolvedValue('link-uuid'),
       writeItemItemLinkTranslation: vi.fn().mockResolvedValue(undefined),
+      getCollectionPurpose: getCollectionPurposeMock,
+      updateCollectionPurpose: updateCollectionPurposeMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -87,8 +93,25 @@ describe('ShNationalContextImporter', () => {
         country_id: 'pse',
         context_id: 'sh-context-uuid',
         parent_id: 'sh-exhibition-uuid',
+        purpose: 'national-context',
       })
     );
+    expect(result.success).toBe(true);
+  });
+
+  it('backfills purpose on an existing unpurposed overlay (#1505 ensure-semantics)', async () => {
+    tracker.set(
+      'mwnf3_sharing_history:sh_national_context_exhibitions:pa:1',
+      'existing-nc-uuid',
+      'collection'
+    );
+    getCollectionPurposeMock.mockResolvedValue(null);
+
+    const importer = new ShNationalContextImporter(context);
+    const result = await importer.import();
+
+    expect(writeCollectionMock).not.toHaveBeenCalled();
+    expect(updateCollectionPurposeMock).toHaveBeenCalledWith('existing-nc-uuid', 'national-context');
     expect(result.success).toBe(true);
   });
 

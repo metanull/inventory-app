@@ -27,6 +27,7 @@
  * Mapping (per SH project with exhibitions):
  * - internal_name = 'sh_exhibitions_root_{project_id lc}'
  * - type = 'collection'
+ * - purpose = 'exhibitions-root' (#1505; ensured on reruns over older DBs)
  * - parent_id = the SH project collection
  * - backward_compatibility = 'mwnf3_sharing_history:sh_exhibitions:root:{project_id lc}'
  * - each 'mwnf3_sharing_history:sh_exhibitions:{id}' collection → parent_id = root
@@ -135,8 +136,29 @@ export class ShExhibitionRootKeyingImporter extends BaseImporter {
 
     if (rootCollectionId) {
       this.logInfo(`Root collection already exists for ${projectKey} (${rootBackwardCompat})`);
-      result.skipped++;
-      this.showSkipped();
+      // Ensure-semantics (#1505): a marker created before the purpose column
+      // existed must still end up purposed, without a full re-import.
+      const currentPurpose = await this.context.strategy.getCollectionPurpose(rootCollectionId);
+      if (currentPurpose === null) {
+        if (this.isDryRun || this.isSampleOnlyMode) {
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would set purpose 'exhibitions-root' on ${rootBackwardCompat}`
+          );
+        } else {
+          await this.context.strategy.updateCollectionPurpose(rootCollectionId, 'exhibitions-root');
+          this.logInfo(`Set purpose 'exhibitions-root' on ${rootBackwardCompat}`);
+        }
+        result.imported++;
+        this.showProgress();
+      } else {
+        if (currentPurpose !== 'exhibitions-root') {
+          this.logWarning(
+            `Root collection ${rootBackwardCompat} already has purpose '${currentPurpose}', leaving it untouched`
+          );
+        }
+        result.skipped++;
+        this.showSkipped();
+      }
     } else {
       const internalName = `sh_exhibitions_root_${projectKey}`;
 
@@ -155,6 +177,7 @@ export class ShExhibitionRootKeyingImporter extends BaseImporter {
           language_id: defaultLanguageId,
           parent_id: projectCollectionId,
           type: 'collection',
+          purpose: 'exhibitions-root',
           latitude: null,
           longitude: null,
           map_zoom: null,

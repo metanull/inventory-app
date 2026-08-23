@@ -140,8 +140,24 @@ export class ProjectExhibitionRootKeyingImporter extends BaseImporter {
 
     if (rootCollectionId) {
       this.logInfo(`Root collection already exists for ${projectKey} (${rootBackwardCompat})`);
-      result.skipped++;
-      this.showSkipped();
+      // Ensure-semantics (#1505): a marker created before the purpose column
+      // existed must still end up purposed, without a full re-import.
+      const currentPurpose = await this.context.strategy.getCollectionPurpose(rootCollectionId);
+      if (currentPurpose === null) {
+        if (this.isDryRun || this.isSampleOnlyMode) {
+          this.logInfo(
+            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would set purpose 'exhibitions-root' on ${rootBackwardCompat}`
+          );
+        } else {
+          await this.context.strategy.updateCollectionPurpose(rootCollectionId, 'exhibitions-root');
+          this.logInfo(`Set purpose 'exhibitions-root' on ${rootBackwardCompat}`);
+        }
+        result.imported++;
+        this.showProgress();
+      } else {
+        result.skipped++;
+        this.showSkipped();
+      }
     } else {
       const internalName = `exhibitions_root_${projectKey.toLowerCase()}`;
 
@@ -160,6 +176,7 @@ export class ProjectExhibitionRootKeyingImporter extends BaseImporter {
           language_id: defaultLanguageId,
           parent_id: projectCollectionId,
           type: 'collection',
+          purpose: 'exhibitions-root',
           latitude: null,
           longitude: null,
           map_zoom: null,

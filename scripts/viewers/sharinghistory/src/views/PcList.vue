@@ -125,9 +125,9 @@ const availableChapters = computed(() => {
   return (theme?.chapters ?? []).map(c => ({ id: c.id, name: collectionTitle(c) }))
 })
 
-// Country-specific National Context variants hang under exhibitions but are
-// not part of the theme tree — keep their items out of exhibition scopes.
-const NC_BC_PREFIX = 'mwnf3_sharing_history:sh_national_context_'
+// Country-specific National Context variants (purpose "national-context",
+// #1505) hang under exhibitions but are not part of the theme tree — keep
+// their items out of exhibition scopes.
 
 const collectionById = computed(() => {
   const m = new Map()
@@ -155,7 +155,7 @@ function collectItemIds(collectionId) {
     if (!c) continue
     for (const entry of c.items ?? []) set.add(entry.id)
     for (const child of childrenByParent.value.get(id) ?? []) {
-      if (child.backward_compatibility?.startsWith(NC_BC_PREFIX)) continue
+      if (child.purpose === 'national-context') continue
       stack.push(child.id)
     }
   }

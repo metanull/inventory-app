@@ -30,6 +30,8 @@ class CollectionResource extends JsonResource
             'internal_name' => $this->internal_name,
             // The type of collection: 'collection', 'exhibition', or 'gallery'
             'type' => $this->type,
+            // The functional purpose of the collection within its context (e.g. 'exhibitions-root'), null for ordinary collections
+            'purpose' => $this->purpose,
             // The language this collection belongs to (LanguageResource id)
             'language_id' => $this->language_id,
             // The context this collection belongs to (ContextResource id)
