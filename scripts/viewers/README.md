@@ -35,12 +35,15 @@ ported between forks explicitly.
 - English translation files are loaded through `import.meta.glob` rather than
   literal imports: which `translations/<entity>.en.json` files exist varies
   by dataset/export, and a literal import of an absent file fails the build.
-- Exhibitions are resolved structurally from `collections.json`: children of
-  the marker collection with `backward_compatibility`
-  `mwnf3:exhibitions:root` (Islamic Art) or `mwnf3:exhibitions:root:<KEY>`
-  (other projects; created by the importer's
-  `project-exhibition-root-keying` step). Themes are an exhibition's
-  children, pages a theme's children.
+- Section anchors are resolved from `collections.json` via the `purpose`
+  field (#1505): exhibitions are the children of the collection with
+  `purpose: "exhibitions-root"`, the Islamic Art artistic introduction hangs
+  off `purpose: "artistic-introduction-root"`, Sharing History additionally
+  uses `historical-background-root` / `topics-root` /
+  `historical-profiles-root` / `national-context`. Themes are an
+  exhibition's children, pages a theme's children. The
+  `backward_compatibility` keys in the data are informational only — no
+  viewer parses them.
 
 ## Development
 
@@ -64,10 +67,16 @@ a `~/.npmrc` with a token that can read the `@metanull` scope.
 
 ## Deployment
 
-Each viewer has a GitHub Actions workflow (`workflow_dispatch`) that installs
-`@metanull/<dataset>-data@latest`, builds with `--base=/<dataset>/`, and
-copies `dist/` to `/opt/<dataset>/` on the OVH VPS over SSH. Nginx serves it
-from an alias block in `/etc/nginx/sites-available/inventory`:
+Each viewer has a GitHub Actions workflow that builds and ships it to the
+OVH VPS. It triggers on **any push to `main` touching
+`scripts/viewers/<dataset>/**`**, and on **manual dispatch**
+(`gh workflow run deploy-viewer-<dataset>-ovh.yml`, or the Actions UI). The
+workflow runs `npm ci`, then **always installs
+`@metanull/<dataset>-data@latest`** — deliberately overriding whatever the
+lockfile pins, so a deploy always reflects the newest published data —
+builds with `--base=/<dataset>/`, and copies `dist/` to `/opt/<dataset>/`
+over SSH. Nginx serves it from an alias block in
+`/etc/nginx/sites-available/inventory`:
 
 ```nginx
 location /<dataset> {
@@ -80,6 +89,20 @@ location /<dataset> {
 The workflow's `GITHUB_TOKEN` can only install the package if the package is
 linked to this repo and granted Actions access — see the publishing gotchas
 in [`../exporters/README.md`](../exporters/README.md).
+
+### Shipping a content (data-only) update
+
+1. Re-export and publish the data-package — one `npm run export -- --force
+   --publish` command per dataset; see
+   [`../exporters/README.md`](../exporters/README.md#build--publish-a-data-package-update-end-to-end).
+2. Dispatch the viewer's deploy workflow:
+   `gh workflow run deploy-viewer-<dataset>-ovh.yml`. Nothing needs to be
+   committed — the workflow installs `@latest` regardless of the lockfile.
+3. Verify the live URL (hard-refresh: the built JS bundle hash changes).
+
+The viewers' `package.json` pins (`^x.y.z`) only govern **local
+development**; keep them bumped to the latest published version so a fresh
+`npm install` + `npm run dev` matches what production shows.
 
 ## Adding a new dataset
 

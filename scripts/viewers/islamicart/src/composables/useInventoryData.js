@@ -113,19 +113,25 @@ const itemById = computed(() => {
   return m
 })
 
+// Section anchors are resolved by `purpose` (#1505) —
+// `backward_compatibility` is informational only and never parsed. The
+// export is scoped to one project context, within which each root purpose
+// occurs at most once.
+function findByPurpose(purpose) {
+  return collections.value.find(c => c.purpose === purpose) ?? null
+}
+
 // ── Artistic Introduction (legacy "gai") ──────────────────────────────────
 //
 // Imported as generic Collections, nested under a dedicated "Artistic
-// Introduction" marker collection (backward_compatibility
-// "mwnf3:artintro:root", a child of the Islamic Art project collection).
-// From that single, unambiguous anchor the rest of the tree — root, themes
-// (e.g. "The Umayyads"), pages (tabs within a theme, e.g. "Monuments" /
-// "Objects") — is just parent_id lookups, no internal_name guessing.
-
-const ARTINTRO_MARKER_BC = 'mwnf3:artintro:root'
+// Introduction" marker collection (purpose "artistic-introduction-root", a
+// child of the Islamic Art project collection). From that single,
+// unambiguous anchor the rest of the tree — root, themes (e.g. "The
+// Umayyads"), pages (tabs within a theme, e.g. "Monuments" / "Objects") —
+// is just parent_id lookups, no internal_name guessing.
 
 const artIntroRoot = computed(() => {
-  const marker = collections.value.find(c => c.backward_compatibility === ARTINTRO_MARKER_BC)
+  const marker = findByPurpose('artistic-introduction-root')
   if (!marker) return null
   return collections.value.find(c => c.parent_id === marker.id) ?? null
 })
@@ -151,20 +157,18 @@ function artIntroThemeById(id) {
 // ── Exhibitions ────────────────────────────────────────────────────────────
 //
 // Imported as generic Collections, nested under a dedicated "Virtual
-// Exhibitions" marker collection (backward_compatibility "mwnf3:exhibitions:root", a
-// child of the Islamic Art project collection) — needed because neither
-// type='exhibition' nor the mwnf3:exhibitions:{id} backward_compatibility
-// key are project-scoped in the legacy schema (shared with Baroque Art,
-// Sharing History, etc). From that anchor: exhibitions are its children,
-// themes are an exhibition's children, pages are a theme's children (tabs).
-// "Introduction" is not a theme — it's the exhibition's own translation
-// (extra.intro_header / extra.intro_text) plus items attached directly to
-// the exhibition collection itself (not to any theme/page).
-
-const EXHIBITIONS_MARKER_BC = 'mwnf3:exhibitions:root'
+// Exhibitions" marker collection (purpose "exhibitions-root", a child of
+// the Islamic Art project collection) — needed because type='exhibition'
+// alone is not project-scoped in the legacy schema (shared with Baroque
+// Art, Sharing History, etc). From that anchor: exhibitions are its
+// children, themes are an exhibition's children, pages are a theme's
+// children (tabs). "Introduction" is not a theme — it's the exhibition's
+// own translation (extra.intro_header / extra.intro_text) plus items
+// attached directly to the exhibition collection itself (not to any
+// theme/page).
 
 const exhibitions = computed(() => {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   return collections.value
     .filter(c => c.parent_id === marker.id)
@@ -223,7 +227,7 @@ function artIntroLinksForItem(itemId) {
 }
 
 function exhibitionLinksForItem(itemId) {
-  const marker = collections.value.find(c => c.backward_compatibility === EXHIBITIONS_MARKER_BC)
+  const marker = findByPurpose('exhibitions-root')
   if (!marker) return []
   const links = []
   const seen = new Set()

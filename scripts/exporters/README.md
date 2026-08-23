@@ -57,40 +57,65 @@ Entity files hold language-independent data (ids, relations, image URLs,
 display order); all human-readable text lives in `translations/`. Image URLs
 are absolute, built from `BASE_URL` (the inventory app's public storage).
 
-Exhibitions are identified structurally, not by type: children of the marker
-collection `mwnf3:exhibitions:root` (Islamic Art),
-`mwnf3:exhibitions:root:<KEY>` (other mwnf3 projects — created by the
-importer's `project-exhibition-root-keying` step), or
-`mwnf3_sharing_history:sh_exhibitions:root:<key>` (Sharing History —
-`sh-exhibition-root-keying` step, lowercase keys). Exhibitions whose legacy
-`show` flag is `'n'` (preserved in
+Section anchors (exhibitions root, artistic-introduction root, Historical
+Background/Profiles roots, National Context overlays, …) are identified by
+the `purpose` field on collections (#1505) — a controlled vocabulary set by
+the importer (`exhibitions-root`, `artistic-introduction-root`,
+`historical-profiles-root`, `national-context`, …), unique per context for
+`*-root` values. Viewers resolve sections **only** via `purpose`; the
+`backward_compatibility` keys still shipped alongside are informational.
+Exhibitions whose legacy `show` flag is `'n'` (preserved in
 `collection_translations.extra.legacy_exhibition.show`) are excluded from the
 package, as the legacy sites never listed them.
 
-## Running
+## Build + publish a data-package update (end to end)
+
+Prerequisites, one-time:
+
+- `.env` in the exporter directory (`cp .env.example .env` if present):
+  `DB_*` (the inventory DB — production is reached through the SSH tunnel,
+  `ssh -L 3307:localhost:3306 deploy@<vps>`, so `DB_HOST=127.0.0.1`,
+  `DB_PORT=3307`), `BASE_URL` (the public base URL of the inventory app's
+  storage, prepended to image paths in the exported JSON), and
+  `PACKAGE_REPO_URL=https://github.com/metanull/inventory-app` (see gotcha 1
+  below).
+- npm authentication for the `@metanull` scope on
+  `https://npm.pkg.github.com` (a PAT with `write:packages` in `~/.npmrc` or
+  the repo-root `.npmrc`).
+
+Then, per dataset (exports are **read-only**, but always check what `.env`
+points at first):
 
 ```bash
-cd scripts/exporters/<dataset>
-cp .env.example .env   # if present — DB_* (inventory DB), BASE_URL, PACKAGE_REPO_URL
-npm install
-npm run export -- --force            # export only
-npm run export -- --force --publish  # export + version bump + npm publish
-npm test                             # unit tests
+cd scripts/exporters/islamicart
+npm run export -- islamicart ISL EPM --force --publish --package-name @metanull/islamicart-data
 ```
 
-The CLI also accepts `[subdirectory] [project-keys...]`, `--output-dir`,
-`--base-url`, `--package-name`, `--package-version` and `--npm-registry`; run
-`npm run export -- --help` for the authoritative list. The production
-database is usually reached through an SSH tunnel (see the per-dataset
-README); exports are **read-only** but always check what `.env` points at
-before running.
+```bash
+cd scripts/exporters/baroqueart
+npm run export -- --force --publish
+```
 
-## Publishing (GitHub Packages)
+```bash
+cd scripts/exporters/sharinghistory
+npm run export -- --force --publish
+```
 
-`--publish` auto-increments the patch version persisted in
-`output/.version-<dataset>`, generates a `package.json` in the output
-directory, and runs `npm publish` against `https://npm.pkg.github.com/`
-(authentication via `~/.npmrc`). Details in each dataset's `NPM_PUBLISH.md`.
+(The islamicart fork is the oldest: its subdirectory/project-key arguments
+are required — the deployed package covers **both** `ISL` and `EPM` — and
+its default package name is `@mwnf/…`, so `--package-name` is required too.
+The baroqueart/sharinghistory forks default to the right values.)
+
+A single `--publish` run does everything: auto-increments the patch version
+persisted in `output/.version-<dataset>` (or use `--package-version` for an
+explicit semver), generates `package.json`/`README.md` in the output
+directory, and runs `npm publish` against GitHub Packages. There is **no**
+separate manual `npm publish` step. Details in each dataset's
+`NPM_PUBLISH.md`.
+
+Publishing is where the exporter's job ends — consumers install the package
+on their own schedule. (For updating the viewers in this repo after a
+publish, see [`../viewers/README.md`](../viewers/README.md#deployment).)
 
 Two gotchas, learned the hard way:
 
@@ -110,10 +135,12 @@ Two gotchas, learned the hard way:
 2. Prune exporters the dataset doesn't need; adjust the CLI defaults
    (`[subdirectory]`, default project keys, `--package-name`).
 3. If the project's exhibitions need a root marker, the importer's
-   `project-exhibition-root-keying` step already creates
-   `mwnf3:exhibitions:root:<KEY>` for every non-ISL project — run it
+   `project-exhibition-root-keying` step already creates one (with
+   `purpose: exhibitions-root`) for every non-ISL project — run it
    standalone with `--only` (see `../importer/README.md`), no full re-import
-   required.
+   required. On a database populated before #1505, run
+   `--only collection-purpose-backfill` once so all markers carry their
+   `purpose`.
 4. Validate counts against the legacy site/database before first publish
    (see `baroqueart/tools/legacy-validation.sql` for a worked example, and
    `.legacy-database/` for offline legacy dumps).

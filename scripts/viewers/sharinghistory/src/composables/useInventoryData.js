@@ -126,9 +126,8 @@ const itemById = computed(() => {
 // datasets — a theme's children are SUBTHEMES ("Chapters" in the legacy UI),
 // a full third narrative level with its own intro, quotation and item grid.
 //
-// Section anchors are resolved by `purpose` (requires
-// @metanull/sharinghistory-data >= 1.2.0); backward_compatibility is
-// informational only and never load-bearing here.
+// Section anchors are resolved by `purpose` (#1505); backward_compatibility
+// is informational only and never load-bearing here.
 
 // The data package is single-context (one SH project), so each `*-root`
 // purpose occurs at most once.

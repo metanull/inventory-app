@@ -116,6 +116,22 @@ A **Collection** is a virtual grouping of items. Collections are the primary mec
 | `itinerary`        | A geographic or thematic tour                     |
 | `location`         | A grouping based on a physical location           |
 
+#### Collection purpose
+
+Independently of its `type`, a collection can carry a **purpose**: a value from a controlled vocabulary identifying the structural role the collection plays in a published website. Most collections have no purpose (`purpose` is `null` — the norm); it is set only on the "marker" collections that anchor a section of a site, and on the National Context overlays.
+
+| Purpose                                                                            | Role                                                                                          |
+| ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `exhibitions-root`                                                                 | Parent of a project's virtual exhibitions                                                     |
+| `artistic-introduction-root`                                                       | Parent of the Artistic Introduction tree (Islamic Art)                                        |
+| `historical-background-root`                                                       | Parent of the general Historical Background essays (Sharing History)                          |
+| `topics-root`                                                                      | Parent of the Historical Background "Read more" topics (Sharing History)                      |
+| `historical-profiles-root`                                                         | Parent of the per-country Historical Profiles (Sharing History)                               |
+| `galleries-root` / `travels-root` / `explore-themes-root` / `explore-countries-root` / `explore-itineraries-root` | Parents of the corresponding Explore Islamic Art sections |
+| `national-context`                                                                 | A National Context overlay collection (may occur many times)                                  |
+
+`*-root` purposes are unique per context; `national-context` may repeat. The purpose is assigned by the data importer when it creates these marker collections (and by its one-off `collection-purpose-backfill` step on databases populated before the field existed). Data exporters pass `purpose` through to the published data-packages, and the public viewers resolve their section anchors **exclusively** through it — it replaces the earlier practice of parsing `backward_compatibility` keys, which are now informational only.
+
 #### Collection hierarchy
 
 Collections can have a parent collection, creating a tree structure of unlimited depth. For example, an exhibition might contain several sub-galleries, each of which is itself a collection.

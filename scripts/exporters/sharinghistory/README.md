@@ -3,31 +3,28 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package (`@metanull/sharinghistory-data`) via GitHub
-Packages, which is how [`scripts/viewers/sharinghistory`](../../viewers/sharinghistory/README.md)
-and the deployed Sharing History site consume it.
+output as a private npm package (`@metanull/sharinghistory-data`) on GitHub
+Packages, for any consumer to install.
 
-Exporters are forked per dataset (`scripts/exporters/<dataset>`): this is the
-Sharing History fork of the [baroqueart exporter](../baroqueart/README.md)
-(itself a fork of [islamicart](../islamicart/README.md)).
+This exporter produces the Sharing History data-package (one exporter per
+dataset lives under `scripts/exporters/<dataset>`).
 
-## Differences from baroqueart-data
+## The SH data-package
 
-The SH data-package is shaped by what the Sharing History dataset actually
-contains — consistency with the sibling packages is kept where the data
-allows, not forced:
+The package is shaped by what the Sharing History dataset actually contains:
 
-- **Different keyspace** — Sharing History has its own legacy database;
+- **Keyspace** — Sharing History has its own legacy database;
   project keys resolve through `mwnf3_sharing_history:sh_projects:{key}`
   with **lowercase** keys. Default project key: `awe` ("Arab World – Europe",
   the single real SH project — `rus`/`usa` are legacy test placeholders).
 - **3-level exhibitions** — `collections.json` carries
-  exhibition → theme → **subtheme** ("Chapter" in the legacy UI); no other
-  dataset has the third level. The exhibitions root marker is
-  `mwnf3_sharing_history:sh_exhibitions:root:awe` (importer step
-  `sh-exhibition-root-keying`).
+  exhibition → theme → **subtheme** ("Chapter" in the legacy UI). The
+  exhibitions root marker carries `purpose: "exhibitions-root"` (importer
+  step `sh-exhibition-root-keying`; legacy key
+  `mwnf3_sharing_history:sh_exhibitions:root:awe` kept as informational
+  `backward_compatibility`).
 - **`display_status` on items** — `'N'` marks the ~462 items legacy kept
-  only to illustrate Historical Background / timeline pages; viewers must
+  only to illustrate Historical Background / timeline pages; consumers must
   exclude them from database search and Permanent Collection browse (`'A'`
   is the default).
 - **Dual justifications on collection items** — collection item entries can
@@ -43,9 +40,10 @@ allows, not forced:
   `timeline_events.json` entries can carry `item_extras` (legacy per-item
   caption texts from `sh_hcr_image_texts`).
 - **Historical Background / National Context** — exported as regular
-  collections (children of the project collection); viewers resolve them
-  structurally by backward-compatibility prefix
-  (`mwnf3_sharing_history:sh_countries_historicalbackground…`).
+  collections (children of the project collection); consumers resolve them
+  via the `purpose` field (`historical-background-root` / `topics-root` /
+  `historical-profiles-root` / `national-context`, #1505), never by parsing
+  `backward_compatibility`.
 - **Item translations spread their `extra`** — the SH importer stores a
   wider, item-type-dependent field set in `item_translations.extra`
   (archival, materials, artist + artist_* details, notices,
@@ -53,8 +51,8 @@ allows, not forced:
   translation files include all of them (dedicated columns win on
   collision).
 - **No dynasty exporter** — SH has no dynasty entity (free-text field only).
-- **Glossary kept** — SH content carries ~2,800 glossary spelling links
-  (usage-scoped, like the siblings).
+- **Glossary** — SH content carries ~2,800 usage-scoped glossary spelling
+  links.
 - **Multilingual** — every translation present for the SH context is
   exported. In practice `en` is complete and `fr` a substantial partial
   (~16% of item texts); other languages are scraps.
@@ -66,14 +64,16 @@ cd scripts/exporters/sharinghistory
 npm install                # first run only
 npm run export -- `
   --force `
-  --base-url https://inventory.metanull.eu `
   --publish
-cd output/sharinghistory && npm publish
 ```
 
 Defaults: subdirectory `sharinghistory`, project key `awe`, package name
-`@metanull/sharinghistory-data`. (`--package-version` is optional — omit it to
-auto-increment instead; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
+`@metanull/sharinghistory-data`. Image URLs in the exported JSON are built
+from `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in
+one go: version bump, `package.json`/`README.md` generation, and the actual
+`npm publish` — no separate manual publish step. (`--package-version` is
+optional — omit it to auto-increment instead; see
+[`NPM_PUBLISH.md`](NPM_PUBLISH.md).)
 
 ## What it exports
 
@@ -162,15 +162,14 @@ inventory-app DB
 scripts/exporters/sharinghistory  ──npm publish──▶  @metanull/sharinghistory-data (GitHub Packages)
                                                        │  npm install
                                                        ▼
-                                          scripts/viewers/sharinghistory (or any consumer)
+                                                 any consumer
 ```
 
-The exporter and the viewer are decoupled entirely through the published
-package — the viewer never talks to the exporter or the database directly,
-it just depends on whatever version of the data package is installed.
-Routine content updates mean: re-export with `--publish --force`, `npm
-publish`, then either let the viewer's deploy workflow pick up `@latest`
-automatically or bump it manually for other consumers.
+The exporter and its consumers are decoupled entirely through the published
+package — a consumer never talks to the exporter or the database, it just
+depends on whatever version of the data package it installs. A routine
+content update is one re-export with `--publish --force` (which publishes by
+itself); consumers pick the new version up on their own schedule.
 
 ## Troubleshooting
 
