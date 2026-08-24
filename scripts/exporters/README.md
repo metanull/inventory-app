@@ -15,7 +15,7 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 
 | Directory | Legacy project | Package | Consumed by |
 |---|---|---|---|
-| [`islamicart/`](islamicart/README.md) | `ISL` (+ `EPM` extras) | `@metanull/islamicart-data` | `scripts/viewers/islamicart` |
+| [`islamicart/`](islamicart/README.md) | `ISL` + `EPM` (one dataset) | `@metanull/islamicart-data` | `scripts/viewers/islamicart` |
 | [`baroqueart/`](baroqueart/README.md) | `BAR` | `@metanull/baroqueart-data` | `scripts/viewers/baroqueart` |
 | [`sharinghistory/`](sharinghistory/README.md) | `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
 
@@ -84,30 +84,19 @@ Prerequisites, one-time:
   the repo-root `.npmrc`).
 
 Then, per dataset (exports are **read-only**, but always check what `.env`
-points at first):
+points at first) — the command is identical in all three directories:
 
 ```bash
-cd scripts/exporters/islamicart
-npm run export -- islamicart ISL EPM --force --publish --package-name @metanull/islamicart-data
-```
-
-```bash
-cd scripts/exporters/baroqueart
+cd scripts/exporters/<dataset>
 npm run export -- --force --publish
 ```
 
-```bash
-cd scripts/exporters/sharinghistory
-npm run export -- --force --publish
-```
-
-(The islamicart fork is the oldest: its subdirectory/project-key arguments
-are required and its default package name is `@mwnf/…`, so `--package-name`
-is required too; the baroqueart/sharinghistory forks default to the right
-values. ⚠ The islamicart package covers **both** `ISL` and `EPM` — an
-export with `ISL` alone completes without error but silently drops 29
-collections; see the warning in
-[`islamicart/README.md`](islamicart/README.md).)
+Each exporter is single-purpose: its dataset scope — output subdirectory,
+project keys, package name — is hardcoded in its `src/cli/export.ts`, and
+the CLI takes no scope arguments (passing any is an error). In particular
+the islamicart exporter unconditionally exports **both** `ISL` and `EPM`:
+they are one dataset, and an ISL-only export would silently drop 29
+collections (see [`islamicart/README.md`](islamicart/README.md)).
 
 A single `--publish` run does everything: auto-increments the patch version
 persisted in `output/.version-<dataset>` (or use `--package-version` for an
@@ -135,8 +124,9 @@ Two gotchas, learned the hard way:
 ## Adding a new dataset
 
 1. Copy the closest existing exporter directory to `scripts/exporters/<name>`.
-2. Prune exporters the dataset doesn't need; adjust the CLI defaults
-   (`[subdirectory]`, default project keys, `--package-name`).
+2. Prune exporters the dataset doesn't need; set the hardcoded dataset
+   constants in `src/cli/export.ts` (`SUBDIRECTORY`, `PROJECT_KEYS`,
+   `PACKAGE_NAME`).
 3. If the project's exhibitions need a root marker, the importer's
    `project-exhibition-root-keying` step already creates one (with
    `purpose: exhibitions-root`) for every non-ISL project — run it

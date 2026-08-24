@@ -13,7 +13,7 @@ per dataset lives under `scripts/exporters/<dataset>`).
 
 The package is shaped by what the Baroque Art dataset actually contains:
 
-- **Single project key** — defaults to `BAR`; there is no companion project.
+- **Single project key** — hardcoded to `BAR`; there is no companion project.
 - **No dynasties** — the Baroque Art dataset has no dynasty entity, so there
   is no `dynasties.json` and no `translations/dynasties.*`.
 - **Exhibitions root** — the collection export includes the per-project
@@ -39,8 +39,10 @@ npm run export -- `
   --publish
 ```
 
-Defaults: subdirectory `baroqueart`, project key `BAR`, package name
-`@metanull/baroqueart-data`. Image URLs in the exported JSON are built from
+The dataset scope is hardcoded — this exporter is single-purpose and takes
+no scope arguments: it always exports the `BAR` project to
+`output/baroqueart/` as `@metanull/baroqueart-data`. Image URLs in the
+exported JSON are built from
 `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
 go: version bump, `package.json`/`README.md` generation, and the actual
 `npm publish` — no separate manual publish step. (`--package-version` is
@@ -50,7 +52,7 @@ optional — omit it to auto-increment instead; see
 ## What it exports
 
 One JSON file per entity type, plus a manifest and per-language translation
-files, written to `output/<subdirectory>/`:
+files, written to `output/baroqueart/`:
 
 | File | Exporter | Contents |
 |---|---|---|
@@ -70,13 +72,13 @@ Every JSON file is also written gzip-compressed (`.json.gz`) alongside the
 plain version — the compressed copies aren't part of the npm package (see
 below) but are there for CDN/static-hosting use.
 
-### Scoping to specific projects
+### Project scoping
 
-Export is always scoped to one or more legacy project keys (default `BAR`),
-resolved against `projects.backward_compatibility` (`mwnf3:projects:{KEY}`).
-The same keys resolve a matching set of context IDs, used internally to
-exclude explore-context translations from overwriting the canonical project
-translations for items/collections.
+The export is scoped to the hardcoded project key `BAR`, resolved against
+`projects.backward_compatibility` (`mwnf3:projects:{KEY}`) — nothing else in
+the database is exported. The same key resolves a matching set of context
+IDs, used internally to exclude explore-context translations from
+overwriting the canonical project translations for items/collections.
 
 ## Configure
 
@@ -97,18 +99,18 @@ cp .env.example .env
 ## Usage
 
 ```bash
-npm run export -- [subdirectory] [project-keys...] [options]
+npm run export -- [options]
 ```
 
 ```bash
-# Standard export (defaults: baroqueart BAR)
-npm run export --
+# Standard export
+npm run export -- --force
 
 # Custom output location and image base URL
-npm run export -- --output-dir /tmp/export --base-url https://cdn.example.com/storage
+npm run export -- --force --output-dir /tmp/export --base-url https://cdn.example.com/storage
 
 # Export, bump the package version, generate package.json/README.md, and publish
-npm run export -- --publish
+npm run export -- --force --publish
 ```
 
 | Option | Description |
@@ -117,7 +119,6 @@ npm run export -- --publish
 | `--output-dir <path>` | Base output directory (default: `output`, relative to cwd) |
 | `--base-url <url>` | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`) |
 | `--publish` | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
-| `--package-name <name>` | Override the package name (default: `@metanull/baroqueart-data`) |
 | `--package-version <semver>` | Set an explicit version instead of auto-incrementing |
 | `--npm-registry <url>` | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages) |
 
@@ -146,7 +147,7 @@ itself); consumers pick the new version up on their own schedule.
 ## Troubleshooting
 
 **`Output directory already exists`** — pass `--force` to overwrite it, or
-pick a different `--output-dir`/subdirectory.
+pick a different `--output-dir`.
 
 **Export completes with `EXPORT COMPLETED WITH ERRORS`** — one or more
 exporters failed independently (the CLI continues through all exporters

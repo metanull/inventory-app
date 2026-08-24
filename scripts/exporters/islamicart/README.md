@@ -14,33 +14,29 @@ per dataset lives under `scripts/exporters/<dataset>`).
 ```powershell
 cd scripts/exporters/islamicart
 npm install                # first run only
-npm run export -- islamicart ISL EPM `
+npm run export -- `
   --force `
-  --publish `
-  --package-name @metanull/islamicart-data
+  --publish
 ```
 
-> **⚠ Always export with both project keys: `ISL EPM`.** The
-> `@metanull/islamicart-data` package covers `ISL` (Discover Islamic Art)
-> **and** `EPM` (Explore Islamic Art Collections). An export with `ISL`
-> alone **completes without any error but silently drops 29 collections**
-> (the EPM project collection and all `partner_group:museums:*`
-> collections) — a wrong package that only shows up as missing content
-> downstream. Sanity check before publishing: `manifest.json` must list
-> `"projectKeys": ["ISL", "EPM"]`.
+The dataset scope is hardcoded — this exporter is single-purpose and takes
+no scope arguments: it always exports the projects `ISL` (Discover Islamic
+Art) **and** `EPM` (Explore Islamic Art Collections) together as
+`@metanull/islamicart-data`. They are one dataset: an ISL-only export would
+silently drop the EPM project collection and every `partner_group:museums:*`
+collection, which is exactly why the keys are not configurable.
+`manifest.json` always lists `"projectKeys": ["ISL", "EPM"]`.
 
-`--package-name` is required because this exporter's built-in default is
-`@mwnf/{subdirectory}-data`. Image URLs in the exported JSON are built from
-`BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
-go: version bump, `package.json`/`README.md` generation, and the actual
-`npm publish` (no separate manual publish step). `--package-version` is
-optional — omit it to auto-increment the patch version; see
-[`NPM_PUBLISH.md`](NPM_PUBLISH.md).
+Image URLs in the exported JSON are built from `BASE_URL` in `.env` (or
+`--base-url`). `--publish` does everything in one go: version bump,
+`package.json`/`README.md` generation, and the actual `npm publish` (no
+separate manual publish step). `--package-version` is optional — omit it to
+auto-increment the patch version; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).
 
 ## What it exports
 
 One JSON file per entity type, plus a manifest and per-language translation
-files, written to `output/<subdirectory>/`:
+files, written to `output/islamicart/`:
 
 | File | Exporter | Contents |
 |---|---|---|
@@ -60,14 +56,13 @@ Every JSON file is also written gzip-compressed (`.json.gz`) alongside the
 plain version — the compressed copies aren't part of the npm package (see
 below) but are there for CDN/static-hosting use.
 
-### Scoping to specific projects
+### Project scoping
 
-Export is always scoped to one or more legacy project keys (e.g. `ISL`,
-`WHS`), resolved against `projects.backward_compatibility` (`mwnf3:projects:
-{KEY}`) — not every project in the database gets exported by default. The
-same keys resolve a matching set of context IDs, used internally to exclude
-explore-context translations from overwriting the canonical project
-translations for items/collections.
+The export is scoped to the hardcoded project keys `ISL` and `EPM`, resolved
+against `projects.backward_compatibility` (`mwnf3:projects:{KEY}`) — nothing
+else in the database is exported. The same keys resolve a matching set of
+context IDs, used internally to exclude explore-context translations from
+overwriting the canonical project translations for items/collections.
 
 ## Configure
 
@@ -88,21 +83,18 @@ cp .env.example .env
 ## Usage
 
 ```bash
-npm run export -- <subdirectory> <project-key> [more-project-keys...] [options]
+npm run export -- [options]
 ```
 
 ```bash
-# The islamicart data-package (always both keys — see the warning above)
-npm run export -- islamicart ISL EPM
+# Standard export
+npm run export -- --force
 
 # Custom output location and image base URL
-npm run export -- islamicart ISL EPM --output-dir /tmp/export --base-url https://cdn.example.com/storage
+npm run export -- --force --output-dir /tmp/export --base-url https://cdn.example.com/storage
 
 # Export, bump the package version, generate package.json/README.md, and publish
-npm run export -- islamicart ISL EPM --publish --package-name @metanull/islamicart-data
-
-# Any other subdirectory/key combination is possible for ad-hoc exports
-npm run export -- combined ISL WHS
+npm run export -- --force --publish
 ```
 
 | Option | Description |
@@ -111,7 +103,6 @@ npm run export -- combined ISL WHS
 | `--output-dir <path>` | Base output directory (default: `output`, relative to cwd) |
 | `--base-url <url>` | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`) |
 | `--publish` | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
-| `--package-name <name>` | Override the package name (default: `@mwnf/{subdirectory}-data`) |
 | `--package-version <semver>` | Set an explicit version instead of auto-incrementing |
 | `--npm-registry <url>` | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages) |
 
@@ -136,20 +127,18 @@ package — a consumer never talks to the exporter or the database, it just
 depends on whatever version of the data package it installs. A routine
 content update is one re-export with `--publish --force` (which publishes by
 itself); consumers pick the new version up on their own schedule.
-`@metanull/islamicart-data` is the package name in use today; the code's own
-default naming (`@mwnf/{subdirectory}-data`, see the option table above) is
-there for anyone exporting a differently-scoped or differently-named
-package.
 
 ## Troubleshooting
 
 **Content missing from the package (e.g. the "Explore Islamic Art
-Collections" project or `partner_group:*` collections)** — the export was
-run with `ISL` only. It must be run with **both** keys, `ISL EPM` (see the
-warning at the top); check `manifest.json`'s `projectKeys` and re-export.
+Collections" project or `partner_group:*` collections)** — the installed
+package predates the exporter hardcoding its `ISL EPM` scope and was
+exported with `ISL` only; check `manifest.json`'s `projectKeys` (must be
+`["ISL", "EPM"]`) and re-export/republish — the current exporter cannot
+produce a wrongly-scoped package.
 
 **`Output directory already exists`** — pass `--force` to overwrite it, or
-pick a different `--output-dir`/subdirectory.
+pick a different `--output-dir`.
 
 **Export completes with `EXPORT COMPLETED WITH ERRORS`** — one or more
 exporters failed independently (the CLI continues through all exporters
