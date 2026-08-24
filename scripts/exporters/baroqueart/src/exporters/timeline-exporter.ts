@@ -120,14 +120,17 @@ export class TimelineExporter extends BaseExporter {
          ORDER BY timeline_event_id, display_order`,
         eventIds
       ),
-      // Items linked to these events, restricted to non-picture items from the project
+      // Items linked to these events, restricted to items that exist as
+      // top-level rows in items.json — 'picture' and 'detail' children are
+      // embedded on their parent there (#1515), so a link pointing at one
+      // would dangle.
       this.db.query<TimelineEventItemRow>(
         `SELECT tei.timeline_event_id, tei.item_id, tei.display_order
          FROM timeline_event_item tei
          JOIN items i ON i.id = tei.item_id
          WHERE tei.timeline_event_id IN (${eventPh})
            AND i.project_id IN (${ph})
-           AND i.type IN ('object', 'monument', 'detail')
+           AND i.type IN ('object', 'monument')
          ORDER BY tei.timeline_event_id, tei.display_order`,
         [...eventIds, ...this.projectIds]
       ),
@@ -159,7 +162,10 @@ export class TimelineExporter extends BaseExporter {
     await this.writeTranslationFiles('timeline_events', byLang)
 
     // event_id -> images[]
-    const imageMap = new Map<string, { url: string; alt_text: string | null; display_order: number }[]>()
+    const imageMap = new Map<
+      string,
+      { url: string; alt_text: string | null; display_order: number }[]
+    >()
     for (const img of images) {
       if (!imageMap.has(img.timeline_event_id)) imageMap.set(img.timeline_event_id, [])
       imageMap.get(img.timeline_event_id)!.push({
@@ -193,7 +199,9 @@ export class TimelineExporter extends BaseExporter {
 
     await this.writeJson('timelines.json', this.buildTimelineOutput(timelines))
     await this.writeJson('timeline_events.json', eventOutput)
-    this.logger.success(`timelines.json (${timelines.length} timelines, ${eventOutput.length} events)`)
+    this.logger.success(
+      `timelines.json (${timelines.length} timelines, ${eventOutput.length} events)`
+    )
 
     return { file: 'timelines.json', count: timelines.length }
   }

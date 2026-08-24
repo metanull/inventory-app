@@ -114,7 +114,11 @@ export class ItemExporter extends BaseExporter {
 
     const ph = this.placeholders(this.projectIds.length)
 
-    // Exclude 'picture' child items — those are exported as images on their parent.
+    // Exclude 'picture' child items — those are exported as images on their
+    // parent. 'detail' is excluded for symmetry with the baroqueart exporter
+    // (metanull/inventory-app#1515: the legacy sites never displayed
+    // monument details as items); ISL/EPM have zero detail rows, so this
+    // changes no data.
     const items = await this.db.query<ItemRow>(
       `SELECT id, type, internal_name, backward_compatibility, parent_id,
               partner_id, country_id, collection_id, project_id,
@@ -122,7 +126,7 @@ export class ItemExporter extends BaseExporter {
               display_order, latitude, longitude
        FROM items
        WHERE project_id IN (${ph})
-         AND type IN ('object', 'monument', 'detail')
+         AND type IN ('object', 'monument')
        ORDER BY type, display_order, internal_name`,
       this.projectIds
     )
@@ -146,7 +150,9 @@ export class ItemExporter extends BaseExporter {
     // per context, by design — contexts are additive, not overlapping
     // duplicates). Used below to know which row is the item's primary
     // translation vs. a secondary one (see short_description handling).
-    const itemProjectIds = [...new Set(items.map(i => i.project_id).filter((p): p is string => !!p))]
+    const itemProjectIds = [
+      ...new Set(items.map(i => i.project_id).filter((p): p is string => !!p)),
+    ]
     const itemOwnContext = new Map<string, string>()
     if (itemProjectIds.length > 0) {
       const projectRows = await this.db.query<{ id: string; context_id: string | null }>(
@@ -215,7 +221,15 @@ export class ItemExporter extends BaseExporter {
     }
 
     // ── 3. Dynasty, tag, glossary, artist, THG gallery, media, and item-item links ──
-    const [dynastyLinks, tagLinks, glossaryLinks, artistLinks, thgGalleryLinks, mediaRows, itemItemLinks] = await Promise.all([
+    const [
+      dynastyLinks,
+      tagLinks,
+      glossaryLinks,
+      artistLinks,
+      thgGalleryLinks,
+      mediaRows,
+      itemItemLinks,
+    ] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -311,7 +325,8 @@ export class ItemExporter extends BaseExporter {
       const code = key.slice(sep + 1)
 
       const ownContext = itemOwnContext.get(itemId)
-      const ownRow = (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
+      const ownRow =
+        (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
       const otherRow = rows.find(r => r !== ownRow)
 
       // Fields without a dedicated column live in item_translations.extra JSON.

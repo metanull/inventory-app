@@ -114,7 +114,12 @@ export class ItemExporter extends BaseExporter {
 
     const ph = this.placeholders(this.projectIds.length)
 
-    // Exclude 'picture' child items — those are exported as images on their parent.
+    // Only 'object' and 'monument' become top-level rows. The legacy site
+    // never displayed monument details as items (browse unions objects +
+    // monuments only; search surfaces the PARENT monument for a detail-text
+    // hit) — details are embedded as details[] on their parent monument
+    // below (metanull/inventory-app#1515). 'picture' child items are
+    // likewise excluded — those are exported as images on their parent.
     const items = await this.db.query<ItemRow>(
       `SELECT id, type, internal_name, backward_compatibility, parent_id,
               partner_id, country_id, collection_id, project_id,
@@ -122,7 +127,7 @@ export class ItemExporter extends BaseExporter {
               display_order, latitude, longitude
        FROM items
        WHERE project_id IN (${ph})
-         AND type IN ('object', 'monument', 'detail')
+         AND type IN ('object', 'monument')
        ORDER BY type, display_order, internal_name`,
       this.projectIds
     )
@@ -146,7 +151,9 @@ export class ItemExporter extends BaseExporter {
     // per context, by design — contexts are additive, not overlapping
     // duplicates). Used below to know which row is the item's primary
     // translation vs. a secondary one (see short_description handling).
-    const itemProjectIds = [...new Set(items.map(i => i.project_id).filter((p): p is string => !!p))]
+    const itemProjectIds = [
+      ...new Set(items.map(i => i.project_id).filter((p): p is string => !!p)),
+    ]
     const itemOwnContext = new Map<string, string>()
     if (itemProjectIds.length > 0) {
       const projectRows = await this.db.query<{ id: string; context_id: string | null }>(
@@ -159,6 +166,87 @@ export class ItemExporter extends BaseExporter {
       for (const item of items) {
         const ctx = item.project_id ? projectContextMap.get(item.project_id) : undefined
         if (ctx) itemOwnContext.set(item.id, ctx)
+      }
+    }
+
+    // ── 1a. Monument details (embedded, never top-level) ─────────────────────
+    // Legacy semantics (#1515): monument_details render only inline as the
+    // parent monument's "Special Features" section; browse and search never
+    // list them. They are fetched here and folded into details[] on the
+    // parent item below.
+    const detailRows = await this.db.query<DetailRow>(
+      `SELECT id, internal_name, backward_compatibility, parent_id, display_order
+       FROM items
+       WHERE project_id IN (${ph})
+         AND type = 'detail'
+       ORDER BY parent_id, display_order, internal_name`,
+      this.projectIds
+    )
+
+    // Some details were imported with parent_id = null (the importer logs
+    // "Parent monument not found" and keeps going). Their legacy key still
+    // names the parent monument, so recover the link via
+    // backward_compatibility; anything still unresolved is dropped with a
+    // warning — parent-less details are never exported.
+    const {
+      byParent: detailsByParent,
+      orphans: orphanDetails,
+      recovered: recoveredDetails,
+    } = resolveDetailParents(detailRows, items)
+    if (recoveredDetails.length > 0) {
+      this.logger.info(
+        `Recovered ${recoveredDetails.length} detail(s) with parent_id=null via backward_compatibility`
+      )
+    }
+    if (orphanDetails.length > 0) {
+      const sample = orphanDetails
+        .slice(0, 5)
+        .map(d => d.backward_compatibility ?? d.id)
+        .join(', ')
+      this.logger.warning(
+        `Dropping ${orphanDetails.length} orphan detail(s) with no resolvable parent monument (e.g. ${sample})`
+      )
+    }
+    const embeddedDetails = [...detailsByParent.values()].flat()
+    const detailIds = embeddedDetails.map(d => d.id)
+
+    // The importer stores detail translations under the DEFAULT context
+    // (monument-detail-importer.ts writes context_id = defaultContextId),
+    // not the project context the main translation query filters on — the
+    // deliberate exporter-side fix for #1515's translation-context gap is to
+    // read the default-context rows here. A project-context row still wins
+    // when one exists, so a later importer alignment needs no exporter change.
+    let detailTranslations: DetailTranslationRow[] = []
+    if (detailIds.length > 0) {
+      const defaultContextRows = await this.db.query<{ id: string }>(
+        `SELECT id FROM contexts WHERE is_default = 1`
+      )
+      const detailContextIds = [...new Set([...contextIds, ...defaultContextRows.map(r => r.id)])]
+      detailTranslations = await this.db.query<DetailTranslationRow>(
+        `SELECT item_id, language_id, context_id, name, description, dates, location
+         FROM item_translations
+         WHERE item_id IN (${this.placeholders(detailIds.length)})
+           AND context_id IN (${this.placeholders(detailContextIds.length)})`,
+        [...detailIds, ...detailContextIds]
+      )
+    }
+
+    // detail_id -> lang_code -> fields (project-context row wins over default)
+    const detailTransMap = new Map<string, Record<string, Record<string, unknown>>>()
+    const detailLangFromProjectContext = new Set<string>()
+    for (const t of detailTranslations) {
+      const code = langCodeMap.get(t.language_id)
+      if (!code) continue
+      const key = `${t.item_id} ${code}`
+      const isProjectContext = contextIds.includes(t.context_id)
+      if (detailLangFromProjectContext.has(key) && !isProjectContext) continue
+      if (isProjectContext) detailLangFromProjectContext.add(key)
+      if (!detailTransMap.has(t.item_id)) detailTransMap.set(t.item_id, {})
+      detailTransMap.get(t.item_id)![code] = {
+        name: t.name,
+        description: t.description,
+        dates: t.dates,
+        location: t.location,
       }
     }
 
@@ -192,15 +280,19 @@ export class ItemExporter extends BaseExporter {
     //   - item_images.path     → the file path
     //   - item_translations.description (caption, per language)
     //   - item_translations.extra JSON { photographer, copyright }
+    // Embedded details own picture children too (monument_detail_pictures →
+    // 'picture' items under the detail), so their ids join the parent list;
+    // the shared imageMap below then serves items and details alike.
+    const itemAndDetailIds = [...itemIds, ...detailIds]
     const pictureItems = await this.db.query<PictureItemRow>(
       `SELECT pic.id AS picture_id, pic.parent_id AS item_id,
               pic.display_order, ii.path, ii.alt_text
        FROM items pic
        JOIN item_images ii ON ii.item_id = pic.id
        WHERE pic.type = 'picture'
-         AND pic.parent_id IN (${itemPh})
+         AND pic.parent_id IN (${this.placeholders(itemAndDetailIds.length)})
        ORDER BY pic.parent_id, pic.display_order`,
-      itemIds
+      itemAndDetailIds
     )
 
     let pictureTranslations: PictureTranslationRow[] = []
@@ -215,7 +307,15 @@ export class ItemExporter extends BaseExporter {
     }
 
     // ── 3. Dynasty, tag, glossary, artist, THG gallery, media, and item-item links ──
-    const [dynastyLinks, tagLinks, glossaryLinks, artistLinks, thgGalleryLinks, mediaRows, itemItemLinks] = await Promise.all([
+    const [
+      dynastyLinks,
+      tagLinks,
+      glossaryLinks,
+      artistLinks,
+      thgGalleryLinks,
+      mediaRows,
+      itemItemLinks,
+    ] = await Promise.all([
       this.db.query<ItemDynastyRow>(
         `SELECT item_id, dynasty_id FROM item_dynasty WHERE item_id IN (${itemPh})`,
         itemIds
@@ -240,12 +340,14 @@ export class ItemExporter extends BaseExporter {
       // Object artists (legacy `artist_` text, parsed into structured Artist
       // entities by the importer). Language-independent — `artists.name` has
       // no language column — so this is a top-level item field, not per-translation.
+      // Embedded details carry artists too (legacy monument_details.artist),
+      // so their ids are included; the shared artistMap serves both.
       this.db.query<ItemArtistRow>(
         `SELECT ai.item_id, a.name
          FROM artist_item ai
          JOIN artists a ON a.id = ai.artist_id
-         WHERE ai.item_id IN (${itemPh})`,
-        itemIds
+         WHERE ai.item_id IN (${this.placeholders(itemAndDetailIds.length)})`,
+        itemAndDetailIds
       ),
       // THG (Thematic Gallery) cross-references — a separate legacy project's
       // galleries that also feature this item, already linked via
@@ -311,7 +413,8 @@ export class ItemExporter extends BaseExporter {
       const code = key.slice(sep + 1)
 
       const ownContext = itemOwnContext.get(itemId)
-      const ownRow = (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
+      const ownRow =
+        (ownContext ? rows.find(r => r.context_id === ownContext) : undefined) ?? rows[0]!
       const otherRow = rows.find(r => r !== ownRow)
 
       // Fields without a dedicated column live in item_translations.extra JSON.
@@ -360,6 +463,15 @@ export class ItemExporter extends BaseExporter {
       for (const [langCode, fields] of Object.entries(langMap)) {
         if (!byLang.has(langCode)) byLang.set(langCode, {})
         byLang.get(langCode)![itemId] = this.stripNulls(fields)
+      }
+    }
+    // Embedded detail texts ship in the same per-language files, keyed by the
+    // detail's id — a consumer looks up parent.details[i].id in the loaded
+    // language map to render the Special Features section.
+    for (const [detailId, langMap] of detailTransMap) {
+      for (const [langCode, fields] of Object.entries(langMap)) {
+        if (!byLang.has(langCode)) byLang.set(langCode, {})
+        byLang.get(langCode)![detailId] = this.stripNulls(fields)
       }
     }
     await this.writeTranslationFiles('items', byLang)
@@ -476,6 +588,28 @@ export class ItemExporter extends BaseExporter {
       }
     }
 
+    // parent item_id -> embedded details[] entries
+    const detailEntryMap = new Map<string, DetailEntry[]>()
+    for (const [parentId, children] of detailsByParent) {
+      detailEntryMap.set(
+        parentId,
+        children.map(d => ({
+          id: d.id,
+          internal_name: d.internal_name,
+          backward_compatibility: d.backward_compatibility,
+          display_order: d.display_order,
+          images: imageMap.get(d.id) ?? [],
+          artist_names: artistMap.get(d.id) ?? [],
+          languages: Object.keys(detailTransMap.get(d.id) ?? {}).sort(),
+        }))
+      )
+    }
+    if (embeddedDetails.length > 0) {
+      this.logger.info(
+        `Embedded ${embeddedDetails.length} monument detail(s) on ${detailsByParent.size} parent item(s)`
+      )
+    }
+
     const output = items.map(item => ({
       id: item.id,
       type: item.type,
@@ -502,6 +636,7 @@ export class ItemExporter extends BaseExporter {
       artist_names: artistMap.get(item.id) ?? [],
       thg_galleries: thgGalleryMap.get(item.id) ?? [],
       media: mediaMap.get(item.id) ?? [],
+      details: detailEntryMap.get(item.id) ?? [],
       languages: Object.keys(translationMap.get(item.id) ?? {}).sort(),
     }))
 
@@ -518,6 +653,91 @@ interface ImageEntry {
   captions: Record<string, string>
   photographer: string | null
   copyright: string | null
+}
+
+/** A monument detail child item, before embedding on its parent. */
+export interface DetailRow {
+  id: string
+  internal_name: string
+  backward_compatibility: string | null
+  parent_id: string | null
+  display_order: number | null
+}
+
+interface DetailTranslationRow {
+  item_id: string
+  language_id: string
+  context_id: string
+  name: string
+  description: string | null
+  dates: string | null
+  location: string | null
+}
+
+/** One embedded details[] entry on a parent item. */
+interface DetailEntry {
+  id: string
+  internal_name: string
+  backward_compatibility: string | null
+  display_order: number | null
+  images: ImageEntry[]
+  artist_names: string[]
+  languages: string[]
+}
+
+/**
+ * Derives the parent monument's backward_compatibility key from a detail's:
+ * mwnf3:monument_details:P:C:I:M:D → mwnf3:monuments:P:C:I:M.
+ * Returns null when the key is not a monument_details key.
+ */
+export function parentKeyForDetail(detailKey: string | null): string | null {
+  if (!detailKey) return null
+  const parts = detailKey.split(':')
+  if (parts.length !== 7 || parts[1] !== 'monument_details') return null
+  return [parts[0], 'monuments', parts[2], parts[3], parts[4], parts[5]].join(':')
+}
+
+/**
+ * Assigns each detail to a parent item present in the export. Resolution
+ * order: the detail's own parent_id when it points at an exported item,
+ * else the parent monument derived from the detail's backward_compatibility
+ * key (recovers importer-side "Parent monument not found" rows whose parent
+ * was imported later). Details resolving to neither are returned as orphans
+ * — the caller must drop them, never export them parent-less.
+ */
+export function resolveDetailParents(
+  details: DetailRow[],
+  parents: { id: string; backward_compatibility: string | null }[]
+): { byParent: Map<string, DetailRow[]>; orphans: DetailRow[]; recovered: DetailRow[] } {
+  const parentIds = new Set(parents.map(p => p.id))
+  const parentIdByKey = new Map(
+    parents
+      .filter(p => p.backward_compatibility !== null)
+      .map(p => [p.backward_compatibility as string, p.id])
+  )
+
+  const byParent = new Map<string, DetailRow[]>()
+  const orphans: DetailRow[] = []
+  const recovered: DetailRow[] = []
+  for (const detail of details) {
+    let parentId =
+      detail.parent_id !== null && parentIds.has(detail.parent_id) ? detail.parent_id : null
+    if (parentId === null) {
+      const parentKey = parentKeyForDetail(detail.backward_compatibility)
+      const resolvedId = parentKey !== null ? parentIdByKey.get(parentKey) : undefined
+      if (resolvedId !== undefined) {
+        parentId = resolvedId
+        recovered.push(detail)
+      }
+    }
+    if (parentId === null) {
+      orphans.push(detail)
+      continue
+    }
+    if (!byParent.has(parentId)) byParent.set(parentId, [])
+    byParent.get(parentId)!.push(detail)
+  }
+  return { byParent, orphans, recovered }
 }
 
 interface MediaEntry {
