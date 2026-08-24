@@ -15,8 +15,9 @@ The package is shaped by what the Sharing History dataset actually contains:
 
 - **Keyspace** — Sharing History has its own legacy database;
   project keys resolve through `mwnf3_sharing_history:sh_projects:{key}`
-  with **lowercase** keys. Default project key: `awe` ("Arab World – Europe",
-  the single real SH project — `rus`/`usa` are legacy test placeholders).
+  with **lowercase** keys. The project key is hardcoded to `awe` ("Arab
+  World – Europe", the single real SH project — `rus`/`usa` are legacy test
+  placeholders).
 - **3-level exhibitions** — `collections.json` carries
   exhibition → theme → **subtheme** ("Chapter" in the legacy UI). The
   exhibitions root marker carries `purpose: "exhibitions-root"` (importer
@@ -67,9 +68,10 @@ npm run export -- `
   --publish
 ```
 
-Defaults: subdirectory `sharinghistory`, project key `awe`, package name
-`@metanull/sharinghistory-data`. Image URLs in the exported JSON are built
-from `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in
+The dataset scope is hardcoded — this exporter is single-purpose and takes
+no scope arguments: it always exports the `awe` project to
+`output/sharinghistory/` as `@metanull/sharinghistory-data`. Image URLs in
+the exported JSON are built from `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in
 one go: version bump, `package.json`/`README.md` generation, and the actual
 `npm publish` — no separate manual publish step. (`--package-version` is
 optional — omit it to auto-increment instead; see
@@ -78,7 +80,7 @@ optional — omit it to auto-increment instead; see
 ## What it exports
 
 One JSON file per entity type, plus a manifest and per-language translation
-files, written to `output/<subdirectory>/`:
+files, written to `output/sharinghistory/`:
 
 | File | Exporter | Contents |
 |---|---|---|
@@ -98,11 +100,11 @@ Every JSON file is also written gzip-compressed (`.json.gz`) alongside the
 plain version — the compressed copies aren't part of the npm package (see
 below) but are there for CDN/static-hosting use.
 
-### Scoping to specific projects
+### Project scoping
 
-Export is always scoped to one or more legacy SH project keys (default
-`awe`), resolved against `projects.backward_compatibility`
-(`mwnf3_sharing_history:sh_projects:{key}`, lowercase). The same keys resolve
+The export is scoped to the hardcoded SH project key `awe`, resolved against
+`projects.backward_compatibility` (`mwnf3_sharing_history:sh_projects:{key}`,
+lowercase) — nothing else in the database is exported. The same key resolves
 a matching set of context IDs, used internally to filter item translations to
 the project's own context.
 
@@ -125,18 +127,18 @@ cp .env.example .env
 ## Usage
 
 ```bash
-npm run export -- [subdirectory] [project-keys...] [options]
+npm run export -- [options]
 ```
 
 ```bash
-# Standard export (defaults: sharinghistory awe)
-npm run export --
+# Standard export
+npm run export -- --force
 
 # Custom output location and image base URL
-npm run export -- --output-dir /tmp/export --base-url https://cdn.example.com/storage
+npm run export -- --force --output-dir /tmp/export --base-url https://cdn.example.com/storage
 
 # Export, bump the package version, generate package.json/README.md, and publish
-npm run export -- --publish
+npm run export -- --force --publish
 ```
 
 | Option | Description |
@@ -145,7 +147,6 @@ npm run export -- --publish
 | `--output-dir <path>` | Base output directory (default: `output`, relative to cwd) |
 | `--base-url <url>` | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`) |
 | `--publish` | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
-| `--package-name <name>` | Override the package name (default: `@metanull/sharinghistory-data`) |
 | `--package-version <semver>` | Set an explicit version instead of auto-incrementing |
 | `--npm-registry <url>` | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages) |
 
@@ -174,7 +175,7 @@ itself); consumers pick the new version up on their own schedule.
 ## Troubleshooting
 
 **`Output directory already exists`** — pass `--force` to overwrite it, or
-pick a different `--output-dir`/subdirectory.
+pick a different `--output-dir`.
 
 **Export completes with `EXPORT COMPLETED WITH ERRORS`** — one or more
 exporters failed independently (the CLI continues through all exporters

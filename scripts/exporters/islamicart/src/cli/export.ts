@@ -1,29 +1,26 @@
 #!/usr/bin/env node
 /**
- * Static JSON Exporter CLI
+ * Static JSON Exporter CLI — Discover Islamic Art
  *
  * Reads the inventory database and writes a set of denormalized JSON files
- * for consumption by frontend applications (e.g., the new Discover Islamic Art site).
+ * for consumption by frontend applications (the new Discover Islamic Art site).
+ *
+ * This exporter is single-purpose: it always exports the Discover Islamic
+ * Art dataset — projects ISL (Discover Islamic Art) and EPM (Explore
+ * Islamic Art Collections) together, as `@metanull/islamicart-data`. The
+ * scope is not configurable: ISL and EPM are one dataset, and an ISL-only
+ * export would silently drop the EPM project collection and every
+ * `partner_group:museums:*` collection.
  *
  * Usage:
- *   npm run export -- <subdirectory> <project-key> [more-project-keys...]
+ *   npm run export -- [options]
  *
  * Examples:
- *   # Export ISL project data only
- *   npm run export -- islamicart ISL
+ *   # Standard export
+ *   npm run export -- --force
  *
- *   # Export multiple projects
- *   npm run export -- combined ISL WHS --force
- *
- *   # Custom output and base URLs
- *   npm run export -- islamicart ISL --output-dir /tmp/export --base-url https://cdn.example.com/storage
- *
- *   # Export and prepare for npm publishing (auto-increment version, generate package.json)
- *   npm run export -- islamicart ISL --publish
- *   # Then: cd output/islamicart && npm publish
- *
- *   # Publish with custom package name
- *   npm run export -- islamicart ISL --publish --package-name @mwnf/islamic-art-data
+ *   # Export, bump the version, generate package.json/README.md, and publish
+ *   npm run export -- --force --publish
  */
 
 import dotenv from 'dotenv'
@@ -50,14 +47,20 @@ import {
 
 dotenv.config({ path: resolve(process.cwd(), '.env') })
 
+// Dataset identity — hardcoded on purpose. This fork exports exactly one
+// dataset; there are no scope arguments to pass or get wrong. ISL and EPM
+// must always be exported together (see the header comment).
+const SUBDIRECTORY = 'islamicart'
+const PROJECT_KEYS = ['ISL', 'EPM']
+const PACKAGE_NAME = '@metanull/islamicart-data'
+
 const program = new Command()
 
 program
-  .name('exporter')
-  .description('Static JSON data exporter for MWNF public websites')
+  .name('islamicart-exporter')
+  .description('Static JSON data exporter for the Discover Islamic Art website')
   .version('1.0.0')
-  .argument('<subdirectory>', 'Name of the output subdirectory to create')
-  .argument('<project-keys...>', 'One or more legacy project keys to export (e.g., ISL WHS)')
+  .allowExcessArguments(false)
   .option('--force', 'Overwrite output directory if it already exists', false)
   .option('--output-dir <path>', 'Base output directory (relative to cwd or absolute)', 'output')
   .option(
@@ -67,11 +70,6 @@ program
   )
   .option('--publish', 'Generate npm package.json, bump version, and publish to registry', false)
   .option(
-    '--package-name <name>',
-    'NPM package name (defaults to @mwnf/{subdirectory}-data)',
-    ''
-  )
-  .option(
     '--package-version <semver>',
     'Set an explicit version instead of auto-incrementing (e.g. 1.0.4)'
   )
@@ -80,19 +78,16 @@ program
     'npm registry URL for publish (overrides NPM_REGISTRY env var)'
   )
   .action(
-    async (
-      subdirectory: string,
-      projectKeys: string[],
-      options: {
-        force: boolean
-        outputDir: string
-        baseUrl: string
-        publish: boolean
-        packageName: string
-        packageVersion?: string
-        npmRegistry?: string
-      }
-    ) => {
+    async (options: {
+      force: boolean
+      outputDir: string
+      baseUrl: string
+      publish: boolean
+      packageVersion?: string
+      npmRegistry?: string
+    }) => {
+      const subdirectory = SUBDIRECTORY
+      const projectKeys = PROJECT_KEYS
       const logger = new Logger('Exporter')
 
       console.log(chalk.bold('='.repeat(70)))
@@ -186,7 +181,7 @@ program
           console.log(chalk.bold('='.repeat(70)))
 
           try {
-            const packageName = options.packageName || `@mwnf/${subdirectory}-data`
+            const packageName = PACKAGE_NAME
             const registry =
               options.npmRegistry ||
               process.env['NPM_REGISTRY'] ||

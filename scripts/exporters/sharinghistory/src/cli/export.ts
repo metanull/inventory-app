@@ -5,24 +5,22 @@
  * Reads the inventory database and writes a set of denormalized JSON files
  * for consumption by frontend applications (the new Sharing History site).
  *
- * This is the sharinghistory fork of the exporter: it defaults to the `awe`
- * project (Sharing History "Arab World – Europe", lowercase SH keyspace),
- * the `sharinghistory` output subdirectory, and the
- * `@metanull/sharinghistory-data` package name. It has no dynasty exporter
- * (SH has no dynasty entity) but keeps the usage-scoped glossary exporter
- * (SH content carries glossary spelling links).
+ * This exporter is single-purpose: it always exports the Sharing History
+ * dataset — the `awe` project ("Arab World – Europe", lowercase SH
+ * keyspace), as `@metanull/sharinghistory-data`. The scope is not
+ * configurable. It has no dynasty exporter (SH has no dynasty entity) but
+ * keeps the usage-scoped glossary exporter (SH content carries glossary
+ * spelling links).
  *
  * Usage:
- *   npm run export --                     # exports sharinghistory awe
- *   npm run export -- [subdirectory] [project-keys...] [options]
+ *   npm run export -- [options]
  *
  * Examples:
- *   # Standard export (defaults: subdirectory=sharinghistory, keys=awe)
- *   npm run export -- --force --base-url https://inventory.metanull.eu
+ *   # Standard export
+ *   npm run export -- --force
  *
- *   # Export and prepare for npm publishing (auto-increment version, generate package.json)
- *   npm run export -- --publish
- *   # Then: cd output/sharinghistory && npm publish
+ *   # Export, bump the version, generate package.json/README.md, and publish
+ *   npm run export -- --force --publish
  */
 
 import dotenv from 'dotenv'
@@ -48,14 +46,19 @@ import {
 
 dotenv.config({ path: resolve(process.cwd(), '.env') })
 
+// Dataset identity — hardcoded on purpose. This fork exports exactly one
+// dataset; there are no scope arguments to pass or get wrong.
+const SUBDIRECTORY = 'sharinghistory'
+const PROJECT_KEYS = ['awe']
+const PACKAGE_NAME = '@metanull/sharinghistory-data'
+
 const program = new Command()
 
 program
   .name('sharinghistory-exporter')
   .description('Static JSON data exporter for the Sharing History website')
   .version('1.0.0')
-  .argument('[subdirectory]', 'Name of the output subdirectory to create', 'sharinghistory')
-  .argument('[project-keys...]', 'Legacy SH project keys to export (defaults to awe)')
+  .allowExcessArguments(false)
   .option('--force', 'Overwrite output directory if it already exists', false)
   .option('--output-dir <path>', 'Base output directory (relative to cwd or absolute)', 'output')
   .option(
@@ -65,11 +68,6 @@ program
   )
   .option('--publish', 'Generate npm package.json, bump version, and publish to registry', false)
   .option(
-    '--package-name <name>',
-    'NPM package name',
-    '@metanull/sharinghistory-data'
-  )
-  .option(
     '--package-version <semver>',
     'Set an explicit version instead of auto-incrementing (e.g. 1.0.4)'
   )
@@ -78,23 +76,16 @@ program
     'npm registry URL for publish (overrides NPM_REGISTRY env var)'
   )
   .action(
-    async (
-      subdirectory: string,
-      projectKeys: string[],
-      options: {
-        force: boolean
-        outputDir: string
-        baseUrl: string
-        publish: boolean
-        packageName: string
-        packageVersion?: string
-        npmRegistry?: string
-      }
-    ) => {
-      if (projectKeys.length === 0) {
-        projectKeys = ['awe']
-      }
-
+    async (options: {
+      force: boolean
+      outputDir: string
+      baseUrl: string
+      publish: boolean
+      packageVersion?: string
+      npmRegistry?: string
+    }) => {
+      const subdirectory = SUBDIRECTORY
+      const projectKeys = PROJECT_KEYS
       const logger = new Logger('Exporter')
 
       console.log(chalk.bold('='.repeat(70)))
@@ -191,7 +182,7 @@ program
           console.log(chalk.bold('='.repeat(70)))
 
           try {
-            const packageName = options.packageName || '@metanull/sharinghistory-data'
+            const packageName = PACKAGE_NAME
             const registry =
               options.npmRegistry ||
               process.env['NPM_REGISTRY'] ||

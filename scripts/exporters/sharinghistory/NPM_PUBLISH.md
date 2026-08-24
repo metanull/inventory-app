@@ -1,245 +1,119 @@
 # NPM Package Publishing Guide
 
-## Overview
+How `--publish` turns an export into a released version of
+`@metanull/sharinghistory-data` on GitHub Packages. What the package
+*contains* is documented in [`README.md`](README.md#what-it-exports); this
+guide covers the publishing mechanics only.
 
-The exporter now supports publishing data as a private npm package to GitHub Packages. This enables frontend developers to easily consume Islamic Art data without managing HTTP requests, authentication, or server uptime dependencies.
-
-## Quick Start
-
-### Step 1: Export and prepare the package
-
-```bash
-npm run export -- --publish
-```
-
-This will:
-1. Export all Islamic Art data to JSON files
-2. Auto-increment the version in the `.version` file (starting at 1.0.0, then 1.0.1, 1.0.2, etc.)
-3. Generate `package.json` with the bumped version
-4. Generate `README.md` with usage instructions
-
-### Step 2: Publish to GitHub Packages
+## Quick start
 
 ```bash
-cd output/sharinghistory
-npm publish
+npm run export -- --force --publish
 ```
 
-The package is published to the private GitHub Packages registry and becomes available for installation.
+That single run does everything:
 
-## How It Works
+1. Exports the dataset to `output/sharinghistory/`
+2. Bumps the patch version persisted in `output/.version-sharinghistory`
+   (1.1.0 → 1.1.1, …)
+3. Generates `package.json` and a consumer `README.md` inside
+   `output/sharinghistory/`
+4. Runs `npm publish` from that directory against GitHub Packages
 
-### Version Management
+There is **no separate manual `npm publish` step** — running one after
+`--publish` would fail as a duplicate version.
 
-Versions are stored in a `.version` file in the output directory:
+## Version management
 
-```
-output/sharinghistory/.version
-```
+The version counter lives in `output/.version-sharinghistory` — deliberately
+*outside* the package directory, so `--force` (which deletes and recreates
+`output/sharinghistory/`) does not reset it.
 
-**First run:** Creates version `1.0.0`  
-**Second run:** Bumps to `1.0.1`  
-**Third run:** Bumps to `1.0.2`  
-And so on...
+- Each `--publish` run auto-increments the patch component and persists the
+  result.
+- `--package-version <semver>` sets an explicit version instead (it is also
+  persisted, so subsequent auto-increments continue from it).
 
-The version follows [Semantic Versioning](https://semver.org/) with patch bumps for data updates.
+⚠ The whole `output/` directory is **gitignored**, version file included. If
+it is lost (fresh clone, deleted output directory), the next `--publish`
+would restart at 1.0.0 and collide with already-published versions — recover
+by passing `--package-version` with the next free version (check the
+published versions on GitHub Packages first).
 
-### Package Structure
+## Package structure
 
-When `--publish` is used, the output directory becomes a valid npm package:
+The published package is the output directory itself:
 
 ```
 output/sharinghistory/
-├── package.json              ← Auto-generated with version
-├── README.md                 ← Usage guide for consumers
-├── .version                  ← Persisted version state
-├── data/
-│   ├── manifest.json
-│   ├── manifest.json.gz
-│   ├── items.json
-│   ├── items.json.gz
-│   ├── partners.json
-│   ├── partners.json.gz
-│   ├── collections.json
-│   ├── collections.json.gz
-│   ├── countries.json
-│   ├── countries.json.gz
-│   ├── timelines.json
-│   ├── timelines.json.gz
-│   ├── timeline_events.json
-│   ├── timeline_events.json.gz
-│   ├── glossary.json
-│   ├── glossary.json.gz
-│   ├── languages.json
-│   ├── languages.json.gz
-│   └── translations/
-│       ├── items.en.json
-│       ├── items.ar.json
-│       ├── items.fr.json
-│       └── ...
+├── package.json          ← generated on every --publish run
+├── README.md             ← generated consumer usage guide
+├── manifest.json
+├── items.json, collections.json, partners.json, …   (see README.md)
+└── translations/
+    └── <entity>.<lang>.json
 ```
 
-### Package Metadata
+The `files` allow-list in the generated `package.json` restricts the publish
+to `*.json`, `translations/*.json` and `README.md` — the `.json.gz`
+companions written by the export stay local and are never published.
 
-The generated `package.json` includes:
-- **name:** `@metanull/sharinghistory-data` (or custom via `--package-name`)
-- **version:** Auto-incremented semantic version
-- **description:** Reflects the projects included
-- **exports:** Points to the JSON data files
-- **files:** Restricts npm publish to necessary files (data/, README.md)
+## Package metadata
 
-### GitHub Packages Authentication
+The generated `package.json` carries:
 
-Before publishing, ensure GitHub authentication is configured in `~/.npmrc`:
+- **name** — `@metanull/sharinghistory-data` (hardcoded in the exporter CLI)
+- **version** — from the version file (see above)
+- **description** — names the exported project key
+- **exports** — `manifest.json` as the entry point, plus every top-level
+  `*.json` and `translations/*`
+- **author / license / repository** — from `PACKAGE_AUTHOR`,
+  `PACKAGE_LICENSE` and `PACKAGE_REPO_URL` in `.env`. Keep
+  `PACKAGE_REPO_URL` set: without a `repository` field, consumers
+  authenticating with a GitHub Actions `GITHUB_TOKEN` cannot install the
+  version, and already-published versions cannot be fixed retroactively.
+
+## GitHub Packages authentication
+
+Publishing goes to `https://npm.pkg.github.com` (override with
+`--npm-registry` or the `NPM_REGISTRY` env var). Configure `~/.npmrc` with a
+personal access token that has the `write:packages` scope:
 
 ```bash
 echo "//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN" >> ~/.npmrc
-echo "@mwnf:registry=https://npm.pkg.github.com" >> ~/.npmrc
+echo "@metanull:registry=https://npm.pkg.github.com" >> ~/.npmrc
 ```
 
-For more details, see [GitHub Packages npm documentation](https://docs.github.com/en/packages/working-with-a-npm-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token).
+See the [GitHub Packages npm documentation](https://docs.github.com/en/packages/working-with-a-npm-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token)
+for details. The package is private: consumers need a token with
+`read:packages` to install it.
 
-## Usage Options
-
-### Default package name (recommended)
-
-Package name is derived from the subdirectory:
-
-```bash
-npm run export -- --publish
-# Creates: @metanull/sharinghistory-data
-```
-
-### Custom package name
-
-Override the package name if needed:
-
-```bash
-npm run export -- --publish --package-name @mwnf/baroque-art-data
-# Creates: @mwnf/baroque-art-data
-```
-
-### Multiple projects in one package
-
-Export multiple projects and publish together:
-
-```bash
-npm run export -- combined awe OTHER --publish --package-name @mwnf/mwnf-data
-# Includes both projects in one package (awe is the standard single-key export)
-```
-
-### Keeping JSON and .gz files
-
-The exporter always creates both `.json` and `.json.gz` files in the output. The npm package includes **only the uncompressed `.json` files** (see `files` in package.json).
-
-The `.gz` files remain in the output directory and can be used for CDN distribution or other purposes in the future.
-
-## Consumer Usage
-
-Once published, frontend developers can use the package like this:
-
-### Installation
+## Consumer usage
 
 ```bash
 npm install @metanull/sharinghistory-data
 ```
 
-### Import items
-
 ```javascript
-import items from '@metanull/sharinghistory-data/data/items.json' assert { type: 'json' }
+import manifest from '@metanull/sharinghistory-data/manifest.json' assert { type: 'json' }
+import items from '@metanull/sharinghistory-data/items.json' assert { type: 'json' }
 
-items.forEach(item => {
-  console.log(item.id, item.type, item.translations)
-})
+// Lazy-load translations for a language
+const { default: t } = await import(`@metanull/sharinghistory-data/translations/items.${lang}.json`)
 ```
 
-### Import all data
-
-```javascript
-import manifest from '@metanull/sharinghistory-data/data/manifest.json' assert { type: 'json' }
-import items from '@metanull/sharinghistory-data/data/items.json' assert { type: 'json' }
-import partners from '@metanull/sharinghistory-data/data/partners.json' assert { type: 'json' }
-import collections from '@metanull/sharinghistory-data/data/collections.json' assert { type: 'json' }
-import countries from '@metanull/sharinghistory-data/data/countries.json' assert { type: 'json' }
-import glossary from '@metanull/sharinghistory-data/data/glossary.json' assert { type: 'json' }
-import languages from '@metanull/sharinghistory-data/data/languages.json' assert { type: 'json' }
-```
-
-## Workflow
-
-### Initial setup (one-time)
-
-1. Configure GitHub authentication in `~/.npmrc` (see above)
-2. Export and publish the first version:
-   ```bash
-   npm run export -- --publish
-   cd output/sharinghistory
-   npm publish
-   ```
-3. Frontend developer installs: `npm install @metanull/sharinghistory-data`
-
-### Routine updates
-
-1. Update content in the Filament admin or inventory database
-2. Re-export and republish:
-   ```bash
-   npm run export -- --publish --force
-   cd output/sharinghistory
-   npm publish
-   ```
-3. Frontend developer updates: `npm update @metanull/sharinghistory-data`
+All data files sit at the package root (there is no `data/` directory);
+per-language translation files live under `translations/`.
 
 ## Troubleshooting
 
-### `npm publish` fails with "not authorized"
+**`npm publish` fails with "not authorized"** — `~/.npmrc` is missing or the
+token lacks `write:packages`; see the authentication section above.
 
-Make sure `~/.npmrc` is configured with a valid GitHub token:
+**"cannot publish over previously published version"** — that version
+already exists on the registry (e.g. the version file was reset). Pass
+`--package-version` with the next free version, or simply re-run
+`--publish` to auto-increment past it.
 
-```bash
-cat ~/.npmrc | grep "npm.pkg.github.com"
-```
-
-If missing, add it (see [GitHub Packages Authentication](#github-packages-authentication)).
-
-### Version file is missing or corrupted
-
-Delete it and re-export. It will be recreated:
-
-```bash
-rm output/sharinghistory/.version
-npm run export -- --publish --force
-```
-
-### Package already published with this version
-
-This means the version was already published. The next `--publish` run will auto-increment:
-
-```bash
-npm run export -- --publish --force
-# Version is now 1.0.X (next patch)
-npm publish
-```
-
-## Advanced: Manual version control
-
-If you want to manually control the version instead of auto-incrementing:
-
-1. Edit `.version` directly:
-   ```bash
-   echo "2.0.0" > output/sharinghistory/.version
-   ```
-
-2. Regenerate package.json without re-exporting:
-   ```
-   (Not yet supported — create a feature request if needed)
-   ```
-
-For now, re-run the full export with `--publish` to regenerate.
-
-## Notes
-
-- The `.version` file is **not** ignored by git — you may want to commit it for audit trail
-- The `package.json` and `README.md` are **regenerated** on every `--publish` run
-- Only `.json` files are included in the published npm package; `.gz` files are for future CDN use
-- The package is **private** (via GitHub Packages registry); only authenticated users can install it
+**Version file lost** — do *not* just re-run `--publish` (it would restart
+at 1.0.0); see the version management section above.
