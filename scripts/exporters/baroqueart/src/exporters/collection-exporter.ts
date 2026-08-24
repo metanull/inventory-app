@@ -113,14 +113,17 @@ export class CollectionExporter extends BaseExporter {
          ORDER BY collection_id, display_order`,
         collectionIds
       ),
-      // Items in these collections, restricted to non-picture items from the project
+      // Items in these collections, restricted to items that exist as
+      // top-level rows in items.json — 'picture' and 'detail' children are
+      // embedded on their parent there (#1515), so a membership row pointing
+      // at one would dangle.
       this.db.query<CollectionItemRow>(
         `SELECT ci.collection_id, ci.item_id, ci.display_order, ci.extra
          FROM collection_item ci
          JOIN items i ON i.id = ci.item_id
          WHERE ci.collection_id IN (${colPh})
            AND i.project_id IN (${ph})
-           AND i.type IN ('object', 'monument', 'detail')
+           AND i.type IN ('object', 'monument')
          ORDER BY ci.collection_id, ci.display_order`,
         [...collectionIds, ...this.projectIds]
       ),

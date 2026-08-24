@@ -40,6 +40,9 @@ export class GlossaryExporter extends BaseExporter {
        JOIN items i ON i.id = it.item_id
        WHERE i.project_id IN (${ph})
          AND i.type IN ('object', 'monument', 'detail')
+         -- 'detail' stays here on purpose: detail texts remain published
+         -- (embedded on the parent monument, #1515), so glossary terms they
+         -- use must stay in the package.
 
        UNION
 

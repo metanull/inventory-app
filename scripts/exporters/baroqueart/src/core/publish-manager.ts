@@ -94,11 +94,7 @@ export class PublishManager {
         './translations/*': './translations/*',
       },
       // Explicitly list .json only — .gz companion files are not useful to consumers
-      files: [
-        '*.json',
-        'translations/*.json',
-        'README.md',
-      ],
+      files: ['*.json', 'translations/*.json', 'README.md'],
       engines: {
         node: '>=16.0.0',
         npm: '>=8.0.0',
@@ -106,7 +102,8 @@ export class PublishManager {
     }
 
     if (this.config.author) pkg['author'] = this.config.author
-    if (this.config.repositoryUrl) pkg['repository'] = { type: 'git', url: this.config.repositoryUrl }
+    if (this.config.repositoryUrl)
+      pkg['repository'] = { type: 'git', url: this.config.repositoryUrl }
 
     return pkg
   }
@@ -143,6 +140,11 @@ Available top-level JSON files: \`manifest.json\`, \`items.json\`, \`partners.js
 a Discover Islamic Art concept and are absent from this dataset.)
 
 Each has a per-language translation file under \`translations/{entity}.{lang}.json\`.
+
+\`items.json\` contains objects and monuments only. Monument details (the
+legacy "Special Features") are embedded as \`details[]\` on their parent
+monument; a detail's texts live in \`translations/items.{lang}.json\` keyed by
+the detail's \`id\`, alongside the item texts.
 `
   }
 

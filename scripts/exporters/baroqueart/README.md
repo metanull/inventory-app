@@ -54,17 +54,17 @@ optional — omit it to auto-increment instead; see
 One JSON file per entity type, plus a manifest and per-language translation
 files, written to `output/baroqueart/`:
 
-| File | Exporter | Contents |
-|---|---|---|
-| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) |
-| `languages.json` | `LanguageExporter` | Language reference data |
-| `countries.json` | `CountryExporter` | Country reference data + translations |
-| `timelines.json` / `timeline_events.json` | `TimelineExporter` | Per-country BAR timelines and their events |
-| `partners.json` | `PartnerExporter` | Museums/institutions + translations + images |
-| `items.json` | `ItemExporter` | Items (objects/monuments/details), with images, tag links, related-item links |
-| `collections.json` | `CollectionExporter` | Collections (project, exhibitions root + exhibitions), with images and item membership |
-| `glossary.json` | `GlossaryExporter` | Glossary terms used by BAR content + translations |
-| `translations/<entity>.<lang>.json` | (several) | Per-language translation fields, lazy-loadable separately |
+| File                                      | Exporter             | Contents                                                                                                                                                                                                                                         |
+| ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `manifest.json`                           | `ManifestExporter`   | Metadata about the export itself (project keys, generated-at timestamp, available languages)                                                                                                                                                     |
+| `languages.json`                          | `LanguageExporter`   | Language reference data                                                                                                                                                                                                                          |
+| `countries.json`                          | `CountryExporter`    | Country reference data + translations                                                                                                                                                                                                            |
+| `timelines.json` / `timeline_events.json` | `TimelineExporter`   | Per-country BAR timelines and their events                                                                                                                                                                                                       |
+| `partners.json`                           | `PartnerExporter`    | Museums/institutions + translations + images                                                                                                                                                                                                     |
+| `items.json`                              | `ItemExporter`       | Items (objects/monuments), with images, tag links, related-item links; monument details are embedded as `details[]` on the parent monument, never as top-level rows (#1515 — the legacy site only ever showed them inline as "Special Features") |
+| `collections.json`                        | `CollectionExporter` | Collections (project, exhibitions root + exhibitions), with images and item membership                                                                                                                                                           |
+| `glossary.json`                           | `GlossaryExporter`   | Glossary terms used by BAR content + translations                                                                                                                                                                                                |
+| `translations/<entity>.<lang>.json`       | (several)            | Per-language translation fields, lazy-loadable separately                                                                                                                                                                                        |
 
 There is deliberately **no `dynasties.json`** (see above).
 
@@ -113,14 +113,14 @@ npm run export -- --force --output-dir /tmp/export --base-url https://cdn.exampl
 npm run export -- --force --publish
 ```
 
-| Option | Description |
-|---|---|
-| `--force` | Overwrite the output directory if it already exists (refuses to run otherwise) |
-| `--output-dir <path>` | Base output directory (default: `output`, relative to cwd) |
-| `--base-url <url>` | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`) |
-| `--publish` | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
-| `--package-version <semver>` | Set an explicit version instead of auto-incrementing |
-| `--npm-registry <url>` | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages) |
+| Option                       | Description                                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| `--force`                    | Overwrite the output directory if it already exists (refuses to run otherwise)                    |
+| `--output-dir <path>`        | Base output directory (default: `output`, relative to cwd)                                        |
+| `--base-url <url>`           | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`)                  |
+| `--publish`                  | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
+| `--package-version <semver>` | Set an explicit version instead of auto-incrementing                                              |
+| `--npm-registry <url>`       | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages)             |
 
 See [`NPM_PUBLISH.md`](NPM_PUBLISH.md) for the full publishing workflow —
 version-file mechanics, package structure, GitHub Packages authentication,
