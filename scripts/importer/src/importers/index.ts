@@ -69,6 +69,7 @@ export {
   ThgThemeTranslationImporter,
   ThgThemeItemImporter,
   ThgThemeItemTranslationImporter,
+  ThgThemeCoverImageImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
   // Gallery-Item Link Importers

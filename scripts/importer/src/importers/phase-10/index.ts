@@ -17,6 +17,7 @@ export { ThgThemeImporter } from './thg-theme-importer.js';
 export { ThgThemeTranslationImporter } from './thg-theme-translation-importer.js';
 export { ThgThemeItemImporter } from './thg-theme-item-importer.js';
 export { ThgThemeItemTranslationImporter } from './thg-theme-item-translation-importer.js';
+export { ThgThemeCoverImageImporter } from './thg-theme-cover-image-importer.js';
 export { ThgItemRelatedImporter } from './thg-item-related-importer.js';
 export { ThgItemRelatedTranslationImporter } from './thg-item-related-translation-importer.js';
 

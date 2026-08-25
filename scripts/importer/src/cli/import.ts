@@ -110,6 +110,7 @@ import {
   ThgThemeTranslationImporter,
   ThgThemeItemImporter,
   ThgThemeItemTranslationImporter,
+  ThgThemeCoverImageImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
   // Phase 10: Gallery-Item Link Importers
@@ -831,9 +832,16 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-theme-item-translation',
     name: 'THG Theme Item Translations',
-    description: 'Import contextual item descriptions for thematic galleries',
+    description: 'Import contextual item descriptions and image captions for thematic galleries',
     importerClass: ThgThemeItemTranslationImporter,
     dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-theme-cover-image',
+    name: 'THG Theme Cover Images',
+    description: 'Mark which selected picture is the cover of each exhibition theme',
+    importerClass: ThgThemeCoverImageImporter,
+    dependencies: ['thg-theme', 'thg-theme-item'],
   },
   {
     key: 'thg-item-related',
