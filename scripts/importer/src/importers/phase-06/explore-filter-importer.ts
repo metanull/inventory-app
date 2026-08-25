@@ -10,6 +10,12 @@
  * Skip: filter_types (1 row, implicit in category)
  *       explorethemes / explorethemestranslated / locationsthemes (all empty)
  *
+ * Most Explore monuments are references to a monument that already exists
+ * elsewhere rather than records of their own, and 259 of them carry more than
+ * one such reference. Those resolve to several source items, and the filter tag
+ * is attached to all of them — the rule the rest of the Explore pipeline
+ * follows. Picking one would silently drop 907 of the 4,992 links.
+ *
  * Dependencies:
  * - ExploreMonumentImporter (monument items must exist)
  */
@@ -133,9 +139,23 @@ export class ExploreFilterImporter extends BaseImporter {
             continue;
           }
 
-          // Resolve monument item
+          // Resolve monument item.
+          //
+          // An Explore monument that carries several cross-references — the
+          // common case being a monument the Virtual Museum and Travels both
+          // describe — resolves to more than one source item. The rule across
+          // the Explore pipeline is to apply the link to every candidate rather
+          // than pick a winner (see ExploreMonumentImporter and
+          // ExploreMonumentThemeLinkImporter), so the filter tag lands on each.
           const monumentResolution = await this.monumentResolver.resolve(link.monumentId);
-          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+          const resolvedItemIds =
+            monumentResolution.mode === 'resolvedCandidates'
+              ? (monumentResolution.resolvedCandidates ?? []).map((candidate) => candidate.itemId)
+              : monumentResolution.itemId
+                ? [monumentResolution.itemId]
+                : [];
+
+          if (resolvedItemIds.length === 0) {
             this.logWarning(
               `${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${link.monumentId} did not resolve to an item`}, skipping link`
             );
@@ -150,7 +170,9 @@ export class ExploreFilterImporter extends BaseImporter {
             continue;
           }
 
-          await this.context.strategy.attachTagsToItem(monumentResolution.itemId, [tagId]);
+          for (const itemId of resolvedItemIds) {
+            await this.context.strategy.attachTagsToItem(itemId, [tagId]);
+          }
           result.imported++;
           this.showProgress();
         } catch (error) {
