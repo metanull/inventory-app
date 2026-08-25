@@ -72,6 +72,7 @@ export {
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
   // Gallery-Item Link Importers
+  ThgGalleryNativeProjectImporter,
   ThgGalleryMwnf3ObjectImporter,
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,

@@ -119,6 +119,7 @@ import {
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
+  ThgGalleryNativeProjectImporter,
   ProjectCleanupImporter,
   PartnerMonumentLinker,
   ProjectExhibitionRootKeyingImporter,
@@ -849,6 +850,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['thg-item-related', 'language'],
   },
   // Phase 10: Gallery-Item Link Importers (direct links from thg_gallery to items)
+  {
+    key: 'thg-gallery-native-project',
+    name: 'THG Gallery Native Project Items',
+    description:
+      "Attach the items of each gallery's native mwnf3 project to its collection (legacy union membership)",
+    importerClass: ThgGalleryNativeProjectImporter,
+    dependencies: ['thg-gallery', 'object', 'monument'],
+  },
   {
     key: 'thg-gallery-mwnf3-object',
     name: 'THG Gallery MWNF3 Objects',
