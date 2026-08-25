@@ -143,6 +143,7 @@ import {
   ThgTagImporter,
   ThgTimelineImporter,
   ThgGalleryContentImporter,
+  ThgHiddenMuseumImporter,
   PartnerHierarchyImporter,
   InstitutionHierarchyImporter,
   ArtintroRootCollectionImporter,
@@ -949,6 +950,15 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import exhibition logos as collection images and related content as collection media',
     importerClass: ThgGalleryContentImporter,
     dependencies: ['thg-gallery', 'language'],
+  },
+  // Phase 10: THG Exhibition partner-page exclusions
+  {
+    key: 'thg-hidden-museum',
+    name: 'THG Hidden Museums',
+    description:
+      'Import the museums curators suppressed from an exhibition\'s partner pages',
+    importerClass: ThgHiddenMuseumImporter,
+    dependencies: ['thg-gallery', 'partner'],
   },
   // Phase 11: Post-Import Linking
   {

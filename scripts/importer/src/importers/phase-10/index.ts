@@ -38,3 +38,6 @@ export { ThgTimelineImporter } from './thg-timeline-importer.js';
 
 // THG Gallery Content (logos, related content)
 export { ThgGalleryContentImporter } from './thg-gallery-content-importer.js';
+
+// THG Exhibition partner-page exclusions
+export { ThgHiddenMuseumImporter } from './thg-hidden-museum-importer.js';
