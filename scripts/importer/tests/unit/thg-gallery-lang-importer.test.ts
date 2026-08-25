@@ -214,8 +214,62 @@ describe('ThgGalleryLangImporter', () => {
     const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
     expect(call.extra).toBeDefined();
     const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
-    expect(extra.thg_gallery).toMatchObject({ link: 'islamic-art', image: 'header.jpg', has_timeline: 1, status: 'A', mwnf3_project_id: 7 });
+    expect(extra.thg_gallery).toMatchObject({ link: 'islamic-art', image: 'header.jpg', has_timeline: true, status: 'A', mwnf3_project_id: 7 });
     expect((extra.thg_gallery as Record<string, unknown>).banner_image).toBeUndefined();
+  });
+
+  it('stores bit(1) timeline flags as JSON booleans, not serialized Buffers', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'en',
+            title: 'The Gallery',
+            long_title: null,
+            short_text: null,
+            mouse_over_text: null,
+            keywords: null,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [{
+          gallery_id: 42,
+          link: null,
+          image: null,
+          banner_image: null,
+          banner_item: null,
+          new_expire_date: null,
+          landing_url: null,
+          portal_image: null,
+          live_date: null,
+          homepage_image: null,
+          homepage_item: null,
+          // mysql2 returns bit(1) columns as Buffers
+          has_timeline: Buffer.from([1]),
+          has_country_timeline: Buffer.from([0]),
+          featured: null,
+          status: null,
+          mwnf3_project_id: null,
+        }];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgGalleryLangImporter(context);
+    await importer.import();
+
+    const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
+    const serialized = call.extra as string;
+    expect(serialized).not.toContain('Buffer');
+
+    const extra = JSON.parse(serialized) as Record<string, unknown>;
+    expect(extra.thg_gallery).toMatchObject({
+      has_timeline: true,
+      has_country_timeline: false,
+    });
   });
 
   it('extra is null when thg_gallery has no non-empty extra fields and no thg_gallery_lang extras', async () => {
