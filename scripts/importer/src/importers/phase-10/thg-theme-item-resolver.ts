@@ -112,11 +112,10 @@ export const THEME_ITEM_SELECT_COLUMNS = `
  * Resolve a theme_item row to the backward-compatibility key of the selected
  * child picture item.
  *
- * Returns null when the row belongs to an unsupported source family (e.g. THG
- * Explore, THG Travels) — the caller should skip those rows silently.
- *
- * Returns null when the row belongs to a supported family but the image-identity
- * columns are missing — the caller should emit a warning and skip.
+ * Every source family present in the legacy data is covered, so null means the
+ * row carries no usable picture reference at all — either no source columns or a
+ * source whose image-identity columns are missing. The caller should warn and
+ * skip; it must never fall back to the parent item key.
  */
 export function resolvePictureItemBackwardCompatibility(legacy: LegacyThemeItem): string | null {
   // mwnf3 object picture
