@@ -165,7 +165,15 @@ export class ExploreMonumentPictureImporter extends BaseImporter {
       return false;
     }
 
-    // Find parent monument item
+    // Find parent monument item.
+    //
+    // This is the one Explore call site that cannot follow the pipeline's
+    // fan-out rule for ambiguous monuments: a picture is an Item, and its key
+    // (mwnf3_explore:monument_picture:{monument}:{type}:{image}) carries no
+    // source discriminator, so one picture per candidate parent would collide.
+    // Raising is safe today — none of the 259 ambiguous monuments has a picture
+    // row — and giving that case a real answer means adding a discriminator to
+    // the key first, not choosing a parent here.
     const monumentResolution = await this.monumentResolver.resolve(group.monumentId);
     if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
       throw new Error(
