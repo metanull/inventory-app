@@ -22,12 +22,20 @@
  *   "thg_gallery_lang": { "mouse_over_text": "...", "keywords": "..." }   // when non-empty
  * }
  *
+ * has_timeline and has_country_timeline are MySQL bit(1) columns and are stored
+ * as JSON booleans — see bitToBoolean.
+ *
+ * The gallery's identity attributes (mwnf3 project code, slug, canonical host)
+ * are NOT stored here: they belong to the gallery, not to one of its languages,
+ * and ThgGalleryImporter writes them to collections.extra.thg_gallery.
+ *
  * This importer runs for ALL thg_gallery rows (both galleries and exhibitions).
  * Exhibition-specific extra data from exhibition_i18n is handled by ThgGalleryTranslationImporter.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { bitToBoolean } from '../../utils/legacy-values.js';
 
 /**
  * Legacy thg_gallery_lang structure
@@ -58,12 +66,16 @@ interface LegacyThgGalleryExtra {
   live_date: string | null;
   homepage_image: string | null;
   homepage_item: number | null;
-  has_timeline: number | null;
-  has_country_timeline: number | null;
+  /** MySQL bit(1) — mysql2 hands these back as Buffers, see bitToBoolean. */
+  has_timeline: unknown;
+  has_country_timeline: unknown;
   featured: number | null;
   status: string | null;
-  mwnf3_project_id: number | null;
+  mwnf3_project_id: string | null;
 }
+
+/** thg_gallery columns that are MySQL bit(1) and must be stored as booleans. */
+const GALLERY_BIT_FIELDS = ['has_timeline', 'has_country_timeline'] as const;
 
 export class ThgGalleryLangImporter extends BaseImporter {
   /** gallery_id -> extra fields from thg_gallery */
@@ -259,13 +271,17 @@ export class ThgGalleryLangImporter extends BaseImporter {
     const galleryRow = this.galleryExtraMap.get(lang.gallery_id);
     if (galleryRow) {
       const galleryExtra: Record<string, unknown> = {};
+      // `link` and `mwnf3_project_id` are deliberately absent: they identify the
+      // gallery, not one of its languages, and ThgGalleryImporter now writes them
+      // to collections.extra.thg_gallery as a first-class anchor.
       const galleryFields: Array<keyof LegacyThgGalleryExtra> = [
-        'link', 'image', 'banner_image', 'banner_item', 'new_expire_date',
+        'image', 'banner_image', 'banner_item', 'new_expire_date',
         'landing_url', 'portal_image', 'live_date', 'homepage_image', 'homepage_item',
-        'has_timeline', 'has_country_timeline', 'featured', 'status', 'mwnf3_project_id',
+        'has_timeline', 'has_country_timeline', 'featured', 'status',
       ];
       for (const field of galleryFields) {
-        const val = galleryRow[field];
+        const isBitField = (GALLERY_BIT_FIELDS as readonly string[]).includes(field);
+        const val = isBitField ? bitToBoolean(galleryRow[field]) : galleryRow[field];
         if (val !== null && val !== undefined && val !== '') {
           galleryExtra[field] = val;
         }

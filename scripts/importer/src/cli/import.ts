@@ -110,6 +110,7 @@ import {
   ThgThemeTranslationImporter,
   ThgThemeItemImporter,
   ThgThemeItemTranslationImporter,
+  ThgThemeCoverImageImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
   // Phase 10: Gallery-Item Link Importers
@@ -119,6 +120,7 @@ import {
   ThgGalleryShMonumentImporter,
   ThgGalleryTravelMonumentImporter,
   ThgGalleryExploreMonumentImporter,
+  ThgGalleryNativeProjectImporter,
   ProjectCleanupImporter,
   PartnerMonumentLinker,
   ProjectExhibitionRootKeyingImporter,
@@ -141,6 +143,7 @@ import {
   ThgTagImporter,
   ThgTimelineImporter,
   ThgGalleryContentImporter,
+  ThgHiddenMuseumImporter,
   PartnerHierarchyImporter,
   InstitutionHierarchyImporter,
   ArtintroRootCollectionImporter,
@@ -830,9 +833,16 @@ const ALL_IMPORTERS: ImporterConfig[] = [
   {
     key: 'thg-theme-item-translation',
     name: 'THG Theme Item Translations',
-    description: 'Import contextual item descriptions for thematic galleries',
+    description: 'Import contextual item descriptions and image captions for thematic galleries',
     importerClass: ThgThemeItemTranslationImporter,
     dependencies: ['thg-theme-item', 'thg-gallery-context', 'language'],
+  },
+  {
+    key: 'thg-theme-cover-image',
+    name: 'THG Theme Cover Images',
+    description: 'Mark which selected picture is the cover of each exhibition theme',
+    importerClass: ThgThemeCoverImageImporter,
+    dependencies: ['thg-theme', 'thg-theme-item'],
   },
   {
     key: 'thg-item-related',
@@ -849,6 +859,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['thg-item-related', 'language'],
   },
   // Phase 10: Gallery-Item Link Importers (direct links from thg_gallery to items)
+  {
+    key: 'thg-gallery-native-project',
+    name: 'THG Gallery Native Project Items',
+    description:
+      "Attach the items of each gallery's native mwnf3 project to its collection (legacy union membership)",
+    importerClass: ThgGalleryNativeProjectImporter,
+    dependencies: ['thg-gallery', 'object', 'monument'],
+  },
   {
     key: 'thg-gallery-mwnf3-object',
     name: 'THG Gallery MWNF3 Objects',
@@ -932,6 +950,15 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import exhibition logos as collection images and related content as collection media',
     importerClass: ThgGalleryContentImporter,
     dependencies: ['thg-gallery', 'language'],
+  },
+  // Phase 10: THG Exhibition partner-page exclusions
+  {
+    key: 'thg-hidden-museum',
+    name: 'THG Hidden Museums',
+    description:
+      'Import the museums curators suppressed from an exhibition\'s partner pages',
+    importerClass: ThgHiddenMuseumImporter,
+    dependencies: ['thg-gallery', 'partner'],
   },
   // Phase 11: Post-Import Linking
   {

@@ -11,6 +11,12 @@
  * - collection_item pivot (collection_id, item_id) via attachItemsToCollection
  *
  * Item backward_compatibility format: mwnf3_explore:monument:{explore_item_id}
+ *
+ * Explore monuments are frequently references to a monument that already exists
+ * elsewhere (Virtual Museum, Travels, Sharing History) rather than native records.
+ * When a monument carries more than one such reference the resolver reports every
+ * candidate, and this importer attaches all of them — the same rule the rest of
+ * the Explore pipeline applies.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -81,7 +87,30 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
           // Build backward_compatibility for the Explore monument
           // Format matches Phase 6 Explore monument importer: mwnf3_explore:monument:{item_id}
           const monumentResolution = await this.monumentResolver.resolve(legacy.item_id);
-          if (!monumentResolution.itemId || !monumentResolution.itemBackwardCompatibility) {
+
+          // An Explore monument that carries several cross-references — typically
+          // a monument duplicated between the Virtual Museum and Travels — resolves
+          // to more than one source item. The Explore pipeline's established rule
+          // for that case is to link every resolved candidate rather than pick a
+          // winner (see ExploreMonumentImporter and ExploreMonumentThemeLinkImporter),
+          // so gallery membership follows the same rule: the gallery gets both the
+          // VM item and the Travels item.
+          const resolvedItems =
+            monumentResolution.mode === 'resolvedCandidates'
+              ? (monumentResolution.resolvedCandidates ?? []).map((candidate) => ({
+                  itemId: candidate.itemId,
+                  itemBackwardCompatibility: candidate.itemBackwardCompatibility,
+                }))
+              : monumentResolution.itemId && monumentResolution.itemBackwardCompatibility
+                ? [
+                    {
+                      itemId: monumentResolution.itemId,
+                      itemBackwardCompatibility: monumentResolution.itemBackwardCompatibility,
+                    },
+                  ]
+                : [];
+
+          if (resolvedItems.length === 0) {
             result.warnings = result.warnings || [];
             result.warnings.push(
               `Gallery ${legacy.gallery_id}: ${monumentResolution.message ?? `Explore monument mwnf3_explore:monument:${legacy.item_id} did not resolve to an item`}`
@@ -107,19 +136,21 @@ export class ThgGalleryExploreMonumentImporter extends BaseImporter {
             collectionItems.set(collectionId, []);
           }
           const items = collectionItems.get(collectionId)!;
-          if (!items.includes(monumentResolution.itemId)) {
-            items.push(monumentResolution.itemId);
-          }
+          for (const resolved of resolvedItems) {
+            if (!items.includes(resolved.itemId)) {
+              items.push(resolved.itemId);
+            }
 
-          // Collect sample
-          this.collectSample(
-            'thg_gallery_explore_monument',
-            {
-              ...legacy,
-              resolved_item_backward_compat: monumentResolution.itemBackwardCompatibility,
-            } as unknown as Record<string, unknown>,
-            'success'
-          );
+            // Collect sample
+            this.collectSample(
+              'thg_gallery_explore_monument',
+              {
+                ...legacy,
+                resolved_item_backward_compat: resolved.itemBackwardCompatibility,
+              } as unknown as Record<string, unknown>,
+              'success'
+            );
+          }
 
           result.imported++;
           this.showProgress();

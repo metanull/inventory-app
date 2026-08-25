@@ -125,6 +125,65 @@ class CollectionTest extends TestCase
         ]);
     }
 
+    public function test_can_create_collection_with_extra(): void
+    {
+        $data = Collection::factory()->make()->toArray();
+        $data['extra'] = ['thg_gallery' => ['mwnf3_project_id' => 'DCA', 'slug' => 'carpets']];
+
+        $response = $this->postJson(route('collection.store'), $data);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.extra.thg_gallery.mwnf3_project_id', 'DCA')
+            ->assertJsonPath('data.extra.thg_gallery.slug', 'carpets');
+    }
+
+    public function test_cannot_create_collection_with_scalar_extra(): void
+    {
+        $data = Collection::factory()->make()->toArray();
+        $data['extra'] = 'not-an-object';
+
+        $response = $this->postJson(route('collection.store'), $data);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['extra']);
+    }
+
+    public function test_can_update_collection_extra_and_clear_it(): void
+    {
+        $collection = Collection::factory()->create();
+
+        $response = $this->putJson(route('collection.update', $collection), [
+            'extra' => ['thg_gallery' => ['host' => 'https://carpets.museumwnf.org']],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.extra.thg_gallery.host', 'https://carpets.museumwnf.org');
+
+        $response = $this->putJson(route('collection.update', $collection), [
+            'extra' => null,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.extra', null);
+
+        $this->assertDatabaseHas('collections', [
+            'id' => $collection->id,
+            'extra' => null,
+        ]);
+    }
+
+    public function test_extra_is_exposed_by_the_collection_resource(): void
+    {
+        $collection = Collection::factory()
+            ->withExtra(['thg_gallery' => ['i18n_group_id' => 18]])
+            ->create();
+
+        $response = $this->getJson(route('collection.show', $collection));
+
+        $response->assertOk()
+            ->assertJsonPath('data.extra.thg_gallery.i18n_group_id', 18);
+    }
+
     public function test_by_type_returns_only_collections_of_the_requested_type(): void
     {
         Collection::factory()->subtheme()->count(2)->create();

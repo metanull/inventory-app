@@ -4,8 +4,10 @@ namespace App\Models;
 
 use App\Enums\PartnerLevel;
 use App\Traits\HasDisplayOrder;
+use App\Traits\HasJsonFields;
 use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $parent_id
  * @property string|null $context_id
  * @property string|null $backward_compatibility
+ * @property object|null $extra
  * @property string|null $display_label
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -34,7 +37,7 @@ use Illuminate\Support\Carbon;
 class Collection extends Model
 {
     /** @use HasFactory<CollectionFactory> */
-    use HasDisplayOrder, HasFactory, HasUuids;
+    use HasDisplayOrder, HasFactory, HasJsonFields, HasUuids;
 
     // Type constants
     public const TYPE_COLLECTION = 'collection';
@@ -132,6 +135,8 @@ class Collection extends Model
         'parent_id',
         'display_order',
         'backward_compatibility',
+        // Collection-level structured attributes (not per-language)
+        'extra',
         // GPS Location
         'latitude',
         'longitude',
@@ -147,6 +152,7 @@ class Collection extends Model
      */
     protected $casts = [
         'display_order' => 'integer',
+        'extra' => 'object',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'map_zoom' => 'integer',
@@ -160,6 +166,18 @@ class Collection extends Model
     public function uniqueIds(): array
     {
         return ['id'];
+    }
+
+    /**
+     * Get the extra field decoded as an associative array.
+     *
+     * @return Attribute<mixed, never>
+     */
+    protected function extraDecoded(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->normalizedJson('extra')
+        );
     }
 
     /**

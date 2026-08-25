@@ -17,10 +17,12 @@ export { ThgThemeImporter } from './thg-theme-importer.js';
 export { ThgThemeTranslationImporter } from './thg-theme-translation-importer.js';
 export { ThgThemeItemImporter } from './thg-theme-item-importer.js';
 export { ThgThemeItemTranslationImporter } from './thg-theme-item-translation-importer.js';
+export { ThgThemeCoverImageImporter } from './thg-theme-cover-image-importer.js';
 export { ThgItemRelatedImporter } from './thg-item-related-importer.js';
 export { ThgItemRelatedTranslationImporter } from './thg-item-related-translation-importer.js';
 
 // Gallery-Item Link Importers (direct links from thg_gallery to items)
+export { ThgGalleryNativeProjectImporter } from './thg-gallery-native-project-importer.js';
 export { ThgGalleryMwnf3ObjectImporter } from './thg-gallery-mwnf3-object-importer.js';
 export { ThgGalleryMwnf3MonumentImporter } from './thg-gallery-mwnf3-monument-importer.js';
 export { ThgGalleryShObjectImporter } from './thg-gallery-sh-object-importer.js';
@@ -36,3 +38,6 @@ export { ThgTimelineImporter } from './thg-timeline-importer.js';
 
 // THG Gallery Content (logos, related content)
 export { ThgGalleryContentImporter } from './thg-gallery-content-importer.js';
+
+// THG Exhibition partner-page exclusions
+export { ThgHiddenMuseumImporter } from './thg-hidden-museum-importer.js';

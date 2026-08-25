@@ -3,7 +3,7 @@
  *
  * Verifies that resolvePictureItemBackwardCompatibility returns the correct
  * picture item backward-compatibility key for every supported source family,
- * and returns null for unsupported families or rows with missing image columns.
+ * and returns null for rows with missing image columns.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -48,6 +48,17 @@ const NULL_ROW: LegacyThemeItem = {
   sh_monument_detail_item_id: null,
   sh_monument_detail_detail_id: null,
   sh_monument_detail_image_id: null,
+  explore_monument_item_id: null,
+  explore_monument_item_type: null,
+  explore_monument_image_id: null,
+  travel_monument_project_id: null,
+  travel_monument_country_id: null,
+  travel_monument_trail_id: null,
+  travel_monument_itinerary_id: null,
+  travel_monument_location_id: null,
+  travel_monument_item_id: null,
+  travel_monument_item_type: null,
+  travel_monument_image_id: null,
 };
 
 describe('resolvePictureItemBackwardCompatibility', () => {
@@ -315,8 +326,91 @@ describe('resolvePictureItemBackwardCompatibility', () => {
     });
   });
 
+  describe('Explore monument picture', () => {
+    it('resolves to the explore monument_picture key', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        explore_monument_item_id: 1419,
+        explore_monument_item_type: '',
+        explore_monument_image_id: 5,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3_explore:monument_picture:1419:_:5'
+      );
+    });
+
+    it('carries a non-empty image type into the key', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        explore_monument_item_id: 206,
+        explore_monument_item_type: 'detail',
+        explore_monument_image_id: 1,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3_explore:monument_picture:206:detail:1'
+      );
+    });
+
+    it('treats monument id 0 as absent', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        explore_monument_item_id: 0,
+        explore_monument_image_id: 1,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBeNull();
+    });
+
+    it('returns null when the image column is missing', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        explore_monument_item_id: 206,
+        explore_monument_image_id: null,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBeNull();
+    });
+  });
+
+  describe('Travels monument picture', () => {
+    it('resolves to the travels monument_picture key', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        travel_monument_project_id: 'IAM',
+        travel_monument_country_id: 'pa',
+        travel_monument_trail_id: 1,
+        travel_monument_itinerary_id: 'I',
+        travel_monument_location_id: '1',
+        travel_monument_item_id: 'c',
+        travel_monument_item_type: '',
+        travel_monument_image_id: 12,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3_travels:monument_picture:IAM:pa:1:I:1:c:_:12'
+      );
+    });
+
+    it('returns null when part of the composite key is missing', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        travel_monument_project_id: 'IAM',
+        travel_monument_country_id: 'pa',
+        travel_monument_trail_id: 1,
+        travel_monument_itinerary_id: null,
+        travel_monument_location_id: '1',
+        travel_monument_item_id: 'c',
+        travel_monument_image_id: 12,
+      };
+
+      expect(resolvePictureItemBackwardCompatibility(row)).toBeNull();
+    });
+  });
+
   describe('unsupported / empty rows', () => {
-    it('returns null for a fully null row (unsupported source family)', () => {
+    it('returns null for a fully null row (no reference in any family)', () => {
       expect(resolvePictureItemBackwardCompatibility(NULL_ROW)).toBeNull();
     });
   });
@@ -366,5 +460,15 @@ describe('THEME_ITEM_SELECT_COLUMNS', () => {
 
   it('contains the SH monument detail image column', () => {
     expect(THEME_ITEM_SELECT_COLUMNS).toContain('sh_monument_detail_image_id');
+  });
+
+  it('contains the Explore monument image column', () => {
+    expect(THEME_ITEM_SELECT_COLUMNS).toContain('explore_monument_image_id');
+  });
+
+  it('contains the Travels monument composite key columns', () => {
+    expect(THEME_ITEM_SELECT_COLUMNS).toContain('travel_monument_image_id');
+    expect(THEME_ITEM_SELECT_COLUMNS).toContain('travel_monument_trail_id');
+    expect(THEME_ITEM_SELECT_COLUMNS).toContain('travel_monument_location_id');
   });
 });

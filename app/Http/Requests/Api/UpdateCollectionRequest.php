@@ -49,6 +49,7 @@ class UpdateCollectionRequest extends FormRequest
             'parent_id' => ['nullable', 'string', 'exists:collections,id'],
             'display_order' => ['nullable', 'integer', 'min:0'],
             'backward_compatibility' => ['nullable', 'string', 'max:255'],
+            'extra' => ['nullable', 'array'],
         ];
     }
 }

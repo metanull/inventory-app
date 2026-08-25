@@ -69,9 +69,11 @@ export {
   ThgThemeTranslationImporter,
   ThgThemeItemImporter,
   ThgThemeItemTranslationImporter,
+  ThgThemeCoverImageImporter,
   ThgItemRelatedImporter,
   ThgItemRelatedTranslationImporter,
   // Gallery-Item Link Importers
+  ThgGalleryNativeProjectImporter,
   ThgGalleryMwnf3ObjectImporter,
   ThgGalleryMwnf3MonumentImporter,
   ThgGalleryShObjectImporter,
@@ -86,6 +88,8 @@ export {
   ThgTimelineImporter,
   // THG Gallery Content (logos, related content)
   ThgGalleryContentImporter,
+  // THG Exhibition partner-page exclusions
+  ThgHiddenMuseumImporter,
 } from './phase-10/index.js';
 // Phase 05: Timelines
 export { TimelineImporter } from './phase-05/index.js';

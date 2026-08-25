@@ -20,6 +20,7 @@ use App\Filament\Resources\CollectionResource\RelationManagers\ItemsRelationMana
 use App\Filament\Resources\CollectionResource\RelationManagers\PartnersRelationManager;
 use App\Filament\Resources\CollectionResource\RelationManagers\TranslationsRelationManager;
 use App\Filament\Support\CollectionDisplayLabel;
+use App\Filament\Support\ExtraJsonField;
 use App\Models\Collection;
 use App\Models\Country;
 use App\Models\Partner;
@@ -235,6 +236,7 @@ class CollectionResource extends Resource
                         TextInput::make('backward_compatibility')
                             ->label('Legacy code')
                             ->maxLength(255),
+                        ExtraJsonField::formComponent(),
                     ])
                     ->columns(2)
                     ->collapsed(fn (?Collection $record): bool => $record !== null),
@@ -456,6 +458,7 @@ class CollectionResource extends Resource
                         TextEntry::make('backward_compatibility')
                             ->label('Legacy code'),
                         ...static::timestampsInfolistEntries(),
+                        ExtraJsonField::infolistEntry(),
                     ])
                     ->columns(2)
                     ->collapsible()

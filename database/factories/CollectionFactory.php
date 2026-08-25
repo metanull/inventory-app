@@ -39,6 +39,8 @@ class CollectionFactory extends Factory
             'parent_id' => null,
             'display_order' => null,
             'backward_compatibility' => $this->faker->optional()->uuid(),
+            // Collection-level structured attributes (nullable by default)
+            'extra' => null,
             // GPS Location (nullable by default)
             'latitude' => null,
             'longitude' => null,
@@ -201,6 +203,18 @@ class CollectionFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'purpose' => $purpose,
+        ]);
+    }
+
+    /**
+     * Configure the factory with collection-level structured attributes.
+     *
+     * @param  array<string, mixed>  $extra
+     */
+    public function withExtra(array $extra): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'extra' => $extra,
         ]);
     }
 
