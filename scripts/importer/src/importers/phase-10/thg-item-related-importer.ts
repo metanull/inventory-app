@@ -118,7 +118,10 @@ export class ThgItemRelatedImporter extends BaseImporter {
           // Resolve source picture item reference
           const sourceBackwardCompat = resolvePictureItemBackwardCompatibility(sourceThemeItem);
           if (!sourceBackwardCompat) {
-            // Unsupported source family — skip silently
+            result.warnings = result.warnings || [];
+            result.warnings.push(
+              `Item relation ${sourceKey}: source theme_item has no picture reference in any source family`
+            );
             result.skipped++;
             this.showSkipped();
             continue;
@@ -127,7 +130,10 @@ export class ThgItemRelatedImporter extends BaseImporter {
           // Resolve target picture item reference
           const targetBackwardCompat = resolvePictureItemBackwardCompatibility(targetThemeItem);
           if (!targetBackwardCompat) {
-            // Unsupported source family — skip silently
+            result.warnings = result.warnings || [];
+            result.warnings.push(
+              `Item relation ${sourceKey}: target theme_item has no picture reference in any source family`
+            );
             result.skipped++;
             this.showSkipped();
             continue;

@@ -136,7 +136,10 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           // Resolve to the selected picture item backward-compatibility key
           const itemBackwardCompat = resolvePictureItemBackwardCompatibility(themeItem);
           if (!itemBackwardCompat) {
-            // Unsupported source family (Explore, Travels, etc.) — skip silently
+            result.warnings = result.warnings || [];
+            result.warnings.push(
+              `Theme item ${groupKey}: no picture reference in any source family, skipping`
+            );
             result.skipped++;
             this.showSkipped();
             continue;

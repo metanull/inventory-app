@@ -15,10 +15,15 @@
  * - SH object      → mwnf3_sharing_history:sh_object_images:{project}:{country}:{item}:{type|_}:{image}
  * - SH monument    → mwnf3_sharing_history:sh_monument_images:{project}:{country}:{item}:{type|_}:{image}
  * - SH detail      → mwnf3_sharing_history:sh_monument_detail_pictures:{project}:{country}:{item}:{detail}:{image}
+ * - Explore mon.   → mwnf3_explore:monument_picture:{monument}:{type|_}:{image}
+ * - Travels mon.   → mwnf3_travels:monument_picture:{project}:{country}:{trail}:{itinerary}:{location}:{number}:{type|_}:{image}
  *
  * For SH keys all string parts are lowercased (matching formatShBackwardCompatibility).
  * Missing picture items must be treated as explicit skips with warnings by the
  * calling importer — do not fall back to the parent item key.
+ *
+ * Every theme_item row in the legacy data belongs to exactly one of these
+ * families, so a null return means the row carries no usable reference at all.
  */
 
 /**
@@ -66,6 +71,19 @@ export interface LegacyThemeItem {
   sh_monument_detail_item_id: number | null;
   sh_monument_detail_detail_id: number | null;
   sh_monument_detail_image_id: number | null;
+  // THG Explore monument references (item_id is mwnf3_explore.exploremonument.monumentId)
+  explore_monument_item_id: number | null;
+  explore_monument_item_type: string | null;
+  explore_monument_image_id: number | null;
+  // THG Travels monument references (item_id is the monument number, a string)
+  travel_monument_project_id: string | null;
+  travel_monument_country_id: string | null;
+  travel_monument_trail_id: number | null;
+  travel_monument_itinerary_id: string | null;
+  travel_monument_location_id: string | null;
+  travel_monument_item_id: string | null;
+  travel_monument_item_type: string | null;
+  travel_monument_image_id: number | null;
 }
 
 /**
@@ -84,7 +102,11 @@ export const THEME_ITEM_SELECT_COLUMNS = `
   sh_monument_project_id, sh_monument_country_id, sh_monument_item_id,
   sh_monument_item_type, sh_monument_image_id,
   sh_monument_detail_project_id, sh_monument_detail_country_id, sh_monument_detail_item_id,
-  sh_monument_detail_detail_id, sh_monument_detail_image_id`.trim();
+  sh_monument_detail_detail_id, sh_monument_detail_image_id,
+  explore_monument_item_id, explore_monument_item_type, explore_monument_image_id,
+  travel_monument_project_id, travel_monument_country_id, travel_monument_trail_id,
+  travel_monument_itinerary_id, travel_monument_location_id, travel_monument_item_id,
+  travel_monument_item_type, travel_monument_image_id`.trim();
 
 /**
  * Resolve a theme_item row to the backward-compatibility key of the selected
@@ -177,6 +199,35 @@ export function resolvePictureItemBackwardCompatibility(legacy: LegacyThemeItem)
     return `mwnf3_sharing_history:sh_monument_detail_pictures:${project}:${country}:${legacy.sh_monument_detail_item_id}:${legacy.sh_monument_detail_detail_id}:${legacy.sh_monument_detail_image_id}`;
   }
 
-  // Not a supported source family (THG Explore, THG Travels, etc.)
+  // Explore monument picture
+  // Matches ExploreMonumentPictureImporter: mwnf3_explore:monument_picture:{monumentId}:{type|_}:{image_number}
+  // The picture item exists under this key whether the Explore monument is
+  // native or a reference to a VM/Travels/SH monument — the picture importer
+  // creates it as a child of whatever the monument resolves to.
+  if (
+    legacy.explore_monument_item_id !== null &&
+    legacy.explore_monument_item_id !== 0 &&
+    legacy.explore_monument_image_id !== null
+  ) {
+    const type = legacy.explore_monument_item_type || '_';
+    return `mwnf3_explore:monument_picture:${legacy.explore_monument_item_id}:${type}:${legacy.explore_monument_image_id}`;
+  }
+
+  // Travels monument picture
+  // Matches TravelsMonumentPictureImporter: mwnf3_travels:monument_picture:{project}:{country}:{trail}:{itinerary}:{location}:{number}:{type|_}:{image_number}
+  if (
+    legacy.travel_monument_project_id &&
+    legacy.travel_monument_country_id &&
+    legacy.travel_monument_trail_id !== null &&
+    legacy.travel_monument_itinerary_id &&
+    legacy.travel_monument_location_id &&
+    legacy.travel_monument_item_id &&
+    legacy.travel_monument_image_id !== null
+  ) {
+    const type = legacy.travel_monument_item_type || '_';
+    return `mwnf3_travels:monument_picture:${legacy.travel_monument_project_id}:${legacy.travel_monument_country_id}:${legacy.travel_monument_trail_id}:${legacy.travel_monument_itinerary_id}:${legacy.travel_monument_location_id}:${legacy.travel_monument_item_id}:${type}:${legacy.travel_monument_image_id}`;
+  }
+
+  // No usable reference in any source family
   return null;
 }

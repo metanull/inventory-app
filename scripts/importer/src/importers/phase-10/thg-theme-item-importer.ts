@@ -25,6 +25,8 @@
  * - SH object pictures       → mwnf3_sharing_history:sh_object_images:…
  * - SH monument pictures     → mwnf3_sharing_history:sh_monument_images:…
  * - SH detail pictures       → mwnf3_sharing_history:sh_monument_detail_pictures:…
+ * - Explore monument pics    → mwnf3_explore:monument_picture:…
+ * - Travels monument pics    → mwnf3_travels:monument_picture:…
  *
  * Dependencies:
  * - ThgThemeImporter (must run first to create theme collections)
@@ -79,7 +81,7 @@ export class ThgThemeItemImporter extends BaseImporter {
 
       this.logInfo(`Found ${themeItems.length} theme-item associations to process`);
 
-      let skippedUnsupportedFamily = 0;
+      let skippedUnresolvable = 0;
       let skippedNoItem = 0;
       let skippedNoTheme = 0;
 
@@ -89,8 +91,13 @@ export class ThgThemeItemImporter extends BaseImporter {
           const pictureBackwardCompat = resolvePictureItemBackwardCompatibility(legacy);
 
           if (!pictureBackwardCompat) {
-            // Unsupported source family (Explore, Travels, etc.) — skip silently
-            skippedUnsupportedFamily++;
+            // Every legacy row belongs to a known family, so this means the row
+            // carries no usable reference — worth reporting rather than hiding.
+            result.warnings = result.warnings || [];
+            result.warnings.push(
+              `Theme item ${legacy.gallery_id}.${legacy.theme_id}.${legacy.item_id}: no picture reference in any source family`
+            );
+            skippedUnresolvable++;
             continue;
           }
 
@@ -156,9 +163,9 @@ export class ThgThemeItemImporter extends BaseImporter {
       }
 
       // Log skipped statistics
-      if (skippedUnsupportedFamily > 0) {
-        this.logInfo(
-          `Skipped ${skippedUnsupportedFamily} items from unsupported source families (Explore, Travels, etc.)`
+      if (skippedUnresolvable > 0) {
+        this.logWarning(
+          `Skipped ${skippedUnresolvable} items with no picture reference in any source family`
         );
       }
       if (skippedNoItem > 0) {
@@ -170,7 +177,7 @@ export class ThgThemeItemImporter extends BaseImporter {
 
       this.showSummary(
         result.imported,
-        result.skipped + skippedUnsupportedFamily + skippedNoItem + skippedNoTheme,
+        result.skipped + skippedUnresolvable + skippedNoItem + skippedNoTheme,
         result.errors.length
       );
     } catch (error) {
