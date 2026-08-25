@@ -1,16 +1,19 @@
 /**
  * THG Theme Item Translation Importer
  *
- * Stores theme_item_i18n contextual descriptions on the collection_item pivot extra field,
- * grouped by language. Does NOT write item_translations — contextual text describes the
- * item within the specific gallery theme context, not the item itself.
+ * Stores theme_item_i18n contextual descriptions and image captions on the collection_item
+ * pivot extra field, grouped by language. Does NOT write item_translations — this text is
+ * written for the exhibition and describes the selected picture within that one theme, not
+ * the item itself.
  *
  * Legacy schema:
- * - mwnf3_thematic_gallery.theme_item_i18n (gallery_id, theme_id, item_id, language_id, contextual_description)
+ * - mwnf3_thematic_gallery.theme_item_i18n (gallery_id, theme_id, item_id, language_id,
+ *                                           contextual_description, image_caption)
  *
  * New schema:
- * - collection_item.extra (JSON) — merged field:
- *     { "contextual_descriptions": { "eng": "...", "fra": "..." } }
+ * - collection_item.extra (JSON) — merged fields:
+ *     { "contextual_descriptions": { "eng": "...", "fra": "..." },
+ *       "image_captions":          { "eng": "...", "fra": "..." } }
  *
  * Context: Uses the theme collection (ThgThemeImporter BC) for the collection_item lookup.
  * The item is resolved to the selected picture child item via the shared resolver.
@@ -34,6 +37,7 @@ interface LegacyThemeItemI18n {
   item_id: number;
   language_id: string; // 2-letter code
   contextual_description: string | null;
+  image_caption: string | null;
 }
 
 interface LegacyThemeItemRow extends LegacyThemeItem {
@@ -82,14 +86,15 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
       }
 
       this.logInfo(
-        'Importing contextual item descriptions from theme_item_i18n into collection_item.extra...'
+        'Importing contextual item descriptions and image captions from theme_item_i18n into collection_item.extra...'
       );
 
       // Query translations from legacy database
       const translations = await this.context.legacyDb.query<LegacyThemeItemI18n>(
-        `SELECT gallery_id, theme_id, item_id, language_id, contextual_description
+        `SELECT gallery_id, theme_id, item_id, language_id, contextual_description, image_caption
          FROM mwnf3_thematic_gallery.theme_item_i18n
-         WHERE contextual_description IS NOT NULL AND contextual_description != ''
+         WHERE (contextual_description IS NOT NULL AND contextual_description != '')
+            OR (image_caption IS NOT NULL AND image_caption != '')
          ORDER BY gallery_id, theme_id, item_id, language_id`
       );
 
@@ -156,8 +161,10 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
             continue;
           }
 
-          // Build the contextual_descriptions map and source_bc_by_language map keyed by ISO-3 language ID
+          // Build the contextual_descriptions, image_captions and source_bc_by_language
+          // maps keyed by ISO-3 language ID
           const contextualDescriptions: Record<string, string> = {};
+          const imageCaptions: Record<string, string> = {};
           const sourceBcByLanguage: Record<string, string> = {};
           let validLanguageCount = 0;
           for (const row of rows) {
@@ -176,11 +183,17 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
               );
               continue;
             }
+            if (!row.contextual_description && !row.image_caption) {
+              continue;
+            }
             if (row.contextual_description) {
               contextualDescriptions[languageId] = convertHtmlToMarkdown(row.contextual_description);
-              sourceBcByLanguage[languageId] = `mwnf3_thematic_gallery:theme_item_i18n:${row.gallery_id}:${row.theme_id}:${row.item_id}:${row.language_id}`;
-              validLanguageCount++;
             }
+            if (row.image_caption) {
+              imageCaptions[languageId] = convertHtmlToMarkdown(row.image_caption);
+            }
+            sourceBcByLanguage[languageId] = `mwnf3_thematic_gallery:theme_item_i18n:${row.gallery_id}:${row.theme_id}:${row.item_id}:${row.language_id}`;
+            validLanguageCount++;
           }
 
           if (validLanguageCount === 0) {
@@ -212,7 +225,12 @@ export class ThgThemeItemTranslationImporter extends BaseImporter {
           const existingExtra =
             await this.context.strategy.getCollectionItemExtra(collectionId, itemId);
           const mergedExtra: Record<string, unknown> = existingExtra ?? {};
-          mergedExtra.contextual_descriptions = contextualDescriptions;
+          if (Object.keys(contextualDescriptions).length > 0) {
+            mergedExtra.contextual_descriptions = contextualDescriptions;
+          }
+          if (Object.keys(imageCaptions).length > 0) {
+            mergedExtra.image_captions = imageCaptions;
+          }
           mergedExtra.source_bc_by_language = sourceBcByLanguage;
 
           await this.context.strategy.setCollectionItemExtra(

@@ -291,4 +291,89 @@ describe('ThgThemeItemTranslationImporter — contextual_descriptions + source_b
       `mwnf3_thematic_gallery:theme_item_i18n:${GALLERY_ID}:${THEME_ID}:${ITEM_ID}:en`
     );
   });
+
+  it('stores image_captions per language alongside contextual_descriptions', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n')) {
+        return [
+          {
+            gallery_id: GALLERY_ID,
+            theme_id: THEME_ID,
+            item_id: ITEM_ID,
+            language_id: 'en',
+            contextual_description: 'Description in English.',
+            image_caption: 'Bowl, 9th century',
+          },
+          {
+            gallery_id: GALLERY_ID,
+            theme_id: THEME_ID,
+            item_id: ITEM_ID,
+            language_id: 'fr',
+            contextual_description: 'Description en français.',
+            image_caption: 'Bol, IXe siècle',
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item')) {
+        return [BASE_THEME_ITEM];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgThemeItemTranslationImporter(context);
+    await importer.import();
+
+    const extraArg: string = setCollectionItemExtraMock.mock.calls[0][2] as string;
+    const extra = JSON.parse(extraArg) as Record<string, unknown>;
+
+    expect(extra.image_captions).toEqual({
+      eng: 'Bowl, 9th century',
+      fra: 'Bol, IXe siècle',
+    });
+  });
+
+  it('imports a row that has an image caption but no contextual description', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n')) {
+        return [
+          {
+            gallery_id: GALLERY_ID,
+            theme_id: THEME_ID,
+            item_id: ITEM_ID,
+            language_id: 'en',
+            contextual_description: null,
+            image_caption: 'Caption only',
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.theme_item')) {
+        return [BASE_THEME_ITEM];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgThemeItemTranslationImporter(context);
+    const result = await importer.import();
+
+    expect(result.imported).toBe(1);
+    const extraArg: string = setCollectionItemExtraMock.mock.calls[0][2] as string;
+    const extra = JSON.parse(extraArg) as Record<string, unknown>;
+
+    expect(extra.image_captions).toEqual({ eng: 'Caption only' });
+    expect(extra.contextual_descriptions).toBeUndefined();
+  });
+
+  it('selects rows that carry either a description or a caption', async () => {
+    const importer = new ThgThemeItemTranslationImporter(context);
+    await importer.import();
+
+    const i18nSql = queryMock.mock.calls
+      .map((args: unknown[]) => args[0] as string)
+      .find((sql) => sql.includes('FROM mwnf3_thematic_gallery.theme_item_i18n'));
+
+    expect(i18nSql).toContain('image_caption');
+    expect(i18nSql).toContain('OR');
+  });
 });
