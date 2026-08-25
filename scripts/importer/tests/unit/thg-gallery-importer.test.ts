@@ -12,6 +12,7 @@ describe('ThgGalleryImporter', () => {
   let context: ImportContext;
   let queryMock: ReturnType<typeof vi.fn>;
   let writeCollectionMock: ReturnType<typeof vi.fn>;
+  let setCollectionExtraMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
     info: vi.fn(),
@@ -30,16 +31,33 @@ describe('ThgGalleryImporter', () => {
     galleries?: Record<string, unknown>[];
     projectTypes?: Record<string, unknown>[];
     exhibitionI18nGalleryIds?: number[];
+    galleryUrls?: Record<string, unknown>[];
   }) {
     const galleries = overrides.galleries ?? [
-      { gallery_id: 10, project_id: 'THG', name: 'Islamic Art', link: 'islamic-art', sort_order: 1, status: 'A' },
+      {
+        gallery_id: 10,
+        project_id: 'THG',
+        name: 'Islamic Art',
+        link: 'islamic-art',
+        sort_order: 1,
+        status: 'A',
+        mwnf3_project_id: 'ISL',
+        i18n_group_id: 21,
+        i18n_common_group_id: 59,
+      },
     ];
     const projectTypes = overrides.projectTypes ?? [
       { project_id: 'THG', type_id: 1, is_gallery: 1, is_exhibition: 0 },
     ];
     const exhibitionGalleryIds = overrides.exhibitionI18nGalleryIds ?? [];
+    const galleryUrls = overrides.galleryUrls ?? [
+      { gallery_id: 10, link: 'https://islamic-art.museumwnf.org' },
+    ];
 
     return vi.fn(async (sql: string) => {
+      if (sql.includes('thg_gallery_url')) {
+        return galleryUrls;
+      }
       if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery') && !sql.includes('thg_projects')) {
         return galleries;
       }
@@ -75,10 +93,14 @@ describe('ThgGalleryImporter', () => {
 
     writeCollectionMock = vi.fn().mockResolvedValue('collection-uuid-10');
 
+    setCollectionExtraMock = vi.fn().mockResolvedValue(undefined);
+
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       writeCollection: writeCollectionMock,
+      getCollectionExtra: vi.fn().mockResolvedValue(null),
+      setCollectionExtra: setCollectionExtraMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -236,5 +258,94 @@ describe('ThgGalleryImporter', () => {
 
     expect(writeCollectionMock).not.toHaveBeenCalled();
     expect(result.skipped).toBe(1);
+  });
+
+  describe('gallery anchor', () => {
+    it('writes project code, slug, host and i18n groups to collections.extra', async () => {
+      const importer = new ThgGalleryImporter(context);
+      await importer.import();
+
+      const call = writeCollectionMock.mock.calls[0][0] as Record<string, unknown>;
+      const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
+
+      expect(extra.thg_gallery).toEqual({
+        mwnf3_project_id: 'ISL',
+        slug: 'islamic-art',
+        host: 'https://islamic-art.museumwnf.org',
+        i18n_group_id: 21,
+        i18n_common_group_id: 59,
+      });
+    });
+
+    it('omits the host for exhibitions, which have no thg_gallery_url row', async () => {
+      queryMock = buildQueryMock({
+        galleries: [
+          {
+            gallery_id: 20,
+            project_id: 'EXH',
+            name: 'My Exhibition',
+            link: 'the_use_of_colours_in_art',
+            sort_order: 1,
+            status: 'A',
+            mwnf3_project_id: 'EXHCOLOUR',
+            i18n_group_id: 65,
+            i18n_common_group_id: 59,
+          },
+        ],
+        projectTypes: [{ project_id: 'EXH', type_id: 2, is_gallery: 0, is_exhibition: 1 }],
+        exhibitionI18nGalleryIds: [20],
+        galleryUrls: [],
+      });
+      tracker.set('mwnf3_thematic_gallery:thg_gallery:20', 'context-uuid-20', 'context');
+      context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+      const importer = new ThgGalleryImporter(context);
+      await importer.import();
+
+      const call = writeCollectionMock.mock.calls[0][0] as Record<string, unknown>;
+      const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
+      const anchor = extra.thg_gallery as Record<string, unknown>;
+
+      expect(anchor.host).toBeUndefined();
+      // The slug is load-bearing for exhibitions: it IS the public URL segment
+      expect(anchor.slug).toBe('the_use_of_colours_in_art');
+    });
+
+    it('refreshes the anchor of an already-imported gallery, preserving other extra keys', async () => {
+      tracker.set('mwnf3_thematic_gallery:thg_gallery:10', 'existing-uuid', 'collection');
+      strategy = {
+        ...strategy,
+        getCollectionExtra: vi.fn().mockResolvedValue({ unrelated: 'keep me' }),
+        setCollectionExtra: setCollectionExtraMock,
+      } as unknown as IWriteStrategy;
+      context = { ...context, tracker, strategy };
+
+      const importer = new ThgGalleryImporter(context);
+      await importer.import();
+
+      expect(setCollectionExtraMock).toHaveBeenCalledTimes(1);
+      const [collectionId, serialized] = setCollectionExtraMock.mock.calls[0] as [string, string];
+      expect(collectionId).toBe('existing-uuid');
+      expect(JSON.parse(serialized)).toEqual({
+        unrelated: 'keep me',
+        thg_gallery: {
+          mwnf3_project_id: 'ISL',
+          slug: 'islamic-art',
+          host: 'https://islamic-art.museumwnf.org',
+          i18n_group_id: 21,
+          i18n_common_group_id: 59,
+        },
+      });
+    });
+
+    it('does not touch the anchor in dry-run mode', async () => {
+      tracker.set('mwnf3_thematic_gallery:thg_gallery:10', 'existing-uuid', 'collection');
+      context = { ...context, tracker, dryRun: true };
+
+      const importer = new ThgGalleryImporter(context);
+      await importer.import();
+
+      expect(setCollectionExtraMock).not.toHaveBeenCalled();
+    });
   });
 });

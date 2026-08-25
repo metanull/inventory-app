@@ -16,7 +16,18 @@
  * - mwnf3_thematic_gallery.thg_project_type
  *
  * New schema:
- * - collections (id, type, context_id, language_id, parent_id, internal_name, backward_compatibility)
+ * - collections (id, type, context_id, language_id, parent_id, internal_name,
+ *                backward_compatibility, extra)
+ *
+ * The gallery anchor is written to collections.extra.thg_gallery:
+ *
+ *   { "mwnf3_project_id": "DCA", "slug": "carpets",
+ *     "host": "https://carpets.museumwnf.org",
+ *     "i18n_group_id": 18, "i18n_common_group_id": 59 }
+ *
+ * These identify the gallery itself — its source project, its public URL and the
+ * legacy UI-string groups a rebuilt site is seeded from — so they belong to the
+ * collection, not to one of its language rows.
  *
  * Backward compatibility: mwnf3_thematic_gallery:thg_gallery:{gallery_id}
  *
@@ -38,6 +49,20 @@ interface LegacyThgGallery {
   link: string | null;
   sort_order: number;
   status: 'A' | 'H';
+  mwnf3_project_id: string | null;
+  i18n_group_id: number | null;
+  i18n_common_group_id: number | null;
+}
+
+/**
+ * Per-gallery anchor stored on collections.extra.thg_gallery.
+ */
+interface ThgGalleryAnchor {
+  mwnf3_project_id?: string;
+  slug?: string;
+  host?: string;
+  i18n_group_id?: number;
+  i18n_common_group_id?: number;
 }
 
 /**
@@ -57,6 +82,8 @@ export class ThgGalleryImporter extends BaseImporter {
   private exhibitionGalleryIds: Set<number> = new Set();
   /** project_id -> { is_gallery, is_exhibition } resolved from thg_projects + thg_project_type */
   private projectTypeMap: Map<string, { isGallery: boolean; isExhibition: boolean }> = new Map();
+  /** gallery_id -> canonical public host from thg_gallery_url */
+  private galleryHosts: Map<number, string> = new Map();
 
   getName(): string {
     return 'ThgGalleryImporter';
@@ -93,6 +120,9 @@ export class ThgGalleryImporter extends BaseImporter {
       // Load project types via thg_projects JOIN thg_project_type
       await this.loadProjectTypeMap();
 
+      // Load the canonical public host of each gallery
+      await this.loadGalleryHosts();
+
       // Pre-load exhibition gallery IDs from exhibition_i18n presence
       const exhibitionRows = await this.context.legacyDb.query<{ gallery_id: number }>(
         'SELECT DISTINCT gallery_id FROM mwnf3_thematic_gallery.exhibition_i18n'
@@ -104,7 +134,10 @@ export class ThgGalleryImporter extends BaseImporter {
 
       // Query galleries from legacy database
       const galleries = await this.context.legacyDb.query<LegacyThgGallery>(
-        'SELECT gallery_id, project_id, name, link, sort_order, status FROM mwnf3_thematic_gallery.thg_gallery ORDER BY sort_order, gallery_id'
+        `SELECT gallery_id, project_id, name, link, sort_order, status,
+                mwnf3_project_id, i18n_group_id, i18n_common_group_id
+         FROM mwnf3_thematic_gallery.thg_gallery
+         ORDER BY sort_order, gallery_id`
       );
 
       this.logInfo(`Found ${galleries.length} galleries to import as collections`);
@@ -113,8 +146,13 @@ export class ThgGalleryImporter extends BaseImporter {
         try {
           const backwardCompat = `mwnf3_thematic_gallery:thg_gallery:${legacy.gallery_id}`;
 
-          // Check if already exists as collection (use async for database fallback)
+          const anchor = this.buildAnchor(legacy);
+
+          // Check if already exists as collection (use async for database fallback).
+          // The anchor is still refreshed so a re-run picks up legacy edits to the
+          // slug, host or i18n groups without recreating the collection.
           if (await this.entityExistsAsync(backwardCompat, 'collection')) {
+            await this.refreshAnchor(backwardCompat, anchor);
             result.skipped++;
             this.showSkipped();
             continue;
@@ -188,6 +226,7 @@ export class ThgGalleryImporter extends BaseImporter {
             language_id: defaultLanguageId,
             parent_id: parentId,
             type: collectionType,
+            extra: Object.keys(anchor).length > 0 ? JSON.stringify({ thg_gallery: anchor }) : null,
           });
 
           this.registerEntity(collectionId, backwardCompat, 'collection');
@@ -235,6 +274,75 @@ export class ThgGalleryImporter extends BaseImporter {
       const msg = err instanceof Error ? err.message : String(err);
       this.logWarning(`Failed to load project type mappings: ${msg}`);
     }
+  }
+
+  /**
+   * Load the canonical public host of each gallery from thg_gallery_url.
+   * Galleries have exactly one row; exhibitions have none (they are served as
+   * path segments under a shared exhibitions host, identified by their slug).
+   */
+  private async loadGalleryHosts(): Promise<void> {
+    try {
+      const rows = await this.context.legacyDb.query<{ gallery_id: number; link: string | null }>(
+        `SELECT gallery_id, link FROM mwnf3_thematic_gallery.thg_gallery_url
+         WHERE link IS NOT NULL AND link != ''`
+      );
+      for (const row of rows) {
+        this.galleryHosts.set(row.gallery_id, row.link!);
+      }
+      this.logInfo(`Loaded ${this.galleryHosts.size} gallery hosts`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logWarning(`Failed to load gallery hosts: ${msg}`);
+    }
+  }
+
+  /**
+   * Build the per-gallery anchor: the durable attributes that identify the
+   * gallery itself rather than one of its language rows.
+   */
+  private buildAnchor(legacy: LegacyThgGallery): ThgGalleryAnchor {
+    const anchor: ThgGalleryAnchor = {};
+
+    if (legacy.mwnf3_project_id) {
+      anchor.mwnf3_project_id = legacy.mwnf3_project_id;
+    }
+    if (legacy.link) {
+      anchor.slug = legacy.link;
+    }
+    const host = this.galleryHosts.get(legacy.gallery_id);
+    if (host) {
+      anchor.host = host;
+    }
+    if (legacy.i18n_group_id !== null && legacy.i18n_group_id !== undefined) {
+      anchor.i18n_group_id = legacy.i18n_group_id;
+    }
+    if (legacy.i18n_common_group_id !== null && legacy.i18n_common_group_id !== undefined) {
+      anchor.i18n_common_group_id = legacy.i18n_common_group_id;
+    }
+
+    return anchor;
+  }
+
+  /**
+   * Write the anchor onto an already-imported gallery collection, preserving any
+   * other keys previously stored in extra.
+   */
+  private async refreshAnchor(backwardCompat: string, anchor: ThgGalleryAnchor): Promise<void> {
+    if (Object.keys(anchor).length === 0 || this.isDryRun || this.isSampleOnlyMode) {
+      return;
+    }
+
+    const collectionId = await this.getEntityUuidAsync(backwardCompat, 'collection');
+    if (!collectionId) {
+      return;
+    }
+
+    const existing = (await this.context.strategy.getCollectionExtra(collectionId)) ?? {};
+    await this.context.strategy.setCollectionExtra(
+      collectionId,
+      JSON.stringify({ ...existing, thg_gallery: anchor })
+    );
   }
 
   /**

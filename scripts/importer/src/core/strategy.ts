@@ -620,6 +620,17 @@ export interface IWriteStrategy {
   updateCollectionTranslationsContextId(collectionId: string, contextId: string): Promise<void>;
 
   /**
+   * Read the extra JSON from a collections row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getCollectionExtra(collectionId: string): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on a collections row.
+   */
+  setCollectionExtra(collectionId: string, extra: string): Promise<void>;
+
+  /**
    * Get a collection's current purpose (null when unset).
    * Used by marker steps' ensure-semantics to detect no-op updates on reruns.
    */

@@ -273,8 +273,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const sanitized = sanitizeAllStrings(data);
     const id = deterministicUuid(`collection:${sanitized.backward_compatibility.toLowerCase()}`);
     await this.db.execute(
-      `INSERT INTO collections (id, context_id, language_id, parent_id, type, purpose, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO collections (id, context_id, language_id, parent_id, type, purpose, extra, display_order, internal_name, backward_compatibility, latitude, longitude, map_zoom, country_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         sanitized.context_id,
@@ -282,6 +282,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.parent_id ?? null,
         sanitized.type ?? 'collection',
         sanitized.purpose ?? null,
+        data.extra ?? null,
         data.display_order ?? null,
         sanitized.internal_name,
         sanitized.backward_compatibility,
@@ -1768,6 +1769,24 @@ export class SqlWriteStrategy implements IWriteStrategy {
        WHERE collection_id = ? AND context_id != ?`,
       [contextId, this.now, collectionId, contextId]
     );
+  }
+
+  async getCollectionExtra(collectionId: string): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM collections WHERE id = ? LIMIT 1`,
+      [collectionId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setCollectionExtra(collectionId: string, extra: string): Promise<void> {
+    await this.db.execute(`UPDATE collections SET extra = ?, updated_at = ? WHERE id = ?`, [
+      extra,
+      this.now,
+      collectionId,
+    ]);
   }
 
   async getCollectionPurpose(collectionId: string): Promise<string | null> {

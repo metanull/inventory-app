@@ -214,8 +214,60 @@ describe('ThgGalleryLangImporter', () => {
     const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
     expect(call.extra).toBeDefined();
     const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
-    expect(extra.thg_gallery).toMatchObject({ link: 'islamic-art', image: 'header.jpg', has_timeline: true, status: 'A', mwnf3_project_id: 7 });
+    expect(extra.thg_gallery).toMatchObject({ image: 'header.jpg', has_timeline: true, status: 'A' });
     expect((extra.thg_gallery as Record<string, unknown>).banner_image).toBeUndefined();
+  });
+
+  it('leaves the gallery identity attributes to the collection-level anchor', async () => {
+    queryMock = vi.fn(async (sql: string) => {
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery_lang')) {
+        return [
+          {
+            gallery_id: 42,
+            lang: 'en',
+            title: 'The Gallery',
+            long_title: null,
+            short_text: null,
+            mouse_over_text: null,
+            keywords: null,
+          },
+        ];
+      }
+      if (sql.includes('FROM mwnf3_thematic_gallery.thg_gallery')) {
+        return [{
+          gallery_id: 42,
+          link: 'islamic-art',
+          image: 'header.jpg',
+          banner_image: null,
+          banner_item: null,
+          new_expire_date: null,
+          landing_url: null,
+          portal_image: null,
+          live_date: null,
+          homepage_image: null,
+          homepage_item: null,
+          has_timeline: null,
+          has_country_timeline: null,
+          featured: null,
+          status: null,
+          mwnf3_project_id: 'DCA',
+        }];
+      }
+      return [];
+    });
+    context = { ...context, legacyDb: { ...legacyDb, query: queryMock as ILegacyDatabase['query'] } };
+
+    const importer = new ThgGalleryLangImporter(context);
+    await importer.import();
+
+    const call = writeCollectionTranslationMock.mock.calls[0][0] as Record<string, unknown>;
+    const extra = JSON.parse(call.extra as string) as Record<string, unknown>;
+    const galleryExtra = extra.thg_gallery as Record<string, unknown>;
+
+    // Per-gallery identity lives on collections.extra, not on every language row
+    expect(galleryExtra.link).toBeUndefined();
+    expect(galleryExtra.mwnf3_project_id).toBeUndefined();
+    expect(galleryExtra.image).toBe('header.jpg');
   });
 
   it('stores bit(1) timeline flags as JSON booleans, not serialized Buffers', async () => {

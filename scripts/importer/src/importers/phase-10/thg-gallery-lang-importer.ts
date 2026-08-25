@@ -25,6 +25,10 @@
  * has_timeline and has_country_timeline are MySQL bit(1) columns and are stored
  * as JSON booleans — see bitToBoolean.
  *
+ * The gallery's identity attributes (mwnf3 project code, slug, canonical host)
+ * are NOT stored here: they belong to the gallery, not to one of its languages,
+ * and ThgGalleryImporter writes them to collections.extra.thg_gallery.
+ *
  * This importer runs for ALL thg_gallery rows (both galleries and exhibitions).
  * Exhibition-specific extra data from exhibition_i18n is handled by ThgGalleryTranslationImporter.
  */
@@ -267,10 +271,13 @@ export class ThgGalleryLangImporter extends BaseImporter {
     const galleryRow = this.galleryExtraMap.get(lang.gallery_id);
     if (galleryRow) {
       const galleryExtra: Record<string, unknown> = {};
+      // `link` and `mwnf3_project_id` are deliberately absent: they identify the
+      // gallery, not one of its languages, and ThgGalleryImporter now writes them
+      // to collections.extra.thg_gallery as a first-class anchor.
       const galleryFields: Array<keyof LegacyThgGalleryExtra> = [
-        'link', 'image', 'banner_image', 'banner_item', 'new_expire_date',
+        'image', 'banner_image', 'banner_item', 'new_expire_date',
         'landing_url', 'portal_image', 'live_date', 'homepage_image', 'homepage_item',
-        'has_timeline', 'has_country_timeline', 'featured', 'status', 'mwnf3_project_id',
+        'has_timeline', 'has_country_timeline', 'featured', 'status',
       ];
       for (const field of galleryFields) {
         const isBitField = (GALLERY_BIT_FIELDS as readonly string[]).includes(field);

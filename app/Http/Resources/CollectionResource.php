@@ -42,6 +42,8 @@ class CollectionResource extends JsonResource
             'display_order' => $this->display_order,
             // The Id(s) of matching resource in the legacy system (if any).
             'backward_compatibility' => $this->backward_compatibility,
+            // Collection-level structured attributes that belong to the collection rather than to one of its languages (e.g. a thematic gallery's source project, slug and canonical host)
+            'extra' => $this->extra,
             // The date of creation of the resource (managed by the system)
             'created_at' => $this->created_at,
             // The date of last modification of the resource (managed by the system)
