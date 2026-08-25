@@ -5,13 +5,20 @@
  * Creates links between selected picture items within a gallery context.
  *
  * Legacy schema:
- * - mwnf3_thematic_gallery.theme_item_related (gallery_id, theme_id, item_id, related_item_id)
+ * - mwnf3_thematic_gallery.theme_item_related (gallery_id, theme_id, item_id,
+ *                                              related_gallery_id, related_theme_id, related_item_id)
  *
  * New schema:
  * - item_item_links (id, source_id, target_id, context_id)
  *
- * Context: Uses the gallery's context (created by ThgGalleryContextImporter)
+ * Context: Uses the SOURCE gallery's context (created by ThgGalleryContextImporter) —
+ * the link is authored in the source exhibition even when it points at a picture in
+ * another one.
  * Source and target items are resolved to selected picture child items via the shared resolver.
+ *
+ * The backward-compatibility key stays (gallery, theme, item, related_item): that
+ * combination is unique across the legacy table, so keys of already-imported links
+ * — and the translations that look them up — are unaffected.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
@@ -24,11 +31,17 @@ import type { LegacyThemeItem } from './thg-theme-item-resolver.js';
 
 /**
  * Legacy theme_item_related structure
+ *
+ * The target is addressed by its own (related_gallery_id, related_theme_id,
+ * related_item_id) triple — a related picture may live in another theme, and in
+ * three rows even in another exhibition.
  */
 interface LegacyThemeItemRelated {
   gallery_id: number;
   theme_id: number;
   item_id: number;
+  related_gallery_id: number | null;
+  related_theme_id: number | null;
   related_item_id: number;
 }
 
@@ -82,7 +95,8 @@ export class ThgItemRelatedImporter extends BaseImporter {
 
       // Query related items from legacy database
       const relatedItems = await this.context.legacyDb.query<LegacyThemeItemRelated>(
-        `SELECT gallery_id, theme_id, item_id, related_item_id
+        `SELECT gallery_id, theme_id, item_id,
+                related_gallery_id, related_theme_id, related_item_id
          FROM mwnf3_thematic_gallery.theme_item_related
          ORDER BY gallery_id, theme_id, item_id, related_item_id`
       );
@@ -102,13 +116,18 @@ export class ThgItemRelatedImporter extends BaseImporter {
             continue;
           }
 
-          // Get theme_item for target (related) item resolution
-          const targetKey = `${legacy.gallery_id}.${legacy.theme_id}.${legacy.related_item_id}`;
+          // Get theme_item for target (related) item resolution.
+          // The target is addressed by the related row's own gallery/theme, which
+          // is not always the source's — 8 rows point at another theme, 3 of them
+          // at another exhibition.
+          const targetGalleryId = legacy.related_gallery_id ?? legacy.gallery_id;
+          const targetThemeId = legacy.related_theme_id ?? legacy.theme_id;
+          const targetKey = `${targetGalleryId}.${targetThemeId}.${legacy.related_item_id}`;
           const targetThemeItem = this.themeItemCache.get(targetKey);
           if (!targetThemeItem) {
             result.warnings = result.warnings || [];
             result.warnings.push(
-              `Item relation ${sourceKey}: target theme_item not found (related_item_id=${legacy.related_item_id})`
+              `Item relation ${sourceKey}: target theme_item not found (${targetKey})`
             );
             result.skipped++;
             this.showSkipped();
