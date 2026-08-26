@@ -112,6 +112,45 @@ Step debugging is compiled in but off by default; set `XDEBUG_MODE=debug` on
 the container (or uncomment the line in `.devcontainer/devcontainer.json`) to
 arm it against port 9003.
 
+### Running the real dataset locally (staging)
+
+The `staging` profile serves the actual imported collection — every record and
+every image — from your own machine, with no network dependency once it is
+populated:
+
+```bash
+docker compose --profile staging up -d
+docker compose --profile staging run --rm staging-seed-auth   # once
+```
+
+Then http://localhost:8020/admin, as `admin@example.com` / `password`.
+
+This is not the dev stack with different data. `staging-app` runs the `prod`
+target of `.docker/Dockerfile` with the code **baked in**, so what you click
+through is what would ship — rebuild it after changing code:
+
+```bash
+docker compose --profile staging build staging-app
+```
+
+| | Development | Staging |
+|---|---|---|
+| URL | http://localhost:8010 | http://localhost:8020 |
+| Image | `dev` target, code bind-mounted | `prod` target, code baked in |
+| Database | `mysql` (:3337), seeded fixtures | `staging-mysql` (:3316), the real import |
+| Images | none | the staged image volume |
+| `APP_ENV` | `local`, debug on | `staging`, debug off |
+| Redis DBs | 2 / 3 | 4 / 5 |
+
+The two are deliberately separate: a `migrate:fresh` while you are developing
+must never cost you a re-import. Populating staging is the importer's job — see
+[scripts/import-tool/README.md](scripts/import-tool/README.md).
+
+Accounts created by `staging-seed-auth` are local-only and cannot escape: the
+importer's `ship` step excludes `users`, `roles`, `permissions` and tokens from
+its dump outright, and rebuilds the remote auth layer from its own encrypted
+snapshot.
+
 ### Testing
 
 The suite runs against SQLite `:memory:` — `phpunit.xml` forces that regardless

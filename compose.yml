@@ -4,7 +4,7 @@
 #   (default)   development: mysql, valkey, mailpit, app, worker, web
 #   tools       node container for npm/vite work
 #   docs        Jekyll documentation site
-#   staging     a local clone of the real dataset (DB + images)
+#   staging     the real dataset, served locally on :8020 (DB + images + app)
 #   import      the legacy importer jobs (needs scripts/import-tool/.env)
 #
 # Everything shares one project, one network, and one image — the `dev` target
@@ -72,6 +72,41 @@ x-staging-db-env: &staging-db-env
   DB_DATABASE: inventory
   DB_USERNAME: inventory
   DB_PASSWORD: secret
+
+# Runtime environment for the staging application.
+#
+# APP_ENV is "staging", not "local": this is meant to behave like the deployed
+# app, not like a dev box. Debug is off and the API docs are gated exactly as
+# they would be in production.
+#
+# Redis databases 4/5, NOT the 2/3 the dev stack uses. They share one Valkey,
+# and a staging session or cache entry landing in the dev keyspace (or a queued
+# job being consumed by the wrong worker) would be a genuinely confusing bug.
+x-staging-app-env: &staging-app-env
+  APP_NAME: Inventory (staging)
+  APP_ENV: staging
+  APP_DEBUG: "false"
+  APP_URL: http://localhost:8020
+  # Fixed, local-only, and published in this file on purpose: sessions must
+  # survive a container restart, so it cannot be generated at boot, and baking
+  # a key into a shared image would be worse. This key protects nothing — the
+  # staging database is reproducible from a re-import and is never exposed off
+  # this machine. Never reuse it anywhere real.
+  APP_KEY: base64:nLpSpnvvKh6PWEu70GglGeIvvSziorzg8Y7Wvrkgyjc=
+  <<: *staging-db-env
+  CACHE_STORE: redis
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: valkey
+  REDIS_PORT: "6379"
+  REDIS_DB: "4"
+  REDIS_CACHE_DB: "5"
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: noreply@inventory.staging
+  MAIL_FROM_NAME: Inventory (staging)
 
 # The importer image. Built from the repo root because it needs
 # database/seeders/data/*.json alongside the importer sources.
@@ -296,6 +331,98 @@ services:
         set -e
         [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
         php artisan glossary:bulk-resync
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # The staged dataset, served. This is the `prod` target of .docker/Dockerfile
+  # with the code baked in — no bind mount — so what you click through is what
+  # would ship. Rebuild it after changing code:
+  #
+  #   docker compose --profile staging build staging-app
+  #
+  # http://localhost:8020/admin (see staging-seed-auth below for credentials).
+  staging-app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      target: prod
+    # Named explicitly so staging-worker reuses this build instead of repeating
+    # it. Also keeps it clearly distinct from the compose-built dev images.
+    image: inventory-app:staging
+    profiles: [staging]
+    environment: *staging-app-env
+    volumes:
+      # The one mount that makes the whole thing work. `stage` writes a flat
+      # <uuid>.jpg tree into this volume, every *_images.path row stores exactly
+      # that bare filename, and the public disk resolves it under
+      # storage/app/public/<PICTURES_DIRECTORY>. Same layout `ship` rsyncs to
+      # the remote host — no transformation anywhere.
+      - staging-images:/var/www/app/storage/app/public/pictures
+    ports:
+      - "127.0.0.1:8020:80"
+    depends_on:
+      staging-migrate:
+        condition: service_completed_successfully
+      valkey:
+        condition: service_healthy
+    networks: [inventory]
+
+  staging-worker:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      target: prod
+    image: inventory-app:staging
+    profiles: [staging]
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600"]
+    environment: *staging-app-env
+    restart: unless-stopped
+    volumes:
+      - staging-images:/var/www/app/storage/app/public/pictures
+    depends_on:
+      staging-app:
+        condition: service_started
+    networks: [inventory]
+
+  # One-shot, opt-in: gives the staging app something to log in as.
+  #
+  #   docker compose --profile staging run --rm staging-seed-auth
+  #
+  # Deliberately NOT part of `up`, and deliberately never part of `ship`:
+  # ship's dump excludes users, roles, permissions and tokens outright
+  # (SHIP_EXCLUDED_TABLES in scripts/import-tool/entrypoint.sh), and rebuilds
+  # the remote auth layer from its own encrypted snapshot. Accounts created
+  # here cannot reach the remote host.
+  #
+  # Runs with APP_ENV=local because LocalUserSeeder refuses to do anything
+  # otherwise — which is the guard doing its job, not an obstacle to route
+  # around. Defaults are admin@example.com / user@example.com, password
+  # "password"; override with APP_DEFAULT_ADMIN_* / APP_DEFAULT_USER_*.
+  staging-seed-auth:
+    <<: *php
+    profiles: [staging]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan permissions:sync
+        php artisan db:seed --class=LocalUserSeeder --force \
+          || echo "LocalUserSeeder did not run — the accounts almost certainly exist already."
+        # LocalUserSeeder gives the admin "Manager of Users", which carries no
+        # "view data" permission — so that account can administer users but gets
+        # Forbidden on every Item, Collection and Partner page. Fine for a dev
+        # box; useless here, where browsing the imported dataset is the entire
+        # point. Add the data role so one login can do everything.
+        ADMIN="$${APP_DEFAULT_ADMIN_EMAIL:-admin@example.com}"
+        php artisan user:assign-role "$$ADMIN" "Regular User" \
+          || echo "Could not add the Regular User role to $$ADMIN — it may already be assigned."
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
