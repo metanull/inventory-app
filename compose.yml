@@ -1,7 +1,7 @@
 # =============================================================================
 # One stack, several profiles.
 #
-#   (default)   development: mysql, valkey, mailpit, app, web
+#   (default)   development: mysql, valkey, mailpit, app, worker, web
 #   tools       node container for npm/vite work
 #   docs        Jekyll documentation site
 #   staging     a local clone of the real dataset (DB + images)
@@ -132,7 +132,7 @@ services:
   # ---------------------------------------------------------------------------
 
   # One-shot: install dependencies if the vendor volume is empty, then migrate.
-  # `app` and `docs-model` both wait for this to exit 0.
+  # `app`, `worker`, and `docs-model` all wait for this to exit 0.
   migrate:
     <<: *php
     command:
@@ -152,6 +152,18 @@ services:
   app:
     <<: *php
     environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Consumes the redis queue the app writes to. Without this every ShouldQueue
+  # job — the glossary spelling sync above all — is enqueued and never runs,
+  # which looks exactly like a silent bug.
+  worker:
+    <<: *php
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600"]
+    environment: *app-env
+    restart: unless-stopped
     depends_on:
       migrate:
         condition: service_completed_successfully

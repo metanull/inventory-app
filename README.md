@@ -50,50 +50,77 @@ This **monorepo** contains:
 
 ### Prerequisites
 
-- **PHP 8.2+** with extensions: fileinfo, zip, sqlite3, pdo_sqlite, gd, exif
-- **Composer** — PHP dependency management
-- **Node.js 24+** — Frontend asset compilation
-- **SQLite** (development) or **MariaDB** (production)
+**Docker Desktop** (or Docker Engine + Compose v2). Nothing else — no PHP, no
+Composer, no Node, no database on the host. Every tool the project needs lives
+in `.docker/Dockerfile`.
 
 ### Installation
 
-```powershell
-# Clone and navigate
+```bash
 git clone https://github.com/metanull/inventory-app.git
-Set-Location inventory-app
-
-# Install dependencies
-composer install
-npm install --no-audit --no-fund
-
-# Environment setup
-Copy-Item .env.example .env -Force
-php artisan key:generate
-
-# (Optional) Download sample images for seeding
-.\scripts\download-seed-images.ps1
-
-# Initialize database
-php artisan migrate --seed
-
-# Start development servers (Laravel + Vite + queue worker)
-composer dev
+cd inventory-app
+docker compose up -d
 ```
 
+That builds the image, starts MySQL, Valkey, and Mailpit, waits for them to be
+healthy, installs Composer dependencies into a named volume, runs the
+migrations, and brings up php-fpm, nginx, and a queue worker.
+
 **Access the application:**
-- **Web Interface**: http://localhost:8000/web
-- **API Docs**: http://localhost:8000/docs/api
+
+| | |
+|---|---|
+| Admin panel (the active UI) | http://localhost:8010/admin |
+| API docs | http://localhost:8010/docs/api |
+| Mailpit (captures all outbound mail) | http://localhost:8026 |
+| MySQL | `127.0.0.1:3337`, database/user `inventory`, password `secret` |
+
+### Everyday commands
+
+Everything runs inside the `app` container:
+
+```bash
+docker compose exec app php artisan migrate
+docker compose exec app php artisan tinker
+docker compose exec app composer check      # pint --test, phpstan, pest
+```
+
+Individual quality gates, should you want them one at a time:
+
+```bash
+docker compose exec app composer pint       # fix code style
+docker compose exec app composer pint:test  # check style, change nothing
+docker compose exec app composer stan       # phpstan
+docker compose exec app composer test       # pest, sqlite :memory:
+```
+
+Front-end and other Node work uses the `tools` profile, so the dev image stays
+free of a running Vite process:
+
+```bash
+docker compose run --rm tools npm ci
+docker compose run --rm --service-ports tools npm run dev   # vite on :5173
+```
+
+The documentation site is its own profile:
+
+```bash
+docker compose --profile docs up -d          # Jekyll on http://localhost:4000
+```
+
+Step debugging is compiled in but off by default; set `XDEBUG_MODE=debug` on
+the container (or uncomment the line in `.devcontainer/devcontainer.json`) to
+arm it against port 9003.
 
 ### Testing
 
-```powershell
-# Backend tests
-composer ci-test
+The suite runs against SQLite `:memory:` — `phpunit.xml` forces that regardless
+of the container's own `DB_CONNECTION`, so tests never touch the dev database:
 
-# SPA Demo tests (from /spa directory)
-Push-Location spa
-npm test
-Pop-Location
+```bash
+docker compose exec app composer test                            # everything
+docker compose exec app php artisan test --testsuite=Api         # one suite
+docker compose run --rm --workdir /var/www/app/spa tools npm test # SPA demo
 ```
 
 ## Using the API Client (External Developers)

@@ -72,6 +72,27 @@
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74,#a78bfa\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" \"npm --prefix spa run dev\" --names='server,queue,vite,spa'"
         ],
+        "pint": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/pint --no-interaction --ansi"
+        ],
+        "pint:test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/pint --no-interaction --ansi --test"
+        ],
+        "stan": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/phpstan analyse --memory-limit=512M --ansi"
+        ],
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan test --compact --parallel --ansi"
+        ],
+        "check": [
+            "@composer pint:test",
+            "@composer stan",
+            "@composer test"
+        ],
         "ci-install": [
             "@composer install --ansi --no-interaction --no-progress --prefer-dist",
             "npm ci --no-fund --no-audit"
