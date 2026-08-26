@@ -498,9 +498,9 @@ services:
     environment:
       LEGACY_IMAGES_ROOT: /legacy-images
       DRY_RUN: ${DRY_RUN:-0}
-      # Overrides the remote DB_* values from .env: this mode writes straight to
-      # staging-mysql over the compose network, never through a tunnel.
-      # LEGACY_DB_* still comes from .env unchanged.
+      # The import target, set here rather than in .env — the importer's own
+      # configuration has no route to a production database at all.
+      # LEGACY_DB_* comes from .env unchanged: reading legacy is this mode's job.
       DB_HOST: staging-mysql
       DB_PORT: "3306"
       DB_USERNAME: inventory
