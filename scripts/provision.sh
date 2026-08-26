@@ -48,8 +48,11 @@ PHP_VERSION="8.5"
 TIMEZONE="Europe/Brussels"
 LOCALE="fr_BE.UTF-8"
 
-# Deployment mode: "bare-metal" (php-fpm FastCGI) or "docker" (Docker proxy_pass)
+# Deployment mode: "bare-metal" (php-fpm FastCGI) or "docker" (Nginx proxy_pass)
 # Set DEPLOY_MODE=docker in scripts/infra.local to switch to Docker-based deployment.
+# NOTE: "docker" configures the HOST side only — an Nginx reverse proxy to
+# DOCKER_APP_PORT. This repo ships no production container stack; bringing one is
+# your responsibility. bare-metal is the supported deployment path.
 DEPLOY_MODE="${DEPLOY_MODE:-bare-metal}"
 DOCKER_APP_PORT="8002"   # loopback port where the Docker app container listens
 
@@ -665,8 +668,10 @@ info "  1. Verify SSH:  ssh -i ~/.ssh/inventory_deploy ${DEPLOY_USER}@<VPS_IP> w
 info "  2. If SSL cert failed above, re-run this script — it will retry certbot and update Nginx."
 info "  3. GitHub: ensure environment 'inventory.metanull.eu' has VPS_HOST, VPS_SSH_KEY, VPS_SSH_USER secrets"
 if [[ "${DEPLOY_MODE}" == "docker" ]]; then
-info "  4. Push code to main — GitHub Actions builds Docker image and deploys via docker-compose.prod.yml"
-info "     Or: IMAGE_TAG=latest docker compose --env-file /opt/inventory/.env -f /opt/inventory/docker-compose.prod.yml up -d"
+info "  4. NOTE: docker mode provisions the HOST side only (Nginx reverse proxy to"
+info "     127.0.0.1:${DOCKER_APP_PORT}). No container stack ships from this repo — the app"
+info "     itself is deployed bare-metal. Set DEPLOY_MODE=bare-metal unless you are"
+info "     bringing your own container stack and running it on that port."
 else
 info "  4. Push code to main to trigger automatic deploy via GitHub Actions."
 fi
