@@ -1,32 +1,39 @@
 {
+    // Attaches VS Code to the `app` service of the root compose stack rather
+    // than building an image of its own.
+    //
+    // The previous devcontainer maintained a separate Dockerfile that had
+    // drifted badly: sqlite but no pdo_mysql and no redis, so it could not
+    // reach the dev database or cache at all. Editing in here and running in
+    // the terminal now use the same container, the same PHP extensions, and
+    // the same services.
     "name": "Inventory App",
-    "build": {
-        "dockerfile": "Dockerfile",
-        "context": ".."
-    },
+    "dockerComposeFile": ["../compose.yml"],
+    "service": "app",
+    "workspaceFolder": "/var/www/app",
 
-    "workspaceFolder": "/workspaces/inventory-app",
+    // Leave the stack running when VS Code closes — it is equally driven from
+    // a terminal, and stopping mysql out from under a `docker compose` session
+    // is a surprise nobody wants.
+    "shutdownAction": "none",
 
-    // Named volumes for vendor/node_modules keep dependency files on the fast
-    // Linux FS instead of the slow Windows-mounted workspace volume.
-    "mounts": [
-        "source=inv-app-php-vendor,target=/workspaces/inventory-app/vendor,type=volume",
-        "source=inv-app-node-modules,target=/workspaces/inventory-app/node_modules,type=volume",
-        "source=inv-app-spa-node-modules,target=/workspaces/inventory-app/spa/node_modules,type=volume",
-        "source=inv-app-importer-node-modules,target=/workspaces/inventory-app/scripts/importer/node_modules,type=volume"
-    ],
+    // Xdebug is compiled into the image but off by default (see
+    // .docker/xdebug.ini). Uncomment to arm step debugging for this container;
+    // the PHP Debug extension listens on 9003.
+    // "remoteEnv": { "XDEBUG_MODE": "debug" },
 
-    // Forward Laravel (8000) and Vite (5173) ports to the host.
-    "forwardPorts": [8000, 5173],
-    "portsAttributes": {
-        "8000": { "label": "Laravel (php artisan serve)", "onAutoForward": "notify" },
-        "5173": { "label": "Vite dev server", "onAutoForward": "notify" }
-    },
-
-    // Install PHP and JS dependencies after the container is created.
+    // vendor/ lives in a named volume declared by compose, so it stays on the
+    // fast Linux filesystem. node_modules is on the bind mount, shared with
+    // the `tools` service so both see the same tree.
     "postCreateCommand": "composer install --no-interaction && npm install && npm install --prefix spa && npm install --prefix scripts/importer",
 
-    "remoteUser": "vscode",
+    "forwardPorts": [8010, 5173, 8026, 4000],
+    "portsAttributes": {
+        "8010": { "label": "Inventory (nginx)", "onAutoForward": "notify" },
+        "5173": { "label": "Vite dev server", "onAutoForward": "silent" },
+        "8026": { "label": "Mailpit", "onAutoForward": "silent" },
+        "4000": { "label": "Documentation (Jekyll)", "onAutoForward": "silent" }
+    },
 
     "customizations": {
         "vscode": {
