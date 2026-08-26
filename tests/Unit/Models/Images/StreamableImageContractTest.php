@@ -79,13 +79,13 @@ class StreamableImageContractTest extends TestCase
     }
 
     #[DataProvider('picturesBackedModelProvider')]
-    public function test_image_download_filename_returns_original_name_when_set(string $class): void
+    public function test_image_download_filename_uses_the_stored_path_not_original_name(string $class): void
     {
         $instance = new $class;
         $instance->original_name = 'my-photo.jpg';
         $instance->path = 'uuid123.jpg';
 
-        $this->assertSame('my-photo.jpg', $instance->imageDownloadFilename());
+        $this->assertSame('uuid123.jpg', $instance->imageDownloadFilename());
     }
 
     #[DataProvider('picturesBackedModelProvider')]
@@ -96,5 +96,28 @@ class StreamableImageContractTest extends TestCase
         $instance->path = 'subdir/uuid123.jpg';
 
         $this->assertSame('uuid123.jpg', $instance->imageDownloadFilename());
+    }
+
+    /**
+     * The regression this contract exists to prevent.
+     *
+     * `original_name` carries provenance, not a filename: on imported records
+     * it is the legacy source path. Returning it produced a header Symfony
+     * refuses to build ("The filename and the fallback cannot contain the "/"
+     * and "\" characters"), so every download of an imported image answered
+     * 500 — 27,049 of 27,352 item_images rows in the real dataset.
+     */
+    #[DataProvider('picturesBackedModelProvider')]
+    public function test_image_download_filename_is_never_a_path(string $class): void
+    {
+        $instance = new $class;
+        $instance->original_name = 'monuments/bar/hu/11/4/10.jpg';
+        $instance->path = '00011146-449a-53d0-b1dc-48dadc5565d4.jpg';
+
+        $filename = $instance->imageDownloadFilename();
+
+        $this->assertSame('00011146-449a-53d0-b1dc-48dadc5565d4.jpg', $filename);
+        $this->assertStringNotContainsString('/', $filename);
+        $this->assertStringNotContainsString('\\', $filename);
     }
 }

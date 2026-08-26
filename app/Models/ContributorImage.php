@@ -161,8 +161,17 @@ class ContributorImage extends Model implements DetachableImage, StreamableImage
         return $this->mime_type;
     }
 
+    /**
+     * The stored filename, never `original_name`.
+     *
+     * `original_name` is provenance, not a filename: for imported records it
+     * holds the legacy source path (e.g. "monuments/bar/hu/11/4/10.jpg"), and
+     * Symfony rejects "/" in a Content-Disposition header - which made every
+     * download of an imported image a 500. `path` is the name the file
+     * actually has on disk, so it is both legal and unambiguous.
+     */
     public function imageDownloadFilename(): string
     {
-        return $this->original_name ?: basename($this->path);
+        return basename($this->path);
     }
 }
