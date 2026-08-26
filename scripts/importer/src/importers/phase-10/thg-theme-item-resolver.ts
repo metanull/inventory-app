@@ -9,8 +9,8 @@
  * object, monument, or detail item.
  *
  * Target key formats:
- * - mwnf3 object   → mwnf3:objects_pictures:{project}:{country}:{partner}:{item}:{image}
- * - mwnf3 monument → mwnf3:monuments_pictures:{project}:{country}:{partner}:{item}:{image}
+ * - mwnf3 object   → mwnf3:objects_pictures:{project}:{country}:{partner}:{item}:{image}[:{type}]
+ * - mwnf3 monument → mwnf3:monuments_pictures:{project}:{country}:{partner}:{item}:{image}[:{type}]
  * - mwnf3 detail   → mwnf3:monument_detail_pictures:{project}:{country}:{partner}:{item}:{detail}:{image}
  * - SH object      → mwnf3_sharing_history:sh_object_images:{project}:{country}:{item}:{type|_}:{image}
  * - SH monument    → mwnf3_sharing_history:sh_monument_images:{project}:{country}:{item}:{type|_}:{image}
@@ -18,7 +18,26 @@
  * - Explore mon.   → mwnf3_explore:monument_picture:{monument}:{type|_}:{image}
  * - Travels mon.   → mwnf3_travels:monument_picture:{project}:{country}:{trail}:{itinerary}:{location}:{number}:{type|_}:{image}
  *
- * For SH keys all string parts are lowercased (matching formatShBackwardCompatibility).
+ * The trailing `[:{type}]` on the two mwnf3 picture families is appended only when
+ * the legacy type is non-empty — see withPictureType() below.
+ *
+ * Casing (#1534). SH keys are lowercased because formatShBackwardCompatibility
+ * normalizes every string part, so an SH key has exactly one spelling. The mwnf3,
+ * Explore and Travels families instead carry the legacy value **verbatim**, because
+ * their picture importers do the same and the legacy source tables are not
+ * internally consistent: as imported on 2026-08-26, mwnf3.monuments_pictures holds
+ * both `isl` (2 335 rows) and `ISL` (8), monument_detail_pictures both `BAR` (1 732)
+ * and `bar` (51), and mwnf3_travels both `IAM` (1 055) and `iam` (776). No single
+ * casing rule here could match all of them byte-for-byte, so do NOT "normalize"
+ * these branches — lowercasing them would break every uppercase-stored row.
+ *
+ * What makes the verbatim spelling safe is that both lookup layers match keys
+ * case-insensitively, by construction rather than by luck: UnifiedTracker lowercases
+ * the key on register/set/get (core/tracker.ts), and the fallback query in
+ * SqlWriteStrategy.findByBackwardCompatibility runs against a utf8mb4_unicode_ci
+ * column. Keys that differ only by case therefore denote the same entity — verified
+ * on the full import: zero case-variant collisions across items and collections.
+ *
  * Missing picture items must be treated as explicit skips with warnings by the
  * calling importer — do not fall back to the parent item key.
  *
@@ -109,6 +128,21 @@ export const THEME_ITEM_SELECT_COLUMNS = `
   travel_monument_item_type, travel_monument_image_id`.trim();
 
 /**
+ * Append a non-empty picture `type` segment, mirroring the `pkValues.push(type)`
+ * guard in ObjectPictureImporter and MonumentPictureImporter.
+ *
+ * Those two importers key a typed picture (`type='plan'`, `'detail'`, …) as
+ * `…:{image_number}:{type}` and leave the default photo (`type=''`) untouched, so
+ * that a typed picture sharing an image_number with the default photo gets its
+ * own identity instead of colliding with it. A resolver that always omits the
+ * segment does not merely miss those rows — it produces the *default* photo's key
+ * and silently attaches the wrong picture.
+ */
+function withPictureType(key: string, type: string | null): string {
+  return type && type.trim() !== '' ? `${key}:${type}` : key;
+}
+
+/**
  * Resolve a theme_item row to the backward-compatibility key of the selected
  * child picture item.
  *
@@ -119,7 +153,7 @@ export const THEME_ITEM_SELECT_COLUMNS = `
  */
 export function resolvePictureItemBackwardCompatibility(legacy: LegacyThemeItem): string | null {
   // mwnf3 object picture
-  // Matches ObjectPictureImporter: mwnf3:objects_pictures:{project}:{country}:{museum_id}:{number}:{image_number}
+  // Matches ObjectPictureImporter: mwnf3:objects_pictures:{project}:{country}:{museum_id}:{number}:{image_number}[:{type}]
   if (
     legacy.mwnf3_object_project_id &&
     legacy.mwnf3_object_country_id &&
@@ -127,11 +161,14 @@ export function resolvePictureItemBackwardCompatibility(legacy: LegacyThemeItem)
     legacy.mwnf3_object_item_id !== null &&
     legacy.mwnf3_object_image_id !== null
   ) {
-    return `mwnf3:objects_pictures:${legacy.mwnf3_object_project_id}:${legacy.mwnf3_object_country_id}:${legacy.mwnf3_object_partner_id}:${legacy.mwnf3_object_item_id}:${legacy.mwnf3_object_image_id}`;
+    return withPictureType(
+      `mwnf3:objects_pictures:${legacy.mwnf3_object_project_id}:${legacy.mwnf3_object_country_id}:${legacy.mwnf3_object_partner_id}:${legacy.mwnf3_object_item_id}:${legacy.mwnf3_object_image_id}`,
+      legacy.mwnf3_object_item_type
+    );
   }
 
   // mwnf3 monument picture
-  // Matches MonumentPictureImporter: mwnf3:monuments_pictures:{project}:{country}:{institution_id}:{number}:{image_number}
+  // Matches MonumentPictureImporter: mwnf3:monuments_pictures:{project}:{country}:{institution_id}:{number}:{image_number}[:{type}]
   if (
     legacy.mwnf3_monument_project_id &&
     legacy.mwnf3_monument_country_id &&
@@ -139,7 +176,10 @@ export function resolvePictureItemBackwardCompatibility(legacy: LegacyThemeItem)
     legacy.mwnf3_monument_item_id !== null &&
     legacy.mwnf3_monument_image_id !== null
   ) {
-    return `mwnf3:monuments_pictures:${legacy.mwnf3_monument_project_id}:${legacy.mwnf3_monument_country_id}:${legacy.mwnf3_monument_partner_id}:${legacy.mwnf3_monument_item_id}:${legacy.mwnf3_monument_image_id}`;
+    return withPictureType(
+      `mwnf3:monuments_pictures:${legacy.mwnf3_monument_project_id}:${legacy.mwnf3_monument_country_id}:${legacy.mwnf3_monument_partner_id}:${legacy.mwnf3_monument_item_id}:${legacy.mwnf3_monument_image_id}`,
+      legacy.mwnf3_monument_item_type
+    );
   }
 
   // mwnf3 monument detail picture

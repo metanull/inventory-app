@@ -60,6 +60,61 @@ describe('UnifiedTracker', () => {
     });
   });
 
+  // #1534. Legacy spells the same reference inconsistently — mwnf3.monuments_pictures
+  // holds both `isl` and `ISL`, mwnf3_travels both `iam` and `IAM` — and importers
+  // write the legacy spelling verbatim. Resolvers (thg-theme-item-resolver.ts) are
+  // therefore allowed to emit either casing, which only works because lookups here
+  // fold case. This is a contract, not an incidental detail: keys differing only by
+  // case denote the same entity, matching the utf8mb4_unicode_ci column the DB
+  // fallback in SqlWriteStrategy queries.
+  describe('case-insensitive keys', () => {
+    it('finds an entity registered lower-case through an upper-case lookup', () => {
+      tracker.register({
+        uuid: 'picture-uuid',
+        backwardCompatibility: 'mwnf3:monuments_pictures:bar:hu:Mon11:10:1',
+        entityType: 'item',
+        createdAt: new Date(),
+      });
+
+      expect(tracker.getUuid('mwnf3:monuments_pictures:BAR:hu:Mon11:10:1', 'item')).toBe(
+        'picture-uuid'
+      );
+      expect(tracker.exists('mwnf3:monuments_pictures:BAR:hu:Mon11:10:1', 'item')).toBe(true);
+    });
+
+    it('finds an entity registered upper-case through a lower-case lookup', () => {
+      tracker.register({
+        uuid: 'travels-uuid',
+        backwardCompatibility: 'mwnf3_travels:monument_picture:IAM:pa:1:I:1:c:_:12',
+        entityType: 'item',
+        createdAt: new Date(),
+      });
+
+      expect(tracker.getUuid('mwnf3_travels:monument_picture:iam:pa:1:i:1:c:_:12', 'item')).toBe(
+        'travels-uuid'
+      );
+    });
+
+    it('treats set() and getUuid() as the same key regardless of casing', () => {
+      tracker.set('mwnf3:objects_pictures:EPM:de:Mus21:2:1', 'object-uuid', 'item');
+
+      expect(tracker.getUuid('mwnf3:objects_pictures:epm:de:mus21:2:1', 'item')).toBe('object-uuid');
+      expect(tracker.getAll()).toHaveLength(1);
+    });
+
+    it('still separates entities of different types that share a key', () => {
+      tracker.set('mwnf3_thematic_gallery:thg_gallery:9', 'collection-uuid', 'collection');
+      tracker.set('mwnf3_thematic_gallery:thg_gallery:9', 'context-uuid', 'context');
+
+      expect(tracker.getUuid('mwnf3_thematic_gallery:thg_gallery:9', 'collection')).toBe(
+        'collection-uuid'
+      );
+      expect(tracker.getUuid('mwnf3_thematic_gallery:thg_gallery:9', 'context')).toBe(
+        'context-uuid'
+      );
+    });
+  });
+
   describe('set', () => {
     it('should create a new entry if not exists', () => {
       tracker.set('mwnf3:langs:en', 'test-uuid', 'language');
