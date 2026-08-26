@@ -508,6 +508,10 @@ services:
     volumes:
       - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
       - staging-images:/staging/images
+      # The importer writes a timestamped run log next to its own sources.
+      # Without this the log dies with the `--rm` container, which is exactly
+      # the log you want after a run that reported errors.
+      - ./scripts/importer/logs:/opt/import-tool/importer/logs
     environment:
       LEGACY_IMAGES_ROOT: /legacy-images
       DRY_RUN: ${DRY_RUN:-0}
