@@ -1,19 +1,33 @@
 # Import Tool
 
-Dockerized pipeline that imports legacy museum data into `inventory-app`'s
-database and pushes the associated images and glossary links to a deployed
-instance on a remote Linux server. All commands below are run with Docker
-Compose from the repo root.
+Dockerized pipeline that imports legacy museum data into `inventory-app`, in
+two phases that never overlap:
+
+1. **`stage`** reads the legacy database and image tree and builds a complete,
+   fully-populated copy locally — `staging-mysql` plus the staging images
+   volume. It has no SSH key and cannot reach the deployed server.
+2. **`ship`** takes that local copy and sends it to the deployed server as one
+   bulk handoff. It has no legacy database credentials and no legacy image
+   mount, and cannot read the legacy source.
+
+Nothing goes from legacy straight to production. The separation is structural,
+not conventional: it is enforced by what each service is given in `compose.yml`,
+so neither phase *can* do the other's job.
+
+A useful side effect is that the staged copy is a complete offline clone you
+can browse, export from, and rework without a VPN — the `staging` profile
+serves it at <http://localhost:8020> and the exporters run against it (see the
+root [README](../../README.md)).
+
+All commands below are run with Docker Compose from the repo root.
 
 ## Prerequisites
 
 - **VPN to the legacy network**, connected and left up for the whole run —
-  every mode reads from the legacy source database (`LEGACY_DB_HOST`), which
-  is only reachable that way. This tool never manages the VPN; connect it
-  yourself before running anything.
-- **SSH key** for the remote deploy host, and the host itself reachable on
-  port 22 — required by every mode except `stage`/`staging-glossary-sync`
-  (see "Two ways to import" below).
+  needed by `stage`, which reads the legacy source database (`LEGACY_DB_HOST`).
+  This tool never manages the VPN; connect it yourself first.
+- **SSH key** for the remote deploy host, and the host reachable on port 22 —
+  needed by `ship` and `backup-permissions`. Not given to `stage`.
 - `.env` file:
   ```bash
   cp scripts/import-tool/.env.example scripts/import-tool/.env
@@ -47,41 +61,28 @@ Variables (see `.env.example` for the full list with inline comments):
 | `OVH_HOST` / `OVH_USER` | Remote deploy host and SSH user. Named `OVH_*` for historical reasons — works with any Linux host you configure here. |
 | `OVH_SSH_KEY_HOST_PATH` | Host path to the deploy SSH private key. |
 | `OVH_APP_DIR` / `OVH_SHARED_DIR` | Paths on the remote host (app directory, shared/persistent storage). |
-| `DB_*` | The remote app's database — reached through the SSH tunnel `append`/`clean` open (`DB_HOST=127.0.0.1`, `DB_PORT` matching `TUNNEL_LOCAL_PORT`, default `3307`). Not used by `stage`/`staging-glossary-sync` (they always target `staging-mysql` instead — see below). |
-| `LEGACY_DB_*` | The legacy source database, reached over your VPN. |
-| `LEGACY_IMAGES_HOST_PATH` | Host path to the legacy images source, mounted read-only. |
-| `CONFIRM_WIPE` | Required verbatim (`yes-really-wipe-production`) for `clean`/`ship` to proceed. Leave unset in `.env`; pass it inline on the command line only when you mean it. |
-| `ADMIN_EMAIL` / `REGULAR_USER_EMAIL` | Fallback accounts `clean`/`ship` create if no auth snapshot exists — see "Auth restore" below. |
+| `LEGACY_DB_*` | The legacy source database, reached over your VPN. Read by `stage` only. |
+| `LEGACY_IMAGES_HOST_PATH` | Host path to the legacy images source, mounted read-only into `stage`. |
+| `CONFIRM_WIPE` | Required verbatim (`yes-really-wipe-production`) for `ship` to proceed. Leave unset in `.env`; pass it inline on the command line only when you mean it. |
+| `ADMIN_EMAIL` / `REGULAR_USER_EMAIL` | Fallback accounts `ship` creates if no auth snapshot exists — see "Auth restore" below. |
 
-## Two ways to import
+The staged database is configured in `compose.yml`, not here: `stage` writes to
+the `staging-mysql` service and `ship` dumps from it. The importer's own
+configuration has no route to a production database at all.
 
-### Scenario 1 — Direct: legacy → remote server
-
-`append` and `clean` read the legacy database over your VPN and write
-straight into the remote server's database, live, over an SSH tunnel this
-container opens for the duration of the run. Every row is a WAN round trip,
-so a full import takes hours; safe to run any time since it's idempotent
-(rows already imported are skipped).
+## The import, end to end
 
 ```bash
-docker compose --env-file scripts/import-tool/.env --profile import run --build --rm append
-docker compose --env-file scripts/import-tool/.env --profile import run --build --rm clean
-```
-
-### Scenario 2 — Staged: legacy → local container → remote server
-
-`stage` builds a complete, fully-populated copy of the import locally
-(database rows in a local `staging-mysql` container, images in a local
-volume) — no contact with the remote server at all. `staging-glossary-sync`
-then computes glossary term links against that local copy. `ship` sends the
-finished result to the remote server as one bulk handoff: rebuild the app
-layer fresh, load the local database's content tables in one dump/restore,
-push the staged images, done. Much faster than Scenario 1 for a full or
-from-scratch import, since none of the row-by-row work crosses the network.
-
-```bash
+# 1. Build the local copy from legacy (VPN up; no contact with the server).
 docker compose --env-file scripts/import-tool/.env --profile import run --build --rm stage
+
+# 2. Compute glossary links against that local copy.
 docker compose --env-file scripts/import-tool/.env --profile import run --build --rm staging-glossary-sync
+
+# 3. Optional but recommended: review it locally before shipping.
+docker compose --profile staging up -d          # http://localhost:8020
+
+# 4. Send it to the server. DESTRUCTIVE — wipes and rebuilds the deployed app.
 $env:CONFIRM_WIPE = 'yes-really-wipe-production'
 docker compose --env-file scripts/import-tool/.env --profile import run --build --rm ship
 ```
@@ -91,6 +92,11 @@ legacy data — both are safe to rerun against an already-populated
 `staging-mysql` (idempotent import, and `staging-glossary-sync` always
 recomputes glossary links from scratch). Only `ship` touches the remote
 server, and only `ship` needs `CONFIRM_WIPE`.
+
+Incremental updates are the same two steps: re-`stage`, then re-`ship`. There
+is no partial-push mode, on purpose — a `ship` always rebuilds the deployed
+dataset from the staged copy, so what is deployed is exactly what you reviewed
+locally.
 
 To start completely over locally, destroy the two staging volumes by hand:
 
@@ -106,28 +112,34 @@ importing and several gigabytes of images. The names are the ones the old
 `scripts/import-tool` stack used, kept verbatim so an already-populated staging
 clone survived the move into the root compose file.
 
+Before a destructive re-stage, the staged copy is worth backing up — it is
+cheaper to restore than to re-import:
+
+```bash
+docker compose exec staging-mysql mysqldump -u inventory -psecret inventory > staging-backup.sql
+docker run --rm -v inventory-import-tool_local-images-data:/data -v ${PWD}:/out alpine \
+  tar czf /out/staging-images.tar.gz -C /data .
+```
+
 ## Commands reference
 
 | Command | Touches remote server? | What it does |
 |---|---|---|
-| `backup-permissions` | Yes (read + write snapshot) | Snapshots users (incl. MFA), roles, permissions, and API tokens to an encrypted file on the remote host, plus a timestamped local copy. Read-only against application data. |
-| `append` | Yes | Imports legacy data directly into the remote database (over the SSH tunnel), pushes new images via rsync, and runs `glossary:bulk-resync` on the remote host (synchronous, no queue). No wipe. |
-| `clean` | Yes, **destructive** | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users → the same pipeline as `append`. Requires `CONFIRM_WIPE=yes-really-wipe-production`. See "Auth restore" below for the users/roles step. |
-| `stage` | No | Imports legacy data + syncs images into local `staging-mysql` / the staging images volume. No auth/seeders — this container is never meant to be logged into. |
+| `stage` | No — has no SSH key | Imports legacy data + syncs images into `staging-mysql` and the staging images volume. No auth/seeders: the staged database has no users (add one locally with the `staging-seed-auth` service if you want to browse it). |
 | `staging-glossary-sync` | No | Computes glossary term ↔ item/collection/timeline-event links against `staging-mysql`, in-container, via `glossary:bulk-resync` (one combined pattern per language, one pass per translation — a couple of minutes, vs. over a day for `glossary:resync`'s one-job-per-spelling approach). Run after `stage`, before `ship`. |
-| `ship` | Yes, **destructive** | Rebuilds the remote app layer exactly like `clean`, then loads `staging-mysql`'s content tables (dumped and restored directly on the remote host, not through the tunnel) and pushes the already-staged images. Requires `stage` (+ `staging-glossary-sync`) to have already populated `staging-mysql`/the staging images volume. Requires `CONFIRM_WIPE`. |
+| `ship` | Yes, **destructive** | Rebuilds the remote app layer (`db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users), then loads `staging-mysql`'s content tables (dumped and restored directly on the remote host) and pushes the already-staged images. Requires `stage` (+ `staging-glossary-sync`) to have populated the staging volumes. Requires `CONFIRM_WIPE`. |
+| `backup-permissions` | Yes (read + write snapshot) | Snapshots users (incl. MFA), roles, permissions, and API tokens to an encrypted file on the remote host, plus a timestamped local copy. Read-only against application data. Run it before your first `ship`. |
 
 ### Dry runs
 
-Set `DRY_RUN=1` to pass `--dry-run` through to the importer's `import` and
-`image-sync` steps and skip the glossary resync and rsync push entirely —
-nothing is written anywhere. Not available for `clean`/`ship`'s wipe/restore
-steps.
+Set `DRY_RUN=1` to pass `--dry-run` through to `stage`'s `import` and
+`image-sync` steps — nothing is written anywhere. Not available for `ship`'s
+wipe/restore steps.
 
-## Auth restore (`clean` and `ship`)
+## Auth restore (`ship`)
 
-Both destructive modes rebuild the remote app's users/roles/permissions from
-scratch, then restore them:
+`ship` rebuilds the remote app's users/roles/permissions from scratch, then
+restores them:
 
 1. If a snapshot exists at `AUTH_SNAPSHOT_REMOTE` (created by
    `backup-permissions`), it's restored exactly — every user, MFA setup, and
@@ -141,30 +153,19 @@ scratch, then restore them:
    message — the `users` table is left empty and nothing else runs. Run
    `backup-permissions` at least once beforehand to avoid this.
 
-## Local dev testing
-
-Exercise `entrypoint.sh` without touching the legacy VPN or the remote
-server:
-
-- Set `IMPORT_TOOL_SKIP_TUNNEL=1` and point `DB_HOST`/`DB_PORT` at a
-  disposable local MySQL container instead of opening a real SSH tunnel —
-  exercises `append`'s import/image-sync path without any SSH involved.
-  `OVH_HOST` still needs to be set to satisfy validation, but is never
-  dialed.
-- To check `--delete` gating and per-branch exit-code handling without
-  running the importer at all, put stub `ssh`/`rsync` scripts earlier in
-  `$PATH` that just log their arguments (or exit non-zero to force a
-  failure), then run `append` and `clean` and confirm: `--delete` only
-  appears for `clean`, and a forced failure in one parallel branch
-  (image-sync/rsync vs. glossary-resync) still lets the other complete.
+Nothing from the staged database is involved: `ship`'s dump excludes `users`,
+`roles`, `permissions`, tokens and sessions outright (`SHIP_EXCLUDED_TABLES`
+in `entrypoint.sh`), so accounts created locally — by `staging-seed-auth`, say
+— cannot reach the server.
 
 ## Testing against the real remote server
 
 In order of increasing risk:
 
 1. `backup-permissions` — read-only against application data.
-2. `DRY_RUN=1 append` — confirms the SSH tunnel opens and the remote
-   database is reachable, without writing anything.
-3. `append` for real — safe, since `import` is idempotent.
-4. `clean` — only after 1–3 are clean, and only with a known-good snapshot
+2. `DRY_RUN=1 stage` — confirms the legacy source is reachable and the
+   importer runs, without writing anything.
+3. `stage` for real — local only, nothing remote can be affected.
+4. Review the result at <http://localhost:8020>.
+5. `ship` — only after 1–4 are clean, and only with a known-good snapshot
    already at `AUTH_SNAPSHOT_REMOTE`.

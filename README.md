@@ -144,7 +144,10 @@ docker compose --profile staging build staging-app
 
 The two are deliberately separate: a `migrate:fresh` while you are developing
 must never cost you a re-import. Populating staging is the importer's job — see
-[scripts/import-tool/README.md](scripts/import-tool/README.md).
+[scripts/import-tool/README.md](scripts/import-tool/README.md). The import runs
+in two phases that cannot overlap: `stage` builds this local copy from the
+legacy source, and `ship` sends that copy — and only that copy — to the
+deployed server.
 
 Accounts created by `staging-seed-auth` are local-only and cannot escape: the
 importer's `ship` step excludes `users`, `roles`, `permissions` and tokens from

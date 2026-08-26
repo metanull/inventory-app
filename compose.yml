@@ -462,9 +462,14 @@ services:
     networks: [inventory]
 
   # ---------------------------------------------------------------------------
-  # import — legacy importer jobs. All of these need scripts/import-tool/.env,
-  # and all but `stage` reach a remote host. See scripts/import-tool/README.md
-  # before running any of them.
+  # import — legacy importer jobs. All of these need scripts/import-tool/.env.
+  # See scripts/import-tool/README.md before running any of them.
+  #
+  # The import is strictly two-phase, and the split is enforced by what each
+  # service can even reach: `stage` mounts the legacy image tree and no SSH
+  # key, so it cannot contact the remote host; `ship` mounts the SSH key and
+  # no legacy tree, so it cannot read the legacy source. Nothing imports
+  # straight from legacy to production any more.
   #
   # DRY_RUN and CONFIRM_WIPE come from ${VAR} interpolation, i.e. the invoking
   # shell, NOT from env_file — that is deliberate. CONFIRM_WIPE must be typed
@@ -480,33 +485,6 @@ services:
     volumes:
       - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
       - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
-
-  append:
-    <<: *import
-    profiles: [import]
-    command: ["append"]
-    volumes:
-      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
-      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
-      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
-    environment:
-      LEGACY_IMAGES_ROOT: /legacy-images
-      DRY_RUN: ${DRY_RUN:-0}
-
-  clean:
-    <<: *import
-    profiles: [import]
-    command: ["clean"]
-    volumes:
-      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
-      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
-      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
-    environment:
-      LEGACY_IMAGES_ROOT: /legacy-images
-      DRY_RUN: ${DRY_RUN:-0}
-      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
-      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
 
   # Reads the legacy source and writes only to the staging services above.
   # Never contacts the remote host.
@@ -552,6 +530,16 @@ services:
       LOCAL_DB_USERNAME: inventory
       LOCAL_DB_PASSWORD: secret
       LOCAL_DB_DATABASE: inventory
+      # Blanked on purpose. The shared env_file carries the legacy credentials
+      # for `stage`'s benefit; `ship` must never read the legacy source, so it
+      # is handed no usable value for it — matching the missing legacy image
+      # mount above. The phase separation is a property of the service, not a
+      # promise made by the entrypoint.
+      LEGACY_DB_HOST: ""
+      LEGACY_DB_PORT: ""
+      LEGACY_DB_USER: ""
+      LEGACY_DB_PASSWORD: ""
+      LEGACY_DB_DATABASE: ""
     depends_on:
       staging-mysql:
         condition: service_healthy
