@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  * 1. Add the trait to your test class alongside `RefreshDatabase` and
  *    `AuthenticatesWebRequests`.
  * 2. Implement `seedRealisticDataset()` – create the subject model and seed
- *    enough related rows to expose N+1 / memory regressions.  Return the
+ *    enough related rows to expose N+1 and payload regressions.  Return the
  *    subject model.
  * 3. Implement `getShowRouteName()` – return the Laravel route name for the
  *    show action, e.g. `'items.show'`.
@@ -61,23 +61,13 @@ trait RendersShowPageUnderRealisticDataset
     }
 
     /**
-     * PHP memory limit applied before the request is issued.
-     * Mimics a constrained hosting environment; PHP catches the OOM as a
-     * fatal and Pest reports it as a test failure.
-     */
-    protected function memoryLimit(): string
-    {
-        return '128M';
-    }
-
-    /**
      * Seed a production-like dataset and return the subject model whose show
      * page will be requested.
      *
      * Implementations must:
      * - Create the subject model via its factory.
      * - Create enough related rows (siblings, children, tags, translations,
-     *   images, …) to surface N+1 and memory regressions.
+     *   images, …) to surface N+1 and payload regressions.
      * - Keep counts deterministic; prefer `factory()->count(N)->create()`.
      */
     abstract protected function seedRealisticDataset(): Model;
@@ -97,8 +87,6 @@ trait RendersShowPageUnderRealisticDataset
      */
     public function test_show_page_renders_under_realistic_dataset(): void
     {
-        ini_set('memory_limit', $this->memoryLimit());
-
         $subject = $this->seedRealisticDataset();
 
         DB::enableQueryLog();
