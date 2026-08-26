@@ -68,27 +68,48 @@ Exhibitions whose legacy `show` flag is `'n'` (preserved in
 `collection_translations.extra.legacy_exhibition.show`) are excluded from the
 package, as the legacy sites never listed them.
 
+## Running an export
+
+The supported way is the `exporter` service in the repo-root `compose.yml`,
+which runs against the **staging** database — the local copy of the real
+dataset built by the importer. Nothing is installed on the host:
+
+```bash
+docker compose run --rm exporter <dataset> --force
+```
+
+`DB_*` is forced to `staging-mysql` and wins over the exporter's own `.env`
+(dotenv does not override variables that are already set), so the database is
+pinned and everything else in that file — `BASE_URL` above all — still
+applies. Everything after the dataset name is passed through to
+`npm run export`. See the [repo README](../../README.md) for the staging
+profile itself.
+
+Running an exporter directly on the host (`cd scripts/exporters/<dataset> &&
+npm run export`) still works and reads whatever its `.env` points at, but then
+node, the dependencies and a reachable database are your problem.
+
 ## Build + publish a data-package update (end to end)
 
 Prerequisites, one-time:
 
 - `.env` in the exporter directory (`cp .env.example .env` if present):
-  `DB_*` (the inventory DB — production is reached through the SSH tunnel,
-  `ssh -L 3307:localhost:3306 deploy@<vps>`, so `DB_HOST=127.0.0.1`,
-  `DB_PORT=3307`), `BASE_URL` (the public base URL of the inventory app's
-  storage, prepended to image paths in the exported JSON), and
+  `BASE_URL` (the public base URL of the inventory app's storage, prepended to
+  image paths in the exported JSON) and
   `PACKAGE_REPO_URL=https://github.com/metanull/inventory-app` (see gotcha 1
-  below).
+  below). `DB_*` matters only for host-side runs; the compose service supplies
+  its own.
 - npm authentication for the `@metanull` scope on
-  `https://npm.pkg.github.com` (a PAT with `write:packages` in `~/.npmrc` or
-  the repo-root `.npmrc`).
+  `https://npm.pkg.github.com` — a PAT with `write:packages`. Put it in the
+  **repo-root `.npmrc`** (gitignored): that file is inside the bind mount, so
+  the container finds it by walking up from the exporter directory. A token
+  that lives only in your host `~/.npmrc` is not visible to the container.
 
-Then, per dataset (exports are **read-only**, but always check what `.env`
-points at first) — the command is identical in all three directories:
+Then, per dataset (exports are **read-only**, but always check what `BASE_URL`
+points at first) — the command is identical for all three:
 
 ```bash
-cd scripts/exporters/<dataset>
-npm run export -- --force --publish
+docker compose run --rm exporter <dataset> --force --publish
 ```
 
 Each exporter is single-purpose: its dataset scope — output subdirectory,

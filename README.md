@@ -120,7 +120,7 @@ populated:
 
 ```bash
 docker compose --profile staging up -d
-docker compose --profile staging run --rm staging-seed-auth   # once
+docker compose run --rm staging-seed-auth              # once
 ```
 
 Then http://localhost:8020/admin, as `admin@example.com` / `password`.
@@ -160,9 +160,9 @@ The exporters read the staging database and write static JSON for the public
 websites. They run in the same profile, so there is nothing extra to start:
 
 ```bash
-docker compose --profile staging run --rm exporter islamicart --force
-docker compose --profile staging run --rm exporter baroqueart --force
-docker compose --profile staging run --rm exporter sharinghistory --force
+docker compose run --rm exporter islamicart --force
+docker compose run --rm exporter baroqueart --force
+docker compose run --rm exporter sharinghistory --force
 ```
 
 Output lands in `scripts/exporters/<dataset>/output` on the host. Arguments
@@ -176,7 +176,7 @@ staging database), so exports point at the deployed site by default. To produce
 a package a local viewer can consume, point it at the staging app instead:
 
 ```bash
-docker compose --profile staging run --rm exporter islamicart --force \
+docker compose run --rm exporter islamicart --force \
   --base-url http://localhost:8020
 ```
 
@@ -198,6 +198,41 @@ docker compose exec app composer test                            # everything
 docker compose exec app php artisan test --testsuite=Api         # one suite
 docker compose run --rm --workdir /var/www/app/spa tools npm test # SPA demo
 ```
+
+### Ports and volumes
+
+Everything binds to `127.0.0.1` only — nothing on this stack is reachable from
+outside the machine.
+
+| Port | Service | Profile |
+|---|---|---|
+| 8010 | development app (nginx) | default |
+| 8020 | staging app | `staging` |
+| 3337 | development MySQL | default |
+| 3316 | staging MySQL | `staging`, `import` |
+| 8026 | Mailpit web UI | default |
+| 1026 | Mailpit SMTP | default |
+| 4000 | documentation site | `docs` |
+| 5173 | Vite dev server (`run --service-ports tools`) | `tools` |
+| 9003 | Xdebug, when `XDEBUG_MODE=debug` | default |
+
+Volumes fall into two groups, and the separator in the name tells you which:
+
+| Volume | Contents | `down -v` |
+|---|---|---|
+| `inventory_dev-mysql-data` | development database | destroys it — migrations rebuild |
+| `inventory_dev-valkey-data` | development cache/queue | destroys it |
+| `inventory_dev-vendor` | Composer dependencies | destroys it — `migrate` reinstalls |
+| `inventory_docs-bundle` | Jekyll gems | destroys it |
+| `inventory_exporter-<dataset>-modules` | exporter `node_modules` | destroys it |
+| `inventory-staging-mysql-data` | **the staged database** | **cannot touch it** |
+| `inventory-staging-images` | **the staged images (~7.5 GB)** | **cannot touch it** |
+
+The two staging volumes are declared `external:`, so Compose neither creates
+nor removes them, and their names use a hyphen rather than the underscore
+Compose gives its own. Create them once before the first import, and see
+[scripts/import-tool/README.md](scripts/import-tool/README.md) for backup and
+restore.
 
 ## Using the API Client (External Developers)
 

@@ -37,12 +37,15 @@ All commands below are run with Docker Compose from the repo root.
 ### The `--env-file` flag is not optional
 
 These services live in the root `compose.yml` under the `import` profile, but
-their credentials do **not**. Every command below therefore passes
-`--env-file scripts/import-tool/.env` explicitly:
+their credentials do **not**. Every command that touches legacy or the remote
+host therefore passes `--env-file scripts/import-tool/.env` explicitly:
 
 ```bash
 docker compose --env-file scripts/import-tool/.env --profile import run --rm <service>
 ```
+
+(`staging-glossary-sync` is the exception: it only talks to `staging-mysql`,
+whose credentials come from `compose.yml`, so it needs no `--env-file`.)
 
 Compose auto-loads only the *project root's* `.env`, which here is the Laravel
 application's own environment file — nothing to do with the importer. Without
@@ -77,7 +80,7 @@ configuration has no route to a production database at all.
 docker compose --env-file scripts/import-tool/.env --profile import run --build --rm stage
 
 # 2. Compute glossary links against that local copy.
-docker compose --env-file scripts/import-tool/.env --profile import run --build --rm staging-glossary-sync
+docker compose run --build --rm staging-glossary-sync
 
 # 3. Optional but recommended: review it locally before shipping.
 docker compose --profile staging up -d          # http://localhost:8020
@@ -98,28 +101,58 @@ is no partial-push mode, on purpose — a `ship` always rebuilds the deployed
 dataset from the staged copy, so what is deployed is exactly what you reviewed
 locally.
 
-To start completely over locally, destroy the two staging volumes by hand:
+## The staging volumes
+
+Two volumes hold the staged clone. They are declared `external:` in
+`compose.yml` so that a stray `docker compose down -v` cannot destroy them: a
+full stage is hours of importing and several gigabytes of images.
+
+| Volume | Holds |
+|---|---|
+| `inventory-staging-mysql-data` | the staged database |
+| `inventory-staging-images` | the staged images (flat `<uuid>.jpg`, ~7.5 GB) |
+
+Because they are external, Compose will not create them either. Once, before
+the first import:
 
 ```bash
-docker volume rm inventory-import-tool_local-mysql-data inventory-import-tool_local-images-data
-docker volume create inventory-import-tool_local-mysql-data
-docker volume create inventory-import-tool_local-images-data
+docker volume create inventory-staging-mysql-data
+docker volume create inventory-staging-images
 ```
 
-They are declared `external:` in `compose.yml` exactly so that a stray
-`docker compose down -v` cannot do this for you: a full stage is hours of
-importing and several gigabytes of images. The names are the ones the old
-`scripts/import-tool` stack used, kept verbatim so an already-populated staging
-clone survived the move into the root compose file.
+The hyphen distinguishes them on sight: Compose names the volumes it manages
+`inventory_<name>` with an underscore, and those are the disposable ones.
 
-Before a destructive re-stage, the staged copy is worth backing up — it is
-cheaper to restore than to re-import:
+### Back up before a destructive re-stage
+
+Restoring is much cheaper than re-importing:
 
 ```bash
-docker compose exec staging-mysql mysqldump -u inventory -psecret inventory > staging-backup.sql
-docker run --rm -v inventory-import-tool_local-images-data:/data -v ${PWD}:/out alpine \
+docker compose --profile staging up -d staging-mysql
+docker compose exec -T staging-mysql mysqldump -u inventory -psecret inventory > staging-db.sql
+docker run --rm -v inventory-staging-images:/data -v "${PWD}:/out" alpine \
   tar czf /out/staging-images.tar.gz -C /data .
 ```
+
+To restore into empty volumes:
+
+```bash
+docker compose --profile staging up -d staging-mysql
+docker compose exec -T staging-mysql mysql -u inventory -psecret inventory < staging-db.sql
+docker run --rm -v inventory-staging-images:/data -v "${PWD}:/out" alpine \
+  tar xzf /out/staging-images.tar.gz -C /data
+```
+
+### Start over completely
+
+```bash
+docker compose --profile staging down
+docker volume rm inventory-staging-mysql-data inventory-staging-images
+docker volume create inventory-staging-mysql-data
+docker volume create inventory-staging-images
+```
+
+Then run `stage` again — `staging-migrate` recreates the schema on the way in.
 
 ## Commands reference
 

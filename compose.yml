@@ -1,18 +1,31 @@
 # =============================================================================
 # One stack, several profiles.
 #
-#   (default)   development: mysql, valkey, mailpit, app, worker, web
-#   tools       node container for npm/vite work
-#   docs        Jekyll documentation site
-#   staging     the real dataset: served on :8020, and exportable to JSON
-#   import      the legacy importer jobs (needs scripts/import-tool/.env)
+# Long-running — you `up` these:
 #
-# Everything shares one project, one network, and one image — the `dev` target
-# of .docker/Dockerfile. Adding a PHP extension means editing one list.
+#   (default)   development: mysql, valkey, mailpit, app, worker, web
+#   docs        Jekyll documentation site
+#   staging     the real dataset served on :8020, and its database
+#
+# One-shot — you `run --rm` these, and never `up` them:
+#
+#   tools       node container for npm/vite work
+#   jobs        staging-glossary-sync, staging-seed-auth, exporter
+#   import      the legacy importer (needs scripts/import-tool/.env)
 #
 #   docker compose up -d                        # development
 #   docker compose --profile docs up -d         # + documentation site
+#   docker compose --profile staging up -d      # + the real dataset
 #   docker compose run --rm tools npm ci        # one-shot node job
+#   docker compose run --rm exporter islamicart # one-shot job
+#
+# `docker compose run` enables the target service's own profile, so one-shots
+# never need a --profile flag. Keeping them out of `staging` is what makes
+# `--profile staging up -d` mean "serve the dataset" rather than "serve the
+# dataset AND seed accounts AND run an export".
+#
+# Everything shares one project, one network, and one image — the `dev` target
+# of .docker/Dockerfile. Adding a PHP extension means editing one list.
 #
 # The import profile needs credentials and is documented separately in
 # scripts/import-tool/README.md. It is never started by a bare `up`.
@@ -30,7 +43,7 @@ x-php: &php
     target: dev
   volumes:
     - .:/var/www/app
-    - vendor:/var/www/app/vendor
+    - dev-vendor:/var/www/app/vendor
     # Bind-mounted on top of the copy baked into the image so php.ini changes
     # apply on restart instead of requiring a rebuild.
     - ./.docker/php.dev.ini:/usr/local/etc/php/conf.d/99-app.ini:ro
@@ -134,7 +147,7 @@ services:
       MYSQL_USER: inventory
       MYSQL_PASSWORD: secret
     volumes:
-      - mysql-dev:/var/lib/mysql
+      - dev-mysql-data:/var/lib/mysql
       - ./.docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "127.0.0.1:3337:3306"
@@ -148,7 +161,7 @@ services:
   valkey:
     image: valkey/valkey:8-alpine
     volumes:
-      - valkey-dev:/data
+      - dev-valkey-data:/data
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 5s
@@ -276,7 +289,7 @@ services:
     # Alpine/MariaDB client that `ship` uses for mysqldump cannot authenticate
     # without it — see scripts/import-tool/mysql/init.sql.
     command: ["--mysql-native-password=ON"]
-    profiles: [staging, import]
+    profiles: [staging, import, jobs]
     environment:
       MYSQL_ROOT_PASSWORD: rootsecret
       MYSQL_DATABASE: inventory
@@ -298,7 +311,7 @@ services:
   # so roles, permissions, and dev users are deliberately absent.
   staging-migrate:
     <<: *php
-    profiles: [staging, import]
+    profiles: [staging, import, jobs]
     command:
       - /bin/sh
       - -c
@@ -323,7 +336,7 @@ services:
   # inverts the loop and finishes in under two minutes.
   staging-glossary-sync:
     <<: *php
-    profiles: [staging, import]
+    profiles: [jobs]
     command:
       - /bin/sh
       - -c
@@ -391,7 +404,7 @@ services:
 
   # One-shot, opt-in: gives the staging app something to log in as.
   #
-  #   docker compose --profile staging run --rm staging-seed-auth
+  #   docker compose run --rm staging-seed-auth
   #
   # Deliberately NOT part of `up`, and deliberately never part of `ship`:
   # ship's dump excludes users, roles, permissions and tokens outright
@@ -405,7 +418,7 @@ services:
   # "password"; override with APP_DEFAULT_ADMIN_* / APP_DEFAULT_USER_*.
   staging-seed-auth:
     <<: *php
-    profiles: [staging]
+    profiles: [jobs]
     command:
       - /bin/sh
       - -c
@@ -434,13 +447,13 @@ services:
   # Runs a dataset exporter against the staged database. No image volume: the
   # exporters emit JSON containing image URLs, they never copy files.
   #
-  #   docker compose --profile staging run --rm exporter islamicart --force
+  #   docker compose run --rm exporter islamicart --force
   #
   # Output lands in scripts/exporters/<dataset>/output on the host, because the
   # repo is bind-mounted — the export is a deliverable, not a container detail.
   exporter:
     image: node:24-alpine
-    profiles: [staging]
+    profiles: [jobs]
     entrypoint: ["/bin/sh", "/var/www/app/scripts/exporters/docker-entrypoint.sh"]
     volumes:
       - .:/var/www/app
@@ -546,9 +559,9 @@ services:
 
 volumes:
   # Disposable: `docker compose down -v` and re-run, migrations rebuild them.
-  mysql-dev:
-  valkey-dev:
-  vendor:
+  dev-mysql-data:
+  dev-valkey-data:
+  dev-vendor:
   docs-bundle:
   exporter-islamicart-modules:
   exporter-baroqueart-modules:
@@ -556,21 +569,22 @@ volumes:
 
   # NOT disposable, and deliberately external so that `down -v` cannot destroy
   # them: a full stage is hours of importing and several gigabytes of images.
-  # Create once, keep forever, back up when it matters:
+  # Create them once, before the first import:
   #
-  #   docker volume create inventory-import-tool_local-mysql-data
-  #   docker volume create inventory-import-tool_local-images-data
+  #   docker volume create inventory-staging-mysql-data
+  #   docker volume create inventory-staging-images
   #
-  # The names are the ones the previous scripts/import-tool stack used, kept
-  # verbatim so that an already-populated staging clone survives this refactor
-  # untouched. Renaming them means migrating the data, so it is a deliberate
-  # separate step, not a side effect.
+  # The hyphen matters. Compose names the volumes it manages
+  # `inventory_<key>`; these two are named `inventory-<key>` precisely because
+  # they are outside that lifecycle — the prefix tells you at a glance which
+  # volumes `down -v` can take. Backing them up is documented in
+  # scripts/import-tool/README.md.
   staging-mysql-data:
     external: true
-    name: inventory-import-tool_local-mysql-data
+    name: inventory-staging-mysql-data
   staging-images:
     external: true
-    name: inventory-import-tool_local-images-data
+    name: inventory-staging-images
 
 networks:
   inventory:

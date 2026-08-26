@@ -2,8 +2,8 @@
 #
 # Runs one dataset exporter inside the compose `exporter` service.
 #
-#   docker compose --profile staging run --rm exporter islamicart
-#   docker compose --profile staging run --rm exporter baroqueart --force
+#   docker compose run --rm exporter islamicart
+#   docker compose run --rm exporter baroqueart --force
 #
 # Everything after the dataset name is passed through to `npm run export`.
 set -e
