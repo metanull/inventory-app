@@ -151,6 +151,40 @@ importer's `ship` step excludes `users`, `roles`, `permissions` and tokens from
 its dump outright, and rebuilds the remote auth layer from its own encrypted
 snapshot.
 
+### Exporting a dataset
+
+The exporters read the staging database and write static JSON for the public
+websites. They run in the same profile, so there is nothing extra to start:
+
+```bash
+docker compose --profile staging run --rm exporter islamicart --force
+docker compose --profile staging run --rm exporter baroqueart --force
+docker compose --profile staging run --rm exporter sharinghistory --force
+```
+
+Output lands in `scripts/exporters/<dataset>/output` on the host. Arguments
+after the dataset name are passed straight through, so `--output-dir`,
+`--base-url` and `--publish` all work as documented in
+[scripts/exporters/README.md](scripts/exporters/README.md).
+
+The exporters emit image *URLs*, not image files. `BASE_URL` in each
+`scripts/exporters/<dataset>/.env` still applies (only `DB_*` is forced to the
+staging database), so exports point at the deployed site by default. To produce
+a package a local viewer can consume, point it at the staging app instead:
+
+```bash
+docker compose --profile staging run --rm exporter islamicart --force \
+  --base-url http://localhost:8020
+```
+
+The staging app answers `/pub/<uuid>.jpg` — the same public, unauthenticated,
+rate-limited route the deployed site uses for exported data — so the resulting
+package works offline against your local images.
+
+Node dependencies install into named volumes on first run rather than the host
+`node_modules`, because `tsx` pulls in esbuild and its binary is
+platform-specific.
+
 ### Testing
 
 The suite runs against SQLite `:memory:` — `phpunit.xml` forces that regardless

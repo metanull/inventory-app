@@ -4,7 +4,7 @@
 #   (default)   development: mysql, valkey, mailpit, app, worker, web
 #   tools       node container for npm/vite work
 #   docs        Jekyll documentation site
-#   staging     the real dataset, served locally on :8020 (DB + images + app)
+#   staging     the real dataset: served on :8020, and exportable to JSON
 #   import      the legacy importer jobs (needs scripts/import-tool/.env)
 #
 # Everything shares one project, one network, and one image — the `dev` target
@@ -431,6 +431,36 @@ services:
       staging-mysql:
         condition: service_healthy
 
+  # Runs a dataset exporter against the staged database. No image volume: the
+  # exporters emit JSON containing image URLs, they never copy files.
+  #
+  #   docker compose --profile staging run --rm exporter islamicart --force
+  #
+  # Output lands in scripts/exporters/<dataset>/output on the host, because the
+  # repo is bind-mounted — the export is a deliverable, not a container detail.
+  exporter:
+    image: node:24-alpine
+    profiles: [staging]
+    entrypoint: ["/bin/sh", "/var/www/app/scripts/exporters/docker-entrypoint.sh"]
+    volumes:
+      - .:/var/www/app
+      # Each exporter's dependencies live in a named volume rather than the
+      # host tree: tsx pulls in esbuild, whose binary is platform-specific, so
+      # a node_modules installed on a Windows host cannot run in this container.
+      - exporter-islamicart-modules:/var/www/app/scripts/exporters/islamicart/node_modules
+      - exporter-baroqueart-modules:/var/www/app/scripts/exporters/baroqueart/node_modules
+      - exporter-sharinghistory-modules:/var/www/app/scripts/exporters/sharinghistory/node_modules
+    environment:
+      # The exporters read DB_* directly. dotenv does not override variables
+      # that are already set, so these win over any scripts/exporters/*/.env
+      # left pointing somewhere else — the staging database is the only thing
+      # this service can reach.
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+    networks: [inventory]
+
   # ---------------------------------------------------------------------------
   # import — legacy importer jobs. All of these need scripts/import-tool/.env,
   # and all but `stage` reach a remote host. See scripts/import-tool/README.md
@@ -532,6 +562,9 @@ volumes:
   valkey-dev:
   vendor:
   docs-bundle:
+  exporter-islamicart-modules:
+  exporter-baroqueart-modules:
+  exporter-sharinghistory-modules:
 
   # NOT disposable, and deliberately external so that `down -v` cannot destroy
   # them: a full stage is hours of importing and several gigabytes of images.
