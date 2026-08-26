@@ -12,19 +12,33 @@ Compose from the repo root.
   is only reachable that way. This tool never manages the VPN; connect it
   yourself before running anything.
 - **SSH key** for the remote deploy host, and the host itself reachable on
-  port 22 — required by every mode except `stage`/`local-glossary-sync`
+  port 22 — required by every mode except `stage`/`staging-glossary-sync`
   (see "Two ways to import" below).
 - `.env` file:
   ```bash
   cp scripts/import-tool/.env.example scripts/import-tool/.env
   # edit scripts/import-tool/.env with real credentials/paths
   ```
-  Must be named exactly `.env` — Compose only auto-loads that literal
-  filename to resolve `${VAR}` placeholders in `docker-compose.yml`'s
-  `volumes:` section. A differently-named file still reaches the
-  container's own environment but leaves those paths empty, which Docker
-  rejects with `invalid spec: :/run/secrets/deploy_key:ro: empty section
-  between colons`.
+
+### The `--env-file` flag is not optional
+
+These services live in the root `compose.yml` under the `import` profile, but
+their credentials do **not**. Every command below therefore passes
+`--env-file scripts/import-tool/.env` explicitly:
+
+```bash
+docker compose --env-file scripts/import-tool/.env --profile import run --rm <service>
+```
+
+Compose auto-loads only the *project root's* `.env`, which here is the Laravel
+application's own environment file — nothing to do with the importer. Without
+the flag, `${OVH_SSH_KEY_HOST_PATH}` and friends fall back to their harmless
+placeholder defaults and the run fails with a validation error from
+`entrypoint.sh` rather than doing anything dangerous.
+
+Keeping the file out of the project root is deliberate: it holds production
+credentials and a path to the legacy image tree, and a bare `docker compose up`
+must never be able to pick them up.
 
 Variables (see `.env.example` for the full list with inline comments):
 
@@ -33,7 +47,7 @@ Variables (see `.env.example` for the full list with inline comments):
 | `OVH_HOST` / `OVH_USER` | Remote deploy host and SSH user. Named `OVH_*` for historical reasons — works with any Linux host you configure here. |
 | `OVH_SSH_KEY_HOST_PATH` | Host path to the deploy SSH private key. |
 | `OVH_APP_DIR` / `OVH_SHARED_DIR` | Paths on the remote host (app directory, shared/persistent storage). |
-| `DB_*` | The remote app's database — reached through the SSH tunnel `append`/`clean` open (`DB_HOST=127.0.0.1`, `DB_PORT` matching `TUNNEL_LOCAL_PORT`, default `3307`). Not used by `stage`/`local-glossary-sync` (they always target `local-mysql` instead — see below). |
+| `DB_*` | The remote app's database — reached through the SSH tunnel `append`/`clean` open (`DB_HOST=127.0.0.1`, `DB_PORT` matching `TUNNEL_LOCAL_PORT`, default `3307`). Not used by `stage`/`staging-glossary-sync` (they always target `staging-mysql` instead — see below). |
 | `LEGACY_DB_*` | The legacy source database, reached over your VPN. |
 | `LEGACY_IMAGES_HOST_PATH` | Host path to the legacy images source, mounted read-only. |
 | `CONFIRM_WIPE` | Required verbatim (`yes-really-wipe-production`) for `clean`/`ship` to proceed. Leave unset in `.env`; pass it inline on the command line only when you mean it. |
@@ -50,15 +64,15 @@ so a full import takes hours; safe to run any time since it's idempotent
 (rows already imported are skipped).
 
 ```bash
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm append
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm clean
+docker compose --env-file scripts/import-tool/.env --profile import run --build --rm append
+docker compose --env-file scripts/import-tool/.env --profile import run --build --rm clean
 ```
 
 ### Scenario 2 — Staged: legacy → local container → remote server
 
 `stage` builds a complete, fully-populated copy of the import locally
-(database rows in a local `local-mysql` container, images in a local
-volume) — no contact with the remote server at all. `local-glossary-sync`
+(database rows in a local `staging-mysql` container, images in a local
+volume) — no contact with the remote server at all. `staging-glossary-sync`
 then computes glossary term links against that local copy. `ship` sends the
 finished result to the remote server as one bulk handoff: rebuild the app
 layer fresh, load the local database's content tables in one dump/restore,
@@ -66,20 +80,31 @@ push the staged images, done. Much faster than Scenario 1 for a full or
 from-scratch import, since none of the row-by-row work crosses the network.
 
 ```bash
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm stage
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm local-glossary-sync
+docker compose --env-file scripts/import-tool/.env --profile import run --build --rm stage
+docker compose --env-file scripts/import-tool/.env --profile import run --build --rm staging-glossary-sync
 $env:CONFIRM_WIPE = 'yes-really-wipe-production'
-docker compose -f scripts/import-tool/docker-compose.yml run --build --rm ship
+docker compose --env-file scripts/import-tool/.env --profile import run --build --rm ship
 ```
 
-Run `stage` and `local-glossary-sync` again any time to pick up new/changed
+Run `stage` and `staging-glossary-sync` again any time to pick up new/changed
 legacy data — both are safe to rerun against an already-populated
-`local-mysql` (idempotent import, and `local-glossary-sync` always
+`staging-mysql` (idempotent import, and `staging-glossary-sync` always
 recomputes glossary links from scratch). Only `ship` touches the remote
 server, and only `ship` needs `CONFIRM_WIPE`.
 
-To start completely over locally: `docker compose -f scripts/import-tool/docker-compose.yml down -v`
-destroys `local-mysql-data`/`local-images-data`/`local-app-vendor`.
+To start completely over locally, destroy the two staging volumes by hand:
+
+```bash
+docker volume rm inventory-import-tool_local-mysql-data inventory-import-tool_local-images-data
+docker volume create inventory-import-tool_local-mysql-data
+docker volume create inventory-import-tool_local-images-data
+```
+
+They are declared `external:` in `compose.yml` exactly so that a stray
+`docker compose down -v` cannot do this for you: a full stage is hours of
+importing and several gigabytes of images. The names are the ones the old
+`scripts/import-tool` stack used, kept verbatim so an already-populated staging
+clone survived the move into the root compose file.
 
 ## Commands reference
 
@@ -88,9 +113,9 @@ destroys `local-mysql-data`/`local-images-data`/`local-app-vendor`.
 | `backup-permissions` | Yes (read + write snapshot) | Snapshots users (incl. MFA), roles, permissions, and API tokens to an encrypted file on the remote host, plus a timestamped local copy. Read-only against application data. |
 | `append` | Yes | Imports legacy data directly into the remote database (over the SSH tunnel), pushes new images via rsync, and runs `glossary:bulk-resync` on the remote host (synchronous, no queue). No wipe. |
 | `clean` | Yes, **destructive** | `db:wipe` → `migrate` → `db:seed` → `permission:sync` → restore/recreate users → the same pipeline as `append`. Requires `CONFIRM_WIPE=yes-really-wipe-production`. See "Auth restore" below for the users/roles step. |
-| `stage` | No | Imports legacy data + syncs images into local `local-mysql` / `local-images-data`. No auth/seeders — this container is never meant to be logged into. |
-| `local-glossary-sync` | No | Computes glossary term ↔ item/collection/timeline-event links against `local-mysql`, in-container, via `glossary:bulk-resync` (one combined pattern per language, one pass per translation — a couple of minutes, vs. over a day for `glossary:resync`'s one-job-per-spelling approach). Run after `stage`, before `ship`. |
-| `ship` | Yes, **destructive** | Rebuilds the remote app layer exactly like `clean`, then loads `local-mysql`'s content tables (dumped and restored directly on the remote host, not through the tunnel) and pushes the already-staged images. Requires `stage` (+ `local-glossary-sync`) to have already populated `local-mysql`/`local-images-data`. Requires `CONFIRM_WIPE`. |
+| `stage` | No | Imports legacy data + syncs images into local `staging-mysql` / the staging images volume. No auth/seeders — this container is never meant to be logged into. |
+| `staging-glossary-sync` | No | Computes glossary term ↔ item/collection/timeline-event links against `staging-mysql`, in-container, via `glossary:bulk-resync` (one combined pattern per language, one pass per translation — a couple of minutes, vs. over a day for `glossary:resync`'s one-job-per-spelling approach). Run after `stage`, before `ship`. |
+| `ship` | Yes, **destructive** | Rebuilds the remote app layer exactly like `clean`, then loads `staging-mysql`'s content tables (dumped and restored directly on the remote host, not through the tunnel) and pushes the already-staged images. Requires `stage` (+ `staging-glossary-sync`) to have already populated `staging-mysql`/the staging images volume. Requires `CONFIRM_WIPE`. |
 
 ### Dry runs
 

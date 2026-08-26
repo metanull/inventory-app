@@ -1,0 +1,417 @@
+# =============================================================================
+# One stack, several profiles.
+#
+#   (default)   development: mysql, valkey, mailpit, app, web
+#   tools       node container for npm/vite work
+#   docs        Jekyll documentation site
+#   staging     a local clone of the real dataset (DB + images)
+#   import      the legacy importer jobs (needs scripts/import-tool/.env)
+#
+# Everything shares one project, one network, and one image — the `dev` target
+# of .docker/Dockerfile. Adding a PHP extension means editing one list.
+#
+#   docker compose up -d                        # development
+#   docker compose --profile docs up -d         # + documentation site
+#   docker compose run --rm tools npm ci        # one-shot node job
+#
+# The import profile needs credentials and is documented separately in
+# scripts/import-tool/README.md. It is never started by a bare `up`.
+# =============================================================================
+
+name: inventory
+
+# -----------------------------------------------------------------------------
+# Shared fragments — these exist so a change lands in one place, not six.
+# -----------------------------------------------------------------------------
+x-php: &php
+  build:
+    context: .
+    dockerfile: .docker/Dockerfile
+    target: dev
+  volumes:
+    - .:/var/www/app
+    - vendor:/var/www/app/vendor
+    # Bind-mounted on top of the copy baked into the image so php.ini changes
+    # apply on restart instead of requiring a rebuild.
+    - ./.docker/php.dev.ini:/usr/local/etc/php/conf.d/99-app.ini:ro
+  networks: [inventory]
+
+x-app-env: &app-env
+  APP_NAME: Inventory
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8010
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: inventory
+  DB_USERNAME: inventory
+  DB_PASSWORD: secret
+  CACHE_STORE: redis
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: valkey
+  REDIS_PORT: "6379"
+  # DB 2/3 keep this app clear of the other Laravel app sharing the VPS Valkey;
+  # mirrored here so dev matches production.
+  REDIS_DB: "2"
+  REDIS_CACHE_DB: "3"
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: noreply@inventory.test
+  MAIL_FROM_NAME: Inventory
+
+# Credentials for the staging database. Local-only and deliberately boring —
+# this database never holds anything that isn't reproducible from a re-import.
+x-staging-db-env: &staging-db-env
+  DB_CONNECTION: mysql
+  DB_HOST: staging-mysql
+  DB_PORT: "3306"
+  DB_DATABASE: inventory
+  DB_USERNAME: inventory
+  DB_PASSWORD: secret
+
+# The importer image. Built from the repo root because it needs
+# database/seeders/data/*.json alongside the importer sources.
+x-import: &import
+  build:
+    context: .
+    dockerfile: scripts/import-tool/Dockerfile
+  env_file:
+    # Not required, so that `docker compose config`, `up`, and everything else
+    # still works on a fresh clone that has no importer credentials. The
+    # entrypoint validates what it needs and fails with a readable message.
+    - path: ./scripts/import-tool/.env
+      required: false
+  networks: [inventory]
+
+services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql-dev:/var/lib/mysql
+      - ./.docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:3337:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks: [inventory]
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    volumes:
+      - valkey-dev:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      retries: 3
+    networks: [inventory]
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:8026:8025"   # web UI
+      - "127.0.0.1:1026:1025"   # SMTP
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # Development (default profile — started by a bare `docker compose up`)
+  # ---------------------------------------------------------------------------
+
+  # One-shot: install dependencies if the vendor volume is empty, then migrate.
+  # `app` and `docs-model` both wait for this to exit 0.
+  migrate:
+    <<: *php
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan migrate --force
+    environment: *app-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  app:
+    <<: *php
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: nginx:1.26-alpine
+    volumes:
+      - .:/var/www/app:ro
+      - ./.docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:8010:80"
+    depends_on:
+      - app
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # tools — npm, vite, api-client generation. One-shot:
+  #   docker compose run --rm tools npm ci
+  # ---------------------------------------------------------------------------
+  tools:
+    image: node:24-alpine
+    working_dir: /var/www/app
+    profiles: [tools]
+    volumes:
+      - .:/var/www/app
+    ports:
+      - "127.0.0.1:5173:5173"   # vite dev server, when you run one
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # docs — Jekyll site on http://localhost:4000
+  # ---------------------------------------------------------------------------
+  docs-model:
+    <<: *php
+    profiles: [docs]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan docs:models --force
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  docs:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.docs
+    profiles: [docs]
+    volumes:
+      - ./docs:/workspace/docs
+      - ./api-client:/workspace/api-client:ro
+      - ./scripts:/workspace/scripts:ro
+      - ./.git:/workspace/.git:ro
+      - docs-bundle:/usr/local/bundle
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      docs-model:
+        condition: service_completed_successfully
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # staging — a local copy of the real dataset, populated by the import profile.
+  #
+  # Separate from the dev database on purpose: a `migrate:fresh` while you are
+  # developing must never cost you a re-import.
+  # ---------------------------------------------------------------------------
+  staging-mysql:
+    image: mysql:8.4
+    # MySQL 8.4 disables mysql_native_password server-side by default. The
+    # Alpine/MariaDB client that `ship` uses for mysqldump cannot authenticate
+    # without it — see scripts/import-tool/mysql/init.sql.
+    command: ["--mysql-native-password=ON"]
+    profiles: [staging, import]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - staging-mysql-data:/var/lib/mysql
+      - ./scripts/import-tool/mysql/init.sql:/docker-entrypoint-initdb.d/10-native-password.sql:ro
+    ports:
+      - "127.0.0.1:3316:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks: [inventory]
+
+  # Migrations only, no seeders: nothing ever logs in to the staging database,
+  # so roles, permissions, and dev users are deliberately absent.
+  staging-migrate:
+    <<: *php
+    profiles: [staging, import]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan migrate --force
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # Computes glossary term links against the staged data, in-process. Run after
+  # `stage`, before `ship`.
+  #
+  # `glossary:bulk-resync`, not `glossary:resync` + a queue worker: resync
+  # dispatches one job per glossary spelling (thousands), each re-scanning every
+  # translation of its language — over a day for this dataset. bulk-resync
+  # inverts the loop and finishes in under two minutes.
+  staging-glossary-sync:
+    <<: *php
+    profiles: [staging, import]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan glossary:bulk-resync
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # import — legacy importer jobs. All of these need scripts/import-tool/.env,
+  # and all but `stage` reach a remote host. See scripts/import-tool/README.md
+  # before running any of them.
+  #
+  # DRY_RUN and CONFIRM_WIPE come from ${VAR} interpolation, i.e. the invoking
+  # shell, NOT from env_file — that is deliberate. CONFIRM_WIPE must be typed
+  # at the moment you mean it, never left sitting in a file.
+  # ---------------------------------------------------------------------------
+
+  # No legacy-images mount: this mode never touches image data, and requiring
+  # one would fail for anyone who only wants a permissions snapshot.
+  backup-permissions:
+    <<: *import
+    profiles: [import]
+    command: ["backup-permissions"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+
+  append:
+    <<: *import
+    profiles: [import]
+    command: ["append"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+
+  clean:
+    <<: *import
+    profiles: [import]
+    command: ["clean"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+
+  # Reads the legacy source and writes only to the staging services above.
+  # Never contacts the remote host.
+  stage:
+    <<: *import
+    profiles: [import]
+    command: ["stage"]
+    volumes:
+      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
+      - staging-images:/staging/images
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # Overrides the remote DB_* values from .env: this mode writes straight to
+      # staging-mysql over the compose network, never through a tunnel.
+      # LEGACY_DB_* still comes from .env unchanged.
+      DB_HOST: staging-mysql
+      DB_PORT: "3306"
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      DB_DATABASE: inventory
+    depends_on:
+      staging-migrate:
+        condition: service_completed_successfully
+
+  # Sends an already-staged copy to the remote host. DESTRUCTIVE.
+  # No legacy mounts: images come from the staging volume, not the legacy tree.
+  ship:
+    <<: *import
+    profiles: [import]
+    command: ["ship"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+      - staging-images:/staging/images:ro
+    environment:
+      DRY_RUN: ${DRY_RUN:-0}
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+      LOCAL_DB_HOST: staging-mysql
+      LOCAL_DB_PORT: "3306"
+      LOCAL_DB_USERNAME: inventory
+      LOCAL_DB_PASSWORD: secret
+      LOCAL_DB_DATABASE: inventory
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+volumes:
+  # Disposable: `docker compose down -v` and re-run, migrations rebuild them.
+  mysql-dev:
+  valkey-dev:
+  vendor:
+  docs-bundle:
+
+  # NOT disposable, and deliberately external so that `down -v` cannot destroy
+  # them: a full stage is hours of importing and several gigabytes of images.
+  # Create once, keep forever, back up when it matters:
+  #
+  #   docker volume create inventory-import-tool_local-mysql-data
+  #   docker volume create inventory-import-tool_local-images-data
+  #
+  # The names are the ones the previous scripts/import-tool stack used, kept
+  # verbatim so that an already-populated staging clone survives this refactor
+  # untouched. Renaming them means migrating the data, so it is a deliberate
+  # separate step, not a side effect.
+  staging-mysql-data:
+    external: true
+    name: inventory-import-tool_local-mysql-data
+  staging-images:
+    external: true
+    name: inventory-import-tool_local-images-data
+
+networks:
+  inventory:
+    driver: bridge
