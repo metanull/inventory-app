@@ -12,6 +12,7 @@ import {
   THEME_ITEM_SELECT_COLUMNS,
 } from '../../src/importers/phase-10/thg-theme-item-resolver.js';
 import type { LegacyThemeItem } from '../../src/importers/phase-10/thg-theme-item-resolver.js';
+import { UnifiedTracker } from '../../src/core/tracker.js';
 
 /** A fully-null base row for building test fixtures. */
 const NULL_ROW: LegacyThemeItem = {
@@ -102,19 +103,38 @@ describe('resolvePictureItemBackwardCompatibility', () => {
       expect(resolvePictureItemBackwardCompatibility(row)).toBeNull();
     });
 
-    it('does not include item_type in the key (matches ObjectPictureImporter behaviour)', () => {
+    it('appends a non-empty item_type (matches ObjectPictureImporter behaviour)', () => {
       const row: LegacyThemeItem = {
         ...NULL_ROW,
         mwnf3_object_project_id: 'ISL',
         mwnf3_object_country_id: 'MAR',
         mwnf3_object_partner_id: 'MUS001',
         mwnf3_object_item_id: 42,
-        mwnf3_object_item_type: 'detail', // should NOT appear in key
+        mwnf3_object_item_type: 'detail',
         mwnf3_object_image_id: 3,
       };
-      const result = resolvePictureItemBackwardCompatibility(row);
-      expect(result).toBe('mwnf3:objects_pictures:ISL:MAR:MUS001:42:3');
-      expect(result).not.toContain('detail');
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3:objects_pictures:ISL:MAR:MUS001:42:3:detail'
+      );
+    });
+
+    it.each([
+      ['empty', ''],
+      ['whitespace', '   '],
+      ['null', null],
+    ])('leaves the default photo untouched for a %s item_type', (_label, type) => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        mwnf3_object_project_id: 'ISL',
+        mwnf3_object_country_id: 'MAR',
+        mwnf3_object_partner_id: 'MUS001',
+        mwnf3_object_item_id: 42,
+        mwnf3_object_item_type: type,
+        mwnf3_object_image_id: 3,
+      };
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3:objects_pictures:ISL:MAR:MUS001:42:3'
+      );
     });
   });
 
@@ -131,6 +151,21 @@ describe('resolvePictureItemBackwardCompatibility', () => {
       };
       expect(resolvePictureItemBackwardCompatibility(row)).toBe(
         'mwnf3:monuments_pictures:BAR:hr:Mon11:33:2'
+      );
+    });
+
+    it('appends a non-empty item_type (matches MonumentPictureImporter behaviour)', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        mwnf3_monument_project_id: 'BAR',
+        mwnf3_monument_country_id: 'hr',
+        mwnf3_monument_partner_id: 'Mon11',
+        mwnf3_monument_item_id: 33,
+        mwnf3_monument_item_type: 'plan',
+        mwnf3_monument_image_id: 2,
+      };
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3:monuments_pictures:BAR:hr:Mon11:33:2:plan'
       );
     });
 
@@ -433,6 +468,77 @@ describe('resolvePictureItemBackwardCompatibility', () => {
       const result = resolvePictureItemBackwardCompatibility(row);
       expect(result).toContain('objects_pictures');
       expect(result).not.toContain('monuments_pictures');
+    });
+  });
+
+  // #1534. The mwnf3, Explore and Travels branches emit the legacy spelling
+  // verbatim, and legacy is not internally consistent — mwnf3.monuments_pictures
+  // stores both `isl` and `ISL`, mwnf3_travels both `iam` and `IAM`. No casing rule
+  // in the resolver could match all of them, so what has to hold instead is that
+  // the lookup layer is case-insensitive. These tests pin that end to end: a key
+  // the resolver spells in legacy's casing finds an item the picture importer
+  // registered in the other casing.
+  describe('casing — resolver output is matched case-insensitively by the tracker', () => {
+    const trackerWith = (backwardCompatibility: string): UnifiedTracker => {
+      const tracker = new UnifiedTracker();
+      tracker.register({
+        uuid: 'ffffffff-0000-4000-8000-000000000001',
+        backwardCompatibility,
+        entityType: 'item',
+        createdAt: new Date(0),
+      });
+      return tracker;
+    };
+
+    it('resolves an upper-case monument reference against a lower-case stored key', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        mwnf3_monument_project_id: 'BAR',
+        mwnf3_monument_country_id: 'hu',
+        mwnf3_monument_partner_id: 'Mon11',
+        mwnf3_monument_item_id: 10,
+        mwnf3_monument_image_id: 1,
+      };
+      const key = resolvePictureItemBackwardCompatibility(row);
+      expect(key).toBe('mwnf3:monuments_pictures:BAR:hu:Mon11:10:1');
+
+      // What the picture importer actually wrote for this row.
+      const tracker = trackerWith('mwnf3:monuments_pictures:bar:hu:Mon11:10:1');
+      expect(tracker.getUuid(key!, 'item')).toBe('ffffffff-0000-4000-8000-000000000001');
+    });
+
+    it('resolves an upper-case Travels reference against a lower-case stored key', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        travel_monument_project_id: 'IAM',
+        travel_monument_country_id: 'pa',
+        travel_monument_trail_id: 1,
+        travel_monument_itinerary_id: 'I',
+        travel_monument_location_id: '1',
+        travel_monument_item_id: 'c',
+        travel_monument_image_id: 12,
+      };
+      const key = resolvePictureItemBackwardCompatibility(row);
+      expect(key).toBe('mwnf3_travels:monument_picture:IAM:pa:1:I:1:c:_:12');
+
+      const tracker = trackerWith('mwnf3_travels:monument_picture:iam:pa:1:i:1:c:_:12');
+      expect(tracker.getUuid(key!, 'item')).toBe('ffffffff-0000-4000-8000-000000000001');
+    });
+
+    it('keeps the legacy spelling in the key it returns', () => {
+      const row: LegacyThemeItem = {
+        ...NULL_ROW,
+        mwnf3_monument_detail_project_id: 'BAR',
+        mwnf3_monument_detail_country_id: 'at',
+        mwnf3_monument_detail_partner_id: 'Mon11',
+        mwnf3_monument_detail_item_id: 47,
+        mwnf3_monument_detail_detail_id: 3,
+        mwnf3_monument_detail_image_id: 3,
+      };
+      // Not lowercased: monument_detail_pictures stores this family upper-case.
+      expect(resolvePictureItemBackwardCompatibility(row)).toBe(
+        'mwnf3:monument_detail_pictures:BAR:at:Mon11:47:3:3'
+      );
     });
   });
 });
