@@ -71,46 +71,53 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
    - Runs `actions/dependency-review-action` with `fail-on-severity: high`
    - Has no `needs` and no path gate — it always runs
 
-3. **backend-lint** *(when `backend=true`)* (*Backend Linting and Validation*) - Laravel backend linting
+3. **dependabot-coverage** (*Dependabot Coverage*) - Enforces that `.github/dependabot.yml` matches the tree
+   - Has no `needs` and no path gate — it always runs, because a deleted or renamed project must be caught as surely as a new one, and the whole check is a YAML parse plus a glob
+   - Runs `sh scripts/check-dependabot-coverage.sh` (POSIX shell, `yq` only; no build, no service container, no matrix)
+   - Fails when a `package.json` under `scripts/**`, the root or `spa` has no `npm` entry; when an `npm` entry's `directory:` resolves to no `package.json`; or when a viewer entry lacks `registries: [npm-github]` or an exporter entry carries the key
+   - The failure output names each offender and prints the exact YAML block to paste, plus why the file is hand-maintained rather than generated
+   - See [Dependabot Configuration](#dependabot-configuration) and [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
+
+4. **backend-lint** *(when `backend=true`)* (*Backend Linting and Validation*) - Laravel backend linting
    - Uses the `setup-backend` composite action with `tools: pint` (PHP 8.5, Composer install, `.env` from `.env.local.example`, `php artisan migrate`)
    - Runs against SQLite in memory (`DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
    - Runs `composer check-platform-reqs`
    - Runs `./vendor/bin/pint --bail`
 
-4. **backend-tests** *(when `backend=true`)* (*Backend Tests (`<suite>`)*) - Laravel test matrix
+5. **backend-tests** *(when `backend=true`)* (*Backend Tests (`<suite>`)*) - Laravel test matrix
    - Uses the `setup-backend` composite action with `tools: phpunit, pest` and `coverage: xdebug`
    - Matrix: `Unit`, `Api`, `Web`, `Filament`, `Configuration`, `Console`, `Event`, `Integration`
    - `fail-fast: true` — stops remaining suites on first failure
    - Runs each suite with `php artisan test --testsuite=<suite> --coverage --parallel --no-ansi --stop-on-failure`
 
-5. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* (*Backend Rendered Frontend Validation (Blade/Tailwind)*) - Blade/Tailwind build
+6. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* (*Backend Rendered Frontend Validation (Blade/Tailwind)*) - Blade/Tailwind build
    - Uses the `setup-node-project` composite action at the repository root
    - Runs `npm run build`
 
-6. **importer-validation** *(when `importer=true`)* (*Importer Validation (TypeScript)*) - Importer TypeScript build and tests
+7. **importer-validation** *(when `importer=true`)* (*Importer Validation (TypeScript)*) - Importer TypeScript build and tests
    - Uses the `setup-node-project` composite action with `working-directory: scripts/importer`
    - Runs `npm run build` (TypeScript compilation)
    - Runs `npm test` (Vitest unit tests)
 
-7. **site-i18n-validation** *(when `site-i18n=true`)* (*Site i18n Validation (TypeScript)*) - Shared site i18n layer validation
+8. **site-i18n-validation** *(when `site-i18n=true`)* (*Site i18n Validation (TypeScript)*) - Shared site i18n layer validation
    - Uses the `setup-node-project` composite action with `working-directory: scripts/site-i18n`
    - Runs `npm run lint:check`, `npm run build` and `npm test`
    - Every test in this suite is a pure function over legacy row shapes, so no database, VPN or credentials are involved
 
-8. **exporter-validation** *(when `exporters=true`)* (*Exporter Validation (`<dataset>`)*) - Dataset exporter validation
+9. **exporter-validation** *(when `exporters=true`)* (*Exporter Validation (`<dataset>`)*) - Dataset exporter validation
    - Matrix comes from `detect-changes`'s `exporter-datasets` output, not a hardcoded list — a forked exporter is covered from its first pull request
    - `fail-fast: false` — every dataset is reported, even when one fails
    - Uses the `setup-node-project` composite action with `working-directory: scripts/exporters/<dataset>`
    - Runs `npm run type-check`, `npm run lint:check` and `npm test` (Vitest unit tests)
    - Every test in these suites is a pure function over legacy row shapes, so no database, VPN or credentials are involved
 
-9. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
+10. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
    - Uses the `setup-node-project` composite action with `working-directory: spa`, authenticated against GitHub Packages with `GITHUB_TOKEN`
    - Runs `npm run lint`, `npm run build` and `npm run test:all`
 
-10. **ci-success** (*CI Success*) - Aggregates all check results
+11. **ci-success** (*CI Success*) - Aggregates all check results
    - `needs` every other job and runs with `if: always()`
-   - Always requires `dependency-review` to have succeeded
+   - Always requires `dependency-review` and `dependabot-coverage` to have succeeded
    - For each path group that changed, requires the matching job(s) to have succeeded
    - When a path group did not change, its job may be skipped without failing the workflow
    - This job name satisfies the `CI Success` branch protection required check
@@ -122,7 +129,7 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
 
 **Branch protection**
 
-The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. Dependency review must always pass; the path-gated lint/build/test jobs must pass whenever their path group changed.
+The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. Dependency review and the Dependabot coverage check must always pass; the path-gated lint/build/test jobs must pass whenever their path group changed.
 
 **Usage**
 
@@ -469,7 +476,24 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date across the repository.
 
-> **This file is maintained by hand — the one piece of CI config that is.** Dependabot config is static YAML with no scripting, so it cannot enumerate directories the way the `Exporter Validation` and `Dependency Audit` matrices do. **Adding a Node project under `scripts/` means adding an entry here too.** Nothing fails if you forget: the project simply never receives dependency updates or security alerts, silently and indefinitely. Closing that gap for good would mean generating this file from a template — a decision that has not been taken.
+> **This file is maintained by hand — the one piece of CI config that is.** Dependabot config is static YAML with no scripting, so it cannot enumerate directories the way the `Exporter Validation` and `Dependency Audit` matrices do. **Adding a Node project under `scripts/` means adding an entry here too.**
+>
+> **This is now enforced, not merely documented.** The `dependabot-coverage` job in [CI](#ci) runs `scripts/check-dependabot-coverage.sh` on every pull request and blocks the merge when this file and the tree disagree. Documentation alone had already failed once: `scripts/viewers/amulets` shipped in PR #1566 with no entry — about an hour after PR #1557 wrote the rule down — and had to be patched in PR #1572.
+>
+> Generating this file from a template was considered and **rejected**: Dependabot reads it as static YAML from the default branch, so a generated copy would still have to be committed, leaving the same "did you re-run the generator?" gap it was meant to close, with a build artefact in the tree as the price. The file stays hand-written; the check keeps it honest.
+
+**What the check asserts**
+
+1. Every `package.json` under `scripts/**` — plus the root and `spa` — has an `npm` entry with the matching `directory:`.
+2. Every `npm` entry's `directory:` resolves to a `package.json` that exists, so a deleted or renamed project is caught too.
+3. Every viewer entry carries `registries: [npm-github]` and no exporter entry does.
+
+On failure it names each offender and prints the exact YAML block to paste. Run it locally before pushing (no host-side tooling — it runs in a container):
+
+```sh
+docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
+  scripts/check-dependabot-coverage.sh
+```
 
 **Ecosystems monitored**
 
@@ -482,6 +506,7 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `npm` | `/scripts/site-i18n` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/amulets` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/baroqueart` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/carpets` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/viewers/amulets` | Weekly | npm.pkg.github.com (GitHub) |
@@ -591,7 +616,7 @@ Several workflows interact with scripts, composite actions and other workflows:
 
 | Workflow | Depends On | Triggers |
 | --- | --- | --- |
-| `continuous-integration.yml` | `setup-backend`, `setup-node-project` | - |
+| `continuous-integration.yml` | `setup-backend`, `setup-node-project`, `scripts/check-dependabot-coverage.sh` | - |
 | `dependency-audit.yml` | `setup-node-project` | - |
 | `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
@@ -605,6 +630,7 @@ Several workflows interact with scripts, composite actions and other workflows:
 - `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
 - `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
 - `deploy.sh` - Uploaded to the VPS and executed by `deploy-ovh.yml`. See [/scripts/README.md](../../scripts/README.md#deployment-scripts)
+- `check-dependabot-coverage.sh` - Run by the `dependabot-coverage` job in `continuous-integration.yml`. See [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
 
 ---
 

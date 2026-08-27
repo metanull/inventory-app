@@ -196,5 +196,17 @@ silently empty check rather than failing.
 Dependabot config is static YAML with no scripting, so it cannot enumerate
 directories and **must be edited by hand**. Add an `npm` entry for the new
 exporter directory — no `registries:` key, exporters use the public registry.
+
+**Forgetting fails CI.** The `Dependabot Coverage` job in
+`continuous-integration.yml` compares that file against the tree on every pull
+request and blocks the merge on a mismatch — a missing entry, an entry pointing
+at a directory that no longer exists, or an exporter entry that wrongly carries
+`registries:`. It prints the exact YAML block to paste. Run it yourself before
+pushing:
+
+```sh
+docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
+  scripts/check-dependabot-coverage.sh
+```
 Nothing fails if you forget; the exporter simply never receives dependency
 updates or security alerts.
