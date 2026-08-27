@@ -27,18 +27,36 @@
 #      does (exporters read the database and write JSON; they consume no
 #      @metanull package).
 #
-# Usage (from the repository root):
+# ---------------------------------------------------------------------------
+# Two modes
 #
 #   sh scripts/check-dependabot-coverage.sh
+#       Run the three assertions above. Exit 1 on any mismatch. This is what
+#       the `dependabot-coverage` job in continuous-integration.yml blocks on.
+#
+#   sh scripts/check-dependabot-coverage.sh --list-projects
+#       Print the same project list as a compact JSON array of
+#       {name, directory, registry}, the matrix shape the `enumerate-npm-
+#       projects` job in dependency-audit.yml consumes.
+#
+# The second mode exists so the two enumerations cannot drift. Before it, the
+# audit job hand-listed Root, SPA and Importer and globbed only
+# scripts/exporters and scripts/viewers, so scripts/site-i18n silently received
+# no weekly `npm audit` at all — the same class of gap this script was written
+# to close, one file over. Sharing the enumeration makes "Dependabot-covered"
+# and "weekly-audited" the same set by construction, and the hand-written
+# dependabot.yml then pins it from the other side: if this enumeration ever
+# stops matching a project, its config entry turns up as ORPHANED and the PR
+# gate fails, instead of the weekly audit quietly shrinking.
+# ---------------------------------------------------------------------------
 #
 # There is no host-side tooling in this project, so run it in a container:
 #
 #   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
 #     scripts/check-dependabot-coverage.sh
 #
-# Requires: yq (mikefarah v4) and POSIX sh. Both are present on the
-# ubuntu-latest GitHub runner, where the `dependabot-coverage` job in
-# continuous-integration.yml runs this same script.
+# Requires POSIX sh, plus yq (mikefarah v4) in check mode only — --list-projects
+# reads nothing but the tree. Both are present on the ubuntu-latest runner.
 
 set -eu
 
@@ -47,6 +65,109 @@ LC_ALL=C
 export LC_ALL
 
 CONFIG=".github/dependabot.yml"
+GITHUB_PACKAGES="https://npm.pkg.github.com/"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  sh scripts/check-dependabot-coverage.sh                 Check the config against the tree
+  sh scripts/check-dependabot-coverage.sh --list-projects  Print the project list as JSON
+EOF
+}
+
+MODE="check"
+case "${1:-}" in
+  "") ;;
+  --list-projects) MODE="list" ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  *)
+    echo "ERROR: unknown argument: $1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+# --------------------------------------------------------------------------
+# 1. Enumerate the Node projects that exist in the tree.
+#
+# This is the single source of truth for "what is a Node project in this
+# repository". Both the coverage check below and the weekly audit matrix in
+# dependency-audit.yml derive from it.
+#
+# Directories are emitted in Dependabot's own `directory:` form: an absolute
+# path from the repository root, "/" for the root project itself.
+# --------------------------------------------------------------------------
+
+enumerate_projects() {
+  {
+    [ -f package.json ] && echo "/"
+    [ -f spa/package.json ] && echo "/spa"
+    find scripts -name node_modules -prune -o -name package.json -print 2>/dev/null \
+      | sed 's|/package\.json$||; s|^|/|'
+  } | sort -u
+}
+
+# Display name for a project. These become the `Audit - npm (…)` job names in
+# dependency-audit.yml, so they are kept stable.
+project_name() {
+  case "$1" in
+    /) echo "Root" ;;
+    /spa) echo "SPA" ;;
+    /scripts/importer) echo "Importer" ;;
+    /scripts/site-i18n) echo "Site i18n" ;;
+    /scripts/exporters/*) echo "Exporter ($(basename "$1"))" ;;
+    /scripts/viewers/*) echo "Viewer ($(basename "$1"))" ;;
+    *) basename "$1" ;;
+  esac
+}
+
+# The registry a project installs from. Only the SPA
+# (@metanull/inventory-app-api-client) and the viewers (@metanull/<dataset>-data)
+# consume an @metanull package; every other project resolves entirely from the
+# public registry and needs no authentication.
+project_registry() {
+  case "$1" in
+    /spa | /scripts/viewers/*) echo "$GITHUB_PACKAGES" ;;
+    *) echo "" ;;
+  esac
+}
+
+# Repository-relative path, the form a workflow `working-directory` wants.
+project_path() {
+  case "$1" in
+    /) echo "." ;;
+    *) echo "${1#/}" ;;
+  esac
+}
+
+# --------------------------------------------------------------------------
+# 1b. --list-projects: emit the audit matrix and stop.
+#
+# Deliberately depends on nothing but the tree — no yq, no dependabot.yml — so
+# the weekly audit cannot be broken by an unrelated problem in the config it
+# does not read.
+# --------------------------------------------------------------------------
+
+if [ "$MODE" = "list" ]; then
+  enumerate_projects \
+    | while IFS= read -r dir; do
+        printf '{"name":"%s","directory":"%s","registry":"%s"}\n' \
+          "$(project_name "$dir")" \
+          "$(project_path "$dir")" \
+          "$(project_registry "$dir")"
+      done \
+    | tr '\n' ',' \
+    | sed 's/,$//; s/^/[/; s/$/]/'
+  echo
+  exit 0
+fi
+
+# --------------------------------------------------------------------------
+# Check mode from here on. It reads the config, so it needs yq.
+# --------------------------------------------------------------------------
 
 if [ ! -f "$CONFIG" ]; then
   echo "ERROR: $CONFIG not found. Run this script from the repository root." >&2
@@ -65,25 +186,13 @@ EOF
   exit 1
 fi
 
-# --------------------------------------------------------------------------
-# 1. Enumerate the Node projects that exist in the tree.
-#
-# Directories are emitted in Dependabot's own `directory:` form: an absolute
-# path from the repository root, "/" for the root project itself.
-# --------------------------------------------------------------------------
-
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 FOUND="$TMP/found"
 CONFIGURED="$TMP/configured"
 
-{
-  [ -f package.json ] && echo "/"
-  [ -f spa/package.json ] && echo "/spa"
-  find scripts -name node_modules -prune -o -name package.json -print 2>/dev/null \
-    | sed 's|/package\.json$||; s|^|/|'
-} | sort -u > "$FOUND"
+enumerate_projects > "$FOUND"
 
 # --------------------------------------------------------------------------
 # 2. Read the npm entries out of the Dependabot config.
@@ -114,11 +223,10 @@ group_prefix() {
   esac
 }
 
+# Whether a suggested entry should carry `registries: [npm-github]`. Derived
+# from project_registry so the script states the registry rule exactly once.
 needs_registry() {
-  case "$1" in
-    /scripts/viewers/*) return 0 ;;
-    *) return 1 ;;
-  esac
+  [ -n "$(project_registry "$1")" ]
 }
 
 section_hint() {

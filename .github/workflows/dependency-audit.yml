@@ -48,35 +48,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Datasets are added by forking an existing directory, so the trees that
-      # hold them are listed here, never the projects themselves: a fork is
-      # audited from the day it lands, with no edit to this workflow. Each tree
-      # carries the registry its projects install from — the viewers consume
-      # @metanull/*-data from GitHub Packages, the exporters do not.
+      # The matrix comes from scripts/check-dependabot-coverage.sh, the same
+      # enumeration the blocking `Dependabot Coverage` job in
+      # continuous-integration.yml checks .github/dependabot.yml against. That
+      # is deliberate: "has a Dependabot entry" and "gets a weekly npm audit"
+      # are then the same set by construction, and each pins the other. A
+      # project that falls out of the enumeration loses its weekly audit here,
+      # but its dependabot.yml entry immediately turns up as ORPHANED and the
+      # PR gate fails — so the loss is loud instead of silent.
+      #
+      # This job used to hand-list Root, SPA and Importer and glob only
+      # scripts/exporters and scripts/viewers. scripts/site-i18n matched none of
+      # those and silently received no audit at all from the day it landed.
       - name: Enumerate npm projects
         id: enumerate
-        env:
-          GITHUB_PACKAGES: https://npm.pkg.github.com/
         run: |
-          scan() {
-            find "$2" -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' \
-              | sort \
-              | jq -R --arg label "$1" --arg registry "$3" \
-                  '{name: "\($label) (\(split("/") | last))", directory: ., registry: $registry}'
-          }
-
-          PROJECTS=$(
-            {
-              jq -nc '{name: "Root", directory: ".", registry: ""}'
-              jq -nc --arg registry "$GITHUB_PACKAGES" '{name: "SPA", directory: "spa", registry: $registry}'
-              jq -nc '{name: "Importer", directory: "scripts/importer", registry: ""}'
-              scan "Exporter" scripts/exporters ""
-              scan "Viewer" scripts/viewers "$GITHUB_PACKAGES"
-            } | jq -sc .
-          )
+          PROJECTS="$(sh scripts/check-dependabot-coverage.sh --list-projects)"
 
           echo "$PROJECTS" | jq -r '.[] | "  \(.name) -> \(.directory)"'
-          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+          echo "projects=$PROJECTS" >> "$GITHUB_OUTPUT"
 
   audit-npm:
     name: Audit - npm (${{ matrix.project.name }})

@@ -22,6 +22,12 @@
 # │ Current coverage: root, spa, scripts/importer, scripts/site-i18n,        │
 # │ every scripts/exporters/* and every scripts/viewers/*.                   │
 # │                                                                          │
+# │ These entries also pin the weekly `npm audit` matrix in                  │
+# │ dependency-audit.yml, which derives from the same enumeration. Deleting  │
+# │ an entry whose project still exists fails the check above; a project     │
+# │ dropping out of the enumeration leaves its entry ORPHANED, which fails   │
+# │ it too. Neither list can shrink quietly.                                 │
+# │                                                                          │
 # │ Run the check yourself before pushing:                                   │
 # │   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh \             │
 # │     mikefarah/yq:4 scripts/check-dependabot-coverage.sh                  │
