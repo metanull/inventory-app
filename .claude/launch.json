@@ -21,6 +21,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4175", "--strictPort"],
       "cwd": "scripts/viewers/sharinghistory",
       "port": 4175
+    },
+    {
+      "name": "amulets-viewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4179", "--strictPort"],
+      "cwd": "scripts/viewers/amulets",
+      "port": 4179
     }
   ]
 }

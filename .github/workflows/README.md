@@ -420,6 +420,13 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 | `baroqueart` | `deploy-viewer-baroqueart-ovh.yml` | `scripts/viewers/baroqueart/**` | `/baroqueart/` | `/opt/baroqueart/` | https://inventory.metanull.eu/baroqueart/ |
 | `islamicart` | `deploy-viewer-islamicart-ovh.yml` | `scripts/viewers/islamicart/**` | `/islamicart/` | `/opt/islamicart/` | https://inventory.metanull.eu/islamicart/ |
 | `sharinghistory` | `deploy-viewer-sharinghistory-ovh.yml` | `scripts/viewers/sharinghistory/**` | `/sharinghistory/` | `/opt/sharinghistory/` | https://inventory.metanull.eu/sharinghistory/ |
+| `amulets` | `deploy-viewer-amulets-ovh.yml` | `scripts/viewers/amulets/**` | `/amulets/` | `/opt/amulets/` | https://inventory.metanull.eu/amulets/ |
+
+> **`amulets` is not deployable yet.** `@metanull/amulets-data` has not been
+> published, so step 3 below carries `if: false` and the Nginx alias block does
+> not exist on the VPS. Do not dispatch it. Both are lifted in the same change
+> that publishes the package — see
+> [`scripts/viewers/amulets/README.md`](../../scripts/viewers/amulets/README.md#what-must-change-once-the-package-is-published).
 
 **Workflow properties** (identical apart from the dataset name)
 
