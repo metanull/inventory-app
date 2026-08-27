@@ -4,8 +4,9 @@ import { useRouter } from 'vue-router'
 import { timelineCountries, eventYearBuckets } from '../composables/useTimeline.js'
 
 // Timeline entry form. The chronology is the global, project-independent
-// country timeline (`mwnf3.hcr`), which every gallery package ships in full —
-// which is why this page works even though the gallery's own
+// country timeline — `mwnf3.hcr` merged with Sharing History exhibition 2, the
+// way legacy's `/v2/events` serves it — which every gallery package ships in
+// full. That is why this page works even though the gallery's own
 // `has_country_timeline` flag is false, exactly as on the live site.
 const router = useRouter()
 

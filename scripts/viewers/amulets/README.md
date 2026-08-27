@@ -183,16 +183,19 @@ Everything not listed matched.
 
 **Package gaps surfaced by the viewer** (exporter-side, not viewer-side)
 
-- `timelines.json` ships **18** country chronologies; the live
-  `/events/countries` lists **26**. The eight absent ones — `at`, `gr`, `lb`,
-  `qt`, `rm`, `sa`, `sb`, `ua`, 110 events between them — are not matched by
-  the exporter's `mwnf3:hcr:country:%` filter. The 18 that are present match
-  the live API event for event.
-- `countries.json` is scoped to member-item and holder countries, so ten of
-  the eighteen timeline countries have no row in it. The viewer resolves those
-  names from the timeline's own `backward_compatibility`
-  (`mwnf3:hcr:country:<code>`) through `Intl.DisplayNames`, which yields
-  "Czechia" where legacy's database says "Czech Republic".
+- ~~`timelines.json` ships 18 country chronologies where the live
+  `/events/countries` lists 26.~~ **Fixed** — the exporter matched only
+  `mwnf3:hcr:country:%` and so dropped the Sharing History "Political Context"
+  half of legacy's merge. It now ships 37 rows over 26 countries and 1,390
+  events, each row tagged with its `source`, and the viewer's country picker
+  is per country rather than per row.
+- ~~`countries.json` is scoped to member-item and holder countries, so ten of
+  the timeline countries have no row in it and their names come from
+  `Intl.DisplayNames` ("Czechia" where legacy's database says "Czech
+  Republic").~~ **Fixed** — `countries.json` now unions the timeline's
+  countries too (19 → 31 rows), so every timeline country's name and legacy
+  code are read from the package. The `Intl.DisplayNames` fallback in
+  `useTimeline.js` is retained as defensive code but is no longer reached.
 - `materials` reaches the sheet as a tag-derived list, so its order and casing
   differ from the legacy free-text line ("old repairs in green-dyed cotton;
   black and red ink; …" vs "Black and red ink, coloured pigments … ; old

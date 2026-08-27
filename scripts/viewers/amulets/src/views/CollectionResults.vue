@@ -74,8 +74,10 @@ function navigate(p) {
 }
 
 // "Timeline for this Search" — legacy offered it whenever the chosen country
-// actually has a chronology. The 18 global country timelines ship in every
-// gallery package, so the check is a lookup rather than a request.
+// actually has a chronology. The global timeline ships in every gallery package
+// (37 rows over 26 countries), so the check is a lookup rather than a request —
+// and a Set of `country_id`, so the countries served by both chronologies count
+// once.
 const timelineCountryIds = computed(() => new Set(timelines.value.map(t => t.country_id)))
 const showTimelineLink = computed(() => {
   const id = codeToId(query.value.country)
