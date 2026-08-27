@@ -462,6 +462,8 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date across the repository.
 
+> **This file is maintained by hand — the one piece of CI config that is.** Dependabot config is static YAML with no scripting, so it cannot enumerate directories the way the `Exporter Validation` and `Dependency Audit` matrices do. **Adding a Node project under `scripts/` means adding an entry here too.** Nothing fails if you forget: the project simply never receives dependency updates or security alerts, silently and indefinitely. Closing that gap for good would mean generating this file from a template — a decision that has not been taken.
+
 **Ecosystems monitored**
 
 | Ecosystem | Directory | Schedule | Registry |
@@ -470,9 +472,17 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `npm` | `/` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/importer` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/site-i18n` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/amulets` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/baroqueart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/scripts/viewers/sharinghistory` | Weekly | npm.pkg.github.com (GitHub) |
 | `github-actions` | `/` | Weekly | github.com (public) |
+
+Every exporter reads the database and writes JSON, so none consumes an `@metanull` package and none needs the authenticated registry. Every viewer installs `@metanull/<dataset>-data` from GitHub Packages and therefore needs `registries: [npm-github]`.
 
 **GitHub Packages registry access**
 

@@ -181,8 +181,17 @@ Two gotchas, learned the hard way:
 5. Publish, then create the matching viewer (see
    [`../viewers/README.md`](../viewers/README.md)).
 
-CI needs no edit: the `Exporter Validation` job derives its matrix from the
-directories under `scripts/exporters/` that contain a `package.json`, so a new
-dataset is type-checked, linted and tested from its first pull request. Keep
+**CI needs no edit, Dependabot does.** The `Exporter Validation` job and the
+`Dependency Audit` matrix both derive their lists from the directories under
+`scripts/exporters/` that contain a `package.json`, so a new dataset is
+type-checked, linted, tested and audited from its first pull request. Keep
 `type-check`, `lint:check` and `test` in the copied `package.json` — those are
-the three scripts the job runs.
+the three scripts the job runs; a fork that drops or renames one contributes a
+silently empty check rather than failing.
+
+[`.github/dependabot.yml`](../../.github/dependabot.yml) is the exception:
+Dependabot config is static YAML with no scripting, so it cannot enumerate
+directories and **must be edited by hand**. Add an `npm` entry for the new
+exporter directory — no `registries:` key, exporters use the public registry.
+Nothing fails if you forget; the exporter simply never receives dependency
+updates or security alerts.
