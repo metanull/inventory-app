@@ -40,7 +40,7 @@ including either would show up here immediately.
 | `galleryKey` | `amulets_and_talismans` | `slug` ✅ |
 | `galleryName` | Amulets and Talismans | `names.en` ✅ (plus ar/es/fr) |
 | `url` | `https://amulets.museumwnf.org` | `legacy_host` ✅ |
-| `featured` | `true` | `featured: true` ✅ (stored flag is `'H'` — the legacy inversion) |
+| `featured` | `true` | `featured: false` ⚠️ **deliberate disagreement** — see below |
 | `hidden` | `false` | `hidden: false` ✅ |
 | `hasTimeline` | `false` | `has_timeline: false` ✅ |
 | `hasCountryBasedTimeline` | `false` | `has_country_timeline: false` ✅ |
@@ -48,6 +48,29 @@ including either would show up here immediately.
 | `banner-object` link | `/mwnf3/objects/EPM/at/Mus22/51` | `banner_item_id` resolves to that item ✅ |
 | `homepage-object` / `homepage-image` | `null` | `null` ✅ |
 | `logos` | `[]` | — (legacy `thg_gallery_logos` holds 1 row across all sites) ✅ |
+
+### The one field where the package deliberately differs from the live API
+
+`status` and `featured` are two unrelated flags that happen to share
+`enum('A','H')`, and the `thg_gallery` column comments spell both out: `status`
+is *A: Active; H: Hidden* (visibility everywhere), `featured` is *A: should
+appear in "featured Galleries"; H: hidden from the featured galleries*, default
+`H`. Only ten of the 49 galleries carry `featured = 'A'`, and gallery 54 is
+`status = 'H'` with `featured = 'A'` — proof the flags are orthogonal.
+
+dxa-api builds its `featured` output by copying the `hidden` projection
+(`CASE WHEN featured = 'A' THEN 0 ELSE 1 END`, `WithTHGTemporaryTables.php`)
+without flipping the polarity, so the JSON is the inverse of the record: amulets
+is `featured = 'H'`, not featured, and the API says `featured: true`.
+
+Nothing on the legacy sites exposes the defect — `/thg/galleries/featured`
+returns random non-exhibition galleries and never consults the flag, the `bf`
+query filter compares the derived integer to `'A'` (MySQL casts it to `0`,
+inverting a second time, so it accidentally filters correctly), and dxa-client
+never reads the field at all.
+
+The package therefore ships `featured: false` for amulets. Future parity checks
+should expect this single mismatch rather than "fix" it.
 
 ## Item sheet, field by field
 

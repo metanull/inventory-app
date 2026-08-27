@@ -76,7 +76,7 @@ The per-site identity legacy spread across `.env`, `thg_gallery`,
   "homepage_image_path": null,
   "has_timeline": false,                   // THG-local timeline (galleries: false)
   "has_country_timeline": false,
-  "featured": true,                        // legacy flag is INVERTED, see below
+  "featured": false,                       // thg_gallery.featured = 'H'; see below
   "hidden": false,
   "live_date": "2022-12-01T00:00:00Z",
   "sibling_galleries": [                   // the featured-galleries strip
@@ -98,11 +98,28 @@ API while building the amulets exporter:
   `thg_gallery.link` is `amulets_and_talismans`, while the site, its package
   and its exporter directory are all `amulets` (decision Q4, the public
   subdomain). Only gallery 9 happens to have both the same (`carpets`).
-- **`featured` is inverted in legacy and stays that way.** dxa-api computes
-  `CASE WHEN featured = 'A' THEN 0 ELSE 1 END`
-  (`app/MWNF/SQL/thg/WithTHGTemporaryTables.php`), so `'A'` means *not*
-  featured: amulets stores `'H'` and `/thg/galleries/self` reports
-  `featured: true`. `hidden` is the ordinary direction (`status = 'A'` shows).
+- **`featured` and `status` are two independent flags sharing one enum.** Both
+  are `enum('A','H')`, which invites conflating them, but the `thg_gallery`
+  column comments are explicit: `status` is *A: Active; H: Hidden* — visibility
+  of the gallery on every site — while `featured` is *A: should appear in
+  "featured Galleries"; H: hidden from the featured galleries*, defaulting to
+  `H`. The data agrees: `featured = 'A'` is a hand-picked set of ten
+  (`carpets`, `glass`, `textiles`, `toys`, `precious_stones`,
+  `the_use_of_colours_in_art`, …), and gallery 54 is `status = 'H'` with
+  `featured = 'A'`, which only makes sense if the two are orthogonal.
+
+  **dxa-api gets this wrong**: `WithTHGTemporaryTables.php` builds `featured`
+  by copying the `hidden` projection — `CASE WHEN featured = 'A' THEN 0 ELSE 1
+  END` — without flipping the polarity, so its JSON is the inverse of the
+  record. Amulets is `featured = 'H'` (not featured) yet `/thg/galleries/self`
+  reports `featured: true`. The defect never surfaced on the legacy sites:
+  `/thg/galleries/featured` returns random non-exhibition galleries and ignores
+  the flag, the `bf` filter compares the derived integer against `'A'` (MySQL
+  casts that to `0`, inverting a second time and accidentally working), and
+  dxa-client never reads the field. **Packages ship the documented meaning**
+  (`featured = 'A'`), so this is the one place a live-API parity check is
+  expected to disagree. `hidden` is the ordinary direction (`status = 'A'`
+  shows).
 - **Chrome images are legacy-hosted.** `image` / `banner_image` /
   `homepage_image` point into the legacy media server
   (`https://images.museumwnf.org/{size}/…`, a per-deployment env constant) and
