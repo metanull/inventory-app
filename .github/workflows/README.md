@@ -159,22 +159,26 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    - Installs Composer dependencies
    - Runs `composer audit`
 
-2. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
-   - `fail-fast: false` — every directory is audited even if one fails
-   - Uses the `setup-node-project` composite action per matrix entry
+2. **enumerate-npm-projects** (*Enumerate npm Projects*) - Builds the `audit-npm` matrix from the checkout
+   - Emits `projects`, a JSON array of `{name, directory, registry}` objects
+   - Datasets are added by forking an existing directory, so the trees are listed and the projects are globbed — a fork is audited from the day it lands, with no edit to this workflow
 
-   | Matrix entry | Directory | Registry |
+   | Source | Contributes | Registry |
    | --- | --- | --- |
-   | `Root` | `.` | public npm |
-   | `SPA` | `spa` | npm.pkg.github.com |
-   | `Importer` | `scripts/importer` | public npm |
-   | `Exporter (islamicart)` | `scripts/exporters/islamicart` | public npm |
-   | `Viewer (islamicart)` | `scripts/viewers/islamicart` | npm.pkg.github.com |
+   | listed explicitly | `Root` (`.`) | public npm |
+   | listed explicitly | `SPA` (`spa`) | npm.pkg.github.com |
+   | listed explicitly | `Importer` (`scripts/importer`) | public npm |
+   | every `package.json` under `scripts/exporters/*/` | `Exporter (<dataset>)` | public npm |
+   | every `package.json` under `scripts/viewers/*/` | `Viewer (<dataset>)` | npm.pkg.github.com |
 
+3. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
+   - Matrix: `fromJSON` of `enumerate-npm-projects`'s `projects` output
+   - `fail-fast: false` — every directory is audited even if one fails
+   - Uses the `setup-node-project` composite action per matrix entry, with that entry's registry
    - Runs `npm audit --audit-level high` in each directory
 
-3. **report** (*Report Failures*) - Reports vulnerabilities as an issue
-   - `needs: [audit-composer, audit-npm]`, runs with `if: always()` when either audit job failed
+4. **report** (*Report Failures*) - Reports vulnerabilities as an issue
+   - `needs: [audit-composer, enumerate-npm-projects, audit-npm]`, runs with `if: always()` when any of them failed
    - Opens an issue titled `Weekly dependency audit found vulnerabilities` with the `dependencies` label, or comments on the existing open one
 
 **Permissions**
