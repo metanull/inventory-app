@@ -162,6 +162,14 @@ export interface IWriteStrategy {
    */
   updatePartnerMonumentItemId(partnerId: string, monumentItemId: string): Promise<void>;
 
+  /**
+   * Set a partner's project_id, but only where it is still null — used by the
+   * museum→project backfill so a rerun (or a value written by another step,
+   * e.g. SchoolImporter) is never overwritten.
+   * @returns The number of rows updated (0 or 1).
+   */
+  setPartnerProjectIdIfUnset(partnerId: string, projectId: string): Promise<number>;
+
   // =========================================================================
   // Items
   // =========================================================================

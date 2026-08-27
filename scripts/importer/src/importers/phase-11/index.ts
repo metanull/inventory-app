@@ -19,3 +19,4 @@ export { ShHbRecontextImporter } from './sh-hb-recontext-importer.js';
 export { ShHistoricalProfilesRootImporter } from './sh-historical-profiles-root-importer.js';
 export { CollectionPurposeBackfillImporter } from './collection-purpose-backfill-importer.js';
 export { ExtraBitBufferBackfillImporter } from './extra-bit-buffer-backfill-importer.js';
+export { MuseumProjectLinkBackfillImporter } from './museum-project-link-backfill-importer.js';

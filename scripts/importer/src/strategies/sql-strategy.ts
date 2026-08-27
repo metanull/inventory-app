@@ -475,6 +475,14 @@ export class SqlWriteStrategy implements IWriteStrategy {
     ]);
   }
 
+  async setPartnerProjectIdIfUnset(partnerId: string, projectId: string): Promise<number> {
+    const [result] = await this.db.execute<ResultSetHeader>(
+      `UPDATE partners SET project_id = ?, updated_at = ? WHERE id = ? AND project_id IS NULL`,
+      [projectId, this.now, partnerId]
+    );
+    return result.affectedRows;
+  }
+
   // =========================================================================
   // Items
   // =========================================================================

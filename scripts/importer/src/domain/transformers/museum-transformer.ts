@@ -142,7 +142,11 @@ export function transformMuseum(legacy: LegacyMuseum): TransformedMuseum {
     longitude,
     map_zoom: mapZoom,
     country_id: legacy.country ? mapCountryCode(legacy.country) : null,
-    project_id: null, // Museums don't have direct project association in legacy data
+    // `mwnf3.museums.project_id` is the project the museum record was CREATED
+    // under (FK fk_museums_projects), and it is what legacy's MWNF-384 branch
+    // selects on. The legacy code is in hand here but the inventory UUID is
+    // not, so — exactly as school-transformer does — the importer resolves it.
+    project_id: null, // Resolved in the importer via lookup
     monument_item_id: null, // Will be resolved later by importer if monumentReference exists
     visible: false, // Default to false, can be updated later
   };
@@ -263,7 +267,13 @@ export interface MuseumGroup {
 }
 
 /**
- * Group legacy museums and museum names by museum key
+ * Group legacy museums and museum names by museum key.
+ *
+ * One group per `mwnf3.museums` ROW, which is safe because
+ * `PRIMARY KEY (museum_id, country)` makes the group key a candidate key of the
+ * table: a legacy museum has exactly one row and therefore exactly one
+ * `project_id`. That is why the museum→project link can be a single FK on
+ * `partners.project_id` rather than a join table — see PartnerImporter.
  */
 export function groupMuseumsByKey(
   museums: LegacyMuseum[],
