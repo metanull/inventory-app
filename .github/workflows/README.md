@@ -13,7 +13,6 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
   - [Continuous Deployment](#continuous-deployment)
     - [Build](#build)
     - [Deploy to OVH](#deploy-to-ovh)
-    - [Deploy Laravel Application (Windows self-hosted)](#deploy-laravel-application-windows-self-hosted)
     - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
     - [Publish API Client Package](#publish-api-client-package)
     - [Deploy Dataset Viewers to OVH](#deploy-dataset-viewers-to-ovh)
@@ -26,9 +25,8 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 
 ## Notes
 
-- **Workflows run on GitHub-hosted runners** (`ubuntu-latest`, `ubuntu-24.04`) or **self-hosted runners** (`[self-hosted, windows]`) depending on the task
+- **Every workflow runs on GitHub-hosted runners** (`ubuntu-latest`, `ubuntu-24.04`); no self-hosted runner is used any more
 - **Python workflows** use Python 3.x on Ubuntu runners for documentation generation
-- **PowerShell workflows** use PowerShell on Windows runners for the legacy self-hosted application deployment
 - Most workflows use **concurrency groups** to prevent duplicate runs and conserve resources
 - Workflows are triggered by push events, pull requests, schedules, other workflow runs (`workflow_run`), or manual dispatch (`workflow_dispatch`)
 - Repeated setup steps are factored out into **composite actions** under [`.github/actions`](../actions) — see [Composite Actions](#composite-actions)
@@ -47,7 +45,7 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
 | **Workflow** | `continuous-integration.yml` |
 | **Workflow name** | `CI` |
 | **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — every path group is treated as changed |
+| **Manual trigger** | No — CI gates pull requests and has no meaning outside one (`dependency-review` only supports `pull_request`, and path detection needs a PR base SHA) |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
 | **Concurrency** | Group: `ci-mandatory-${{ github.ref }}`, cancel-in-progress: `true` |
 
@@ -67,7 +65,6 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
 1. **detect-changes** (*Detect Changed Paths*) - Classifies changed files using `git diff` against the PR base SHA
    - Checks out the repository with full Git history (`fetch-depth: 0`)
    - Emits outputs: `backend`, `root-frontend`, `spa`, `importer`, `site-i18n`, `exporters` (true/false)
-   - All outputs are `true` when triggered by `workflow_dispatch`
    - Also emits `exporter-datasets`, a JSON array of every directory under `scripts/exporters/` holding a `package.json`, used as the `exporter-validation` matrix
 
 2. **dependency-review** (*Dependency Review (PR)*) - Reviews dependency changes introduced by the pull request
@@ -129,11 +126,9 @@ The `CI Success` job in this workflow satisfies the `CI Success` required status
 
 **Usage**
 
-This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files. For manual triggering (every path group is treated as changed):
+This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files — a skipped job is a pass, and `ci-success` only requires a job whose path group actually changed.
 
-```
-Actions > CI > Run workflow
-```
+There is no manual trigger: CI exists to gate a pull request, and both `dependency-review` and path detection are defined only in that context. To re-run it, push to the branch or use *Re-run all jobs* on the existing run.
 
 ---
 
@@ -277,120 +272,6 @@ Deploys the tarball produced by `Build` to the OVH VPS over SSH, by running [`sc
 | `VPS_HOST` | Hostname or IP of the OVH VPS |
 | `VPS_SSH_USER` | SSH user used for deployment |
 | `VPS_SSH_KEY` | Private SSH key for that user |
-
----
-
-### Deploy Laravel Application (Windows self-hosted)
-
-Deploys a published release to the legacy Windows/Apache environment using a symlink-based deployment strategy. This is the self-hosted counterpart of `Deploy to OVH` and is **manual only**.
-
-**Workflow properties**
-
-| Property | Value |
-| --- | --- |
-| **Workflow** | `deploy.yml` |
-| **Workflow name** | `Deploy` |
-| **Trigger** | None automatic — the `release` trigger is commented out (deployment on release is forbidden by the repository's GitHub Actions settings) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — required `release_tag` input (e.g. `v1.0.0.1`) |
-| **Runner** | `[self-hosted, windows]` |
-| **Environment** | `MWNF-SVR` |
-| **Concurrency** | Group: `deploy-${{ github.ref }}`, cancel-in-progress: `false` |
-
-**Jobs**
-
-1. **download** - Fetches and stages the release package
-   - Determines the release tag from the workflow input
-   - Downloads the `inventory-app.zip` asset from the matching GitHub release
-   - Extracts it and copies it into a timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
-   - Outputs `staging_path` and `release_tag`
-
-2. **down** *(needs `download`)* - Puts the current application into maintenance mode (`php artisan down --retry=120`)
-
-3. **deploy** *(needs `download`, `down`)* - Swaps the deployment symlink
-   - Calculates the swap and temporary symlink paths
-   - Creates the shared persistent storage directory and symlinks `storage/app` to it, so uploaded files survive deployments
-   - Removes leftover symlinks from previous failed runs
-   - Creates a temporary symlink to the new staging directory and atomically renames it over the webserver path
-   - Rolls the previous symlink back if the swap fails
-   - Outputs `symlink_swap_path` and `symlink_temp_path`
-
-4. **configure** *(needs `deploy`)* - Configures the Laravel application
-   - Masks secrets in the logs
-   - Generates the production `.env` file from `.env.example` using environment variables
-   - Runs database migrations (`php artisan migrate --force`)
-   - Syncs permissions and roles (`php artisan permissions:sync --production`)
-   - Caches configuration, routes, and views for performance
-
-5. **up** *(needs `configure`)* - Brings the application out of maintenance mode (`php artisan up`)
-
-6. **intendance** *(needs `up`, `deploy`, `download`)* - Housekeeping
-   - Removes the temporary and swap symlinks
-   - Cleans up obsolete staging directories (keeps the last 3)
-
-**Environment Variables** (set in GitHub environment `MWNF-SVR`)
-
-| Variable | Description | Default |
-| --- | --- | --- |
-| `PHP_PATH` | Path to PHP executable | `C:\Program Files\PHP\php.exe` |
-| `WEBSERVER_PATH` | Symlink location for webserver | `C:\Apache24\htdocs\inventory-app` |
-| `APACHE_SERVICE_USER` | Apache service user | `SYSTEM` |
-| `APP_NAME` | Application name | `inventory-app` |
-| `APP_ENV` | Environment (production/staging) | `production` |
-| `APP_DEBUG` | Enable debug mode | `false` |
-| `APP_URL` | Application URL | `http://localhost` |
-| `API_DOCS_ENABLED` | Enable API documentation | `false` |
-| `DB_CONNECTION` | Database driver | `mysql` |
-| `DB_HOST` | Database host | `127.0.0.1` |
-| `DB_PORT` | Database port | `3306` |
-| `APP_DEFAULT_USER_EMAIL` | Default user for initial login | `user@example.com` |
-| `APP_DEFAULT_USER_USERNAME` | Default user name | `user` |
-| `APP_DEFAULT_USER_PASSWORD` | Default user password | `password` |
-| `MAIL_MAILER` | Mail transport | `log` |
-| `MAIL_HOST` | Mail host | `127.0.0.1` |
-| `MAIL_PORT` | Mail port | `25` |
-| `MAIL_USERNAME` | Mail username | `null` |
-| `MAIL_PASSWORD` | Mail password | `null` |
-| `MAIL_ENCRYPTION` | Mail encryption | `null` |
-| `MAIL_FROM_ADDRESS` | Mail sender address | `user@example.com` |
-| `MAIL_FROM_NAME` | Mail sender name | `Inventory App` |
-| `TRUSTED_PROXIES` | Comma-separated proxy IPs/CIDR | (empty) |
-| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins | (empty) |
-
-**Environment Secrets** (set in GitHub environment `MWNF-SVR`)
-
-| Secret | Description |
-| --- | --- |
-| `APP_KEY` | Laravel application key (generate with `php artisan key:generate --show`) |
-| `MARIADB_DATABASE` | Database name |
-| `MARIADB_USER` | Database username |
-| `MARIADB_SECRET` | Database password |
-
-**Deployment Strategy**
-
-This workflow uses a **symlink-based zero-downtime deployment**:
-1. The release asset is downloaded and extracted to a timestamped staging directory
-2. Application is put into maintenance mode
-3. A temporary symlink is created pointing to the new staging directory
-4. The webserver symlink is atomically swapped to the new deployment
-5. The application is brought back up and old symlinks are removed
-6. Old staging directories are cleaned up (keeps last 3 for rollback)
-
-**Permissions**
-
-- `contents: read` - For reading repository contents
-
-**Usage**
-
-```
-Actions > Deploy > Run workflow  (provide the release tag)
-```
-
-**Links**
-
-| Reference | URL |
-| --- | --- |
-| Laravel Deployment | [https://laravel.com/docs/12.x/deployment](https://laravel.com/docs/12.x/deployment) |
-| GitHub Environments | [https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) |
 
 ---
 
@@ -696,7 +577,6 @@ Several workflows interact with scripts, composite actions and other workflows:
 | `dependency-audit.yml` | `setup-node-project` | - |
 | `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
-| `deploy.yml` | `build.yml` release asset (`inventory-app.zip`) | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
 | `publish-api-client.yml` | `detect-environment`, `generate-api-client`, `publish-npm-package`, `.github/templates/api-client/` | - |
 | `deploy-viewer-*-ovh.yml` | `@metanull/<dataset>-data` on GitHub Packages | - |
