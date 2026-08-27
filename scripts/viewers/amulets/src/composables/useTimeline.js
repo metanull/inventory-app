@@ -4,25 +4,36 @@ import {
 } from './useGalleryData.js'
 import { yearBucketsFromRange } from './useCollection.js'
 
-// The global country timeline (legacy `mwnf3.hcr`, served through `/events`).
-// It is country-scoped and project-independent — which is why the live amulets
+// The global country timeline, served by legacy `/v2/events`. It is
+// country-scoped and project-independent — which is why the live amulets
 // instance answers `/events/countries` with the worldwide list even though its
-// own `hasCountryBasedTimeline` flag is false. Every gallery package therefore
-// ships the same 18 per-country timelines.
-
-// The 18 timeline countries and the 19 countries.json ships do NOT coincide:
-// countries.json is scoped to "member item countries ∪ their holders'
-// countries" (the package spec), while the chronology is worldwide. Ten of the
-// timeline's countries — cz, eg, es, fr, hu, it, pt, pa, sy, tn — have no row
-// in countries.json at all, so neither their name nor their legacy 2-letter
-// code can be read from there.
+// own `hasCountryBasedTimeline` flag is false.
 //
-// The timeline record itself carries both: `backward_compatibility` is
-// `mwnf3:hcr:country:<legacy code>`, which is the value legacy's own URLs
-// used. So the registry is built from timelines.json, with the display name
-// taken from countries.json where it exists and otherwise formatted from the
-// ISO code by the platform's own region names — a rendering of a code the
-// package ships, never an invented label.
+// It is also a MERGE of two chronologies rather than one table. Legacy's
+// `App\MWNF\DAO\v2\Events` unions `mwnf3.hcr` (the Discover Islamic Art country
+// chronologies, 18 timelines) with `mwnf3_sharing_history.sh_hcr` restricted to
+// exhibition 2, "Political Context" (19 timelines), and sorts the result by
+// year. The package mirrors that exactly: `timelines.json` carries 37 rows over
+// 26 countries, each tagged `source: 'mwnf3' | 'sharing_history'`, and
+// `timeline_events.json` carries all 1,390 events keyed by `country_id`.
+//
+// Eleven countries are served by BOTH sources, so anything user-facing must key
+// on the country and never on the timeline row: the picker below is built per
+// country, and `findEvents` filters on `country_id`, which is what merges the
+// two chronologies into one year-ordered list the way legacy did.
+//
+// Names and legacy codes both come from countries.json. The exporter scopes
+// that file to "member item countries ∪ their holders' countries ∪ the global
+// timeline's countries", so it covers all 26 timeline countries — the
+// `Intl.DisplayNames` fallback below is therefore dead code for them, and is
+// kept only so a regressed package degrades to a rendered ISO code rather than
+// a raw id. The `code` countries.json ships is the country's
+// `backward_compatibility`, which is exactly the code legacy's own timeline
+// URLs used, including the ones that are not ISO 3166-1 alpha-2 (`uk`, `pa`,
+// `qt`, `rm`, `sb`, `ua`, …). Those are the reason the fallback must stay
+// unreachable rather than merely rare: read as ISO, `ua` is Ukraine and `sb` is
+// the Solomon Islands, where legacy means the UAE and Serbia. Only
+// countries.json can name them correctly.
 const regionNames = (() => {
   try {
     return new Intl.DisplayNames(['en'], { type: 'region' })
@@ -34,9 +45,19 @@ const regionNames = (() => {
 // Two legacy codes are not ISO 3166-1 alpha-2.
 const LEGACY_TO_ISO = { uk: 'GB', pa: 'PS' }
 
+// A lookup, not a parse. The fallback exists only for the regressed-package
+// case described above, and it must agree with GLOBAL_TIMELINE_LIKE_PATTERNS in
+// `scripts/exporters/amulets/src/exporters/timeline-exporter.ts`: the country
+// sits after the literal `country` segment in BOTH keyspaces
+// (`mwnf3:hcr:country:<cc>` and
+// `mwnf3_sharing_history:sh_hcr:country:<cc>:exhibition:2`), and it is the last
+// segment in only the first — taking the last one yields `2` on the second.
 function legacyCodeOf(timeline) {
+  const fromPackage = countryById.value.get(timeline.country_id)?.code
+  if (fromPackage) return fromPackage
   const parts = (timeline.backward_compatibility ?? '').split(':')
-  return parts[parts.length - 1] || timeline.country_id
+  const at = parts.indexOf('country')
+  return (at >= 0 ? parts[at + 1] : null) || timeline.country_id
 }
 
 function nameFor(timeline) {
@@ -45,7 +66,7 @@ function nameFor(timeline) {
     : null
   if (fromPackage) return fromPackage
   const legacy = legacyCodeOf(timeline)
-  const iso = LEGACY_TO_ISO[legacy] ?? legacy.toUpperCase()
+  const iso = LEGACY_TO_ISO[legacy] ?? String(legacy).toUpperCase()
   try {
     return regionNames?.of(iso) ?? iso
   } catch {
@@ -53,22 +74,35 @@ function nameFor(timeline) {
   }
 }
 
-/** Countries that actually have a chronology, alphabetized, "All" first. */
+/**
+ * Countries that actually have a chronology, alphabetized, "All" first.
+ *
+ * One entry per COUNTRY, not per timeline row: the eleven countries served by
+ * both `mwnf3` and `sharing_history` would otherwise appear twice in every
+ * country picker on the site.
+ */
 export const timelineCountries = computed(() => {
-  const rows = timelines.value
-    .map(t => [legacyCodeOf(t), nameFor(t)])
-    .sort((a, b) => a[1].localeCompare(b[1]))
+  const byCountry = new Map()
+  for (const timeline of timelines.value) {
+    if (!timeline.country_id || byCountry.has(timeline.country_id)) continue
+    byCountry.set(timeline.country_id, [legacyCodeOf(timeline), nameFor(timeline)])
+  }
+  const rows = [...byCountry.values()].sort((a, b) => a[1].localeCompare(b[1]))
   return [['all', 'All Countries'], ...rows]
 })
 
-/** Display name for an event's country, covering the ten countries.json omits. */
+/** Display name for an event's country. */
 export function timelineCountryName(countryId) {
   if (countries.value.some(c => c.id === countryId)) return countryLabel(countryId)
   const timeline = timelines.value.find(t => t.country_id === countryId)
   return timeline ? nameFor(timeline) : countryId
 }
 
-/** Legacy 2-letter code → the inventory country id the events are keyed by. */
+/**
+ * Legacy 2-letter code → the inventory country id the events are keyed by.
+ * A country served by both chronologies has two rows carrying the same code and
+ * the same `country_id`, so either row answers.
+ */
 export function countryIdForCode(code) {
   if (!code || code === 'all') return null
   const timeline = timelines.value.find(t => legacyCodeOf(t) === code)
@@ -93,6 +127,10 @@ export const eventYearBuckets = computed(() => {
 /**
  * Legacy's `/events?ic[]=&ya=&yo=` — events for a country within a year range,
  * ordered chronologically.
+ *
+ * Filtering on `country_id` rather than `timeline_id` is what reproduces the
+ * legacy merge: a country served by both chronologies yields both sets of
+ * events here, and the year sort below interleaves them into one list.
  */
 export function findEvents({ countryCode, start, end }) {
   const countryId = countryIdForCode(countryCode)

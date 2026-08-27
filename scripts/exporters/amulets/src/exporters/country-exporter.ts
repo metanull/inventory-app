@@ -1,5 +1,6 @@
 import type { ExportResult } from '../core/types.js'
 import { BaseExporter } from './base-exporter.js'
+import { GLOBAL_TIMELINE_LIKE_PATTERNS } from './timeline-exporter.js'
 
 interface CountryRow {
   id: string
@@ -16,10 +17,22 @@ interface CountryTranslationRow {
 /**
  * `countries.json` — scoped to the gallery, not the whole world.
  *
- * The country dropdown on the collection search is built from the member items'
- * countries (legacy `/items/countries`), and the partners page groups by the
- * holding museum's country, which is not always the item's. Both sets are
- * needed; nothing else is.
+ * THREE sets of countries need names on a gallery site, and the file is wrong
+ * if any one of them is left out:
+ *
+ *  1. the member items' own countries — the collection-search dropdown
+ *     (legacy `/items/countries`);
+ *  2. their holding museums' countries — the partners page groups by these, and
+ *     they are not always the item's;
+ *  3. the countries of the global timeline — the timeline page's country picker
+ *     (legacy `/events/countries`), which is project-independent and therefore
+ *     names countries no member item comes from.
+ *
+ * This exporter originally shipped only (1) and (2), so the viewer fell back to
+ * `Intl.DisplayNames` for every timeline-only country.
+ *
+ * Nothing else belongs here — the full table is 180-odd rows the site can never
+ * show.
  */
 export class CountryExporter extends BaseExporter {
   getName(): string {
@@ -29,26 +42,40 @@ export class CountryExporter extends BaseExporter {
   async export(): Promise<ExportResult> {
     this.logger.info('Exporting countries.json...')
 
+    const timelineBranch = `SELECT DISTINCT t.country_id
+       FROM timelines t
+       WHERE t.country_id IS NOT NULL
+         AND (${GLOBAL_TIMELINE_LIKE_PATTERNS.map(() => 't.backward_compatibility LIKE ?').join(' OR ')})`
+
+    let used: { country_id: string }[]
+
     if (this.memberItemIds.length === 0) {
-      await this.writeJson('countries.json', [])
-      this.logger.warning('countries.json (0 — gallery has no member items)')
-      return { file: 'countries.json', count: 0 }
+      // A gallery with no members still shows the worldwide timeline, so the
+      // country names it needs are not conditional on membership.
+      this.logger.warning('countries.json: gallery has no member items — timeline countries only')
+      used = await this.db.query<{ country_id: string }>(timelineBranch, [
+        ...GLOBAL_TIMELINE_LIKE_PATTERNS,
+      ])
+    } else {
+      const itemPh = this.placeholders(this.memberItemIds.length)
+      used = await this.db.query<{ country_id: string }>(
+        `SELECT DISTINCT i.country_id
+         FROM items i
+         WHERE i.id IN (${itemPh}) AND i.country_id IS NOT NULL
+
+         UNION
+
+         SELECT DISTINCT p.country_id
+         FROM partners p
+         JOIN items i ON i.partner_id = p.id
+         WHERE i.id IN (${itemPh}) AND p.country_id IS NOT NULL
+
+         UNION
+
+         ${timelineBranch}`,
+        [...this.memberItemIds, ...this.memberItemIds, ...GLOBAL_TIMELINE_LIKE_PATTERNS]
+      )
     }
-
-    const itemPh = this.placeholders(this.memberItemIds.length)
-    const used = await this.db.query<{ country_id: string }>(
-      `SELECT DISTINCT i.country_id
-       FROM items i
-       WHERE i.id IN (${itemPh}) AND i.country_id IS NOT NULL
-
-       UNION
-
-       SELECT DISTINCT p.country_id
-       FROM partners p
-       JOIN items i ON i.partner_id = p.id
-       WHERE i.id IN (${itemPh}) AND p.country_id IS NOT NULL`,
-      [...this.memberItemIds, ...this.memberItemIds]
-    )
 
     const countryIds = used.map(row => row.country_id)
     if (countryIds.length === 0) {

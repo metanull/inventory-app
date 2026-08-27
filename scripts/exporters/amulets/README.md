@@ -50,11 +50,13 @@ else follows from that.
   model, so an exporter cannot build the URLs — but it must not drop the
   links either. Related items carry `in_package` so the viewer knows which it
   can open locally.
-- **The timeline is not gallery-specific.** Legacy serves it from `mwnf3.hcr`,
-  keyed by country and independent of any project, which is why the live
-  amulets site answers `/events/countries` with the worldwide list even though
-  its `hasCountryBasedTimeline` flag is false. Every gallery package carries
-  the same 18 per-country timelines (1,075 events).
+- **The timeline is not gallery-specific, and it is a merge of two
+  chronologies.** Legacy serves it from `mwnf3.hcr` *plus* `sh_hcr`
+  exhibition 2, keyed by country and independent of any project, which is why
+  the live amulets site answers `/events/countries` with the worldwide list
+  even though its `hasCountryBasedTimeline` flag is false. Every gallery
+  package carries the same 37 timelines over 26 countries (1,390 events) —
+  see below.
 - **`featured` and `status` are different flags** that share the enum
   `('A','H')`. `status` is site-wide visibility (A = active, H = hidden);
   `featured` is membership of the portal's highlight strip (A = highlighted,
@@ -63,6 +65,49 @@ else follows from that.
   when the record says otherwise. The package ships the documented meaning:
   amulets is `featured: false`. See `isFeatured` in
   `src/exporters/gallery-exporter.ts` and its tests.
+
+## Two rules this exporter originally got wrong
+
+The first release of this exporter ([#1542](https://github.com/metanull/inventory-app/issues/1542))
+shipped two behaviours that do not match the live API. Both were found while
+building the amulets viewer ([#1566](https://github.com/metanull/inventory-app/issues/1566)),
+first corrected in the carpets fork, and are now corrected here.
+
+### The global timeline is a merge of two chronologies, not one
+
+`/v2/events` is served by `App\MWNF\DAO\v2\Events`, which queries **two**
+sources and merges them sorted by year:
+
+| Source | Legacy SQL | Importer keyspace | Timelines | Events |
+|---|---|---|---|---|
+| Discover Islamic Art country chronologies | `app/MWNF/SQL/mwnf3/Events.blade.php` | `mwnf3:hcr:country:<cc>` | 18 | 1,075 |
+| Sharing History, **exhibition 2 only** | `app/MWNF/SQL/sh/Events.blade.php` | `mwnf3_sharing_history:sh_hcr:country:<cc>:exhibition:2` | 19 | 315 |
+
+The SH half is pinned by a `where h.exhibition_id = 2` that the legacy source
+labels a "HARDCODED BUSINESS DECISION" — exhibition 2 is *Political Context*.
+Match only the first family (the rule this exporter used to apply) and 8
+countries and 315 events vanish; widen to a bare `mwnf3:hcr:%` and the Baroque
+Art chronology (`mwnf3:hcr:bar:country:*`) walks in. Two exact families, no
+wildcard in the middle — see `GLOBAL_TIMELINE_LIKE_PATTERNS` in
+`src/exporters/timeline-exporter.ts` and `tests/unit/timeline-scope.test.ts`.
+
+The corrected set is **37 timelines over 26 countries, 1,390 events**, matching
+the live `/events/count` exactly. North Macedonia is the case that proves the
+rule: it has SH exhibitions 4/5/8/9 and no exhibition 2, and the live
+`/events/count?ic[]=mc` answers 0.
+
+Each row in `timelines.json` carries a `source` (`mwnf3` | `sharing_history`)
+so a viewer can present one merged list per country the way legacy did.
+
+### `countries.json` must cover the timeline too
+
+Three sets of countries need names on a gallery site: the member items' own
+countries, their holding museums' countries, and the countries of the global
+timeline. This exporter used to ship only the first two, so the viewer fell
+back to `Intl.DisplayNames` for every timeline-only country. On amulets the
+item/partner union is 19 and the timeline set is 26; the union of all three is
+**31** — the timeline alone contributes cze, egy, esp, fra, hun, ita, lbn, prt,
+pse, sau, syr and tun.
 
 ## Package contents
 
@@ -73,11 +118,11 @@ else follows from that.
 | `items.json` | The 45 member items — full sheets, facet tag ids, images, references |
 | `tags.json` | 115 THG facet tags with their category (artist/dynasty/material/subject/type) |
 | `partners.json` | The 26 museums holding member items, with `featured` and `item_count` |
-| `countries.json` | The 19 countries the members and their holders reference |
+| `countries.json` | The 31 countries the members, their holders and the timeline reference |
 | `languages.json` | The 9 languages the site can display, flagged `site_language` |
 | `dynasties.json` | The 10 dynasties member items reference |
 | `glossary.json` | The 80 terms reachable from member item texts, with spelling lists |
-| `timelines.json` / `timeline_events.json` | The 18 global country timelines |
+| `timelines.json` / `timeline_events.json` | 37 country timelines over 26 countries, 1,390 events |
 | `translations/<entity>.<lang>.json` | All human-readable text, one file per entity per language |
 
 Entity files hold language-independent data; every human-readable string lives

@@ -10,13 +10,27 @@ reflects every server-side filter and quirk the dumps do not show.
 Export run against the **staging** inventory database (post-[#1523](https://github.com/metanull/inventory-app/issues/1523)
 import), `BASE_URL=https://inventory.metanull.eu`.
 
+> **Amendment — timeline scope and `countries.json`.** The original run of this
+> validation recorded two rows as matching that did not. The timeline was scoped
+> to a single legacy source (18 timelines / 1,075 events against the live 26
+> countries / 1,390 events) and `countries.json` omitted the timeline's
+> countries (19 shipped where 31 are needed). Both were found while building the
+> amulets viewer ([#1566](https://github.com/metanull/inventory-app/issues/1566)),
+> corrected first in the carpets fork, and are now corrected here. The rows
+> below carry the post-fix numbers; the two amended sections spell out what
+> changed.
+
 ## Counts: legacy API vs exported
 
 | Metric | Legacy endpoint | Legacy | Exported | Verdict |
 |---|---|---|---|---|
 | Items (membership union) | `/items` `page.total` | 45 | 45 | ✅ exact |
 | Partners | `/partners` | 26 | 26 | ✅ exact |
-| Countries | `/items/countries` | 19 | 19 | ✅ exact |
+| Item countries | `/items/countries` | 19 | 19 | ✅ exact |
+| Timeline countries | `/events/countries` | 26 | 26 | ✅ exact (see amendment) |
+| Countries shipped | union of the two + partner countries | 31 | 31 | ✅ exact (see amendment) |
+| Timelines | (37) | 37 | 37 | ✅ exact (see amendment) |
+| Timeline events | `/events/count` | 1,390 | 1,390 | ✅ exact (see amendment) |
 | Year range | `/items/years` | 700 – 2000 | 700 – 2000 | ✅ exact |
 | Facet tags — artist | `/items/tags` | 1 | 1 | ✅ exact |
 | Facet tags — dynasty | `/items/tags` | 13 | 13 | ✅ exact |
@@ -121,14 +135,62 @@ Per-partner item counts against `/items?ic=…&ip=…`:
 at that. The package ships the flag and leaves the random pick to the viewer,
 which is the only way a static site can reproduce a per-request random subset.
 
-## Timeline
+## Timeline — amended
 
 The amulets deployment reports `hasCountryBasedTimeline: false` yet still
 answers `/events/countries` with the full worldwide list and `/events/years`
-with 400–1968 — the gallery timeline is served from `mwnf3.hcr`, keyed by
-country and independent of any project. The package therefore carries all 18
-per-country timelines and their 1,075 events, and passes the two flags through
-on `gallery.json` for the viewer to interpret.
+with 400–1968 — the gallery timeline is independent of any project. The package
+carries the whole worldwide chronology and passes the two flags through on
+`gallery.json` for the viewer to interpret.
+
+The original run scoped that chronology to `mwnf3.hcr` alone. `/v2/events` is
+`App\MWNF\DAO\v2\Events`, which **merges** `mwnf3.hcr` with
+`mwnf3_sharing_history.sh_hcr` filtered to `exhibition_id = 2` ("Political
+Context" — a `WHERE` clause the legacy source itself labels a HARDCODED BUSINESS
+DECISION) and sorts the union by year. Matching only `mwnf3:hcr:country:%` lost
+the whole second half:
+
+| | Legacy | Originally shipped | Now shipped |
+|---|---|---|---|
+| Timelines | (37) | 18 | 37 ✅ |
+| Countries (`/events/countries`) | 26 | 18 | 26 ✅ |
+| Events (`/events/count`) | 1,390 | 1,075 | 1,390 ✅ |
+
+Because the chronology is gallery-independent, these three numbers are the same
+for every DXA gallery package; they were verified endpoint by endpoint —
+including per-country totals on single-source countries (dz 60, at 22) and
+merged ones (eg 60+8=68, tr 60+38=98, ma 60+18=78) — in
+[`../../carpets/tools/VALIDATION-2026-08-27.md`](../../carpets/tools/VALIDATION-2026-08-27.md),
+and the amulets export reproduces them exactly. North Macedonia is the case
+that proves the filter is `exhibition_id = 2` rather than "all of Sharing
+History": it has SH chronologies for exhibitions 4, 5, 8 and 9 and no
+exhibition 2, and the live API answers 0 for it. Widening to `mwnf3:hcr:%`
+instead would have pulled in the Baroque Art chronologies, which belong to a
+different site.
+
+Each `timelines.json` row now carries a `source` (`mwnf3` | `sharing_history`)
+so the viewer can merge the two into one per-country list the way legacy did.
+The scoping rule lives in `GLOBAL_TIMELINE_LIKE_PATTERNS`
+(`src/exporters/timeline-exporter.ts`) and is pinned by
+`tests/unit/timeline-scope.test.ts`.
+
+## `countries.json` must cover the timeline countries — amended
+
+Three sets need names, not two. On amulets:
+
+| Set | Count |
+|---|---|
+| member item countries (`/items/countries`) | 19 |
+| holding partners' countries | 19 (the same set here, which is a coincidence of this gallery, not a rule) |
+| timeline countries (`/events/countries`) | 26 |
+| **union — what the package ships** | **31** |
+
+The original run shipped 19, so the viewer fell back to `Intl.DisplayNames` for
+every timeline-only country. Twelve reach the package only through the timeline
+(cze, egy, esp, fra, hun, ita, lbn, prt, pse, sau, syr, tun) and five only
+through items and partners (dnk, kwt, mkd, mys, omn); nothing was removed. mkd
+is the expected asymmetry — it holds amulets members but, having no Sharing
+History exhibition 2, has no timeline.
 
 ## Findings
 
