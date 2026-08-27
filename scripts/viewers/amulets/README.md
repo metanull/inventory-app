@@ -210,6 +210,11 @@ Everything not listed matched.
 - Free-text search covers a wider field set than legacy's FTS index (it also
   reads materials, keywords, holder and country), so a query can return a
   superset: `+silver +amulet` gives 9 against legacy's 8.
+- Legacy suppressed every "On display in" exhibition link whose host was
+  `exhibitions.museumwnf.org` (`DatabaseItem.vue` skips them outright).
+  Decision Q3 says outbound links must not be dropped, so they are rendered —
+  which is why the `mwnf3:objects:ISL:uk:Mus04:42` sheet shows *The Hijaz
+  Railway* and the live one does not.
 - The "Partner / Affiliate" badge on the partners list describes a partner's
   relation to a *project*. Amulets owns no content, so every one of its 26
   museums would read "Affiliate"; the badge carries no information and is

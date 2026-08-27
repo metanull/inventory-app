@@ -274,11 +274,15 @@ const relatedInPackage = computed(() =>
 const relatedOutside = computed(() =>
   (item.value?.related_items ?? []).filter(r => !r.in_package || !itemById.value.has(r.id))
 )
+const byName = (a, b) => (a.name ?? '').localeCompare(b.name ?? '')
 const galleryRefs = computed(() =>
-  (item.value?.gallery_references ?? []).filter(g => g.kind === 'gallery')
+  (item.value?.gallery_references ?? []).filter(g => g.kind === 'gallery').sort(byName)
 )
+// Legacy suppressed every exhibition link whose host was
+// exhibitions.museumwnf.org (`DatabaseItem.vue` skips them outright). Decision
+// Q3 says outbound links must not be dropped, so they are shown here.
 const exhibitionRefs = computed(() =>
-  (item.value?.gallery_references ?? []).filter(g => g.kind === 'exhibition')
+  (item.value?.gallery_references ?? []).filter(g => g.kind === 'exhibition').sort(byName)
 )
 
 function justification(r) {
