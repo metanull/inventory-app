@@ -87,8 +87,8 @@ describe('AuthorImporter — SH author-item assignments', () => {
     const importer = new AuthorImporter(context);
     const result = await importer.import();
 
-    expect(updateFkMock).toHaveBeenCalledWith('item-obj-gr1', 'eng', 'author_id', 'author-4');
-    expect(updateFkMock).toHaveBeenCalledWith('item-obj-gr1', 'eng', 'translator_id', 'author-7');
+    expect(updateFkMock).toHaveBeenCalledWith('item-obj-gr1', 'eng', 'author_id', 'author-4', true);
+    expect(updateFkMock).toHaveBeenCalledWith('item-obj-gr1', 'eng', 'translator_id', 'author-7', true);
     expect(result.success).toBe(true);
   });
 
@@ -96,7 +96,7 @@ describe('AuthorImporter — SH author-item assignments', () => {
     const importer = new AuthorImporter(context);
     const result = await importer.import();
 
-    expect(updateFkMock).toHaveBeenCalledWith('item-mon-eg1', 'eng', 'author_id', 'author-5');
+    expect(updateFkMock).toHaveBeenCalledWith('item-mon-eg1', 'eng', 'author_id', 'author-5', true);
     expect(result.success).toBe(true);
     // All three fixture assignments resolved — nothing skipped for key reasons.
     expect(updateFkMock).toHaveBeenCalledTimes(3);
@@ -199,14 +199,15 @@ describe('AuthorImporter — mwnf3 author-item assignments', () => {
   it('credits the language the legacy junction names, not just the free-text one', async () => {
     const result = await new AuthorImporter(context).import();
 
-    expect(updateFkMock).toHaveBeenCalledWith('item-epm-51', 'eng', 'author_id', 'author-456');
+    expect(updateFkMock).toHaveBeenCalledWith('item-epm-51', 'eng', 'author_id', 'author-456', true);
     expect(updateFkMock).toHaveBeenCalledWith(
       'item-epm-51',
       'eng',
       'text_copy_editor_id',
-      'author-527'
+      'author-527',
+      true
     );
-    expect(updateFkMock).toHaveBeenCalledWith('item-epm-51', 'deu', 'author_id', 'author-536');
+    expect(updateFkMock).toHaveBeenCalledWith('item-epm-51', 'deu', 'author_id', 'author-536', true);
     expect(result.success).toBe(true);
   });
 
@@ -222,7 +223,7 @@ describe('AuthorImporter — mwnf3 author-item assignments', () => {
   it('resolves mwnf3 monument assignments with the 4-part institution key', async () => {
     await new AuthorImporter(context).import();
 
-    expect(updateFkMock).toHaveBeenCalledWith('item-isl-mon-7', 'eng', 'author_id', 'author-456');
+    expect(updateFkMock).toHaveBeenCalledWith('item-isl-mon-7', 'eng', 'author_id', 'author-456', true);
   });
 
   it('orders junction rows by legacy priority so the lowest-priority author wins', async () => {
@@ -242,7 +243,7 @@ describe('AuthorImporter — mwnf3 author-item assignments', () => {
   it('resolves dynasty assignments using the lang_id column', async () => {
     await new AuthorImporter(context).import();
 
-    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
+    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456', true);
   });
 });
 
@@ -330,12 +331,13 @@ describe('AuthorImporter — dynasty assignments and step failure reporting', ()
   it('credits dynasty translations from the junction', async () => {
     await new AuthorImporter(context).import();
 
-    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
+    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456', true);
     expect(updateDynastyFkMock).toHaveBeenCalledWith(
       'dynasty-3',
       'eng',
       'text_copy_editor_id',
-      'author-527'
+      'author-527',
+      true
     );
   });
 
@@ -368,6 +370,144 @@ describe('AuthorImporter — dynasty assignments and step failure reporting', ()
 
     // Step 3 died, but step 4 still credited the dynasty.
     expect(result.errors[0]).toContain('Step 3');
-    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
+    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456', true);
+  });
+});
+
+// The legacy junction tables are authoritative over the denormalised
+// objects.preparedby free text, so a junction credit replaces whatever a
+// translation row already holds. First-wins across several junction rows for
+// one (item, language, role) therefore has to be enforced by the importer
+// rather than by the database's old IS NULL guard.
+describe('AuthorImporter — junction is authoritative over free text', () => {
+  let tracker: UnifiedTracker;
+  let strategy: IWriteStrategy;
+  let context: ImportContext;
+  let updateFkMock: ReturnType<typeof vi.fn>;
+  let updateDynastyFkMock: ReturnType<typeof vi.fn>;
+
+  const logger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    skip: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
+
+  // Two writers for (de, writer) — legacy shows the priority-1 author first.
+  const authorObjects = [
+    { author_id: 536, project_id: 'EPM', country_id: 'at', museum_id: 'Mus22', object_id: 51, lang_id: 'de', type: 'writer', priority: 1 },
+    { author_id: 535, project_id: 'EPM', country_id: 'at', museum_id: 'Mus22', object_id: 51, lang_id: 'de', type: 'writer', priority: 2 },
+  ];
+  const authorDynasties = [
+    { dynasty_id: 3, author_id: 456, lang_id: 'en', type: 'writer' },
+    { dynasty_id: 3, author_id: 527, lang_id: 'en', type: 'writer' },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    tracker = new UnifiedTracker();
+    tracker.set('de', 'deu', 'language');
+    tracker.set('en', 'eng', 'language');
+    tracker.set('mwnf3:authors:456', 'author-456', 'author');
+    tracker.set('mwnf3:authors:527', 'author-527', 'author');
+    tracker.set('mwnf3:authors:535', 'author-535', 'author');
+    tracker.set('mwnf3:authors:536', 'author-536', 'author');
+    tracker.set('mwnf3:objects:EPM:at:Mus22:51', 'item-epm-51', 'item');
+    tracker.set('mwnf3:dynasties:3', 'dynasty-3', 'dynasty');
+
+    updateFkMock = vi.fn().mockResolvedValue(undefined);
+    updateDynastyFkMock = vi.fn().mockResolvedValue(undefined);
+
+    strategy = {
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      updateItemTranslationAuthorFk: updateFkMock,
+      updateDynastyTranslationAuthorFk: updateDynastyFkMock,
+    } as unknown as IWriteStrategy;
+
+    context = {
+      legacyDb: {
+        query: vi.fn(async (sql: string) => {
+          if (sql.includes('mwnf3.authors_objects')) return authorObjects;
+          if (sql.includes('mwnf3.authors_dynasties')) return authorDynasties;
+          return [];
+        }) as ILegacyDatabase['query'],
+        execute: vi.fn(),
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      },
+      strategy,
+      tracker,
+      logger,
+      dryRun: false,
+    };
+  });
+
+  it('overwrites an existing credit rather than filling only NULLs', async () => {
+    await new AuthorImporter(context).import();
+
+    expect(updateFkMock).toHaveBeenCalledWith(
+      'item-epm-51',
+      'deu',
+      'author_id',
+      'author-536',
+      true
+    );
+  });
+
+  it('keeps the first author for a role and drops later ones', async () => {
+    const result = await new AuthorImporter(context).import();
+
+    const authorIdWrites = updateFkMock.mock.calls.filter(([, , column]) => column === 'author_id');
+    expect(authorIdWrites).toHaveLength(1);
+    expect(authorIdWrites[0][3]).toBe('author-536');
+    // The priority-2 author was dropped, not written.
+    expect(updateFkMock).not.toHaveBeenCalledWith(
+      'item-epm-51',
+      'deu',
+      'author_id',
+      'author-535',
+      expect.anything()
+    );
+    expect(result.skipped).toBeGreaterThan(0);
+  });
+
+  it('applies the same first-wins rule to dynasty credits', async () => {
+    await new AuthorImporter(context).import();
+
+    expect(updateDynastyFkMock).toHaveBeenCalledTimes(1);
+    expect(updateDynastyFkMock).toHaveBeenCalledWith(
+      'dynasty-3',
+      'eng',
+      'author_id',
+      'author-456',
+      true
+    );
+  });
+
+  it('is idempotent — a second run writes the same author', async () => {
+    await new AuthorImporter(context).import();
+    const first = updateFkMock.mock.calls.filter(([, , column]) => column === 'author_id');
+
+    updateFkMock.mockClear();
+
+    await new AuthorImporter(context).import();
+    const second = updateFkMock.mock.calls.filter(([, , column]) => column === 'author_id');
+
+    expect(second).toEqual(first);
+  });
+
+  it('writes nothing in dry-run mode', async () => {
+    context.dryRun = true;
+    const result = await new AuthorImporter(context).import();
+
+    expect(updateFkMock).not.toHaveBeenCalled();
+    expect(updateDynastyFkMock).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
   });
 });

@@ -1356,13 +1356,19 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   // Fills every translation row for the (item, language) pair — one legacy
   // credit covers the object in that language, and inventory-app may hold
-  // several context rows for it. The IS NULL guard makes this first-wins, so
-  // credits already derived from the objects.preparedby free text are kept.
+  // several context rows for it.
+  //
+  // With overwrite, an existing value is replaced: the junction tables are the
+  // authoritative source and the objects.preparedby free text is a
+  // denormalised leftover. Callers keep first-wins across several junction
+  // rows for the same (item, language, role) themselves, in legacy priority
+  // order — this method cannot, since every call looks the same to it.
   async updateItemTranslationAuthorFk(
     itemId: string,
     languageId: string,
     fkColumn: string,
-    authorId: string
+    authorId: string,
+    overwrite = false
   ): Promise<void> {
     const allowedColumns = [
       'author_id',
@@ -1373,18 +1379,20 @@ export class SqlWriteStrategy implements IWriteStrategy {
     if (!allowedColumns.includes(fkColumn)) {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
+    const guard = overwrite ? '' : ` AND ${fkColumn} IS NULL`;
     await this.db.execute(
-      `UPDATE item_translations SET ${fkColumn} = ? WHERE item_id = ? AND language_id = ? AND ${fkColumn} IS NULL`,
+      `UPDATE item_translations SET ${fkColumn} = ? WHERE item_id = ? AND language_id = ?${guard}`,
       [authorId, itemId, languageId]
     );
   }
 
-  // Same first-wins, all-context semantics as updateItemTranslationAuthorFk.
+  // Same all-context and overwrite semantics as updateItemTranslationAuthorFk.
   async updateDynastyTranslationAuthorFk(
     dynastyId: string,
     languageId: string,
     fkColumn: string,
-    authorId: string
+    authorId: string,
+    overwrite = false
   ): Promise<void> {
     const allowedColumns = [
       'author_id',
@@ -1395,8 +1403,9 @@ export class SqlWriteStrategy implements IWriteStrategy {
     if (!allowedColumns.includes(fkColumn)) {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
+    const guard = overwrite ? '' : ` AND ${fkColumn} IS NULL`;
     await this.db.execute(
-      `UPDATE dynasty_translations SET ${fkColumn} = ? WHERE dynasty_id = ? AND language_id = ? AND ${fkColumn} IS NULL`,
+      `UPDATE dynasty_translations SET ${fkColumn} = ? WHERE dynasty_id = ? AND language_id = ?${guard}`,
       [authorId, dynastyId, languageId]
     );
   }
