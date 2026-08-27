@@ -501,25 +501,30 @@ export interface LegacyAllAuthorMapping {
   all_author_id: number;
 }
 
+// mwnf3 junction tables use *_id column names (country_id, museum_id, object_id,
+// lang_id) and key objects by a numeric object_id. This differs from mwnf3.objects
+// itself, which uses country/number/lang — and from the SH tables below, which use
+// the unsuffixed names. Keep these declarations aligned with the legacy DDL in
+// .legacy-database/ddl/creation/: a mismatch silently yields undefined lookup keys.
 export interface LegacyAuthorObject {
   project_id: string;
-  country: string;
+  country_id: string;
   museum_id: string;
-  number: string;
+  object_id: number;
   author_id: number;
   type: string;
-  lang: string;
+  lang_id: string;
   priority?: number | null;
 }
 
 export interface LegacyAuthorMonument {
   project_id: string;
-  country: string;
+  country_id: string;
   institution_id: string;
-  number: string;
+  monument_id: number;
   author_id: number;
   type: string;
-  lang: string;
+  lang_id: string;
   priority?: number | null;
 }
 
@@ -549,7 +554,7 @@ export interface LegacyAuthorDynasty {
   dynasty_id: number;
   author_id: number;
   type: string;
-  lang: string;
+  lang_id: string;
   priority?: number | null;
 }
 

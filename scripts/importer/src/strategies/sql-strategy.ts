@@ -1354,6 +1354,10 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return id;
   }
 
+  // Fills every translation row for the (item, language) pair — one legacy
+  // credit covers the object in that language, and inventory-app may hold
+  // several context rows for it. The IS NULL guard makes this first-wins, so
+  // credits already derived from the objects.preparedby free text are kept.
   async updateItemTranslationAuthorFk(
     itemId: string,
     languageId: string,
@@ -1370,11 +1374,12 @@ export class SqlWriteStrategy implements IWriteStrategy {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
     await this.db.execute(
-      `UPDATE item_translations SET ${fkColumn} = ? WHERE item_id = ? AND language_id = ? AND ${fkColumn} IS NULL LIMIT 1`,
+      `UPDATE item_translations SET ${fkColumn} = ? WHERE item_id = ? AND language_id = ? AND ${fkColumn} IS NULL`,
       [authorId, itemId, languageId]
     );
   }
 
+  // Same first-wins, all-context semantics as updateItemTranslationAuthorFk.
   async updateDynastyTranslationAuthorFk(
     dynastyId: string,
     languageId: string,
@@ -1391,7 +1396,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
       throw new Error(`Invalid FK column: ${fkColumn}`);
     }
     await this.db.execute(
-      `UPDATE dynasty_translations SET ${fkColumn} = ? WHERE dynasty_id = ? AND language_id = ? AND ${fkColumn} IS NULL LIMIT 1`,
+      `UPDATE dynasty_translations SET ${fkColumn} = ? WHERE dynasty_id = ? AND language_id = ? AND ${fkColumn} IS NULL`,
       [authorId, dynastyId, languageId]
     );
   }
