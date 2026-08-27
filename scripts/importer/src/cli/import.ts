@@ -134,6 +134,7 @@ import {
   ShHistoricalProfilesRootImporter,
   CollectionPurposeBackfillImporter,
   ExtraBitBufferBackfillImporter,
+  MuseumProjectLinkBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -1069,6 +1070,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Normalise serialized mysql2 bit(1) Buffers left in collection_translations.extra to JSON booleans on an already-populated database',
     importerClass: ExtraBitBufferBackfillImporter,
     dependencies: ['thg-gallery-translation', 'thg-gallery-lang'],
+  },
+  {
+    key: 'museum-project-link-backfill',
+    name: 'Museum Project Link Backfill',
+    description:
+      'Backfill partners.project_id from mwnf3.museums.project_id on an already-populated database, so gallery exporters can reproduce legacy MWNF-384',
+    importerClass: MuseumProjectLinkBackfillImporter,
+    dependencies: ['project', 'partner'],
   },
   {
     key: 'project-cleanup',

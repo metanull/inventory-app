@@ -99,6 +99,37 @@ to `Intl.DisplayNames` for every timeline-only country. On carpets the three
 sets are 26 / 26 / 26 and their **union is 34** — the timeline alone contributes
 fr, lb, ma, pa, sa, sy, tn and ua.
 
+## The partner list has a third branch, and carpets is where it fires
+
+Legacy's partner query (`app/MWNF/SQL/mwnf3/Partners.blade.php`) is a
+three-branch UNION. The first two — partners holding an object of the gallery's
+native project, and partners holding an object linked to the gallery — are
+together just "holds a member item", which is what every gallery exporter
+already did. The third, which legacy's own comment labels **MWNF-384**, is
+
+```sql
+SELECT m.country, m.museum_id, m.project_id, 0 withObject
+FROM mwnf3.museums m WHERE m.project_id = <the gallery's project>
+```
+
+— a museum created under the gallery's own project is listed even when it holds
+nothing at all. On amulets it selected nobody (no `mwnf3.museums` row has
+`project_id = 'AMU'`); on carpets it is `jo/Mus31` (Greater Amman Municipality)
+and `pt/Mus31` (Centro de História d'Aquém e d'Além-Mar), both created under DCA,
+both `hasObjects: 0` in the legacy JSON, and both the difference between the 70
+this exporter used to ship and legacy's **72**.
+
+Reproducing it needed an importer change first, because `museums.project_id` was
+the branch's only input and the import discarded it. The importer now carries it
+onto `partners.project_id` (`PartnerImporter`, plus a
+`museum-project-link-backfill` step for databases imported before that),
+`PartnerExporter` adds the branch as
+`p.type = 'museum' AND p.project_id = <the gallery's project>` on a LEFT JOIN
+(an inner join would drop a partner with `item_count: 0`), and the project comes
+from the gallery's own `extra.thg_gallery.mwnf3_project_id` anchor rather than a
+hardcoded `'DCA'`. `type = 'museum'` is load bearing: `partners.project_id` is
+also set on the ten ISL schools, which legacy's partner list never shows.
+
 ## Package contents
 
 | File | Contents |
@@ -107,7 +138,7 @@ fr, lb, ma, pa, sa, sy, tn and ua.
 | `gallery.json` | Site anchor: slug, legacy host, names, banner item, chrome flags, sibling galleries |
 | `items.json` | The 486 member items — full sheets, facet tag ids, images, references |
 | `tags.json` | 248 THG facet tags with their category (artist 11, dynasty 22, material 103, subject 30, type 82) |
-| `partners.json` | The 70 museums holding member items, with `featured` and `item_count` |
+| `partners.json` | The 72 museums on the gallery's partner list (70 holding member items + 2 MWNF-384), with `featured` and `item_count` |
 | `countries.json` | The 34 countries the members, their holders and the timeline reference |
 | `languages.json` | The 10 languages the site can display (ar/en/es/fr as `site_language`, plus cs/de/el/it/pt/tr carried by borrowed records and partners) |
 | `dynasties.json` | The 14 dynasties member items reference |
@@ -154,19 +185,6 @@ rule, and `gallery.json` still carries the slug as data rather than deriving it.
 
 Verified during implementation, none blocking:
 
-- **Museums with no items (legacy MWNF-384).** Legacy's partner list has a
-  third branch: museums created in the gallery's *own* project appear even when
-  they hold nothing. Carpets is the first gallery where it fires — legacy lists
-  72 partners, and `jo/Mus31` (Greater Amman Municipality) and `pt/Mus31`
-  (Centro de História d'Aquém e d'Além-Mar) are there with `hasObjects: 0`
-  because they were created under DCA. This exporter ships the other 70 and
-  cannot do better yet: the importer never populates `partners.project_id` for
-  museums (it is set on ten ISL schools and nothing else) and
-  `partner_translations.extra` records only `source: "mwnf3"`. Reproducing the
-  branch needs `mwnf3.museums.project_id` carried through the import first —
-  **importer-side, not exporter-side**. Both partner records themselves are
-  present in the inventory database, so the fix is a scoping query, not a
-  re-import of content.
 - **EPM author attribution.** Legacy shows `preparedBy`/`copyEditedBy` on the
   English sheet; the importer files those names only on the Arabic row for EPM
   items, so `author`/`copy_editor` are missing from the English translations of
@@ -174,10 +192,10 @@ Verified during implementation, none blocking:
 - **`notice` / `notice_b` / `notice_c`** (the copyedit notices on the legacy
   sheet) have no counterpart in the inventory schema and are not imported.
 - **Legacy's two hardcoded partner exclusions** (`uk/Mus51`, `us/Mus51`, in
-  `Partners.blade.php`) are not reproduced; neither holds a carpets member.
+  `Partners.blade.php`) are not reproduced; neither holds a carpets member and
+  neither was created under DCA.
 - **MWNF-371 (partners of a not-yet-live project)** is not reproduced either;
-  it excludes nothing here — 70 exported plus the 2 MWNF-384 rows accounts for
-  the whole legacy list of 72.
+  it excludes nothing here — the 72 exported are the whole legacy list.
 
 ## Validation
 

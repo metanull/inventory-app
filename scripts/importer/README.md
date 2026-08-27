@@ -388,6 +388,33 @@ It is idempotent (existing roots/parents are skipped) and only needs the
 Sharing History and Explore use different keyspaces and are future extensions
 of this step (#1464, #1465).
 
+### Museum → project link (legacy MWNF-384)
+
+`mwnf3.museums.project_id` is the project a museum record was *created* under,
+and it is the only input to the third branch of legacy's gallery partner query
+(`app/MWNF/SQL/mwnf3/Partners.blade.php`): a museum created in the gallery's own
+project is listed even when it holds nothing. The importer used to discard the
+column, so no gallery exporter could reproduce that branch — the carpets package
+shipped 70 partners against legacy's 72.
+
+`PartnerImporter` now resolves it onto `partners.project_id` (the column already
+existed; `SchoolImporter` was its only writer, for ten ISL schools). Because
+`mwnf3.museums` is `PRIMARY KEY (museum_id, country)` — exactly the key the
+importer groups on — one inventory partner maps to one legacy row and therefore
+one project, so a single FK is enough; no join table is needed.
+
+For databases imported before that, the same link is repaired standalone:
+
+```bash
+npx tsx src/cli/import.ts import --only museum-project-link-backfill --dry-run
+npx tsx src/cli/import.ts import --only museum-project-link-backfill
+```
+
+It reads only `mwnf3.museums`, writes only where `partners.project_id` is still
+null (so schools and reruns are never overwritten), and warns rather than fails
+on a museum whose project was never imported or was removed by
+`project-cleanup`.
+
 ## Environment Variables
 
 Create a `.env` file in the `scripts/importer` directory with:

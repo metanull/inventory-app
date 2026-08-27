@@ -170,12 +170,15 @@ Verified during implementation, none blocking:
   of EPM-native records. Importer-side, not exporter-side.
 - **`notice` / `notice_b` / `notice_c`** (the copyedit notices on the legacy
   sheet) are not imported at all. Empty on every amulets item.
-- **Museums with no items.** Legacy's partner list has a third branch
-  (MWNF-384): museums created in the gallery's own project even when they hold
-  nothing. It contributes nothing here — no `mwnf3.museums` row has
-  `project_id = 'AMU'` — but a gallery whose native project owns museums will
-  need it, and `partners.project_id` is null for every imported museum, so
-  that fork needs an importer change first.
+- **Museums with no items (MWNF-384) — implemented, and inert here.** Legacy's
+  partner list has a third branch: museums created in the gallery's own project
+  appear even when they hold nothing. The exporter reproduces it
+  (`p.type = 'museum' AND p.project_id = <the gallery's project>`, resolved from
+  the gallery's own anchor), on the museum→project link the importer now carries
+  from `mwnf3.museums.project_id`. It selects nobody on amulets — no
+  `mwnf3.museums` row has `project_id = 'AMU'`, and the export is 26 partners
+  with or without it — but it is not inert generally (carpets goes 70 → 72), and
+  this fork is the one the next gallery is copied from.
 - **Legacy's two hardcoded partner exclusions** (`uk/Mus51`, `us/Mus51`, in
   `Partners.blade.php`) are not reproduced; neither holds an amulets member.
 

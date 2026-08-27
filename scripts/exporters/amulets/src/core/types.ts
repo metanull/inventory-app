@@ -44,6 +44,13 @@ export interface Gallery {
   host: string | null
   /** Legacy mwnf3 project the gallery was created under (e.g. `AMU`). */
   mwnf3ProjectId: string | null
+  /**
+   * Inventory UUID of that same project, or null when the gallery has no
+   * mwnf3 project or the project was never imported. `partners.project_id` is
+   * compared against this to reproduce legacy's MWNF-384 partner branch — see
+   * PartnerExporter.
+   */
+  projectId: string | null
   anchor: GalleryAnchor
   chrome: GalleryChrome
 }

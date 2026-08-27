@@ -26,6 +26,7 @@ import type {
   LegacyInstitution,
   LegacyInstitutionName,
 } from '../../domain/types/index.js';
+import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 
 /**
  * Deferred monument link for later resolution
@@ -40,6 +41,8 @@ export class PartnerImporter extends BaseImporter {
   private defaultContextId!: string;
   /** Deferred monument links to be resolved after monuments are imported */
   private deferredMonumentLinks: DeferredMonumentLink[] = [];
+  /** legacy `mwnf3.projects.project_id` → inventory project UUID (or null when absent). */
+  private projectUuidCache = new Map<string, string | null>();
 
   getName(): string {
     return 'PartnerImporter';
@@ -116,6 +119,7 @@ export class PartnerImporter extends BaseImporter {
 
     let monumentLinksCount = 0;
     let logosCount = 0;
+    let projectLinksCount = 0;
 
     for (const group of grouped) {
       try {
@@ -126,6 +130,15 @@ export class PartnerImporter extends BaseImporter {
           result.skipped++;
           this.showSkipped();
           continue;
+        }
+
+        // Resolve the project the museum was created under. Legacy's partner
+        // list for a gallery has a third branch (MWNF-384) that selects
+        // museums by `museums.project_id` alone, so a museum that holds no
+        // object still belongs to its project's partner list — a fact no
+        // exporter can recover unless this link survives the import.
+        if (await this.resolveMuseumProject(group.key, group.museum, transformed.data)) {
+          projectLinksCount++;
         }
 
         // Count logos for reporting
@@ -205,9 +218,63 @@ export class PartnerImporter extends BaseImporter {
     }
 
     this.logInfo(`  Museums with monument location links: ${monumentLinksCount}`);
+    this.logInfo(`  Museums linked to their creating project: ${projectLinksCount}`);
     this.logInfo(`  Total logos to import: ${logosCount}`);
 
     return result;
+  }
+
+  /**
+   * Set `partner.project_id` from `mwnf3.museums.project_id`.
+   *
+   * `museums.project_id` is `NOT NULL DEFAULT ''` in legacy, so the empty
+   * string is the "unset" value and must not be looked up. A code that has no
+   * imported project (ProjectCleanupImporter drops projects with no items) is
+   * warned about and left null rather than failing the museum.
+   *
+   * @returns true when a project UUID was assigned.
+   */
+  private async resolveMuseumProject(
+    key: string,
+    museum: LegacyMuseum,
+    data: { project_id?: string | null }
+  ): Promise<boolean> {
+    const legacyProjectId = museum.project_id?.trim();
+    if (!legacyProjectId) {
+      return false;
+    }
+
+    const projectId = await this.lookupProjectUuid(legacyProjectId);
+    if (!projectId) {
+      this.logWarning(
+        `Museum ${key}: project ${legacyProjectId} not found, skipping project assignment`
+      );
+      return false;
+    }
+
+    data.project_id = projectId;
+    return true;
+  }
+
+  /**
+   * Legacy project code → inventory project UUID, memoized. Museums repeat a
+   * handful of project codes across hundreds of rows; without the cache this
+   * is one database round-trip per museum for no new information.
+   */
+  private async lookupProjectUuid(legacyProjectId: string): Promise<string | null> {
+    const cached = this.projectUuidCache.get(legacyProjectId);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const projectBC = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: [legacyProjectId],
+    });
+    const projectId = await this.getEntityUuidAsync(projectBC, 'project');
+    this.projectUuidCache.set(legacyProjectId, projectId);
+    return projectId;
   }
 
   private async importInstitutions(): Promise<ImportResult> {

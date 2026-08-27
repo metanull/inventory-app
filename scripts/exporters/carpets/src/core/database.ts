@@ -83,15 +83,38 @@ export class Database {
     }
     const anchor = extra.thg_gallery ?? {}
 
+    const mwnf3ProjectId = anchor.mwnf3_project_id ?? null
+
     return {
       id: row.id,
       backwardCompatibility: row.backward_compatibility,
       slug: anchor.slug ?? null,
       host: anchor.host ?? null,
-      mwnf3ProjectId: anchor.mwnf3_project_id ?? null,
+      mwnf3ProjectId,
+      projectId: await this.resolveProjectId(mwnf3ProjectId),
       anchor,
       chrome: await this.loadGalleryChrome(row.id),
     }
+  }
+
+  /**
+   * Inventory UUID of an mwnf3 project, by its legacy code.
+   *
+   * The inverse of `legacyProjectKey`, and the reason the gallery's project is
+   * never a hardcoded string anywhere downstream: the code comes from the
+   * gallery's own anchor, and this turns it into the id `partners.project_id`
+   * and `items.project_id` actually store. Null (never an error) when the code
+   * is absent or the project was not imported — the callers all degrade to
+   * "that branch contributes nothing", which is the right answer.
+   */
+  private async resolveProjectId(mwnf3ProjectId: string | null): Promise<string | null> {
+    if (!mwnf3ProjectId) return null
+
+    const rows = await this.query<{ id: string }>(
+      `SELECT id FROM projects WHERE backward_compatibility = ?`,
+      [`mwnf3:projects:${mwnf3ProjectId}`]
+    )
+    return rows[0]?.id ?? null
   }
 
   /**

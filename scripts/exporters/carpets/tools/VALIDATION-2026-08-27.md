@@ -25,7 +25,7 @@ the membership check below is a full set comparison of 486 records, not a count.
 | Metric | Legacy endpoint | Legacy | Exported | Verdict |
 |---|---|---|---|---|
 | Items (membership union) | `/items` `page.total` | 486 | 486 | ✅ exact |
-| Partners | `/partners` | 72 | 70 | ⚠️ **legacy MWNF-384** — see below |
+| Partners | `/partners` | 72 | 72 | ✅ exact (was 70 — **legacy MWNF-384**, see below) |
 | Item countries | `/items/countries` | 26 | 26 | ✅ exact |
 | Timeline countries | `/events/countries` | 26 | 26 | ✅ exact |
 | Countries shipped | union of the two + partner countries | 34 | 34 | ✅ exact |
@@ -193,14 +193,14 @@ eight (az, ca, dn, my, pl, sw, uc, us) only through items and partners.
 
 ## Partners
 
-The exported 70 are a strict subset of the legacy 72, and the two missing rows
-are **exactly** the ones legacy itself marks `hasObjects: 0`:
+The first pass exported 70, a strict subset of the legacy 72, and the two
+missing rows were **exactly** the ones legacy itself marks `hasObjects: 0`:
 
-| Legacy partner | Project | `hasObjects` | Exported |
-|---|---|---|---|
-| `jo/Mus31` Greater Amman Municipality | DCA | 0 | ✗ |
-| `pt/Mus31` Centro de História d'Aquém e d'Além-Mar | DCA | 0 | ✗ |
-| the other 70 | — | 1 | ✓ |
+| Legacy partner | Project | `hasObjects` | Exported (first pass) | Exported (now) |
+|---|---|---|---|---|
+| `jo/Mus31` Greater Amman Municipality | DCA | 0 | ✗ | ✓ |
+| `pt/Mus31` Centro de História d'Aquém e d'Além-Mar | DCA | 0 | ✗ | ✓ |
+| the other 70 | — | 1 | ✓ | ✓ |
 
 Both come from the third branch of legacy's partner query
 (`app/MWNF/SQL/mwnf3/Partners.blade.php`, MWNF-384): *museums created in the
@@ -208,22 +208,35 @@ gallery's own project, regardless of whether they hold items*. It contributed
 nothing on amulets (no `mwnf3.museums` row has `project_id = 'AMU'`); carpets is
 the first gallery where it fires.
 
-**No exporter can reproduce it today.** Both partner records exist in the
-inventory database, but the museum→project link does not: `partners.project_id`
-is populated for ten ISL schools and for nothing else, and
-`partner_translations.extra` records only `source: "mwnf3"`. The fix is
-importer-side — carry `mwnf3.museums.project_id` through the import — after
-which the exporter change is a second branch on the partner query. Noted in
-[`../README.md`](../README.md#known-gaps) and in the package spec.
+**Closed, importer-side first.** Both partner records were already in the
+inventory database; only the museum→project link was missing, because the
+importer read `mwnf3.museums` and discarded its `project_id`. `PartnerImporter`
+now writes it to `partners.project_id`, and a standalone
+`museum-project-link-backfill` step repairs databases imported before that
+(252 legacy museums linked on staging; the ten ISL schools that already had a
+project are untouched, and the update is where-null so a rerun changes nothing).
+`PartnerExporter` then adds the branch as
+`p.type = 'museum' AND p.project_id = <the gallery's project>`, on a LEFT JOIN
+so a partner with `item_count: 0` survives, with the project resolved from the
+gallery's own anchor rather than a hardcoded `'DCA'`. Re-exported:
+
+```
+partners.json (72 partners, 14 featured, 2 holding no member item)
+```
+
+and the two zero-item rows are `mwnf3:museums:Mus31:jo` and
+`mwnf3:museums:Mus31:pt`.
 
 Legacy's other two partner filters were checked and change nothing here: the
 MWNF-371 not-live-project exclusion drops none of the 72, and the hardcoded
-`uk/Mus51` / `us/Mus51` exclusions match no partner holding a carpets member.
+`uk/Mus51` / `us/Mus51` exclusions match neither a partner holding a carpets
+member nor a DCA-created museum.
 
 Other partner checks:
 
-- `item_count` sums to **486** across the 70 partners — every member item has a
-  holding partner, and no member is counted twice.
+- `item_count` sums to **486** across the 72 partners — every member item has a
+  holding partner, no member is counted twice, and the two MWNF-384 rows
+  contribute 0 each.
 - 14 partners carry `portal_display = 'y'` and are exported as `featured`.
   Legacy's `/partners/featured` returns a random subset sized by
   `config('dxa.API_PAGESIZE')`; the package ships the flag and leaves the
@@ -283,8 +296,13 @@ spec.
    because "Dar" is in the curated index but is not a word in the description.
    This is a repo-wide model difference that affects all four packages equally,
    not a gallery-scoping defect, and it is not addressed here.
-3. **MWNF-384 needs an importer change** before any gallery package can list a
-   native-project museum that holds nothing (see Partners above).
+3. **MWNF-384 needed an importer change**, and got one. No gallery package
+   could list a native-project museum that holds nothing while the import
+   discarded `mwnf3.museums.project_id`; carrying it onto `partners.project_id`
+   is what let the exporter add the third branch and reach legacy's 72 (see
+   Partners above). The same branch is implemented in the amulets fork, where it
+   is provably inert (26 partners with or without it) — that fork is what the
+   next gallery is copied from.
 4. **Gallery chrome images are not in inventory storage.**
    `thematic_gallery/thg_galleries/9/{1,banner}.jpg` were never imported, so the
    package carries legacy paths and the viewer must supply the media host

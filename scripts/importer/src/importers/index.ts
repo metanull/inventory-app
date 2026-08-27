@@ -154,4 +154,5 @@ export {
   ShHistoricalProfilesRootImporter,
   CollectionPurposeBackfillImporter,
   ExtraBitBufferBackfillImporter,
+  MuseumProjectLinkBackfillImporter,
 } from './phase-11/index.js';
