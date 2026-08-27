@@ -45,44 +45,47 @@ export class AuthorImporter extends BaseImporter {
   async import(): Promise<ImportResult> {
     const result = this.createResult();
 
-    try {
-      // Step 1: Import authors (mwnf3 + SH + THG with dedup)
-      this.logInfo('--- Step 1: Importing authors ---');
-      const authorResult = await this.importAuthors();
-      result.imported += authorResult.imported;
-      result.skipped += authorResult.skipped;
-      result.errors.push(...authorResult.errors);
+    await this.runStep('Step 1: Importing authors', result, () => this.importAuthors());
+    await this.runStep('Step 2: Importing author CVs', result, () => this.importAuthorCvs());
+    await this.runStep('Step 3: Resolving author-item assignments', result, () =>
+      this.importAuthorItemAssignments()
+    );
+    await this.runStep('Step 4: Resolving author-dynasty assignments', result, () =>
+      this.importAuthorDynastyAssignments()
+    );
 
-      // Step 2: Import author CVs (translations)
-      this.logInfo('--- Step 2: Importing author CVs ---');
-      const cvResult = await this.importAuthorCvs();
-      result.imported += cvResult.imported;
-      result.skipped += cvResult.skipped;
-      result.errors.push(...cvResult.errors);
-
-      // Step 3: Resolve author-item assignments from junction tables
-      this.logInfo('--- Step 3: Resolving author-item assignments ---');
-      const assignmentResult = await this.importAuthorItemAssignments();
-      result.imported += assignmentResult.imported;
-      result.skipped += assignmentResult.skipped;
-      result.errors.push(...assignmentResult.errors);
-
-      // Step 4: Resolve author-dynasty assignments
-      this.logInfo('--- Step 4: Resolving author-dynasty assignments ---');
-      const dynastyResult = await this.importAuthorDynastyAssignments();
-      result.imported += dynastyResult.imported;
-      result.skipped += dynastyResult.skipped;
-      result.errors.push(...dynastyResult.errors);
-
-      this.showSummary(result.imported, result.skipped, result.errors.length);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      result.errors.push(`Failed to import authors: ${message}`);
-      result.success = false;
-    }
+    this.showSummary(result.imported, result.skipped, result.errors.length);
 
     result.success = result.errors.length === 0;
     return result;
+  }
+
+  /**
+   * Run one step, folding its counters into the overall result.
+   *
+   * A step that throws before its own loop — a malformed query, say — used to
+   * land in a single catch around all four steps, which pushed one unnamed
+   * entry onto result.errors and logged nothing. The run then reported "1
+   * errors" with no [ERROR] line and no indication of which step died. Failures
+   * are now named and logged, and one broken step no longer skips the rest.
+   */
+  private async runStep(
+    label: string,
+    result: ImportResult,
+    step: () => Promise<ImportResult>
+  ): Promise<void> {
+    this.logInfo(`--- ${label} ---`);
+    try {
+      const stepResult = await step();
+      result.imported += stepResult.imported;
+      result.skipped += stepResult.skipped;
+      result.errors.push(...stepResult.errors);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      result.errors.push(`${label} failed: ${message}`);
+      this.logError(label, message);
+      this.showError();
+    }
   }
 
   // ===========================================================================
@@ -642,7 +645,10 @@ export class AuthorImporter extends BaseImporter {
     const result = this.createResult();
 
     const authorDynasties = await this.context.legacyDb.query<LegacyAuthorDynasty>(
-      'SELECT * FROM mwnf3.authors_dynasties ORDER BY dynasty_id, IFNULL(priority, 0) ASC, author_id ASC'
+      // authors_dynasties has no priority column — unlike authors_objects and
+      // authors_monuments it is keyed (dynasty_id, lang_id, author_id, type)
+      // only, so there is no per-credit ordering to preserve here.
+      'SELECT * FROM mwnf3.authors_dynasties ORDER BY dynasty_id, author_id'
     );
     this.logInfo(`Found ${authorDynasties.length} author-dynasty assignments`);
 

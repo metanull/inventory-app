@@ -550,12 +550,13 @@ export interface LegacyShAuthorMonument {
   priority?: number | null;
 }
 
+// No priority column: authors_dynasties is keyed (dynasty_id, lang_id,
+// author_id, type) only. Do not add one — ordering by it is a SQL error.
 export interface LegacyAuthorDynasty {
   dynasty_id: number;
   author_id: number;
   type: string;
   lang_id: string;
-  priority?: number | null;
 }
 
 // ============================================================================

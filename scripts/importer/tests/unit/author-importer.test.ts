@@ -245,3 +245,129 @@ describe('AuthorImporter — mwnf3 author-item assignments', () => {
     expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
   });
 });
+
+// mwnf3.authors_dynasties is keyed (dynasty_id, lang_id, author_id, type) and
+// has NO priority column, unlike authors_objects / authors_monuments. Ordering
+// by one is a SQL error (1054), which the importer used to swallow into a
+// single unnamed entry on result.errors with no log line — the run reported
+// "1 errors" and step 4 printed its header and nothing else.
+describe('AuthorImporter — dynasty assignments and step failure reporting', () => {
+  let tracker: UnifiedTracker;
+  let strategy: IWriteStrategy;
+  let context: ImportContext;
+  let updateDynastyFkMock: ReturnType<typeof vi.fn>;
+  let queryMock: ReturnType<typeof vi.fn>;
+
+  const logger: ILogger = {
+    info: vi.fn(),
+    warning: vi.fn(),
+    skip: vi.fn(),
+    error: vi.fn(),
+    exception: vi.fn(),
+    showProgress: vi.fn(),
+    showSkipped: vi.fn(),
+    showError: vi.fn(),
+    showSummary: vi.fn(),
+  };
+
+  // Exactly the columns the legacy table has — no priority.
+  const authorDynasties = [
+    { dynasty_id: 3, author_id: 456, lang_id: 'en', type: 'writer' },
+    { dynasty_id: 3, author_id: 527, lang_id: 'en', type: 'copyEditor' },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    tracker = new UnifiedTracker();
+    tracker.set('en', 'eng', 'language');
+    tracker.set('mwnf3:authors:456', 'author-456', 'author');
+    tracker.set('mwnf3:authors:527', 'author-527', 'author');
+    tracker.set('mwnf3:dynasties:3', 'dynasty-3', 'dynasty');
+
+    queryMock = vi.fn(async (sql: string) => {
+      // Mirror MySQL: ordering by a column the table does not have is an error.
+      if (sql.includes('authors_dynasties') && sql.includes('priority')) {
+        throw new Error("Unknown column 'priority' in 'order clause'");
+      }
+      if (sql.includes('mwnf3.authors_dynasties')) return authorDynasties;
+      return [];
+    });
+
+    updateDynastyFkMock = vi.fn().mockResolvedValue(undefined);
+
+    strategy = {
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+      updateItemTranslationAuthorFk: vi.fn().mockResolvedValue(undefined),
+      updateDynastyTranslationAuthorFk: updateDynastyFkMock,
+    } as unknown as IWriteStrategy;
+
+    context = {
+      legacyDb: {
+        query: queryMock as ILegacyDatabase['query'],
+        execute: vi.fn(),
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      },
+      strategy,
+      tracker,
+      logger,
+      dryRun: false,
+    };
+  });
+
+  it('does not order the dynasty junction by a column it does not have', async () => {
+    const result = await new AuthorImporter(context).import();
+
+    const dynastyQuery = queryMock.mock.calls
+      .map(([sql]) => sql as string)
+      .find((sql) => sql.includes('mwnf3.authors_dynasties'));
+
+    expect(dynastyQuery).not.toContain('priority');
+    expect(result.success).toBe(true);
+  });
+
+  it('credits dynasty translations from the junction', async () => {
+    await new AuthorImporter(context).import();
+
+    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
+    expect(updateDynastyFkMock).toHaveBeenCalledWith(
+      'dynasty-3',
+      'eng',
+      'text_copy_editor_id',
+      'author-527'
+    );
+  });
+
+  it('names and logs a step that throws instead of swallowing it', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('mwnf3.authors_dynasties')) {
+        throw new Error("Unknown column 'priority' in 'order clause'");
+      }
+      return [];
+    });
+
+    const result = await new AuthorImporter(context).import();
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toContain('Step 4');
+    const errorCall = (logger.error as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(errorCall[0]).toContain('Step 4');
+    expect(errorCall[1]).toContain('priority');
+  });
+
+  it('runs the remaining steps when an earlier one throws', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('mwnf3.authors_objects')) throw new Error('boom');
+      if (sql.includes('mwnf3.authors_dynasties')) return authorDynasties;
+      return [];
+    });
+
+    const result = await new AuthorImporter(context).import();
+
+    // Step 3 died, but step 4 still credited the dynasty.
+    expect(result.errors[0]).toContain('Step 3');
+    expect(updateDynastyFkMock).toHaveBeenCalledWith('dynasty-3', 'eng', 'author_id', 'author-456');
+  });
+});
