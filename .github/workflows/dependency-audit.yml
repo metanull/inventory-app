@@ -59,6 +59,15 @@ jobs:
           - name: Exporter (islamicart)
             directory: scripts/exporters/islamicart
             registry-url: ""
+          - name: Exporter (baroqueart)
+            directory: scripts/exporters/baroqueart
+            registry-url: ""
+          - name: Exporter (sharinghistory)
+            directory: scripts/exporters/sharinghistory
+            registry-url: ""
+          - name: Exporter (amulets)
+            directory: scripts/exporters/amulets
+            registry-url: ""
           - name: Viewer (islamicart)
             directory: scripts/viewers/islamicart
             registry-url: https://npm.pkg.github.com/

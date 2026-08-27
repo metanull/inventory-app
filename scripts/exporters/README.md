@@ -180,3 +180,9 @@ Two gotchas, learned the hard way:
    `.legacy-database/` for offline legacy dumps).
 5. Publish, then create the matching viewer (see
    [`../viewers/README.md`](../viewers/README.md)).
+
+CI needs no edit: the `Exporter Validation` job derives its matrix from the
+directories under `scripts/exporters/` that contain a `package.json`, so a new
+dataset is type-checked, linted and tested from its first pull request. Keep
+`type-check`, `lint:check` and `test` in the copied `package.json` — those are
+the three scripts the job runs.
