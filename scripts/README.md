@@ -583,11 +583,27 @@ It asserts three things:
 | Property | Value |
 | --- | --- |
 | Script | `check-dependabot-coverage.sh` |
-| Invoker | The `dependabot-coverage` job in `continuous-integration.yml`, on every pull request. Also run by the developer before pushing a new exporter or viewer. See [/.github/workflows/README.md](../.github/workflows/README.md#dependabot-configuration) |
-| Input | `/.github/dependabot.yml`, plus every `package.json` under `/scripts`, `/spa` and the repository root |
-| Output | **N/A** - The script writes to the terminal; exit code 1 on any mismatch |
+| Invoker | The `dependabot-coverage` job in `continuous-integration.yml`, on every pull request (check mode), and the `enumerate-npm-projects` job in `dependency-audit.yml` (`--list-projects`). Also run by the developer before pushing a new exporter or viewer. See [/.github/workflows/README.md](../.github/workflows/README.md#dependabot-configuration) |
+| Input | Every `package.json` under `/scripts`, `/spa` and the repository root; plus `/.github/dependabot.yml` in check mode |
+| Output | **N/A** in check mode - the script writes to the terminal, exit code 1 on any mismatch. `--list-projects` writes a compact JSON array to stdout |
 | Log | **N/A** - The script writes to the terminal |
-| Requires | POSIX `sh` and `yq` (mikefarah v4). Both are present on the `ubuntu-latest` runner |
+| Requires | POSIX `sh`, plus `yq` (mikefarah v4) in check mode only. Both are present on the `ubuntu-latest` runner |
+
+**Two modes**
+
+| Mode | Purpose |
+| --- | --- |
+| *(no arguments)* | Run the three assertions above. Exit 1 on any mismatch |
+| `--list-projects` | Print the same project list as a JSON array of `{name, directory, registry}` — the matrix shape `dependency-audit.yml` consumes |
+
+The second mode exists so the two enumerations cannot drift. The audit workflow
+used to hand-list Root, SPA and Importer and glob only `scripts/exporters` and
+`scripts/viewers`, so `scripts/site-i18n` silently received no weekly
+`npm audit` at all. Deriving both lists from one place makes
+"Dependabot-covered" and "weekly-audited" the same set by construction, and the
+hand-written `dependabot.yml` pins it from the other side: a project that falls
+out of the enumeration turns up as `ORPHANED` and fails the pull request gate,
+rather than quietly dropping out of the audit.
 
 **Usage**
 

@@ -162,16 +162,22 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    - Runs `composer audit`
 
 2. **enumerate-npm-projects** (*Enumerate npm Projects*) - Builds the `audit-npm` matrix from the checkout
-   - Emits `projects`, a JSON array of `{name, directory, registry}` objects
-   - Datasets are added by forking an existing directory, so the trees are listed and the projects are globbed — a fork is audited from the day it lands, with no edit to this workflow
+   - Runs `sh scripts/check-dependabot-coverage.sh --list-projects`, which emits `projects`: a JSON array of `{name, directory, registry}` objects, one per `package.json` in the tree
+   - No project or directory is named in this workflow — a new tool under `scripts/`, or a forked exporter or viewer, is audited from the day it lands with no edit here
 
-   | Source | Contributes | Registry |
-   | --- | --- | --- |
-   | listed explicitly | `Root` (`.`) | public npm |
-   | listed explicitly | `SPA` (`spa`) | npm.pkg.github.com |
-   | listed explicitly | `Importer` (`scripts/importer`) | public npm |
-   | every `package.json` under `scripts/exporters/*/` | `Exporter (<dataset>)` | public npm |
-   | every `package.json` under `scripts/viewers/*/` | `Viewer (<dataset>)` | npm.pkg.github.com |
+   | Contributes | Registry |
+   | --- | --- |
+   | `Root` (`.`) | public npm |
+   | `SPA` (`spa`) | npm.pkg.github.com |
+   | `Importer` (`scripts/importer`) | public npm |
+   | `Site i18n` (`scripts/site-i18n`) | public npm |
+   | `Exporter (<dataset>)`, per `package.json` under `scripts/exporters/*/` | public npm |
+   | `Viewer (<dataset>)`, per `package.json` under `scripts/viewers/*/` | npm.pkg.github.com |
+   | any other `package.json` under `scripts/` | public npm |
+
+   > **One enumeration, two consumers.** That script is the same one the blocking [`dependabot-coverage`](#ci) job checks `.github/dependabot.yml` against, so "has a Dependabot entry" and "gets a weekly audit" are the same set by construction, and each pins the other: if a project ever falls out of the enumeration it loses its audit here, but its `dependabot.yml` entry immediately reports as `ORPHANED` and the pull request gate fails.
+   >
+   > This job previously hand-listed `Root`, `SPA` and `Importer` and globbed only `scripts/exporters` and `scripts/viewers`. `scripts/site-i18n` matched none of those and received no weekly audit at all from the day it landed — the same class of silent gap the coverage check exists to prevent, one file over.
 
 3. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
    - Matrix: `fromJSON` of `enumerate-npm-projects`'s `projects` output
@@ -617,7 +623,7 @@ Several workflows interact with scripts, composite actions and other workflows:
 | Workflow | Depends On | Triggers |
 | --- | --- | --- |
 | `continuous-integration.yml` | `setup-backend`, `setup-node-project`, `scripts/check-dependabot-coverage.sh` | - |
-| `dependency-audit.yml` | `setup-node-project` | - |
+| `dependency-audit.yml` | `setup-node-project`, `scripts/check-dependabot-coverage.sh` | - |
 | `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
@@ -630,7 +636,7 @@ Several workflows interact with scripts, composite actions and other workflows:
 - `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
 - `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
 - `deploy.sh` - Uploaded to the VPS and executed by `deploy-ovh.yml`. See [/scripts/README.md](../../scripts/README.md#deployment-scripts)
-- `check-dependabot-coverage.sh` - Run by the `dependabot-coverage` job in `continuous-integration.yml`. See [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
+- `check-dependabot-coverage.sh` - Run by the `dependabot-coverage` job in `continuous-integration.yml` (check mode) and by the `enumerate-npm-projects` job in `dependency-audit.yml` (`--list-projects`). See [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
 
 ---
 
