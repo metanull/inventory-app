@@ -8,87 +8,105 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
   - [Table of contents](#table-of-contents)
   - [Notes](#notes)
   - [Continuous Integration and Testing](#continuous-integration-and-testing)
-    - [Mandatory Checks](#mandatory-checks)
-    - [Build and Test](#build-and-test)
+    - [CI](#ci)
+    - [Dependency Audit (Full Tree)](#dependency-audit-full-tree)
   - [Continuous Deployment](#continuous-deployment)
-    - [Deploy Laravel Application](#deploy-laravel-application)
+    - [Build](#build)
+    - [Deploy to OVH](#deploy-to-ovh)
+    - [Deploy Laravel Application (Windows self-hosted)](#deploy-laravel-application-windows-self-hosted)
     - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
     - [Publish API Client Package](#publish-api-client-package)
+    - [Deploy Dataset Viewers to OVH](#deploy-dataset-viewers-to-ovh)
   - [Automation Workflows](#automation-workflows)
-    - [Version Bump](#version-bump)
+    - [Dependabot Configuration](#dependabot-configuration)
     - [Merge Dependabot PR](#merge-dependabot-pr)
+  - [Composite Actions](#composite-actions)
   - [Workflow Dependencies](#workflow-dependencies)
   - [Contributing](#contributing)
 
 ## Notes
 
-- **Workflows run on GitHub-hosted runners** (`ubuntu-latest`) or **self-hosted runners** (`[self-hosted, windows]`) depending on the task
+- **Workflows run on GitHub-hosted runners** (`ubuntu-latest`, `ubuntu-24.04`) or **self-hosted runners** (`[self-hosted, windows]`) depending on the task
 - **Python workflows** use Python 3.x on Ubuntu runners for documentation generation
-- **PowerShell workflows** use PowerShell on Windows runners for application deployment
+- **PowerShell workflows** use PowerShell on Windows runners for the legacy self-hosted application deployment
 - Most workflows use **concurrency groups** to prevent duplicate runs and conserve resources
-- Workflows are triggered by push events, pull requests, releases, or manual dispatch (`workflow_dispatch`)
+- Workflows are triggered by push events, pull requests, schedules, other workflow runs (`workflow_run`), or manual dispatch (`workflow_dispatch`)
+- Repeated setup steps are factored out into **composite actions** under [`.github/actions`](../actions) — see [Composite Actions](#composite-actions)
 - Several workflows interact with scripts in [/scripts/README.md](../../scripts/README.md)
 
 ## Continuous Integration and Testing
 
-### Mandatory Checks
+### CI
 
-Runs mandatory dependency audits and — when backend paths change — Laravel linting and the full PHP test matrix on every pull request. Provides the `CI Success` status check required by branch protection rules.
+Runs the pull request validation pipeline: an unconditional dependency review, plus lint/build/test jobs that are gated on which paths changed. Jobs are skipped when no relevant files were modified. Provides the `CI Success` status check required by branch protection rules.
 
 **Workflow properties**
 
 | Property | Value |
 | --- | --- |
 | **Workflow** | `continuous-integration.yml` |
+| **Workflow name** | `CI` |
 | **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — backend validation always runs |
+| **Manual trigger** | Yes (`workflow_dispatch`) — every path group is treated as changed |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
 | **Concurrency** | Group: `ci-mandatory-${{ github.ref }}`, cancel-in-progress: `true` |
 
+**Path groups and triggered jobs**
+
+| Changed paths | `detect-changes` output | Jobs triggered |
+| --- | --- | --- |
+| `app/**`, `routes/**`, `config/**`, `database/**`, `tests/**`, `bootstrap/**`, `composer.json`, `composer.lock`, `phpunit.xml`, `artisan` | `backend` | `backend-lint`, `backend-tests` |
+| `resources/css/**`, `resources/js/**`, `resources/views/**`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.js` | `root-frontend` | `backend-rendered-frontend-validation` |
+| `scripts/importer/**` | `importer` | `importer-validation` |
+| `scripts/site-i18n/**` | `site-i18n` | `site-i18n-validation` |
+| `spa/**` | `spa` | `spa-frontend-validation` |
+
 **Jobs**
 
-1. **audit-composer** - Audits PHP/Composer dependencies
-   - Installs PHP 8.5 with extensions
-   - Validates `composer.json` with strict checks
-   - Installs Composer dependencies
-   - Runs `composer audit --format=summary`
-
-2. **audit-npm-root** - Audits root npm dependencies
-   - Installs Node.js lts/Krypton (24.x)
-   - Installs root npm dependencies
-   - Runs `npm audit --audit-level moderate`
-
-3. **audit-npm-importer** - Audits `scripts/importer` npm dependencies
-   - Installs Node.js lts/Krypton (24.x)
-   - Installs importer npm dependencies from `scripts/importer/`
-   - Runs `npm audit --audit-level moderate`
-
-4. **audit-npm-spa** - Audits SPA npm dependencies
-   - Installs Node.js lts/Krypton (24.x)
-   - Installs SPA npm dependencies (authenticated with `GITHUB_TOKEN` for GitHub Packages)
-   - Runs `npm audit --audit-level moderate`
-
-5. **detect-changes** - Classifies changed files
-   - Emits output `backend` (true/false)
-   - Backend is `true` when `app/`, `routes/`, `config/`, `database/`, `tests/`, `bootstrap/`, `composer.json`, `composer.lock`, `phpunit.xml`, or `artisan` change
+1. **detect-changes** (*Detect Changed Paths*) - Classifies changed files using `git diff` against the PR base SHA
+   - Checks out the repository with full Git history (`fetch-depth: 0`)
+   - Emits outputs: `backend`, `root-frontend`, `spa`, `importer`, `site-i18n` (true/false)
    - All outputs are `true` when triggered by `workflow_dispatch`
 
-6. **backend-lint** *(when `backend=true`)* - Laravel backend linting
-   - Installs PHP 8.5 with extensions and Pint
-   - Installs Composer dependencies
-   - Creates `.env` from `.env.local.example`, migrates database
+2. **dependency-review** (*Dependency Review (PR)*) - Reviews dependency changes introduced by the pull request
+   - Runs `actions/dependency-review-action` with `fail-on-severity: high`
+   - Has no `needs` and no path gate — it always runs
+
+3. **backend-lint** *(when `backend=true`)* (*Backend Linting and Validation*) - Laravel backend linting
+   - Uses the `setup-backend` composite action with `tools: pint` (PHP 8.5, Composer install, `.env` from `.env.local.example`, `php artisan migrate`)
+   - Runs against SQLite in memory (`DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
+   - Runs `composer check-platform-reqs`
    - Runs `./vendor/bin/pint --bail`
 
-7. **backend-tests** *(when `backend=true`)* - Laravel test matrix
+4. **backend-tests** *(when `backend=true`)* (*Backend Tests (`<suite>`)*) - Laravel test matrix
+   - Uses the `setup-backend` composite action with `tools: phpunit, pest` and `coverage: xdebug`
    - Matrix: `Unit`, `Api`, `Web`, `Filament`, `Configuration`, `Console`, `Event`, `Integration`
    - `fail-fast: true` — stops remaining suites on first failure
-   - Runs each suite with `--coverage --parallel --stop-on-failure`
+   - Runs each suite with `php artisan test --testsuite=<suite> --coverage --parallel --no-ansi --stop-on-failure`
 
-8. **ci-success** - Aggregates all mandatory check results
-   - Always requires all 4 audit jobs to succeed
-   - When `backend=true`: also requires backend lint and backend tests to succeed
-   - When `backend=false`: backend lint and tests may be skipped
-   - Fails the workflow if any required job failed
+5. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* (*Backend Rendered Frontend Validation (Blade/Tailwind)*) - Blade/Tailwind build
+   - Uses the `setup-node-project` composite action at the repository root
+   - Runs `npm run build`
+
+6. **importer-validation** *(when `importer=true`)* (*Importer Validation (TypeScript)*) - Importer TypeScript build and tests
+   - Uses the `setup-node-project` composite action with `working-directory: scripts/importer`
+   - Runs `npm run build` (TypeScript compilation)
+   - Runs `npm test` (Vitest unit tests)
+
+7. **site-i18n-validation** *(when `site-i18n=true`)* (*Site i18n Validation (TypeScript)*) - Shared site i18n layer validation
+   - Uses the `setup-node-project` composite action with `working-directory: scripts/site-i18n`
+   - Runs `npm run lint:check`, `npm run build` and `npm test`
+   - Every test in this suite is a pure function over legacy row shapes, so no database, VPN or credentials are involved
+
+8. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
+   - Uses the `setup-node-project` composite action with `working-directory: spa`, authenticated against GitHub Packages with `GITHUB_TOKEN`
+   - Runs `npm run lint`, `npm run build` and `npm run test:all`
+
+9. **ci-success** (*CI Success*) - Aggregates all check results
+   - `needs` every other job and runs with `if: always()`
+   - Always requires `dependency-review` to have succeeded
+   - For each path group that changed, requires the matching job(s) to have succeeded
+   - When a path group did not change, its job may be skipped without failing the workflow
    - This job name satisfies the `CI Success` branch protection required check
 
 **Permissions**
@@ -98,150 +116,232 @@ Runs mandatory dependency audits and — when backend paths change — Laravel l
 
 **Branch protection**
 
-The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. All 4 audits must pass before a PR can be merged. When backend paths change, PHP linting and the full PHP test matrix (including `Filament`) must also pass.
+The `CI Success` job in this workflow satisfies the `CI Success` required status check configured in branch protection rules for `main`. Dependency review must always pass; the path-gated lint/build/test jobs must pass whenever their path group changed.
 
 **Usage**
 
-This workflow runs automatically on pull requests. For manual triggering (backend validation always runs):
+This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files. For manual triggering (every path group is treated as changed):
 
 ```
-Actions > Mandatory Checks > Run workflow
+Actions > CI > Run workflow
 ```
 
 ---
 
-### Build and Test
+### Dependency Audit (Full Tree)
 
-Runs build and test jobs conditionally based on which paths changed in the pull request. Jobs are skipped when no relevant files were modified. This workflow does not provide a required status check; backend linting and the full PHP test matrix are enforced as required checks by the `Mandatory Checks` workflow instead.
+Audits the full dependency tree of every PHP and npm project in the repository on a weekly schedule, and opens (or comments on) a tracking issue when vulnerabilities are found. Dependency *changes* on a pull request are handled by the `dependency-review` job of the `CI` workflow instead.
 
 **Workflow properties**
 
 | Property | Value |
 | --- | --- |
-| **Workflow** | `ci-build-test.yml` |
-| **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — all jobs run when triggered manually |
+| **Workflow** | `dependency-audit.yml` |
+| **Workflow name** | `Dependency Audit (Full Tree)` |
+| **Trigger** | Schedule — `0 6 * * 1` (every Monday at 06:00 UTC) |
+| **Manual trigger** | Yes (`workflow_dispatch`) |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `ci-build-test-${{ github.ref }}`, cancel-in-progress: `true` |
-
-**Path groups and triggered jobs**
-
-| Changed paths | Jobs triggered |
-| --- | --- |
-| `app/**`, `routes/**`, `config/**`, `database/**`, `tests/**`, `bootstrap/**`, `composer.json`, `composer.lock`, `phpunit.xml`, `artisan` | `backend-lint`, `backend-tests` |
-| `resources/css/**`, `resources/js/**`, `resources/views/**`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.js` | `backend-rendered-frontend-validation` |
-| `spa/**` | `spa-frontend-validation` |
-| `scripts/importer/**` | `importer-validation` |
+| **Concurrency** | Group: `dependency-audit`, cancel-in-progress: `true` |
 
 **Jobs**
 
-1. **detect-changes** - Classifies changed files using `git diff` against the PR base SHA
-   - Emits outputs: `backend`, `root-frontend`, `spa`, `importer` (true/false)
-   - All outputs are `true` when triggered by `workflow_dispatch`
-
-2. **backend-lint** *(when `backend=true`)* - Laravel backend linting
-   - Installs PHP 8.5 with extensions and Pint
+1. **audit-composer** (*Audit - Composer (PHP)*) - Audits PHP/Composer dependencies
+   - Installs PHP 8.5 with extensions
    - Installs Composer dependencies
-   - Creates `.env` from `.env.local.example`, migrates database
-   - Runs `./vendor/bin/pint --bail`
+   - Runs `composer audit`
 
-3. **backend-tests** *(when `backend=true`)* - Laravel test matrix
-   - Matrix: `Unit`, `Api`, `Web`, `Configuration`, `Console`, `Event`, `Integration`
-   - `fail-fast: true` — stops remaining suites on first failure
-   - Runs each suite with `--coverage --parallel --stop-on-failure`
+2. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
+   - `fail-fast: false` — every directory is audited even if one fails
+   - Uses the `setup-node-project` composite action per matrix entry
 
-4. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* - Blade/Tailwind build
-   - Installs Node.js lts/Krypton and root npm dependencies
-   - Runs `npm run build`
+   | Matrix entry | Directory | Registry |
+   | --- | --- | --- |
+   | `Root` | `.` | public npm |
+   | `SPA` | `spa` | npm.pkg.github.com |
+   | `Importer` | `scripts/importer` | public npm |
+   | `Exporter (islamicart)` | `scripts/exporters/islamicart` | public npm |
+   | `Viewer (islamicart)` | `scripts/viewers/islamicart` | npm.pkg.github.com |
 
-5. **importer-validation** *(when `importer=true`)* - Importer TypeScript build and tests
-   - Installs Node.js lts/Krypton and importer npm dependencies
-   - Runs `npm run build` (TypeScript compilation)
-   - Runs `npm test` (Vitest unit tests)
+   - Runs `npm audit --audit-level high` in each directory
 
-6. **spa-frontend-validation** *(when `spa=true`)* - SPA (Vue 3) validation
-   - Installs Node.js lts/Krypton and SPA npm dependencies
-   - Runs lint, build, and `npm run test:all`
+3. **report** (*Report Failures*) - Reports vulnerabilities as an issue
+   - `needs: [audit-composer, audit-npm]`, runs with `if: always()` when either audit job failed
+   - Opens an issue titled `Weekly dependency audit found vulnerabilities` with the `dependencies` label, or comments on the existing open one
 
 **Permissions**
 
 - `contents: read` - For reading repository contents
-- `packages: read` - For accessing GitHub Packages (SPA dependencies)
+- `packages: read` - For accessing GitHub Packages (SPA and viewer dependencies)
+- `issues: write` - For opening or commenting on the tracking issue
 
 **Usage**
 
-This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files. For manual triggering (all jobs run):
+This workflow runs automatically every Monday. For manual triggering:
 
 ```
-Actions > Build and Test > Run workflow
+Actions > Dependency Audit (Full Tree) > Run workflow
 ```
 
 ---
 
 ## Continuous Deployment
 
-### Deploy Laravel Application
+### Build
 
-Builds the Laravel application and deploys it to a production environment using a symlink-based deployment strategy.
+Builds the Laravel application and the SPA demo, packages them, publishes a GitHub pre-release, and uploads the deployment tarball consumed by `Deploy to OVH`.
 
 **Workflow properties**
 
 | Property | Value |
 | --- | --- |
-| **Workflow** | `continuous-deployment.yml` |
-| **Trigger** | Push to `main` branch |
-| **Manual trigger** | No |
+| **Workflow** | `build.yml` |
+| **Workflow name** | `Build` |
+| **Trigger** | Push to `main` branch, or push of a `v*.*.*` tag |
+| **Manual trigger** | Yes (`workflow_dispatch`) |
+| **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| **Environment** | `MWNF-SVR` |
+| **Concurrency** | Group: `cd-${{ github.ref }}`, cancel-in-progress: `true` |
+
+**Job: build** (*Build and Package Application*)
+
+1. Installs PHP 8.5 (matching `.docker/Dockerfile` and the VPS) with Pint, and Node.js `lts/Krypton`
+2. Installs PHP dependencies with `composer install --no-dev --optimize-autoloader`
+3. Publishes Filament assets (`php artisan filament:assets`)
+4. Installs and builds the backend assets with Vite (`npm ci`, `npm run build`)
+5. Installs and builds the SPA demo (`spa/`), authenticated against GitHub Packages
+6. Validates that `public/build`, `public/cli`, `public/css/filament` and `public/js/filament` exist
+7. Creates the deployment package and a `VERSION` file (app version, API client version, commit SHA, build number, timestamps), also copied to `public/version.json`
+8. Produces both `inventory-app.zip` and `release.tar.gz`
+9. Generates the release tag `<package.json version>.<run_number>`
+10. Creates a GitHub pre-release with `inventory-app.zip` attached
+11. Uploads the artifact `release-${{ github.sha }}` (containing `release.tar.gz`) with 7-day retention
+
+**Permissions**
+
+- `contents: write` - For creating releases
+- `packages: read` - For accessing GitHub Packages (SPA dependencies)
+
+**Usage**
+
+This workflow runs automatically when changes are pushed to `main`. It is the upstream of `Deploy to OVH`.
+
+---
+
+### Deploy to OVH
+
+Deploys the tarball produced by `Build` to the OVH VPS over SSH, by running [`scripts/deploy.sh`](../../scripts/deploy.sh) on the server.
+
+**Workflow properties**
+
+| Property | Value |
+| --- | --- |
+| **Workflow** | `deploy-ovh.yml` |
+| **Workflow name** | `Deploy to OVH` |
+| **Trigger** | `workflow_run` — after the `Build` workflow completes on `main` |
+| **Manual trigger** | Yes (`workflow_dispatch`) — optional `run_id` input; defaults to the latest successful `Build` run on `main` |
+| **Runner** | `ubuntu-24.04` (GitHub-hosted) |
+| **Environment** | `inventory.metanull.eu` (https://inventory.metanull.eu) |
+| **Concurrency** | Group: `deploy-ovh`, cancel-in-progress: `false` |
+
+**Job: deploy** (*Deploy to OVH VPS*)
+
+- Only runs when triggered manually, or when the upstream `Build` run concluded `success`
+- Resolves the `Build` run id and head SHA, then downloads the `release-<sha>` artifact from it
+- Verifies `release.tar.gz` is present
+- Sets up the SSH key, checks TCP reachability of port 22, and verifies SSH authentication (up to 3 attempts with backoff, failing fast on an auth rejection)
+- Uploads `release.tar.gz` and `scripts/deploy.sh` to the VPS, then runs the deploy script
+- Cleans up the uploaded files on the VPS (`if: always()`)
+
+**Permissions**
+
+- `contents: read` - For reading repository contents
+- `actions: read` - For listing and downloading artifacts from the `Build` run
+
+**Secrets**
+
+| Secret | Description |
+| --- | --- |
+| `VPS_HOST` | Hostname or IP of the OVH VPS |
+| `VPS_SSH_USER` | SSH user used for deployment |
+| `VPS_SSH_KEY` | Private SSH key for that user |
+
+---
+
+### Deploy Laravel Application (Windows self-hosted)
+
+Deploys a published release to the legacy Windows/Apache environment using a symlink-based deployment strategy. This is the self-hosted counterpart of `Deploy to OVH` and is **manual only**.
+
+**Workflow properties**
+
+| Property | Value |
+| --- | --- |
+| **Workflow** | `deploy.yml` |
+| **Workflow name** | `Deploy` |
+| **Trigger** | None automatic — the `release` trigger is commented out (deployment on release is forbidden by the repository's GitHub Actions settings) |
+| **Manual trigger** | Yes (`workflow_dispatch`) — required `release_tag` input (e.g. `v1.0.0.1`) |
 | **Runner** | `[self-hosted, windows]` |
 | **Environment** | `MWNF-SVR` |
+| **Concurrency** | Group: `deploy-${{ github.ref }}`, cancel-in-progress: `false` |
 
 **Jobs**
 
-1. **build** - Builds deployment package
-   - Validates environment variables and paths (PHP, Composer, Node.js, npm, MariaDB)
-   - Installs PHP dependencies with `composer install --no-dev --optimize-autoloader`
-   - Configures npm authentication for GitHub Packages
-   - Installs Node.js dependencies with `npm install`
-   - Builds frontend assets with Vite (`npm run build`)
-   - Creates deployment package excluding dev dependencies
-   - Generates `VERSION` file with app version, commit SHA, and timestamps
-   - Uploads deployment artifact (`laravel-app-${{ github.sha }}`) with 7-day retention
+1. **download** - Fetches and stages the release package
+   - Determines the release tag from the workflow input
+   - Downloads the `inventory-app.zip` asset from the matching GitHub release
+   - Extracts it and copies it into a timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
+   - Outputs `staging_path` and `release_tag`
 
-2. **deploy** - Deploys to staging directory with symlink swap
-   - Downloads deployment artifact
-   - Creates timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
-   - Puts old application into maintenance mode (`php artisan down`)
-   - Creates temporary symlink to new staging directory
-   - Atomically swaps symlinks to minimize downtime
-   - Cleans up obsolete staging directories (keeps last 3)
-   - Implements rollback capability if symlink swap fails
+2. **down** *(needs `download`)* - Puts the current application into maintenance mode (`php artisan down --retry=120`)
 
-3. **configure** - Configures Laravel application
-   - Generates production `.env` file from `.env.example` using environment variables
+3. **deploy** *(needs `download`, `down`)* - Swaps the deployment symlink
+   - Calculates the swap and temporary symlink paths
+   - Creates the shared persistent storage directory and symlinks `storage/app` to it, so uploaded files survive deployments
+   - Removes leftover symlinks from previous failed runs
+   - Creates a temporary symlink to the new staging directory and atomically renames it over the webserver path
+   - Rolls the previous symlink back if the swap fails
+   - Outputs `symlink_swap_path` and `symlink_temp_path`
+
+4. **configure** *(needs `deploy`)* - Configures the Laravel application
+   - Masks secrets in the logs
+   - Generates the production `.env` file from `.env.example` using environment variables
    - Runs database migrations (`php artisan migrate --force`)
    - Syncs permissions and roles (`php artisan permissions:sync --production`)
    - Caches configuration, routes, and views for performance
+
+5. **up** *(needs `configure`)* - Brings the application out of maintenance mode (`php artisan up`)
+
+6. **intendance** *(needs `up`, `deploy`, `download`)* - Housekeeping
+   - Removes the temporary and swap symlinks
+   - Cleans up obsolete staging directories (keeps the last 3)
 
 **Environment Variables** (set in GitHub environment `MWNF-SVR`)
 
 | Variable | Description | Default |
 | --- | --- | --- |
 | `PHP_PATH` | Path to PHP executable | `C:\Program Files\PHP\php.exe` |
-| `COMPOSER_PATH` | Path to Composer executable | `C:\ProgramData\ComposerSetup\bin\composer.bat` |
-| `NODE_PATH` | Path to Node.js executable | `C:\Program Files\nodejs\node.exe` |
-| `NPM_PATH` | Path to npm executable | `C:\Program Files\nodejs\npm.ps1` |
-| `MARIADB_PATH` | Path to MariaDB client | `C:\Program Files\MariaDB 10.5\bin\mysql.exe` |
-| `DEPLOY_PATH` | Deployment base directory | `C:\Apache24\htdocs\inventory-app` |
 | `WEBSERVER_PATH` | Symlink location for webserver | `C:\Apache24\htdocs\inventory-app` |
+| `APACHE_SERVICE_USER` | Apache service user | `SYSTEM` |
 | `APP_NAME` | Application name | `inventory-app` |
 | `APP_ENV` | Environment (production/staging) | `production` |
 | `APP_DEBUG` | Enable debug mode | `false` |
 | `APP_URL` | Application URL | `http://localhost` |
+| `API_DOCS_ENABLED` | Enable API documentation | `false` |
 | `DB_CONNECTION` | Database driver | `mysql` |
 | `DB_HOST` | Database host | `127.0.0.1` |
 | `DB_PORT` | Database port | `3306` |
-| `API_DOCS_ENABLED` | Enable API documentation | `false` |
-| `APACHE_SERVICE_USER` | Apache service user | `SYSTEM` |
+| `APP_DEFAULT_USER_EMAIL` | Default user for initial login | `user@example.com` |
+| `APP_DEFAULT_USER_USERNAME` | Default user name | `user` |
+| `APP_DEFAULT_USER_PASSWORD` | Default user password | `password` |
+| `MAIL_MAILER` | Mail transport | `log` |
+| `MAIL_HOST` | Mail host | `127.0.0.1` |
+| `MAIL_PORT` | Mail port | `25` |
+| `MAIL_USERNAME` | Mail username | `null` |
+| `MAIL_PASSWORD` | Mail password | `null` |
+| `MAIL_ENCRYPTION` | Mail encryption | `null` |
+| `MAIL_FROM_ADDRESS` | Mail sender address | `user@example.com` |
+| `MAIL_FROM_NAME` | Mail sender name | `Inventory App` |
 | `TRUSTED_PROXIES` | Comma-separated proxy IPs/CIDR | (empty) |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins | (empty) |
 
 **Environment Secrets** (set in GitHub environment `MWNF-SVR`)
 
@@ -255,21 +355,22 @@ Builds the Laravel application and deploys it to a production environment using 
 **Deployment Strategy**
 
 This workflow uses a **symlink-based zero-downtime deployment**:
-1. Build artifact is downloaded to a timestamped staging directory
+1. The release asset is downloaded and extracted to a timestamped staging directory
 2. Application is put into maintenance mode
 3. A temporary symlink is created pointing to the new staging directory
 4. The webserver symlink is atomically swapped to the new deployment
-5. Old symlinks are removed
+5. The application is brought back up and old symlinks are removed
 6. Old staging directories are cleaned up (keeps last 3 for rollback)
 
 **Permissions**
 
 - `contents: read` - For reading repository contents
-- `packages: read` - For accessing GitHub Packages
 
 **Usage**
 
-This workflow runs automatically when changes are pushed to `main`.
+```
+Actions > Deploy > Run workflow  (provide the release tag)
+```
 
 **Links**
 
@@ -291,6 +392,7 @@ See [/docs/README.md](../../docs/README.md) for complete Jekyll site documentati
 | Property | Value |
 | --- | --- |
 | **Workflow** | `continuous-deployment_github-pages.yml` |
+| **Workflow name** | `Documentation` |
 | **Trigger** | Push to `main` branch |
 | **Manual trigger** | Yes (`workflow_dispatch`) |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
@@ -301,22 +403,22 @@ See [/docs/README.md](../../docs/README.md) for complete Jekyll site documentati
 1. **build** - Generates and builds documentation
    - Checks out repository with full Git history (`fetch-depth: 0`)
    - Sets up Python 3.x
-   - Sets up Ruby 3.2.3
+   - Sets up Ruby 3.2.3 (working directory `docs`)
    - Installs Ruby dependencies with `bundle install`
    - **Generates commit history documentation** - Calls `python scripts/generate-commit-docs.py`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
    - **Generates API client documentation** - Calls `python scripts/generate-client-docs.py`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
    - Builds Jekyll site with `bundle exec jekyll build`
-   - Uploads artifact for GitHub Pages
+   - Uploads `docs/_site` as the GitHub Pages artifact
 
-2. **deploy** - Deploys to GitHub Pages
-   - Uses `actions/deploy-pages@v4` to publish the site
+2. **deploy** *(needs `build`)* - Deploys to GitHub Pages
+   - Uses `actions/deploy-pages` to publish the site
    - Sets environment to `github-pages`
    - Outputs deployment URL
 
 **Permissions**
 
-- `contents: read` - For reading repository contents
-- `contents: write` - For committing generated documentation (build job)
+- `contents: read` - For reading repository contents (workflow default)
+- `contents: write` - Overridden on the `build` job, for committing generated documentation
 - `pages: write` - For deploying to GitHub Pages
 - `id-token: write` - For GitHub Pages authentication
 
@@ -333,7 +435,7 @@ For Jekyll site documentation, see [/docs/README.md](../../docs/README.md)
 This workflow runs automatically on push to `main`. For manual deployment:
 
 ```bash
-# Trigger via GitHub UI: Actions > Continuous Deployment to GitHub Pages > Run workflow
+# Trigger via GitHub UI: Actions > Documentation > Run workflow
 ```
 
 **Links**
@@ -348,57 +450,60 @@ This workflow runs automatically on push to `main`. For manual deployment:
 
 ### Publish API Client Package
 
-Publishes the TypeScript API client package to GitHub Packages when a release is created.
+Regenerates the TypeScript API client from the OpenAPI specification and publishes it to GitHub Packages when the generated client actually changed.
 
 **Workflow properties**
 
 | Property | Value |
 | --- | --- |
-| **Workflow** | `publish-npm-github-package.yml` |
-| **Trigger** | Release created |
+| **Workflow** | `publish-api-client.yml` |
+| **Workflow name** | `Publish API Client` |
+| **Trigger** | Push to `main` limited to the paths `app/**`, `routes/api.php`, `config/scramble.php` |
 | **Manual trigger** | Yes (`workflow_dispatch`) |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| **Concurrency** | Group: `publish-api-client-${{ github.ref }}`, cancel-in-progress: `true` |
 
 **Jobs**
 
-1. **build** - Builds and tests the package
-   - Checks out repository
-   - Sets up Node.js 20
-   - Installs dependencies with `npm ci`
-   - Runs tests with `npm test`
+1. **build-api-client** (*Build API Client Package*) - Regenerates the client
+   - Detects whether the run is on GitHub Actions or under `act`, via the `detect-environment` composite action
+   - Sets up Node.js 20 (GitHub Packages registry) and Java 17 (required by the OpenAPI generator)
+   - Generates the client from `docs/_openapi/api.json` via the `generate-api-client` composite action, which also reports `has-changes`
+   - Uploads the `api-client` artifact (1-day retention) only when there are changes and the run is on GitHub Actions
+   - Outputs: `has-changes`, `is_github`, `is_act`
 
-2. **publish-gpr** - Publishes to GitHub Packages
-   - Checks out repository
-   - Sets up Node.js 20 with GitHub Packages registry
-   - Installs dependencies with `npm ci`
-   - Publishes package with `npm publish`
+2. **publish-api-client** *(needs `build-api-client`)* (*Publish API Client to GitHub Packages*) - Publishes the package
+   - Only runs when `has-changes == 'true'` and `is_github == 'true'`
+   - Downloads the `api-client` artifact
+   - Publishes it via the `publish-npm-package` composite action, authenticated with the `GH_PACKAGE_TOKEN` secret
 
 **Permissions**
 
 - `contents: read` - For reading repository contents
 - `packages: write` - For publishing to GitHub Packages
 
-**Prerequisites**
+**Secrets**
 
-Before this workflow can run successfully:
-1. API client must be generated using `generate-api-client.ps1`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-package)
-2. Package version should be updated appropriately
-3. A release must be created in GitHub
+| Secret | Description |
+| --- | --- |
+| `GH_PACKAGE_TOKEN` | Token used to publish `@metanull/inventory-app-api-client` to GitHub Packages |
 
 **Usage**
 
-This workflow runs automatically when a GitHub release is created. For manual publishing:
+This workflow runs automatically when API-affecting paths change on `main`. For manual publishing:
 
 ```bash
-# Trigger via GitHub UI: Actions > Package @metanull/inventory-app-api-client > Run workflow
+# Trigger via GitHub UI: Actions > Publish API Client > Run workflow
 ```
 
-Alternatively, you can publish manually using the script:
+Alternatively, you can generate and publish manually using the scripts:
 
 ```powershell
 # See: /scripts/README.md#publishing-the-api-client-npm-package-to-the-github-packages-npm-registry
 . ./scripts/publish-api-client.ps1 -Credential (Get-Credential)
 ```
+
+See also [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-package) for `generate-api-client.ps1`.
 
 **Links**
 
@@ -410,68 +515,58 @@ Alternatively, you can publish manually using the script:
 
 ---
 
-## Automation Workflows
+### Deploy Dataset Viewers to OVH
 
-### Version Bump
+One workflow per dataset viewer. Each builds its Vite viewer against the **latest published** `@metanull/<dataset>-data` package and copies the build output to the OVH VPS over SSH.
 
-Automatically bumps the project version based on merged pull request labels after successful CI runs.
+**Workflows**
 
-**Workflow properties**
+| Dataset | Workflow | Path filter | Vite base | Target directory | URL |
+| --- | --- | --- | --- | --- | --- |
+| `baroqueart` | `deploy-viewer-baroqueart-ovh.yml` | `scripts/viewers/baroqueart/**` | `/baroqueart/` | `/opt/baroqueart/` | https://inventory.metanull.eu/baroqueart/ |
+| `islamicart` | `deploy-viewer-islamicart-ovh.yml` | `scripts/viewers/islamicart/**` | `/islamicart/` | `/opt/islamicart/` | https://inventory.metanull.eu/islamicart/ |
+| `sharinghistory` | `deploy-viewer-sharinghistory-ovh.yml` | `scripts/viewers/sharinghistory/**` | `/sharinghistory/` | `/opt/sharinghistory/` | https://inventory.metanull.eu/sharinghistory/ |
+
+**Workflow properties** (identical apart from the dataset name)
 
 | Property | Value |
 | --- | --- |
-| **Workflow** | `version-bump.yml` |
-| **Trigger** | After `Continuous Integration` workflow completes successfully on `main` |
+| **Trigger** | Push to `main` limited to the viewer's own path filter |
 | **Manual trigger** | Yes (`workflow_dispatch`) |
-| **Runner** | `windows-latest` (GitHub-hosted) |
-| **Concurrency** | Group: `version-bump-${{ github.ref }}`, cancel-in-progress: `true` |
+| **Runner** | `ubuntu-latest` (GitHub-hosted) |
+| **Environment** | `inventory.metanull.eu` |
+| **Concurrency** | Group: `deploy-viewer-<dataset>-ovh`, cancel-in-progress: `false` |
 
-**Job: version-bump**
+**Job: build-and-deploy** (*Build and Deploy `<dataset>` Viewer*)
 
-1. Checks out repository with full Git history
-2. Sets up Node.js 20.x
-3. Checks if commit is already a version bump (skips if so)
-4. Retrieves merged PR information and labels
-5. Determines version bump type based on labels:
-   - `breaking-change` → **major** version bump
-   - `feature` → **minor** version bump
-   - `bugfix` → **patch** version bump
-   - Default: **patch** version bump
-6. Bumps version in `package.json` using `npm version`
-7. Commits and pushes version bump to `main` branch
+1. Sets up Node.js `lts/Krypton` against GitHub Packages for the `@metanull` scope
+2. Installs viewer dependencies with `npm ci`
+3. Runs `npm install @metanull/<dataset>-data@latest` — the newest data package is always pulled, regardless of what `package-lock.json` pins, so the viewer reflects current data
+4. Builds with `npm run build -- --base=/<dataset>/`
+5. Sets up SSH, checks VPS connectivity and verifies SSH authentication
+6. Copies `dist/` to the target directory on the VPS with `scp`
+7. Removes the SSH key (`if: always()`)
 
 **Permissions**
 
-- `contents: write` - For committing version bumps
-- `pull-requests: read` - For reading PR metadata
+- `contents: read` - For reading repository contents
+- `packages: read` - Required to pull `@metanull/<dataset>-data` from GitHub Packages
 
-**Usage**
+**Secrets**
 
-This workflow runs automatically after CI completes successfully. For manual version bumping:
-
-```bash
-# Trigger via GitHub UI: Actions > Version Bump > Run workflow
-```
-
-**PR Labeling Guide**
-
-To control version bumping, apply these labels to your pull requests:
-- `breaking-change` - For breaking API changes (major version)
-- `feature` - For new features (minor version)
-- `bugfix` - For bug fixes (patch version)
-
-**Links**
-
-| Reference | URL |
+| Secret | Description |
 | --- | --- |
-| Semantic Versioning | [https://semver.org/](https://semver.org/) |
-| GitHub Actions workflow_run | [https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run) |
+| `VPS_HOST` | Hostname or IP of the OVH VPS |
+| `VPS_SSH_USER` | SSH user used for deployment |
+| `VPS_SSH_KEY` | Private SSH key for that user |
 
 ---
 
+## Automation Workflows
+
 ### Dependabot Configuration
 
-Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date for four ecosystems.
+Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date across the repository.
 
 **Ecosystems monitored**
 
@@ -480,11 +575,14 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `composer` | `/` | Weekly | packagist.org (public) |
 | `npm` | `/` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/scripts/importer` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
 | `github-actions` | `/` | Weekly | github.com (public) |
 
 **GitHub Packages registry access**
 
-The `npm` ecosystems reference the GitHub Packages registry (`npm.pkg.github.com`), which requires authentication even for packages in the same organization. The registry token is configured as:
+The `npm` ecosystems that consume `@metanull` packages reference the GitHub Packages registry (`npm.pkg.github.com`), which requires authentication even for packages in the same organization. The registry token is configured as:
 
 ```yaml
 registries:
@@ -517,24 +615,25 @@ Dependabot version updates run on Dependabot's own infrastructure, **not** on Gi
 
 ### Merge Dependabot PR
 
-Automatically approves and enables auto-merge for Dependabot pull requests that are not major version updates.
+Automatically approves and enables auto-merge for eligible Dependabot pull requests.
 
 **Workflow properties**
 
 | Property | Value |
 | --- | --- |
 | **Workflow** | `merge-dependabot-pr.yml` |
-| **Trigger** | `pull_request_target` (any PR opened) |
+| **Workflow name** | `Dependabot Auto-Merge` |
+| **Trigger** | `pull_request_target` (any PR activity) |
 | **Manual trigger** | No |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
 | **Condition** | Only runs if PR author is `dependabot[bot]` |
 
 **Job: dependabot**
 
-1. Fetches Dependabot PR metadata using `dependabot/fetch-metadata` action
-2. Checks if update type is not a major version update
-3. Approves the PR using `gh pr review --approve`
-4. Enables auto-merge on the PR
+1. Fetches Dependabot PR metadata using the `dependabot/fetch-metadata` action
+2. Determines auto-merge eligibility from the package ecosystem and update type
+3. Approves eligible PRs using `gh pr review --approve`
+4. Enables auto-merge on eligible PRs using `gh pr merge --auto --squash`
 
 **Permissions**
 
@@ -543,12 +642,13 @@ Automatically approves and enables auto-merge for Dependabot pull requests that 
 
 **Behavior**
 
-- **Minor and patch updates**: Automatically approved and enabled for auto-merge
-- **Major updates**: Require manual review (not auto-approved)
+- **`github_actions` ecosystem**: Auto-merged at any semver level, including major — Actions bumps only touch the CI pipeline, never shipped application code, and a broken one fails the same PR's required checks immediately
+- **Application dependencies (npm/composer), minor and patch updates**: Automatically approved and enabled for auto-merge
+- **Application dependencies (npm/composer), major updates**: Require manual review (not auto-approved)
 
 **Usage**
 
-This workflow runs automatically when Dependabot opens a pull request. No manual intervention needed for minor/patch updates.
+This workflow runs automatically when Dependabot opens a pull request. No manual intervention is needed for eligible updates.
 
 **Links**
 
@@ -559,23 +659,41 @@ This workflow runs automatically when Dependabot opens a pull request. No manual
 
 ---
 
+## Composite Actions
+
+Repeated setup and publishing steps live in [`.github/actions`](../actions) and are referenced from workflows with `uses: ./.github/actions/<name>`.
+
+| Action | Purpose | Key inputs / outputs | Used by |
+| --- | --- | --- | --- |
+| `setup-backend` | Installs PHP (default 8.5) with the project's extensions, installs Composer dependencies, creates `.env` from `.env.local.example`, generates the app key and migrates the database | Inputs: `php-version`, `tools`, `coverage` | `continuous-integration.yml` |
+| `setup-node-project` | Installs Node.js `lts/Krypton`, enables Corepack and runs `npm ci` in a given directory | Inputs: `working-directory`, `registry-url`, `node-auth-token` | `continuous-integration.yml`, `dependency-audit.yml` |
+| `detect-environment` | Detects whether the run is on GitHub Actions or under `act` | Outputs: `is_github`, `is_act`, `environment` | `publish-api-client.yml` |
+| `generate-api-client` | Generates the TypeScript client from the OpenAPI spec, computes the next dev version, applies the templates in `.github/templates/api-client/`, and reports whether the core files changed | Inputs: `openapi_spec_path`, `output_directory`; Output: `has-changes` | `publish-api-client.yml` |
+| `publish-npm-package` | Normalizes the package version for npm, configures registry authentication, and publishes with the `dev` or `latest` tag | Inputs: `package_directory`, `registry`, `token` | `publish-api-client.yml` |
+
+---
+
 ## Workflow Dependencies
 
-Several workflows interact with scripts and other workflows:
+Several workflows interact with scripts, composite actions and other workflows:
 
 | Workflow | Depends On | Triggers |
 | --- | --- | --- |
-| `continuous-integration.yml` | - | - |
-| `ci-build-test.yml` | - | - |
-| `build.yml` | - | `deploy-ovh.yml` |
+| `continuous-integration.yml` | `setup-backend`, `setup-node-project` | - |
+| `dependency-audit.yml` | `setup-node-project` | - |
+| `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
+| `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
+| `deploy.yml` | `build.yml` release asset (`inventory-app.zip`) | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
-| `publish-api-client.yml` | API client generation | - |
+| `publish-api-client.yml` | `detect-environment`, `generate-api-client`, `publish-npm-package`, `.github/templates/api-client/` | - |
+| `deploy-viewer-*-ovh.yml` | `@metanull/<dataset>-data` on GitHub Packages | - |
 | `merge-dependabot-pr.yml` | - | - |
 
 **Scripts used by workflows:**
 
 - `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
 - `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
+- `deploy.sh` - Uploaded to the VPS and executed by `deploy-ovh.yml`. See [/scripts/README.md](../../scripts/README.md#deployment-scripts)
 
 ---
 
