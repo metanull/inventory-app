@@ -19,6 +19,7 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 | [`baroqueart/`](baroqueart/README.md) | project `BAR` | `@metanull/baroqueart-data` | `scripts/viewers/baroqueart` |
 | [`sharinghistory/`](sharinghistory/README.md) | project `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
 | [`amulets/`](amulets/README.md) | THG **gallery 4** (membership union) | `@metanull/amulets-data` | `scripts/viewers/amulets` |
+| [`carpets/`](carpets/README.md) | THG **gallery 9** (membership union, DCA-native + borrowed) | `@metanull/carpets-data` | `scripts/viewers/carpets` |
 
 Each directory is a **self-contained Node/TypeScript project** (own
 `package.json`, `tsconfig.json`, `vitest.config.ts`, `.env`). See the README
@@ -32,9 +33,11 @@ scopes by **collection** instead — a thematic gallery's item universe is the
 membership union legacy expressed as an OR predicate (native project OR one of
 six `thg_gallery_*` link tables), materialized by the importer in
 `collection_item`. Amulets owns none of its 45 objects; they are borrowed from
-EPM, ISL, Sharing History and DCA. Anything a project-scoped fork treats as a
-per-export constant — the source project on the sheet, the context that picks a
-record's canonical translation — is per-item there. The package shapes are
+EPM, ISL, Sharing History and DCA. Carpets is the hybrid case that exercises the
+design properly: 398 of its 486 members are native DCA records and the rest come
+from six other projects. Anything a project-scoped fork treats as a per-export
+constant — the source project on the sheet, the context that picks a record's
+canonical translation — is per-item there. The package shapes are
 specified in [`docs/dxa-gallery-data-package.md`](docs/dxa-gallery-data-package.md)
 and [`docs/dxa-exhibition-data-package.md`](docs/dxa-exhibition-data-package.md).
 

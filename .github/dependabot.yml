@@ -122,6 +122,19 @@ updates:
         dependency-type: "production"
 
   - package-ecosystem: "npm"
+    directory: "/scripts/exporters/carpets"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-carpets-dev-dependencies:
+        dependency-type: "development"
+      exporter-carpets-prod-dependencies:
+        dependency-type: "production"
+
+  - package-ecosystem: "npm"
     directory: "/scripts/exporters/islamicart"
     schedule:
       interval: "weekly"

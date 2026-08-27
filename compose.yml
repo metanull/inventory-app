@@ -464,6 +464,7 @@ services:
       - exporter-baroqueart-modules:/var/www/app/scripts/exporters/baroqueart/node_modules
       - exporter-sharinghistory-modules:/var/www/app/scripts/exporters/sharinghistory/node_modules
       - exporter-amulets-modules:/var/www/app/scripts/exporters/amulets/node_modules
+      - exporter-carpets-modules:/var/www/app/scripts/exporters/carpets/node_modules
     environment:
       # The exporters read DB_* directly. dotenv does not override variables
       # that are already set, so these win over any scripts/exporters/*/.env
@@ -572,6 +573,7 @@ volumes:
   exporter-baroqueart-modules:
   exporter-sharinghistory-modules:
   exporter-amulets-modules:
+  exporter-carpets-modules:
 
   # NOT disposable, and deliberately external so that `down -v` cannot destroy
   # them: a full stage is hours of importing and several gigabytes of images.
