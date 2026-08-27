@@ -484,6 +484,7 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `npm` | `/scripts/exporters/baroqueart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/viewers/amulets` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/sharinghistory` | Weekly | npm.pkg.github.com (GitHub) |
