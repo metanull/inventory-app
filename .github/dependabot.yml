@@ -152,6 +152,21 @@ updates:
   # @metanull/<dataset>-data from GitHub Packages.
 
   - package-ecosystem: "npm"
+    directory: "/scripts/viewers/amulets"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-amulets-dev-dependencies:
+        dependency-type: "development"
+      viewer-amulets-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
+
+  - package-ecosystem: "npm"
     directory: "/scripts/viewers/baroqueart"
     schedule:
       interval: "weekly"
