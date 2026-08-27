@@ -62,19 +62,31 @@ interface PartnerLogoRow {
 }
 
 /**
- * `partners.json` — the museums whose objects the gallery shows.
+ * `partners.json` — the museums the gallery's partner list shows.
  *
- * Legacy builds this list (app/MWNF/SQL/mwnf3/Partners.blade.php) as: partners
- * holding an object of the gallery's native project, UNION partners holding an
- * object linked to the gallery, UNION museums created in the gallery's project
- * even when they hold nothing (MWNF-384). The first two branches are exactly
- * "holds a member item", which is what this query does.
+ * Legacy builds this list (app/MWNF/SQL/mwnf3/Partners.blade.php) as a
+ * three-branch UNION: partners holding an object of the gallery's native
+ * project, UNION partners holding an object linked to the gallery, UNION
+ * museums created in the gallery's own project even when they hold nothing
+ * (the branch legacy's own comment labels MWNF-384).
  *
- * The third branch contributes nothing to amulets — legacy has no
- * `mwnf3.museums` row with `project_id = 'AMU'` — but a fork for a gallery whose
- * native project owns museums must add it, and the inventory DB does not
- * currently carry the museum→project link (`partners.project_id` is null for
- * every imported museum), so that fork needs an importer change first.
+ * The first two branches are exactly "holds a member item". The third is
+ * `partners.project_id = <the gallery's project>`, which is why the query is a
+ * LEFT JOIN with an OR rather than a plain join: such a partner has
+ * `item_count: 0` and would otherwise be dropped.
+ *
+ * It is INERT on amulets and implemented anyway. No `mwnf3.museums` row has
+ * `project_id = 'AMU'`, so the branch adds nobody here (verified: 26 partners
+ * before and after) — but it is not inert generally (carpets goes 70 → 72 on
+ * it), and this fork is what the next gallery fork is copied from. Leaving it
+ * out is how the next gallery silently ships a short partner list.
+ *
+ * `p.type = 'museum'` is part of the branch, not decoration: legacy selects it
+ * from `mwnf3.museums` alone, while `partners.project_id` is also set on the
+ * ten ISL schools. The project is `gallery.projectId`, resolved from the
+ * gallery's own `extra.thg_gallery.mwnf3_project_id` anchor, never a hardcoded
+ * code; when it is null, `project_id = NULL` is never true and the branch
+ * contributes nothing.
  */
 export class PartnerExporter extends BaseExporter {
   getName(): string {
@@ -91,17 +103,20 @@ export class PartnerExporter extends BaseExporter {
     }
 
     const itemPh = this.placeholders(this.memberItemIds.length)
+    const galleryProjectId = this.gallery.projectId
 
     const partners = await this.db.query<PartnerRow>(
       `SELECT p.id, p.type, p.internal_name, p.backward_compatibility,
               p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id,
               COUNT(i.id) AS item_count
        FROM partners p
-       JOIN items i ON i.partner_id = p.id AND i.id IN (${itemPh})
+       LEFT JOIN items i ON i.partner_id = p.id AND i.id IN (${itemPh})
+       WHERE i.id IS NOT NULL
+          OR (p.type = 'museum' AND p.project_id = ?)
        GROUP BY p.id, p.type, p.internal_name, p.backward_compatibility,
                 p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id
        ORDER BY p.country_id, p.internal_name`,
-      this.memberItemIds
+      [...this.memberItemIds, galleryProjectId]
     )
 
     if (partners.length === 0) {
@@ -230,8 +245,13 @@ export class PartnerExporter extends BaseExporter {
     })
 
     await this.writeJson('partners.json', output)
+    // The zero-item count is called out because it is the MWNF-384 branch's
+    // whole contribution: if it silently goes to 0 on a gallery whose project
+    // owns museums, the museum→project link is missing from the database.
+    const withoutItems = output.filter(p => p.item_count === 0).length
     this.logger.success(
-      `partners.json (${output.length} partners, ${output.filter(p => p.featured).length} featured)`
+      `partners.json (${output.length} partners, ${output.filter(p => p.featured).length} featured, ` +
+        `${withoutItems} holding no member item)`
     )
 
     return { file: 'partners.json', count: output.length }

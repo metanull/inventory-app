@@ -204,8 +204,9 @@ subject 4, type 44 — 115 total, matching `/items/tags` exactly):
 
 ## partners.json
 
-Existing partner shape (contacts, images, logos, lat/long/zoom). Scope:
-partners holding ≥1 member item. Additions:
+Existing partner shape (contacts, images, logos, lat/long/zoom). Scope: partners
+holding ≥1 member item, **plus** museums created in the gallery's own project
+even when they hold nothing (legacy MWNF-384, below). Additions:
 
 - **`featured`**: from `partner_translations.extra.portal_display` — legacy's
   `showOnPortal` (`museums.portal_display = 'y'`), verified against
@@ -214,23 +215,48 @@ partners holding ≥1 member item. Additions:
   `config('dxa.API_PAGESIZE')`; the package ships the flag and the viewer does
   the picking, which is the only way a static site can reproduce that.
 - **`item_count`**: member items held — the count the partners list prints,
-  and the reason a partner appears at all.
+  and the reason most partners appear at all. It is legitimately `0` for an
+  MWNF-384 partner.
 
-Legacy's list (`app/MWNF/SQL/mwnf3/Partners.blade.php`) is a three-branch
-union, and only the first two reduce to "holds a member item". The third
-(MWNF-384) adds museums created in the gallery's own project even when they
-hold nothing. It is empty for amulets — no `mwnf3.museums` row has
-`project_id = 'AMU'` — but it fires on carpets: legacy lists 72 partners, two of
-which (`jo/Mus31`, `pt/Mus31`, both `hasObjects: 0`) appear only because they
-were created under DCA. **No gallery exporter can reproduce it today**: the
-importer never populates `partners.project_id` for museums (it is set on ten ISL
-schools and nothing else) and `partner_translations.extra` records only
-`source: "mwnf3"`, so the museum→project link has to be carried through the
-import first. Until then a hybrid gallery's partner list is short by exactly the
-museums its own project owns but never filled. The same query also carries two
-hardcoded exclusions (`uk/Mus51`, `us/Mus51`) and an MWNF-371 filter dropping
-partners of a not-yet-live project, both worth re-checking per gallery — neither
-changes anything on amulets or carpets.
+Legacy's list (`app/MWNF/SQL/mwnf3/Partners.blade.php`) is a three-branch union,
+and only the first two reduce to "holds a member item". The third (MWNF-384)
+adds museums created in the gallery's own project even when they hold nothing.
+Every gallery exporter must implement all three:
+
+```sql
+FROM partners p
+LEFT JOIN items i ON i.partner_id = p.id AND i.id IN (<member ids>)
+WHERE i.id IS NOT NULL
+   OR (p.type = 'museum' AND p.project_id = ?)   -- MWNF-384
+```
+
+Three things about that branch are not optional:
+
+- **LEFT JOIN, not JOIN.** An MWNF-384 partner holds no member item; an inner
+  join drops it and the shortfall is silent.
+- **`p.type = 'museum'`.** Legacy selects the branch from `mwnf3.museums` alone,
+  while `partners.project_id` is also set on the ten ISL schools — a gallery
+  whose native project were ISL would otherwise list schools legacy never shows.
+- **The project comes from the data.** Resolve the gallery's own
+  `extra.thg_gallery.mwnf3_project_id` to a `projects.id`
+  (`backward_compatibility = 'mwnf3:projects:<code>'`); never hardcode the code.
+  Null when the gallery has no mwnf3 project (43, 45) — `project_id = NULL` is
+  never true, so the branch simply contributes nothing.
+
+The branch is empty on amulets (no `mwnf3.museums` row has
+`project_id = 'AMU'`; 26 partners with or without it) and fires on carpets,
+where `jo/Mus31` and `pt/Mus31` are `hasObjects: 0` DCA creations and take the
+list from 70 to legacy's 72. It depends on `partners.project_id` being populated
+for museums, which `PartnerImporter` now does from `mwnf3.museums.project_id`
+(with a `museum-project-link-backfill` step for databases imported before that).
+A package built against a database that predates the backfill will be short by
+exactly the museums its own project owns but never filled — the export logs
+`N holding no member item` so that is visible rather than silent.
+
+The same query also carries two hardcoded exclusions (`uk/Mus51`, `us/Mus51`), a
+per-gallery `exhibition_hidden_mwnf3_museums` filter, and an MWNF-371 filter
+dropping partners of a not-yet-live project. None is reproduced, and all are
+worth re-checking per gallery — none changes anything on amulets or carpets.
 
 ## glossary.json
 

@@ -62,30 +62,40 @@ interface PartnerLogoRow {
 }
 
 /**
- * `partners.json` — the museums whose objects the gallery shows.
+ * `partners.json` — the museums the gallery's partner list shows.
  *
- * Legacy builds this list (app/MWNF/SQL/mwnf3/Partners.blade.php) as: partners
- * holding an object of the gallery's native project, UNION partners holding an
- * object linked to the gallery, UNION museums created in the gallery's project
- * even when they hold nothing (MWNF-384). The first two branches are exactly
- * "holds a member item", which is what this query does.
+ * Legacy builds this list (app/MWNF/SQL/mwnf3/Partners.blade.php) as a
+ * three-branch UNION: partners holding an object of the gallery's native
+ * project, UNION partners holding an object linked to the gallery, UNION
+ * museums created in the gallery's own project even when they hold nothing
+ * (the branch legacy's own comment labels MWNF-384).
  *
- * The third branch is NOT reproduced, and on carpets that is visible: legacy
- * lists 72 partners, two of which (`jo/Mus31` Greater Amman Municipality and
- * `pt/Mus31` Centro de História d'Aquém e d'Além-Mar) hold no member item at
- * all and appear only because they were created under DCA — both carry
- * `hasObjects: 0` in the legacy JSON. This exporter ships the other 70.
+ * The first two branches are exactly "holds a member item" — the membership
+ * union is already materialized in `collection_item`, so they reduce to a join
+ * against `memberItemIds`.
  *
- * It cannot do better today: the inventory schema has `partners.project_id`,
- * but the importer never populates it for museums (it is set on ten ISL schools
- * and nothing else), and `partner_translations.extra` records only
- * `source: "mwnf3"`. Reproducing MWNF-384 needs `mwnf3.museums.project_id`
- * carried through the import first; see the Known gaps section of README.md.
+ * The third branch is `partners.project_id = <the gallery's project>`, and it
+ * is why the query is a LEFT JOIN with an OR rather than a plain join: such a
+ * partner has `item_count: 0` and would otherwise be dropped. Carpets is the
+ * first gallery where it fires — `jo/Mus31` (Greater Amman Municipality) and
+ * `pt/Mus31` (Centro de História d'Aquém e d'Além-Mar) were created under DCA,
+ * hold no member item, carry `hasObjects: 0` in the legacy JSON, and take the
+ * list from 70 to legacy's 72.
+ *
+ * `p.type = 'museum'` is part of that branch, not decoration: legacy selects it
+ * from `mwnf3.museums` alone, while `partners.project_id` is also set on the ten
+ * ISL schools — a gallery whose native project were ISL would otherwise list
+ * schools legacy never shows.
+ *
+ * The project is `gallery.projectId`, resolved from the gallery's own
+ * `extra.thg_gallery.mwnf3_project_id` anchor, never a hardcoded 'DCA'. When a
+ * gallery has no mwnf3 project (43, 45), it is null, `project_id = NULL` is
+ * never true, and the branch contributes nothing — which is also what happens
+ * on amulets, whose AMU project owns no museum at all.
  *
  * Legacy's other two filters were checked and are no-ops here: the MWNF-371
- * not-live-project exclusion drops nothing (70 + 2 accounts for the full legacy
- * list), and the hardcoded `uk/Mus51` / `us/Mus51` exclusions match no partner
- * holding a carpets member.
+ * not-live-project exclusion drops nothing (the 72 are the whole legacy list),
+ * and the hardcoded `uk/Mus51` / `us/Mus51` exclusions match no carpets partner.
  */
 export class PartnerExporter extends BaseExporter {
   getName(): string {
@@ -102,17 +112,20 @@ export class PartnerExporter extends BaseExporter {
     }
 
     const itemPh = this.placeholders(this.memberItemIds.length)
+    const galleryProjectId = this.gallery.projectId
 
     const partners = await this.db.query<PartnerRow>(
       `SELECT p.id, p.type, p.internal_name, p.backward_compatibility,
               p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id,
               COUNT(i.id) AS item_count
        FROM partners p
-       JOIN items i ON i.partner_id = p.id AND i.id IN (${itemPh})
+       LEFT JOIN items i ON i.partner_id = p.id AND i.id IN (${itemPh})
+       WHERE i.id IS NOT NULL
+          OR (p.type = 'museum' AND p.project_id = ?)
        GROUP BY p.id, p.type, p.internal_name, p.backward_compatibility,
                 p.country_id, p.latitude, p.longitude, p.map_zoom, p.monument_item_id
        ORDER BY p.country_id, p.internal_name`,
-      this.memberItemIds
+      [...this.memberItemIds, galleryProjectId]
     )
 
     if (partners.length === 0) {
@@ -241,8 +254,13 @@ export class PartnerExporter extends BaseExporter {
     })
 
     await this.writeJson('partners.json', output)
+    // The zero-item count is called out because it is the MWNF-384 branch's
+    // whole contribution: if it silently goes to 0 on a gallery whose project
+    // owns museums, the museum→project link is missing from the database.
+    const withoutItems = output.filter(p => p.item_count === 0).length
     this.logger.success(
-      `partners.json (${output.length} partners, ${output.filter(p => p.featured).length} featured)`
+      `partners.json (${output.length} partners, ${output.filter(p => p.featured).length} featured, ` +
+        `${withoutItems} holding no member item)`
     )
 
     return { file: 'partners.json', count: output.length }

@@ -44,8 +44,11 @@ describe('Database.resolveGallery', () => {
 
   it('reads the anchor the importer wrote to collections.extra', async () => {
     const db = new Database()
-    vi.spyOn(db, 'query')
+    const querySpy = vi
+      .spyOn(db, 'query')
       .mockResolvedValueOnce([galleryRow])
+      // resolveProjectId
+      .mockResolvedValueOnce([{ id: 'project-dca-uuid' }])
       // loadGalleryChrome
       .mockResolvedValueOnce([{ extra: { thg_gallery: { featured: 'A', status: 'A' } } }])
 
@@ -57,12 +60,45 @@ describe('Database.resolveGallery', () => {
     expect(gallery.host).toBe('https://carpets.museumwnf.org')
     expect(gallery.mwnf3ProjectId).toBe('DCA')
     expect(gallery.chrome.featured).toBe('A')
+
+    // The legacy code is turned into the inventory project UUID here, so the
+    // MWNF-384 partner branch compares ids rather than a hardcoded 'DCA'.
+    expect(gallery.projectId).toBe('project-dca-uuid')
+    expect(querySpy.mock.calls[1]?.[1]).toEqual(['mwnf3:projects:DCA'])
+  })
+
+  it('leaves projectId null when the gallery has no mwnf3 project', async () => {
+    const db = new Database()
+    vi.spyOn(db, 'query')
+      .mockResolvedValueOnce([{ ...galleryRow, extra: { thg_gallery: { slug: 'galleries' } } }])
+      .mockResolvedValueOnce([])
+
+    const gallery = await db.resolveGallery('mwnf3_thematic_gallery:thg_gallery:45')
+
+    // Galleries 43 and 45 have no mwnf3_project_id at all — the lookup must be
+    // skipped entirely rather than searching for 'mwnf3:projects:null'.
+    expect(gallery.mwnf3ProjectId).toBeNull()
+    expect(gallery.projectId).toBeNull()
+  })
+
+  it('leaves projectId null when the project was never imported', async () => {
+    const db = new Database()
+    vi.spyOn(db, 'query')
+      .mockResolvedValueOnce([galleryRow])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+
+    const gallery = await db.resolveGallery('mwnf3_thematic_gallery:thg_gallery:9')
+
+    expect(gallery.mwnf3ProjectId).toBe('DCA')
+    expect(gallery.projectId).toBeNull()
   })
 
   it('skips language rows with no thg_gallery chrome rather than returning empty', async () => {
     const db = new Database()
     vi.spyOn(db, 'query')
       .mockResolvedValueOnce([galleryRow])
+      .mockResolvedValueOnce([{ id: 'project-dca-uuid' }])
       .mockResolvedValueOnce([
         { extra: { something_else: true } },
         { extra: { thg_gallery: { banner_item: 'mwnf#obj#DCA;uk;Mus31;19' } } },

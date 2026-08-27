@@ -177,7 +177,10 @@ Two gotchas, learned the hard way:
    standalone with `--only` (see `../importer/README.md`), no full re-import
    required. On a database populated before #1505, run
    `--only collection-purpose-backfill` once so all markers carry their
-   `purpose`.
+   `purpose`; on a database populated before the museum→project link existed,
+   run `--only museum-project-link-backfill` once so gallery partner lists can
+   reproduce legacy's MWNF-384 branch (a gallery exporter otherwise reports
+   `0 holding no member item` and silently ships a short list).
 4. Validate counts against the legacy site/database before first publish
    (see `baroqueart/tools/legacy-validation.sql` for a worked example, and
    `.legacy-database/` for offline legacy dumps).
