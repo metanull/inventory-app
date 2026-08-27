@@ -1,29 +1,62 @@
-# Version control
+# Keep the build context small.
+#
+# This file used to matter very little: CI handed the Dockerfile a curated
+# release tarball. Now that .docker/Dockerfile builds from a plain checkout,
+# every path listed here is one that would otherwise be uploaded to the daemon
+# on every build. An unfiltered checkout of this repo is several gigabytes,
+# almost all of it storage/app.
+
+# Version control and CI
 .git
 .github
 
-# Node modules (huge, not needed in image)
+# Dependencies — the build stage installs its own
+vendor
 node_modules
 spa/node_modules
+scripts/*/node_modules
+scripts/*/*/node_modules
 
 # Local environment secrets
 .env
 .env.*
 !.env.example
 
-# Storage framework artifacts (cleared each deploy)
+# Runtime storage: uploaded and imported images, caches, logs. Several GB, and
+# in production every one of these paths is a mounted volume anyway.
+storage/app
 storage/framework/cache
 storage/framework/sessions
 storage/framework/views
 storage/framework/testing
-
-# Logs
 storage/logs
+
+# Out-of-scope components — not part of the Laravel application image.
+# scripts/importer stays: the import-tool image builds from this same context
+# and copies the importer sources out of it.
+spa
+api-client
+docs
+scripts/exporters
+scripts/viewers
+scripts/site-i18n
+scripts/importer/logs
+.legacy-code
+.legacy-database
+
+# Local scratch
+tmp
+temp_*
+TEMP_*
+scripts/import-tool/auth-backups
 
 # Tests (not needed in production image)
 tests
 phpunit.xml
 phpunit.*.xml
 
-# Dev tooling
+# Editor / assistant tooling
+.devcontainer
+.claude
+.vscode
 Makefile

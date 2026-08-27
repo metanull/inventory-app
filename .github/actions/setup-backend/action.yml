@@ -4,7 +4,7 @@ description: "Install PHP, Composer dependencies, and prepare a Laravel test env
 inputs:
   php-version:
     description: "PHP version to install"
-    default: "8.4"
+    default: "8.5"
   tools:
     description: "Comma-separated Composer/PHP tools to install (e.g. pint or phpunit,pest)"
     default: ""

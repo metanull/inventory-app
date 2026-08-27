@@ -54,7 +54,7 @@ Runs mandatory dependency audits on every pull request. Provides the `CI Success
 **Jobs**
 
 1. **audit-composer** - Audits PHP/Composer dependencies
-   - Installs PHP 8.4 with extensions
+   - Installs PHP 8.5 with extensions
    - Validates `composer.json` with strict checks
    - Installs Composer dependencies
    - Runs `composer audit --format=summary`
@@ -127,7 +127,7 @@ Runs build and test jobs conditionally based on which paths changed in the pull 
    - All outputs are `true` when triggered by `workflow_dispatch`
 
 2. **backend-lint** *(when `backend=true`)* - Laravel backend linting
-   - Installs PHP 8.4 with extensions and Pint
+   - Installs PHP 8.5 with extensions and Pint
    - Installs Composer dependencies
    - Creates `.env` from `.env.local.example`, migrates database
    - Runs `./vendor/bin/pint --bail`

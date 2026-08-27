@@ -69,8 +69,11 @@ class AvailableImage extends Model implements StreamableImageFile
         return $this->mime_type ?: null;
     }
 
+    /**
+     * The stored filename, never `original_name` - see ItemImage for why.
+     */
     public function imageDownloadFilename(): string
     {
-        return $this->original_name ?: basename($this->path ?? '');
+        return basename($this->path ?? '');
     }
 }

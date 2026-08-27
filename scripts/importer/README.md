@@ -4,11 +4,12 @@ A CLI tool that migrates data from the legacy MWNF databases into the new
 Inventory Management System's database.
 
 > **Running this against the OVH-hosted deployment, or want to build a full
-> local copy fast (no SSH tunnel round-trip per row)?** Use
-> [`scripts/import-tool/`](../import-tool/README.md) — a Docker container
-> that drives this importer for you across five modes (`append` / `clean` /
-> `stage` / `ship` / `backup-permissions`), handles the SSH tunnel, sequential
-> exit-code-checked `artisan` commands, image push, and auth snapshot/restore.
+> local copy?** Use [`scripts/import-tool/`](../import-tool/README.md) — a
+> Docker container that drives this importer for you in two phases
+> (`stage` builds a complete local copy from legacy; `ship` sends that copy
+> to the server, and a separate `backup-permissions` snapshots auth), with
+> sequential exit-code-checked `artisan` commands, image push, and auth
+> snapshot/restore.
 > Everything below is about running the importer directly/standalone —
 > useful for development, debugging a specific importer, or understanding
 > what `import-tool` is actually orchestrating.
@@ -146,7 +147,7 @@ src/
 │   └── image-sync.ts       # Image file synchronization
 ├── utils/                    # HTML→Markdown, code mappings, backward-compatibility helpers
 └── cli/
-    └── import.ts            # CLI entry point (import, validate, image-sync, load-sql)
+    └── import.ts            # CLI entry point (import, validate, image-sync)
 ```
 
 ## Key Design Principles
@@ -311,22 +312,6 @@ npx tsx src/cli/import.ts image-sync
 - Same exit-code behavior as `import`: nonzero whenever any individual file
   failed (e.g. a legacy path that doesn't exist on disk), not necessarily a
   sign the whole sync failed
-
-#### 4. `load-sql` — Execute a SQL file against the target DB
-
-```bash
-npx tsx src/cli/import.ts load-sql --file /path/to/dump.sql
-```
-
-Internal plumbing for [`import-tool`](../import-tool/README.md)'s `ship`
-mode — loads a `mysqldump` of a locally-`stage`d build through the OVH
-tunnel, using the same `mysql2` driver the rest of this tool relies on
-(`mysqldump`/`mysql` CLIs can't authenticate to a modern MySQL 8 server's
-`caching_sha2_password` from `import-tool`'s Alpine-based image). Splits the
-file into individual statements and executes them inside one transaction —
-not something you'd typically run by hand; see `import-tool`'s README for
-the full `ship` mode story, including exactly which tables are (and are
-never) included in what it loads.
 
 ### Logging
 

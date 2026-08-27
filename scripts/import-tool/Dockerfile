@@ -1,5 +1,6 @@
-# Dedicated tool image for running the legacy-data import pipeline against
-# the OVH-hosted inventory-app over an SSH tunnel.
+# Dedicated tool image for the legacy-data import pipeline: `stage` builds a
+# local copy from the legacy source, `ship` sends that copy to the deployed
+# host. See scripts/import-tool/README.md.
 #
 # Build from the REPO ROOT (not this directory), since it needs to copy
 # scripts/importer:
@@ -8,7 +9,7 @@
 FROM node:22-alpine
 
 # mysql-client provides mysql/mysqldump — used only by `ship` mode, to dump
-# local-mysql (a `stage` build) and load it into OVH through the tunnel.
+# staging-mysql (a `stage` build) before handing it to the deployed host.
 RUN apk add --no-cache openssh-client rsync bash mysql-client
 
 WORKDIR /opt/import-tool/importer
@@ -39,4 +40,7 @@ COPY scripts/import-tool/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["append"]
+
+# No CMD on purpose: there is no safe default mode. Run this image through a
+# compose service from the `import` profile, each of which names its own mode.
+# Without arguments the entrypoint prints the three valid modes and exits.

@@ -1,0 +1,595 @@
+# =============================================================================
+# One stack, several profiles.
+#
+# Long-running — you `up` these:
+#
+#   (default)   development: mysql, valkey, mailpit, app, worker, web
+#   docs        Jekyll documentation site
+#   staging     the real dataset served on :8020, and its database
+#
+# One-shot — you `run --rm` these, and never `up` them:
+#
+#   tools       node container for npm/vite work
+#   jobs        staging-glossary-sync, staging-seed-auth, exporter
+#   import      the legacy importer (needs scripts/import-tool/.env)
+#
+#   docker compose up -d                        # development
+#   docker compose --profile docs up -d         # + documentation site
+#   docker compose --profile staging up -d      # + the real dataset
+#   docker compose run --rm tools npm ci        # one-shot node job
+#   docker compose run --rm exporter islamicart # one-shot job
+#
+# `docker compose run` enables the target service's own profile, so one-shots
+# never need a --profile flag. Keeping them out of `staging` is what makes
+# `--profile staging up -d` mean "serve the dataset" rather than "serve the
+# dataset AND seed accounts AND run an export".
+#
+# Everything shares one project, one network, and one image — the `dev` target
+# of .docker/Dockerfile. Adding a PHP extension means editing one list.
+#
+# The import profile needs credentials and is documented separately in
+# scripts/import-tool/README.md. It is never started by a bare `up`.
+# =============================================================================
+
+name: inventory
+
+# -----------------------------------------------------------------------------
+# Shared fragments — these exist so a change lands in one place, not six.
+# -----------------------------------------------------------------------------
+x-php: &php
+  build:
+    context: .
+    dockerfile: .docker/Dockerfile
+    target: dev
+  volumes:
+    - .:/var/www/app
+    - dev-vendor:/var/www/app/vendor
+    # Bind-mounted on top of the copy baked into the image so php.ini changes
+    # apply on restart instead of requiring a rebuild.
+    - ./.docker/php.dev.ini:/usr/local/etc/php/conf.d/99-app.ini:ro
+  networks: [inventory]
+
+x-app-env: &app-env
+  APP_NAME: Inventory
+  APP_ENV: local
+  APP_DEBUG: "true"
+  APP_URL: http://localhost:8010
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: "3306"
+  DB_DATABASE: inventory
+  DB_USERNAME: inventory
+  DB_PASSWORD: secret
+  CACHE_STORE: redis
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: valkey
+  REDIS_PORT: "6379"
+  # DB 2/3 keep this app clear of the other Laravel app sharing the VPS Valkey;
+  # mirrored here so dev matches production.
+  REDIS_DB: "2"
+  REDIS_CACHE_DB: "3"
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: noreply@inventory.test
+  MAIL_FROM_NAME: Inventory
+
+# Credentials for the staging database. Local-only and deliberately boring —
+# this database never holds anything that isn't reproducible from a re-import.
+x-staging-db-env: &staging-db-env
+  DB_CONNECTION: mysql
+  DB_HOST: staging-mysql
+  DB_PORT: "3306"
+  DB_DATABASE: inventory
+  DB_USERNAME: inventory
+  DB_PASSWORD: secret
+
+# Runtime environment for the staging application.
+#
+# APP_ENV is "staging", not "local": this is meant to behave like the deployed
+# app, not like a dev box. Debug is off and the API docs are gated exactly as
+# they would be in production.
+#
+# Redis databases 4/5, NOT the 2/3 the dev stack uses. They share one Valkey,
+# and a staging session or cache entry landing in the dev keyspace (or a queued
+# job being consumed by the wrong worker) would be a genuinely confusing bug.
+x-staging-app-env: &staging-app-env
+  APP_NAME: Inventory (staging)
+  APP_ENV: staging
+  APP_DEBUG: "false"
+  APP_URL: http://localhost:8020
+  # Fixed, local-only, and published in this file on purpose: sessions must
+  # survive a container restart, so it cannot be generated at boot, and baking
+  # a key into a shared image would be worse. This key protects nothing — the
+  # staging database is reproducible from a re-import and is never exposed off
+  # this machine. Never reuse it anywhere real.
+  APP_KEY: base64:nLpSpnvvKh6PWEu70GglGeIvvSziorzg8Y7Wvrkgyjc=
+  <<: *staging-db-env
+  CACHE_STORE: redis
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: valkey
+  REDIS_PORT: "6379"
+  REDIS_DB: "4"
+  REDIS_CACHE_DB: "5"
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  MAIL_MAILER: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_FROM_ADDRESS: noreply@inventory.staging
+  MAIL_FROM_NAME: Inventory (staging)
+
+# The importer image. Built from the repo root because it needs
+# database/seeders/data/*.json alongside the importer sources.
+x-import: &import
+  build:
+    context: .
+    dockerfile: scripts/import-tool/Dockerfile
+  env_file:
+    # Not required, so that `docker compose config`, `up`, and everything else
+    # still works on a fresh clone that has no importer credentials. The
+    # entrypoint validates what it needs and fails with a readable message.
+    - path: ./scripts/import-tool/.env
+      required: false
+  networks: [inventory]
+
+services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - dev-mysql-data:/var/lib/mysql
+      - ./.docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "127.0.0.1:3337:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks: [inventory]
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    volumes:
+      - dev-valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      retries: 3
+    networks: [inventory]
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:8026:8025"   # web UI
+      - "127.0.0.1:1026:1025"   # SMTP
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # Development (default profile — started by a bare `docker compose up`)
+  # ---------------------------------------------------------------------------
+
+  # One-shot: install dependencies if the vendor volume is empty, then migrate.
+  # `app`, `worker`, and `docs-model` all wait for this to exit 0.
+  migrate:
+    <<: *php
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan migrate --force
+    environment: *app-env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+
+  app:
+    <<: *php
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Consumes the redis queue the app writes to. Without this every ShouldQueue
+  # job — the glossary spelling sync above all — is enqueued and never runs,
+  # which looks exactly like a silent bug.
+  worker:
+    <<: *php
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600"]
+    environment: *app-env
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    image: nginx:1.26-alpine
+    volumes:
+      - .:/var/www/app:ro
+      - ./.docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:8010:80"
+    depends_on:
+      - app
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # tools — npm, vite, api-client generation. One-shot:
+  #   docker compose run --rm tools npm ci
+  # ---------------------------------------------------------------------------
+  tools:
+    image: node:24-alpine
+    working_dir: /var/www/app
+    profiles: [tools]
+    volumes:
+      - .:/var/www/app
+    ports:
+      - "127.0.0.1:5173:5173"   # vite dev server, when you run one
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # docs — Jekyll site on http://localhost:4000
+  # ---------------------------------------------------------------------------
+  docs-model:
+    <<: *php
+    profiles: [docs]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan docs:models --force
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  docs:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile.docs
+    profiles: [docs]
+    volumes:
+      - ./docs:/workspace/docs
+      - ./api-client:/workspace/api-client:ro
+      - ./scripts:/workspace/scripts:ro
+      - ./.git:/workspace/.git:ro
+      - docs-bundle:/usr/local/bundle
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      docs-model:
+        condition: service_completed_successfully
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # staging — a local copy of the real dataset, populated by the import profile.
+  #
+  # Separate from the dev database on purpose: a `migrate:fresh` while you are
+  # developing must never cost you a re-import.
+  # ---------------------------------------------------------------------------
+  staging-mysql:
+    image: mysql:8.4
+    # MySQL 8.4 disables mysql_native_password server-side by default. The
+    # Alpine/MariaDB client that `ship` uses for mysqldump cannot authenticate
+    # without it — see scripts/import-tool/mysql/init.sql.
+    command: ["--mysql-native-password=ON"]
+    profiles: [staging, import, jobs]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: inventory
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: secret
+    volumes:
+      - staging-mysql-data:/var/lib/mysql
+      - ./scripts/import-tool/mysql/init.sql:/docker-entrypoint-initdb.d/10-native-password.sql:ro
+    ports:
+      - "127.0.0.1:3316:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks: [inventory]
+
+  # Migrations only, no seeders: nothing ever logs in to the staging database,
+  # so roles, permissions, and dev users are deliberately absent.
+  staging-migrate:
+    <<: *php
+    profiles: [staging, import, jobs]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan migrate --force
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # Computes glossary term links against the staged data, in-process. Run after
+  # `stage`, before `ship`.
+  #
+  # `glossary:bulk-resync`, not `glossary:resync` + a queue worker: resync
+  # dispatches one job per glossary spelling (thousands), each re-scanning every
+  # translation of its language — over a day for this dataset. bulk-resync
+  # inverts the loop and finishes in under two minutes.
+  staging-glossary-sync:
+    <<: *php
+    profiles: [jobs]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan glossary:bulk-resync
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # The staged dataset, served. This is the `prod` target of .docker/Dockerfile
+  # with the code baked in — no bind mount — so what you click through is what
+  # would ship. Rebuild it after changing code:
+  #
+  #   docker compose --profile staging build staging-app
+  #
+  # http://localhost:8020/admin (see staging-seed-auth below for credentials).
+  staging-app:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      target: prod
+    # Named explicitly so staging-worker reuses this build instead of repeating
+    # it. Also keeps it clearly distinct from the compose-built dev images.
+    image: inventory-app:staging
+    profiles: [staging]
+    environment: *staging-app-env
+    volumes:
+      # The one mount that makes the whole thing work. `stage` writes a flat
+      # <uuid>.jpg tree into this volume, every *_images.path row stores exactly
+      # that bare filename, and the public disk resolves it under
+      # storage/app/public/<PICTURES_DIRECTORY>. Same layout `ship` rsyncs to
+      # the remote host — no transformation anywhere.
+      - staging-images:/var/www/app/storage/app/public/pictures
+    ports:
+      - "127.0.0.1:8020:80"
+    depends_on:
+      staging-migrate:
+        condition: service_completed_successfully
+      valkey:
+        condition: service_healthy
+    networks: [inventory]
+
+  staging-worker:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      target: prod
+    image: inventory-app:staging
+    profiles: [staging]
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600"]
+    environment: *staging-app-env
+    restart: unless-stopped
+    volumes:
+      - staging-images:/var/www/app/storage/app/public/pictures
+    depends_on:
+      staging-app:
+        condition: service_started
+    networks: [inventory]
+
+  # One-shot, opt-in: gives the staging app something to log in as.
+  #
+  #   docker compose run --rm staging-seed-auth
+  #
+  # Deliberately NOT part of `up`, and deliberately never part of `ship`:
+  # ship's dump excludes users, roles, permissions and tokens outright
+  # (SHIP_EXCLUDED_TABLES in scripts/import-tool/entrypoint.sh), and rebuilds
+  # the remote auth layer from its own encrypted snapshot. Accounts created
+  # here cannot reach the remote host.
+  #
+  # Runs with APP_ENV=local because LocalUserSeeder refuses to do anything
+  # otherwise — which is the guard doing its job, not an obstacle to route
+  # around. Defaults are admin@example.com / user@example.com, password
+  # "password"; override with APP_DEFAULT_ADMIN_* / APP_DEFAULT_USER_*.
+  staging-seed-auth:
+    <<: *php
+    profiles: [jobs]
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        [ -f vendor/autoload.php ] || composer install --no-interaction --quiet
+        php artisan permissions:sync
+        php artisan db:seed --class=LocalUserSeeder --force \
+          || echo "LocalUserSeeder did not run — the accounts almost certainly exist already."
+        # LocalUserSeeder gives the admin "Manager of Users", which carries no
+        # "view data" permission — so that account can administer users but gets
+        # Forbidden on every Item, Collection and Partner page. Fine for a dev
+        # box; useless here, where browsing the imported dataset is the entire
+        # point. Add the data role so one login can do everything.
+        ADMIN="$${APP_DEFAULT_ADMIN_EMAIL:-admin@example.com}"
+        php artisan user:assign-role "$$ADMIN" "Regular User" \
+          || echo "Could not add the Regular User role to $$ADMIN — it may already be assigned."
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+  # Runs a dataset exporter against the staged database. No image volume: the
+  # exporters emit JSON containing image URLs, they never copy files.
+  #
+  #   docker compose run --rm exporter islamicart --force
+  #
+  # Output lands in scripts/exporters/<dataset>/output on the host, because the
+  # repo is bind-mounted — the export is a deliverable, not a container detail.
+  exporter:
+    image: node:24-alpine
+    profiles: [jobs]
+    entrypoint: ["/bin/sh", "/var/www/app/scripts/exporters/docker-entrypoint.sh"]
+    volumes:
+      - .:/var/www/app
+      # Each exporter's dependencies live in a named volume rather than the
+      # host tree: tsx pulls in esbuild, whose binary is platform-specific, so
+      # a node_modules installed on a Windows host cannot run in this container.
+      - exporter-islamicart-modules:/var/www/app/scripts/exporters/islamicart/node_modules
+      - exporter-baroqueart-modules:/var/www/app/scripts/exporters/baroqueart/node_modules
+      - exporter-sharinghistory-modules:/var/www/app/scripts/exporters/sharinghistory/node_modules
+    environment:
+      # The exporters read DB_* directly. dotenv does not override variables
+      # that are already set, so these win over any scripts/exporters/*/.env
+      # left pointing somewhere else — the staging database is the only thing
+      # this service can reach.
+      <<: *staging-db-env
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+    networks: [inventory]
+
+  # ---------------------------------------------------------------------------
+  # import — legacy importer jobs. All of these need scripts/import-tool/.env.
+  # See scripts/import-tool/README.md before running any of them.
+  #
+  # The import is strictly two-phase, and the split is enforced by what each
+  # service can even reach: `stage` mounts the legacy image tree and no SSH
+  # key, so it cannot contact the remote host; `ship` mounts the SSH key and
+  # no legacy tree, so it cannot read the legacy source. Nothing imports
+  # straight from legacy to production any more.
+  #
+  # DRY_RUN and CONFIRM_WIPE come from ${VAR} interpolation, i.e. the invoking
+  # shell, NOT from env_file — that is deliberate. CONFIRM_WIPE must be typed
+  # at the moment you mean it, never left sitting in a file.
+  # ---------------------------------------------------------------------------
+
+  # No legacy-images mount: this mode never touches image data, and requiring
+  # one would fail for anyone who only wants a permissions snapshot.
+  backup-permissions:
+    <<: *import
+    profiles: [import]
+    command: ["backup-permissions"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+
+  # Reads the legacy source and writes only to the staging services above.
+  # Never contacts the remote host.
+  stage:
+    <<: *import
+    profiles: [import]
+    command: ["stage"]
+    volumes:
+      - ${LEGACY_IMAGES_HOST_PATH:-/dev/null}:/legacy-images:ro
+      - staging-images:/staging/images
+      # The importer writes a timestamped run log next to its own sources.
+      # Without this the log dies with the `--rm` container, which is exactly
+      # the log you want after a run that reported errors.
+      - ./scripts/importer/logs:/opt/import-tool/importer/logs
+    environment:
+      LEGACY_IMAGES_ROOT: /legacy-images
+      DRY_RUN: ${DRY_RUN:-0}
+      # The import target, set here rather than in .env — the importer's own
+      # configuration has no route to a production database at all.
+      # LEGACY_DB_* comes from .env unchanged: reading legacy is this mode's job.
+      DB_HOST: staging-mysql
+      DB_PORT: "3306"
+      DB_USERNAME: inventory
+      DB_PASSWORD: secret
+      DB_DATABASE: inventory
+    depends_on:
+      staging-migrate:
+        condition: service_completed_successfully
+
+  # Sends an already-staged copy to the remote host. DESTRUCTIVE.
+  # No legacy mounts: images come from the staging volume, not the legacy tree.
+  ship:
+    <<: *import
+    profiles: [import]
+    command: ["ship"]
+    volumes:
+      - ${OVH_SSH_KEY_HOST_PATH:-/dev/null}:/run/secrets/deploy_key:ro
+      - ${AUTH_SNAPSHOT_BACKUP_HOST_PATH:-./scripts/import-tool/auth-backups}:/backup
+      - staging-images:/staging/images:ro
+    environment:
+      DRY_RUN: ${DRY_RUN:-0}
+      CONFIRM_WIPE: ${CONFIRM_WIPE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      REGULAR_USER_EMAIL: ${REGULAR_USER_EMAIL:-}
+      LOCAL_DB_HOST: staging-mysql
+      LOCAL_DB_PORT: "3306"
+      LOCAL_DB_USERNAME: inventory
+      LOCAL_DB_PASSWORD: secret
+      LOCAL_DB_DATABASE: inventory
+      # Blanked on purpose. The shared env_file carries the legacy credentials
+      # for `stage`'s benefit; `ship` must never read the legacy source, so it
+      # is handed no usable value for it — matching the missing legacy image
+      # mount above. The phase separation is a property of the service, not a
+      # promise made by the entrypoint.
+      LEGACY_DB_HOST: ""
+      LEGACY_DB_PORT: ""
+      LEGACY_DB_USER: ""
+      LEGACY_DB_PASSWORD: ""
+      LEGACY_DB_DATABASE: ""
+    depends_on:
+      staging-mysql:
+        condition: service_healthy
+
+volumes:
+  # Disposable: `docker compose down -v` and re-run, migrations rebuild them.
+  dev-mysql-data:
+  dev-valkey-data:
+  dev-vendor:
+  docs-bundle:
+  exporter-islamicart-modules:
+  exporter-baroqueart-modules:
+  exporter-sharinghistory-modules:
+
+  # NOT disposable, and deliberately external so that `down -v` cannot destroy
+  # them: a full stage is hours of importing and several gigabytes of images.
+  # Create them once, before the first import:
+  #
+  #   docker volume create inventory-staging-mysql-data
+  #   docker volume create inventory-staging-images
+  #
+  # The hyphen matters. Compose names the volumes it manages
+  # `inventory_<key>`; these two are named `inventory-<key>` precisely because
+  # they are outside that lifecycle — the prefix tells you at a glance which
+  # volumes `down -v` can take. Backing them up is documented in
+  # scripts/import-tool/README.md.
+  staging-mysql-data:
+    external: true
+    name: inventory-staging-mysql-data
+  staging-images:
+    external: true
+    name: inventory-staging-images
+
+networks:
+  inventory:
+    driver: bridge
