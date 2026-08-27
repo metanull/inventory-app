@@ -2,6 +2,23 @@
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# ┌──────────────────────────────────────────────────────────────────────────┐
+# │ THIS FILE IS MAINTAINED BY HAND. Dependabot config is static YAML with   │
+# │ no scripting, so it CANNOT enumerate directories the way the CI and      │
+# │ dependency-audit matrices now do.                                        │
+# │                                                                          │
+# │ Adding a Node project under scripts/ (a forked exporter or viewer, a     │
+# │ new tool) means adding an `npm` entry here as well. Nothing will fail    │
+# │ if you forget — the project simply never receives dependency updates or  │
+# │ security alerts, silently and indefinitely.                              │
+# │                                                                          │
+# │ Viewers additionally need `registries: [npm-github]`: they install       │
+# │ @metanull/<dataset>-data from GitHub Packages. Exporters do not.         │
+# │                                                                          │
+# │ Current coverage: root, spa, scripts/importer, scripts/site-i18n,        │
+# │ every scripts/exporters/* and every scripts/viewers/*.                   │
+# └──────────────────────────────────────────────────────────────────────────┘
 
 version: 2
 updates:
@@ -62,6 +79,49 @@ updates:
         dependency-type: "production"
 
   - package-ecosystem: "npm"
+    directory: "/scripts/site-i18n"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      site-i18n-dev-dependencies:
+        dependency-type: "development"
+      site-i18n-prod-dependencies:
+        dependency-type: "production"
+
+  # --- Dataset exporters (one entry per scripts/exporters/<dataset>) ---------
+  # Public npm registry only: exporters read the database and write JSON, they
+  # do not consume any @metanull package.
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/exporters/amulets"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-amulets-dev-dependencies:
+        dependency-type: "development"
+      exporter-amulets-prod-dependencies:
+        dependency-type: "production"
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/exporters/baroqueart"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-baroqueart-dev-dependencies:
+        dependency-type: "development"
+      exporter-baroqueart-prod-dependencies:
+        dependency-type: "production"
+
+  - package-ecosystem: "npm"
     directory: "/scripts/exporters/islamicart"
     schedule:
       interval: "weekly"
@@ -69,10 +129,42 @@ updates:
       - "npm"
       - "dependencies"
     groups:
-      exporter-dev-dependencies:
+      exporter-islamicart-dev-dependencies:
         dependency-type: "development"
-      exporter-prod-dependencies:
+      exporter-islamicart-prod-dependencies:
         dependency-type: "production"
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/exporters/sharinghistory"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-sharinghistory-dev-dependencies:
+        dependency-type: "development"
+      exporter-sharinghistory-prod-dependencies:
+        dependency-type: "production"
+
+  # --- Dataset viewers (one entry per scripts/viewers/<dataset>) -------------
+  # These DO need `registries: [npm-github]` — each installs its data package
+  # @metanull/<dataset>-data from GitHub Packages.
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/viewers/baroqueart"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-baroqueart-dev-dependencies:
+        dependency-type: "development"
+      viewer-baroqueart-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
 
   - package-ecosystem: "npm"
     directory: "/scripts/viewers/islamicart"
@@ -82,9 +174,24 @@ updates:
       - "npm"
       - "dependencies"
     groups:
-      viewer-dev-dependencies:
+      viewer-islamicart-dev-dependencies:
         dependency-type: "development"
-      viewer-prod-dependencies:
+      viewer-islamicart-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/viewers/sharinghistory"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-sharinghistory-dev-dependencies:
+        dependency-type: "development"
+      viewer-sharinghistory-prod-dependencies:
         dependency-type: "production"
     registries:
       - npm-github
