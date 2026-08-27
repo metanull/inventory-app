@@ -277,14 +277,6 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     dependencies: ['object', 'monument', 'default-context', 'language'],
   },
   {
-    key: 'author',
-    name: 'Authors',
-    description:
-      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
-    importerClass: AuthorImporter,
-    dependencies: ['project', 'object', 'monument', 'default-context', 'language'],
-  },
-  {
     key: 'dynasty',
     name: 'Dynasties',
     description: 'Import dynasties with translations and item-dynasty links from mwnf3',
@@ -1040,6 +1032,28 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Create per-project Historical Profiles root collections for Sharing History and re-parent the HB record collections under them (#1505)',
     importerClass: ShHistoricalProfilesRootImporter,
     dependencies: ['sh-project', 'sh-bibliography-hb', 'sh-hb-recontext'],
+  },
+  // Runs late on purpose. Beyond creating author entities and CVs, this importer
+  // resolves the legacy author junction tables onto item_translations and
+  // dynasty_translations, so every item and dynasty it credits must already
+  // exist — that includes dynasties, SH objects/monuments and THG items, all of
+  // which are imported well after the mwnf3 objects and monuments.
+  {
+    key: 'author',
+    name: 'Authors',
+    description:
+      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
+    importerClass: AuthorImporter,
+    dependencies: [
+      'project',
+      'object',
+      'monument',
+      'dynasty',
+      'sh-object',
+      'sh-monument',
+      'default-context',
+      'language',
+    ],
   },
   {
     key: 'collection-purpose-backfill',

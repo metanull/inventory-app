@@ -462,18 +462,27 @@ export class AuthorImporter extends BaseImporter {
   private async importAuthorItemAssignments(): Promise<ImportResult> {
     const result = this.createResult();
 
+    // Legacy resolves credits per (item, language, role) ordered by priority
+    // (see .legacy-code/dxa-api/app/MWNF/SQL/mwnf3/ObjectsAuthors.blade.php:
+    // ORDER BY NVL(priority, 0) ASC). item_translations carries a single FK per
+    // role, so the lowest-priority author wins; ties break on author_id, which
+    // matches the junction PK order legacy falls back to.
+    const ORDER_BY_PRIORITY = "ORDER BY IFNULL(priority, 0) ASC, author_id ASC";
+
     // 3a. mwnf3.authors_objects
     const authorObjects = await this.context.legacyDb.query<LegacyAuthorObject>(
-      'SELECT * FROM mwnf3.authors_objects ORDER BY author_id'
+      `SELECT * FROM mwnf3.authors_objects ${ORDER_BY_PRIORITY}`
     );
     this.logInfo(`Found ${authorObjects.length} mwnf3 author-object assignments`);
 
     for (const link of authorObjects) {
       try {
         await this.resolveAuthorItemAssignment(
-          link,
+          link.author_id,
+          link.type,
+          link.lang_id,
           `mwnf3:authors:${link.author_id}`,
-          `mwnf3:objects:${link.project_id}:${link.country}:${link.museum_id}:${link.number}`,
+          `mwnf3:objects:${link.project_id}:${link.country_id}:${link.museum_id}:${link.object_id}`,
           result
         );
       } catch (error) {
@@ -485,16 +494,18 @@ export class AuthorImporter extends BaseImporter {
 
     // 3b. mwnf3.authors_monuments
     const authorMonuments = await this.context.legacyDb.query<LegacyAuthorMonument>(
-      'SELECT * FROM mwnf3.authors_monuments ORDER BY author_id'
+      `SELECT * FROM mwnf3.authors_monuments ${ORDER_BY_PRIORITY}`
     );
     this.logInfo(`Found ${authorMonuments.length} mwnf3 author-monument assignments`);
 
     for (const link of authorMonuments) {
       try {
         await this.resolveAuthorItemAssignment(
-          link,
+          link.author_id,
+          link.type,
+          link.lang_id,
           `mwnf3:authors:${link.author_id}`,
-          `mwnf3:monuments:${link.project_id}:${link.country}:${link.institution_id}:${link.number}`,
+          `mwnf3:monuments:${link.project_id}:${link.country_id}:${link.institution_id}:${link.monument_id}`,
           result
         );
       } catch (error) {
@@ -506,7 +517,7 @@ export class AuthorImporter extends BaseImporter {
 
     // 3c. sh_authors_objects
     const shAuthorObjects = await this.context.legacyDb.query<LegacyShAuthorObject>(
-      'SELECT * FROM mwnf3_sharing_history.sh_authors_objects ORDER BY author_id'
+      `SELECT * FROM mwnf3_sharing_history.sh_authors_objects ${ORDER_BY_PRIORITY}`
     );
     this.logInfo(`Found ${shAuthorObjects.length} SH author-object assignments`);
 
@@ -515,7 +526,9 @@ export class AuthorImporter extends BaseImporter {
         // SH items are keyed project:country:number (no museum segment, unlike
         // mwnf3), with the project id lowercased ('AWE' in legacy → 'awe').
         await this.resolveAuthorItemAssignment(
-          link,
+          link.author_id,
+          link.type,
+          link.lang,
           `mwnf3_sharing_history:sh_authors:${link.author_id}`,
           `mwnf3_sharing_history:sh_objects:${link.project_id.toLowerCase()}:${link.country.toLowerCase()}:${link.number}`,
           result
@@ -529,14 +542,16 @@ export class AuthorImporter extends BaseImporter {
 
     // 3d. sh_authors_monuments
     const shAuthorMonuments = await this.context.legacyDb.query<LegacyShAuthorMonument>(
-      'SELECT * FROM mwnf3_sharing_history.sh_authors_monuments ORDER BY author_id'
+      `SELECT * FROM mwnf3_sharing_history.sh_authors_monuments ${ORDER_BY_PRIORITY}`
     );
     this.logInfo(`Found ${shAuthorMonuments.length} SH author-monument assignments`);
 
     for (const link of shAuthorMonuments) {
       try {
         await this.resolveAuthorItemAssignment(
-          link,
+          link.author_id,
+          link.type,
+          link.lang,
           `mwnf3_sharing_history:sh_authors:${link.author_id}`,
           `mwnf3_sharing_history:sh_monuments:${link.project_id.toLowerCase()}:${link.country.toLowerCase()}:${link.number}`,
           result
@@ -551,19 +566,22 @@ export class AuthorImporter extends BaseImporter {
     return result;
   }
 
+
   /**
    * Resolve a single author-item assignment by updating the appropriate FK
    * on the item_translations row.
    */
   private async resolveAuthorItemAssignment(
-    link: { author_id: number; type: string; lang: string },
+    legacyAuthorId: number,
+    role: string,
+    legacyLangCode: string,
     authorBackwardCompat: string,
     itemBackwardCompat: string,
     result: ImportResult
   ): Promise<void> {
-    const fkColumn = ROLE_FK_MAP[link.type];
+    const fkColumn = ROLE_FK_MAP[role];
     if (!fkColumn) {
-      this.logWarning(`Unknown author role type '${link.type}' for author ${link.author_id}`);
+      this.logWarning(`Unknown author role type '${role}' for author ${legacyAuthorId}`);
       result.skipped++;
       this.showSkipped();
       return;
@@ -583,7 +601,7 @@ export class AuthorImporter extends BaseImporter {
       return;
     }
 
-    const languageId = await this.getLanguageIdByLegacyCodeAsync(link.lang);
+    const languageId = await this.getLanguageIdByLegacyCodeAsync(legacyLangCode);
     if (!languageId) {
       result.skipped++;
       this.showSkipped();
@@ -624,7 +642,7 @@ export class AuthorImporter extends BaseImporter {
     const result = this.createResult();
 
     const authorDynasties = await this.context.legacyDb.query<LegacyAuthorDynasty>(
-      'SELECT * FROM mwnf3.authors_dynasties ORDER BY dynasty_id, author_id'
+      'SELECT * FROM mwnf3.authors_dynasties ORDER BY dynasty_id, IFNULL(priority, 0) ASC, author_id ASC'
     );
     this.logInfo(`Found ${authorDynasties.length} author-dynasty assignments`);
 
@@ -654,7 +672,7 @@ export class AuthorImporter extends BaseImporter {
           continue;
         }
 
-        const languageId = await this.getLanguageIdByLegacyCodeAsync(link.lang);
+        const languageId = await this.getLanguageIdByLegacyCodeAsync(link.lang_id);
         if (!languageId) {
           result.skipped++;
           this.showSkipped();
