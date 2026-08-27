@@ -153,4 +153,5 @@ export {
   ShHbRecontextImporter,
   ShHistoricalProfilesRootImporter,
   CollectionPurposeBackfillImporter,
+  ExtraBitBufferBackfillImporter,
 } from './phase-11/index.js';

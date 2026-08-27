@@ -22,10 +22,17 @@
  *
  * Note: Base gallery/exhibition titles come from thg_gallery_lang (ThgGalleryLangImporter).
  *       This importer handles only exhibition-specific enrichment from exhibition_i18n.
+ *
+ * has_timeline and has_country_timeline are MySQL bit(1) columns and are stored
+ * as JSON booleans — see bitToBoolean. This importer runs BEFORE
+ * ThgGalleryLangImporter, which merges into an existing translation row with
+ * existing-wins semantics: whatever shape is written here is the shape that
+ * survives, so the normalisation has to happen on both paths.
  */
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { bitToBoolean } from '../../utils/legacy-values.js';
 
 /**
  * Legacy exhibition_i18n structure
@@ -58,12 +65,16 @@ interface LegacyThgGalleryExtra {
   live_date: string | null;
   homepage_image: string | null;
   homepage_item: number | null;
-  has_timeline: number | null;
-  has_country_timeline: number | null;
+  /** MySQL bit(1) — mysql2 hands these back as Buffers, see bitToBoolean. */
+  has_timeline: unknown;
+  has_country_timeline: unknown;
   featured: number | null;
   status: string | null;
   mwnf3_project_id: number | null;
 }
+
+/** thg_gallery columns that are MySQL bit(1) and must be stored as booleans. */
+const GALLERY_BIT_FIELDS = ['has_timeline', 'has_country_timeline'] as const;
 
 export class ThgGalleryTranslationImporter extends BaseImporter {
   /** gallery_id -> extra fields from thg_gallery */
@@ -248,7 +259,8 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
         'has_timeline', 'has_country_timeline', 'featured', 'status', 'mwnf3_project_id',
       ];
       for (const field of galleryFields) {
-        const val = galleryRow[field];
+        const isBitField = (GALLERY_BIT_FIELDS as readonly string[]).includes(field);
+        const val = isBitField ? bitToBoolean(galleryRow[field]) : galleryRow[field];
         if (val !== null && val !== undefined && val !== '') {
           galleryExtra[field] = val;
         }

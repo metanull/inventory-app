@@ -537,6 +537,21 @@ export interface IWriteStrategy {
   ): Promise<void>;
 
   /**
+   * Find collection_translations rows whose `extra` holds a serialized Node
+   * Buffer (`{"type":"Buffer","data":[…]}`) — the shape an importer leaves
+   * behind when it stores a mysql2 `bit(1)` value without normalising it.
+   * Used by ExtraBitBufferBackfillImporter.
+   */
+  findCollectionTranslationsWithSerializedBuffers(): Promise<
+    Array<{ id: string; extra: Record<string, unknown> }>
+  >;
+
+  /**
+   * Set the extra JSON on a collection_translations row identified by its id.
+   */
+  setCollectionTranslationExtraById(id: string, extra: string): Promise<void>;
+
+  /**
    * Read the extra JSON from an item_translations row.
    * Returns null if no matching row or if extra is null.
    */

@@ -133,6 +133,7 @@ import {
   ShHbRecontextImporter,
   ShHistoricalProfilesRootImporter,
   CollectionPurposeBackfillImporter,
+  ExtraBitBufferBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -1046,6 +1047,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     description:
       'Backfill collections.purpose from known marker backward_compatibility keyspaces on an already-populated database (#1505)',
     importerClass: CollectionPurposeBackfillImporter,
+  },
+  {
+    key: 'extra-bit-buffer-backfill',
+    name: 'Extra Bit-Buffer Backfill',
+    description:
+      'Normalise serialized mysql2 bit(1) Buffers left in collection_translations.extra to JSON booleans on an already-populated database',
+    importerClass: ExtraBitBufferBackfillImporter,
+    dependencies: ['thg-gallery-translation', 'thg-gallery-lang'],
   },
   {
     key: 'project-cleanup',
