@@ -3,22 +3,23 @@ import { describe, expect, it } from 'vitest'
 import { bitToBoolean, isFeatured, isHidden } from '../../src/exporters/gallery-exporter.js'
 
 /**
- * The legacy `featured` flag is INVERTED, and the temptation to "fix" it on the
- * way through is exactly what these tests guard against. dxa-api computes
- * `CASE WHEN featured = 'A' THEN 0 ELSE 1 END`
- * (app/MWNF/SQL/thg/WithTHGTemporaryTables.php), so 'A' means NOT featured —
- * amulets stores 'H' and the live site reports featured: true.
+ * `featured` and `status` share the enum('A','H') but mean different things —
+ * `status` is site-wide visibility, `featured` is membership of the portal's
+ * highlight strip (thg_gallery DDL column comments). dxa-api reports `featured`
+ * inverted because it copied the `hidden` projection without flipping it; the
+ * exporter ships the documented meaning instead. These tests pin that choice so
+ * a later parity check against the live API does not "correct" it back.
  */
 describe('isFeatured', () => {
-  it("treats 'A' as NOT featured, reproducing the legacy inversion", () => {
-    expect(isFeatured('A')).toBe(false)
+  it("treats 'A' as featured, per the column comment", () => {
+    expect(isFeatured('A')).toBe(true)
   })
 
-  it("treats 'H' as featured — the amulets case, matching the live API", () => {
-    expect(isFeatured('H')).toBe(true)
+  it("treats 'H' as not featured — the amulets case, against the live API's featured: true", () => {
+    expect(isFeatured('H')).toBe(false)
   })
 
-  it('treats a missing flag as not featured', () => {
+  it('treats a missing flag as not featured, matching the column default', () => {
     expect(isFeatured(undefined)).toBe(false)
     expect(isFeatured(null)).toBe(false)
   })
@@ -29,6 +30,11 @@ describe('isHidden', () => {
     expect(isHidden('A')).toBe(false)
     expect(isHidden('H')).toBe(true)
     expect(isHidden(undefined)).toBe(true)
+  })
+
+  it('is independent of featured — gallery 54 is hidden yet featured', () => {
+    expect(isHidden('H')).toBe(true)
+    expect(isFeatured('A')).toBe(true)
   })
 })
 

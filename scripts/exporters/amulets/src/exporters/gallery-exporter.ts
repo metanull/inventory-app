@@ -199,13 +199,33 @@ export class GalleryExporter extends BaseExporter {
 }
 
 /**
- * Legacy `featured` is INVERTED, and deliberately reproduced that way:
- * dxa-api computes `CASE WHEN featured = 'A' THEN 0 ELSE 1 END`
- * (app/MWNF/SQL/thg/WithTHGTemporaryTables.php), so 'A' means NOT featured.
- * Amulets stores 'H' and the live site reports featured: true.
+ * `featured` and `status` are two INDEPENDENT flags that happen to share the
+ * enum('A','H'), which is why they are easy to conflate:
+ *
+ *   status:   A = Active, H = Hidden — visibility of the gallery everywhere.
+ *   featured: A = highlighted in the portal's "featured galleries" strip,
+ *             H = not highlighted. Default 'H'.
+ *
+ * Both meanings are spelled out in the column comments of
+ * `.legacy-database/ddl/creation/mwnf3_thematic_gallery_thg_gallery.sql`, and
+ * the data agrees: 'A' is the small hand-picked set (carpets, glass, textiles,
+ * toys, precious_stones, the_use_of_colours_in_art, …) while status='H' marks
+ * the junk and unpublished rows (curiosities, unclear, doubts, excluded).
+ * Gallery 54 is status='H' + featured='A', which is only possible because the
+ * two are orthogonal.
+ *
+ * dxa-api gets `featured` WRONG: `WithTHGTemporaryTables.php` copies the
+ * `hidden` projection — `CASE WHEN featured = 'A' THEN 0 ELSE 1 END` — without
+ * flipping the polarity, so its JSON reports the inverse of the truth (amulets
+ * is featured='H', i.e. NOT featured, yet the live API says `featured: true`).
+ * The defect is invisible on the legacy sites: `/thg/galleries/featured` picks
+ * random non-exhibition galleries and ignores the flag, the `bf` query filter
+ * compares the derived integer against 'A' (which MySQL casts to 0, inverting
+ * it a second time), and dxa-client never reads the field. So this exporter
+ * ships the documented meaning rather than propagating the bug.
  */
 export function isFeatured(flag: string | undefined | null): boolean {
-  return flag !== undefined && flag !== null && flag !== 'A'
+  return flag === 'A'
 }
 
 /** `status = 'A'` is the visible state; anything else hides the gallery. */

@@ -55,10 +55,14 @@ else follows from that.
   amulets site answers `/events/countries` with the worldwide list even though
   its `hasCountryBasedTimeline` flag is false. Every gallery package carries
   the same 18 per-country timelines (1,075 events).
-- **`featured` is inverted, on purpose.** dxa-api computes
-  `CASE WHEN featured = 'A' THEN 0 ELSE 1 END`, so `'A'` means *not* featured.
-  Amulets stores `'H'` and the live API reports `featured: true`. See
-  `isFeatured` in `src/exporters/gallery-exporter.ts` and its tests.
+- **`featured` and `status` are different flags** that share the enum
+  `('A','H')`. `status` is site-wide visibility (A = active, H = hidden);
+  `featured` is membership of the portal's highlight strip (A = highlighted,
+  default H). dxa-api reports `featured` inverted — it copied the `hidden`
+  projection without flipping it — so the live API claims amulets is featured
+  when the record says otherwise. The package ships the documented meaning:
+  amulets is `featured: false`. See `isFeatured` in
+  `src/exporters/gallery-exporter.ts` and its tests.
 
 ## Package contents
 
