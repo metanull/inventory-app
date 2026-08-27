@@ -103,6 +103,25 @@ jobs:
         with:
           fail-on-severity: high
 
+  dependabot-coverage:
+    name: Dependabot Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # .github/dependabot.yml is static YAML with no scripting, so it cannot
+      # enumerate scripts/exporters/* and scripts/viewers/* the way the
+      # `exporter-validation` matrix above and the `enumerate-npm-projects` job
+      # in dependency-audit.yml do. It is written by hand; this is what stops a
+      # forked exporter or viewer from silently never receiving dependency
+      # updates or security alerts. No path gate — a deleted project has to be
+      # caught as surely as a new one, and the whole check is a YAML parse and
+      # a glob.
+      - name: "Check > Dependabot > Config covers every Node project"
+        run: |
+          sh scripts/check-dependabot-coverage.sh
+
   backend-lint:
     name: Backend Linting and Validation
     runs-on: ubuntu-latest
@@ -309,6 +328,7 @@ jobs:
     needs:
       - detect-changes
       - dependency-review
+      - dependabot-coverage
       - backend-lint
       - backend-tests
       - backend-rendered-frontend-validation
@@ -322,6 +342,7 @@ jobs:
       - name: Check all mandatory checks passed
         run: |
           depReviewResult="${{ needs.dependency-review.result }}"
+          dependabotCoverageResult="${{ needs.dependabot-coverage.result }}"
 
           backendChanged="${{ needs.detect-changes.outputs.backend }}"
           rootFrontendChanged="${{ needs.detect-changes.outputs.root-frontend }}"
@@ -342,6 +363,11 @@ jobs:
 
           if [ "$depReviewResult" != "success" ]; then
             echo "Dependency review failed (result: $depReviewResult)"
+            fail=1
+          fi
+
+          if [ "$dependabotCoverageResult" != "success" ]; then
+            echo "Dependabot coverage check failed (result: $dependabotCoverageResult)"
             fail=1
           fi
 

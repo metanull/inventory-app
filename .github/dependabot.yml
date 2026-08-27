@@ -9,15 +9,22 @@
 # │ dependency-audit matrices now do.                                        │
 # │                                                                          │
 # │ Adding a Node project under scripts/ (a forked exporter or viewer, a     │
-# │ new tool) means adding an `npm` entry here as well. Nothing will fail    │
-# │ if you forget — the project simply never receives dependency updates or  │
-# │ security alerts, silently and indefinitely.                              │
+# │ new tool) means adding an `npm` entry here as well. THIS IS ENFORCED:    │
+# │ the `Dependabot Coverage` job in continuous-integration.yml runs         │
+# │ scripts/check-dependabot-coverage.sh on every pull request and blocks    │
+# │ the merge when this file and the tree disagree — a project with no entry │
+# │ here, or an entry whose directory no longer exists.                      │
 # │                                                                          │
 # │ Viewers additionally need `registries: [npm-github]`: they install       │
-# │ @metanull/<dataset>-data from GitHub Packages. Exporters do not.         │
+# │ @metanull/<dataset>-data from GitHub Packages. Exporters must not have   │
+# │ the key at all. That rule is enforced by the same check.                 │
 # │                                                                          │
 # │ Current coverage: root, spa, scripts/importer, scripts/site-i18n,        │
 # │ every scripts/exporters/* and every scripts/viewers/*.                   │
+# │                                                                          │
+# │ Run the check yourself before pushing:                                   │
+# │   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh \             │
+# │     mikefarah/yq:4 scripts/check-dependabot-coverage.sh                  │
 # └──────────────────────────────────────────────────────────────────────────┘
 
 version: 2

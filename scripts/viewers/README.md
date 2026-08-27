@@ -147,5 +147,14 @@ development**; keep them bumped to the latest published version so a fresh
    so unlike the `Dependency Audit` matrix it cannot enumerate
    `scripts/viewers/`. A viewer entry needs `registries: [npm-github]`,
    because it installs `@metanull/<dataset>-data` from GitHub Packages.
-   Nothing fails if you forget; the viewer simply never receives dependency
-   updates or security alerts.
+
+   **Forgetting fails CI.** The `Dependabot Coverage` job in
+   `continuous-integration.yml` compares this file against the tree on every
+   pull request and blocks the merge on a mismatch — including a viewer entry
+   with no `registries: [npm-github]`. It prints the exact YAML block to paste.
+   Run it yourself before pushing:
+
+   ```sh
+   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
+     scripts/check-dependabot-coverage.sh
+   ```
