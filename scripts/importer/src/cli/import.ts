@@ -133,6 +133,7 @@ import {
   ShHbRecontextImporter,
   ShHistoricalProfilesRootImporter,
   CollectionPurposeBackfillImporter,
+  ExtraBitBufferBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -274,14 +275,6 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Import relationships between items (object-object, object-monument, monument-monument, monument-object) with justification translations',
     importerClass: ItemItemLinkImporter,
     dependencies: ['object', 'monument', 'default-context', 'language'],
-  },
-  {
-    key: 'author',
-    name: 'Authors',
-    description:
-      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
-    importerClass: AuthorImporter,
-    dependencies: ['project', 'object', 'monument', 'default-context', 'language'],
   },
   {
     key: 'dynasty',
@@ -1040,12 +1033,42 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     importerClass: ShHistoricalProfilesRootImporter,
     dependencies: ['sh-project', 'sh-bibliography-hb', 'sh-hb-recontext'],
   },
+  // Runs late on purpose. Beyond creating author entities and CVs, this importer
+  // resolves the legacy author junction tables onto item_translations and
+  // dynasty_translations, so every item and dynasty it credits must already
+  // exist — that includes dynasties, SH objects/monuments and THG items, all of
+  // which are imported well after the mwnf3 objects and monuments.
+  {
+    key: 'author',
+    name: 'Authors',
+    description:
+      'Import structured authors with name parts, CVs, and author-item/dynasty assignments from mwnf3, SH, THG',
+    importerClass: AuthorImporter,
+    dependencies: [
+      'project',
+      'object',
+      'monument',
+      'dynasty',
+      'sh-object',
+      'sh-monument',
+      'default-context',
+      'language',
+    ],
+  },
   {
     key: 'collection-purpose-backfill',
     name: 'Collection Purpose Backfill',
     description:
       'Backfill collections.purpose from known marker backward_compatibility keyspaces on an already-populated database (#1505)',
     importerClass: CollectionPurposeBackfillImporter,
+  },
+  {
+    key: 'extra-bit-buffer-backfill',
+    name: 'Extra Bit-Buffer Backfill',
+    description:
+      'Normalise serialized mysql2 bit(1) Buffers left in collection_translations.extra to JSON booleans on an already-populated database',
+    importerClass: ExtraBitBufferBackfillImporter,
+    dependencies: ['thg-gallery-translation', 'thg-gallery-lang'],
   },
   {
     key: 'project-cleanup',

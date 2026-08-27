@@ -39,29 +39,54 @@ jobs:
         run: |
           composer audit
 
-  audit-npm:
-    name: Audit - npm (${{ matrix.name }})
+  enumerate-npm-projects:
+    name: Enumerate npm Projects
     runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.enumerate.outputs.projects }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Datasets are added by forking an existing directory, so the trees that
+      # hold them are listed here, never the projects themselves: a fork is
+      # audited from the day it lands, with no edit to this workflow. Each tree
+      # carries the registry its projects install from — the viewers consume
+      # @metanull/*-data from GitHub Packages, the exporters do not.
+      - name: Enumerate npm projects
+        id: enumerate
+        env:
+          GITHUB_PACKAGES: https://npm.pkg.github.com/
+        run: |
+          scan() {
+            find "$2" -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' \
+              | sort \
+              | jq -R --arg label "$1" --arg registry "$3" \
+                  '{name: "\($label) (\(split("/") | last))", directory: ., registry: $registry}'
+          }
+
+          PROJECTS=$(
+            {
+              jq -nc '{name: "Root", directory: ".", registry: ""}'
+              jq -nc --arg registry "$GITHUB_PACKAGES" '{name: "SPA", directory: "spa", registry: $registry}'
+              jq -nc '{name: "Importer", directory: "scripts/importer", registry: ""}'
+              scan "Exporter" scripts/exporters ""
+              scan "Viewer" scripts/viewers "$GITHUB_PACKAGES"
+            } | jq -sc .
+          )
+
+          echo "$PROJECTS" | jq -r '.[] | "  \(.name) -> \(.directory)"'
+          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+
+  audit-npm:
+    name: Audit - npm (${{ matrix.project.name }})
+    runs-on: ubuntu-latest
+    needs: enumerate-npm-projects
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: Root
-            directory: .
-            registry-url: ""
-          - name: SPA
-            directory: spa
-            registry-url: https://npm.pkg.github.com/
-          - name: Importer
-            directory: scripts/importer
-            registry-url: ""
-          - name: Exporter (islamicart)
-            directory: scripts/exporters/islamicart
-            registry-url: ""
-          - name: Viewer (islamicart)
-            directory: scripts/viewers/islamicart
-            registry-url: https://npm.pkg.github.com/
+        project: ${{ fromJSON(needs.enumerate-npm-projects.outputs.projects) }}
 
     steps:
       - uses: actions/checkout@v7
@@ -69,20 +94,20 @@ jobs:
       - name: "Setup > Node Project"
         uses: ./.github/actions/setup-node-project
         with:
-          working-directory: ${{ matrix.directory }}
-          registry-url: ${{ matrix.registry-url }}
+          working-directory: ${{ matrix.project.directory }}
+          registry-url: ${{ matrix.project.registry }}
           node-auth-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Check > npm > Audit Vulnerabilities"
-        working-directory: ${{ matrix.directory }}
+        working-directory: ${{ matrix.project.directory }}
         run: |
           npm audit --audit-level high
 
   report:
     name: Report Failures
     runs-on: ubuntu-latest
-    needs: [audit-composer, audit-npm]
-    if: always() && (needs.audit-composer.result == 'failure' || needs.audit-npm.result == 'failure')
+    needs: [audit-composer, enumerate-npm-projects, audit-npm]
+    if: always() && (needs.audit-composer.result == 'failure' || needs.enumerate-npm-projects.result == 'failure' || needs.audit-npm.result == 'failure')
 
     steps:
       - name: Open or update tracking issue

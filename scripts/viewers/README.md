@@ -141,3 +141,11 @@ development**; keep them bumped to the latest published version so a fresh
 3. Add a dev-server entry to `.claude/launch.json` (unique port).
 4. Copy and adapt the deploy workflow; add the Nginx alias block on the
    server; dispatch and verify the live URL.
+5. Add an `npm` entry for the new directory to
+   [`.github/dependabot.yml`](../../.github/dependabot.yml) — **this one is
+   maintained by hand**. Dependabot config is static YAML with no scripting,
+   so unlike the `Dependency Audit` matrix it cannot enumerate
+   `scripts/viewers/`. A viewer entry needs `registries: [npm-github]`,
+   because it installs `@metanull/<dataset>-data` from GitHub Packages.
+   Nothing fails if you forget; the viewer simply never receives dependency
+   updates or security alerts.

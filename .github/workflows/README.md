@@ -13,7 +13,6 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
   - [Continuous Deployment](#continuous-deployment)
     - [Build](#build)
     - [Deploy to OVH](#deploy-to-ovh)
-    - [Deploy Laravel Application (Windows self-hosted)](#deploy-laravel-application-windows-self-hosted)
     - [Deploy Documentation to GitHub Pages](#deploy-documentation-to-github-pages)
     - [Publish API Client Package](#publish-api-client-package)
     - [Deploy Dataset Viewers to OVH](#deploy-dataset-viewers-to-ovh)
@@ -26,9 +25,8 @@ The `/.github/workflows` directory contains GitHub Actions workflows for continu
 
 ## Notes
 
-- **Workflows run on GitHub-hosted runners** (`ubuntu-latest`, `ubuntu-24.04`) or **self-hosted runners** (`[self-hosted, windows]`) depending on the task
+- **Every workflow runs on GitHub-hosted runners** (`ubuntu-latest`, `ubuntu-24.04`); no self-hosted runner is used any more
 - **Python workflows** use Python 3.x on Ubuntu runners for documentation generation
-- **PowerShell workflows** use PowerShell on Windows runners for the legacy self-hosted application deployment
 - Most workflows use **concurrency groups** to prevent duplicate runs and conserve resources
 - Workflows are triggered by push events, pull requests, schedules, other workflow runs (`workflow_run`), or manual dispatch (`workflow_dispatch`)
 - Repeated setup steps are factored out into **composite actions** under [`.github/actions`](../actions) — see [Composite Actions](#composite-actions)
@@ -47,7 +45,7 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
 | **Workflow** | `continuous-integration.yml` |
 | **Workflow name** | `CI` |
 | **Trigger** | Pull requests to `main` branch (opened, synchronize, reopened) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — every path group is treated as changed |
+| **Manual trigger** | No — CI gates pull requests and has no meaning outside one (`dependency-review` only supports `pull_request`, and path detection needs a PR base SHA) |
 | **Runner** | `ubuntu-latest` (GitHub-hosted) |
 | **Concurrency** | Group: `ci-mandatory-${{ github.ref }}`, cancel-in-progress: `true` |
 
@@ -59,14 +57,15 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
 | `resources/css/**`, `resources/js/**`, `resources/views/**`, `vite.config.js`, `tailwind.config.js`, `postcss.config.js`, `package.json`, `package-lock.json`, `tsconfig.json`, `eslint.config.js` | `root-frontend` | `backend-rendered-frontend-validation` |
 | `scripts/importer/**` | `importer` | `importer-validation` |
 | `scripts/site-i18n/**` | `site-i18n` | `site-i18n-validation` |
+| `scripts/exporters/**` | `exporters` | `exporter-validation` |
 | `spa/**` | `spa` | `spa-frontend-validation` |
 
 **Jobs**
 
 1. **detect-changes** (*Detect Changed Paths*) - Classifies changed files using `git diff` against the PR base SHA
    - Checks out the repository with full Git history (`fetch-depth: 0`)
-   - Emits outputs: `backend`, `root-frontend`, `spa`, `importer`, `site-i18n` (true/false)
-   - All outputs are `true` when triggered by `workflow_dispatch`
+   - Emits outputs: `backend`, `root-frontend`, `spa`, `importer`, `site-i18n`, `exporters` (true/false)
+   - Also emits `exporter-datasets`, a JSON array of every directory under `scripts/exporters/` holding a `package.json`, used as the `exporter-validation` matrix
 
 2. **dependency-review** (*Dependency Review (PR)*) - Reviews dependency changes introduced by the pull request
    - Runs `actions/dependency-review-action` with `fail-on-severity: high`
@@ -98,11 +97,18 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
    - Runs `npm run lint:check`, `npm run build` and `npm test`
    - Every test in this suite is a pure function over legacy row shapes, so no database, VPN or credentials are involved
 
-8. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
+8. **exporter-validation** *(when `exporters=true`)* (*Exporter Validation (`<dataset>`)*) - Dataset exporter validation
+   - Matrix comes from `detect-changes`'s `exporter-datasets` output, not a hardcoded list — a forked exporter is covered from its first pull request
+   - `fail-fast: false` — every dataset is reported, even when one fails
+   - Uses the `setup-node-project` composite action with `working-directory: scripts/exporters/<dataset>`
+   - Runs `npm run type-check`, `npm run lint:check` and `npm test` (Vitest unit tests)
+   - Every test in these suites is a pure function over legacy row shapes, so no database, VPN or credentials are involved
+
+9. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
    - Uses the `setup-node-project` composite action with `working-directory: spa`, authenticated against GitHub Packages with `GITHUB_TOKEN`
    - Runs `npm run lint`, `npm run build` and `npm run test:all`
 
-9. **ci-success** (*CI Success*) - Aggregates all check results
+10. **ci-success** (*CI Success*) - Aggregates all check results
    - `needs` every other job and runs with `if: always()`
    - Always requires `dependency-review` to have succeeded
    - For each path group that changed, requires the matching job(s) to have succeeded
@@ -120,11 +126,9 @@ The `CI Success` job in this workflow satisfies the `CI Success` required status
 
 **Usage**
 
-This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files. For manual triggering (every path group is treated as changed):
+This workflow runs automatically on pull requests. Skipped jobs are expected when their path group has no changed files — a skipped job is a pass, and `ci-success` only requires a job whose path group actually changed.
 
-```
-Actions > CI > Run workflow
-```
+There is no manual trigger: CI exists to gate a pull request, and both `dependency-review` and path detection are defined only in that context. To re-run it, push to the branch or use *Re-run all jobs* on the existing run.
 
 ---
 
@@ -150,22 +154,26 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    - Installs Composer dependencies
    - Runs `composer audit`
 
-2. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
-   - `fail-fast: false` — every directory is audited even if one fails
-   - Uses the `setup-node-project` composite action per matrix entry
+2. **enumerate-npm-projects** (*Enumerate npm Projects*) - Builds the `audit-npm` matrix from the checkout
+   - Emits `projects`, a JSON array of `{name, directory, registry}` objects
+   - Datasets are added by forking an existing directory, so the trees are listed and the projects are globbed — a fork is audited from the day it lands, with no edit to this workflow
 
-   | Matrix entry | Directory | Registry |
+   | Source | Contributes | Registry |
    | --- | --- | --- |
-   | `Root` | `.` | public npm |
-   | `SPA` | `spa` | npm.pkg.github.com |
-   | `Importer` | `scripts/importer` | public npm |
-   | `Exporter (islamicart)` | `scripts/exporters/islamicart` | public npm |
-   | `Viewer (islamicart)` | `scripts/viewers/islamicart` | npm.pkg.github.com |
+   | listed explicitly | `Root` (`.`) | public npm |
+   | listed explicitly | `SPA` (`spa`) | npm.pkg.github.com |
+   | listed explicitly | `Importer` (`scripts/importer`) | public npm |
+   | every `package.json` under `scripts/exporters/*/` | `Exporter (<dataset>)` | public npm |
+   | every `package.json` under `scripts/viewers/*/` | `Viewer (<dataset>)` | npm.pkg.github.com |
 
+3. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
+   - Matrix: `fromJSON` of `enumerate-npm-projects`'s `projects` output
+   - `fail-fast: false` — every directory is audited even if one fails
+   - Uses the `setup-node-project` composite action per matrix entry, with that entry's registry
    - Runs `npm audit --audit-level high` in each directory
 
-3. **report** (*Report Failures*) - Reports vulnerabilities as an issue
-   - `needs: [audit-composer, audit-npm]`, runs with `if: always()` when either audit job failed
+4. **report** (*Report Failures*) - Reports vulnerabilities as an issue
+   - `needs: [audit-composer, enumerate-npm-projects, audit-npm]`, runs with `if: always()` when any of them failed
    - Opens an issue titled `Weekly dependency audit found vulnerabilities` with the `dependencies` label, or comments on the existing open one
 
 **Permissions**
@@ -264,120 +272,6 @@ Deploys the tarball produced by `Build` to the OVH VPS over SSH, by running [`sc
 | `VPS_HOST` | Hostname or IP of the OVH VPS |
 | `VPS_SSH_USER` | SSH user used for deployment |
 | `VPS_SSH_KEY` | Private SSH key for that user |
-
----
-
-### Deploy Laravel Application (Windows self-hosted)
-
-Deploys a published release to the legacy Windows/Apache environment using a symlink-based deployment strategy. This is the self-hosted counterpart of `Deploy to OVH` and is **manual only**.
-
-**Workflow properties**
-
-| Property | Value |
-| --- | --- |
-| **Workflow** | `deploy.yml` |
-| **Workflow name** | `Deploy` |
-| **Trigger** | None automatic — the `release` trigger is commented out (deployment on release is forbidden by the repository's GitHub Actions settings) |
-| **Manual trigger** | Yes (`workflow_dispatch`) — required `release_tag` input (e.g. `v1.0.0.1`) |
-| **Runner** | `[self-hosted, windows]` |
-| **Environment** | `MWNF-SVR` |
-| **Concurrency** | Group: `deploy-${{ github.ref }}`, cancel-in-progress: `false` |
-
-**Jobs**
-
-1. **download** - Fetches and stages the release package
-   - Determines the release tag from the workflow input
-   - Downloads the `inventory-app.zip` asset from the matching GitHub release
-   - Extracts it and copies it into a timestamped staging directory (`staging-YYYYMMDD-HHMMSS`)
-   - Outputs `staging_path` and `release_tag`
-
-2. **down** *(needs `download`)* - Puts the current application into maintenance mode (`php artisan down --retry=120`)
-
-3. **deploy** *(needs `download`, `down`)* - Swaps the deployment symlink
-   - Calculates the swap and temporary symlink paths
-   - Creates the shared persistent storage directory and symlinks `storage/app` to it, so uploaded files survive deployments
-   - Removes leftover symlinks from previous failed runs
-   - Creates a temporary symlink to the new staging directory and atomically renames it over the webserver path
-   - Rolls the previous symlink back if the swap fails
-   - Outputs `symlink_swap_path` and `symlink_temp_path`
-
-4. **configure** *(needs `deploy`)* - Configures the Laravel application
-   - Masks secrets in the logs
-   - Generates the production `.env` file from `.env.example` using environment variables
-   - Runs database migrations (`php artisan migrate --force`)
-   - Syncs permissions and roles (`php artisan permissions:sync --production`)
-   - Caches configuration, routes, and views for performance
-
-5. **up** *(needs `configure`)* - Brings the application out of maintenance mode (`php artisan up`)
-
-6. **intendance** *(needs `up`, `deploy`, `download`)* - Housekeeping
-   - Removes the temporary and swap symlinks
-   - Cleans up obsolete staging directories (keeps the last 3)
-
-**Environment Variables** (set in GitHub environment `MWNF-SVR`)
-
-| Variable | Description | Default |
-| --- | --- | --- |
-| `PHP_PATH` | Path to PHP executable | `C:\Program Files\PHP\php.exe` |
-| `WEBSERVER_PATH` | Symlink location for webserver | `C:\Apache24\htdocs\inventory-app` |
-| `APACHE_SERVICE_USER` | Apache service user | `SYSTEM` |
-| `APP_NAME` | Application name | `inventory-app` |
-| `APP_ENV` | Environment (production/staging) | `production` |
-| `APP_DEBUG` | Enable debug mode | `false` |
-| `APP_URL` | Application URL | `http://localhost` |
-| `API_DOCS_ENABLED` | Enable API documentation | `false` |
-| `DB_CONNECTION` | Database driver | `mysql` |
-| `DB_HOST` | Database host | `127.0.0.1` |
-| `DB_PORT` | Database port | `3306` |
-| `APP_DEFAULT_USER_EMAIL` | Default user for initial login | `user@example.com` |
-| `APP_DEFAULT_USER_USERNAME` | Default user name | `user` |
-| `APP_DEFAULT_USER_PASSWORD` | Default user password | `password` |
-| `MAIL_MAILER` | Mail transport | `log` |
-| `MAIL_HOST` | Mail host | `127.0.0.1` |
-| `MAIL_PORT` | Mail port | `25` |
-| `MAIL_USERNAME` | Mail username | `null` |
-| `MAIL_PASSWORD` | Mail password | `null` |
-| `MAIL_ENCRYPTION` | Mail encryption | `null` |
-| `MAIL_FROM_ADDRESS` | Mail sender address | `user@example.com` |
-| `MAIL_FROM_NAME` | Mail sender name | `Inventory App` |
-| `TRUSTED_PROXIES` | Comma-separated proxy IPs/CIDR | (empty) |
-| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins | (empty) |
-
-**Environment Secrets** (set in GitHub environment `MWNF-SVR`)
-
-| Secret | Description |
-| --- | --- |
-| `APP_KEY` | Laravel application key (generate with `php artisan key:generate --show`) |
-| `MARIADB_DATABASE` | Database name |
-| `MARIADB_USER` | Database username |
-| `MARIADB_SECRET` | Database password |
-
-**Deployment Strategy**
-
-This workflow uses a **symlink-based zero-downtime deployment**:
-1. The release asset is downloaded and extracted to a timestamped staging directory
-2. Application is put into maintenance mode
-3. A temporary symlink is created pointing to the new staging directory
-4. The webserver symlink is atomically swapped to the new deployment
-5. The application is brought back up and old symlinks are removed
-6. Old staging directories are cleaned up (keeps last 3 for rollback)
-
-**Permissions**
-
-- `contents: read` - For reading repository contents
-
-**Usage**
-
-```
-Actions > Deploy > Run workflow  (provide the release tag)
-```
-
-**Links**
-
-| Reference | URL |
-| --- | --- |
-| Laravel Deployment | [https://laravel.com/docs/12.x/deployment](https://laravel.com/docs/12.x/deployment) |
-| GitHub Environments | [https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) |
 
 ---
 
@@ -575,6 +469,8 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date across the repository.
 
+> **This file is maintained by hand — the one piece of CI config that is.** Dependabot config is static YAML with no scripting, so it cannot enumerate directories the way the `Exporter Validation` and `Dependency Audit` matrices do. **Adding a Node project under `scripts/` means adding an entry here too.** Nothing fails if you forget: the project simply never receives dependency updates or security alerts, silently and indefinitely. Closing that gap for good would mean generating this file from a template — a decision that has not been taken.
+
 **Ecosystems monitored**
 
 | Ecosystem | Directory | Schedule | Registry |
@@ -583,9 +479,17 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `npm` | `/` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/importer` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/site-i18n` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/amulets` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/baroqueart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/scripts/viewers/sharinghistory` | Weekly | npm.pkg.github.com (GitHub) |
 | `github-actions` | `/` | Weekly | github.com (public) |
+
+Every exporter reads the database and writes JSON, so none consumes an `@metanull` package and none needs the authenticated registry. Every viewer installs `@metanull/<dataset>-data` from GitHub Packages and therefore needs `registries: [npm-github]`.
 
 **GitHub Packages registry access**
 
@@ -690,7 +594,6 @@ Several workflows interact with scripts, composite actions and other workflows:
 | `dependency-audit.yml` | `setup-node-project` | - |
 | `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
-| `deploy.yml` | `build.yml` release asset (`inventory-app.zip`) | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
 | `publish-api-client.yml` | `detect-environment`, `generate-api-client`, `publish-npm-package`, `.github/templates/api-client/` | - |
 | `deploy-viewer-*-ovh.yml` | `@metanull/<dataset>-data` on GitHub Packages | - |
