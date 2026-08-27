@@ -136,6 +136,8 @@ describe('LanguageImporter', () => {
       getCollectionPurpose: vi.fn().mockResolvedValue(null),
       updateCollectionPurpose: vi.fn().mockResolvedValue(undefined),
       backfillCollectionPurposeByBackwardCompatibility: vi.fn().mockResolvedValue(0),
+      findCollectionTranslationsWithSerializedBuffers: vi.fn().mockResolvedValue([]),
+      setCollectionTranslationExtraById: vi.fn(),
     };
 
     // Create tracker
@@ -356,6 +358,8 @@ describe('LanguageTranslationImporter', () => {
       getCollectionPurpose: vi.fn().mockResolvedValue(null),
       updateCollectionPurpose: vi.fn().mockResolvedValue(undefined),
       backfillCollectionPurposeByBackwardCompatibility: vi.fn().mockResolvedValue(0),
+      findCollectionTranslationsWithSerializedBuffers: vi.fn().mockResolvedValue([]),
+      setCollectionTranslationExtraById: vi.fn(),
     };
 
     tracker = new UnifiedTracker();

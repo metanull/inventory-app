@@ -23,7 +23,7 @@ export {
   sanitizeDateValue,
 } from './html-to-markdown.js';
 
-export { bitToBoolean } from './legacy-values.js';
+export { bitToBoolean, normalizeSerializedBitBuffers } from './legacy-values.js';
 
 export {
   normalizePath,

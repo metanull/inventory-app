@@ -1640,6 +1640,32 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
   }
 
+  async findCollectionTranslationsWithSerializedBuffers(): Promise<
+    Array<{ id: string; extra: Record<string, unknown> }>
+  > {
+    // JSON_SEARCH matches the `"Buffer"` marker string anywhere in the
+    // document. It is a candidate filter only — the caller re-checks the full
+    // `{type,data}` shape before rewriting anything.
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT id, extra FROM collection_translations
+       WHERE extra IS NOT NULL AND JSON_SEARCH(extra, 'one', 'Buffer') IS NOT NULL`
+    );
+    return rows.map((row) => {
+      const raw = row.extra;
+      return {
+        id: row.id as string,
+        extra: (typeof raw === 'string' ? JSON.parse(raw) : raw) as Record<string, unknown>,
+      };
+    });
+  }
+
+  async setCollectionTranslationExtraById(id: string, extra: string): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE id = ?`,
+      [extra, this.now, id]
+    );
+  }
+
   async getItemTranslationExtra(
     itemId: string,
     languageId: string
