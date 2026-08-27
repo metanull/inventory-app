@@ -52,6 +52,15 @@ export interface ExtractionStats {
   siteRows: number
   /** "key@lang" pairs where the site group replaced a common-group value. */
   overridden: string[]
+  /**
+   * "key@lang" pairs the site group restates with a value identical to the
+   * common group's once both are converted. Subset of `overridden`.
+   *
+   * These are the pairs that make a site look like it customises something when
+   * it does not, so the layered layout keeps them out of a site's own files and
+   * the report names the count — a legacy-data smell worth seeing.
+   */
+  overriddenNoOp: string[]
   /** "key@lang" pairs contributed only by the site group. */
   added: string[]
   /** "key@lang" pairs the legacy API's RIGHT JOIN discards. Subset of overridden ∪ added. */
@@ -68,9 +77,35 @@ export interface ExtractionStats {
   keysPerLocale: Record<string, number>
 }
 
+/**
+ * A site's catalogue split into the layer it shares with every other site
+ * registered against the same common group, and the layer it owns.
+ *
+ * See `splitLayers()` for why the base is the common group rather than whatever
+ * the sites in a given run happen to agree on.
+ */
+export interface LayerSplit {
+  /** Pairs the site overrides with a different value, or adds outright. */
+  own: MessageCatalogue
+  /** Own keys per locale. Locales absent here get no file in the site directory. */
+  ownKeysPerLocale: Record<string, number>
+  /**
+   * Locale -> keys the shared layer carries and the merged catalogue does not.
+   *
+   * Only reachable when a site group overrides a common pair with a value that
+   * is empty after conversion. The layered layout has no way to express a
+   * deletion — shallow-merging the two layers would resurrect the key — so a
+   * non-empty `suppressed` aborts the run rather than writing output that does
+   * not reproduce the flat catalogue.
+   */
+  suppressed: Record<string, string[]>
+}
+
 export interface ExtractedSite {
   site: SiteRegistryEntry
   messages: MessageCatalogue
   stats: ExtractionStats
   warnings: string[]
+  /** Present when the run wrote layered output. */
+  layers?: LayerSplit
 }
