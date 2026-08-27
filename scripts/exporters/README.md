@@ -13,15 +13,30 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 
 ## Datasets
 
-| Directory | Legacy project | Package | Consumed by |
+| Directory | Legacy scope | Package | Consumed by |
 |---|---|---|---|
-| [`islamicart/`](islamicart/README.md) | `ISL` + `EPM` (one dataset) | `@metanull/islamicart-data` | `scripts/viewers/islamicart` |
-| [`baroqueart/`](baroqueart/README.md) | `BAR` | `@metanull/baroqueart-data` | `scripts/viewers/baroqueart` |
-| [`sharinghistory/`](sharinghistory/README.md) | `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
+| [`islamicart/`](islamicart/README.md) | project `ISL` + `EPM` (one dataset) | `@metanull/islamicart-data` | `scripts/viewers/islamicart` |
+| [`baroqueart/`](baroqueart/README.md) | project `BAR` | `@metanull/baroqueart-data` | `scripts/viewers/baroqueart` |
+| [`sharinghistory/`](sharinghistory/README.md) | project `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
+| [`amulets/`](amulets/README.md) | THG **gallery 4** (membership union) | `@metanull/amulets-data` | `scripts/viewers/amulets` |
 
 Each directory is a **self-contained Node/TypeScript project** (own
 `package.json`, `tsconfig.json`, `vitest.config.ts`, `.env`). See the README
 inside each one for dataset specifics.
+
+### Project-scoped vs gallery-scoped
+
+The first three exporters scope by **project**: every item with
+`project_id IN (…)`. The DXA family ([epic #1539](https://github.com/metanull/inventory-app/issues/1539))
+scopes by **collection** instead — a thematic gallery's item universe is the
+membership union legacy expressed as an OR predicate (native project OR one of
+six `thg_gallery_*` link tables), materialized by the importer in
+`collection_item`. Amulets owns none of its 45 objects; they are borrowed from
+EPM, ISL, Sharing History and DCA. Anything a project-scoped fork treats as a
+per-export constant — the source project on the sheet, the context that picks a
+record's canonical translation — is per-item there. The package shapes are
+specified in [`docs/dxa-gallery-data-package.md`](docs/dxa-gallery-data-package.md)
+and [`docs/dxa-exhibition-data-package.md`](docs/dxa-exhibition-data-package.md).
 
 ## Why forked per dataset (deliberate decision)
 
@@ -56,6 +71,11 @@ output/<dataset>/
 Entity files hold language-independent data (ids, relations, image URLs,
 display order); all human-readable text lives in `translations/`. Image URLs
 are absolute, built from `BASE_URL` (the inventory app's public storage).
+
+That layout is the project-scoped one. A gallery package keeps the same
+skeleton but swaps `collections.json` for a `gallery.json` site anchor and adds
+`tags.json`, the facet vocabulary with its categories intact — see
+[`docs/dxa-gallery-data-package.md`](docs/dxa-gallery-data-package.md).
 
 Section anchors (exhibitions root, artistic-introduction root, Historical
 Background/Profiles roots, National Context overlays, …) are identified by
@@ -106,7 +126,7 @@ Prerequisites, one-time:
   that lives only in your host `~/.npmrc` is not visible to the container.
 
 Then, per dataset (exports are **read-only**, but always check what `BASE_URL`
-points at first) — the command is identical for all three:
+points at first) — the command is identical for every dataset:
 
 ```bash
 docker compose run --rm exporter <dataset> --force --publish
