@@ -432,17 +432,23 @@ export interface IWriteStrategy {
   // =========================================================================
 
   /**
-   * Set an author FK on an item_translations row.
+   * Set an author FK on every item_translations row for an (item, language)
+   * pair — one legacy credit covers the item in that language, and
+   * inventory-app may hold several context rows for it.
    * @param itemId The item UUID
    * @param languageId The language ID
    * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
    * @param authorId The author UUID to set
+   * @param overwrite Replace an existing value. The legacy junction tables are
+   *   authoritative over the denormalised free-text credits, so callers
+   *   resolving a junction row pass true. Leave false to fill only NULLs.
    */
   updateItemTranslationAuthorFk(
     itemId: string,
     languageId: string,
     fkColumn: string,
-    authorId: string
+    authorId: string,
+    overwrite?: boolean
   ): Promise<void>;
 
   /**
@@ -451,12 +457,14 @@ export interface IWriteStrategy {
    * @param languageId The language ID
    * @param fkColumn The FK column name (author_id, text_copy_editor_id, translator_id, translation_copy_editor_id)
    * @param authorId The author UUID to set
+   * @param overwrite Replace an existing value — see updateItemTranslationAuthorFk.
    */
   updateDynastyTranslationAuthorFk(
     dynastyId: string,
     languageId: string,
     fkColumn: string,
-    authorId: string
+    authorId: string,
+    overwrite?: boolean
   ): Promise<void>;
 
   // =========================================================================

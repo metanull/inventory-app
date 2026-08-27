@@ -38,6 +38,19 @@ const ROLE_FK_MAP: Record<string, string> = {
 };
 
 export class AuthorImporter extends BaseImporter {
+  /**
+   * (target, language, role) triples already credited from the junction during
+   * this step, as `${targetId}|${languageId}|${fkColumn}`.
+   *
+   * The junction now overwrites whatever a translation row already holds, so
+   * the database can no longer act as the first-wins guard the way the old
+   * `IS NULL` clause did. Legacy lists several authors for one
+   * (item, language, role) about 5% of the time and shows the lowest-priority
+   * one first; the queries are ordered to match, and this set drops every
+   * later row for a triple so that first author is the one that sticks.
+   */
+  private readonly creditedTargets = new Set<string>();
+
   getName(): string {
     return 'AuthorImporter';
   }
@@ -464,6 +477,7 @@ export class AuthorImporter extends BaseImporter {
 
   private async importAuthorItemAssignments(): Promise<ImportResult> {
     const result = this.createResult();
+    this.creditedTargets.clear();
 
     // Legacy resolves credits per (item, language, role) ordered by priority
     // (see .legacy-code/dxa-api/app/MWNF/SQL/mwnf3/ObjectsAuthors.blade.php:
@@ -611,20 +625,33 @@ export class AuthorImporter extends BaseImporter {
       return;
     }
 
+    // Legacy shows the lowest-priority author for a role and ignores the rest;
+    // item_translations has one FK per role, so later rows are dropped here.
+    const target = `${itemId}|${languageId}|${fkColumn}`;
+    if (this.creditedTargets.has(target)) {
+      result.skipped++;
+      this.showSkipped();
+      return;
+    }
+
     if (this.isDryRun || this.isSampleOnlyMode) {
+      this.creditedTargets.add(target);
       result.imported++;
       this.showProgress();
       return;
     }
 
-    // Update the item_translations row to set the author FK
+    // Update the item_translations rows to set the author FK. The junction is
+    // authoritative, so this replaces any credit derived from the free text.
     try {
       await this.context.strategy.updateItemTranslationAuthorFk(
         itemId,
         languageId,
         fkColumn,
-        authorId
+        authorId,
+        true
       );
+      this.creditedTargets.add(target);
       result.imported++;
       this.showProgress();
     } catch (error) {
@@ -643,6 +670,7 @@ export class AuthorImporter extends BaseImporter {
 
   private async importAuthorDynastyAssignments(): Promise<ImportResult> {
     const result = this.createResult();
+    this.creditedTargets.clear();
 
     const authorDynasties = await this.context.legacyDb.query<LegacyAuthorDynasty>(
       // authors_dynasties has no priority column — unlike authors_objects and
@@ -685,20 +713,30 @@ export class AuthorImporter extends BaseImporter {
           continue;
         }
 
+        const target = `${dynastyId}|${languageId}|${fkColumn}`;
+        if (this.creditedTargets.has(target)) {
+          result.skipped++;
+          this.showSkipped();
+          continue;
+        }
+
         if (this.isDryRun || this.isSampleOnlyMode) {
+          this.creditedTargets.add(target);
           result.imported++;
           this.showProgress();
           continue;
         }
 
-        // Update the dynasty_translations row to set the author FK
+        // Update the dynasty_translations rows to set the author FK.
         try {
           await this.context.strategy.updateDynastyTranslationAuthorFk(
             dynastyId,
             languageId,
             fkColumn,
-            authorId
+            authorId,
+            true
           );
+          this.creditedTargets.add(target);
           result.imported++;
           this.showProgress();
         } catch (error) {
