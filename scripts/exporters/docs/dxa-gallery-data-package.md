@@ -219,11 +219,18 @@ partners holding ≥1 member item. Additions:
 Legacy's list (`app/MWNF/SQL/mwnf3/Partners.blade.php`) is a three-branch
 union, and only the first two reduce to "holds a member item". The third
 (MWNF-384) adds museums created in the gallery's own project even when they
-hold nothing; it is empty for amulets — no `mwnf3.museums` row has
-`project_id = 'AMU'` — but a gallery whose native project owns museums needs
-it, and `partners.project_id` is null for every imported museum, so that fork
-needs an importer change first. The same query also carries two hardcoded
-exclusions (`uk/Mus51`, `us/Mus51`) worth re-checking per gallery.
+hold nothing. It is empty for amulets — no `mwnf3.museums` row has
+`project_id = 'AMU'` — but it fires on carpets: legacy lists 72 partners, two of
+which (`jo/Mus31`, `pt/Mus31`, both `hasObjects: 0`) appear only because they
+were created under DCA. **No gallery exporter can reproduce it today**: the
+importer never populates `partners.project_id` for museums (it is set on ten ISL
+schools and nothing else) and `partner_translations.extra` records only
+`source: "mwnf3"`, so the museum→project link has to be carried through the
+import first. Until then a hybrid gallery's partner list is short by exactly the
+museums its own project owns but never filled. The same query also carries two
+hardcoded exclusions (`uk/Mus51`, `us/Mus51`) and an MWNF-371 filter dropping
+partners of a not-yet-live project, both worth re-checking per gallery — neither
+changes anything on amulets or carpets.
 
 ## glossary.json
 
@@ -234,14 +241,37 @@ word-boundary variant).
 
 ## timelines.json / timeline_events.json
 
-The 18 global country timelines with their events and translations — 1,075
-events, all of it small. Match on `mwnf3:hcr:country:%`, not `mwnf3:hcr:%`:
-the latter also catches the separate Baroque Art chronology
-(`mwnf3:hcr:bar:country:*`).
+The global country timeline is a **merge of two chronologies**, and both are
+required (corrected 2026-08-27 while building the carpets exporter — the rule
+below originally named only the first, which is why the amulets package ships
+18 timelines where the live API serves 26 countries). `/v2/events` is served by
+`App\MWNF\DAO\v2\Events`, which queries both and sorts the union by year:
+
+| Source | Legacy SQL | Keyspace to match | Timelines | Events |
+|---|---|---|---|---|
+| Discover Islamic Art country chronologies | `app/MWNF/SQL/mwnf3/Events.blade.php` | `mwnf3:hcr:country:%` | 18 | 1,075 |
+| Sharing History, **exhibition 2 only** | `app/MWNF/SQL/sh/Events.blade.php` | `mwnf3\_sharing\_history:sh\_hcr:country:%:exhibition:2` | 19 | 315 |
+
+Total: **37 timelines over 26 countries, 1,390 events** — still small. The
+Sharing History half is pinned to `exhibition_id = 2` ("Political Context") by a
+`WHERE` clause the legacy source labels a HARDCODED BUSINESS DECISION; the other
+142 SH chronologies (exhibitions 1, 3–11) are not part of the DXA timeline, and
+North Macedonia drops out with them — it has exhibitions 4/5/8/9 and no
+exhibition 2, which is why the live `/events/count?ic[]=mc` answers 0.
+
+Two exact families, no wildcard in the middle: a bare `mwnf3:hcr:%` would also
+catch the separate Baroque Art chronology (`mwnf3:hcr:bar:country:*`), and the
+underscores in the Sharing History key must be escaped (`\_`) or LIKE treats
+them as single-character wildcards. Reference implementation:
+`GLOBAL_TIMELINE_LIKE_PATTERNS` in
+[`../carpets/src/exporters/timeline-exporter.ts`](../carpets/src/exporters/timeline-exporter.ts),
+pinned by `tests/unit/timeline-scope.test.ts`. Each exported timeline carries a
+`source` (`mwnf3` | `sharing_history`) so a viewer can present one merged list
+per country the way legacy did.
 
 Every gallery package carries the same set regardless of the gallery's
-`has_timeline` / `has_country_timeline` flags, because legacy does: the live
-amulets instance reports both false and still answers `/events/countries` with
+`has_timeline` / `has_country_timeline` flags, because legacy does: both amulets
+and carpets report both flags false and still answer `/events/countries` with
 the worldwide list. The flags ride along on `gallery.json` for the viewer to
 interpret. `timeline_event_item` links are filtered to member items — an event
 may name items from any project, but the site can only open the ones it ships.
@@ -250,11 +280,25 @@ client-side.
 
 ## countries.json / dynasties.json
 
-Scoped to what the gallery references. Countries = the union of member item
-countries and their holding partners' countries (the two differ, and the
-partners page groups by the latter). Dynasties only where members actually link
-them — unlike the islamicart package, which ships the whole table because the
-Discover Islamic Art site has a dynasty browser; a gallery has no such page.
+Scoped to what the gallery references — but that is **three** sets, not two
+(corrected 2026-08-27 alongside the timeline rule above; the amulets package
+ships only the first two and its viewer falls back to `Intl.DisplayNames` for
+the rest):
+
+1. the member items' own countries — the collection-search dropdown
+   (`/items/countries`);
+2. their holding museums' countries — the partners page groups by these, and
+   they are not always the item's;
+3. the countries of the global timeline — the timeline page's country picker
+   (`/events/countries`), which is project-independent and therefore names
+   countries no member item comes from.
+
+On carpets the three sets are 26 / 26 / 26 and their union is 34: fr, lb, ma,
+pa, sa, sy, tn and ua reach the package only through the timeline.
+
+Dynasties only where members actually link them — unlike the islamicart package,
+which ships the whole table because the Discover Islamic Art site has a dynasty
+browser; a gallery has no such page.
 
 ## languages.json
 
@@ -280,8 +324,21 @@ AMU ≈ 45 items → trivial. DCA ≈ 486 items → well under the islamicart pa
 
 ## Reference implementation
 
-`scripts/exporters/amulets` implements this specification
-([story #1542](https://github.com/metanull/inventory-app/issues/1542)), verified
-field by field against the live legacy API in
-[`../amulets/tools/VALIDATION-2026-08-27.md`](../amulets/tools/VALIDATION-2026-08-27.md).
-Fork it for the remaining galleries rather than re-deriving the scoping rules.
+Two exporters implement this specification, both verified against the live
+legacy API:
+
+- `scripts/exporters/carpets` ([story #1544](https://github.com/metanull/inventory-app/issues/1544),
+  [`../carpets/tools/VALIDATION-2026-08-27.md`](../carpets/tools/VALIDATION-2026-08-27.md))
+  — **fork this one.** It is the hybrid gallery (native + borrowed members) and
+  it carries the corrected timeline and countries rules above.
+- `scripts/exporters/amulets` ([story #1542](https://github.com/metanull/inventory-app/issues/1542),
+  [`../amulets/tools/VALIDATION-2026-08-27.md`](../amulets/tools/VALIDATION-2026-08-27.md))
+  — the original, and still the clearest example of the purely-curated case. It
+  predates the two corrections marked above and has not been updated yet:
+  its `timelines.json` holds 18 timelines instead of 37, its `countries.json`
+  omits the timeline-only countries, and its `items[]` omits the `project_id`
+  listed in the field set above (it ships only the legacy `project_key`).
+
+Fork rather than re-deriving the scoping rules; the tag, membership, timeline
+and country rules above are all counted against the live API and every one of
+them has a wrong-looking alternative that still produces plausible output.
