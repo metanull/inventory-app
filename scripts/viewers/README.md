@@ -18,6 +18,21 @@ runtime.
 | [`islamicart/`](islamicart/README.md) | `@metanull/islamicart-data` | https://inventory.metanull.eu/islamicart/ | `.github/workflows/deploy-viewer-islamicart-ovh.yml` |
 | [`baroqueart/`](baroqueart/README.md) | `@metanull/baroqueart-data` | https://inventory.metanull.eu/baroqueart/ | `.github/workflows/deploy-viewer-baroqueart-ovh.yml` |
 | [`sharinghistory/`](sharinghistory/README.md) | `@metanull/sharinghistory-data` | https://inventory.metanull.eu/sharinghistory/ | `.github/workflows/deploy-viewer-sharinghistory-ovh.yml` |
+| [`amulets/`](amulets/README.md) | `@metanull/amulets-data` *(not published yet — see below)* | https://inventory.metanull.eu/amulets/ *(not deployed yet)* | `.github/workflows/deploy-viewer-amulets-ovh.yml` |
+
+The first three viewers are **verification tools** for their packages. The
+fourth, `amulets`, is the first of the DXA gallery rebuilds
+([epic #1539](https://github.com/metanull/inventory-app/issues/1539)): a
+faithful reproduction of a public legacy website
+(<https://amulets.museumwnf.org>), reproducing its routes, page structure,
+facet behaviour and palette rather than reinterpreting them. Its UI strings
+come from [`../site-i18n`](../site-i18n/README.md), never from the data
+package.
+
+Its data package is **not published**, so it resolves the exporter's local
+output instead — see
+[`amulets/README.md`](amulets/README.md#where-the-data-comes-from) for how,
+and for the two edits publishing will require.
 
 Each directory is a self-contained Node project. Viewers are **forked per
 dataset by design** (same decision as the exporters): each website has its
@@ -44,6 +59,13 @@ ported between forks explicitly.
   exhibition's children, pages a theme's children. The
   `backward_compatibility` keys in the data are informational only — no
   viewer parses them.
+- **The gallery viewers are the exception on that last point.** DXA gallery
+  sites keep the legacy dbUid *in the public URL*
+  (`/database-item/mwnf3/objects/EPM/uk/Mus21/41/en`), so `amulets` does read
+  `backward_compatibility` — it is the item's public identity there, not an
+  implementation detail. It also anchors its site metadata on `gallery.json`
+  rather than a `purpose` marker, since a gallery package has no
+  `collections.json`.
 
 ## Development
 
@@ -64,6 +86,10 @@ npm install @metanull/<dataset>-data@latest
 then **restart the dev server** — Vite's dependency pre-bundle cache serves
 the old package contents otherwise. Installing from GitHub Packages requires
 a `~/.npmrc` with a token that can read the `@metanull` scope.
+
+`amulets` is wired differently while its package is unpublished: it falls back
+to `scripts/exporters/amulets/output/amulets`, so "picking up new data" there
+means re-running the exporter. See its README.
 
 ## Deployment
 
