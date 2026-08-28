@@ -16,6 +16,51 @@
       "port": 4174
     },
     {
+      "name": "baroqueart-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "E:/inventory/baroqueart",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4176",
+        "--strictPort"
+      ],
+      "port": 4176
+    },
+    {
+      "name": "islamicart-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "E:/inventory/islamicart",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4177",
+        "--strictPort"
+      ],
+      "port": 4177
+    },
+    {
+      "name": "sharinghistory-website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "E:/inventory/sharinghistory",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4178",
+        "--strictPort"
+      ],
+      "port": 4178
+    },
+    {
       "name": "sharinghistory-viewer",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--", "--port", "4175", "--strictPort"],
