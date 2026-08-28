@@ -15,6 +15,7 @@ use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
+use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
@@ -254,8 +255,13 @@ class PasswordResetMfaChallenge extends SimplePage
             return;
         }
 
-        // Re-check token validity after MFA succeeds, before applying the password change
-        $tokenRepository = Password::broker(Config::string('fortify.passwords'))->getRepository();
+        // Re-check token validity after MFA succeeds, before applying the password change.
+        // See UserPasswordResetService for why the concrete broker is named here:
+        // the contract stopped declaring getRepository()/deleteToken() in v12.68.0.
+        /** @var PasswordBroker $broker */
+        $broker = Password::broker(Config::string('fortify.passwords'));
+
+        $tokenRepository = $broker->getRepository();
 
         if (! $tokenRepository->exists($user, $pendingToken)) {
             Notification::make()
@@ -269,7 +275,7 @@ class PasswordResetMfaChallenge extends SimplePage
         }
 
         $user->forceFill(['password' => $pendingHash])->save();
-        Password::broker(Config::string('fortify.passwords'))->deleteToken($user);
+        $broker->deleteToken($user);
 
         Notification::make()
             ->title(__('Your password has been reset. You may now log in.'))
