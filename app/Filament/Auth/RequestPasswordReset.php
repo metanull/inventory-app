@@ -13,6 +13,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
+use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
@@ -88,7 +89,12 @@ class RequestPasswordReset extends SimplePage
         $user = User::query()->where('email', $data['email'])->first();
 
         if ($user) {
-            $token = Password::broker(Config::string('fortify.passwords'))->createToken($user);
+            // See UserPasswordResetService for why the concrete broker is named
+            // here: the contract stopped declaring createToken() in v12.68.0.
+            /** @var PasswordBroker $broker */
+            $broker = Password::broker(Config::string('fortify.passwords'));
+
+            $token = $broker->createToken($user);
             $user->notify(new AdminPasswordResetNotification($token));
         }
 
