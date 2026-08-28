@@ -12,7 +12,7 @@ title: Generated Model Documentation
 
 - ** Total Models:** 45
 - ** Database Connection:** mysql
-- ** Laravel Version:** 12.62.0
+- ** Laravel Version:** 12.67.0
 
 ## Table of Contents
 
@@ -304,11 +304,13 @@ const UPDATED_AT = 'updated_at';
 | `id` | char | Unknown | Unknown |  |
 | `internal_name` | varchar | Unknown | Unknown |  |
 | `type` | enum | Unknown | Unknown |  |
+| `purpose` | varchar | Unknown | Unknown |  |
 | `language_id` | varchar | Unknown | Unknown |  |
 | `context_id` | char | Unknown | Unknown |  |
 | `parent_id` | char | Unknown | Unknown |  |
 | `display_order` | int | Unknown | Unknown |  |
 | `backward_compatibility` | varchar | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
 | `latitude` | decimal | Unknown | Unknown |  |
 | `longitude` | decimal | Unknown | Unknown |  |
 | `map_zoom` | int | Unknown | Unknown |  |
@@ -319,7 +321,7 @@ const UPDATED_AT = 'updated_at';
 ### Fillable Fields
 
 ```php
-['internal_name', 'type', 'language_id', 'context_id', 'parent_id', 'display_order', 'backward_compatibility', 'latitude', 'longitude', 'map_zoom', 'country_id']
+['internal_name', 'type', 'purpose', 'language_id', 'context_id', 'parent_id', 'display_order', 'backward_compatibility', 'extra', 'latitude', 'longitude', 'map_zoom', 'country_id']
 ```
 
 ### Attribute Casting
@@ -327,6 +329,7 @@ const UPDATED_AT = 'updated_at';
 | Attribute | Cast Type |
 |-----------|-----------|
 | `display_order` | `integer` |
+| `extra` | `object` |
 | `latitude` | `decimal:8` |
 | `longitude` | `decimal:8` |
 | `map_zoom` | `integer` |
@@ -343,6 +346,19 @@ const TYPE_ITINERARY = 'itinerary';
 const TYPE_LOCATION = 'location';
 const TYPE_SUBTHEME = 'subtheme';
 const TYPE_REGION = 'region';
+const TYPES = null;
+const PURPOSE_EXHIBITIONS_ROOT = 'exhibitions-root';
+const PURPOSE_ARTISTIC_INTRODUCTION_ROOT = 'artistic-introduction-root';
+const PURPOSE_HISTORICAL_PROFILES_ROOT = 'historical-profiles-root';
+const PURPOSE_HISTORICAL_BACKGROUND_ROOT = 'historical-background-root';
+const PURPOSE_TOPICS_ROOT = 'topics-root';
+const PURPOSE_GALLERIES_ROOT = 'galleries-root';
+const PURPOSE_TRAVELS_ROOT = 'travels-root';
+const PURPOSE_EXPLORE_THEMES_ROOT = 'explore-themes-root';
+const PURPOSE_EXPLORE_COUNTRIES_ROOT = 'explore-countries-root';
+const PURPOSE_EXPLORE_ITINERARIES_ROOT = 'explore-itineraries-root';
+const PURPOSE_NATIONAL_CONTEXT = 'national-context';
+const PURPOSES = null;
 const CREATED_AT = 'created_at';
 const UPDATED_AT = 'updated_at';
 ```
@@ -379,6 +395,8 @@ const UPDATED_AT = 'updated_at';
 - **`exhibitionTrails()`**
 - **`itineraries()`**
 - **`locations()`**
+- **`subthemes()`**
+- **`regions()`**
 - **`roots()`**
 - **`childrenOf()`**
 - **`excludingIds()`**
@@ -412,13 +430,14 @@ const UPDATED_AT = 'updated_at';
 | `size` | bigint | Unknown | Unknown |  |
 | `alt_text` | varchar | Unknown | Unknown |  |
 | `display_order` | int | Unknown | Unknown |  |
+| `extra` | json | Unknown | Unknown |  |
 | `created_at` | timestamp | Unknown | Unknown |  |
 | `updated_at` | timestamp | Unknown | Unknown |  |
 
 ### Fillable Fields
 
 ```php
-['collection_id', 'path', 'original_name', 'mime_type', 'size', 'alt_text', 'display_order']
+['collection_id', 'path', 'original_name', 'mime_type', 'size', 'alt_text', 'display_order', 'extra']
 ```
 
 ### Attribute Casting
@@ -427,6 +446,7 @@ const UPDATED_AT = 'updated_at';
 |-----------|-----------|
 | `size` | `integer` |
 | `display_order` | `integer` |
+| `extra` | `array` |
 
 ### Model Constants
 

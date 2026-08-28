@@ -17,6 +17,9 @@
  * - geoCoordinates → latitude, longitude
  * - zoom → map_zoom
  * - locationId → collection link (via collection_item pivot)
+ * - locations.countryId → country_id (natively created monuments only — the
+ *   `referenced` and `resolvedCandidates` paths reuse an existing BAR/Travels/
+ *   Sharing-History item whose country is authoritative, #1593)
  *
  * Dependencies:
  * - ExploreContextImporter
@@ -71,10 +74,16 @@ export class ExploreMonumentImporter extends BaseImporter {
       });
 
       // Query monuments from legacy database
+      // The country is joined in from the monument's location: legacy stores
+      // none on the monument row and derives it at query time through exactly
+      // this hop. LEFT JOIN — a monument with no location keeps a null
+      // country rather than dropping out of the import (#1593).
       const monuments = await this.context.legacyDb.query<ExploreLegacyMonument>(
-        `SELECT monumentId, locationId, title, geoCoordinates, zoom, special_monument, related_monument
-         FROM mwnf3_explore.exploremonument 
-         ORDER BY locationId, monumentId`
+        `SELECT m.monumentId, m.locationId, m.title, m.geoCoordinates, m.zoom,
+                m.special_monument, m.related_monument, l.countryId
+         FROM mwnf3_explore.exploremonument m
+         LEFT JOIN mwnf3_explore.locations l ON l.locationId = m.locationId
+         ORDER BY m.locationId, m.monumentId`
       );
 
       const monumentTranslations = await this.context.legacyDb.query<

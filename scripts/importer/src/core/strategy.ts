@@ -186,6 +186,28 @@ export interface IWriteStrategy {
   writeItemTranslation(data: ItemTranslationData): Promise<void>;
 
   /**
+   * Set an item's country_id, but only where it is still null — used by the
+   * Explore monument country backfill so a country another importer already
+   * established is never overwritten.
+   * @returns The number of rows updated (0 or 1).
+   */
+  setItemCountryIdIfUnset(itemId: string, countryId: string): Promise<number>;
+
+  /**
+   * Enumerate items whose OWN backward_compatibility starts with `prefix` and
+   * whose country_id is still null.
+   *
+   * Enumerating by the item's own backward_compatibility — rather than
+   * resolving legacy keys through the tracker — is what keeps a backfill
+   * confined to natively-created rows: a deduplicated legacy key resolves to
+   * an item created by a different importer, whose country is not ours to
+   * write.
+   */
+  findItemsWithoutCountryByBackwardCompatibilityPrefix(
+    prefix: string
+  ): Promise<Array<{ id: string; backward_compatibility: string }>>;
+
+  /**
    * Attach tags to an item
    * @param itemId The item UUID
    * @param tagIds Array of tag UUIDs
@@ -601,6 +623,17 @@ export interface IWriteStrategy {
    * null for both).
    */
   collectionItemPivotExists(collectionId: string, itemId: string): Promise<boolean>;
+
+  /**
+   * Read the extra JSON from a collection_images row.
+   * Returns null if no matching row or if extra is null.
+   */
+  getCollectionImageExtra(collectionImageId: string): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on a collection_images row.
+   */
+  setCollectionImageExtra(collectionImageId: string, extraJson: string): Promise<void>;
 
   /**
    * Attach tags to a collection image via collection_image_tag pivot.
