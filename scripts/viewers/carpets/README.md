@@ -230,6 +230,40 @@ describes a partner's relation to a *project*, and `partners.project_id` in the
 inventory model is the museum's **creating** project, which is a different
 thing. Rendering it from that column would state something legacy did not.
 
+## Verified against the package — 2026-08-28
+
+Served from a local export taken after a full legacy re-import of the staging
+database. Every figure below is what the running viewer showed, and every one
+matches the exporter's
+[`VALIDATION-2026-08-27.md`](../../exporters/carpets/tools/VALIDATION-2026-08-27.md).
+
+| Page | Checked | Result |
+|---|---|---|
+| Collection | facet vocabularies | country 26, type 82, dynasty 22, subject 30, material 103, artist 11 |
+| Collection | year buckets | 20 steps, `Before 1000 B.C.` … `After 2000 A.D.` (range −10200 – 2045) |
+| Collection results | `country=at` | "33 result(s) out of 486 objects", 9/page; facets narrow to 23/36/17/16/60 and the empty artist dropdown disappears |
+| Search | `+silk +prayer` | 10 of 486 |
+| Item sheet | `DCA/uk/Mus31/19` (banner object) | every legacy field, 4 photos with credits, "Glasgow, Scotland" |
+| Item sheet | `EPM/us/Mus23/6` in `ar` | full RTL, record languages ar/en only, EIAC notice, short description relabelled "Description:" |
+| Item sheet | `EXTHE`, `GALLERIES` members | named "The Table Is Set" / "MWNF Galleries", not the bare key |
+| Item sheet | "Search related database" | present on ISL/EPM/AWE/BAR, absent on DCA/EXTHE/GALLERIES |
+| Partners | list | 72 partners over 26 countries, 2 of them zero-item |
+| Partner profile | `jo/Mus31` | renders in 9 record languages, no "View Objects" button |
+| Timeline | country picker | 26 countries + "All", no duplicates, no numeric codes, `ua`→UAE, `sb`→Serbia, `cz`→Czech Republic, no North Macedonia |
+| Timeline results | per country | Türkiye 98 (60+38, year-interleaved), Morocco 78, Egypt 68, Algeria 60, Austria 22 |
+
+Two fields were empty or unresolvable in that export because the re-import had
+not finished its own later steps, **not** because of anything in this viewer or
+the exporter:
+
+- `glossary.json` is empty (`item_translation_spelling` had no rows yet), so
+  no in-description term is linked and the glossary tool has nothing to find.
+- Most item and partner photographs 404: `image-sync` failed for 18,910 images
+  (the legacy image tree was not fully available), leaving `item_images.path`
+  as a legacy path rather than an inventory UUID, so the absolute URLs point at
+  files the media host does not have. 160 of the 486 members did get synced
+  images, and those load.
+
 ## Known differences from the live legacy site
 
 The differences below are inherited from the amulets fork, whose page-by-page
