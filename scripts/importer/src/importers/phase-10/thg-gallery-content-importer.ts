@@ -2,9 +2,15 @@
  * THG Gallery Content Importer
  *
  * Imports exhibition-specific content for thematic galleries:
- * - exhibition_logo -> collection_images
+ * - exhibition_logo (+ _i18n, + _category) -> collection_images (+ extra, + tag)
  * - exhibition_partner -> partners + collection_partner + partner_logos
  * - exhibition_related_content links/documents -> collection_media
+ *
+ * A sponsor logo carries more than a file: a display caption (per language),
+ * a hyperlink to the sponsor, a banner slot and a visibility flag. Those ride
+ * along in `collection_images.extra`, and the image is marked as a logo with
+ * the `image-type:logo` tag — `collection_images` has no type column of its
+ * own. See metanull/inventory-app#1592.
  */
 
 import path from 'path';
@@ -17,6 +23,7 @@ import type {
   PartnerLogoData,
   PartnerTranslationData,
 } from '../../core/types.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapCountryCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
@@ -32,6 +39,33 @@ interface LegacyExhibitionLogo {
   link: string | null;
   visible: string | null;
   further_reading: string | null;
+}
+
+/**
+ * `mwnf3_thematic_gallery.exhibition_logo_i18n` — the per-language caption of a
+ * sponsor logo, keyed `(logo_id, language_id)` with `language_id` the legacy
+ * 2-char code. This is where the *display* string lives: for gallery 47 the
+ * base row says `UNAOC` while the i18n row says
+ * `United Nations Alliance of Civilizations`, and the live API serves the
+ * latter.
+ */
+export interface LegacyExhibitionLogoI18n {
+  logo_id: number;
+  language_id: string | null;
+  label: string | null;
+  alt: string | null;
+  further_reading: string | null;
+}
+
+/**
+ * `mwnf3_thematic_gallery.exhibition_logo_category` — a static 5-row lookup
+ * naming the banner slot a logo is rendered in: `0 Header`, `1 Footer 1`,
+ * `2 Footer 2`, `3 Footer 3`, `4 Footer 4`.
+ */
+export interface LegacyExhibitionLogoCategory {
+  category_id: number;
+  name: string | null;
+  description: string | null;
 }
 
 interface LegacyExhibitionPartner {
@@ -183,9 +217,111 @@ function buildExtra(fields: Record<string, string | number | null | undefined>):
   return Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
 }
 
+/**
+ * The `image-type` tag that marks a collection image as an exhibition sponsor
+ * logo. `collection_images` has no type column of its own; the `image-type`
+ * tag family is how `map` images are already distinguished, and logos join it.
+ */
+export const LOGO_TAG_NAME = 'logo';
+export const IMAGE_TYPE_TAG_CATEGORY = 'image-type';
+
+/**
+ * Everything the `collection_images.extra` payload of a sponsor logo is built
+ * from. Language ids are the inventory's 3-char ids (`eng`), already resolved
+ * from the legacy 2-char codes — the exporter converts back on output, exactly
+ * as it does for every other translation.
+ */
+export interface ExhibitionLogoExtraSource {
+  link: string | null;
+  categoryId: number | null;
+  categoryName: string | null;
+  visible: string | null;
+  /** Base-row texts. They seed the default language; an i18n row wins. */
+  baseLabel: string | null;
+  baseAlt: string | null;
+  baseFurtherReading: string | null;
+  defaultLanguageId: string;
+  translations: Array<{
+    languageId: string;
+    label: string | null;
+    alt: string | null;
+    furtherReading: string | null;
+  }>;
+}
+
+/**
+ * Build the `collection_images.extra` payload for one exhibition sponsor logo.
+ *
+ * Shared by ThgGalleryContentImporter (the write path) and
+ * ExhibitionLogoExtraBackfillImporter (the repair path) so the two shapes
+ * cannot drift — a backfilled row must be indistinguishable from a
+ * freshly-imported one. See metanull/inventory-app#1592.
+ *
+ * Keys with no value anywhere are omitted, the same convention `buildExtra()`
+ * above follows. `visible` is always present: `false` is a value, and a logo
+ * legacy hides is still imported — the inventory is the system of record and
+ * filtering is the viewer's job.
+ */
+export function buildExhibitionLogoExtra(
+  source: ExhibitionLogoExtraSource
+): Record<string, unknown> {
+  const extra: Record<string, unknown> = {};
+
+  const link = trimToNull(source.link);
+  if (link) {
+    extra['link'] = link;
+  }
+  if (source.categoryId !== null && source.categoryId !== undefined) {
+    extra['category_id'] = source.categoryId;
+  }
+  const categoryName = trimToNull(source.categoryName);
+  if (categoryName) {
+    extra['category_name'] = categoryName;
+  }
+  extra['visible'] = isTruthyFlag(source.visible);
+
+  const labels: Record<string, string> = {};
+  const alts: Record<string, string> = {};
+  const furtherReadings: Record<string, string> = {};
+
+  // The base row seeds the default language …
+  const baseLabel = trimToNull(source.baseLabel);
+  if (baseLabel) labels[source.defaultLanguageId] = baseLabel;
+  const baseAlt = trimToNull(source.baseAlt);
+  if (baseAlt) alts[source.defaultLanguageId] = baseAlt;
+  const baseFurtherReading = trimToNull(source.baseFurtherReading);
+  if (baseFurtherReading) furtherReadings[source.defaultLanguageId] = baseFurtherReading;
+
+  // … and an i18n row wins on conflict.
+  for (const translation of source.translations) {
+    const label = trimToNull(translation.label);
+    if (label) labels[translation.languageId] = label;
+    const alt = trimToNull(translation.alt);
+    if (alt) alts[translation.languageId] = alt;
+    const furtherReading = trimToNull(translation.furtherReading);
+    if (furtherReading) furtherReadings[translation.languageId] = furtherReading;
+  }
+
+  if (Object.keys(labels).length > 0) extra['labels'] = labels;
+  if (Object.keys(alts).length > 0) extra['alts'] = alts;
+  if (Object.keys(furtherReadings).length > 0) extra['further_readings'] = furtherReadings;
+
+  return extra;
+}
+
 export class ThgGalleryContentImporter extends BaseImporter {
   private galleryCollectionTypes = new Map<number, 'gallery' | 'exhibition'>();
   private defaultContextId: string | null = null;
+  private tagHelper: TagHelper | null = null;
+
+  private getTagHelper(): TagHelper {
+    this.tagHelper ??= new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
+    return this.tagHelper;
+  }
 
   getName(): string {
     return 'ThgGalleryContentImporter';
@@ -272,6 +408,40 @@ export class ThgGalleryContentImporter extends BaseImporter {
     }
 
     this.logInfo(`Found ${logoRows.length} exhibition logo rows`);
+    if (logoRows.length === 0) {
+      return result;
+    }
+
+    // The caption, the banner slot and the hyperlink live in two tables the
+    // base row only points at. Both are optional: the legacy schema drifts and
+    // a missing table must degrade the payload, not fail the import (#1592).
+    const i18nRows = await this.loadExhibitionLogoTranslations(result);
+    const categoryNames = await this.loadExhibitionLogoCategories(result);
+    const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+
+    const i18nByLogoId = new Map<number, LegacyExhibitionLogoI18n[]>();
+    for (const i18n of i18nRows) {
+      const existing = i18nByLogoId.get(i18n.logo_id) ?? [];
+      existing.push(i18n);
+      i18nByLogoId.set(i18n.logo_id, existing);
+    }
+
+    // find-or-create, tracker → db → insert. Do not hand-build the tag's
+    // backward_compatibility: TagHelper owns that format
+    // (`mwnf3:tags:image-type:eng:logo`).
+    let logoTagId: string | null = null;
+    if (!this.isDryRun && !this.isSampleOnlyMode) {
+      logoTagId = await this.getTagHelper().findOrCreate(
+        LOGO_TAG_NAME,
+        IMAGE_TYPE_TAG_CATEGORY,
+        defaultLanguageId
+      );
+      if (!logoTagId) {
+        const warning = 'image-type:logo tag could not be resolved — logos will not be tagged';
+        result.warnings.push(warning);
+        this.logWarning(warning);
+      }
+    }
 
     for (const logo of logoRows) {
       try {
@@ -309,8 +479,25 @@ export class ThgGalleryContentImporter extends BaseImporter {
           'success'
         );
 
+        const translations = await this.resolveLogoTranslations(
+          i18nByLogoId.get(logo.logo_id) ?? [],
+          result
+        );
+        const extra = buildExhibitionLogoExtra({
+          link: logo.link,
+          categoryId: logo.category_id,
+          categoryName:
+            logo.category_id === null ? null : (categoryNames.get(logo.category_id) ?? null),
+          visible: logo.visible,
+          baseLabel: logo.label,
+          baseAlt: logo.alt,
+          baseFurtherReading: logo.further_reading,
+          defaultLanguageId,
+          translations,
+        });
+
         if (!this.isDryRun && !this.isSampleOnlyMode) {
-          await this.context.strategy.writeCollectionImage({
+          const imageId = await this.context.strategy.writeCollectionImage({
             collection_id: collectionId,
             path: logoPath,
             original_name: path.basename(logoPath),
@@ -318,7 +505,12 @@ export class ThgGalleryContentImporter extends BaseImporter {
             size: 1,
             alt_text: trimToNull(logo.alt),
             display_order: logo.display_order ?? 0,
+            extra: JSON.stringify(extra),
           });
+
+          if (logoTagId) {
+            await this.getTagHelper().attachToCollectionImage(imageId, [logoTagId]);
+          }
         } else {
           this.logInfo(
             `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would create exhibition logo image: ${logoPath} -> collection ${collectionId}`
@@ -514,6 +706,103 @@ export class ThgGalleryContentImporter extends BaseImporter {
     }
 
     return result;
+  }
+
+  /**
+   * Read the per-language logo captions. A missing table is tolerated the same
+   * way the base `exhibition_logo` query tolerates one — the legacy schema
+   * drifts, and losing the captions must not lose the logos.
+   */
+  private async loadExhibitionLogoTranslations(
+    result: ImportResult
+  ): Promise<LegacyExhibitionLogoI18n[]> {
+    try {
+      return await this.context.legacyDb.query<LegacyExhibitionLogoI18n>(
+        `SELECT logo_id, language_id, label, alt, further_reading
+         FROM mwnf3_thematic_gallery.exhibition_logo_i18n
+         ORDER BY logo_id, language_id`
+      );
+    } catch (queryError) {
+      const message = queryError instanceof Error ? queryError.message : String(queryError);
+      if (message.includes("doesn't exist") || message.includes('Table')) {
+        this.logWarning(`exhibition_logo_i18n table not available: ${message}`);
+        result.warnings.push(
+          `exhibition_logo_i18n table not available: ${message}; logo captions skipped`
+        );
+        return [];
+      }
+      throw queryError;
+    }
+  }
+
+  /**
+   * Read the static banner-slot lookup, so the exporter never needs the legacy
+   * database to render "Footer 2".
+   */
+  private async loadExhibitionLogoCategories(result: ImportResult): Promise<Map<number, string>> {
+    let rows: LegacyExhibitionLogoCategory[];
+    try {
+      rows = await this.context.legacyDb.query<LegacyExhibitionLogoCategory>(
+        `SELECT category_id, name, description
+         FROM mwnf3_thematic_gallery.exhibition_logo_category
+         ORDER BY category_id`
+      );
+    } catch (queryError) {
+      const message = queryError instanceof Error ? queryError.message : String(queryError);
+      if (message.includes("doesn't exist") || message.includes('Table')) {
+        this.logWarning(`exhibition_logo_category table not available: ${message}`);
+        result.warnings.push(
+          `exhibition_logo_category table not available: ${message}; logo category names skipped`
+        );
+        return new Map();
+      }
+      throw queryError;
+    }
+
+    const names = new Map<number, string>();
+    for (const row of rows) {
+      const name = trimToNull(row.name);
+      if (name !== null) {
+        names.set(row.category_id, name);
+      }
+    }
+    return names;
+  }
+
+  /**
+   * Map legacy 2-char language codes onto the inventory's 3-char ids. A code
+   * that does not resolve is warned about and dropped — never thrown.
+   */
+  private async resolveLogoTranslations(
+    rows: LegacyExhibitionLogoI18n[],
+    result: ImportResult
+  ): Promise<ExhibitionLogoExtraSource['translations']> {
+    const translations: ExhibitionLogoExtraSource['translations'] = [];
+    for (const row of rows) {
+      const sourceLanguage = trimToNull(row.language_id);
+      if (!sourceLanguage) {
+        result.warnings.push(
+          `exhibition_logo_i18n.logo_id=${row.logo_id}: language_id is empty, skipping caption`
+        );
+        continue;
+      }
+
+      const languageId = await this.getLanguageIdByLegacyCodeAsync(sourceLanguage);
+      if (!languageId) {
+        result.warnings.push(
+          `exhibition_logo_i18n.logo_id=${row.logo_id}: unknown language '${sourceLanguage}', skipping caption`
+        );
+        continue;
+      }
+
+      translations.push({
+        languageId,
+        label: row.label,
+        alt: row.alt,
+        furtherReading: row.further_reading,
+      });
+    }
+    return translations;
   }
 
   private async loadExhibitionPartnerTranslations(

@@ -34,6 +34,7 @@ class CollectionImage extends Model implements DetachableImage, StreamableImageF
         'size',
         'alt_text',
         'display_order',
+        'extra',
     ];
 
     /**
@@ -44,6 +45,7 @@ class CollectionImage extends Model implements DetachableImage, StreamableImageF
     protected $casts = [
         'size' => 'integer',
         'display_order' => 'integer',
+        'extra' => 'array',
     ];
 
     /**

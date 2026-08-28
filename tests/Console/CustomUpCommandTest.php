@@ -4,6 +4,7 @@ namespace Tests\Console;
 
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Tests\Traits\FakesMaintenanceMode;
 
 /**
  * Unit tests for CustomUpCommand.
@@ -11,9 +12,15 @@ use Tests\TestCase;
  * These tests focus on our custom business logic: removing the public lock
  * file via Storage. We use Storage::fake() for complete isolation and don't test
  * Laravel's maintenance mode functionality (framework responsibility).
+ *
+ * The maintenance driver is faked for the same reason as in
+ * CustomDownCommandTest: it keeps the framework's shared state out of a
+ * parallel test run. See FakesMaintenanceMode.
  */
 class CustomUpCommandTest extends TestCase
 {
+    use FakesMaintenanceMode;
+
     private string $disk;
 
     private string $filename;
@@ -22,6 +29,8 @@ class CustomUpCommandTest extends TestCase
     {
         parent::setUp();
 
+        $this->fakeMaintenanceMode();
+
         $this->disk = config('maintenance.public_lock_disk');
         $this->filename = config('maintenance.public_lock_file');
     }
@@ -29,6 +38,9 @@ class CustomUpCommandTest extends TestCase
     public function test_command_removes_existing_lock_file(): void
     {
         Storage::fake($this->disk);
+
+        // Application genuinely down, so the parent UpCommand runs its full path
+        $this->enterFakeMaintenanceMode();
 
         // Create a lock file first
         Storage::disk($this->disk)->put($this->filename, json_encode([
