@@ -20,6 +20,7 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 | [`sharinghistory/`](sharinghistory/README.md) | project `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
 | [`amulets/`](amulets/README.md) | THG **gallery 4** (membership union) | `@metanull/amulets-data` | `scripts/viewers/amulets` |
 | [`carpets/`](carpets/README.md) | THG **gallery 9** (membership union, DCA-native + borrowed) | `@metanull/carpets-data` | `scripts/viewers/carpets` |
+| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | THG **exhibition 47** (membership union + curated theme tree) | `@metanull/the-use-of-colours-in-art-data` | *(viewer not built yet)* |
 
 Each directory is a **self-contained Node/TypeScript project** (own
 `package.json`, `tsconfig.json`, `vitest.config.ts`, `.env`). See the README
@@ -40,6 +41,13 @@ constant — the source project on the sheet, the context that picks a record's
 canonical translation — is per-item there. The package shapes are
 specified in [`docs/dxa-gallery-data-package.md`](docs/dxa-gallery-data-package.md)
 and [`docs/dxa-exhibition-data-package.md`](docs/dxa-exhibition-data-package.md).
+
+**Exhibitions** are galleries plus a curated layer: `exhibition.json` replaces
+`gallery.json`, and `themes.json` (an ordered tree of themes and sub-themes,
+each holding hand-picked pictures with their own per-exhibition texts) and
+`related_content.json` are added. `the-use-of-colours-in-art` is the reference
+implementation and the extreme of the borrowed case — 24 of its 171 members are
+its own, the rest come from seven other projects.
 
 ## Why forked per dataset (deliberate decision)
 

@@ -360,10 +360,19 @@ legacy API:
 - `scripts/exporters/amulets` ([story #1542](https://github.com/metanull/inventory-app/issues/1542),
   [`../amulets/tools/VALIDATION-2026-08-27.md`](../amulets/tools/VALIDATION-2026-08-27.md))
   — the original, and still the clearest example of the purely-curated case. It
-  predates the two corrections marked above and has not been updated yet:
-  its `timelines.json` holds 18 timelines instead of 37, its `countries.json`
-  omits the timeline-only countries, and its `items[]` omits the `project_id`
-  listed in the field set above (it ships only the legacy `project_key`).
+  shipped without the two corrections marked above; both were backported in
+  [#1586](https://github.com/metanull/inventory-app/issues/1586), so its
+  `timelines.json` now holds the full 37 and its `countries.json` covers the
+  timeline countries. Its `items[]` still omits the `project_id` listed in the
+  field set above (it ships only the legacy `project_key`).
+
+A third rule was added on 2026-08-28 while building the first exhibition
+exporter and applies to **galleries too**, since it lives in the same legacy
+query: `Partners.blade.php` ends with a CTE that drops `uk/Mus51` and `us/Mus51`
+by name from every DXA partner list. It changes nothing on amulets or carpets —
+neither holds a member of theirs — which is why the first two forks recorded it
+and moved on. Reproduce it anyway; see
+[`../the-use-of-colours-in-art/src/exporters/partner-exporter.ts`](../the-use-of-colours-in-art/src/exporters/partner-exporter.ts).
 
 Fork rather than re-deriving the scoping rules; the tag, membership, timeline
 and country rules above are all counted against the live API and every one of
