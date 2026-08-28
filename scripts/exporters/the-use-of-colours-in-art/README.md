@@ -126,7 +126,7 @@ curated texts, so a `de` build becomes possible the day someone flips the flag.
 | `items.json` | The 171 member items — full sheets, facet tag ids, images, references |
 | `tags.json` | 293 THG facet tags with their category (artist 45, dynasty 18, material 97, subject 34, type 99) |
 | `partners.json` | The 85 museums and institutions (75 on legacy's partner list + 11 institutions, minus the overlap), with `featured` and `item_count` |
-| `countries.json` | The 34 countries the members, their holders and the timeline reference |
+| `countries.json` | The 35 countries the members, their holders and the timeline reference |
 | `languages.json` | The 10 languages the site can display (de/en as `site_language`, plus 8 carried by borrowed records and partners) |
 | `dynasties.json` | The 16 dynasties member items reference |
 | `glossary.json` | The 147 terms reachable from member item texts, with spelling lists |
