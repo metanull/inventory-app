@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\SimplePage;
+use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Hash;
@@ -95,7 +96,12 @@ class ResetPassword extends SimplePage
             ]);
         }
 
-        $tokenRepository = Password::broker(Config::string('fortify.passwords'))->getRepository();
+        // See UserPasswordResetService for why the concrete broker is named
+        // here: the contract stopped declaring getRepository() in v12.68.0.
+        /** @var PasswordBroker $broker */
+        $broker = Password::broker(Config::string('fortify.passwords'));
+
+        $tokenRepository = $broker->getRepository();
         if (! $tokenRepository->exists($user, $this->token)) {
             throw ValidationException::withMessages([
                 'data.email' => [__('This password reset token is invalid or has expired.')],
