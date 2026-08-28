@@ -1,5 +1,5 @@
 import type { ItemData } from '../../core/types.js';
-import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { mapCountryCode, mapLanguageCode } from '../../utils/code-mappings.js';
 import {
   selectItemInternalName,
   type ItemInternalNameCandidate,
@@ -18,6 +18,13 @@ export interface ExploreLegacyMonument {
   zoom: number | null;
   special_monument: string | null;
   related_monument: string | null;
+  /**
+   * The legacy 2-char country code of the monument's location, joined in from
+   * `mwnf3_explore.locations.countryId`. Legacy stores no country on the
+   * monument row itself and derives it at query time through this same hop.
+   * See metanull/inventory-app#1593.
+   */
+  countryId: string | null;
 }
 
 export interface TransformedExploreMonument {
@@ -74,12 +81,30 @@ export function transformExploreMonument(
   );
   const [latitude, longitude] = parseGeoCoordinates(legacy.geoCoordinates);
 
+  const warnings = selectedInternalName.warning ? [selectedInternalName.warning] : [];
+
+  // Legacy resolves the country at query time via locationId → countries; the
+  // 2-char code is mapped to the inventory's ISO alpha-3 id here. An unmappable
+  // code is a per-row warning, never a failed import (#1593).
+  let countryId: string | null = null;
+  const legacyCountryCode = legacy.countryId?.trim();
+  if (legacyCountryCode) {
+    try {
+      countryId = mapCountryCode(legacyCountryCode);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      warnings.push(
+        `Explore monument ${backwardCompatibility}: country code '${legacyCountryCode}' cannot be mapped: ${message}`
+      );
+    }
+  }
+
   return {
     data: {
       internal_name: selectedInternalName.internalName,
       backward_compatibility: backwardCompatibility,
       type: 'monument',
-      country_id: null,
+      country_id: countryId,
       parent_id: null,
       owner_reference: null,
       mwnf_reference: null,
@@ -88,7 +113,7 @@ export function transformExploreMonument(
       map_zoom: legacy.zoom,
     },
     backwardCompatibility,
-    warnings: selectedInternalName.warning ? [selectedInternalName.warning] : [],
+    warnings,
     locationId: legacy.locationId,
   };
 }

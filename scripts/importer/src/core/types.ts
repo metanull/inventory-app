@@ -400,6 +400,12 @@ export interface CollectionImageData {
   size: number;
   alt_text?: string | null;
   display_order: number;
+  /**
+   * Pre-stringified JSON passenger data, mirroring `PartnerImageData.extra`.
+   * Stringify at the call site — `SKIP_SANITIZE_FIELDS` exempts a field named
+   * `extra` from the HTML→Markdown pass, so the JSON survives intact.
+   */
+  extra?: string | null;
 }
 
 /**

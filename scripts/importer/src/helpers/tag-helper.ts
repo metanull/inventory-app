@@ -113,4 +113,16 @@ export class TagHelper {
     if (tagIds.length === 0) return;
     await this.strategy.attachTagsToItem(itemId, tagIds);
   }
+
+  /**
+   * Attach tags to a collection image (collection_image_tag pivot).
+   *
+   * The `image-type` tag family — `map`, `logo` — is what distinguishes one
+   * kind of collection image from another; `collection_images` has no type
+   * column of its own.
+   */
+  async attachToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void> {
+    if (tagIds.length === 0) return;
+    await this.strategy.attachTagsToCollectionImage(collectionImageId, tagIds);
+  }
 }

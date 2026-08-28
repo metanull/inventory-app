@@ -76,6 +76,7 @@ describe('ExploreMonumentImporter', () => {
             zoom: null,
             special_monument: null,
             related_monument: null,
+            countryId: 'eg',
             REF_tr_monuments_project_id: null,
             REF_tr_monuments_country: null,
             REF_tr_monuments_itinerary_id: null,
@@ -136,6 +137,98 @@ describe('ExploreMonumentImporter', () => {
     expect(result.imported).toBe(1);
   });
 
+  /**
+   * The dedup guard for #1593. A referenced monument reuses an existing
+   * BAR/Travels/Sharing-History item whose `country_id` is authoritative —
+   * the Explore-derived country ('eg' on this row) must never be written over
+   * it. The guard is structural: the referenced path never writes an item at
+   * all, and nothing else may start writing a country there.
+   */
+  it('never writes a country onto the item a referenced monument reuses', async () => {
+    const importer = new ExploreMonumentImporter(context);
+    await importer.import();
+
+    expect(writeItemMock).not.toHaveBeenCalled();
+    expect(writeCollectionItemMock).toHaveBeenCalledTimes(1);
+    expect(writeCollectionItemMock.mock.calls[0]![0]).not.toHaveProperty('country_id');
+  });
+
+  it('derives country_id from the joined location for a natively created monument', async () => {
+    // Monument 777 matches no cross-reference table → native creation path.
+    queryMock = vi.fn(async (sql: string) => {
+      if (
+        sql.includes('FROM mwnf3_explore.exploremonument_vm') ||
+        sql.includes('FROM mwnf3_explore.exploremonument_tr') ||
+        sql.includes('FROM mwnf3_explore.exploremonument_sh')
+      ) {
+        return [];
+      }
+      if (sql.includes('FROM mwnf3_explore.exploremonumentext')) {
+        return [{ monumentId: 777, langId: 'en', name: 'Native monument' }];
+      }
+      if (sql.includes('FROM mwnf3_explore.exploremonument')) {
+        return [
+          {
+            monumentId: 777,
+            locationId: 2,
+            title: 'Native monument',
+            geoCoordinates: null,
+            zoom: null,
+            special_monument: null,
+            related_monument: null,
+            countryId: 'in',
+            REF_tr_monuments_project_id: null,
+            REF_tr_monuments_country: null,
+            REF_tr_monuments_itinerary_id: null,
+            REF_tr_monuments_location_id: null,
+            REF_tr_monuments_number: null,
+            REF_tr_monuments_lang: null,
+            REF_tr_monuments_trail_id: null,
+            REF_monuments_project_id: null,
+            REF_monuments_country: null,
+            REF_monuments_institution_id: null,
+            REF_monuments_number: null,
+            REF_monuments_lang: null,
+          },
+        ];
+      }
+      return [];
+    });
+
+    context = {
+      ...context,
+      legacyDb: {
+        query: queryMock as ILegacyDatabase['query'],
+        execute: vi.fn(),
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      },
+    };
+    writeItemMock.mockResolvedValue('native-item-uuid');
+
+    const result = await new ExploreMonumentImporter(context).import();
+
+    expect(writeItemMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        backward_compatibility: 'mwnf3_explore:monument:777',
+        country_id: 'ind',
+      })
+    );
+    expect(result.success).toBe(true);
+  });
+
+  it('joins the monument location so the legacy country code is available', async () => {
+    await new ExploreMonumentImporter(context).import();
+
+    const monumentCall = queryMock.mock.calls.find(
+      (args: unknown[]) =>
+        (args[0] as string).includes('FROM mwnf3_explore.exploremonument m') &&
+        (args[0] as string).includes('LEFT JOIN mwnf3_explore.locations')
+    );
+    expect(monumentCall).toBeDefined();
+    expect(monumentCall![0] as string).toContain('l.countryId');
+  });
+
   it('logs info (not warning) when a monument resolves to multiple source candidates', async () => {
     // Monument 500 appears in both vm and travels tables → resolvedCandidates mode
     tracker.set('mwnf3:monuments:IAM:eg:Mus01:7', 'vm-candidate-uuid', 'item');
@@ -180,6 +273,7 @@ describe('ExploreMonumentImporter', () => {
             zoom: null,
             special_monument: null,
             related_monument: null,
+            countryId: 'eg',
             REF_tr_monuments_project_id: null,
             REF_tr_monuments_country: null,
             REF_tr_monuments_itinerary_id: null,

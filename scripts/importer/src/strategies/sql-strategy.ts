@@ -520,6 +520,33 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return id;
   }
 
+  async setItemCountryIdIfUnset(itemId: string, countryId: string): Promise<number> {
+    const [result] = await this.db.execute<ResultSetHeader>(
+      `UPDATE items SET country_id = ?, updated_at = ? WHERE id = ? AND country_id IS NULL`,
+      [countryId, this.now, itemId]
+    );
+    return result.affectedRows;
+  }
+
+  async findItemsWithoutCountryByBackwardCompatibilityPrefix(
+    prefix: string
+  ): Promise<Array<{ id: string; backward_compatibility: string }>> {
+    // Backward-compatibility keys are full of underscores ('mwnf3_explore:…'),
+    // and `_` is a LIKE wildcard — escape the prefix so it matches literally.
+    const escapedPrefix = prefix.replace(/[\\%_]/g, '\\$&');
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT id, backward_compatibility FROM items
+       WHERE country_id IS NULL
+         AND backward_compatibility LIKE ?
+       ORDER BY backward_compatibility`,
+      [`${escapedPrefix}%`]
+    );
+    return rows.map((row) => ({
+      id: row.id as string,
+      backward_compatibility: row.backward_compatibility as string,
+    }));
+  }
+
   async writeItemTranslation(data: ItemTranslationData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
     // backward_compatibility identifies the item, not the translation row (and
@@ -956,8 +983,8 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const trackerKey = `${sanitized.collection_id}:${sanitized.path.toLowerCase()}`;
     try {
       await this.db.execute(
-        `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO collection_images (id, collection_id, path, original_name, mime_type, size, alt_text, display_order, extra, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           id,
           sanitized.collection_id,
@@ -967,6 +994,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
           sanitized.size,
           sanitized.alt_text,
           sanitized.display_order,
+          sanitized.extra ?? null,
           this.now,
           this.now,
         ]
@@ -1734,6 +1762,23 @@ export class SqlWriteStrategy implements IWriteStrategy {
       [collectionId, itemId]
     );
     return rows.length > 0;
+  }
+
+  async getCollectionImageExtra(collectionImageId: string): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM collection_images WHERE id = ? LIMIT 1`,
+      [collectionImageId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setCollectionImageExtra(collectionImageId: string, extraJson: string): Promise<void> {
+    await this.db.execute(
+      `UPDATE collection_images SET extra = ?, updated_at = ? WHERE id = ?`,
+      [extraJson, this.now, collectionImageId]
+    );
   }
 
   async attachTagsToCollectionImage(collectionImageId: string, tagIds: string[]): Promise<void> {

@@ -46,6 +46,7 @@ import type {
   ShLegacyHistoricalBackgroundMap,
   ShLegacyHistoricalBackgroundMapText,
 } from '../../domain/types/index.js';
+import { TagHelper } from '../../helpers/tag-helper.js';
 import { mapCountryCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 
@@ -68,6 +69,17 @@ export class ShBibliographyHbImporter extends BaseImporter {
   // by backward-compatibility key. `null` caches a project whose root/context
   // is missing so we only warn once.
   private projectScopes = new Map<string, { rootId: string; contextId: string } | null>();
+
+  private tagHelper: TagHelper | null = null;
+
+  private getTagHelper(): TagHelper {
+    this.tagHelper ??= new TagHelper(
+      this.context.strategy,
+      this.context.tracker,
+      this.context.logger
+    );
+    return this.tagHelper;
+  }
 
   /**
    * Resolve the root collection + context of an SH project (#1494: HB records
@@ -885,15 +897,23 @@ export class ShBibliographyHbImporter extends BaseImporter {
     );
 
     this.logInfo(`Found ${maps.length} HB maps`);
+    if (maps.length === 0) {
+      return;
+    }
 
-    // Resolve map tag
-    const mapTagId = await this.context.strategy.findByBackwardCompatibility(
-      'tags',
-      'mwnf3:tags:image-type:map'
-    );
+    // Resolve the map tag through TagHelper, which owns the tag key format
+    // (`mwnf3:tags:{category}:{language}:{name}`) and is self-creating. The
+    // previous hand-built lookup for 'mwnf3:tags:image-type:map' had no
+    // language segment and matched nothing, so maps were silently never
+    // tagged. findOrCreate writes, so it stays behind the dry-run guard.
+    let mapTagId: string | null = null;
+    if (!this.isDryRun && !this.isSampleOnlyMode) {
+      const defaultLanguageId = await this.getDefaultLanguageIdAsync();
+      mapTagId = await this.getTagHelper().findOrCreate('map', 'image-type', defaultLanguageId);
 
-    if (!mapTagId) {
-      this.logWarning('Map tag not found — maps will not be tagged');
+      if (!mapTagId) {
+        this.logWarning('Map tag not found — maps will not be tagged');
+      }
     }
 
     for (const map of maps) {
@@ -935,7 +955,7 @@ export class ShBibliographyHbImporter extends BaseImporter {
 
         // Tag with 'map'
         if (mapTagId) {
-          await this.context.strategy.attachTagsToCollectionImage(imageId, [mapTagId]);
+          await this.getTagHelper().attachToCollectionImage(imageId, [mapTagId]);
         }
 
         result.imported++;
