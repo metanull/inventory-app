@@ -9,11 +9,47 @@ interface TranslationRow {
   description: string | null
 }
 
-interface LogoRow {
+export interface LogoRow {
   id: string
   path: string
   original_name: string | null
   alt_text: string | null
+  display_order: number
+  extra: unknown
+}
+
+/**
+ * The passenger data the importer files on a sponsor logo's `collection_images`
+ * row (metanull/inventory-app#1592). Language maps are keyed by the inventory's
+ * 3-char language id (`eng`), NOT by the 2-char code this package emits.
+ */
+interface LogoExtra {
+  link?: string | null
+  category_id?: number | null
+  category_name?: string | null
+  visible?: boolean | null
+  labels?: Record<string, string> | null
+  alts?: Record<string, string> | null
+  further_readings?: Record<string, string> | null
+}
+
+/** One entry of `exhibition.json.logos[]`. */
+export interface ExhibitionLogo {
+  id: string
+  image_url: string
+  legacy_path: string | null
+  /** The column's single alt string — the fallback when `alt_texts` is empty. */
+  alt_text: string | null
+  /** `exhibition_logo.link`: the logo is a hyperlink to the sponsor's site. */
+  url: string | null
+  /** The rendered sponsor caption, language-keyed by 2-char code. */
+  labels: Record<string, string>
+  alt_texts: Record<string, string>
+  further_readings: Record<string, string>
+  /** Banner slot, e.g. "Footer 2" (`exhibition_logo_category`). */
+  category: string | null
+  category_id: number | null
+  visible: boolean
   display_order: number
 }
 
@@ -194,32 +230,71 @@ export class ExhibitionExporter extends BaseExporter {
 
   /**
    * `exhibition_logo` → `collection_images`, the sponsor logos on the bottom
-   * banner.
+   * banner: the image, its hyperlink, its per-language caption and its banner
+   * slot.
    *
-   * Only the image itself, its alt text and its order survive the import:
-   * `collection_images` has no `extra` column, so the legacy row's `label`,
-   * `link`, `category_id` and `visible` are read by the importer and then
-   * dropped. On Colours that costs the one logo its caption ("United Nations
-   * Alliance of Civilizations"), its href (unaoc.org) and its "Footer 2"
-   * category. Recording the gap here rather than silently shipping a
-   * link-less logo — see the exporter README.
+   * Two mechanisms carry that, both introduced by metanull/inventory-app#1592
+   * and both already used elsewhere in the schema:
+   *
+   * - **Typing via tags.** A collection can own images that are not sponsor
+   *   logos, so the query is scoped to the `image-type` / `logo` tag through
+   *   `collection_image_tag`. The join is on the tag's IDENTITY
+   *   (`internal_name` + `category`) rather than on its
+   *   `backward_compatibility`, because that string carries a language segment
+   *   (`mwnf3:tags:image-type:eng:logo`) and the tag table is unique per
+   *   `(internal_name, category, language_id)` — matching on identity keeps
+   *   working whichever language's tag row the importer created. `EXISTS`
+   *   rather than a plain join so an image tagged through more than one such
+   *   row is still exported once.
+   * - **Passenger data via `extra`.** Everything legacy keeps beside the image
+   *   (`link`, `category_id`, `visible`, and the per-language `label`, `alt`
+   *   and `further_reading` of `exhibition_logo_i18n`) rides in the JSON
+   *   column, parsed by buildLogoEntry below.
+   *
+   * Hidden logos (`visible: false`) ship too — the inventory is the system of
+   * record and filtering is the viewer's job.
    */
-  private async exportLogos(): Promise<unknown[]> {
-    const rows = await this.db.query<LogoRow>(
-      `SELECT id, path, original_name, alt_text, display_order
-       FROM collection_images
-       WHERE collection_id = ?
-       ORDER BY display_order, id`,
-      [this.exhibition.id]
-    )
+  private async exportLogos(): Promise<ExhibitionLogo[]> {
+    const langCodeMap = await this.buildLangCodeMap()
 
-    return rows.map(row => ({
-      id: row.id,
-      image_url: this.imageUrl(row.path),
-      legacy_path: row.original_name,
-      alt_text: row.alt_text,
-      display_order: row.display_order,
-    }))
+    const [rows, totals] = await Promise.all([
+      this.db.query<LogoRow>(
+        `SELECT ci.id, ci.path, ci.original_name, ci.alt_text, ci.display_order, ci.extra
+         FROM collection_images ci
+         WHERE ci.collection_id = ?
+           AND EXISTS (
+             SELECT 1
+             FROM collection_image_tag cit
+             JOIN tags t ON t.id = cit.tag_id
+             WHERE cit.collection_image_id = ci.id
+               AND t.internal_name = 'logo'
+               AND t.category = 'image-type'
+           )
+         ORDER BY ci.display_order, ci.id`,
+        [this.exhibition.id]
+      ),
+      this.db.query<{ total: number }>(
+        `SELECT COUNT(*) AS total FROM collection_images WHERE collection_id = ?`,
+        [this.exhibition.id]
+      ),
+    ])
+
+    // Images but no logo-tagged image is the signature of a database the logo
+    // import (or its phase-11 backfill) has not run against yet. Say so rather
+    // than shipping an empty strip that looks like a legitimately logo-less
+    // exhibition. Only the all-or-nothing case is detectable: an untagged image
+    // is not necessarily a logo, so a count mismatch would fire on any
+    // collection that legitimately owns another kind of image.
+    if (rows.length === 0 && (totals[0]?.total ?? 0) > 0) {
+      this.logger.warning(
+        `exhibition.json: this collection has ${totals[0]?.total ?? 0} image(s) but none ` +
+          `carries the 'image-type: logo' tag, so no sponsor logo ships. This database ` +
+          `predates metanull/inventory-app#1592 — run the importer's phase-11 logo ` +
+          `backfill (or a fresh import) and re-export.`
+      )
+    }
+
+    return rows.map(row => buildLogoEntry(row, this.imageUrl(row.path), langCodeMap))
   }
 
   /**
@@ -414,6 +489,65 @@ export function isFeatured(flag: string | undefined | null): boolean {
 /** `status = 'A'` is the visible state; anything else hides the site. */
 export function isHidden(status: string | undefined | null): boolean {
   return status !== 'A'
+}
+
+/**
+ * Builds one `logos[]` entry from a `collection_images` row.
+ *
+ * Free function rather than a method so it is testable without a database:
+ * everything interesting here is the reading of `extra`, whose contract is the
+ * importer's and whose failure modes (absent column, NULL, malformed JSON,
+ * missing `link`, a language the package does not carry) all have to degrade to
+ * a still-renderable entry instead of throwing mid-export.
+ *
+ * `langCodeMap` is the 3-char language id → 2-char code map of BaseExporter:
+ * `extra` speaks the inventory's `eng`, the package emits `en`.
+ */
+export function buildLogoEntry(
+  row: LogoRow,
+  imageUrl: string,
+  langCodeMap: Map<string, string>
+): ExhibitionLogo {
+  const extra = parseJson<LogoExtra>(row.extra)
+
+  return {
+    id: row.id,
+    image_url: imageUrl,
+    legacy_path: row.original_name,
+    alt_text: row.alt_text,
+    // The importer omits an empty link; an older row may still hold ''.
+    url: typeof extra?.link === 'string' && extra.link !== '' ? extra.link : null,
+    labels: toLanguageCodes(extra?.labels, langCodeMap),
+    alt_texts: toLanguageCodes(extra?.alts, langCodeMap),
+    further_readings: toLanguageCodes(extra?.further_readings, langCodeMap),
+    category: extra?.category_name ?? null,
+    category_id: extra?.category_id ?? null,
+    // A logo whose row carries no `visible` at all is shown: legacy's default
+    // is 'Y', and only an explicit false hides one.
+    visible: typeof extra?.visible === 'boolean' ? extra.visible : true,
+    display_order: row.display_order,
+  }
+}
+
+/**
+ * Re-keys one of `extra`'s language maps from language id to the 2-char code.
+ * A language the inventory has no `backward_compatibility` for is skipped —
+ * emitting the raw id would put a key no other field of the package uses into
+ * the same object as `en`.
+ */
+function toLanguageCodes(
+  map: Record<string, string> | null | undefined,
+  langCodeMap: Map<string, string>
+): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!map || typeof map !== 'object') return out
+
+  for (const [languageId, value] of Object.entries(map)) {
+    const code = langCodeMap.get(languageId)
+    if (!code || typeof value !== 'string' || value === '') continue
+    out[code] = value
+  }
+  return out
 }
 
 /**
