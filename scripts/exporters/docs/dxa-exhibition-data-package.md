@@ -10,12 +10,18 @@ An Exhibition package is a **superset of the Gallery package**: everything in
 `dxa-gallery-data-package.md` applies unchanged (items = membership union,
 tags, partners, glossary, countries, languages, translations layout,
 manifest), plus the curated theme layer and exhibition-specific chrome
-described here, and two substitutions:
+described here, and one substitution:
 
 1. `gallery.json` → **`exhibition.json`** (richer identity).
-2. The global country timeline is **replaced** by the exhibition's THG-local
-   timeline — present only where legacy has one (Colours: 45 events; Water in
-   Islam: none → no timeline files, nav hidden via `has_timeline: false`).
+
+> **Corrected 2026-08-28 while building the Colours exporter.** This section
+> originally said the global country timeline is *replaced* by the exhibition's
+> THG-local timeline. It is not: the live instance serves **both**, from two
+> endpoints — `/thg/timeline` returns the exhibition's own 45 events while
+> `/events` returns the same 1,390-event, 26-country worldwide merge every
+> gallery gets. `has_timeline` / `has_country_timeline` gate nav entries, not
+> data (carpets reports both false and still answers `/events` with the
+> worldwide list). See "timelines.json / timeline_events.json" below.
 
 ## Additional / changed files
 
@@ -37,7 +43,8 @@ translations/
   "legacy_host": "https://exhibitions.museumwnf.org",
   "mwnf3_project_id": "EXHCOLOUR",
   "kind": "exhibition",
-  "languages_enabled": ["de", "en"],      // exhibition_i18n.enabled per language
+  "languages": ["de", "en"],              // thg_gallery_lang — the UI roster
+  "languages_enabled": ["en"],            // exhibition_i18n.enabled = 'Y' only
   "titles":    { "de": "…", "en": "…" },  // exhibition_i18n.title
   "subtitles": { "de": "…", "en": "…" },
   "headlines": { "de": "…", "en": "…" },  // banner heading
@@ -59,6 +66,24 @@ Note the split: `abouts` (exhibition_i18n, curated per-exhibition **data**)
 lives in the package, while gallery About pages (i18n-group editorial) do not.
 Both exist for exhibitions — the exhibition About page renders
 `exhibition_i18n.about`; UI labels still come from site-i18n.
+
+Two things about the language fields, both learned from Colours:
+
+- **`languages` and `languages_enabled` are different sets and the difference is
+  load bearing.** Colours' UI roster is de+en and every one of its 15 themes has
+  German translations, but `exhibition_i18n.enabled` is `'N'` for German — and
+  the live German instance is a shell: `exhibitionTitle: null`,
+  `items/count: 5`, `events/count: 0`. Per decision Q2 `languages_enabled`
+  decides which per-language builds ship; `languages` only says what text the
+  package carries. Do not derive one from the other.
+- **`subtitles` / `headlines` / `abouts` need an importer fix to exist.**
+  `ThgGalleryTranslationImporter` originally joined all three legacy columns into
+  `collection_translations.description` with blank lines between them, which
+  cannot be undone (`about` contains blank lines itself). They are preserved
+  individually in `extra.exhibition_i18n` as of #1546, with an
+  `exhibition-i18n-text-backfill` step for older databases. An exporter running
+  against a database that predates it should log the shortfall by name rather
+  than silently shipping an exhibition with no sub-title.
 
 ## themes.json
 
@@ -120,7 +145,18 @@ Gallery spec plus:
 
 - Institutions (monument owners) and museums both appear; the viewer routes
   museums to partner pages and institutions to institution pages by partner
-  `type` (already in the shape).
+  `type` (already in the shape). **The count therefore matches neither legacy
+  endpoint alone.** Legacy splits them because it has two page templates and one
+  query each — Colours answers `/partners` with 75 and `/institutions` with 11,
+  two of which appear on both — and the package ships their union, 85. Check a
+  fork against the union, never against `/partners`.
+- **Legacy's two hardcoded exclusions must be reproduced.** The final CTE of
+  `app/MWNF/SQL/mwnf3/Partners.blade.php` drops `uk/Mus51` and `us/Mus51` by
+  name from every DXA partner list, with no explanation in the source. The
+  amulets and carpets forks recorded the rule and skipped it because it matched
+  nobody there; on Colours both rows hold member items (6 and 17) and skipping
+  it ships 77 museums instead of 75. See `EXCLUDED_PARTNER_KEYS` in
+  [`../the-use-of-colours-in-art/src/exporters/partner-exporter.ts`](../the-use-of-colours-in-art/src/exporters/partner-exporter.ts).
 - Entries listed in `exhibition.json.hidden_partner_ids` are exported but
   flagged — the viewer must exclude them from every list/profile page while
   their items still render (legacy behaviour: the museum is hidden, the item
@@ -142,14 +178,50 @@ collection_media) ride on the existing `media` arrays of `exhibition.json` /
 
 ## timelines.json / timeline_events.json
 
-Only when the exhibition has a THG-local timeline
-(BC `mwnf3_thematic_gallery:timeline:{gallery}`). Colours: 1 timeline,
-45 events (de+en translations). Water in Islam: files omitted.
+**Both chronologies, in one pair of files** (corrected 2026-08-28 — see the
+note at the top):
+
+| `source` | Keyspace | Scope |
+|---|---|---|
+| `mwnf3` + `sharing_history` | as in the Gallery spec | the worldwide country timeline, 37 timelines / 26 countries / 1,390 events — identical on every DXA site |
+| `thg_local` | `mwnf3_thematic_gallery:timeline:{gallery}` | the exhibition's own narrative chronology — Colours: 1 timeline, 45 events (English only in the data, despite the de+en expectation); Water in Islam: none |
+
+The local timeline has **no `country_id`** — it is a chronology of a subject,
+not of a place — so it contributes nothing to `countries.json` and a viewer must
+not fold it into the per-country merge. That is what the `source` field is for.
+Reference implementation: `localTimelineLikePattern` and `timelineSource` in
+[`../the-use-of-colours-in-art/src/exporters/timeline-exporter.ts`](../the-use-of-colours-in-art/src/exporters/timeline-exporter.ts),
+pinned by `tests/unit/timeline-scope.test.ts`. Note the local pattern has no
+trailing `%`: `…:timeline:4` must not match gallery 47.
 
 ## Sizing expectation
 
-Colours: 117+24 items, 26 themes, ~150 pictures. Water in Islam: ~424 items,
-18 themes, ~432 pictures. Both far below existing packages.
+Colours, **as measured** on 2026-08-28 (the estimates this section first carried
+— 117+24 items, 26 themes, ~150 pictures — were all wrong): **171 items** (24
+native EXHCOLOUR + 147 borrowed from seven projects), **5 themes + 10
+sub-themes**, **194 curated pictures**, 85 partners, 293 tags, 147 glossary
+terms. Water in Islam: ~424 items, 18 themes, ~432 pictures — unverified, treat
+as an estimate. Both far below existing packages.
+
+Two counting traps worth knowing before comparing a fork against these numbers:
+
+- **Themes and sub-themes are both `collections.type = 'theme'`**; the nesting is
+  `parent_id`. Counting the type gives 15, counting the tree gives 5.
+- **The theme id in the keyspace is not the display order.** Colours' five
+  top-level themes are 0, 1, 2, 3 and **11**, displayed 1–5, and theme 6 does not
+  exist at all.
+
+## Reference implementation
+
+[`scripts/exporters/the-use-of-colours-in-art`](../the-use-of-colours-in-art/README.md)
+([story #1546](https://github.com/metanull/inventory-app/issues/1546),
+[`../the-use-of-colours-in-art/tools/VALIDATION-2026-08-28.md`](../the-use-of-colours-in-art/tools/VALIDATION-2026-08-28.md))
+implements this specification and is verified against the live legacy API —
+items, themes (per theme, all fifteen), pictures, tags, both timelines, related
+content and partners all exact. **Fork it** for Water in Islam rather than
+re-deriving the rules; every correction marked above was found by counting
+against the running site, and each had a wrong-looking alternative that still
+produced plausible output.
 
 ## Per-language deployment (decision Q2)
 

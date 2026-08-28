@@ -519,6 +519,7 @@ docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
 | `npm` | `/scripts/exporters/carpets` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/the-use-of-colours-in-art` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/viewers/amulets` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/carpets` | Weekly | npm.pkg.github.com (GitHub) |

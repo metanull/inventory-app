@@ -230,10 +230,17 @@ describe('ThgGalleryTranslationImporter', () => {
 
     const { parsed } = writtenExtra();
     expect(parsed.thg_gallery).toMatchObject({ has_timeline: true });
+    // subtitle/heading/about are ALSO joined into `description` above. The join
+    // is lossy — `about` contains the same blank-line separator it uses — so
+    // they are preserved individually here as well, which is the only way an
+    // exhibition package can render the sub-title, the banner headline and the
+    // About page in the three places legacy puts them.
     expect(parsed.exhibition_i18n).toEqual({
       enabled: 'Y',
       exh_img_caption: 'A caption',
       popup_logo_show: 'Y',
+      subtitle: 'A subtitle',
+      about: 'About the exhibition.',
     });
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
