@@ -26,6 +26,8 @@ jobs:
       site-i18n: ${{ steps.detect.outputs.site-i18n }}
       exporters: ${{ steps.detect.outputs.exporters }}
       exporter-datasets: ${{ steps.exporter-datasets.outputs.datasets }}
+      viewers: ${{ steps.detect.outputs.viewers }}
+      viewer-datasets: ${{ steps.viewer-datasets.outputs.datasets }}
 
     steps:
       - uses: actions/checkout@v7
@@ -77,6 +79,12 @@ jobs:
             echo "exporters=false" >> $GITHUB_OUTPUT
           fi
 
+          if echo "$CHANGED" | grep -qE '^scripts/viewers/'; then
+            echo "viewers=true" >> $GITHUB_OUTPUT
+          else
+            echo "viewers=false" >> $GITHUB_OUTPUT
+          fi
+
       # Derived from the checkout instead of hardcoded: new datasets are created
       # by forking an existing exporter, and a hardcoded matrix would leave a
       # fork untested while the job still reported green.
@@ -89,6 +97,20 @@ jobs:
             | jq -Rsc 'split("\n") | map(select(length > 0))')
 
           echo "Exporter datasets: $DATASETS"
+          echo "datasets=$DATASETS" >> $GITHUB_OUTPUT
+
+      # Same reasoning as the exporters above: viewers are created by forking an
+      # existing one, so the matrix is derived from the checkout rather than
+      # hardcoded.
+      - name: Enumerate viewer datasets
+        id: viewer-datasets
+        run: |
+          DATASETS=$(find scripts/viewers -mindepth 2 -maxdepth 2 -name package.json -printf '%h\n' \
+            | xargs -r -n 1 basename \
+            | sort \
+            | jq -Rsc 'split("\n") | map(select(length > 0))')
+
+          echo "Viewer datasets: $DATASETS"
           echo "datasets=$DATASETS" >> $GITHUB_OUTPUT
 
   dependency-review:
@@ -291,6 +313,42 @@ jobs:
         run: |
           npm test
 
+  viewer-validation:
+    name: Viewer Validation (${{ matrix.viewer }})
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.viewers == 'true'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        viewer: ${{ fromJSON(needs.detect-changes.outputs.viewer-datasets) }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Three of the viewers pull @metanull/<site>-data from GitHub Packages, so
+      # the registry and token are supplied for every viewer rather than only
+      # the ones that need them today — a fork that gains a data package must
+      # not have to remember to edit this job.
+      - name: "Setup > Node Project (Viewer ${{ matrix.viewer }})"
+        uses: ./.github/actions/setup-node-project
+        with:
+          working-directory: scripts/viewers/${{ matrix.viewer }}
+          registry-url: https://npm.pkg.github.com/
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Same base path the deploy workflow uses, so what CI builds is what OVH
+      # gets. A viewer whose @metanull/<site>-data package is not published
+      # fails here, and that is the point: without the package its
+      # `@inventory-data` alias cannot resolve, so it cannot be deployed either.
+      # A failing check is the honest signal — publish the package (see the
+      # exporter's NPM_PUBLISH.md) rather than teach this job to skip.
+      - name: "Check > npm > Build (Viewer ${{ matrix.viewer }})"
+        working-directory: scripts/viewers/${{ matrix.viewer }}
+        run: |
+          npm run build -- --base=/${{ matrix.viewer }}/
+
   spa-frontend-validation:
     name: Frontend Validation - SPA (Vue 3)
     runs-on: ubuntu-latest
@@ -335,6 +393,7 @@ jobs:
       - importer-validation
       - site-i18n-validation
       - exporter-validation
+      - viewer-validation
       - spa-frontend-validation
     if: always()
 
@@ -350,6 +409,7 @@ jobs:
           importerChanged="${{ needs.detect-changes.outputs.importer }}"
           siteI18nChanged="${{ needs.detect-changes.outputs.site-i18n }}"
           exportersChanged="${{ needs.detect-changes.outputs.exporters }}"
+          viewersChanged="${{ needs.detect-changes.outputs.viewers }}"
 
           lintResult="${{ needs.backend-lint.result }}"
           testsResult="${{ needs.backend-tests.result }}"
@@ -357,6 +417,7 @@ jobs:
           importerResult="${{ needs.importer-validation.result }}"
           siteI18nResult="${{ needs.site-i18n-validation.result }}"
           exportersResult="${{ needs.exporter-validation.result }}"
+          viewersResult="${{ needs.viewer-validation.result }}"
           spaResult="${{ needs.spa-frontend-validation.result }}"
 
           fail=0
@@ -399,6 +460,11 @@ jobs:
 
           if [ "$exportersChanged" = "true" ] && [ "$exportersResult" != "success" ]; then
             echo "Exporter validation failed or was not run (result: $exportersResult)"
+            fail=1
+          fi
+
+          if [ "$viewersChanged" = "true" ] && [ "$viewersResult" != "success" ]; then
+            echo "Viewer validation failed or was not run (result: $viewersResult)"
             fail=1
           fi
 

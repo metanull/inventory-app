@@ -42,19 +42,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm ci --no-audit --no-fund
 
-      # @metanull/carpets-data is NOT published yet, so this step would fail the
-      # build if it ran now. Publishing is a deliberate, owner-only act (see
-      # scripts/exporters/carpets/NPM_PUBLISH.md); until it happens this
-      # workflow cannot produce a deployable build and must not be dispatched.
-      # Remove the `if: false` in the same change that publishes the package —
-      # from then on the step behaves exactly as it does for the other three
-      # viewers, always pulling @latest regardless of the lockfile so a deploy
-      # reflects the newest published data.
       - name: Update data package to latest published version
-        if: false
         working-directory: scripts/viewers/carpets
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Always pull the newest @metanull/carpets-data regardless of what
+        # is pinned in package-lock.json — the viewer must reflect current data.
         run: npm install @metanull/carpets-data@latest --no-audit --no-fund
 
       - name: Build viewer

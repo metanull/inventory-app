@@ -26,16 +26,19 @@ reproduced rather than reinterpreted.
 
 ## Where the data comes from
 
-> **`@metanull/carpets-data` is not published yet.** Publishing is the owner's
-> call, so this viewer ships wired to the exporter's local output instead.
+`@metanull/carpets-data` is published to GitHub Packages and declared in
+`package.json`, so `npm install` is all a normal build needs. Installing it
+requires a token with `read:packages`.
 
 `vite.config.js` resolves the `@inventory-data` alias in this order:
 
 1. `DATA_PACKAGE` — an npm package name **or** a directory path (explicit wins).
-2. `@metanull/carpets-data`, if installed.
-3. `../../exporters/carpets/output/carpets` — a local exporter run.
+2. `@metanull/carpets-data`, if installed. **This is the normal path** — CI, the
+   deploy workflow and a plain `npm install` all land here.
+3. `../../exporters/carpets/output/carpets` — a local exporter run, for working
+   against data that has not been published yet.
 
-Today only (3) exists. Produce it from the repository root:
+For (3), produce the export from the repository root:
 
 ```bash
 docker compose --profile jobs run --rm exporter carpets --force \
@@ -47,18 +50,13 @@ docker compose --profile jobs run --rm exporter carpets --force \
 compose `exporter` service is pinned to the **staging** database; `.env` files
 under `scripts/exporters/` point at production and must not be used casually.
 
-### What must change once the package is published
+Because (2) is checked before (3), an installed package shadows a local export.
+Point `DATA_PACKAGE` at the export directory to override it.
 
-Three edits, all mechanical:
-
-1. `package.json` — add `"@metanull/carpets-data": "^x.y.z"` to `dependencies`
-   (it is deliberately absent today, because `npm install` would fail on a
-   package that does not exist).
-2. `.github/workflows/deploy-viewer-carpets-ovh.yml` — delete the `if: false`
-   on the *Update data package to latest published version* step. Until then
-   the workflow cannot produce a deployable build and must not be dispatched.
-3. Nothing in `vite.config.js`: step (2) of the resolution order takes over on
-   its own as soon as the package is installed.
+Publishing a new version is the exporter's job, not the viewer's — see
+[`../../exporters/carpets/NPM_PUBLISH.md`](../../exporters/carpets/NPM_PUBLISH.md).
+The deploy workflow always installs `@latest` regardless of the lockfile, so a
+publish reaches production on the next deploy without a code change here.
 
 ## Development
 
