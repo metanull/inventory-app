@@ -273,6 +273,17 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
     // exhibition_i18n optional fields
     const exhibitionExtra: Record<string, unknown> = {};
     if (i18n.enabled) exhibitionExtra.enabled = i18n.enabled;
+    // subtitle / heading / about are ALSO joined into `description` above, for
+    // the general-purpose "one body of text" consumers. That join is lossy and
+    // cannot be undone — `about` contains the same blank-line separator the
+    // join uses — so the three are preserved individually here as well. The
+    // exhibition sheet renders them in three different places (sub-title under
+    // the title, headline in the banner, about on its own page), and an
+    // exhibition data package has no other way to tell them apart.
+    // See metanull/inventory-app#1546.
+    if (i18n.subtitle) exhibitionExtra.subtitle = i18n.subtitle;
+    if (i18n.heading) exhibitionExtra.heading = i18n.heading;
+    if (i18n.about) exhibitionExtra.about = i18n.about;
     if (i18n.exh_img_caption) exhibitionExtra.exh_img_caption = i18n.exh_img_caption;
     if (i18n.popup_logo_show) exhibitionExtra.popup_logo_show = i18n.popup_logo_show;
     if (i18n.popup_logo) exhibitionExtra.popup_logo = i18n.popup_logo;

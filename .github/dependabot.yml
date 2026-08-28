@@ -173,6 +173,19 @@ updates:
       exporter-sharinghistory-prod-dependencies:
         dependency-type: "production"
 
+  - package-ecosystem: "npm"
+    directory: "/scripts/exporters/the-use-of-colours-in-art"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      exporter-the-use-of-colours-in-art-dev-dependencies:
+        dependency-type: "development"
+      exporter-the-use-of-colours-in-art-prod-dependencies:
+        dependency-type: "production"
+
   # --- Dataset viewers (one entry per scripts/viewers/<dataset>) -------------
   # These DO need `registries: [npm-github]` — each installs its data package
   # @metanull/<dataset>-data from GitHub Packages.
@@ -188,6 +201,21 @@ updates:
       viewer-amulets-dev-dependencies:
         dependency-type: "development"
       viewer-amulets-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
+
+  - package-ecosystem: "npm"
+    directory: "/scripts/viewers/carpets"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-carpets-dev-dependencies:
+        dependency-type: "development"
+      viewer-carpets-prod-dependencies:
         dependency-type: "production"
     registries:
       - npm-github

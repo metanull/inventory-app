@@ -434,12 +434,16 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 | `islamicart` | `deploy-viewer-islamicart-ovh.yml` | `scripts/viewers/islamicart/**` | `/islamicart/` | `/opt/islamicart/` | https://inventory.metanull.eu/islamicart/ |
 | `sharinghistory` | `deploy-viewer-sharinghistory-ovh.yml` | `scripts/viewers/sharinghistory/**` | `/sharinghistory/` | `/opt/sharinghistory/` | https://inventory.metanull.eu/sharinghistory/ |
 | `amulets` | `deploy-viewer-amulets-ovh.yml` | `scripts/viewers/amulets/**` | `/amulets/` | `/opt/amulets/` | https://inventory.metanull.eu/amulets/ |
+| `carpets` | `deploy-viewer-carpets-ovh.yml` | `scripts/viewers/carpets/**` | `/carpets/` | `/opt/carpets/` | https://inventory.metanull.eu/carpets/ |
 
-> **`amulets` is not deployable yet.** `@metanull/amulets-data` has not been
-> published, so step 3 below carries `if: false` and the Nginx alias block does
-> not exist on the VPS. Do not dispatch it. Both are lifted in the same change
-> that publishes the package — see
-> [`scripts/viewers/amulets/README.md`](../../scripts/viewers/amulets/README.md#what-must-change-once-the-package-is-published).
+> **Neither `amulets` nor `carpets` is deployable yet.**
+> `@metanull/amulets-data` and `@metanull/carpets-data` have not been
+> published, so step 3 below carries `if: false` in both workflows and neither
+> Nginx alias block exists on the VPS. Do not dispatch them. Both are lifted
+> per dataset in the same change that publishes that package — see
+> [`scripts/viewers/amulets/README.md`](../../scripts/viewers/amulets/README.md#what-must-change-once-the-package-is-published)
+> and
+> [`scripts/viewers/carpets/README.md`](../../scripts/viewers/carpets/README.md#what-must-change-once-the-package-is-published).
 
 **Workflow properties** (identical apart from the dataset name)
 
@@ -515,8 +519,10 @@ docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
 | `npm` | `/scripts/exporters/carpets` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/the-use-of-colours-in-art` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/viewers/amulets` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/scripts/viewers/carpets` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
 | `npm` | `/scripts/viewers/sharinghistory` | Weekly | npm.pkg.github.com (GitHub) |
 | `github-actions` | `/` | Weekly | github.com (public) |

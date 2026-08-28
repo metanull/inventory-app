@@ -73,6 +73,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4179", "--strictPort"],
       "cwd": "scripts/viewers/amulets",
       "port": 4179
+    },
+    {
+      "name": "carpets-viewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4180", "--strictPort"],
+      "cwd": "scripts/viewers/carpets",
+      "port": 4180
     }
   ]
 }

@@ -135,6 +135,7 @@ import {
   CollectionPurposeBackfillImporter,
   ExtraBitBufferBackfillImporter,
   MuseumProjectLinkBackfillImporter,
+  ExhibitionI18nTextBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -814,6 +815,20 @@ const ALL_IMPORTERS: ImporterConfig[] = [
     name: 'THG Theme Items',
     description: 'Attach items to theme collections (all legacy DBs)',
     importerClass: ThgThemeItemImporter,
+    // Every picture family the resolver supports has to be listed here, because
+    // a theme item is resolved to a PICTURE child and a picture that does not
+    // exist yet is silently skipped — the row is never retried.
+    //
+    // The list used to name only the six mwnf3/SH item importers and to leave
+    // out the Explore and Travels picture families, even though
+    // thg-theme-item-resolver.ts resolves both. That happened to work for most
+    // rows because the registry order runs Explore before the THG phase, but it
+    // was not guaranteed and it did not hold: the 2026-08-28 full import lost
+    // exactly the five Explore-monument selections of gallery 47 (themes 1, 5
+    // and 15), which the exhibition needs — legacy shows 194 curated pictures,
+    // the import produced 189. Re-running this importer alone afterwards
+    // imported all 1,284 rows with zero skips, which is what "ordering, not
+    // resolution" looks like. See metanull/inventory-app#1546.
     dependencies: [
       'thg-theme',
       'object',
@@ -822,6 +837,8 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'sh-object',
       'sh-monument',
       'sh-monument-detail',
+      'explore-monument-picture',
+      'travels-monument-picture',
     ],
   },
   {
@@ -1078,6 +1095,14 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Backfill partners.project_id from mwnf3.museums.project_id on an already-populated database, so gallery exporters can reproduce legacy MWNF-384',
     importerClass: MuseumProjectLinkBackfillImporter,
     dependencies: ['project', 'partner'],
+  },
+  {
+    key: 'exhibition-i18n-text-backfill',
+    name: 'Exhibition i18n Text Backfill',
+    description:
+      'Backfill exhibition_i18n subtitle/heading/about into collection_translations.extra on an already-populated database, so exhibition exporters can render the three separately',
+    importerClass: ExhibitionI18nTextBackfillImporter,
+    dependencies: ['thg-gallery-translation'],
   },
   {
     key: 'project-cleanup',
