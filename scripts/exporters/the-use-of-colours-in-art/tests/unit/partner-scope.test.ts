@@ -111,7 +111,7 @@ describe('PartnerExporter — MWNF-384 scope and legacy exclusions', () => {
     }[]
 
   beforeEach(() => {
-    outputDir = mkdtempSync(join(tmpdir(), 'colours-partners-'))
+    outputDir = mkdtempSync(join(tmpdir(), 'the-use-of-colours-in-art-partners-'))
     queries = []
   })
 
