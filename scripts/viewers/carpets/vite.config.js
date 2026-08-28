@@ -10,18 +10,17 @@ const here = dirname(fileURLToPath(import.meta.url))
 // The data package is resolved at build time, in this order:
 //
 //   1. DATA_PACKAGE — an npm package name *or* a directory path. Explicit wins.
-//   2. @metanull/carpets-data — the published package, once it exists.
-//   3. ../../exporters/carpets/output/carpets — a local exporter run.
+//   2. @metanull/carpets-data — the published package. This is what `npm
+//      install` brings in, and what CI and the deploy workflow build against.
+//   3. ../../exporters/carpets/output/carpets — a local exporter run, for
+//      working against data that has not been published yet:
 //
-// Step 3 is the one that carries this viewer today: `@metanull/carpets-data`
-// has not been published yet (that call is not the viewer's to make), so the
-// only source of truth is the exporter's own output directory, produced by
+//        docker compose --profile jobs run --rm exporter carpets --force \
+//            --base-url https://inventory.metanull.eu
 //
-//   docker compose --profile jobs run --rm exporter carpets --force \
-//       --base-url https://inventory.metanull.eu
+//      from the repository root.
 //
-// from the repository root. See README.md § "Where the data comes from" for
-// the two-line change this file needs once the package is published.
+// See README.md § "Where the data comes from".
 function resolveDataPackage() {
   const explicit = process.env.DATA_PACKAGE
   const require = createRequire(import.meta.url)
