@@ -136,6 +136,8 @@ import {
   ExtraBitBufferBackfillImporter,
   MuseumProjectLinkBackfillImporter,
   ExhibitionI18nTextBackfillImporter,
+  ExhibitionLogoExtraBackfillImporter,
+  ExploreMonumentCountryBackfillImporter,
   AuthorImporter,
   TimelineImporter,
   ItemMediaImporter,
@@ -1103,6 +1105,22 @@ const ALL_IMPORTERS: ImporterConfig[] = [
       'Backfill exhibition_i18n subtitle/heading/about into collection_translations.extra on an already-populated database, so exhibition exporters can render the three separately',
     importerClass: ExhibitionI18nTextBackfillImporter,
     dependencies: ['thg-gallery-translation'],
+  },
+  {
+    key: 'exhibition-logo-extra-backfill',
+    name: 'Exhibition Logo Extra Backfill',
+    description:
+      'Backfill sponsor-logo link/category/visibility/captions into collection_images.extra and attach the image-type:logo tag on an already-populated database (#1592)',
+    importerClass: ExhibitionLogoExtraBackfillImporter,
+    dependencies: ['thg-gallery-content'],
+  },
+  {
+    key: 'explore-monument-country-backfill',
+    name: 'Explore Monument Country Backfill',
+    description:
+      'Backfill items.country_id on natively-imported Explore monuments from mwnf3_explore.locations.countryId, where it is still null (#1593)',
+    importerClass: ExploreMonumentCountryBackfillImporter,
+    dependencies: ['explore-monument'],
   },
   {
     key: 'project-cleanup',

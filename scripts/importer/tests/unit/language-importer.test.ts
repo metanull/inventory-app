@@ -139,6 +139,10 @@ describe('LanguageImporter', () => {
       backfillCollectionPurposeByBackwardCompatibility: vi.fn().mockResolvedValue(0),
       findCollectionTranslationsWithSerializedBuffers: vi.fn().mockResolvedValue([]),
       setCollectionTranslationExtraById: vi.fn(),
+      setItemCountryIdIfUnset: vi.fn().mockResolvedValue(0),
+      findItemsWithoutCountryByBackwardCompatibilityPrefix: vi.fn().mockResolvedValue([]),
+      getCollectionImageExtra: vi.fn().mockResolvedValue(null),
+      setCollectionImageExtra: vi.fn(),
     };
 
     // Create tracker
@@ -362,6 +366,10 @@ describe('LanguageTranslationImporter', () => {
       backfillCollectionPurposeByBackwardCompatibility: vi.fn().mockResolvedValue(0),
       findCollectionTranslationsWithSerializedBuffers: vi.fn().mockResolvedValue([]),
       setCollectionTranslationExtraById: vi.fn(),
+      setItemCountryIdIfUnset: vi.fn().mockResolvedValue(0),
+      findItemsWithoutCountryByBackwardCompatibilityPrefix: vi.fn().mockResolvedValue([]),
+      getCollectionImageExtra: vi.fn().mockResolvedValue(null),
+      setCollectionImageExtra: vi.fn(),
     };
 
     tracker = new UnifiedTracker();
