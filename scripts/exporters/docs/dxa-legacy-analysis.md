@@ -185,6 +185,38 @@ Public item URLs must keep the dbUid path = our `backward_compatibility`
 `backward_compatibility` on every item (established convention), so viewers
 can reproduce identical URLs.
 
+**Deduplicated Explore monuments resolve through the pivot, not the item.**
+An Explore monument the importer recognised as an already-imported physical
+monument does **not** exist as an item under its own Explore identity. Monument
+1419 is the worked example: it is the same building as
+`mwnf3:monuments:BAR:it:Mon13:14` (Palazzo Chigi, Ariccia), so the importer kept
+the BAR identity and re-parented the Explore pictures onto it. Legacy lists that
+monument twice, under two identities; our model lists it once. Membership counts
+still agree, because both sides count one member.
+
+The dual identity is not lost — it lives on the membership pivot rather than on
+the item. The canonical resolution from a legacy Explore monument id to an
+inventory item is:
+
+```
+collection_item.backward_compatibility
+    LIKE 'mwnf3_explore:monument:<id>:collection_link:%'   →   item_id
+```
+
+Do **not** expect the Explore identity in `items.backward_compatibility`: the
+item keeps only the identity of the record it was merged into — here, the BAR
+one. Explore's own translations *are* present on the reused item, written in the
+Explore context, so nothing curated by Explore is missing; only the second
+identity string is.
+
+No item-level metadata key records the deduplication, and that is deliberate
+(decision Q6). `items` has no JSON column, so the only place to put a second
+identity would be `items.backward_compatibility` itself, as a semicolon-
+delimited list — and every exporter looks BC values up by exact match, so a
+second value there would silently break resolution across all of them. The pivot
+already carries the fact; a second store of it would be a second thing to keep
+correct.
+
 ### 4.3 Facets
 THG tags (`thg:tags:{tag_id}`, `category` ∈ artist/dynasty/material/subject/
 type, English-only labels — G5 accepted) + country + partner + year range.
@@ -235,7 +267,7 @@ Residual items to verify during exporter implementation (not blockers):
 - Author (photographer/copyeditor) roles on gallery member items coming from
   EPM/ISL projects render the same holder-line as legacy.
 
-## 6. Decisions (Pascal, 2026-08-27)
+## 6. Decisions (Pascal, 2026-08-27 · Q6 2026-08-28)
 
 - **Q1 — Viewer platform: monorepo + OVH.** Viewers are built in
   `scripts/viewers/<site>` and deployed at inventory.metanull.eu, like the
@@ -258,6 +290,12 @@ Residual items to verify during exporter implementation (not blockers):
   `amulets`, `carpets`, `the-use-of-colours-in-art`, `water-in-islam`
   (`@metanull/<name>-data`). Data values keep the original underscore slugs
   (`the_use_of_colours_in_art`) since they are legacy identity.
+- **Q6 — Deduplicated Explore monuments: no new persistence** (2026-08-28,
+  during [#1593](https://github.com/metanull/inventory-app/issues/1593)). When
+  the importer merges an Explore monument into an already-imported record, the
+  Explore identity survives on `collection_item.backward_compatibility` and
+  nowhere else; no `"deduplicated"` key is added to the item. See
+  [§ 4.2](#42-identity) for the resolution query and the reasoning.
 
 Still open (minor, decide during viewer implementation):
 

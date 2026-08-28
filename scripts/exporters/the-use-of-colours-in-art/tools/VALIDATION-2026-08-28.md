@@ -206,14 +206,36 @@ exhibition's single logo loses its caption, its href and its category. Fixing it
 needs a schema change and is left as a separate issue; `exhibition.json.logos[]`
 ships the image, the legacy path and the order.
 
-## Remaining gap
+## Remaining gap — closed after this validation
 
-**Explore monuments carry no country.** All 106 imported
-`mwnf3_explore:monument:*` items have `country_id = NULL`; legacy derives it from
-`locationId`. On this exhibition that costs `countries.json` exactly one entry —
-`in` (India), reached through monument 1792 — so 34 countries ship where legacy's
-union is 35. It is one label on one filter here, but the gap is general to every
-DXA site that includes Explore monuments and deserves its own issue.
+This document records the state of the export on **2026-08-28**, and on that day
+two importer gaps were open: sponsor logos lost their caption, link and category
+(§ 3 above) and every one of the 106 imported `mwnf3_explore:monument:*` items
+had `country_id = NULL`, which cost `countries.json` exactly one entry — `in`
+(India), reached through monument 1792 — so 34 countries shipped where legacy's
+union is 35.
+
+Both were raised as their own stories and fixed:
+[#1592](https://github.com/metanull/inventory-app/issues/1592) adds an `extra`
+column to `collection_images` and imports the logo passenger data;
+[#1593](https://github.com/metanull/inventory-app/issues/1593) resolves the
+Explore `locationId → countryId` hop at import time, with a phase-11 backfill for
+databases imported before the fix.
+
+The corrected expectations, superseding the ⚠️ rows in the counts table above,
+are therefore:
+
+| Metric | Legacy | Expected after #1592/#1593 |
+|---|---|---|
+| Item countries (`/items/countries`) | 32 | 32, with `in` present |
+| Countries shipped (item + partner + timeline union) | 35 | 35, with `in` present |
+| `exhibition.json.logos[0]` | `exhibitionLogos` | `labels.en` "United Nations Alliance of Civilizations", `url` `https://www.unaoc.org/`, `category_id` 2 / `category_name` "Footer 2", `visible` true |
+
+**Re-validation is pending.** Confirming those numbers needs a staging database
+re-imported (or backfilled) with both fixes and a fresh export run; until that
+happens the figures above are the expectation, not a measurement, and the counts
+table in this document stands as the 2026-08-28 record. A later run should be
+recorded in a new dated validation document rather than by editing this one.
 
 ## Reproducing this validation
 

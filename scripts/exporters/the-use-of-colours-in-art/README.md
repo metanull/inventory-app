@@ -205,30 +205,25 @@ therefore identity. Never derive one from the other.
 
 ## Known gaps
 
-Verified during implementation. None blocks the package; the first two are
-importer-side and worth issues of their own.
+Verified during implementation. None blocks the package, and none is worth an
+issue of its own: the two importer-side defects this section used to list were
+fixed by [#1592](https://github.com/metanull/inventory-app/issues/1592) (sponsor
+logo captions, links and categories) and
+[#1593](https://github.com/metanull/inventory-app/issues/1593) (Explore monument
+countries). What remains is one deliberate modelling difference and two
+disagreements with the live API that are expected and will not be fixed.
 
-- **Sponsor logo captions and links are lost on import.**
-  `mwnf3_thematic_gallery.exhibition_logo` carries `label`, `link`,
-  `category_id`, `visible` and `further_reading`; `ThgGalleryContentImporter`
-  reads all of them and writes only `alt` and `display_order`, because
-  `collection_images` has no `extra` column. This exhibition's one logo
-  therefore loses its caption ("United Nations Alliance of Civilizations"), its
-  href (`unaoc.org`) and its "Footer 2" category. Fixing it needs a schema
-  change, so `exhibition.json.logos[]` currently ships the image, the legacy
-  path and the order.
-- **Explore monuments have no country.** All 106 imported
-  `mwnf3_explore:monument:*` items have `country_id = NULL` — legacy derives it
-  from `locationId` — so `countries.json` is missing `in` (India), which legacy's
-  `/items/countries` lists via monument 1792. One label on one filter, but the
-  gap is general to every site that includes Explore monuments.
-- **Explore monument 1419 is deduplicated, not missing.** Legacy lists it as a
-  member in its own right; the importer recognised it as the same physical
-  monument as `mwnf3:monuments:BAR:it:Mon13:14` (Palazzo Chigi, Ariccia) and
-  merged the two, keeping the BAR identity and hanging the Explore pictures off
-  it. Both sides count 171 members. This is arguably better than legacy, which
-  shows the same monument under two identities — but a viewer reproducing legacy
-  URLs should know the Explore path resolves to the BAR record.
+- **Explore monument 1419 resolves to the BAR record, by design.** Legacy lists
+  Palazzo Chigi in Ariccia twice, as Explore monument 1419 and as
+  `mwnf3:monuments:BAR:it:Mon13:14`; the importer recognised the two as one
+  physical monument, kept the BAR identity and re-parented the Explore pictures
+  onto it. Both sides count 171 members, so this is not a gap — it is one
+  identity where legacy has two. A viewer reproducing legacy Explore URLs must
+  resolve them through the membership pivot rather than through
+  `items.backward_compatibility`; the canonical query and the reasoning behind
+  it are recorded in
+  [`../docs/dxa-legacy-analysis.md` § 4.2 Identity](../docs/dxa-legacy-analysis.md#42-identity)
+  (decision Q6).
 - **The banner headline loses one trailing newline.** Legacy's
   `exhibitionHeadline` is 428 characters and ours is 427; the difference is a
   trailing `\n` the importer trimmed. Cosmetic.
