@@ -26,12 +26,15 @@
 #      @metanull/<dataset>-data from GitHub Packages) and no exporter entry
 #      does (exporters read the database and write JSON; they consume no
 #      @metanull package).
+#   4. The npm-github registry itself declares a `scope`. Without it Dependabot
+#      aborts every job that names the registry, so an entry can satisfy (3)
+#      and still never produce an update PR.
 #
 # ---------------------------------------------------------------------------
 # Two modes
 #
 #   sh scripts/check-dependabot-coverage.sh
-#       Run the three assertions above. Exit 1 on any mismatch. This is what
+#       Run the four assertions above. Exit 1 on any mismatch. This is what
 #       the `dependabot-coverage` job in continuous-integration.yml blocks on.
 #
 #   sh scripts/check-dependabot-coverage.sh --list-projects
@@ -365,7 +368,44 @@ if [ -s "$REGISTRY_ERRORS" ]; then
 fi
 
 # --------------------------------------------------------------------------
-# 5. Verdict.
+# 5. The registry definition itself must map a scope.
+#
+# Naming npm-github on an entry is only half of it. Without `scope`, and with
+# no committed .npmrc to infer from, Dependabot aborts the job during file
+# fetching and never opens a PR — silently, from this file's point of view,
+# because the config is still valid YAML and every entry still names the right
+# registry. That is exactly how /spa and all six viewers went unaudited from
+# the introduction of the registry until 2026-08-29. Assertion 3 above passed
+# the whole time.
+# --------------------------------------------------------------------------
+
+REGISTRY_SCOPE="$(yq -r '.registries["npm-github"].scope // ""' "$CONFIG")"
+
+if [ -z "$REGISTRY_SCOPE" ]; then
+  fail=1
+  cat <<'EOF'
+REGISTRY SCOPE — the npm-github registry declares no `scope`:
+
+  Dependabot will abort every job that names this registry, with
+
+    Private npm registries require either a .npmrc file in your repository,
+    or explicit `scope`/`replaces-base` configuration in dependabot.yml.
+
+  and no update PR will be opened for /spa or any viewer. Add to the
+  registries block:
+
+        scope: "@metanull"
+
+  Not `replaces-base: true` — that makes npm.pkg.github.com the base registry
+  and every public dependency 404s. This repository has no committed .npmrc to
+  infer the mapping from, and should not: .npmrc is gitignored because it holds
+  the token.
+
+EOF
+fi
+
+# --------------------------------------------------------------------------
+# 6. Verdict.
 # --------------------------------------------------------------------------
 
 if [ "$fail" = "1" ]; then
@@ -391,4 +431,4 @@ EOF
 fi
 
 echo "OK — every Node project has an npm entry, every npm entry has a project,"
-echo "     and every entry names the right registries."
+echo "     every entry names the right registries, and npm-github maps a scope."

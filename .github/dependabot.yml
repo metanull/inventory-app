@@ -304,8 +304,31 @@ updates:
         patterns:
           - ".*"
 
+# `scope` is not optional here, and leaving it out does not degrade gracefully:
+# Dependabot aborts the whole job during file fetching with
+#   "Private npm registries require either a .npmrc file in your repository,
+#    or explicit `scope`/`replaces-base` configuration in dependabot.yml."
+# so no update PR is ever opened for the project. Every entry carrying
+# `registries: [npm-github]` — /spa and all six viewers — failed that way from
+# the day the registry was introduced until this was added.
+#
+# It has to be `scope` and not `replaces-base: true`, which is the other option
+# the error message offers. `replaces-base` makes npm.pkg.github.com the base
+# registry for the project, so vue, vite and every other public dependency
+# would be resolved there too and 404. `scope` maps the one scope we actually
+# host and leaves the default registry alone: Dependabot generates an .npmrc
+# from these credentials at update time.
+#
+# One scope covers both consumers — @metanull/inventory-app-api-client in /spa
+# and @metanull/<dataset>-data in the viewers. A second scope would need a
+# second registry entry; Dependabot does not accept a list here.
+#
+# The repository has no committed .npmrc to infer this from, and should not:
+# .npmrc is gitignored precisely because it holds the token, and only
+# .npmrc.example is tracked.
 registries:
   npm-github:
     type: npm-registry
     url: https://npm.pkg.github.com
+    scope: "@metanull"                                      # must start with '@'; see the note above before removing
     token: ${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}    # PAT with read:packages scope, stored as a Dependabot secret (Settings > Secrets and variables > Dependabot)
