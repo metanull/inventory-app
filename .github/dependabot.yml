@@ -75,8 +75,24 @@ updates:
         dependency-type: "development"
       spa-prod-dependencies:
         dependency-type: "production"
-    registries:
-      - npm-github
+    # CANARY — deliberately no `registries:` key, unlike the viewers, which
+    # install from the same registry and still name npm-github.
+    #
+    # Since 2026-06-23 Dependabot's own GITHUB_TOKEN can request packages:read
+    # and is sent to *.pkg.github.com, so a package that grants this repository
+    # access under "Manage Actions access" needs no PAT. All eight @metanull
+    # packages are published from this repository and already hold that grant —
+    # the deploy workflows install them with the workflow GITHUB_TOKEN — and
+    # spa/package-lock.json resolves @metanull/inventory-app-api-client to an
+    # npm.pkg.github.com URL, which is how Dependabot knows to go there with no
+    # registry entry to tell it.
+    #
+    # If this entry opens update PRs, the npm-github registry and its PAT are
+    # redundant everywhere and both should be deleted; if it does not, restore
+    # the two lines below and the viewers are unaffected either way.
+    #
+    #   registries:
+    #     - npm-github
 
   - package-ecosystem: "npm"
     directory: "/scripts/importer"
