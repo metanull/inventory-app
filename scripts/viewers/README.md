@@ -18,23 +18,24 @@ runtime.
 | [`islamicart/`](islamicart/README.md) | `@metanull/islamicart-data` | https://inventory.metanull.eu/islamicart/ | `.github/workflows/deploy-viewer-islamicart-ovh.yml` |
 | [`baroqueart/`](baroqueart/README.md) | `@metanull/baroqueart-data` | https://inventory.metanull.eu/baroqueart/ | `.github/workflows/deploy-viewer-baroqueart-ovh.yml` |
 | [`sharinghistory/`](sharinghistory/README.md) | `@metanull/sharinghistory-data` | https://inventory.metanull.eu/sharinghistory/ | `.github/workflows/deploy-viewer-sharinghistory-ovh.yml` |
-| [`amulets/`](amulets/README.md) | `@metanull/amulets-data` *(not published yet — see below)* | https://inventory.metanull.eu/amulets/ *(not deployed yet)* | `.github/workflows/deploy-viewer-amulets-ovh.yml` |
-| [`carpets/`](carpets/README.md) | `@metanull/carpets-data` *(not published yet — see below)* | https://inventory.metanull.eu/carpets/ *(not deployed yet)* | `.github/workflows/deploy-viewer-carpets-ovh.yml` |
+| [`amulets/`](amulets/README.md) | `@metanull/amulets-data` | https://inventory.metanull.eu/amulets/ | `.github/workflows/deploy-viewer-amulets-ovh.yml` |
+| [`carpets/`](carpets/README.md) | `@metanull/carpets-data` | https://inventory.metanull.eu/carpets/ | `.github/workflows/deploy-viewer-carpets-ovh.yml` |
+| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | `@metanull/the-use-of-colours-in-art-data` | https://inventory.metanull.eu/the-use-of-colours-in-art/ *(Nginx block pending)* | `.github/workflows/deploy-viewer-the-use-of-colours-in-art-ovh.yml` |
 
-The first three viewers are **verification tools** for their packages.
-`amulets` and `carpets` are the DXA gallery rebuilds
+The first three viewers are **verification tools** for their packages. The
+other three are DXA rebuilds
 ([epic #1539](https://github.com/metanull/inventory-app/issues/1539)):
 faithful reproductions of public legacy websites
-(<https://amulets.museumwnf.org>, <https://carpets.museumwnf.org>),
-reproducing their routes, page structure, facet behaviour and palette rather
-than reinterpreting them. Their UI strings come from
+(<https://amulets.museumwnf.org>, <https://carpets.museumwnf.org>,
+<https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en>), reproducing
+their routes, page structure, facet behaviour and palette rather than
+reinterpreting them. Their UI strings come from
 [`../site-i18n`](../site-i18n/README.md), never from the data package.
 
-Neither data package is **published**, so both resolve their exporter's local
-output instead — see
-[`amulets/README.md`](amulets/README.md#where-the-data-comes-from) and
-[`carpets/README.md`](carpets/README.md#where-the-data-comes-from) for how,
-and for the two edits publishing will require.
+`amulets` and `carpets` are **galleries**;
+`the-use-of-colours-in-art` is an **exhibition**, which is a gallery plus a
+curated theme layer — the themes tour, its theme galleries, the related-content
+reading list and separate institution pages. See its README for what that adds.
 
 Each directory is a self-contained Node project. Viewers are **forked per
 dataset by design** (same decision as the exporters): each website has its
@@ -89,10 +90,10 @@ then **restart the dev server** — Vite's dependency pre-bundle cache serves
 the old package contents otherwise. Installing from GitHub Packages requires
 a `~/.npmrc` with a token that can read the `@metanull` scope.
 
-`amulets` and `carpets` are wired differently while their packages are
-unpublished: each falls back to `scripts/exporters/<dataset>/output/<dataset>`,
-so "picking up new data" there means re-running the exporter. See their
-READMEs.
+The three DXA viewers also accept a **local exporter run** as a fallback, for
+working against data that has not been published yet: with no installed package
+they resolve `scripts/exporters/<dataset>/output/<dataset>`, and `DATA_PACKAGE`
+overrides an installed package with an export directory. See their READMEs.
 
 ## Deployment
 

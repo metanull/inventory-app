@@ -80,6 +80,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4180", "--strictPort"],
       "cwd": "scripts/viewers/carpets",
       "port": 4180
+    },
+    {
+      "name": "the-use-of-colours-in-art-viewer",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4181", "--strictPort"],
+      "cwd": "scripts/viewers/the-use-of-colours-in-art",
+      "port": 4181
     }
   ]
 }
