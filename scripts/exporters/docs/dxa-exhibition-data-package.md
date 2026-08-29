@@ -69,7 +69,7 @@ translations/
     "visible": true,                       // hidden logos ship too — filtering is the viewer's job
     "display_order": 1
   }],
-  "hidden_partner_ids": ["<uuid>", …]      // E6: exclude everywhere (Water in Islam: 13 refs)
+  "hidden_partner_ids": ["<uuid>", …]      // E6: exclude everywhere (Water in Islam: 11, measured)
 }
 ```
 
@@ -232,12 +232,21 @@ trailing `%`: `…:timeline:4` must not match gallery 47.
 
 ## Sizing expectation
 
-Colours, **as measured** on 2026-08-28 (the estimates this section first carried
-— 117+24 items, 26 themes, ~150 pictures — were all wrong): **171 items** (24
-native EXHCOLOUR + 147 borrowed from seven projects), **5 themes + 10
-sub-themes**, **194 curated pictures**, 85 partners, 293 tags, 147 glossary
-terms. Water in Islam: ~424 items, 18 themes, ~432 pictures — unverified, treat
-as an estimate. Both far below existing packages.
+Both pilots **as measured** (the estimates this section first carried — 117+24
+items, 26 themes, ~150 pictures for Colours; ~424 items and 18 themes for Water
+in Islam — were wrong everywhere except Water in Islam's picture count):
+
+| | Colours (2026-08-28) | Water in Islam (2026-08-29) |
+|---|---|---|
+| Members | 171 (24 native EXHCOLOUR + 147 borrowed from seven projects) | 495 (314 native GalEx6; legacy publishes 492) |
+| Theme tree | 5 + 10 | 6 + 22 |
+| Curated pictures | 194 | 432 |
+| Partners shipped | 85 | 128 (117 after the E6 hidden eleven) |
+| Facet tags | 293 | 245 |
+| Glossary terms | 147 | 249 |
+| Related content | 10 | 5 in legacy, **0 imported** — see the Water in Islam README |
+
+Both are far below the existing gallery packages.
 
 Two counting traps worth knowing before comparing a fork against these numbers:
 
@@ -254,10 +263,30 @@ Two counting traps worth knowing before comparing a fork against these numbers:
 [`../the-use-of-colours-in-art/tools/VALIDATION-2026-08-28.md`](../the-use-of-colours-in-art/tools/VALIDATION-2026-08-28.md))
 implements this specification and is verified against the live legacy API —
 items, themes (per theme, all fifteen), pictures, tags, both timelines, related
-content and partners all exact. **Fork it** for Water in Islam rather than
-re-deriving the rules; every correction marked above was found by counting
-against the running site, and each had a wrong-looking alternative that still
-produced plausible output.
+content and partners all exact. **Fork it** rather than re-deriving the rules;
+every correction marked above was found by counting against the running site,
+and each had a wrong-looking alternative that still produced plausible output.
+
+[`scripts/exporters/water-in-islam`](../water-in-islam/README.md)
+([story #1548](https://github.com/metanull/inventory-app/issues/1548),
+[`../water-in-islam/tools/VALIDATION-2026-08-29.md`](../water-in-islam/tools/VALIDATION-2026-08-29.md))
+is that fork, and its value to this specification is the three claims it
+**tested** which Colours alone could only assert:
+
+- `has_timeline` / `has_country_timeline` gate navigation, not data. Colours has
+  a local chronology and reports `true / false`; Water in Islam has none and
+  reports `false / false` — and both answer `/events` with the identical
+  1,390-event worldwide merge.
+- `languages` and `languages_enabled` are separate fields: they differ on
+  Colours (de+en carried, en published) and agree on Water in Islam (en only).
+  Deriving either from the other breaks one of the two.
+- The theme id in the keyspace is not the display order. Colours' top-level
+  themes are 0, 1, 2, 3, **11** in display order 1–5; Water in Islam's are 0–5
+  in order. A rule re-derived from either site alone is wrong for the other.
+
+It is also the first package where `hidden_partner_ids` is non-empty (eleven
+museums), which is what makes the partner count check meaningful: the shipped
+128 minus the hidden eleven is legacy's union of 117, exactly.
 
 ## Per-language deployment (decision Q2)
 
