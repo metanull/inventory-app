@@ -20,22 +20,27 @@ runtime.
 | [`sharinghistory/`](sharinghistory/README.md) | `@metanull/sharinghistory-data` | https://inventory.metanull.eu/sharinghistory/ | `.github/workflows/deploy-viewer-sharinghistory-ovh.yml` |
 | [`amulets/`](amulets/README.md) | `@metanull/amulets-data` | https://inventory.metanull.eu/amulets/ | `.github/workflows/deploy-viewer-amulets-ovh.yml` |
 | [`carpets/`](carpets/README.md) | `@metanull/carpets-data` | https://inventory.metanull.eu/carpets/ | `.github/workflows/deploy-viewer-carpets-ovh.yml` |
-| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | `@metanull/the-use-of-colours-in-art-data` | https://inventory.metanull.eu/the-use-of-colours-in-art/ *(Nginx block pending)* | `.github/workflows/deploy-viewer-the-use-of-colours-in-art-ovh.yml` |
+| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | `@metanull/the-use-of-colours-in-art-data` | https://inventory.metanull.eu/the-use-of-colours-in-art/ | `.github/workflows/deploy-viewer-the-use-of-colours-in-art-ovh.yml` |
+| [`water-in-islam/`](water-in-islam/README.md) | `@metanull/water-in-islam-data` | https://inventory.metanull.eu/water-in-islam/ *(Nginx block pending)* | `.github/workflows/deploy-viewer-water-in-islam-ovh.yml` |
 
 The first three viewers are **verification tools** for their packages. The
-other three are DXA rebuilds
+other four are DXA rebuilds
 ([epic #1539](https://github.com/metanull/inventory-app/issues/1539)):
 faithful reproductions of public legacy websites
 (<https://amulets.museumwnf.org>, <https://carpets.museumwnf.org>,
-<https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en>), reproducing
+<https://exhibitions.museumwnf.org/the_use_of_colours_in_art/en>,
+<https://exhibitions.museumwnf.org/water_in_islam/en>), reproducing
 their routes, page structure, facet behaviour and palette rather than
 reinterpreting them. Their UI strings come from
 [`../site-i18n`](../site-i18n/README.md), never from the data package.
 
-`amulets` and `carpets` are **galleries**;
-`the-use-of-colours-in-art` is an **exhibition**, which is a gallery plus a
-curated theme layer — the themes tour, its theme galleries, the related-content
-reading list and separate institution pages. See its README for what that adds.
+`amulets` and `carpets` are **galleries**; `the-use-of-colours-in-art` and
+`water-in-islam` are **exhibitions**, which is a gallery plus a curated theme
+layer — the themes tour, its theme galleries, the related-content reading list
+and separate institution pages. See their READMEs for what that adds, and
+`water-in-islam`'s for the three rules only a second exhibition could exercise:
+hidden museums, a site with no chronology, and a member whose text is in
+another language.
 
 Each directory is a self-contained Node project. Viewers are **forked per
 dataset by design** (same decision as the exporters): each website has its

@@ -313,6 +313,21 @@ updates:
     registries:
       - npm-github
 
+  - package-ecosystem: "npm"
+    directory: "/scripts/viewers/water-in-islam"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "npm"
+      - "dependencies"
+    groups:
+      viewer-water-in-islam-dev-dependencies:
+        dependency-type: "development"
+      viewer-water-in-islam-prod-dependencies:
+        dependency-type: "production"
+    registries:
+      - npm-github
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
