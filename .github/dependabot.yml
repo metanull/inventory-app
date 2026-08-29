@@ -75,24 +75,28 @@ updates:
         dependency-type: "development"
       spa-prod-dependencies:
         dependency-type: "production"
-    # CANARY — deliberately no `registries:` key, unlike the viewers, which
-    # install from the same registry and still name npm-github.
+    # The PAT is required. Do not remove this key to rely on Dependabot's own
+    # GITHUB_TOKEN: that was tried here as a deliberate canary (#1612) and it
+    # does not work for these packages. With the key absent, Dependabot ran
+    # with credentials-metadata carrying `git_source` alone — no npm_registry
+    # credential of any kind — and the job died on
     #
-    # Since 2026-06-23 Dependabot's own GITHUB_TOKEN can request packages:read
-    # and is sent to *.pkg.github.com, so a package that grants this repository
-    # access under "Manage Actions access" needs no PAT. All eight @metanull
-    # packages are published from this repository and already hold that grant —
-    # the deploy workflows install them with the workflow GITHUB_TOKEN — and
-    # spa/package-lock.json resolves @metanull/inventory-app-api-client to an
-    # npm.pkg.github.com URL, which is how Dependabot knows to go there with no
-    # registry entry to tell it.
+    #   401 https://npm.pkg.github.com/@metanull%2Finventory-app-api-client
+    #   {"error":"authentication token not provided"}
     #
-    # If this entry opens update PRs, the npm-github registry and its PAT are
-    # redundant everywhere and both should be deleted; if it does not, restore
-    # the two lines below and the viewers are unaffected either way.
+    # The 2026-06-23 "automatic Dependabot access to GitHub-hosted registries"
+    # change does not cover this case, even though these packages do grant this
+    # repository read access — the deploy workflows install them with the
+    # workflow GITHUB_TOKEN. The likeliest reason is that they are published
+    # under a personal account rather than an organization, but the log only
+    # shows that no token was sent, not why.
     #
-    #   registries:
-    #     - npm-github
+    # Measured in the same trigger that produced the 401: all six viewers, on
+    # the PAT path, succeeded and opened update PRs (#1611 bumped a private
+    # @metanull data package). The PAT is valid and the scope mapping from
+    # #1609 works. Revisit only with evidence, not with the changelog.
+    registries:
+      - npm-github
 
   - package-ecosystem: "npm"
     directory: "/scripts/importer"
