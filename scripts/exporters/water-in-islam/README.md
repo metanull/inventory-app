@@ -155,12 +155,6 @@ package; the first is the one worth an issue of its own.
   not list a record it cannot render — and it is the viewer's decision, not the
   package's, so all 495 ship with their `languages` array intact.
 
-- **Sponsor logo captions and links are lost on import**, as on Colours.
-  `exhibition_logo` carries `label`, `link`, `category_id` and `visible`;
-  `ThgGalleryContentImporter` writes only `alt` and `display_order`, because
-  `collection_images` has no `extra` column
-  ([story #1592](https://github.com/metanull/inventory-app/issues/1592)).
-
 - **`featured` disagrees with the live API, as on carpets and Colours — this
   time in the opposite direction.** dxa-api builds its `featured` output by
   copying the `hidden` projection without flipping the polarity. Gallery 56's

@@ -173,6 +173,15 @@ client reads the catalogue, and so does this.
   *target* of a `theme_item_related` row is hidden from the thumbnail strip
   until the toggle is on — which is what keeps the strip to the curator's
   primary selection, exactly as legacy did.
+- **Sponsor logos are grouped, captioned and linked**, as in legacy: category 0
+  is "Header" and renders beside the MWNF mark under `header_logo_section_1`,
+  categories 1–4 render in the footer strip under `footer_logo_section_<n>`, a
+  logo with `visible: false` is dropped, and an emptied category loses its
+  heading too. All of that arrived with
+  [#1592](https://github.com/metanull/inventory-app/issues/1592), which put
+  `link`, `category_id`, `visible` and the per-language `labels` into
+  `collection_images.extra` — before it, the package carried the image and the
+  display order and nothing else.
 - **Institutions and museums share one list.** `partners.json` is the union of
   legacy's `/partners` and `/institutions`, and the viewer routes by partner
   `type`. The package's split is 71 museums / 14 institutions where legacy's two
@@ -189,13 +198,6 @@ client reads the catalogue, and so does this.
 
 **Package gaps surfaced by the viewer** (exporter- or importer-side)
 
-- **Sponsor logos have no category, caption or link.** Legacy groups them under
-  `footer_logo_section_<n>` headings, captions each with its `label` and links
-  it to its sponsor; `collection_images` has no `extra` column, so the package
-  ships the image and the display order only
-  ([story #1592](https://github.com/metanull/inventory-app/issues/1592)). This
-  viewer renders one ungrouped strip and deliberately does **not** guess the
-  heading from the single logo present.
 - **Related-content category names are not in the package.** Legacy reads them
   from `related_content_category`, which the importer does not carry, so
   `related_content.json` ships `category_id` alone. The four English names are a

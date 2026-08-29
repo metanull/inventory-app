@@ -21,6 +21,13 @@ One importer repair was applied to staging first and is part of this work: a
 re-run of `thg-theme-item-translation`, which had been wiped by a later re-run
 of `thg-theme-item`. See [Importer defects found](#importer-defects-found).
 
+The figures below were taken before #1592's sponsor-logo work landed on `main`
+and re-checked after rebasing onto it. Only `exhibition.json.logos[]` changed:
+this exhibition's single logo now carries its caption ("United Nations Alliance
+of Civilizations"), its `https://www.unaoc.org/` link and its "Footer 1"
+category, where before it carried the image and the display order alone. No
+count in the table moved.
+
 ## Counts: legacy API vs exported
 
 | Metric | Legacy endpoint | Legacy | Exported | Verdict |

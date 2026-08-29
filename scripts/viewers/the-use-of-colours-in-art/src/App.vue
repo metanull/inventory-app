@@ -41,6 +41,20 @@ const hasTimeline = exhibition.has_timeline || exhibition.has_country_timeline
 const navItems = NAV.filter(i => i.path !== 'timeline' || hasTimeline)
 
 const menuOpen = ref(false)
+
+// Legacy renders category 0 — "Header" — beside the MWNF mark, under the
+// `header_logo_section_1` heading, and leaves categories 1–4 to the footer
+// strip. Colours has none; the code is here because the split is the data's,
+// not this exhibition's.
+const headerLogos = computed(() =>
+  (exhibition.logos ?? [])
+    .filter(logo => Number(logo.category_id) === 0 && logo.visible !== false)
+    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+)
+
+function logoCaption(logo) {
+  return logo.labels?.[uiLang.value] ?? logo.labels?.en ?? logo.alt_text ?? ''
+}
 </script>
 
 <template>
@@ -52,6 +66,20 @@ const menuOpen = ref(false)
         <a :href="`${PORTAL}/`" target="_blank" rel="noopener">
           <span class="logo-mark">MWNF</span>
         </a>
+        <div class="header-logos-container" v-if="headerLogos.length">
+          <div class="header-logos-header">{{ t('header_logo_section_1') }}</div>
+          <div class="header-logos">
+            <a
+              v-for="logo in headerLogos"
+              :key="logo.id ?? logo.image_url"
+              class="header-logo"
+              :href="logo.url || undefined"
+              :title="logoCaption(logo)"
+              target="_blank"
+              rel="noopener"
+            ><img :src="logo.image_url" :alt="logoCaption(logo)" /></a>
+          </div>
+        </div>
       </div>
 
       <!-- Legacy's centre cell is the platform label, linking to the About
@@ -219,8 +247,12 @@ a { color: inherit; }
   border-bottom: 5px solid var(--contrast-color);
   z-index: 90;
 }
-#logo-container { padding: 0 14px; z-index: 8; }
+#logo-container { display: flex; align-items: center; gap: 16px; padding: 0 14px; z-index: 8; }
 #logo-container a { text-decoration: none; }
+.header-logos-container { font-size: 12px; text-align: center; }
+.header-logos-header { font-weight: 700; }
+.header-logos { display: flex; align-items: center; gap: 10px; }
+.header-logo img { max-height: 46px; max-width: 120px; object-fit: contain; }
 .logo-mark {
   display: inline-block;
   border: 2px solid var(--secondary-text-color);
