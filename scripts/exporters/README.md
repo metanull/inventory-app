@@ -20,7 +20,8 @@ legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter,
 | [`sharinghistory/`](sharinghistory/README.md) | project `awe` (SH keyspace, lowercase) | `@metanull/sharinghistory-data` | `scripts/viewers/sharinghistory` |
 | [`amulets/`](amulets/README.md) | THG **gallery 4** (membership union) | `@metanull/amulets-data` | `scripts/viewers/amulets` |
 | [`carpets/`](carpets/README.md) | THG **gallery 9** (membership union, DCA-native + borrowed) | `@metanull/carpets-data` | `scripts/viewers/carpets` |
-| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | THG **exhibition 47** (membership union + curated theme tree) | `@metanull/the-use-of-colours-in-art-data` | *(viewer not built yet)* |
+| [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | THG **exhibition 47** (membership union + curated theme tree) | `@metanull/the-use-of-colours-in-art-data` | `scripts/viewers/the-use-of-colours-in-art` |
+| [`water-in-islam/`](water-in-islam/README.md) | THG **exhibition 56** (membership union + curated theme tree) | `@metanull/water-in-islam-data` | *(viewer not built yet)* |
 
 Each directory is a **self-contained Node/TypeScript project** (own
 `package.json`, `tsconfig.json`, `vitest.config.ts`, `.env`). See the README
@@ -47,7 +48,10 @@ and [`docs/dxa-exhibition-data-package.md`](docs/dxa-exhibition-data-package.md)
 each holding hand-picked pictures with their own per-exhibition texts) and
 `related_content.json` are added. `the-use-of-colours-in-art` is the reference
 implementation and the extreme of the borrowed case — 24 of its 171 members are
-its own, the rest come from seven other projects.
+its own, the rest come from seven other projects. `water-in-islam` is its fork
+and the opposite balance — 314 native records among 495 — and the site that
+exercises what a single exhibition could not: hidden museums, an exhibition with
+no chronology of its own, and one published language.
 
 ## Why forked per dataset (deliberate decision)
 

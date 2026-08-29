@@ -1,22 +1,22 @@
 # NPM Package Publishing Guide
 
 How `--publish` turns an export into a released version of
-`@metanull/the-use-of-colours-in-art-data` on GitHub Packages. What the package *contains* is
+`@metanull/water-in-islam-data` on GitHub Packages. What the package *contains* is
 documented in [`README.md`](README.md#package-contents); this guide covers the
 publishing mechanics only.
 
 ## Quick start
 
 ```bash
-docker compose --profile jobs run --rm exporter the-use-of-colours-in-art --force --publish
+docker compose --profile jobs run --rm exporter water-in-islam --force --publish
 ```
 
 That single run does everything:
 
-1. Exports the gallery to `output/the-use-of-colours-in-art/`
-2. Bumps the patch version persisted in `output/.version-the-use-of-colours-in-art`
+1. Exports the gallery to `output/water-in-islam/`
+2. Bumps the patch version persisted in `output/.version-water-in-islam`
    (1.0.0 → 1.0.1, …)
-3. Generates `package.json` and a consumer `README.md` inside `output/the-use-of-colours-in-art/`
+3. Generates `package.json` and a consumer `README.md` inside `output/water-in-islam/`
 4. Runs `npm publish` from that directory against GitHub Packages
 
 There is **no separate manual `npm publish` step** — running one after
@@ -24,9 +24,9 @@ There is **no separate manual `npm publish` step** — running one after
 
 ## Version management
 
-The version counter lives in `output/.version-the-use-of-colours-in-art` — deliberately
+The version counter lives in `output/.version-water-in-islam` — deliberately
 *outside* the package directory, so `--force` (which deletes and recreates
-`output/the-use-of-colours-in-art/`) does not reset it.
+`output/water-in-islam/`) does not reset it.
 
 - Each `--publish` run auto-increments the patch component and persists the
   result.
@@ -44,7 +44,7 @@ versions on GitHub Packages first).
 The published package is the output directory itself:
 
 ```
-output/the-use-of-colours-in-art/
+output/water-in-islam/
 ├── package.json          ← generated on every --publish run
 ├── README.md             ← generated consumer usage guide
 ├── manifest.json
@@ -61,7 +61,7 @@ written by the export stay local and are never published.
 
 The generated `package.json` carries:
 
-- **name** — `@metanull/the-use-of-colours-in-art-data` (hardcoded in the exporter CLI)
+- **name** — `@metanull/water-in-islam-data` (hardcoded in the exporter CLI)
 - **version** — from the version file (see above)
 - **description** — names the exported gallery slug
 - **exports** — `manifest.json` as the entry point, plus every top-level
@@ -90,16 +90,16 @@ for details. The package is private: consumers need a token with
 ## Consumer usage
 
 ```bash
-npm install @metanull/the-use-of-colours-in-art-data
+npm install @metanull/water-in-islam-data
 ```
 
 ```javascript
-import manifest from '@metanull/the-use-of-colours-in-art-data/manifest.json' assert { type: 'json' }
-import exhibition from '@metanull/the-use-of-colours-in-art-data/exhibition.json' assert { type: 'json' }
-import items from '@metanull/the-use-of-colours-in-art-data/items.json' assert { type: 'json' }
+import manifest from '@metanull/water-in-islam-data/manifest.json' assert { type: 'json' }
+import exhibition from '@metanull/water-in-islam-data/exhibition.json' assert { type: 'json' }
+import items from '@metanull/water-in-islam-data/items.json' assert { type: 'json' }
 
 // Lazy-load translations for a language
-const { default: t } = await import(`@metanull/the-use-of-colours-in-art-data/translations/items.${lang}.json`)
+const { default: t } = await import(`@metanull/water-in-islam-data/translations/items.${lang}.json`)
 ```
 
 All data files sit at the package root (there is no `data/` directory);
