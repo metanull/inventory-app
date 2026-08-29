@@ -36,7 +36,15 @@ interface RelatedContentExtra {
  * back to the base row only for an id that was never translated — which is what
  * legacy's own join does.
  *
- * Two more things the shape has to respect:
+ * Three more things the shape has to respect:
+ *
+ * - **Not every entry has something to link to.** An entry can be a
+ *   bibliography and nothing else — no link, no document, no title, no type —
+ *   which is exactly what all five of this exhibition's entries are. Those
+ *   cannot live in `collection_media` (its `url` is required), so the importer
+ *   writes them to the exhibition collection's `extra.further_readings` and
+ *   this exporter folds them back into the same array with `kind: "text"` and
+ *   a per-language `texts` map. `kind` is what the page switches on.
  *
  * - **Documents and links are not the same field.** The `<kind>` suffix says
  *   which: a `:document` row's `url` is a path on the legacy media server
@@ -68,12 +76,6 @@ export class RelatedContentExporter extends BaseExporter {
        ORDER BY display_order, backward_compatibility`,
       [this.exhibition.id]
     )
-
-    if (rows.length === 0) {
-      await this.writeJson('related_content.json', [])
-      this.logger.warning('related_content.json (0 entries)')
-      return { file: 'related_content.json', count: 0 }
-    }
 
     const langCodeMap = await this.buildLangCodeMap()
 
@@ -136,6 +138,14 @@ export class RelatedContentExporter extends BaseExporter {
       )
     }
 
+    output.push(...(await this.loadFurtherReadings(langCodeMap)))
+
+    if (output.length === 0) {
+      await this.writeJson('related_content.json', [])
+      this.logger.warning('related_content.json (0 entries)')
+      return { file: 'related_content.json', count: 0 }
+    }
+
     output.sort((a, b) => {
       const left = a as { category_id: number | null; display_order: number }
       const right = b as { category_id: number | null; display_order: number }
@@ -152,6 +162,67 @@ export class RelatedContentExporter extends BaseExporter {
     )
 
     return { file: 'related_content.json', count: output.length }
+  }
+
+  /**
+   * The "Further Reading" blocks — related-content entries that carry a
+   * bibliography and nothing else. They have no `collection_media` row because
+   * that table needs a URL, so the importer files them on the exhibition
+   * collection's `extra` instead (metanull/inventory-app#1607 territory: the
+   * same read-modify-write the gallery anchor and hidden-museum list use).
+   *
+   * They ship in the same array as the linked entries, with `kind: "text"` and
+   * no `url`/`document_path`, so the page renders one ordered list.
+   */
+  private async loadFurtherReadings(langCodeMap: Map<string, string>): Promise<unknown[]> {
+    const rows = await this.db.query<{ extra: unknown }>(
+      `SELECT extra FROM collections WHERE id = ?`,
+      [this.exhibition.id]
+    )
+    const extra = parseJson<{ further_readings?: LegacyFurtherReading[] }>(rows[0]?.extra)
+    const entries = extra?.further_readings
+    if (!Array.isArray(entries)) return []
+
+    return entries.map(entry => furtherReadingEntry(entry, langCodeMap)).filter(e => e !== null)
+  }
+}
+
+/** `collections.extra.further_readings[]`, as the importer writes it. */
+export interface LegacyFurtherReading {
+  legacy_id: number
+  category_id: number | null
+  display_order: number
+  texts: Record<string, string>
+}
+
+/**
+ * One `collections.extra.further_readings` entry in package shape.
+ *
+ * The `texts` map is rekeyed from the inventory language id the importer writes
+ * ('eng') to the ISO-639-1 code the rest of the package uses ('en'), the same
+ * translation every other per-language map in this exporter gets. An entry
+ * whose languages all fail that lookup carries nothing renderable and is
+ * dropped rather than shipped as an empty block.
+ */
+export function furtherReadingEntry(
+  entry: LegacyFurtherReading,
+  langCodeMap: Map<string, string>
+): Record<string, unknown> | null {
+  const texts: Record<string, string> = {}
+  for (const [languageId, text] of Object.entries(entry?.texts ?? {})) {
+    const code = langCodeMap.get(languageId)
+    if (code && text) texts[code] = text
+  }
+  if (Object.keys(texts).length === 0) return null
+
+  return {
+    legacy_id: String(entry.legacy_id),
+    category_id: entry.category_id ?? null,
+    kind: 'text',
+    display_order: entry.display_order ?? 0,
+    // The whole entry is this text, keyed by language code — there is no title,
+    // no author and nothing to link to.
+    texts,
   }
 }
 

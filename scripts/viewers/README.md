@@ -21,7 +21,7 @@ runtime.
 | [`amulets/`](amulets/README.md) | `@metanull/amulets-data` | https://inventory.metanull.eu/amulets/ | `.github/workflows/deploy-viewer-amulets-ovh.yml` |
 | [`carpets/`](carpets/README.md) | `@metanull/carpets-data` | https://inventory.metanull.eu/carpets/ | `.github/workflows/deploy-viewer-carpets-ovh.yml` |
 | [`the-use-of-colours-in-art/`](the-use-of-colours-in-art/README.md) | `@metanull/the-use-of-colours-in-art-data` | https://inventory.metanull.eu/the-use-of-colours-in-art/ | `.github/workflows/deploy-viewer-the-use-of-colours-in-art-ovh.yml` |
-| [`water-in-islam/`](water-in-islam/README.md) | `@metanull/water-in-islam-data` | https://inventory.metanull.eu/water-in-islam/ *(Nginx block pending)* | `.github/workflows/deploy-viewer-water-in-islam-ovh.yml` |
+| [`water-in-islam/`](water-in-islam/README.md) | `@metanull/water-in-islam-data` | https://inventory.metanull.eu/water-in-islam/ | `.github/workflows/deploy-viewer-water-in-islam-ovh.yml` |
 
 The first three viewers are **verification tools** for their packages. The
 other four are DXA rebuilds

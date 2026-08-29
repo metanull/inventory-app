@@ -327,7 +327,8 @@ export class ExhibitionExporter extends BaseExporter {
    * them rather than dropping them. This is the exhibition the field was
    * written for — eleven museums here against none on Colours — so it is also
    * the first package where a viewer's E6 handling is exercised rather than
-   * merely present. Three of the eleven hold member items and one holds 26.
+   * merely present. Six of the eleven hold member items — 51 between them, and
+   * 26 in one museum alone.
    */
   private async resolveHiddenPartnerIds(): Promise<string[]> {
     const raw = (this.exhibition.anchor as { hidden_partners?: unknown }).hidden_partners

@@ -61,14 +61,12 @@ const groups = computed(() => {
   <div id="related-content-wrapper">
     <BackLink />
     <div id="related-content-container">
-      <!-- This exhibition's reading list is missing from the package, and the
-           page would otherwise be blank. All five of its legacy entries are
-           pure `further_reading` bibliographies with neither a link nor an
-           uploaded document, and the importer writes a `collection_media` row
-           only when one of those is present — so nothing reaches the export.
-           Legacy renders the list in full under "Further Reading". Saying so is
-           better than an empty page that reads as a rendering fault; the gap is
-           recorded in README.md and belongs to the importer. -->
+      <!-- Kept as a guard, not as this exhibition's normal state. Its five
+           entries are pure bibliographies with neither a link nor an uploaded
+           document; the importer used to drop those on the floor because
+           `collection_media` needs a URL, and now files them on the
+           exhibition's `extra.further_readings` instead. An empty page would
+           read as a rendering fault, so say it plainly if it ever happens. -->
       <p class="related-content-empty" v-if="!groups.length">
         The reading list for this exhibition is not yet available in the data
         package.
@@ -78,6 +76,11 @@ const groups = computed(() => {
         <div class="related-content-category-header">{{ group.name }}</div>
 
         <div class="related-content" v-for="entry in group.entries" :key="entry.legacy_id">
+          <!-- kind: "text" — the entry IS the bibliography. No link, no title,
+               no author; the importer converts the legacy HTML to markdown on
+               the way in, so this goes through md() rather than v-html raw. -->
+          <div class="further-reading prose" v-if="text(entry.texts)" v-html="md(text(entry.texts))"></div>
+
           <div class="further-reading prose" v-if="entry.further_reading" v-html="entry.further_reading"></div>
 
           <div v-if="entry.entity_location || entry.entity_country">

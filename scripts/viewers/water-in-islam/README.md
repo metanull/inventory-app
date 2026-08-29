@@ -226,25 +226,15 @@ keys case-insensitively and keeps the *shared* spelling with the *site's* value.
 
 **Package gaps surfaced by the viewer** (exporter- or importer-side)
 
-- **The whole reading list is missing.** `related_content.json` ships 0 entries
-  where the live `/related` renders five bibliographies under "Further Reading".
-  `ThgGalleryContentImporter` models `exhibition_related_content` as
-  `collection_media` and writes a row only for a legacy entry carrying a link or
-  an uploaded document; all five here are pure `further_reading` text with
-  neither. The page says so rather than rendering blank, which would read as a
-  fault in the viewer. Recorded in the exporter's README as an importer defect.
-
-- **Six members ship with no text in any language.** `mwnf3:objects:GalEx6:us:
-  Mus82:3`, `…:on:Mus81:18`, `…:us:Mus82:26`, `…:on:Mus81:19`, `…:us:Mus83:1`
-  and `mwnf3:monuments:GalEx6:ma:Mon81:5` carry `languages: []` and have no row
-  in any `translations/items.*.json`. **Legacy serves all six in English** — its
-  `/items` total of 492 is a strict subset of the package's 495 and the only
-  three it withholds are the Spanish record and two Sharing History ones — so
-  this is a gap in the package, not a fact about the records. They are therefore
-  *not* filtered out with the Spanish one: `itemLabel`'s `internal_name`
-  fallback gives each its correct legacy title, and only the descriptions are
-  missing. The exporter's validation compared identity rather than
-  renderability, which is why it reported the item set exact.
+Two gaps this viewer surfaced at build time were fixed in the importer on
+2026-08-29 and are no longer present: `related_content.json` shipped 0 entries
+where legacy renders five bibliographies, and six members shipped with
+`languages: []` and no row in any `translations/items.*.json`. The first is now
+`kind: "text"` entries read off the exhibition collection's
+`extra.further_readings`; the second was `planTranslations` dropping a whole
+language row whenever its description was empty, which cost 51 records across
+the corpus their names and technical fields — 23 of them in Colours. Both fixes
+require a reimport to appear in a package.
 
 - **Related-content category names are not in the package** (inherited): legacy
   reads them from `related_content_category`, which the importer does not carry,

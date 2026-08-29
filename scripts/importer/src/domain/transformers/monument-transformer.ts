@@ -181,10 +181,9 @@ export function transformMonumentTranslation(
   const sourceDescription =
     descriptionField === 'description2' ? monument.description2 : monument.description;
 
-  // Skip if description is empty
-  if (!sourceDescription || !sourceDescription.trim()) {
-    return null;
-  }
+  // An absent description is not a reason to drop the record — see the matching
+  // comment in `transformObjectTranslation` (object-transformer.ts).
+  const hasDescription = Boolean(sourceDescription && sourceDescription.trim());
 
   // Validate name
   const name = monument.name?.trim() || null;
@@ -195,7 +194,7 @@ export function transformMonumentTranslation(
 
   // Convert HTML to Markdown
   const nameMarkdown = convertHtmlToMarkdown(name);
-  const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+  const descriptionMarkdown = hasDescription ? convertHtmlToMarkdown(sourceDescription!) : null;
   const bibliographyMarkdown = monument.bibliography
     ? convertHtmlToMarkdown(monument.bibliography)
     : null;
@@ -353,8 +352,13 @@ export function planMonumentTranslations(
         });
       }
     } else {
-      // Other projects: create in own context with description
-      if (translation.description && translation.description.trim()) {
+      const hasDescription = Boolean(translation.description && translation.description.trim());
+      const hasDescription2 = Boolean(translation.description2 && translation.description2.trim());
+
+      // Other projects: create in own context with description.
+      // A row with neither description still gets one — see the matching
+      // comment in `planTranslations` (object-transformer.ts).
+      if (hasDescription || !hasDescription2) {
         plans.push({
           translation,
           contextType: 'own',
@@ -363,7 +367,7 @@ export function planMonumentTranslations(
       }
 
       // Also create EPM translation if description2 exists
-      if (translation.description2 && translation.description2.trim() && hasEpmContext) {
+      if (hasDescription2 && hasEpmContext) {
         plans.push({
           translation,
           contextType: 'epm',

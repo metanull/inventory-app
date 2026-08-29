@@ -567,7 +567,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.context_id,
         sanitized.name,
         safeNull(sanitized.alternate_name),
-        sanitized.description,
+        safeNull(sanitized.description),
         safeNull(sanitized.type),
         safeNull(sanitized.holder),
         safeNull(sanitized.owner),
