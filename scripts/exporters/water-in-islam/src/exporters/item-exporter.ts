@@ -120,11 +120,13 @@ const SHEET_TAG_CATEGORIES = ['keyword', 'material']
  * `items.json` + `translations/items.<lang>.json`.
  *
  * Unlike the single-project exporters, the item universe here is the gallery's
- * membership union. Carpets is the hybrid case: 398 of its 486 objects are its
- * own DCA records and 88 are borrowed — 59 EPM, 21 ISL, 4 Sharing History,
- * 2 BAR, 1 EXTHE and 1 GALLERIES. So the source project printed on the sheet
- * and the context that selects a record's canonical translation are genuinely
- * per-item here, not a per-export constant with one exception.
+ * membership union. Water in Islam is the native-majority case: 314 of its 495
+ * members are its own GalEx6 records (300 objects and 14 monuments) and 181 are
+ * borrowed — 70 ISL, 46 EPM, 34 AWE, 22 EXTHE, 7 DGA, 1 GALLERIES, and one
+ * Explore monument that carries no project key at all. So the source project
+ * printed on the sheet and the context that selects a record's canonical
+ * translation are genuinely per-item here, not a per-export constant with one
+ * exception.
  */
 export class ItemExporter extends BaseExporter {
   getName(): string {
