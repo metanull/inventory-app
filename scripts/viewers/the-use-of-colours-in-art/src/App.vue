@@ -181,9 +181,10 @@ function logoCaption(logo) {
   --dba-blue:    #001d66;  /* Discover Baroque Art (DBA / BAR) */
   --sh-red:      #900000;  /* Sharing History (AWE) */
   --dca-tan:     #6b612b;  /* Discover Carpet Art (DCA) */
-  --dga-green:   #006950;  /* Discover Gardens & Landscapes (DGA) */
+  --dga-blue:    #0059bf;  /* Discover Glass Art (DGA) */
+  --explore-green: #006950; /* Explore monuments database (no project key) */
   --g-grey:      #263238;  /* Galleries */
-  --exhibitions: #7f01d4;  /* Exhibitions (EXHCOLOUR) */
+  --exhibitions: #7f01d4;  /* Exhibitions (EXHCOLOUR, EXTHE) */
 
   /* The database half of this site — collection search and results, the item
      sheet, partners, the timeline — is the gallery client's, and was forked
@@ -407,13 +408,18 @@ a { color: inherit; }
 
 /* Source-project colour chips, mirroring legacy's backgroundColor() */
 .project-chip { color: #fff; padding: 1px 8px; font-size: 12px; display: inline-block; }
-.project-ISL, .project-EPM { background: var(--dia-yellow); color: #222; }
-.project-DBA, .project-BAR { background: var(--dba-blue); }
-.project-AWE, .project-awe { background: var(--sh-red); }
+/* Keyed by legacy's project *family*, not by project key: legacy's
+   #info-citation-link takes one class per family, so ISL and EPM share a
+   swatch and every exhibition shares another. `projectFamily()` does the
+   mapping. */
+.project-ISLandEPM { background: var(--dia-yellow); color: #222; }
+.project-DBA { background: var(--dba-blue); }
+.project-AWE { background: var(--sh-red); }
 .project-DCA { background: var(--dca-tan); }
-.project-DGA { background: var(--dga-green); }
-.project-GALLERIES { background: var(--g-grey); }
-.project-EXHCOLOUR { background: var(--exhibitions); }
+.project-DGA { background: var(--dga-blue); }
+.project-Explore { background: var(--explore-green); }
+.project-Galleries { background: var(--g-grey); }
+.project-EXH { background: var(--exhibitions); }
 
 .loader { padding: 40px; text-align: center; color: var(--secondary-text-color); }
 

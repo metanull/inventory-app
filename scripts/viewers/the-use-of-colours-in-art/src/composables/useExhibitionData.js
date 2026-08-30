@@ -316,6 +316,73 @@ export function pictureText(theme, picture, lang = defaultLang) {
   return tr('themes', `${theme.id}/${picture.picture_item_id}`, lang)
 }
 
+// ── Source projects ────────────────────────────────────────────────────────
+//
+// Ported from the water-in-islam fork, which worked these rules out against the
+// live instance. They were duplicated here in ItemSheet and ObjectGrid, and
+// neither copy handled this exhibition's own project or a member with no
+// project at all.
+
+const PROJECT_NAMES = {
+  ISL: 'Discover Islamic Art',
+  EPM: 'Explore Islamic Art Collections',
+  DBA: 'Discover Baroque Art',
+  BAR: 'Discover Baroque Art',
+  AWE: 'Sharing History',
+  awe: 'Sharing History',
+  DCA: 'Discover Carpet Art',
+  DGA: 'Discover Glass Art',
+  EXTHE: 'The Table Is Set',
+  GALLERIES: 'MWNF Galleries',
+}
+
+// Legacy's own class names, so the CSS in App.vue reads as the stylesheet it
+// was copied from. A key with no entry falls back to itself.
+const PROJECT_FAMILIES = {
+  ISL: 'ISLandEPM',
+  EPM: 'ISLandEPM',
+  DBA: 'DBA',
+  BAR: 'DBA',
+  AWE: 'AWE',
+  awe: 'AWE',
+  DCA: 'DCA',
+  DGA: 'DGA',
+  EXTHE: 'EXH',
+  GALLERIES: 'Galleries',
+}
+
+// The exhibition's own project is in neither table: its key is this
+// deployment's (`EXHCOLOUR`) and its name is the exhibition's own title. Legacy
+// answers "The Use of Colours in Art" for a native member; without this the
+// sheet printed the raw key, which is what all 24 native members showed.
+const NATIVE_PROJECT_KEY = exhibition.mwnf3_project_id
+
+// Three members have no `project_key`: they come from the Explore monuments
+// database rather than from a project. Legacy still colours them — its
+// `#info-citation-link` carries the `Explore` class — and still prints an empty
+// project name. The colour is reproduced from the keyspace, which is the only
+// place the provenance survives; the empty name is not, because a label reading
+// "for" with nothing after it is a rendering fault rather than a faithful copy.
+function isExploreRecord(item) {
+  return (item?.backward_compatibility ?? '').startsWith('mwnf3_explore:')
+}
+
+/** Legacy's `#info-project-name`. Empty when legacy leaves it empty. */
+export function projectName(item) {
+  const key = item?.project_key
+  if (!key) return ''
+  if (key === NATIVE_PROJECT_KEY) return exhibitionTitle(defaultLang)
+  return PROJECT_NAMES[key] ?? key
+}
+
+/** Legacy's family class on `#info-citation-link`, for the colour swatch. */
+export function projectFamily(item) {
+  const key = item?.project_key
+  if (!key) return isExploreRecord(item) ? 'Explore' : ''
+  if (key === NATIVE_PROJECT_KEY) return 'EXH'
+  return PROJECT_FAMILIES[key] ?? key
+}
+
 // ── English labels (lists, dropdowns, alt text) ────────────────────────────
 
 export function itemLabel(item) {
@@ -440,6 +507,7 @@ export function useExhibitionData() {
     isInstitution, isHiddenPartner, visiblePartners,
     legacyImage,
     loadTranslations, translations, tr, availableLanguages, loadEnglish,
+    projectName, projectFamily,
     itemLabel, countryLabel, countryLabelFromCode, countryByCode, partnerLabel, dynastyLabel,
     exhibitionTitle, exhibitionSubtitle, exhibitionHeadline, bannerCaption,
     siblingSites, siblingUrl,

@@ -5,6 +5,7 @@ import {
   itemFromUidPath, itemRoute, itemLabel, partnerLabel, countryLabel, partnerById,
   partnerRoute, dynastyById, tr, loadTranslations, translations, defaultLang,
   languageByCode, md, mdInline, mdStrip, itemById, glossaryById,
+  projectName as projectNameOf, projectFamily,
 } from '../composables/useExhibitionData.js'
 import { tIn, isRtl } from '../composables/useUiStrings.js'
 import { termsForItem, linkGlossary, searchGlossary } from '../composables/useGlossary.js'
@@ -18,22 +19,6 @@ const PORTAL = 'https://www.museumwnf.org'
 const ISLAMIC_ART = 'https://islamicart.museumwnf.org'
 const BAROQUE_ART = 'https://baroqueart.museumwnf.org'
 const SHARING_HISTORY = 'https://sharinghistory.museumwnf.org'
-
-// `mwnf3.projectnames`, English row. Carpets' 486 members come from seven
-// projects, two of which (EXTHE, GALLERIES) the amulets fork never met, so an
-// unmapped key would have surfaced on the sheet as a bare "EXTHE".
-const PROJECT_NAMES = {
-  ISL: 'Discover Islamic Art',
-  EPM: 'Explore Islamic Art Collections',
-  DBA: 'Discover Baroque Art',
-  BAR: 'Discover Baroque Art',
-  AWE: 'Sharing History',
-  awe: 'Sharing History',
-  DCA: 'Discover Carpet Art',
-  DGA: 'Discover Glass Art',
-  EXTHE: 'The Table Is Set',
-  GALLERIES: 'MWNF Galleries',
-}
 
 const item = computed(() => itemFromUidPath(route.params.uid))
 const lang = computed(() => route.params.language ?? defaultLang)
@@ -191,7 +176,7 @@ const citation = computed(() => {
   ].filter(([, v]) => Boolean(v))
 })
 
-const projectName = computed(() => PROJECT_NAMES[item.value?.project_key] ?? item.value?.project_key ?? '')
+const projectName = computed(() => projectNameOf(item.value))
 
 // The four projects legacy offers a "search the related database" link for.
 // DCA — the native project of 398 of carpets' 486 members — is deliberately not
@@ -363,9 +348,9 @@ function printSheet() {
             <!-- Decision Q3: legacy's `remote-object` URL came from a
                  hand-maintained table with no counterpart in the new model, so
                  the source is named, not linked. -->
-            <p id="source-reference">
-              <span class="project-chip" :class="`project-${item.project_key}`">{{ item.project_key }}</span>
-              {{ tIn(lang, 'sourceDatabase') }}: {{ projectName }}
+            <p id="source-reference" v-if="projectFamily(item)">
+              <span class="project-chip" :class="`project-${projectFamily(item)}`">{{ item.project_key || projectFamily(item) }}</span>
+              <template v-if="projectName">{{ tIn(lang, 'sourceDatabase') }}: {{ projectName }}</template>
             </p>
             <p id="source-uid"><code>{{ item.backward_compatibility }}</code></p>
             <p id="add-collection-link">
@@ -451,7 +436,7 @@ function printSheet() {
           <p class="related-sub">{{ tIn(lang, 'relatedItems') }}</p>
           <ul class="reference-list">
             <li v-for="r in relatedOutside" :key="r.id">
-              <span class="project-chip" :class="`project-${r.project_key}`">{{ r.project_key }}</span>
+              <span class="project-chip" :class="`project-${projectFamily(r)}`">{{ r.project_key || projectFamily(r) }}</span>
               <code>{{ r.backward_compatibility }}</code>
               <span class="unresolved-note">not in this exhibition</span>
             </li>

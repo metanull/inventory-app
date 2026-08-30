@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
-  itemRoute, itemLabel, partnerLabel, countryLabel, tr, defaultLang,
+  itemRoute, itemLabel, partnerLabel, countryLabel, tr, defaultLang, projectName,
 } from '../composables/useExhibitionData.js'
 
 // The results grid shared by collection results, free-text search, partner
@@ -14,23 +14,6 @@ defineProps({
 
 const hovered = ref(-1)
 
-// Legacy read these off the API, which read `mwnf3.projectnames`. Carpets draws
-// members from seven projects — including one EXTHE and one GALLERIES record
-// that the amulets fork never had to name — so the map covers the whole table's
-// English row for the keys a gallery can meet, and still falls back to the key.
-const PROJECT_NAMES = {
-  ISL: 'Discover Islamic Art',
-  EPM: 'Explore Islamic Art Collections',
-  DBA: 'Discover Baroque Art',
-  BAR: 'Discover Baroque Art',
-  AWE: 'Sharing History',
-  awe: 'Sharing History',
-  DCA: 'Discover Carpet Art',
-  DGA: 'Discover Glass Art',
-  EXTHE: 'The Table Is Set',
-  GALLERIES: 'MWNF Galleries',
-}
-
 function sheet(item) {
   return tr('items', item.id, defaultLang)
 }
@@ -39,10 +22,6 @@ function sheet(item) {
 function shortDate(text) {
   if (!text) return ''
   return text.length > 80 ? `${text.slice(0, 79)}[...]` : text
-}
-
-function projectName(key) {
-  return PROJECT_NAMES[key] ?? key
 }
 </script>
 
@@ -71,7 +50,7 @@ function projectName(key) {
             <p class="entry-location">
               {{ [sheet(item).location, countryLabel(item.country_id)].filter(Boolean).join(', ') }}
             </p>
-            <p class="entry-project">for <span>{{ projectName(item.project_key) }}</span></p>
+            <p class="entry-project" v-if="projectName(item)">for <span>{{ projectName(item) }}</span></p>
             <RouterLink :to="itemRoute(item)">
               <p class="entry-link">See Database Entry &gt;</p>
             </RouterLink>
