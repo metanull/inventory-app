@@ -219,10 +219,11 @@ export function transformObjectTranslation(
   const sourceDescription =
     descriptionField === 'description2' ? obj.description2 : obj.description;
 
-  // Skip if description is empty
-  if (!sourceDescription || !sourceDescription.trim()) {
-    return null;
-  }
+  // An absent description is not a reason to drop the record. `planTranslations`
+  // decides which description field this plan is for; a plan with neither field
+  // populated is a catalogued object that was never given descriptive text, and
+  // legacy publishes it on the strength of its name and technical fields alone.
+  const hasDescription = Boolean(sourceDescription && sourceDescription.trim());
 
   // Validate name
   const name = obj.name?.trim() || null;
@@ -233,7 +234,7 @@ export function transformObjectTranslation(
 
   // Convert HTML to Markdown
   const nameMarkdown = convertHtmlToMarkdown(name);
-  const descriptionMarkdown = convertHtmlToMarkdown(sourceDescription);
+  const descriptionMarkdown = hasDescription ? convertHtmlToMarkdown(sourceDescription!) : null;
   const bibliographyMarkdown = obj.bibliography ? convertHtmlToMarkdown(obj.bibliography) : null;
 
   // Handle alternate_name with truncation
@@ -443,8 +444,17 @@ export function planTranslations(group: ObjectGroup, hasEpmContext: boolean): Tr
         });
       }
     } else {
-      // Other projects: create in own context with description
-      if (translation.description && translation.description.trim()) {
+      const hasDescription = Boolean(translation.description && translation.description.trim());
+      const hasDescription2 = Boolean(translation.description2 && translation.description2.trim());
+
+      // Other projects: create in own context with description.
+      //
+      // A row with neither description still gets its own-context translation,
+      // with a null description — otherwise the whole language row is lost and
+      // with it the name, materials, dimensions, dates and bibliography that
+      // legacy renders the sheet from. 43 objects and 1 monument across the
+      // legacy corpus are catalogued this way and are published by legacy.
+      if (hasDescription || !hasDescription2) {
         plans.push({
           translation,
           contextType: 'own',
@@ -453,7 +463,7 @@ export function planTranslations(group: ObjectGroup, hasEpmContext: boolean): Tr
       }
 
       // Also create EPM translation if description2 exists
-      if (translation.description2 && translation.description2.trim() && hasEpmContext) {
+      if (hasDescription2 && hasEpmContext) {
         plans.push({
           translation,
           contextType: 'epm',

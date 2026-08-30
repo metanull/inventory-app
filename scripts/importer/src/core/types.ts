@@ -278,7 +278,13 @@ export interface ItemTranslationData {
   context_id: string;
   backward_compatibility: string;
   name: string;
-  description: string;
+  /**
+   * Nullable since the 2025-10-21 migration made `item_translations.description`
+   * nullable. A legacy record can be fully catalogued — name, materials,
+   * dimensions, dates, bibliography — and carry no descriptive text at all;
+   * legacy publishes those, so the importer must too.
+   */
+  description: string | null;
   alternate_name?: string | null;
   type?: string | null;
   holder?: string | null;

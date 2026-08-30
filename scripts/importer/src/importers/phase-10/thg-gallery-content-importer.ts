@@ -49,6 +49,36 @@ interface LegacyExhibitionLogo {
  * `United Nations Alliance of Civilizations`, and the live API serves the
  * latter.
  */
+/**
+ * Does this related-content entry have anything `collection_media` can hold?
+ *
+ * The translations decide it as much as the base row does. On gallery 47 every
+ * base row is bare and each carries an `_i18n` row with an uploaded document,
+ * so the whole table is media-backed; on gallery 56 neither level has a link or
+ * a document and all five entries are bibliographies. Reading only the base row
+ * would file ten of Colours' entries as text and lose their documents.
+ */
+export function relatedContentCarriesMedia(
+  content: Pick<LegacyExhibitionRelatedContent, 'link' | 'uploaded_document'>,
+  translations: Pick<LegacyExhibitionRelatedContentI18n, 'link' | 'uploaded_document'>[]
+): boolean {
+  const hasMedia = (row: { link: string | null; uploaded_document: string | null }): boolean =>
+    Boolean(trimToNull(row.link)) || Boolean(trimToNull(row.uploaded_document));
+  return hasMedia(content) || translations.some(hasMedia);
+}
+
+/**
+ * One "Further Reading" block on an exhibition's related-content page: a
+ * bibliography with no link and no document, keyed by language the same way
+ * `collection_item.extra`'s `contextual_descriptions` are.
+ */
+interface FurtherReadingEntry {
+  legacy_id: number;
+  category_id: number | null;
+  display_order: number;
+  texts: Record<string, string>;
+}
+
 export interface LegacyExhibitionLogoI18n {
   logo_id: number;
   language_id: string | null;
@@ -674,6 +704,11 @@ export class ThgGalleryContentImporter extends BaseImporter {
       `Found ${contentRows.length} related content rows, ${i18nRows.length} translations`
     );
 
+    // Entries that carry no link and no document — a bibliography and nothing
+    // else. They have no `collection_media` row to hang on, so they are
+    // collected here and written to the gallery collection's own `extra`.
+    const furtherReadingsByCollection = new Map<string, FurtherReadingEntry[]>();
+
     for (const content of contentRows) {
       try {
         const collectionId = await this.resolveGalleryCollectionId(content.gallery_id);
@@ -692,6 +727,13 @@ export class ThgGalleryContentImporter extends BaseImporter {
         for (const i18n of translations) {
           await this.importRelatedContentTranslationRows(collectionId, content, i18n, result);
         }
+
+        const entry = await this.buildFurtherReadingEntry(content, translations, result);
+        if (entry) {
+          const bucket = furtherReadingsByCollection.get(collectionId) ?? [];
+          bucket.push(entry);
+          furtherReadingsByCollection.set(collectionId, bucket);
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.errors.push(
@@ -705,7 +747,97 @@ export class ThgGalleryContentImporter extends BaseImporter {
       }
     }
 
+    for (const [collectionId, entries] of furtherReadingsByCollection) {
+      await this.writeFurtherReadings(collectionId, entries, result);
+    }
+
     return result;
+  }
+
+  /**
+   * A related-content entry with neither a link nor an uploaded document is a
+   * bibliography: legacy renders it under "Further Reading" as a block of text
+   * and nothing more. `collection_media` cannot hold it — that table is media,
+   * and its `url` is required — so the text goes on the exhibition collection's
+   * own `extra`, the way a theme's curated picture texts live on
+   * `collection_item.extra`.
+   *
+   * Returns null when the entry has a link or a document (its content is
+   * already in `collection_media`), and null when it has neither those nor any
+   * text, which is an empty legacy row.
+   */
+  private async buildFurtherReadingEntry(
+    content: LegacyExhibitionRelatedContent,
+    translations: LegacyExhibitionRelatedContentI18n[],
+    result: ImportResult
+  ): Promise<FurtherReadingEntry | null> {
+    if (relatedContentCarriesMedia(content, translations)) {
+      return null;
+    }
+
+    // The base row seeds the default language and an i18n row wins on conflict
+    // — the same precedence `buildLogoExtra` applies to a sponsor caption.
+    const texts: Record<string, string> = {};
+    const baseText = trimToNull(content.further_reading);
+    if (baseText) {
+      texts[await this.getDefaultLanguageIdAsync()] = convertHtmlToMarkdown(baseText);
+    }
+    for (const translation of translations) {
+      const text = trimToNull(translation.further_reading);
+      if (!text) continue;
+      const sourceLanguage = trimToNull(translation.language_id);
+      if (!sourceLanguage) continue;
+      const languageId = await this.getLanguageIdByLegacyCodeAsync(sourceLanguage);
+      if (!languageId) {
+        result.warnings.push(
+          `exhibition_related_content_i18n.related_content_id=${translation.related_content_id}, language_id=${sourceLanguage}: unknown language, skipping further reading`
+        );
+        continue;
+      }
+      texts[languageId] = convertHtmlToMarkdown(text);
+    }
+
+    if (Object.keys(texts).length === 0) {
+      result.skipped++;
+      this.showSkipped();
+      return null;
+    }
+
+    return {
+      legacy_id: content.related_content_id,
+      category_id: content.category_id,
+      display_order: content.display_order ?? 0,
+      texts,
+    };
+  }
+
+  /**
+   * Merge one exhibition's bibliographies into `collections.extra`, ordered the
+   * way legacy orders the page. Read-modify-write, so the block sits beside
+   * whatever `ThgGalleryImporter` and the hidden-museum step already wrote.
+   */
+  private async writeFurtherReadings(
+    collectionId: string,
+    entries: FurtherReadingEntry[],
+    result: ImportResult
+  ): Promise<void> {
+    entries.sort((a, b) => a.display_order - b.display_order || a.legacy_id - b.legacy_id);
+
+    if (this.isDryRun || this.isSampleOnlyMode) {
+      this.logInfo(
+        `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would write ${entries.length} further-reading entr(ies) to collection ${collectionId}`
+      );
+      result.imported += entries.length;
+      return;
+    }
+
+    const existing = (await this.context.strategy.getCollectionExtra(collectionId)) ?? {};
+    await this.context.strategy.setCollectionExtra(
+      collectionId,
+      JSON.stringify({ ...existing, further_readings: entries })
+    );
+    result.imported += entries.length;
+    for (let i = 0; i < entries.length; i++) this.showProgress();
   }
 
   /**
@@ -1138,15 +1270,9 @@ export class ThgGalleryContentImporter extends BaseImporter {
       });
     }
 
-    if (
-      !link &&
-      !uploadedDocument &&
-      !trimToNull(baseContent.link) &&
-      !trimToNull(baseContent.uploaded_document)
-    ) {
-      result.skipped++;
-      this.showSkipped();
-    }
+    // An entry with neither a link nor a document is not skipped any more: its
+    // `further_reading` text is collected by `buildFurtherReadingEntry` and
+    // written to the collection's `extra` once the whole table has been read.
   }
 
   private async writeRelatedContentMedia(parameters: {

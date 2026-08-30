@@ -118,7 +118,7 @@ describe('transformObjectTranslation', () => {
     expect(result?.data.language_id).toBe('eng');
   });
 
-  it('should return null for empty description', () => {
+  it('should keep the record and null the description when the description is empty', () => {
     const obj: LegacyObject = {
       project_id: 'EPM',
       country: 'eg',
@@ -127,11 +127,18 @@ describe('transformObjectTranslation', () => {
       lang: 'en',
       name: 'Test',
       description: '',
+      dimensions: 'Height: 22.2 cm',
     };
 
     const result = transformObjectTranslation(obj, 'description');
 
-    expect(result).toBeNull();
+    // `item_translations.description` is nullable, and legacy publishes objects
+    // that were catalogued without descriptive text. Dropping the translation
+    // would lose the name and every technical field with it.
+    expect(result).not.toBeNull();
+    expect(result?.data.name).toBe('Test');
+    expect(result?.data.description).toBeNull();
+    expect(result?.data.dimensions).toBe('Height: 22.2 cm');
   });
 
   it('should return null for missing name', () => {
@@ -446,6 +453,57 @@ describe('planTranslations', () => {
     expect(plans[0]?.descriptionField).toBe('description');
     expect(plans[1]?.contextType).toBe('epm');
     expect(plans[1]?.descriptionField).toBe('description2');
+  });
+
+  it('should still plan an own-context translation when neither description exists', () => {
+    const group: ObjectGroup = {
+      project_id: 'GalEx6',
+      country: 'us',
+      museum_id: 'Mus82',
+      number: '3',
+      translations: [
+        {
+          project_id: 'GalEx6',
+          country: 'us',
+          museum_id: 'Mus82',
+          number: '3',
+          lang: 'en',
+          name: '"Alexander and the Circle of Seven Sages"',
+          materials: 'Ink, opaque watercolour, and gold on paper',
+        },
+      ],
+    };
+
+    const plans = planTranslations(group, true);
+
+    expect(plans.length).toBe(1);
+    expect(plans[0]?.contextType).toBe('own');
+    expect(plans[0]?.descriptionField).toBe('description');
+  });
+
+  it('should not plan an own-context translation when only description2 exists', () => {
+    const group: ObjectGroup = {
+      project_id: 'VM',
+      country: 'eg',
+      museum_id: 'cairo',
+      number: '001',
+      translations: [
+        {
+          project_id: 'VM',
+          country: 'eg',
+          museum_id: 'cairo',
+          number: '001',
+          lang: 'en',
+          description2: 'EPM content',
+        },
+      ],
+    };
+
+    const plans = planTranslations(group, true);
+
+    expect(plans.length).toBe(1);
+    expect(plans[0]?.contextType).toBe('epm');
+    expect(plans[0]?.descriptionField).toBe('description2');
   });
 });
 

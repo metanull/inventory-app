@@ -42,9 +42,9 @@ generic exporter would have had to guess:
 none for Colours, so `exhibition.json.hidden_partner_ids` ships non-empty for
 the first time. It is legacy's E6 rule and the polarity matters: the **museum**
 disappears from `/partners` and from its own profile page, its **items** do not.
-Three of the eleven hold member items — one holds 26 — so a viewer that dropped
-the partner records instead of flagging them would leave 37 items pointing at
-nothing.
+Six of the eleven hold member items — 26, 10, 8, 4, 2 and 1 — so a viewer that
+dropped the partner records instead of flagging them would leave 51 items
+pointing at nothing.
 
 This is also what makes the partner count check work. Legacy answers `/partners`
 with 98 and `/institutions` with 21, a union of 117; the package ships **128**,
@@ -62,6 +62,25 @@ file against a live site serving a full one. The flags gate navigation, not
 data; Colours proved it in one direction and this exhibition proves it in the
 other.
 
+### The reading list lives on the collection, not in `collection_media`
+
+All five of this exhibition's `exhibition_related_content` rows carry a
+bibliography and nothing else — `link`, `uploaded_document`, `title` and
+`type_resource` are null at both the base and the `_i18n` level.
+`collection_media.url` is `NOT NULL`, so there was nowhere to put them and the
+importer wrote nothing at all; `related_content.json` shipped empty against a
+live page showing five blocks. The importer now files them on the exhibition
+collection's `extra.further_readings`, keyed by language the way a theme's
+curated picture texts sit on `collection_item.extra`, and this exporter folds
+them back into the same array with `kind: "text"` and a per-language `texts`
+map. Linked entries are unchanged.
+
+The test that decides which entries take that path reads **both** levels. Every
+one of Colours' ten base rows is equally bare, and each carries an `_i18n` row
+with an uploaded document — judging on the base row alone would reclassify all
+ten as text and lose their PDFs. Both galleries are pinned in
+`relatedContentCarriesMedia`'s tests.
+
 ### One language, and both fields agree
 
 `thg_gallery_lang` and `exhibition_i18n.enabled` both say English alone, so
@@ -76,7 +95,7 @@ package carries both fields rather than deriving one from the other.
 | `manifest.json` | Export metadata, the languages present, item and theme counts |
 | `exhibition.json` | Site anchor: slug, legacy host, titles/subtitles/headlines, enabled languages, logos, partner strip, chrome flags, **hidden partner ids**, sibling sites |
 | `themes.json` | 6 themes + 22 sub-themes, 432 curated pictures with cover pictures and related-picture links |
-| `related_content.json` | Empty — see *Known gaps* |
+| `related_content.json` | The 5 "Further Reading" bibliographies, as `kind: "text"` entries |
 | `items.json` | The 495 member items — full sheets, facet tag ids, images, references |
 | `tags.json` | 245 THG facet tags with their category (artist 11, dynasty 29, material 99, subject 18, type 88) |
 | `partners.json` | The 128 museums and institutions, with `featured` and `item_count`; eleven of them flagged hidden by `exhibition.json` |
@@ -126,19 +145,14 @@ legacy public URL path and therefore identity. Never derive one from the other.
 ## Known gaps
 
 Verified during implementation against the live legacy API. None blocks the
-package; the first is the one worth an issue of its own.
+package.
 
-- **The whole reading list is missing: `related_content.json` ships 0 entries
-  where legacy shows 5.** `ThgGalleryContentImporter` models
-  `exhibition_related_content` as `collection_media`, and
-  [`importRelatedContentBaseRows`](../../importer/src/importers/phase-10/thg-gallery-content-importer.ts)
-  writes a row only when the legacy entry carries a `link` or an
-  `uploaded_document`. All five of this exhibition's entries are pure
-  `further_reading` bibliographies with neither, so nothing is written and the
-  `/related` page has nothing to render. The same rule silently drops
-  gallery 54's single entry. Colours was unaffected because every one of its ten
-  entries has a document or a URL. Fixing it needs related content to stop being
-  modelled as media, or `collection_media` to tolerate a null URL.
+Two gaps recorded here on 2026-08-29 have since been **closed** in the importer
+and are no longer true of this package: `related_content.json` shipped 0 entries
+where legacy shows 5, and six members shipped with no text in any language. Both
+were importer defects rather than exporter ones — see *The reading list lives on
+the collection* above and `planTranslations` in
+[`object-transformer.ts`](../../importer/src/domain/transformers/object-transformer.ts).
 
 - **Three link-table members that legacy suppresses.** The package ships 495
   members where legacy's `/items` answers 492; the 492 are a strict subset, so
