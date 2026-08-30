@@ -19,10 +19,10 @@
  *
  * What it exercises that Colours did not, and why the fork was worth making:
  *
- *   * **Scale.** 492 members against 171, 28 theme nodes against 15, 432
+ *   * **Scale.** 495 members against 171, 28 theme nodes against 15, 432
  *     curated pictures against 194. Every per-theme and per-picture path runs
  *     roughly three times as often.
- *   * **Hidden museums (E6).** `extra.thg_gallery.hidden_partners` holds 13
+ *   * **Hidden museums (E6).** `extra.thg_gallery.hidden_partners` holds 11
  *     entries here and none on Colours, so `exhibition.json.hidden_partner_ids`
  *     ships non-empty for the first time. The rule is legacy's: the museum
  *     disappears from every list and profile page, its items do not.
@@ -34,9 +34,11 @@
  *   * **One language.** `thg_gallery_lang` and `exhibition_i18n.enabled` agree
  *     on English alone, where Colours carries German text it never publishes.
  *
- * The membership is mostly its own: 300 native GalEx6 records and 14 monuments
- * among 492, the rest borrowed. That is the opposite balance to Colours, whose
- * 24 native records among 171 made the borrowed path the common one.
+ * The membership is mostly its own: 300 native GalEx6 objects and 14 native
+ * monuments among 495, the other 181 borrowed. That is the opposite balance to
+ * Colours, whose 24 native records among 171 made the borrowed path the common
+ * one. (Legacy's own `/items` answers 492 — the package is a deliberate
+ * superset of three link-table members legacy suppresses; see the README.)
  *
  * Usage:
  *   npm run export -- [options]

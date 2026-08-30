@@ -238,8 +238,8 @@ export class Database {
    *
    * An exhibition mixes its own records with BORROWED ones in whatever
    * proportion its curator chose, and the proportion is not a property of the
-   * format: Colours holds 24 of its own among 171, Water in Islam the majority
-   * of its 492. So neither the project key shown on the item sheet nor the
+   * format: Colours holds 24 of its own among 171, Water in Islam 314 of its
+   * 495. So neither the project key shown on the item sheet nor the
    * context that selects an item's canonical translation can be a per-export
    * constant.
    */

@@ -120,10 +120,11 @@ const SHEET_TAG_CATEGORIES = ['keyword', 'material']
  * `items.json` + `translations/items.<lang>.json`.
  *
  * Unlike the single-project exporters, the item universe here is the gallery's
- * membership union. Carpets is the hybrid case: 398 of its 486 objects are its
- * own DCA records and 88 are borrowed — 59 EPM, 21 ISL, 4 Sharing History,
- * 2 BAR, 1 EXTHE and 1 GALLERIES. So the source project printed on the sheet
- * and the context that selects a record's canonical translation are genuinely
+ * membership union. Colours is the borrowed-majority case: only 24 of its 171
+ * members are its own EXHCOLOUR records and 147 are borrowed — 39 AWE, 35 BAR,
+ * 28 EPM, 22 ISL, 12 DCA, 6 GALLERIES, 2 DGA, and three Explore monuments that
+ * carry no project key at all. So the source project printed on the sheet and
+ * the context that selects a record's canonical translation are genuinely
  * per-item here, not a per-export constant with one exception.
  */
 export class ItemExporter extends BaseExporter {
