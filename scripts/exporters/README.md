@@ -136,15 +136,29 @@ Prerequisites, one-time:
   its own.
 - npm authentication for the `@metanull` scope on
   `https://npm.pkg.github.com` — a PAT with `write:packages`. Put it in the
-  **repo-root `.npmrc`** (gitignored): that file is inside the bind mount, so
-  the container finds it by walking up from the exporter directory. A token
+  **repo-root `.npmrc`** (gitignored) so it is inside the bind mount; a token
   that lives only in your host `~/.npmrc` is not visible to the container.
+  **npm will not find it on its own.** It reads a project `.npmrc` from the
+  *current directory* only — not from ancestors — and `--publish` runs
+  `npm publish` from `output/<dataset>/`, so without help the publish builds
+  the tarball and then dies with `npm error code ENEEDAUTH`. Point npm at the
+  file explicitly, which keeps the credential where it is:
+
+  ```bash
+  docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
+      exporter <dataset> --force --publish
+  ```
+
+  The same variable is what makes `npm view @metanull/<dataset>-data version`
+  work in the `tools` container — the only reliable way to read the version
+  that is actually published.
 
 Then, per dataset (exports are **read-only**, but always check what `BASE_URL`
 points at first) — the command is identical for every dataset:
 
 ```bash
-docker compose run --rm exporter <dataset> --force --publish
+docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
+    exporter <dataset> --force --publish
 ```
 
 Each exporter is single-purpose: its dataset scope — output subdirectory,
@@ -165,7 +179,7 @@ Publishing is where the exporter's job ends — consumers install the package
 on their own schedule. (For updating the viewers in this repo after a
 publish, see [`../viewers/README.md`](../viewers/README.md#deployment).)
 
-Two gotchas, learned the hard way:
+Three gotchas, learned the hard way:
 
 1. The published package must carry a `repository` field pointing at this
    repo (`PACKAGE_REPO_URL` in `.env`) **and** the repo must be granted read
@@ -175,7 +189,25 @@ Two gotchas, learned the hard way:
    inaccessible forever; publish a new version instead.
 2. Version state lives in `output/.version-<dataset>`, which is not committed
    — deleting the output directory and republishing would restart at 1.0.0
-   and collide with existing versions.
+   and collide with existing versions. **The same applies in a fresh git
+   worktree**, which has no `output/` at all: a dataset you have never exported
+   *there* has no version file, and auto-increment would start it over. Read
+   the live version first and pass it explicitly:
+
+   ```bash
+   docker compose --profile tools run --rm --no-deps -w /var/www/app \
+       -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
+       tools npm view @metanull/<dataset>-data version
+   ```
+
+   then `--package-version <next>` on the publish.
+
+3. **Publishing changes nothing that is live.** Each viewer installs
+   `@metanull/<dataset>-data@latest` at *build* time, so the new package only
+   reaches production on the next deploy —
+   `gh workflow run deploy-viewer-<dataset>-ovh.yml --ref main`. A merge that
+   triggers a viewer deploy *before* the package is published builds against
+   the old data and needs a second dispatch.
 
 ## Adding a new dataset
 
