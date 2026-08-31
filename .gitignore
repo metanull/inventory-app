@@ -170,10 +170,17 @@ public/down.lock
 !.copilot/local/README.md
 !.copilot/local/*.template.md
 
-# local git modules
+# Local git modules. These stay ignored because they mirror PRIVATE Bitbucket
+# repositories: a tracked gitlink would make `git submodule update --init
+# --recursive` fail for every contributor without access to them.
+#
+# .new-architecture is deliberately NOT in this list. Those repositories are
+# public, so tracking their gitlinks costs no one anything, and ignoring them
+# had a real cost: the clones drifted without saying so, and reading a site's
+# package.json from there answered with whatever commit happened to be checked
+# out rather than with main.
 .legacy-database
 .legacy-code
-.new-architecture
 
 # Local tools
 RebuildOvh.ps1
