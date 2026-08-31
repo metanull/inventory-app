@@ -31,25 +31,46 @@ Use this map to find the part of the repository that owns a task.
 | `tests/Api/` | Management API tests. |
 | `tests/Unit/` | Model, request, service, and helper unit tests. |
 
-## Local-only submodules
+## Submodules
 
-The last three paths above are Git submodules declared in `.gitmodules` but
-ignored by `.gitignore`, so this repository records no commit for them. Clone
-them when you need them:
+`.legacy-database/` and `.legacy-code/` are declared in `.gitmodules` but
+ignored by `.gitignore`, so this repository records no commit for them. They
+mirror **private** Bitbucket repositories: pinning them would make
+`git submodule update --init --recursive` fail for every contributor without
+Bitbucket access, and legacy code must never be copied into a public
+repository. Clone them when you need them:
+
+```bash
+git submodule update --init .legacy-database .legacy-code
+```
+
+`.new-architecture/` holds the public [website platform](https://github.com/metanull/website-template)
+repositories — `viewer-core`, `viewer-layout`, `viewer-workflows`,
+`website-template` and one repository per website — which are useful to read
+while working on the exporters and viewers under `scripts/`. Those are public,
+so they are pinned like ordinary submodules:
 
 ```bash
 git submodule update --init .new-architecture
 ```
 
-`.legacy-database/` and `.legacy-code/` are private Bitbucket repositories, and
-legacy code must never be copied into a public repository. `.new-architecture/`
-holds the public [website platform](https://github.com/metanull/website-template)
-repositories — `viewer-core`, `viewer-layout`, `viewer-workflows`,
-`website-template` and one repository per website — which are useful to read
-while working on the exporters and viewers under `scripts/`. They are ignored
-rather than pinned because each is released on its own cadence: a recorded
-pointer would be stale within the day and would turn every website commit into
-a change to this repository.
+Each is released on its own cadence, so these pointers go stale quickly and
+`git status` will routinely report *new commits* under `.new-architecture/`.
+That noise is the point. While the directory was ignored, the checkouts drifted
+with nothing to say so, and reading a website's `package.json` from here
+answered with whatever commit was last checked out rather than with `main` —
+silently, and wrongly. Refresh them with
+
+```bash
+git submodule update --remote .new-architecture
+```
+
+Commit the resulting pointer bump only when you mean to record it. Nothing in
+this repository builds, tests or deploys against these submodules — CI does not
+even fetch them — so a stale pointer breaks nothing here. It only ever misleads
+a reader, which is why the drift is now visible instead of hidden. When you need
+a website's *current* state rather than a local snapshot, read its `main`
+branch on GitHub.
 
 ## Main boundaries
 
