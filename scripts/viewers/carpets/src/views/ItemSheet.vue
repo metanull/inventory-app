@@ -132,13 +132,20 @@ watch([description, shortDescription, showShort], () => nextTick(bindGlossaryLin
 // (DatabaseItem.vue's `objectData`). Empty values are dropped, as legacy's
 // `filterData` did.
 //
-// The three notice fields (`notice`, `notice_b`, `notice_c`) are the only
-// legacy sheet fields with nothing behind them: they were never imported, so
-// they are absent rather than faked. `scriber`, `binding_desc` and `workshop`
-// are imported and exported like every other field — an earlier version of this
-// comment said they had no counterpart in the inventory model, and that claim
-// is what kept the three rows off the sheet and propagated into the websites
-// built from it.
+// `notice` and `notice_c` are the only legacy sheet fields with nothing
+// behind them: they were never imported, so they are absent rather than faked.
+// Neither is a loss — `notice` holds a typo'd `&nbps;` on every row that has
+// one, and `notice_c` was never rendered by any legacy client.
+//
+// `notice_b` reads like their sibling and is not. It is the image rights
+// statement, it is imported as `extra.copyright`, and legacy renders it in its
+// own block below the sheet rather than as a row here — see #info-copyright at
+// the end of the template.
+//
+// `scriber`, `binding_desc` and `workshop` are imported and exported like
+// every other field — an earlier version of this comment said they had no
+// counterpart in the inventory model, and that claim is what kept the three
+// rows off the sheet and propagated into the websites built from it.
 //
 // They are sparse by nature. `scriber` and `binding_desc` exist only on
 // manuscript records, so a dataset with no manuscripts carries none and the
@@ -413,6 +420,15 @@ function printSheet() {
               v-else-if="key !== 'shortDescription' || showShort"
               v-html="value"
             ></div>
+          </div>
+
+          <!-- Legacy's own block, in legacy's place: the rights line
+               ("Copyright image: <institution>") sits between the field list
+               and the citation, not among the fields. Absent until the item
+               carries one, like every row above. -->
+          <div id="info-copyright" v-if="sheet.copyright">
+            <p class="info-label">{{ L('objCopyrightInfo') }}</p>
+            <div class="info" v-html="mdInline(sheet.copyright)"></div>
           </div>
 
           <div id="citation-block">
