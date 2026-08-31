@@ -271,6 +271,10 @@ export interface LegacyObject {
   translationby?: string;
   translationcopyeditedby?: string;
   copyright?: string;
+  // The rights statement legacy actually renders. `copyright` is declared on
+  // both tables but has never been filled; `notice_b` carries "Copyright image:
+  // <institution>" and is per-language, so it belongs on the translation.
+  notice_b?: string | null;
   binding_desc?: string;
   linkcatalogs?: string | null;
   catalogue_holding_link?: string | null;
@@ -328,6 +332,9 @@ export interface LegacyMonument {
   architects?: string | null;
   history?: string | null;
   dynasty?: string | null;
+  // Rights statement — see the same pair on LegacyObject.
+  copyright?: string | null;
+  notice_b?: string | null;
 }
 
 export interface MonumentGroup {

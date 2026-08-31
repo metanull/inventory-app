@@ -418,9 +418,11 @@ export class ItemExporter extends BaseExporter {
       const otherRow = rows.find(r => r !== ownRow)
 
       // Fields without a dedicated column live in item_translations.extra JSON.
-      // Each key is only ever set by the importer for the item type it applies
-      // to (history/patrons/architects: monuments; workshop/scriber/binding_desc/
-      // catalogue_holding_link/linkcatalogs: objects), so no type gating is needed here.
+      // Most keys are only ever set by the importer for the item type they
+      // apply to (history/patrons/architects: monuments; workshop/scriber/
+      // binding_desc/catalogue_holding_link/linkcatalogs: objects), so no type
+      // gating is needed here. `copyright` is the exception — both transformers
+      // write it — and it needs none either, for the same reason.
       const extra = ownRow.extra ? (parseJson(ownRow.extra) as Record<string, string> | null) : null
 
       if (!translationMap.has(itemId)) translationMap.set(itemId, {})
@@ -448,6 +450,10 @@ export class ItemExporter extends BaseExporter {
         workshop: extra?.workshop ?? null,
         scriber: extra?.scriber ?? null,
         binding_desc: extra?.binding_desc ?? null,
+        // The item's rights statement ("Copyright image: <institution>"), which
+        // legacy shows below the sheet. Not to be confused with the picture
+        // `copyright` read further down — different record, per-image credit.
+        copyright: extra?.copyright ?? null,
         catalogue_holding_link: extra?.catalogue_holding_link ?? null,
         linkcatalogs: extra?.linkcatalogs ?? null,
         author: ownRow.author_name,

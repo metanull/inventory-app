@@ -200,8 +200,14 @@ Everything not listed matched.
   repairs …").
 - The legacy sheet's `dynastyDescription` free text ("India, Deccan; Mughal")
   is not in the package; the sheet shows the linked dynasty names ("Mughal").
-- `scriber`, `binding` and the three `notice*` copyedit fields are not
-  imported at all, so those legacy sheet rows never appear.
+- `notice` and `notice_c` are not imported, so those two legacy sheet rows
+  never appear. Neither is a loss: `notice` holds one typo'd `&nbps;` on every
+  row that has it, and `notice_c` was never rendered by any legacy client.
+  `scriber`, `binding` and `workshop` **were** listed here as missing and are
+  not — they were always in the package, and the sheet has rendered them since
+  [#1640](https://github.com/metanull/inventory-app/pull/1640); `notice_b` is
+  the rights line, imported as `copyright` since
+  [#1629](https://github.com/metanull/inventory-app/issues/1629).
 - EPM `author` / `copy_editor` are filed on the Arabic row only. The sheet
   falls back to the record's other languages for those two fields — proper
   names are language-independent — which restores the legacy attribution line.

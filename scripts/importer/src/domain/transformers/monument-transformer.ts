@@ -260,6 +260,13 @@ export function transformMonumentTranslation(
   if (monument.patrons) extraData.patrons = convertHtmlToMarkdown(monument.patrons);
   if (monument.architects) extraData.architects = convertHtmlToMarkdown(monument.architects);
   if (monument.history) extraData.history = convertHtmlToMarkdown(monument.history);
+
+  // Rights statement — same pair, same precedence and same reasoning as the
+  // object transformer. Neither column was read here before, so the legacy
+  // client's "Additional copyright information" line had no source at all on
+  // the monument path.
+  const rights = [monument.copyright, monument.notice_b].find((value) => value?.trim());
+  if (rights) extraData.copyright = convertHtmlToMarkdown(rights);
   // Dynasty no longer stored in extra — structured item_dynasty links are created by DynastyImporter
 
   const extraField = Object.keys(extraData).length > 0 ? JSON.stringify(extraData) : null;

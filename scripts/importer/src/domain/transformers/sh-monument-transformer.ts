@@ -204,9 +204,12 @@ export function transformShMonumentTranslation(
 
   // Notice fields
   if (text.notice) extra.notice = convertHtmlToMarkdown(text.notice);
-  if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
-  if (text.copyright) extra.copyright = text.copyright;
+  // Same normalisation as the object path. Both columns are empty on
+  // sh_monuments_texts today; mapped anyway, because an unmapped column
+  // silently drops whatever an editor enters later.
+  const rights = [text.copyright, text.notice_b].find((value) => value?.trim());
+  if (rights) extra.copyright = convertHtmlToMarkdown(rights);
   if (pdCountry) extra.country_id_present_days = mapCountryCode(pdCountry);
 
   const extraField = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
