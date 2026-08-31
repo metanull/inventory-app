@@ -150,20 +150,10 @@ development**; keep them bumped to the latest published version so a fresh
 3. Add a dev-server entry to `.claude/launch.json` (unique port).
 4. Copy and adapt the deploy workflow; add the Nginx alias block on the
    server; dispatch and verify the live URL.
-5. Add an `npm` entry for the new directory to
-   [`.github/dependabot.yml`](../../.github/dependabot.yml) — **this one is
-   maintained by hand**. Dependabot config is static YAML with no scripting,
-   so unlike the `Dependency Audit` matrix it cannot enumerate
-   `scripts/viewers/`. A viewer entry needs `registries: [npm-github]`,
-   because it installs `@metanull/<dataset>-data` from GitHub Packages.
-
-   **Forgetting fails CI.** The `Dependabot Coverage` job in
-   `continuous-integration.yml` compares this file against the tree on every
-   pull request and blocks the merge on a mismatch — including a viewer entry
-   with no `registries: [npm-github]`. It prints the exact YAML block to paste.
-   Run it yourself before pushing:
-
-   ```sh
-   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
-     scripts/check-dependabot-coverage.sh
-   ```
+5. Nothing to add to [`.github/dependabot.yml`](../../.github/dependabot.yml):
+   its `directories: ["/spa", "/scripts/viewers/*"]` pattern picks the new
+   viewer up on the next run, and that entry is the one carrying
+   `registries: [npm-github]` — which the viewer needs, because it installs
+   `@metanull/<dataset>-data` from GitHub Packages. Placing the directory under
+   `scripts/viewers/` is what grants it the registry; there is no per-viewer
+   entry to forget.

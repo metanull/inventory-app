@@ -231,29 +231,19 @@ Three gotchas, learned the hard way:
 5. Publish, then create the matching viewer (see
    [`../viewers/README.md`](../viewers/README.md)).
 
-**CI needs no edit, Dependabot does.** The `Exporter Validation` job and the
-`Dependency Audit` matrix both derive their lists from the directories under
-`scripts/exporters/` that contain a `package.json`, so a new dataset is
-type-checked, linted, tested and audited from its first pull request. Keep
-`type-check`, `lint:check` and `test` in the copied `package.json` — those are
-the three scripts the job runs; a fork that drops or renames one contributes a
-silently empty check rather than failing.
+**No CI edit is needed anywhere.** The `Exporter Validation` job, the
+`Dependency Audit` matrix and [`.github/dependabot.yml`](../../.github/dependabot.yml)
+all cover the directories under `scripts/exporters/` that contain a
+`package.json` — the first two by globbing the tree at runtime, Dependabot by
+its `directories: ["/scripts/exporters/*"]` pattern. A new dataset is
+type-checked, linted, tested, audited and dependency-updated from its first
+pull request with no configuration change.
 
-[`.github/dependabot.yml`](../../.github/dependabot.yml) is the exception:
-Dependabot config is static YAML with no scripting, so it cannot enumerate
-directories and **must be edited by hand**. Add an `npm` entry for the new
-exporter directory — no `registries:` key, exporters use the public registry.
+Keep `type-check`, `lint:check` and `test` in the copied `package.json` — those
+are the three scripts the job runs; a fork that drops or renames one contributes
+a silently empty check rather than failing.
 
-**Forgetting fails CI.** The `Dependabot Coverage` job in
-`continuous-integration.yml` compares that file against the tree on every pull
-request and blocks the merge on a mismatch — a missing entry, an entry pointing
-at a directory that no longer exists, or an exporter entry that wrongly carries
-`registries:`. It prints the exact YAML block to paste. Run it yourself before
-pushing:
-
-```sh
-docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
-  scripts/check-dependabot-coverage.sh
-```
-Nothing fails if you forget; the exporter simply never receives dependency
-updates or security alerts.
+Do **not** add `registries:` anywhere for an exporter. Exporters read the
+database and write JSON, so they consume no `@metanull` package; the exporter
+glob is deliberately an entry that carries no credential, which keeps the
+Dependabot PAT away from jobs that have no use for it.
