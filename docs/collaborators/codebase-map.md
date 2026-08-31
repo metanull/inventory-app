@@ -54,23 +54,29 @@ so they are pinned like ordinary submodules:
 git submodule update --init .new-architecture
 ```
 
-Each is released on its own cadence, so these pointers go stale quickly and
-`git status` will routinely report *new commits* under `.new-architecture/`.
-That noise is the point. While the directory was ignored, the checkouts drifted
-with nothing to say so, and reading a website's `package.json` from here
-answered with whatever commit was last checked out rather than with `main` —
-silently, and wrongly. Refresh them with
+Each is released on its own cadence, so these pointers go stale quickly. Git
+does not notice that by itself: `git status` reports *new commits* under
+`.new-architecture/` only once a submodule's own `HEAD` has moved, so drift
+surfaces when you refresh, never when the upstream repository advances. Refresh
+with
 
 ```bash
 git submodule update --remote .new-architecture
 ```
 
-Commit the resulting pointer bump only when you mean to record it. Nothing in
-this repository builds, tests or deploys against these submodules — CI does not
-even fetch them — so a stale pointer breaks nothing here. It only ever misleads
-a reader, which is why the drift is now visible instead of hidden. When you need
-a website's *current* state rather than a local snapshot, read its `main`
-branch on GitHub.
+and commit the resulting pointer bump only when you mean to record it.
+
+That refresh is the whole gain over ignoring the directory. There is now a
+recorded commit to compare against, so refreshing produces a reviewable diff and
+a clone can be put back to a known state. While the directory was ignored, a
+checkout parked on a fortnight-old commit was indistinguishable from a fresh
+one — which is how reading a website's `package.json` from here once reported a
+`"*"` dependency range that no site had carried for days.
+
+Nothing in this repository builds, tests or deploys against these submodules —
+CI does not even fetch them — so a stale pointer breaks nothing here. It only
+ever misleads a reader. When you need a website's *current* state rather than a
+local snapshot, read its `main` branch on GitHub rather than the clone here.
 
 ## Main boundaries
 
