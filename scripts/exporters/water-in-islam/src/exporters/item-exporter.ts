@@ -358,6 +358,10 @@ export class ItemExporter extends BaseExporter {
         workshop: extra?.['workshop'] ?? null,
         scriber: extra?.['scriber'] ?? null,
         binding_desc: extra?.['binding_desc'] ?? null,
+        // The item's rights statement ("Copyright image: <institution>"), which
+        // legacy shows below the sheet. Not to be confused with the picture
+        // `copyright` read further down — different record, per-image credit.
+        copyright: extra?.['copyright'] ?? null,
         catalogue_holding_link: extra?.['catalogue_holding_link'] ?? null,
         linkcatalogs: extra?.['linkcatalogs'] ?? null,
         author: ownRow.author_name,

@@ -196,9 +196,14 @@ export function transformShObjectTranslation(
   if (text.provenancemethod) extra.provenance_method = convertHtmlToMarkdown(text.provenancemethod);
   if (text.obtentionmethod) extra.obtention_method = convertHtmlToMarkdown(text.obtentionmethod);
   if (text.notice) extra.notice = convertHtmlToMarkdown(text.notice);
-  if (text.notice_b) extra.notice_b = convertHtmlToMarkdown(text.notice_b);
   if (text.notice_c) extra.notice_c = convertHtmlToMarkdown(text.notice_c);
-  if (text.copyright) extra.copyright = text.copyright;
+  // `notice_b` is the rights statement here too — every one of its values is a
+  // "Copyright image: <institution>" line. It used to be exported under the
+  // legacy column name, which taught consumers a name that means nothing to
+  // them; it now normalises onto `copyright`, the same key and the same
+  // precedence as the mwnf3 object and monument transformers.
+  const rights = [text.copyright, text.notice_b].find((value) => value?.trim());
+  if (rights) extra.copyright = convertHtmlToMarkdown(rights);
   if (text.linkcatalogs) extra.linkcatalogs = text.linkcatalogs;
   if (pdCountry) extra.country_id_present_days = mapCountryCode(pdCountry);
 
