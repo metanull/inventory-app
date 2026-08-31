@@ -48,22 +48,47 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The matrix comes from scripts/check-dependabot-coverage.sh, the same
-      # enumeration the blocking `Dependabot Coverage` job in
-      # continuous-integration.yml checks .github/dependabot.yml against. That
-      # is deliberate: "has a Dependabot entry" and "gets a weekly npm audit"
-      # are then the same set by construction, and each pins the other. A
-      # project that falls out of the enumeration loses its weekly audit here,
-      # but its dependabot.yml entry immediately turns up as ORPHANED and the
-      # PR gate fails — so the loss is loud instead of silent.
+      # The matrix is derived from the tree: every package.json that is not
+      # inside node_modules. .github/dependabot.yml covers the same projects by
+      # glob (`/scripts/*`, `/scripts/exporters/*`, `/scripts/viewers/*`), so
+      # the two agree because they read the same directories — not because a
+      # check compares two hand-written lists. Nothing to keep in sync.
       #
-      # This job used to hand-list Root, SPA and Importer and glob only
-      # scripts/exporters and scripts/viewers. scripts/site-i18n matched none of
-      # those and silently received no audit at all from the day it landed.
+      # Find, do not hand-list. This job used to enumerate Root, SPA and
+      # Importer by name and glob only scripts/exporters and scripts/viewers;
+      # scripts/site-i18n matched none of those and silently received no audit
+      # at all from the day it landed.
+      #
+      # `registry` is set only for the projects that install an @metanull
+      # package from GitHub Packages — /spa (inventory-app-api-client) and the
+      # viewers (<dataset>-data). Everything else resolves from the public
+      # registry and gets an empty value, which setup-node treats as "default".
       - name: Enumerate npm projects
         id: enumerate
         run: |
-          PROJECTS="$(sh scripts/check-dependabot-coverage.sh --list-projects)"
+          PROJECTS="$(
+            {
+              [ -f package.json ] && echo "."
+              find spa scripts -name node_modules -prune -o -name package.json -print 2>/dev/null \
+                | sed 's|/package\.json$||'
+            } | sort -u | jq -R -s -c '
+              split("\n") | map(select(length > 0)) | map({
+                name: (
+                  if   . == "."                        then "Root"
+                  elif . == "spa"                      then "SPA"
+                  elif . == "scripts/importer"         then "Importer"
+                  elif . == "scripts/site-i18n"        then "Site i18n"
+                  elif startswith("scripts/exporters/") then "Exporter (\(split("/") | last))"
+                  elif startswith("scripts/viewers/")   then "Viewer (\(split("/") | last))"
+                  else (split("/") | last) end
+                ),
+                directory: .,
+                registry: (
+                  if . == "spa" or startswith("scripts/viewers/")
+                  then "https://npm.pkg.github.com/" else "" end
+                )
+              })'
+          )"
 
           echo "$PROJECTS" | jq -r '.[] | "  \(.name) -> \(.directory)"'
           echo "projects=$PROJECTS" >> "$GITHUB_OUTPUT"

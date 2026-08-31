@@ -4,33 +4,25 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
 # ┌──────────────────────────────────────────────────────────────────────────┐
-# │ THIS FILE IS MAINTAINED BY HAND. Dependabot config is static YAML with   │
-# │ no scripting, so it CANNOT enumerate directories the way the CI and      │
-# │ dependency-audit matrices now do.                                        │
+# │ Node projects under scripts/ are covered by GLOB, not by hand. Adding a  │
+# │ forked exporter, a new viewer or a new tool needs NO change here: it     │
+# │ lands inside one of the `directories:` patterns below and is picked up   │
+# │ on the next run.                                                         │
 # │                                                                          │
-# │ Adding a Node project under scripts/ (a forked exporter or viewer, a     │
-# │ new tool) means adding an `npm` entry here as well. THIS IS ENFORCED:    │
-# │ the `Dependabot Coverage` job in continuous-integration.yml runs         │
-# │ scripts/check-dependabot-coverage.sh on every pull request and blocks    │
-# │ the merge when this file and the tree disagree — a project with no entry │
-# │ here, or an entry whose directory no longer exists.                      │
+# │ The registry/token split is structural, not a rule someone has to        │
+# │ remember. Only /spa (@metanull/inventory-app-api-client) and the viewers │
+# │ (@metanull/<dataset>-data) consume an @metanull package, so only their   │
+# │ entry carries `registries: [npm-github]` — which is also what hands the  │
+# │ PAT to the update job. Exporters and tools resolve entirely from the     │
+# │ public registry and are deliberately in entries that carry no            │
+# │ credential at all. A new project inherits the right answer from where    │
+# │ its directory sits.                                                      │
 # │                                                                          │
-# │ Viewers additionally need `registries: [npm-github]`: they install       │
-# │ @metanull/<dataset>-data from GitHub Packages. Exporters must not have   │
-# │ the key at all. That rule is enforced by the same check.                 │
-# │                                                                          │
-# │ Current coverage: root, spa, scripts/importer, scripts/site-i18n,        │
-# │ every scripts/exporters/* and every scripts/viewers/*.                   │
-# │                                                                          │
-# │ These entries also pin the weekly `npm audit` matrix in                  │
-# │ dependency-audit.yml, which derives from the same enumeration. Deleting  │
-# │ an entry whose project still exists fails the check above; a project     │
-# │ dropping out of the enumeration leaves its entry ORPHANED, which fails   │
-# │ it too. Neither list can shrink quietly.                                 │
-# │                                                                          │
-# │ Run the check yourself before pushing:                                   │
-# │   docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh \             │
-# │     mikefarah/yq:4 scripts/check-dependabot-coverage.sh                  │
+# │ Dependabot opens ONE PULL REQUEST PER DIRECTORY by default, so a glob    │
+# │ does not couple the projects it matches: a failing bump in one exporter  │
+# │ does not block the others. Setting `group-by: dependency-name` on a      │
+# │ group would collapse them into one PR across directories — don't,        │
+# │ unless the PR volume ever becomes the problem.                           │
 # └──────────────────────────────────────────────────────────────────────────┘
 
 version: 2
@@ -48,6 +40,7 @@ updates:
       laravel-prod-dependencies:
         dependency-type: "production"
 
+  # Root project. No @metanull dependency, so no registry and no PAT.
   - package-ecosystem: "npm"
     directory: "/" # Look for `package.json` and `lock` files in the `root` directory
     schedule:
@@ -60,270 +53,78 @@ updates:
         dependency-type: "development"
       node-prod-dependencies:
         dependency-type: "production"
-    registries:
-      - npm-github
 
+  # Node tooling directly under scripts/ — currently importer and site-i18n.
+  # The glob is one level deep on purpose: scripts/exporters and scripts/viewers
+  # hold no manifest of their own, and their children are matched below.
   - package-ecosystem: "npm"
-    directory: "/spa"
+    directories:
+      - "/scripts/*"
     schedule:
       interval: "weekly"
     labels:
       - "npm"
       - "dependencies"
     groups:
-      spa-dev-dependencies:
+      tools-dev-dependencies:
         dependency-type: "development"
-      spa-prod-dependencies:
-        dependency-type: "production"
-    # The PAT is required. Do not remove this key to rely on Dependabot's own
-    # GITHUB_TOKEN: that was tried here as a deliberate canary (#1612) and it
-    # does not work for these packages. With the key absent, Dependabot ran
-    # with credentials-metadata carrying `git_source` alone — no npm_registry
-    # credential of any kind — and the job died on
-    #
-    #   401 https://npm.pkg.github.com/@metanull%2Finventory-app-api-client
-    #   {"error":"authentication token not provided"}
-    #
-    # The 2026-06-23 "automatic Dependabot access to GitHub-hosted registries"
-    # change does not cover this case, even though these packages do grant this
-    # repository read access — the deploy workflows install them with the
-    # workflow GITHUB_TOKEN. The likeliest reason is that they are published
-    # under a personal account rather than an organization, but the log only
-    # shows that no token was sent, not why.
-    #
-    # Measured in the same trigger that produced the 401: all six viewers, on
-    # the PAT path, succeeded and opened update PRs (#1611 bumped a private
-    # @metanull data package). The PAT is valid and the scope mapping from
-    # #1609 works. Revisit only with evidence, not with the changelog.
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/importer"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      importer-dev-dependencies:
-        dependency-type: "development"
-      importer-prod-dependencies:
+      tools-prod-dependencies:
         dependency-type: "production"
 
+  # Dataset exporters. Public npm registry only: exporters read the database and
+  # write JSON, they do not consume any @metanull package. Keep this entry free
+  # of `registries:` so the PAT is never handed to a job that cannot use it.
   - package-ecosystem: "npm"
-    directory: "/scripts/site-i18n"
+    directories:
+      - "/scripts/exporters/*"
     schedule:
       interval: "weekly"
     labels:
       - "npm"
       - "dependencies"
     groups:
-      site-i18n-dev-dependencies:
+      exporter-dev-dependencies:
         dependency-type: "development"
-      site-i18n-prod-dependencies:
+      exporter-prod-dependencies:
         dependency-type: "production"
 
-  # --- Dataset exporters (one entry per scripts/exporters/<dataset>) ---------
-  # Public npm registry only: exporters read the database and write JSON, they
-  # do not consume any @metanull package.
-
+  # /spa and the dataset viewers — the only projects that install an @metanull
+  # package from GitHub Packages, and therefore the only ones that need the
+  # registry and its PAT.
+  #
+  # The PAT is required. Do not remove this key to rely on Dependabot's own
+  # GITHUB_TOKEN: that was tried here as a deliberate canary (#1612) and it
+  # does not work for these packages. With the key absent, Dependabot ran
+  # with credentials-metadata carrying `git_source` alone — no npm_registry
+  # credential of any kind — and the job died on
+  #
+  #   401 https://npm.pkg.github.com/@metanull%2Finventory-app-api-client
+  #   {"error":"authentication token not provided"}
+  #
+  # The 2026-06-23 "automatic Dependabot access to GitHub-hosted registries"
+  # change does not cover this case, even though these packages do grant this
+  # repository read access — the deploy workflows install them with the
+  # workflow GITHUB_TOKEN. The likeliest reason is that they are published
+  # under a personal account rather than an organization, but the log only
+  # shows that no token was sent, not why.
+  #
+  # Measured in the same trigger that produced the 401: all six viewers, on
+  # the PAT path, succeeded and opened update PRs (#1611 bumped a private
+  # @metanull data package). The PAT is valid and the scope mapping from
+  # #1609 works. Revisit only with evidence, not with the changelog.
   - package-ecosystem: "npm"
-    directory: "/scripts/exporters/amulets"
+    directories:
+      - "/spa"
+      - "/scripts/viewers/*"
     schedule:
       interval: "weekly"
     labels:
       - "npm"
       - "dependencies"
     groups:
-      exporter-amulets-dev-dependencies:
+      viewer-dev-dependencies:
         dependency-type: "development"
-      exporter-amulets-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/baroqueart"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-baroqueart-dev-dependencies:
-        dependency-type: "development"
-      exporter-baroqueart-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/carpets"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-carpets-dev-dependencies:
-        dependency-type: "development"
-      exporter-carpets-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/islamicart"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-islamicart-dev-dependencies:
-        dependency-type: "development"
-      exporter-islamicart-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/sharinghistory"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-sharinghistory-dev-dependencies:
-        dependency-type: "development"
-      exporter-sharinghistory-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/the-use-of-colours-in-art"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-the-use-of-colours-in-art-dev-dependencies:
-        dependency-type: "development"
-      exporter-the-use-of-colours-in-art-prod-dependencies:
-        dependency-type: "production"
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/exporters/water-in-islam"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      exporter-water-in-islam-dev-dependencies:
-        dependency-type: "development"
-      exporter-water-in-islam-prod-dependencies:
-        dependency-type: "production"
-
-  # --- Dataset viewers (one entry per scripts/viewers/<dataset>) -------------
-  # These DO need `registries: [npm-github]` — each installs its data package
-  # @metanull/<dataset>-data from GitHub Packages.
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/amulets"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-amulets-dev-dependencies:
-        dependency-type: "development"
-      viewer-amulets-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/carpets"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-carpets-dev-dependencies:
-        dependency-type: "development"
-      viewer-carpets-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/baroqueart"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-baroqueart-dev-dependencies:
-        dependency-type: "development"
-      viewer-baroqueart-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/islamicart"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-islamicart-dev-dependencies:
-        dependency-type: "development"
-      viewer-islamicart-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/sharinghistory"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-sharinghistory-dev-dependencies:
-        dependency-type: "development"
-      viewer-sharinghistory-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/the-use-of-colours-in-art"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-the-use-of-colours-in-art-dev-dependencies:
-        dependency-type: "development"
-      viewer-the-use-of-colours-in-art-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
-  - package-ecosystem: "npm"
-    directory: "/scripts/viewers/water-in-islam"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      viewer-water-in-islam-dev-dependencies:
-        dependency-type: "development"
-      viewer-water-in-islam-prod-dependencies:
+      viewer-prod-dependencies:
         dependency-type: "production"
     registries:
       - npm-github

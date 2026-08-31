@@ -71,53 +71,46 @@ Runs the pull request validation pipeline: an unconditional dependency review, p
    - Runs `actions/dependency-review-action` with `fail-on-severity: high`
    - Has no `needs` and no path gate — it always runs
 
-3. **dependabot-coverage** (*Dependabot Coverage*) - Enforces that `.github/dependabot.yml` matches the tree
-   - Has no `needs` and no path gate — it always runs, because a deleted or renamed project must be caught as surely as a new one, and the whole check is a YAML parse plus a glob
-   - Runs `sh scripts/check-dependabot-coverage.sh` (POSIX shell, `yq` only; no build, no service container, no matrix)
-   - Fails when a `package.json` under `scripts/**`, the root or `spa` has no `npm` entry; when an `npm` entry's `directory:` resolves to no `package.json`; or when a viewer entry lacks `registries: [npm-github]` or an exporter entry carries the key
-   - The failure output names each offender and prints the exact YAML block to paste, plus why the file is hand-maintained rather than generated
-   - See [Dependabot Configuration](#dependabot-configuration) and [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
-
-4. **backend-lint** *(when `backend=true`)* (*Backend Linting and Validation*) - Laravel backend linting
+3. **backend-lint** *(when `backend=true`)* (*Backend Linting and Validation*) - Laravel backend linting
    - Uses the `setup-backend` composite action with `tools: pint` (PHP 8.5, Composer install, `.env` from `.env.local.example`, `php artisan migrate`)
    - Runs against SQLite in memory (`DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
    - Runs `composer check-platform-reqs`
    - Runs `./vendor/bin/pint --bail`
 
-5. **backend-tests** *(when `backend=true`)* (*Backend Tests (`<suite>`)*) - Laravel test matrix
+4. **backend-tests** *(when `backend=true`)* (*Backend Tests (`<suite>`)*) - Laravel test matrix
    - Uses the `setup-backend` composite action with `tools: phpunit, pest` and `coverage: xdebug`
    - Matrix: `Unit`, `Api`, `Web`, `Filament`, `Configuration`, `Console`, `Event`, `Integration`
    - `fail-fast: true` — stops remaining suites on first failure
    - Runs each suite with `php artisan test --testsuite=<suite> --coverage --parallel --no-ansi --stop-on-failure`
 
-6. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* (*Backend Rendered Frontend Validation (Blade/Tailwind)*) - Blade/Tailwind build
+5. **backend-rendered-frontend-validation** *(when `root-frontend=true`)* (*Backend Rendered Frontend Validation (Blade/Tailwind)*) - Blade/Tailwind build
    - Uses the `setup-node-project` composite action at the repository root
    - Runs `npm run build`
 
-7. **importer-validation** *(when `importer=true`)* (*Importer Validation (TypeScript)*) - Importer TypeScript build and tests
+6. **importer-validation** *(when `importer=true`)* (*Importer Validation (TypeScript)*) - Importer TypeScript build and tests
    - Uses the `setup-node-project` composite action with `working-directory: scripts/importer`
    - Runs `npm run build` (TypeScript compilation)
    - Runs `npm test` (Vitest unit tests)
 
-8. **site-i18n-validation** *(when `site-i18n=true`)* (*Site i18n Validation (TypeScript)*) - Shared site i18n layer validation
+7. **site-i18n-validation** *(when `site-i18n=true`)* (*Site i18n Validation (TypeScript)*) - Shared site i18n layer validation
    - Uses the `setup-node-project` composite action with `working-directory: scripts/site-i18n`
    - Runs `npm run lint:check`, `npm run build` and `npm test`
    - Every test in this suite is a pure function over legacy row shapes, so no database, VPN or credentials are involved
 
-9. **exporter-validation** *(when `exporters=true`)* (*Exporter Validation (`<dataset>`)*) - Dataset exporter validation
+8. **exporter-validation** *(when `exporters=true`)* (*Exporter Validation (`<dataset>`)*) - Dataset exporter validation
    - Matrix comes from `detect-changes`'s `exporter-datasets` output, not a hardcoded list — a forked exporter is covered from its first pull request
    - `fail-fast: false` — every dataset is reported, even when one fails
    - Uses the `setup-node-project` composite action with `working-directory: scripts/exporters/<dataset>`
    - Runs `npm run type-check`, `npm run lint:check` and `npm test` (Vitest unit tests)
    - Every test in these suites is a pure function over legacy row shapes, so no database, VPN or credentials are involved
 
-10. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
+9. **spa-frontend-validation** *(when `spa=true`)* (*Frontend Validation - SPA (Vue 3)*) - SPA (Vue 3) validation
    - Uses the `setup-node-project` composite action with `working-directory: spa`, authenticated against GitHub Packages with `GITHUB_TOKEN`
    - Runs `npm run lint`, `npm run build` and `npm run test:all`
 
-11. **ci-success** (*CI Success*) - Aggregates all check results
+10. **ci-success** (*CI Success*) - Aggregates all check results
    - `needs` every other job and runs with `if: always()`
-   - Always requires `dependency-review` and `dependabot-coverage` to have succeeded
+   - Always requires `dependency-review` to have succeeded
    - For each path group that changed, requires the matching job(s) to have succeeded
    - When a path group did not change, its job may be skipped without failing the workflow
    - This job name satisfies the `CI Success` branch protection required check
@@ -162,8 +155,9 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    - Runs `composer audit`
 
 2. **enumerate-npm-projects** (*Enumerate npm Projects*) - Builds the `audit-npm` matrix from the checkout
-   - Runs `sh scripts/check-dependabot-coverage.sh --list-projects`, which emits `projects`: a JSON array of `{name, directory, registry}` objects, one per `package.json` in the tree
-   - No project or directory is named in this workflow — a new tool under `scripts/`, or a forked exporter or viewer, is audited from the day it lands with no edit here
+   - Finds every `package.json` in the tree (excluding `node_modules`) and emits `projects`: a JSON array of `{name, directory, registry}` objects
+   - `registry` is set only for `/spa` and the viewers, the projects that install an `@metanull` package from GitHub Packages; everything else gets an empty value, which `setup-node` reads as the public default
+   - No project or directory is named in this workflow — a new tool under `scripts/`, or a forked exporter or viewer, is audited from the day it lands with no edit here. `.github/dependabot.yml` covers the same directories by glob, so the two agree by construction
 
    | Contributes | Registry |
    | --- | --- |
@@ -175,9 +169,9 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    | `Viewer (<dataset>)`, per `package.json` under `scripts/viewers/*/` | npm.pkg.github.com |
    | any other `package.json` under `scripts/` | public npm |
 
-   > **One enumeration, two consumers.** That script is the same one the blocking [`dependabot-coverage`](#ci) job checks `.github/dependabot.yml` against, so "has a Dependabot entry" and "gets a weekly audit" are the same set by construction, and each pins the other: if a project ever falls out of the enumeration it loses its audit here, but its `dependabot.yml` entry immediately reports as `ORPHANED` and the pull request gate fails.
+   > **Both sides read the tree.** This matrix finds every `package.json`; [`.github/dependabot.yml`](#dependabot-configuration) covers the same directories with `directories:` globs. "Gets a weekly audit" and "gets dependency updates" are therefore the same set by construction — not because a check compares two hand-written lists, but because neither list is hand-written.
    >
-   > This job previously hand-listed `Root`, `SPA` and `Importer` and globbed only `scripts/exporters` and `scripts/viewers`. `scripts/site-i18n` matched none of those and received no weekly audit at all from the day it landed — the same class of silent gap the coverage check exists to prevent, one file over.
+   > This job previously hand-listed `Root`, `SPA` and `Importer` and globbed only `scripts/exporters` and `scripts/viewers`. `scripts/site-i18n` matched none of those and received no weekly audit at all from the day it landed — which is why it now enumerates rather than enumerates-and-verifies.
 
 3. **audit-npm** (*Audit - npm (`<name>`)*) - Audits every npm project, as a single matrix job
    - Matrix: `fromJSON` of `enumerate-npm-projects`'s `projects` output
@@ -486,48 +480,26 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to date across the repository.
 
-> **This file is maintained by hand — the one piece of CI config that is.** Dependabot config is static YAML with no scripting, so it cannot enumerate directories the way the `Exporter Validation` and `Dependency Audit` matrices do. **Adding a Node project under `scripts/` means adding an entry here too.**
->
-> **This is now enforced, not merely documented.** The `dependabot-coverage` job in [CI](#ci) runs `scripts/check-dependabot-coverage.sh` on every pull request and blocks the merge when this file and the tree disagree. Documentation alone had already failed once: `scripts/viewers/amulets` shipped in PR #1566 with no entry — about an hour after PR #1557 wrote the rule down — and had to be patched in PR #1572.
->
-> Generating this file from a template was considered and **rejected**: Dependabot reads it as static YAML from the default branch, so a generated copy would still have to be committed, leaving the same "did you re-run the generator?" gap it was meant to close, with a build artefact in the tree as the price. The file stays hand-written; the check keeps it honest.
-
-**What the check asserts**
-
-1. Every `package.json` under `scripts/**` — plus the root and `spa` — has an `npm` entry with the matching `directory:`.
-2. Every `npm` entry's `directory:` resolves to a `package.json` that exists, so a deleted or renamed project is caught too.
-3. Every viewer entry carries `registries: [npm-github]` and no exporter entry does.
-
-On failure it names each offender and prints the exact YAML block to paste. Run it locally before pushing (no host-side tooling — it runs in a container):
-
-```sh
-docker run --rm -v "$PWD:/repo" -w /repo --entrypoint sh mikefarah/yq:4 \
-  scripts/check-dependabot-coverage.sh
-```
+> **Node projects under `scripts/` are covered by glob.** Adding a forked exporter, a new viewer or a new tool needs **no change** to `.github/dependabot.yml` — it lands inside one of the `directories:` patterns and is picked up on the next run.
 
 **Ecosystems monitored**
 
-| Ecosystem | Directory | Schedule | Registry |
+| Ecosystem | Directories | Schedule | Registry |
 | --- | --- | --- | --- |
 | `composer` | `/` | Weekly | packagist.org (public) |
-| `npm` | `/` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/scripts/importer` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/site-i18n` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/amulets` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/baroqueart` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/carpets` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/islamicart` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/sharinghistory` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/exporters/the-use-of-colours-in-art` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/scripts/viewers/amulets` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/scripts/viewers/baroqueart` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/scripts/viewers/carpets` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/scripts/viewers/islamicart` | Weekly | npm.pkg.github.com (GitHub) |
-| `npm` | `/scripts/viewers/sharinghistory` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/*` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/scripts/exporters/*` | Weekly | registry.npmjs.org (public) |
+| `npm` | `/spa`, `/scripts/viewers/*` | Weekly | npm.pkg.github.com (GitHub) |
 | `github-actions` | `/` | Weekly | github.com (public) |
 
-Every exporter reads the database and writes JSON, so none consumes an `@metanull` package and none needs the authenticated registry. Every viewer installs `@metanull/<dataset>-data` from GitHub Packages and therefore needs `registries: [npm-github]`.
+`/scripts/*` is one level deep on purpose: `scripts/exporters` and `scripts/viewers` hold no manifest of their own, and their children are matched by the two patterns below it.
+
+**The registry split is structural, not a rule to remember.** Only `/spa` (`@metanull/inventory-app-api-client`) and the viewers (`@metanull/<dataset>-data`) consume an `@metanull` package, so only their entry carries `registries: [npm-github]` — which is also what hands the PAT to the update job. Exporters and tools read from the public registry and sit in entries that carry no credential at all, so a new project inherits the right answer from where its directory lives rather than from a reviewer noticing.
+
+**One pull request per directory.** A glob does not couple the projects it matches: Dependabot's default for a multi-directory entry is a separate PR per directory, so a failing bump in one exporter does not block the others. Setting `group-by: dependency-name` on a group would collapse them into a single cross-directory PR — avoid that unless PR volume ever becomes the problem.
+
+> **History.** This file used to carry one hand-written entry per project (20 in all), policed by a blocking `Dependabot Coverage` job running `scripts/check-dependabot-coverage.sh`. That machinery existed because Dependabot config was believed unable to enumerate directories — true when it was written, but the `directories:` key with glob support shipped in [June 2024](https://github.blog/changelog/2024-06-25-simplified-dependabot-yml-configuration-with-multi-directory-key-directories-and-wildcard-glob-support/). The hand-maintenance had already failed twice in practice (`scripts/viewers/amulets` in PR #1566, patched in #1572), and the check never caught the one real outage — every viewer's job aborted for months over a missing registry `scope` (#1609) while the coverage check passed, because it validated the config's shape rather than whether the job ran. Both the script and the gate were removed once the globs replaced them.
 
 **GitHub Packages registry access**
 
@@ -628,8 +600,8 @@ Several workflows interact with scripts, composite actions and other workflows:
 
 | Workflow | Depends On | Triggers |
 | --- | --- | --- |
-| `continuous-integration.yml` | `setup-backend`, `setup-node-project`, `scripts/check-dependabot-coverage.sh` | - |
-| `dependency-audit.yml` | `setup-node-project`, `scripts/check-dependabot-coverage.sh` | - |
+| `continuous-integration.yml` | `setup-backend`, `setup-node-project` | - |
+| `dependency-audit.yml` | `setup-node-project` | - |
 | `build.yml` | - | `deploy-ovh.yml` (via `workflow_run`) |
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
@@ -642,7 +614,6 @@ Several workflows interact with scripts, composite actions and other workflows:
 - `generate-commit-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-git-commit-history)
 - `generate-client-docs.py` - Used by `continuous-deployment_github-pages.yml`. See [/scripts/README.md](../../scripts/README.md#generating-the-api-client-npm-packages-static-documentation)
 - `deploy.sh` - Uploaded to the VPS and executed by `deploy-ovh.yml`. See [/scripts/README.md](../../scripts/README.md#deployment-scripts)
-- `check-dependabot-coverage.sh` - Run by the `dependabot-coverage` job in `continuous-integration.yml` (check mode) and by the `enumerate-npm-projects` job in `dependency-audit.yml` (`--list-projects`). See [/scripts/README.md](../../scripts/README.md#dependabot-coverage-check)
 
 ---
 
