@@ -34,3 +34,36 @@
 	path = .legacy-code/exhibitions-client
 	url = https://bitbucket.org/mwnf/exhibitions-client.git
 	shallow = true
+[submodule ".new-architecture/viewer-core"]
+	path = .new-architecture/viewer-core
+	url = https://github.com/metanull/viewer-core
+[submodule ".new-architecture/viewer-layout"]
+	path = .new-architecture/viewer-layout
+	url = https://github.com/metanull/viewer-layout
+[submodule ".new-architecture/viewer-workflows"]
+	path = .new-architecture/viewer-workflows
+	url = https://github.com/metanull/viewer-workflows
+[submodule ".new-architecture/website-template"]
+	path = .new-architecture/website-template
+	url = https://github.com/metanull/website-template
+[submodule ".new-architecture/islamicart"]
+	path = .new-architecture/islamicart
+	url = https://github.com/metanull/islamicart
+[submodule ".new-architecture/baroqueart"]
+	path = .new-architecture/baroqueart
+	url = https://github.com/metanull/baroqueart
+[submodule ".new-architecture/sharinghistory"]
+	path = .new-architecture/sharinghistory
+	url = https://github.com/metanull/sharinghistory
+[submodule ".new-architecture/carpets"]
+	path = .new-architecture/carpets
+	url = https://github.com/metanull/carpets
+[submodule ".new-architecture/water-in-islam"]
+	path = .new-architecture/water-in-islam
+	url = https://github.com/metanull/water-in-islam
+[submodule ".new-architecture/amulets"]
+	path = .new-architecture/amulets
+	url = https://github.com/metanull/amulets
+[submodule ".new-architecture/the-use-of-colours-in-art"]
+	path = .new-architecture/the-use-of-colours-in-art
+	url = https://github.com/metanull/the-use-of-colours-in-art
