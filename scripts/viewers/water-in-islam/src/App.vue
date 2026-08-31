@@ -4,6 +4,7 @@ import { RouterView, RouterLink, useRoute, useRouter } from 'vue-router'
 import { exhibition, exhibitionTitle } from './composables/useExhibitionData.js'
 import { hasTimeline } from './composables/useTimeline.js'
 import { uiLang, t } from './composables/useUiStrings.js'
+import { ALL_OBJECTS_SENTINEL } from './views/SearchResults.vue'
 import Banner from './components/Banner.vue'
 import SubBanner from './components/SubBanner.vue'
 import BottomBanner from './components/BottomBanner.vue'
@@ -21,7 +22,7 @@ const currentYear = new Date().getFullYear()
 
 const searchInput = ref('')
 function submitSearch() {
-  router.push({ name: 'search-results', query: { q: searchInput.value || 'all-items' } })
+  router.push({ name: 'search-results', query: { q: searchInput.value || ALL_OBJECTS_SENTINEL } })
   searchInput.value = ''
 }
 
