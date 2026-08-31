@@ -189,8 +189,13 @@ Verified during implementation, none blocking:
   English sheet; the importer files those names only on the Arabic row for EPM
   items, so `author`/`copy_editor` are missing from the English translations of
   EPM-native records. Importer-side; affects EPM items generally.
-- **`notice` / `notice_b` / `notice_c`** (the copyedit notices on the legacy
-  sheet) have no counterpart in the inventory schema and are not imported.
+- **`notice` and `notice_c`** have no counterpart in the inventory schema and
+  are not imported. `notice` is the one legacy row that is genuinely junk (its
+  every value is a typo'd `&nbps;`), and `notice_c` was never rendered by any
+  legacy client. **`notice_b` used to be listed here and does not belong:** it
+  is not a copyedit notice at all but the image rights line legacy renders as
+  "Additional Copyright Information", and it is imported and exported as
+  `copyright` since [#1629](https://github.com/metanull/inventory-app/issues/1629).
 - **Legacy's two hardcoded partner exclusions** (`uk/Mus51`, `us/Mus51`, in
   `Partners.blade.php`) are not reproduced; neither holds a carpets member and
   neither was created under DCA.

@@ -282,7 +282,14 @@ export function transformObjectTranslation(
   // Build extra field for fields without dedicated columns
   const extraData: Record<string, unknown> = {};
   if (obj.workshop) extraData.workshop = obj.workshop;
-  if (obj.copyright) extraData.copyright = obj.copyright;
+  // Rights statement. `copyright` is the column this used to read on its own,
+  // and it has never held a value; the text legacy's editors actually entered
+  // — and that the legacy client renders in its #info-copyright block — is in
+  // `notice_b`. Take the real column first so a later backfill wins, then fall
+  // back. HTML-converted like every other text field: some values carry
+  // entities and escaped quotes.
+  const rights = [obj.copyright, obj.notice_b].find((value) => value?.trim());
+  if (rights) extraData.copyright = convertHtmlToMarkdown(rights);
   if (obj.binding_desc) extraData.binding_desc = obj.binding_desc;
   if (obj.linkcatalogs) extraData.linkcatalogs = obj.linkcatalogs;
   if (obj.catalogue_holding_link) extraData.catalogue_holding_link = obj.catalogue_holding_link;

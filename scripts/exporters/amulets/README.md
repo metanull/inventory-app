@@ -168,8 +168,16 @@ Verified during implementation, none blocking:
   English sheet; the importer files those names only on the Arabic row for EPM
   items, so `author`/`copy_editor` are missing from the English translations
   of EPM-native records. Importer-side, not exporter-side.
-- **`notice` / `notice_b` / `notice_c`** (the copyedit notices on the legacy
-  sheet) are not imported at all. Empty on every amulets item.
+- **`notice` and `notice_c`** are not imported at all. Empty on every amulets
+  item, and neither is worth importing — `notice` holds one typo'd `&nbps;` on
+  every row that has it, `notice_c` was never rendered by any legacy client.
+  **`notice_b` used to be listed here and does not belong:** it is not a
+  copyedit notice but the image rights line legacy renders as "Additional
+  Copyright Information", and it is imported and exported as `copyright` since
+  [#1629](https://github.com/metanull/inventory-app/issues/1629). The
+  2026-08-27 validation found no amulets item carrying one, so the row is
+  expected to stay empty here — worth re-checking against the next import
+  rather than assumed.
 - **Museums with no items (MWNF-384) — implemented, and inert here.** Legacy's
   partner list has a third branch: museums created in the gallery's own project
   appear even when they hold nothing. The exporter reproduces it
