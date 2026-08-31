@@ -125,10 +125,20 @@ watch([description, shortDescription, showShort], () => nextTick(bindGlossaryLin
 //
 // Order and labels are the legacy sheet's, field for field
 // (DatabaseItem.vue's `objectData`). Empty values are dropped, as legacy's
-// `filterData` did. Two legacy fields have no counterpart in the inventory
-// model at all — `scriber` and `binding` — and three notice fields
-// (`notice`, `notice_b`, `notice_c`) were never imported; all are simply
-// absent rather than faked.
+// `filterData` did.
+//
+// The three notice fields (`notice`, `notice_b`, `notice_c`) are the only
+// legacy sheet fields with nothing behind them: they were never imported, so
+// they are absent rather than faked. `scriber`, `binding_desc` and `workshop`
+// are imported and exported like every other field — an earlier version of this
+// comment said they had no counterpart in the inventory model, and that claim
+// is what kept the three rows off the sheet and propagated into the websites
+// built from it.
+//
+// They are sparse by nature. `scriber` and `binding_desc` exist only on
+// manuscript records, so a dataset with no manuscripts carries none and the
+// rows never appear — the same empty-value filtering every other row gets, not
+// a reason to leave them out.
 const L = (key) => tIn(lang.value, key)
 
 const fields = computed(() => {
@@ -152,6 +162,8 @@ const fields = computed(() => {
     ['currentOwner', L('objCurrentOwner'), mdInline(s.owner)],
     ['date', L('objDate'), mdInline(s.dates)],
     ['artist', L('objArtist'), (it.artist_names ?? []).join(', ')],
+    ['scribe', L('objScribe'), mdInline(s.scriber)],
+    ['workshop', L('objWorkshop'), mdInline(s.workshop)],
     ['type', L('objType'), mdInline(s.type)],
     ['inventoryNumber', L('objInventoryNumber'), it.owner_reference],
     ['materials', L('objMaterials'), (s.materials ?? []).join('; ')],
@@ -159,6 +171,7 @@ const fields = computed(() => {
     ['dynasty', L('objDynasty'), dynastyNames],
     ['production', L('objPlaceOfProduction'), mdInline(s.place_of_production)],
     ['provenance', L('objProvenance'), mdInline(s.provenance)],
+    ['binding', L('objBinding'), mdInline(s.binding_desc)],
     ['description', L('objDescription'), description.value],
     ['shortDescription', bothDescriptions.value ? L('objShortDesc_show') : L('objDescription'), shortDescription.value],
     ['catalogue', L('objDigitLink'), s.linkcatalogs],
