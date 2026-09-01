@@ -4,10 +4,11 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 #
 # ┌──────────────────────────────────────────────────────────────────────────┐
-# │ Node projects under scripts/ are covered by GLOB, not by hand. Adding a  │
-# │ forked exporter, a new viewer or a new tool needs NO change here: it     │
-# │ lands inside one of the `directories:` patterns below and is picked up   │
-# │ on the next run.                                                         │
+# │ Exporters and viewers are covered by GLOB, not by hand. Adding a forked  │
+# │ exporter or a new viewer needs NO change here: it lands inside one of    │
+# │ the `directories:` patterns below and is picked up on the next run. A    │
+# │ new tool directly under scripts/ is the exception — see the entry that   │
+# │ lists them, and why it cannot glob.                                      │
 # │                                                                          │
 # │ The registry/token split is structural, not a rule someone has to        │
 # │ remember. Only /spa (@metanull/inventory-app-api-client) and the viewers │
@@ -55,11 +56,25 @@ updates:
         dependency-type: "production"
 
   # Node tooling directly under scripts/ — currently importer and site-i18n.
-  # The glob is one level deep on purpose: scripts/exporters and scripts/viewers
-  # hold no manifest of their own, and their children are matched below.
+  #
+  # Listed rather than globbed, and this is the one place the glob scheme does
+  # not reach. `/scripts/*` here made the WHOLE FILE invalid: Dependabot
+  # rejected it with "cannot determine if 'npm' has overlapping directories",
+  # because it cannot prove `/scripts/*` disjoint from `/scripts/exporters/*`
+  # and `/scripts/viewers/*` below — true though that is, since
+  # scripts/exporters and scripts/viewers hold no manifest of their own.
+  #
+  # An invalid file is not a degraded file: nothing runs at all, composer,
+  # bundler, docker and github-actions included. Between #1633 (2026-08-31) and
+  # this, no Dependabot pull request of any kind was opened.
+  #
+  # So a NEW TOOL DIRECTLY UNDER scripts/ needs a line here. Exporters and
+  # viewers — the ones that actually multiply, and the reason #1633 introduced
+  # globs — keep theirs.
   - package-ecosystem: "npm"
     directories:
-      - "/scripts/*"
+      - "/scripts/importer"
+      - "/scripts/site-i18n"
     schedule:
       interval: "weekly"
     labels:
