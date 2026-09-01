@@ -1,4 +1,8 @@
-FROM ruby:3.2-alpine
+# Floats on the minor: patch releases carry the CVE fixes, and nothing here
+# pins a Ruby patch level. Keep in step with `ruby` in docs/Gemfile and with
+# ruby-version in .github/workflows/continuous-deployment_github-pages.yml —
+# a docs build that only breaks on Pages is the failure mode to avoid.
+FROM ruby:3.4-alpine
 
 RUN apk add --no-cache python3 git build-base
 
@@ -8,8 +12,10 @@ ENV BUNDLE_PATH=/usr/local/bundle
 
 WORKDIR /workspace/docs
 
-# Pre-install gems during image build to speed up first container start
-COPY docs/Gemfile docs/Gemfile.lock ./
+# Pre-install gems during image build to speed up first container start.
+# Only the Gemfile: docs/Gemfile.lock is gitignored, so COPYing it would make
+# the build depend on a file a fresh clone does not have.
+COPY docs/Gemfile ./
 RUN bundle install
 
 COPY .docker/docs-entrypoint.sh /usr/local/bin/entrypoint.sh

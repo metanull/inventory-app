@@ -129,6 +129,40 @@ updates:
     registries:
       - npm-github
 
+  # The docs site. No Gemfile.lock is committed (it is gitignored), which
+  # Dependabot handles: it bumps the requirements in the Gemfile itself.
+  #
+  # This entry exists because nothing else watches Ruby here. The weekly
+  # dependency audit covers Composer and npm only, so the docs gems aged
+  # unwatched until an external scanner flagged them.
+  - package-ecosystem: "bundler"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+    groups:
+      docs-dependencies:
+        patterns:
+          - ".*"
+
+  # Base images across .docker/ and scripts/import-tool/. The Ruby base image
+  # of the docs container is the thing the scanner actually reported: a gem
+  # bump would not have moved it, because the interpreter comes from the FROM
+  # line rather than from the Gemfile.
+  - package-ecosystem: "docker"
+    directories:
+      - "/.docker"
+      - "/scripts/import-tool"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+    groups:
+      docker-base-images:
+        patterns:
+          - ".*"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
