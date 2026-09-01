@@ -51,7 +51,9 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.2.3"
+          # Float on the minor so patch-level security fixes land without a
+          # PR here. Must match the base image in .docker/Dockerfile.docs.
+          ruby-version: "3.4"
           working-directory: docs
 
       - name: Install Ruby dependencies

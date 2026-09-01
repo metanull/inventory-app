@@ -37,6 +37,10 @@ storage/logs
 spa
 api-client
 docs
+# ...except the docs Gemfile: Dockerfile.docs pre-installs the gems at build
+# time, from this same context. The sources themselves arrive as a bind mount
+# at run time, so nothing else under docs/ is needed here.
+!docs/Gemfile
 scripts/exporters
 scripts/viewers
 scripts/site-i18n
