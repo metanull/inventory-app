@@ -45,9 +45,10 @@ git submodule update --init .legacy-database .legacy-code
 ```
 
 `.new-architecture/` holds the public [website platform](https://github.com/metanull/website-template)
-repositories — `viewer-core`, `viewer-layout`, `viewer-workflows`,
-`website-template` and one repository per website — which are useful to read
-while working on the exporters and viewers under `scripts/`. Those are public,
+repositories — `viewer-core`, `viewer-layout`, `viewer-i18n`,
+`viewer-workflows`, `website-template` and one repository per website — which
+are useful to read while working on the exporters and viewers under
+`scripts/`. Those are public,
 so they are pinned like ordinary submodules:
 
 ```bash
