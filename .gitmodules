@@ -67,3 +67,6 @@
 [submodule ".new-architecture/the-use-of-colours-in-art"]
 	path = .new-architecture/the-use-of-colours-in-art
 	url = https://github.com/metanull/the-use-of-colours-in-art
+[submodule ".new-architecture/viewer-i18n"]
+	path = .new-architecture/viewer-i18n
+	url = https://github.com/metanull/viewer-i18n

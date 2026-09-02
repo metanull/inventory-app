@@ -5,6 +5,7 @@
  * This is shared business logic used by all importers.
  */
 import TurndownService from 'turndown';
+import { Marked, type Token } from 'marked';
 
 // Create a singleton instance of TurndownService
 const turndownService = new TurndownService({
@@ -67,11 +68,70 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
 }
 
 /**
- * Fields that should be skipped during sanitization.
- * These are typically JSON fields that are already properly formatted
- * and should not be processed by the HTML-to-Markdown converter.
+ * Fields holding a JSON document rather than a text.
+ *
+ * Converting one of these as a whole would destroy it — Turndown would be
+ * handed braces and quotes and asked to read them as markup. They are instead
+ * decoded and converted value by value, because the texts inside them are
+ * legacy content like any other: the curator justifications in a collection
+ * item's `extra` reached three websites with their `<i>` tags intact, for the
+ * years this field was skipped outright.
  */
-const SKIP_SANITIZE_FIELDS = new Set(['extra']);
+const JSON_FIELDS = new Set(['extra']);
+
+/**
+ * Convert every string inside a decoded JSON value, leaving the shape, the
+ * keys and the non-string values exactly as they were.
+ */
+function convertJsonValue(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return convertHtmlToMarkdown(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(convertJsonValue);
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+        key,
+        convertJsonValue(item),
+      ])
+    );
+  }
+  return value;
+}
+
+/**
+ * Convert the texts inside a JSON field, in whichever form it arrives.
+ *
+ * Callers build `extra` both ways: some hand over an already-encoded string,
+ * others an object that the strategy stringifies on its way into the query.
+ * Both are the same field and both need converting, and handling only the
+ * string is how 367 `<i>` tags survived a reimport that was supposed to
+ * convert them.
+ *
+ * A string that does not decode is returned untouched: a field declared JSON
+ * that is not holding JSON is a separate problem, and mangling it here would
+ * hide that one too.
+ */
+export function sanitizeJsonField<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    return convertJsonValue(value) as T;
+  }
+  if (typeof value !== 'string') {
+    return value;
+  }
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(value);
+  } catch {
+    return value;
+  }
+  if (decoded === null || typeof decoded !== 'object') {
+    return value;
+  }
+  return JSON.stringify(convertJsonValue(decoded)) as T;
+}
 
 /**
  * MySQL zero-date patterns produced by legacy Windows MySQL.
@@ -128,8 +188,8 @@ export function sanitizeDateValue(value: Date | string | null | undefined): stri
  * Use this as a catch-all sanitizer at the persistence layer to ensure
  * no HTML content reaches the database.
  *
- * Note: Fields in SKIP_SANITIZE_FIELDS (like 'extra') are preserved as-is
- * since they contain pre-formatted JSON strings that should not be modified.
+ * Note: fields in JSON_FIELDS (like 'extra') hold a JSON document, so they are
+ * decoded and converted value by value rather than as one string.
  *
  * @param data The data object to sanitize
  * @returns A new object with all string fields converted from HTML to Markdown
@@ -139,8 +199,8 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 
   for (const key of Object.keys(result) as (keyof T)[]) {
     const value = result[key];
-    // Skip fields that should not be sanitized (e.g., JSON fields like 'extra')
-    if (SKIP_SANITIZE_FIELDS.has(key as string)) {
+    if (JSON_FIELDS.has(key as string)) {
+      (result as Record<string, unknown>)[key as string] = sanitizeJsonField(value);
       continue;
     }
     if (typeof value === 'string') {
@@ -152,34 +212,58 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 }
 
 /**
- * Strip all HTML tags and return plain text
- * Uses Turndown to convert HTML to markdown, then strips markdown formatting
- * This is more robust than regex-based HTML stripping
+ * The text a Markdown document reads as, taken from the token tree rather
+ * than by rewriting the source.
+ *
+ * `marked` is the Markdown parser this estate already uses — viewer-core
+ * renders every text with it — so this is not a second opinion on the grammar,
+ * it is the same one asked a different question.
+ */
+const markdown = new Marked({ async: false, gfm: true });
+
+function textOfTokens(tokens: Token[] | undefined): string {
+  let text = '';
+  for (const token of tokens ?? []) {
+    const children = (token as { tokens?: Token[] }).tokens;
+    const items = (token as { items?: Token[] }).items;
+    if (children?.length) {
+      text += textOfTokens(children);
+    } else if (token.type === 'text' || token.type === 'codespan' || token.type === 'code') {
+      text += (token as { text?: string }).text ?? '';
+    } else if (token.type === 'space' || token.type === 'br') {
+      text += ' ';
+    }
+    if (items?.length) {
+      text += ' ' + textOfTokens(items);
+    }
+    if (token.type === 'paragraph' || token.type === 'heading' || token.type === 'list_item') {
+      text += ' ';
+    }
+  }
+  return text;
+}
+
+/**
+ * Strip all markup and return plain text.
+ *
+ * Two parsers, each answering the question it exists to answer: Turndown reads
+ * the HTML, `marked` reads the Markdown that comes out of it. Nothing here
+ * matches markup with a pattern.
+ *
+ * This replaced fourteen chained `.replace()` calls, which is not a way to
+ * read either grammar: `**bold` with no closing pair, an underscore inside a
+ * word, a `#` that starts a sentence and a `---` in the middle of a line were
+ * all handled wrongly, and a nested construct was handled by luck.
  */
 export function stripHtml(html: string | null | undefined): string {
   if (!html || typeof html !== 'string') {
     return '';
   }
 
-  // First convert HTML to markdown using Turndown (handles malformed HTML gracefully)
-  const markdown = convertHtmlToMarkdown(html);
+  // Turndown handles malformed HTML gracefully, and returns the string
+  // unchanged when there is no HTML in it.
+  const text = textOfTokens(markdown.lexer(convertHtmlToMarkdown(html)));
 
-  // Strip markdown formatting to get plain text
-  return markdown
-    .replace(/^#+\s+/gm, '') // Remove heading markers
-    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
-    .replace(/\*(.+?)\*/g, '$1') // Remove italic
-    .replace(/__(.+?)__/g, '$1') // Remove bold (underscore)
-    .replace(/_(.+?)_/g, '$1') // Remove italic (underscore)
-    .replace(/~~(.+?)~~/g, '$1') // Remove strikethrough
-    .replace(/`(.+?)`/g, '$1') // Remove inline code
-    .replace(/```[\s\S]*?```/g, '') // Remove code blocks
-    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // Convert links to text
-    .replace(/!\[.*?\]\(.+?\)/g, '') // Remove images
-    .replace(/^[*\-+]\s+/gm, '') // Remove list markers
-    .replace(/^\d+\.\s+/gm, '') // Remove ordered list markers
-    .replace(/^>\s+/gm, '') // Remove blockquotes
-    .replace(/---/g, '') // Remove horizontal rules
-    .replace(/\n{3,}/g, '\n\n') // Normalize multiple newlines
-    .trim();
+  // Whitespace only — collapsing runs of it is not parsing.
+  return text.split(/\s+/).filter(Boolean).join(' ');
 }
