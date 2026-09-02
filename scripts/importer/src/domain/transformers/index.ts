@@ -61,6 +61,7 @@ export {
 
 export {
   groupMonumentDetailsByPK,
+  isBlankMonumentDetailGroup,
   transformMonumentDetail,
   transformMonumentDetailTranslation,
   extractMonumentDetailTags,
