@@ -9,6 +9,7 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import {
   groupMonumentDetailsByPK,
+  isBlankMonumentDetailGroup,
   transformMonumentDetail,
   transformMonumentDetailTranslation,
   extractMonumentDetailTags,
@@ -59,6 +60,30 @@ export class MonumentDetailImporter extends BaseImporter {
 
       // Import each detail group
       for (const group of detailGroups) {
+        const backwardCompat = formatBackwardCompatibility({
+          schema: 'mwnf3',
+          table: 'monument_details',
+          pkValues: [
+            group.project_id,
+            group.country_id,
+            group.institution_id,
+            group.monument_id,
+            group.detail_id,
+          ],
+        });
+
+        // Unused slots of the legacy detail editor: every language version is
+        // blank, so there is nothing to build an item from. Expected legacy
+        // noise rather than a failure — see isBlankMonumentDetailGroup for why
+        // it takes every content column into account and not just the name.
+        if (isBlankMonumentDetailGroup(group)) {
+          this.logSkip(
+            `Monument detail ${backwardCompat}: blank in every language version, skipping`
+          );
+          result.skipped++;
+          continue;
+        }
+
         try {
           const imported = await this.importMonumentDetail(group, defaultContextId, result);
           if (imported) {
@@ -70,7 +95,6 @@ export class MonumentDetailImporter extends BaseImporter {
           }
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
-          const backwardCompat = `mwnf3:monument_details:${group.project_id}:${group.country_id}:${group.institution_id}:${group.monument_id}:${group.detail_id}`;
           result.errors.push(`${backwardCompat}: ${message}`);
           this.logError(`Monument detail ${backwardCompat}`, message);
           this.showError();
