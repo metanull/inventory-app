@@ -25,6 +25,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 
@@ -114,12 +115,15 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
     for (const langId of languageIds) {
       const existing = await this.context.strategy.getItemTranslationExtra(itemId, langId);
 
-      // Idempotency: skip the write when the flag is already present.
-      if (existing && existing.legacy_display_status === 'N') {
+      // The whole `extra` is written, so the whole `extra` decides — and
+      // sanitised, because that is the form it will be written in. Testing the
+      // flag alone skipped rows whose other fields still held legacy HTML.
+      const merged = sanitizeJsonField({ ...(existing || {}), legacy_display_status: 'N' });
+
+      // Idempotency: skip the write when nothing would change.
+      if (JSON.stringify(existing || {}) === JSON.stringify(merged)) {
         continue;
       }
-
-      const merged = { ...(existing || {}), legacy_display_status: 'N' };
       await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(merged));
       changed = true;
     }

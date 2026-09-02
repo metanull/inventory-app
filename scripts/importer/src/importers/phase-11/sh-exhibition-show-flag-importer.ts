@@ -27,6 +27,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 
@@ -139,12 +140,19 @@ export class ShExhibitionShowFlagImporter extends BaseImporter {
 
       const mergedLegacyExhibition = { ...existingLegacyExhibition, ...legacyExhibition };
 
+      // The whole `extra` is written, so the whole `extra` decides — and
+      // sanitised, because that is the form it will be written in. Comparing
+      // only `legacy_exhibition`, unsanitised, skipped rows whose other fields
+      // still held legacy HTML.
+      const merged = sanitizeJsonField({
+        ...(existing || {}),
+        legacy_exhibition: mergedLegacyExhibition,
+      });
+
       // Idempotency: skip the write when nothing would change.
-      if (JSON.stringify(existingLegacyExhibition) === JSON.stringify(mergedLegacyExhibition)) {
+      if (JSON.stringify(existing || {}) === JSON.stringify(merged)) {
         continue;
       }
-
-      const merged = { ...(existing || {}), legacy_exhibition: mergedLegacyExhibition };
       await this.context.strategy.setCollectionTranslationExtra(
         collectionId,
         langId,
