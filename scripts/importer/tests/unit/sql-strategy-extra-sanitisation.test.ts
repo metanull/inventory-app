@@ -99,6 +99,75 @@ describe('extra reaching the database', () => {
     expect(JSON.parse(call.values[0] as string)).toEqual({ caption: '*Carthage*' });
   });
 
+  // Eight methods write `extra` on their own rather than through a
+  // `write*` + `sanitizeAllStrings` pair, and each binds its argument straight
+  // into the statement. Fixing `updateTimelineExtra` alone left seven, and one
+  // of them — `setCollectionItemExtra` — is what the Sharing History curator
+  // justifications go through, so the tags survived a fix, a full reimport and
+  // a targeted re-run before this was found.
+  describe('the methods that write extra on their own', () => {
+    const cases: [string, string, () => Promise<unknown>][] = [
+      [
+        'setCollectionItemExtra',
+        'UPDATE collection_item',
+        () => strategy.setCollectionItemExtra('c1', 'i1', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'setCollectionTranslationExtra',
+        'UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ?',
+        () =>
+          strategy.setCollectionTranslationExtra('c1', 'eng', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'setCollectionTranslationExtraByKey',
+        'AND context_id = ?',
+        () =>
+          strategy.setCollectionTranslationExtraByKey(
+            'c1',
+            'eng',
+            'ctx',
+            JSON.stringify({ t: '<i>Aeneid</i>' })
+          ),
+      ],
+      [
+        'setCollectionTranslationExtraById',
+        'UPDATE collection_translations SET extra = ?, updated_at = ? WHERE id = ?',
+        () =>
+          strategy.setCollectionTranslationExtraById('id1', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'setItemTranslationExtra',
+        'UPDATE item_translations',
+        () =>
+          strategy.setItemTranslationExtra('i1', 'eng', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'setCollectionImageExtra',
+        'UPDATE collection_images',
+        () => strategy.setCollectionImageExtra('img1', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'setCollectionExtra',
+        'UPDATE collections SET extra',
+        () => strategy.setCollectionExtra('c1', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+      [
+        'updateTimelineExtra',
+        'UPDATE timelines',
+        () => strategy.updateTimelineExtra('t1', JSON.stringify({ t: '<i>Aeneid</i>' })),
+      ],
+    ];
+
+    for (const [name, sql, run] of cases) {
+      it(`${name} converts what it is given`, async () => {
+        await run();
+        const call = mock.calls.find((c) => c.sql.includes(sql))!;
+        expect(call, `no statement matching ${sql}`).toBeDefined();
+        expect(JSON.parse(call.values[0] as string)).toEqual({ t: '*Aeneid*' });
+      });
+    }
+  });
+
   it('leaves a row with no extra alone', async () => {
     await strategy.writeCollectionItem({
       collection_id: 'c1',

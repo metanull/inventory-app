@@ -1661,7 +1661,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   ): Promise<void> {
     await this.db.execute(
       `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ?`,
-      [extra, this.now, collectionId, languageId]
+      [sanitizeJsonField(extra), this.now, collectionId, languageId]
     );
   }
 
@@ -1693,7 +1693,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   ): Promise<void> {
     await this.db.execute(
       `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE collection_id = ? AND language_id = ? AND context_id = ?`,
-      [extra, this.now, collectionId, languageId, contextId]
+      [sanitizeJsonField(extra), this.now, collectionId, languageId, contextId]
     );
   }
 
@@ -1719,7 +1719,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async setCollectionTranslationExtraById(id: string, extra: string): Promise<void> {
     await this.db.execute(
       `UPDATE collection_translations SET extra = ?, updated_at = ? WHERE id = ?`,
-      [extra, this.now, id]
+      [sanitizeJsonField(extra), this.now, id]
     );
   }
 
@@ -1739,7 +1739,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void> {
     await this.db.execute(
       `UPDATE item_translations SET extra = ?, updated_at = ? WHERE item_id = ? AND language_id = ?`,
-      [extra, this.now, itemId, languageId]
+      [sanitizeJsonField(extra), this.now, itemId, languageId]
     );
   }
 
@@ -1759,7 +1759,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async setCollectionItemExtra(collectionId: string, itemId: string, extra: string): Promise<void> {
     await this.db.execute(
       `UPDATE collection_item SET extra = ?, updated_at = ? WHERE collection_id = ? AND item_id = ?`,
-      [extra, this.now, collectionId, itemId]
+      [sanitizeJsonField(extra), this.now, collectionId, itemId]
     );
   }
 
@@ -1784,7 +1784,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async setCollectionImageExtra(collectionImageId: string, extraJson: string): Promise<void> {
     await this.db.execute(
       `UPDATE collection_images SET extra = ?, updated_at = ? WHERE id = ?`,
-      [extraJson, this.now, collectionImageId]
+      [sanitizeJsonField(extraJson), this.now, collectionImageId]
     );
   }
 
@@ -1883,7 +1883,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
 
   async setCollectionExtra(collectionId: string, extra: string): Promise<void> {
     await this.db.execute(`UPDATE collections SET extra = ?, updated_at = ? WHERE id = ?`, [
-      extra,
+      sanitizeJsonField(extra),
       this.now,
       collectionId,
     ]);
