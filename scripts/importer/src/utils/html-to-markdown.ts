@@ -5,6 +5,7 @@
  * This is shared business logic used by all importers.
  */
 import TurndownService from 'turndown';
+import { Marked, type Token } from 'marked';
 
 // Create a singleton instance of TurndownService
 const turndownService = new TurndownService({
@@ -197,34 +198,58 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 }
 
 /**
- * Strip all HTML tags and return plain text
- * Uses Turndown to convert HTML to markdown, then strips markdown formatting
- * This is more robust than regex-based HTML stripping
+ * The text a Markdown document reads as, taken from the token tree rather
+ * than by rewriting the source.
+ *
+ * `marked` is the Markdown parser this estate already uses — viewer-core
+ * renders every text with it — so this is not a second opinion on the grammar,
+ * it is the same one asked a different question.
+ */
+const markdown = new Marked({ async: false, gfm: true });
+
+function textOfTokens(tokens: Token[] | undefined): string {
+  let text = '';
+  for (const token of tokens ?? []) {
+    const children = (token as { tokens?: Token[] }).tokens;
+    const items = (token as { items?: Token[] }).items;
+    if (children?.length) {
+      text += textOfTokens(children);
+    } else if (token.type === 'text' || token.type === 'codespan' || token.type === 'code') {
+      text += (token as { text?: string }).text ?? '';
+    } else if (token.type === 'space' || token.type === 'br') {
+      text += ' ';
+    }
+    if (items?.length) {
+      text += ' ' + textOfTokens(items);
+    }
+    if (token.type === 'paragraph' || token.type === 'heading' || token.type === 'list_item') {
+      text += ' ';
+    }
+  }
+  return text;
+}
+
+/**
+ * Strip all markup and return plain text.
+ *
+ * Two parsers, each answering the question it exists to answer: Turndown reads
+ * the HTML, `marked` reads the Markdown that comes out of it. Nothing here
+ * matches markup with a pattern.
+ *
+ * This replaced fourteen chained `.replace()` calls, which is not a way to
+ * read either grammar: `**bold` with no closing pair, an underscore inside a
+ * word, a `#` that starts a sentence and a `---` in the middle of a line were
+ * all handled wrongly, and a nested construct was handled by luck.
  */
 export function stripHtml(html: string | null | undefined): string {
   if (!html || typeof html !== 'string') {
     return '';
   }
 
-  // First convert HTML to markdown using Turndown (handles malformed HTML gracefully)
-  const markdown = convertHtmlToMarkdown(html);
+  // Turndown handles malformed HTML gracefully, and returns the string
+  // unchanged when there is no HTML in it.
+  const text = textOfTokens(markdown.lexer(convertHtmlToMarkdown(html)));
 
-  // Strip markdown formatting to get plain text
-  return markdown
-    .replace(/^#+\s+/gm, '') // Remove heading markers
-    .replace(/\*\*(.+?)\*\*/g, '$1') // Remove bold
-    .replace(/\*(.+?)\*/g, '$1') // Remove italic
-    .replace(/__(.+?)__/g, '$1') // Remove bold (underscore)
-    .replace(/_(.+?)_/g, '$1') // Remove italic (underscore)
-    .replace(/~~(.+?)~~/g, '$1') // Remove strikethrough
-    .replace(/`(.+?)`/g, '$1') // Remove inline code
-    .replace(/```[\s\S]*?```/g, '') // Remove code blocks
-    .replace(/\[(.+?)\]\(.+?\)/g, '$1') // Convert links to text
-    .replace(/!\[.*?\]\(.+?\)/g, '') // Remove images
-    .replace(/^[*\-+]\s+/gm, '') // Remove list markers
-    .replace(/^\d+\.\s+/gm, '') // Remove ordered list markers
-    .replace(/^>\s+/gm, '') // Remove blockquotes
-    .replace(/---/g, '') // Remove horizontal rules
-    .replace(/\n{3,}/g, '\n\n') // Normalize multiple newlines
-    .trim();
+  // Whitespace only — collapsing runs of it is not parsing.
+  return text.split(/\s+/).filter(Boolean).join(' ');
 }
