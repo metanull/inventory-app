@@ -67,11 +67,57 @@ export function convertHtmlFieldsToMarkdown<T extends Record<string, unknown>>(
 }
 
 /**
- * Fields that should be skipped during sanitization.
- * These are typically JSON fields that are already properly formatted
- * and should not be processed by the HTML-to-Markdown converter.
+ * Fields holding a JSON document rather than a text.
+ *
+ * Converting one of these as a whole would destroy it — Turndown would be
+ * handed braces and quotes and asked to read them as markup. They are instead
+ * decoded and converted value by value, because the texts inside them are
+ * legacy content like any other: the curator justifications in a collection
+ * item's `extra` reached three websites with their `<i>` tags intact, for the
+ * years this field was skipped outright.
  */
-const SKIP_SANITIZE_FIELDS = new Set(['extra']);
+const JSON_FIELDS = new Set(['extra']);
+
+/**
+ * Convert every string inside a decoded JSON value, leaving the shape, the
+ * keys and the non-string values exactly as they were.
+ */
+function convertJsonValue(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return convertHtmlToMarkdown(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(convertJsonValue);
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+        key,
+        convertJsonValue(item),
+      ])
+    );
+  }
+  return value;
+}
+
+/**
+ * Convert the texts inside a JSON field, returning it re-encoded.
+ *
+ * Anything that does not decode is returned untouched. A field that is not
+ * JSON after all is a separate problem, and mangling it here would hide it.
+ */
+export function sanitizeJsonField(json: string): string {
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(json);
+  } catch {
+    return json;
+  }
+  if (decoded === null || typeof decoded !== 'object') {
+    return json;
+  }
+  return JSON.stringify(convertJsonValue(decoded));
+}
 
 /**
  * MySQL zero-date patterns produced by legacy Windows MySQL.
@@ -128,8 +174,8 @@ export function sanitizeDateValue(value: Date | string | null | undefined): stri
  * Use this as a catch-all sanitizer at the persistence layer to ensure
  * no HTML content reaches the database.
  *
- * Note: Fields in SKIP_SANITIZE_FIELDS (like 'extra') are preserved as-is
- * since they contain pre-formatted JSON strings that should not be modified.
+ * Note: fields in JSON_FIELDS (like 'extra') hold a JSON document, so they are
+ * decoded and converted value by value rather than as one string.
  *
  * @param data The data object to sanitize
  * @returns A new object with all string fields converted from HTML to Markdown
@@ -139,13 +185,12 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 
   for (const key of Object.keys(result) as (keyof T)[]) {
     const value = result[key];
-    // Skip fields that should not be sanitized (e.g., JSON fields like 'extra')
-    if (SKIP_SANITIZE_FIELDS.has(key as string)) {
+    if (typeof value !== 'string') {
       continue;
     }
-    if (typeof value === 'string') {
-      (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
-    }
+    (result as Record<string, unknown>)[key as string] = JSON_FIELDS.has(key as string)
+      ? sanitizeJsonField(value)
+      : convertHtmlToMarkdown(value);
   }
 
   return result;
