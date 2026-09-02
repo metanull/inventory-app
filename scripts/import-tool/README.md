@@ -406,6 +406,21 @@ docker compose --env-file scripts/import-tool/.env --profile import run --build 
 # current directory only, `npm publish` runs from output/<dataset>/, and
 # without this the tarball is built and the publish dies with ENEEDAUTH. The
 # token lives in the gitignored repo-root .npmrc.
+#
+# The version is taken from the registry, so a stale local counter no longer
+# collides. If a publish is still refused with "cannot publish over the
+# previously published versions", read what the registry has:
+#
+#   docker compose --profile tools run --rm --no-deps -w /var/www/app \
+#       -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
+#       tools npm view @metanull/<dataset>-data version
+#
+# and pass the next one explicitly with `--package-version x.y.z`. That also
+# repairs the counter, so the runs after it increment on their own again.
+#
+# The counter is written BEFORE the publish, so a failed publish burns the
+# number: read `scripts/exporters/<dataset>/output/.version-<dataset>` before
+# re-running rather than assuming it is where you left it.
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter islamicart --force --publish
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter baroqueart --force --publish
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter sharinghistory --force --publish

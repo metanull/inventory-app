@@ -187,20 +187,35 @@ Three gotchas, learned the hard way:
    (UI-only, one-time) — otherwise the deploy workflow's `GITHUB_TOKEN` gets
    403 on install. Versions published *before* the repo link stay
    inaccessible forever; publish a new version instead.
-2. Version state lives in `output/.version-<dataset>`, which is not committed
-   — deleting the output directory and republishing would restart at 1.0.0
-   and collide with existing versions. **The same applies in a fresh git
-   worktree**, which has no `output/` at all: a dataset you have never exported
-   *there* has no version file, and auto-increment would start it over. Read
-   the live version first and pass it explicitly:
+2. Version state lives in `<dataset>/output/.version-<dataset>` — one counter
+   per exporter, not one shared file — and it is not committed. **The registry
+   is asked first and wins whenever it is ahead**, so a missing or stale counter
+   no longer collides; that check is in `PublishManager.getNextVersion`, pinned
+   by `tests/unit/publish-manager.test.ts`.
+
+   It was added after this bit: four of the seven counters were sitting at
+   1.0.0 while the registry held 1.0.2 and 1.0.3, and the first `--publish`
+   after a rebuild walked straight into a taken number. A fresh worktree, a
+   deleted `output/`, or an exporter cloned from another all produce the same
+   thing — the counter has never had a reason to be right.
+
+   The counter is still the answer when the registry cannot be reached or has
+   never seen the package, and it is still written **before** the publish runs,
+   so a failed publish burns the number. Read it before re-running:
+
+   ```bash
+   cat scripts/exporters/<dataset>/output/.version-<dataset>
+   ```
+
+   To override — a minor or major bump, or a registry you cannot reach — pass
+   `--package-version <next>`, which sets the counter and skips the lookup. The
+   live version, if you need to see it for yourself:
 
    ```bash
    docker compose --profile tools run --rm --no-deps -w /var/www/app \
        -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
        tools npm view @metanull/<dataset>-data version
    ```
-
-   then `--package-version <next>` on the publish.
 
 3. **Publishing changes nothing that is live.** Each viewer installs
    `@metanull/<dataset>-data@latest` at *build* time, so the new package only
