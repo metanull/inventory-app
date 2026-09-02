@@ -73,6 +73,42 @@ export function groupMonumentDetailsByPK(details: LegacyMonumentDetail[]): Monum
   return Array.from(groups.values());
 }
 
+function isBlankField(value: string | null | undefined): boolean {
+  return value === null || value === undefined || value.trim() === '';
+}
+
+/**
+ * True when no language version of the group carries any content at all.
+ *
+ * The legacy monument editor exposed a fixed set of detail slots and persisted
+ * the unused ones as rows with every content column empty (`name` is
+ * `NOT NULL DEFAULT ''` in the legacy schema, so they are empty strings rather
+ * than NULLs). Such a group has nothing to import: no name to derive an
+ * internal_name from, and no description, so transformMonumentDetailTranslation
+ * would decline every language version too — the item would end up with no
+ * translation at all.
+ *
+ * All five content columns are tested on purpose. A group whose name is blank
+ * but which still carries a description, a location, a date or an artist is a
+ * genuine data problem, and must keep failing loudly in selectItemInternalName
+ * rather than being swallowed here.
+ */
+export function isBlankMonumentDetailGroup(group: MonumentDetailGroup): boolean {
+  if (group.translations.length === 0) {
+    // Not a padding row but a malformed group; transformMonumentDetail reports it.
+    return false;
+  }
+
+  return group.translations.every(
+    (translation) =>
+      isBlankField(translation.name) &&
+      isBlankField(translation.description) &&
+      isBlankField(translation.location) &&
+      isBlankField(translation.date) &&
+      isBlankField(translation.artist)
+  );
+}
+
 /**
  * Transform a monument detail group to item data
  * @param group Monument detail group with all translations

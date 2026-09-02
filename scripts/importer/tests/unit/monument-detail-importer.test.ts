@@ -141,6 +141,79 @@ describe('MonumentDetailImporter', () => {
     );
   });
 
+  it('skips a detail left blank in every language instead of reporting an error', async () => {
+    // An unused slot of the legacy detail editor: every content column empty.
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_details')) {
+        return [
+          {
+            ...detailRow,
+            detail_id: '5',
+            name: '',
+            description: '',
+            location: null,
+            date: '',
+            artist: '',
+          },
+        ];
+      }
+      return [];
+    });
+
+    const importer = new MonumentDetailImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(true);
+    expect(result.errors).toHaveLength(0);
+    expect(result.imported).toBe(0);
+    expect(result.skipped).toBe(1);
+    expect(writeItemMock).not.toHaveBeenCalled();
+
+    expect(logger.skip).toHaveBeenCalledWith(
+      expect.stringContaining('mwnf3:monument_details:BAR:cz:Ins01:Mon11:5')
+    );
+  });
+
+  it('imports the populated details of a monument whose remaining slots are blank', async () => {
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_details')) {
+        return [
+          detailRow,
+          { ...detailRow, detail_id: '24', name: '', description: '', date: '', artist: '' },
+          { ...detailRow, detail_id: '25', name: '', description: '', date: '', artist: '' },
+        ];
+      }
+      return [];
+    });
+
+    const importer = new MonumentDetailImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(true);
+    expect(result.errors).toHaveLength(0);
+    expect(result.imported).toBe(1);
+    expect(result.skipped).toBe(2);
+    expect(writeItemMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('still reports an error for a detail that has content but no name anywhere', async () => {
+    // Not legacy padding but a real data problem: it must not be swallowed.
+    queryMock.mockImplementation(async (sql: string) => {
+      if (sql.includes('FROM mwnf3.monument_details')) {
+        return [{ ...detailRow, name: '', description: 'A description with no name.' }];
+      }
+      return [];
+    });
+
+    const importer = new MonumentDetailImporter(context);
+    const result = await importer.import();
+
+    expect(result.success).toBe(false);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toContain('missing required name field in all translations');
+    expect(writeItemMock).not.toHaveBeenCalled();
+  });
+
   it('still fails fast when project context is missing', async () => {
     // Remove context entry so contextId lookup fails
     tracker = new UnifiedTracker();
