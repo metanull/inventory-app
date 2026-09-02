@@ -451,8 +451,9 @@ docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter wa
 #
 # Merging is what deploys. Confirm with `gh run watch` in that repository.
 #
-# Sites carrying the `main-requires-pr` ruleset refuse a direct push outright.
-# Not every site carries it yet, so some will accept one — that is a gap in
-# their settings, not permission. The checks that gate the merge are the point,
-# and a direct push skips them.
+# All seven sites carry the `main-requires-pr` ruleset, with an empty bypass
+# list, so a direct push to main is refused for everyone including the owner.
+# Four of them accepted one until 2026-09-02 — the ruleset had simply never
+# been applied when those repositories were created, and GitHub does not copy
+# rulesets from a template.
 ```
