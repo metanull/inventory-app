@@ -60,7 +60,7 @@ import type {
   ContributorImageData,
   ImageTable,
 } from '../core/types.js';
-import { sanitizeAllStrings } from '../utils/html-to-markdown.js';
+import { sanitizeAllStrings, sanitizeJsonField } from '../utils/html-to-markdown.js';
 
 const tableEntityMap: Record<string, EntityType> = {
   languages: 'language',
@@ -282,7 +282,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
         sanitized.parent_id ?? null,
         sanitized.type ?? 'collection',
         sanitized.purpose ?? null,
-        data.extra ?? null,
+        sanitized.extra ?? null,
         data.display_order ?? null,
         sanitized.internal_name,
         sanitized.backward_compatibility,
@@ -307,7 +307,7 @@ export class SqlWriteStrategy implements IWriteStrategy {
     const id = deterministicUuid(
       `collection_translation:${sanitized.backward_compatibility.toLowerCase()}:${sanitized.language_id}:${sanitized.context_id}`
     );
-    const extra = data.extra ?? null;
+    const extra = sanitized.extra ?? null;
     await this.db.execute(
       `INSERT INTO collection_translations (id, collection_id, language_id, context_id, title, description, quote, extra, backward_compatibility, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -330,7 +330,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
   async writeCollectionItem(data: CollectionItemData): Promise<void> {
     const sanitized = sanitizeAllStrings(data);
     const displayOrder = data.display_order ?? null;
-    const extra = data.extra ? JSON.stringify(data.extra) : null;
+    // `sanitized`, not `data` — the whole point of the sanitiser is that the
+    // converted copy is what reaches the database. Reading `data.extra` here
+    // put the raw legacy HTML back, and that is how the Sharing History
+    // curator justifications kept their `<i>` tags through a reimport.
+    const extra = sanitized.extra ? JSON.stringify(sanitized.extra) : null;
     await this.db.execute(
       `INSERT INTO collection_item (collection_id, item_id, display_order, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?)
@@ -1241,15 +1245,16 @@ export class SqlWriteStrategy implements IWriteStrategy {
   }
 
   async writeTimelineEventItem(data: TimelineEventItemData): Promise<void> {
+    const sanitized = sanitizeAllStrings(data);
     await this.db.execute(
       `INSERT IGNORE INTO timeline_event_item (timeline_event_id, item_id, display_order, backward_compatibility, extra, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        data.timeline_event_id,
-        data.item_id,
+        sanitized.timeline_event_id,
+        sanitized.item_id,
         data.display_order,
-        data.backward_compatibility ?? null,
-        data.extra ?? null,
+        sanitized.backward_compatibility ?? null,
+        sanitized.extra ?? null,
         this.now,
         this.now,
       ]
@@ -1284,9 +1289,11 @@ export class SqlWriteStrategy implements IWriteStrategy {
     return id;
   }
 
+  // Writes `extra` on its own, so it does not pass through a `sanitizeAllStrings`
+  // on the way in like every other write does. It has to convert its own.
   async updateTimelineExtra(timelineId: string, extra: string): Promise<void> {
     await this.db.execute(`UPDATE timelines SET extra = ?, updated_at = ? WHERE id = ?`, [
-      extra,
+      sanitizeJsonField(extra),
       this.now,
       timelineId,
     ]);

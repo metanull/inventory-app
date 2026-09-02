@@ -102,22 +102,35 @@ function convertJsonValue(value: unknown): unknown {
 }
 
 /**
- * Convert the texts inside a JSON field, returning it re-encoded.
+ * Convert the texts inside a JSON field, in whichever form it arrives.
  *
- * Anything that does not decode is returned untouched. A field that is not
- * JSON after all is a separate problem, and mangling it here would hide it.
+ * Callers build `extra` both ways: some hand over an already-encoded string,
+ * others an object that the strategy stringifies on its way into the query.
+ * Both are the same field and both need converting, and handling only the
+ * string is how 367 `<i>` tags survived a reimport that was supposed to
+ * convert them.
+ *
+ * A string that does not decode is returned untouched: a field declared JSON
+ * that is not holding JSON is a separate problem, and mangling it here would
+ * hide that one too.
  */
-export function sanitizeJsonField(json: string): string {
+export function sanitizeJsonField<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    return convertJsonValue(value) as T;
+  }
+  if (typeof value !== 'string') {
+    return value;
+  }
   let decoded: unknown;
   try {
-    decoded = JSON.parse(json);
+    decoded = JSON.parse(value);
   } catch {
-    return json;
+    return value;
   }
   if (decoded === null || typeof decoded !== 'object') {
-    return json;
+    return value;
   }
-  return JSON.stringify(convertJsonValue(decoded));
+  return JSON.stringify(convertJsonValue(decoded)) as T;
 }
 
 /**
@@ -186,12 +199,13 @@ export function sanitizeAllStrings<T extends object>(data: T): T {
 
   for (const key of Object.keys(result) as (keyof T)[]) {
     const value = result[key];
-    if (typeof value !== 'string') {
+    if (JSON_FIELDS.has(key as string)) {
+      (result as Record<string, unknown>)[key as string] = sanitizeJsonField(value);
       continue;
     }
-    (result as Record<string, unknown>)[key as string] = JSON_FIELDS.has(key as string)
-      ? sanitizeJsonField(value)
-      : convertHtmlToMarkdown(value);
+    if (typeof value === 'string') {
+      (result as Record<string, unknown>)[key as string] = convertHtmlToMarkdown(value);
+    }
   }
 
   return result;
