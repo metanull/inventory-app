@@ -406,6 +406,21 @@ docker compose --env-file scripts/import-tool/.env --profile import run --build 
 # current directory only, `npm publish` runs from output/<dataset>/, and
 # without this the tarball is built and the publish dies with ENEEDAUTH. The
 # token lives in the gitignored repo-root .npmrc.
+#
+# The version is taken from the registry, so a stale local counter no longer
+# collides. If a publish is still refused with "cannot publish over the
+# previously published versions", read what the registry has:
+#
+#   docker compose --profile tools run --rm --no-deps -w /var/www/app \
+#       -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
+#       tools npm view @metanull/<dataset>-data version
+#
+# and pass the next one explicitly with `--package-version x.y.z`. That also
+# repairs the counter, so the runs after it increment on their own again.
+#
+# The counter is written BEFORE the publish, so a failed publish burns the
+# number: read `scripts/exporters/<dataset>/output/.version-<dataset>` before
+# re-running rather than assuming it is where you left it.
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter islamicart --force --publish
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter baroqueart --force --publish
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter sharinghistory --force --publish
@@ -415,14 +430,29 @@ docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter th
 docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter water-in-islam --force --publish
 
 # ── 10. LET THE WEBSITES PICK THE NEW DATA UP ────────────────────────────────
-# Publishing changes nothing that is live. Each website pins its data package
-# in package.json, Dependabot cannot see the @metanull scope, and a site
-# deploys on a push to its main — so the version is bumped by hand, once per
-# site, in .new-architecture/<site>:
+# Publishing changes nothing that is live. Each website pins its data package,
+# Dependabot cannot see the @metanull scope, and a site deploys when its main
+# moves — so the version is bumped by hand, once per site, in
+# .new-architecture/<site>.
+#
+# `npm update` changes package-lock.json, NOT package.json: the pin is a ^range
+# that the new version already satisfies. An unchanged lockfile therefore means
+# npm found nothing newer — check that step 9 actually published, rather than
+# assuming it did. The exporter's counter is the tell: it is written before the
+# publish, so if it has not moved, the command never got that far.
+#
+# Through a pull request, because main is protected:
 #
 #   npm update @metanull/<site>-data
+#   git checkout -b chore/pick-up-rebuilt-data
 #   git commit -am "chore: pick up the data package rebuilt today"
-#   git push
+#   git push -u origin chore/pick-up-rebuilt-data
+#   gh pr create --fill && gh pr merge --squash --delete-branch
 #
-# The push is what deploys. Confirm with `gh run watch` in that repository.
+# Merging is what deploys. Confirm with `gh run watch` in that repository.
+#
+# Sites carrying the `main-requires-pr` ruleset refuse a direct push outright.
+# Not every site carries it yet, so some will accept one — that is a gap in
+# their settings, not permission. The checks that gate the merge are the point,
+# and a direct push skips them.
 ```

@@ -55,11 +55,64 @@ export class PublishManager {
   }
 
   /**
+   * The version the registry already holds, or null when it cannot say —
+   * because the package has never been published, or it is unreachable.
+   */
+  private publishedVersion(): string | null {
+    const args = ['view', this.config.packageName, 'version']
+    if (this.config.registry) {
+      args.push('--registry', this.config.registry)
+    }
+    const result = spawnSync('npm', args, {
+      encoding: 'utf-8',
+      env: process.env,
+      shell: true,
+    })
+    if (result.error || result.status !== 0) {
+      return null
+    }
+    const version = (result.stdout ?? '').trim()
+    try {
+      this.parseVersion(version)
+      return version
+    } catch {
+      return null
+    }
+  }
+
+  /** Whether a is a later release than b. */
+  private isAfter(a: SemanticVersion, b: SemanticVersion): boolean {
+    if (a.major !== b.major) return a.major > b.major
+    if (a.minor !== b.minor) return a.minor > b.minor
+    return a.patch > b.patch
+  }
+
+  /**
    * Bump patch (1.0.3 → 1.0.4) and persist to versionFile.
-   * The file lives outside outputDir so it survives --force runs.
+   *
+   * The registry is asked first, and wins whenever it is ahead. The counter
+   * file is untracked, it lives per exporter, and nothing keeps it in step with
+   * what was actually published — four of the seven datasets were found sitting
+   * at 1.0.0 while the registry held 1.0.2 and 1.0.3, so the first --publish
+   * walked straight into a taken number. The registry is the only thing that
+   * knows for certain.
+   *
+   * The file is still written, and is still the answer when the registry cannot
+   * be reached or has never seen this package. Note that it is written BEFORE
+   * the publish runs, so a failed publish burns the number.
    */
   getNextVersion(): string {
-    const current = this.readCurrentVersion()
+    const local = this.readCurrentVersion()
+    const published = this.publishedVersion()
+
+    let current = local
+    if (published && this.isAfter(this.parseVersion(published), this.parseVersion(local))) {
+      this.config.logger.info(`Registry is ahead of ${this.config.versionFile}: ${local} → ${published}`)
+      current = published
+    } else if (!published) {
+      this.config.logger.info(`Registry did not answer for ${this.config.packageName}; using ${local}`)
+    }
+
     const v = this.parseVersion(current)
     v.patch += 1
     const next = this.formatVersion(v)
