@@ -71,6 +71,40 @@ describe('the texts inside a JSON field', () => {
   });
 });
 
+describe('extra as an object, which is how most callers build it', () => {
+  // The first version of this fix handled only the encoded string. Every write
+  // that matters hands over an object and lets the strategy stringify it, so
+  // nothing was converted and 367 `<i>` tags survived the reimport.
+  it('converts the strings inside an object, and returns an object', () => {
+    const extra = sanitizeJsonField({
+      justifications: { en: { curator: '<i>Aeneid</i>', partner: null } },
+      curator_status: 'Y',
+      display_order: 3,
+    });
+
+    expect(extra).toEqual({
+      justifications: { en: { curator: '*Aeneid*', partner: null } },
+      curator_status: 'Y',
+      display_order: 3,
+    });
+  });
+
+  it('is reached through the persistence-layer sanitiser', () => {
+    const row = sanitizeAllStrings({
+      collection_id: 'c1',
+      extra: { justifications: { en: { curator: 'A <b>bold</b> claim' } } },
+    });
+
+    expect(row.extra).toEqual({ justifications: { en: { curator: 'A **bold** claim' } } });
+  });
+
+  it('leaves null and undefined alone', () => {
+    expect(sanitizeJsonField(null)).toBeNull();
+    expect(sanitizeJsonField(undefined)).toBeUndefined();
+    expect(sanitizeAllStrings({ extra: null }).extra).toBeNull();
+  });
+});
+
 describe('the sanitiser at the persistence layer', () => {
   it('enters extra instead of skipping it, and still converts plain fields', () => {
     const row = sanitizeAllStrings({
