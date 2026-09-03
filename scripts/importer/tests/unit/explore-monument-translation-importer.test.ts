@@ -12,6 +12,8 @@ describe('ExploreMonumentTranslationImporter', () => {
   let context: ImportContext;
   let queryMock: ReturnType<typeof vi.fn>;
   let writeItemTranslationMock: ReturnType<typeof vi.fn>;
+  let getExtraMock: ReturnType<typeof vi.fn>;
+  let setExtraMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
     info: vi.fn(),
@@ -122,11 +124,15 @@ describe('ExploreMonumentTranslationImporter', () => {
     };
 
     writeItemTranslationMock = vi.fn().mockResolvedValue(undefined);
+    getExtraMock = vi.fn().mockResolvedValue(null);
+    setExtraMock = vi.fn().mockResolvedValue(undefined);
 
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       writeItemTranslation: writeItemTranslationMock,
+      getItemTranslationExtra: getExtraMock,
+      setItemTranslationExtra: setExtraMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -152,5 +158,104 @@ describe('ExploreMonumentTranslationImporter', () => {
     );
     expect(result.success).toBe(true);
     expect(result.imported).toBe(1);
+  });
+
+  describe('when the translation row already exists', () => {
+    beforeEach(() => {
+      // writeItemTranslation is a plain INSERT — a second run must not call
+      // it for a row that's already there. entityExistsAsync checks the
+      // tracker first, so seeding it here is what makes `alreadyExists` true.
+      tracker.set(
+        'mwnf3_explore:monument:150:translation:eng',
+        'existing-translation-uuid',
+        'item_translation'
+      );
+      queryMock.mockImplementation(async (sql: string) => {
+        if (sql.includes('FROM mwnf3_explore.exploremonumentext')) {
+          return [
+            {
+              monumentId: 150,
+              langId: 'en',
+              name: 'Travel-linked monument',
+              description: 'Explore description',
+              related_bibliography: null,
+              date: null,
+              styles: null,
+              prepared_by: null,
+              how_to_reach: null,
+              info: null,
+              contact: null,
+              history: 'See more<br/>here',
+              note: null,
+              abstract: null,
+              further_reading: null,
+              url_prog_pdf: null,
+              pdf_text: null,
+              url_prog_doc: null,
+              institution: null,
+              address: null,
+              phone: null,
+              fax: null,
+              email: null,
+              website: null,
+            },
+          ];
+        }
+        if (sql.includes('FROM mwnf3_explore.exploremonument_tr')) {
+          return [
+            {
+              monumentId: 150,
+              REF_tr_monuments_project_id: 'IAM',
+              REF_tr_monuments_country: 'pt',
+              REF_tr_monuments_itinerary_id: 'I',
+              REF_tr_monuments_location_id: '1',
+              REF_tr_monuments_number: 'b',
+              REF_tr_monuments_trail_id: 1,
+            },
+          ];
+        }
+        return [];
+      });
+    });
+
+    it('refreshes extra instead of skipping, converting HTML the earlier write missed', async () => {
+      getExtraMock.mockResolvedValue({ history: 'See more<br/>here' });
+
+      const importer = new ExploreMonumentTranslationImporter(context);
+      const result = await importer.import();
+
+      expect(writeItemTranslationMock).not.toHaveBeenCalled();
+      expect(setExtraMock).toHaveBeenCalledWith(
+        'canonical-travel-item-uuid',
+        'eng',
+        JSON.stringify({ history: 'See more  \nhere' })
+      );
+      expect(result.success).toBe(true);
+      expect(result.imported).toBe(1);
+    });
+
+    it('is a no-op when the stored extra already matches what would be written', async () => {
+      getExtraMock.mockResolvedValue({ history: 'See more  \nhere' });
+
+      const importer = new ExploreMonumentTranslationImporter(context);
+      const result = await importer.import();
+
+      expect(writeItemTranslationMock).not.toHaveBeenCalled();
+      expect(setExtraMock).not.toHaveBeenCalled();
+      expect(result.success).toBe(true);
+      expect(result.skipped).toBe(1);
+    });
+
+    it('performs no writes in dry-run mode', async () => {
+      getExtraMock.mockResolvedValue({ history: 'See more<br/>here' });
+      context = { ...context, dryRun: true };
+
+      const importer = new ExploreMonumentTranslationImporter(context);
+      const result = await importer.import();
+
+      expect(writeItemTranslationMock).not.toHaveBeenCalled();
+      expect(setExtraMock).not.toHaveBeenCalled();
+      expect(result.imported).toBe(1);
+    });
   });
 });
