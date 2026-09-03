@@ -21,6 +21,8 @@ import type {
   ShLegacyMonumentText,
   ShMonumentGroup,
 } from '../../domain/types/index.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
+import { jsonValuesEqual } from '../../utils/json-equal.js';
 
 export class ShMonumentImporter extends BaseImporter {
   getName(): string {
@@ -109,9 +111,20 @@ export class ShMonumentImporter extends BaseImporter {
       this.logWarning(transformed.warning);
     }
 
-    // Check if already imported
-    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
-      return false;
+    // Check if already imported. The item itself is never recreated — but its
+    // translations' extra is still refreshed below: writeItemTranslation is a
+    // plain INSERT with no upsert, so a re-run could never otherwise revisit
+    // a row already written, even one whose extra a since-fixed bug elsewhere
+    // (ShItemDisplayStatusImporter, unscoped by context — #1678) had wiped.
+    const existingItemId = await this.getEntityUuidAsync(
+      transformed.backwardCompatibility,
+      'item'
+    );
+    if (existingItemId) {
+      if (this.isDryRun || this.isSampleOnlyMode) {
+        return false;
+      }
+      return this.refreshExistingTranslations(group, existingItemId);
     }
 
     // Collect sample
@@ -214,5 +227,59 @@ export class ShMonumentImporter extends BaseImporter {
     }
 
     return true;
+  }
+
+  /**
+   * An already-imported SH monument's translations, refreshed in place — the
+   * item and its attachments are left alone. Only `extra` can change here:
+   * transformShMonumentTranslation already produces name/description/etc.
+   * from the same conversion pipeline a first-time write uses, so a second
+   * run has nothing new to say about them.
+   *
+   * Scoped by this monument's own SH project context, via
+   * getItemTranslationExtraByContext/setItemTranslationExtraByContext — the
+   * same canonical item can carry a translation under another context too
+   * (its own direct project, or Explore), and the unscoped
+   * getItemTranslationExtra/setItemTranslationExtra match ANY row for
+   * (item, language) — which is exactly how ShItemDisplayStatusImporter
+   * clobbered this importer's own rows before #1678.
+   */
+  private async refreshExistingTranslations(
+    group: ShMonumentGroup,
+    itemId: string
+  ): Promise<boolean> {
+    const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', group.project_id);
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    if (!contextId) {
+      return false;
+    }
+
+    let changed = false;
+    for (const translation of group.translations) {
+      const translationResult = transformShMonumentTranslation(translation, group.pd_country);
+      if (!translationResult) continue;
+
+      const languageId = translationResult.data.language_id;
+      const rawExtra = translationResult.data.extra ?? '{}';
+      const wouldBeExtra = sanitizeJsonField(JSON.parse(rawExtra) as Record<string, unknown>);
+      const existingExtra =
+        (await this.context.strategy.getItemTranslationExtraByContext(
+          itemId,
+          languageId,
+          contextId
+        )) ?? {};
+
+      if (jsonValuesEqual(existingExtra, wouldBeExtra)) continue;
+
+      await this.context.strategy.setItemTranslationExtraByContext(
+        itemId,
+        languageId,
+        contextId,
+        rawExtra
+      );
+      changed = true;
+    }
+
+    return changed;
   }
 }
