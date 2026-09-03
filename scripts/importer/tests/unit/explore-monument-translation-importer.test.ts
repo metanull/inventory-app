@@ -133,8 +133,8 @@ describe('ExploreMonumentTranslationImporter', () => {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       writeItemTranslation: writeItemTranslationMock,
-      getItemTranslationExtra: getExtraMock,
-      setItemTranslationExtra: setExtraMock,
+      getItemTranslationExtraByContext: getExtraMock,
+      setItemTranslationExtraByContext: setExtraMock,
       itemTranslationExistsForContext: existsForContextMock,
     } as unknown as IWriteStrategy;
 
@@ -231,6 +231,7 @@ describe('ExploreMonumentTranslationImporter', () => {
       expect(setExtraMock).toHaveBeenCalledWith(
         'canonical-travel-item-uuid',
         'eng',
+        'explore-context-uuid',
         JSON.stringify({ history: 'See more  \nhere' })
       );
       expect(result.success).toBe(true);
@@ -259,6 +260,26 @@ describe('ExploreMonumentTranslationImporter', () => {
       expect(writeItemTranslationMock).not.toHaveBeenCalled();
       expect(setExtraMock).not.toHaveBeenCalled();
       expect(result.imported).toBe(1);
+    });
+
+    it('reads and writes only this context — the resolved item can carry a sibling context\'s row for the same language', async () => {
+      // The same item+language can have a second row under a different
+      // context (e.g. a monument's own project context) — reading/writing
+      // by (item, language) alone, without the context, would read that
+      // sibling's extra as if it were this importer's own, and overwrite it.
+      await new ExploreMonumentTranslationImporter(context).import();
+
+      expect(getExtraMock).toHaveBeenCalledWith(
+        'canonical-travel-item-uuid',
+        'eng',
+        'explore-context-uuid'
+      );
+      expect(setExtraMock).toHaveBeenCalledWith(
+        'canonical-travel-item-uuid',
+        'eng',
+        'explore-context-uuid',
+        expect.any(String)
+      );
     });
   });
 
