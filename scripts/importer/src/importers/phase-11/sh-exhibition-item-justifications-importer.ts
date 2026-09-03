@@ -29,6 +29,7 @@
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
+import { jsonValuesEqual } from '../../utils/json-equal.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 
@@ -220,21 +221,30 @@ export class ShExhibitionItemJustificationsImporter extends BaseImporter {
       return;
     }
 
-    // Sanitised before the comparison, because the sanitised value is what
-    // gets written. Comparing the raw legacy text against the stored text made
-    // this skip every row that needed *only* conversion — the legacy `<br/>`
-    // matched the stored `<br/>`, so "nothing would change" was true of the
-    // comparison and false of the write.
-    const merged = sanitizeJsonField({ ...(existing || {}), ...fields });
+    // `raw` is what's actually sent to setCollectionItemExtra, which
+    // sanitises its own argument as every set*Extra* strategy method does;
+    // sanitising here too, before the call, would double-convert `fields`
+    // and re-convert `existing`'s already-converted content on every write.
+    // `merged` sanitises separately, only to know what the write will
+    // persist, so it can be compared against what's already there — compared
+    // with a key-order-independent check, because comparing the raw legacy
+    // text against the stored text made this skip every row that needed
+    // *only* conversion (the legacy `<br/>` matched the stored `<br/>`, so
+    // "nothing would change" was true of the comparison and false of the
+    // write), and MySQL's JSON column doesn't preserve insertion order either
+    // way, so a plain JSON.stringify comparison rarely converges even once
+    // conversion is accounted for.
+    const raw = { ...(existing || {}), ...fields };
+    const merged = sanitizeJsonField(raw);
 
     // Idempotency: skip the write when nothing would change.
-    if (JSON.stringify(existing || {}) === JSON.stringify(merged)) {
+    if (jsonValuesEqual(existing || {}, merged)) {
       result.skipped++;
       this.showSkipped();
       return;
     }
 
-    await this.context.strategy.setCollectionItemExtra(collectionId, itemId, JSON.stringify(merged));
+    await this.context.strategy.setCollectionItemExtra(collectionId, itemId, JSON.stringify(raw));
     result.imported++;
     this.showProgress();
   }

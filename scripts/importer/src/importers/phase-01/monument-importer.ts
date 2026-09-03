@@ -18,6 +18,7 @@ import type { LegacyMonument, MonumentGroup } from '../../domain/types/index.js'
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
+import { jsonValuesEqual } from '../../utils/json-equal.js';
 import { TagHelper } from '../../helpers/tag-helper.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
 
@@ -312,6 +313,17 @@ export class MonumentImporter extends BaseImporter {
    * can carry both in the same language, and the unscoped
    * setItemTranslationExtra would silently overwrite one context's row with
    * the other's content.
+   *
+   * setItemTranslationExtraByContext sanitises its own `extra` argument —
+   * every set*Extra* strategy method does, as a safety net for callers that
+   * don't. wouldBeExtra sanitises too, but only to know what the write will
+   * actually persist, so it can be compared against what's already there;
+   * the *unsanitised* JSON is what gets passed to the write itself. Sanitising
+   * before the call as well double-converts on every write — invisible for
+   * a plain flag, but progressively mangles prose containing `[`, `_` or
+   * `<br/>` a little further each run, and neither wouldBeExtra nor the
+   * database ever converges, since wouldBeExtra is always the single-pass
+   * value and what got stored was always one pass ahead of it.
    */
   private async refreshExistingMonumentTranslations(
     group: MonumentGroup,
@@ -339,9 +351,8 @@ export class MonumentImporter extends BaseImporter {
       const languageId = translationResult.data.language_id;
       const translationContextId = plan.contextType === 'epm' ? epmContextId! : contextId;
 
-      const wouldBeExtra = translationResult.data.extra
-        ? sanitizeJsonField(JSON.parse(translationResult.data.extra) as Record<string, unknown>)
-        : {};
+      const rawExtra = translationResult.data.extra ?? '{}';
+      const wouldBeExtra = sanitizeJsonField(JSON.parse(rawExtra) as Record<string, unknown>);
       const existingExtra =
         (await this.context.strategy.getItemTranslationExtraByContext(
           itemId,
@@ -349,13 +360,13 @@ export class MonumentImporter extends BaseImporter {
           translationContextId
         )) ?? {};
 
-      if (JSON.stringify(existingExtra) === JSON.stringify(wouldBeExtra)) continue;
+      if (jsonValuesEqual(existingExtra, wouldBeExtra)) continue;
 
       await this.context.strategy.setItemTranslationExtraByContext(
         itemId,
         languageId,
         translationContextId,
-        JSON.stringify(wouldBeExtra)
+        rawExtra
       );
       changed = true;
     }
