@@ -25,6 +25,7 @@ import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
 import { parseExplorePreparedBy } from '../../helpers/explore-prepared-by-parser.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyMonumentText {
@@ -198,42 +199,16 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
           }
 
           const translationBC = `mwnf3_explore:monument:${text.monumentId}:translation:${languageId}`;
-
-          if (await this.entityExistsAsync(translationBC, 'item_translation')) {
-            result.skipped++;
-            this.showSkipped();
-            continue;
-          }
+          const alreadyExists = await this.entityExistsAsync(translationBC, 'item_translation');
 
           const parsedPreparedBy = parseExplorePreparedBy(text.prepared_by);
-          const authorName = parsedPreparedBy?.authorName ?? text.prepared_by?.trim() ?? null;
 
-          // Resolve author roles
-          let authorId: string | null = null;
-          if (authorName) {
-            authorId = await this.authorHelper.findOrCreate(authorName);
-          }
-
-          let textCopyEditorId: string | null = null;
-          if (parsedPreparedBy?.textCopyEditorName) {
-            textCopyEditorId = await this.authorHelper.findOrCreate(
-              parsedPreparedBy.textCopyEditorName
-            );
-          }
-
-          let translatorId: string | null = null;
-          if (parsedPreparedBy?.translatorName) {
-            translatorId = await this.authorHelper.findOrCreate(parsedPreparedBy.translatorName);
-          }
-
-          let translationCopyEditorId: string | null = null;
-          if (parsedPreparedBy?.translationCopyEditorName) {
-            translationCopyEditorId = await this.authorHelper.findOrCreate(
-              parsedPreparedBy.translationCopyEditorName
-            );
-          }
-
-          // Build extra JSON
+          // Build extra JSON — needed whether the row is new or already
+          // exists. writeItemTranslation is a plain INSERT (no upsert), so a
+          // re-run cannot call it a second time for the same row; an
+          // existing row instead gets its extra refreshed directly below,
+          // rather than skipped unconditionally regardless of whether the
+          // legacy row is now converted differently (e.g. HTML→Markdown).
           const extra: Record<string, unknown> = {};
           if (parsedPreparedBy?.preserveRawInExtra && text.prepared_by) {
             extra.prepared_by = text.prepared_by;
@@ -273,6 +248,66 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
               if (fr.url) entry.url = fr.url;
               return entry;
             });
+          }
+
+          if (alreadyExists) {
+            if (this.isDryRun || this.isSampleOnlyMode) {
+              this.logInfo(
+                `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would refresh extra for monument translation ${translationBC}`
+              );
+              result.imported++;
+              this.showProgress();
+              continue;
+            }
+            // Legacy is this importer's sole source for this item/language's
+            // extra, so the freshly-built object fully replaces it — not a
+            // merge — exactly like a first-time write would. Sanitised before
+            // comparing, since that is the form it would be written in.
+            const existingExtra = await this.context.strategy.getItemTranslationExtra(
+              monumentResolution.itemId,
+              languageId
+            );
+            const merged = sanitizeJsonField(extra);
+            if (JSON.stringify(existingExtra ?? {}) === JSON.stringify(merged)) {
+              result.skipped++;
+              this.showSkipped();
+              continue;
+            }
+            await this.context.strategy.setItemTranslationExtra(
+              monumentResolution.itemId,
+              languageId,
+              JSON.stringify(merged)
+            );
+            result.imported++;
+            this.showProgress();
+            continue;
+          }
+
+          const authorName = parsedPreparedBy?.authorName ?? text.prepared_by?.trim() ?? null;
+
+          // Resolve author roles
+          let authorId: string | null = null;
+          if (authorName) {
+            authorId = await this.authorHelper.findOrCreate(authorName);
+          }
+
+          let textCopyEditorId: string | null = null;
+          if (parsedPreparedBy?.textCopyEditorName) {
+            textCopyEditorId = await this.authorHelper.findOrCreate(
+              parsedPreparedBy.textCopyEditorName
+            );
+          }
+
+          let translatorId: string | null = null;
+          if (parsedPreparedBy?.translatorName) {
+            translatorId = await this.authorHelper.findOrCreate(parsedPreparedBy.translatorName);
+          }
+
+          let translationCopyEditorId: string | null = null;
+          if (parsedPreparedBy?.translationCopyEditorName) {
+            translationCopyEditorId = await this.authorHelper.findOrCreate(
+              parsedPreparedBy.translationCopyEditorName
+            );
           }
 
           const extraJson = Object.keys(extra).length > 0 ? JSON.stringify(extra) : null;
