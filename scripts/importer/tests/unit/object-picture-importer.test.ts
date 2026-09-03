@@ -236,4 +236,93 @@ describe('ObjectPictureImporter', () => {
       expect.objectContaining({ name: 'Picture 1' })
     );
   });
+
+  describe('partners whose captions are descriptions', () => {
+    // epm/at/Mus24 wrote art-historical descriptions of the image into
+    // `caption`, where every other partner wrote a short label such as
+    // "Detail". The prose belongs in the translation's `description` only.
+    const mus24Caption =
+      'On fol. 2b-3a, a richly decorated double page illuminates the beginning ' +
+      'of the Diwan. The text, penned in <i>nasta&lsquo;liq</i> script, is ' +
+      'inscribed within white cloud bands before a golden ground.';
+
+    const mus24Row = {
+      project_id: 'epm',
+      country: 'at',
+      museum_id: 'Mus24',
+      number: 1,
+      lang: 'en',
+      type: '',
+      image_number: 1,
+      path: 'objects/epm/at/24/1/1.jpg',
+      caption: mus24Caption,
+      photographer: null,
+      copyright: 'ANL',
+    };
+
+    beforeEach(() => {
+      tracker.set('mwnf3:objects:epm:at:Mus24:1', 'parent-item-uuid', 'item');
+      tracker.set('mwnf3:projects:epm', 'context-uuid', 'context');
+      tracker.set('mwnf3:projects:epm', 'collection-uuid', 'collection');
+      tracker.set('mwnf3:projects:epm', 'project-uuid', 'project');
+      tracker.set('mwnf3:museums:Mus24:at', 'partner-uuid', 'partner');
+
+      queryMock.mockImplementation(async (sql: string) => {
+        if (sql.includes('FROM mwnf3.objects_pictures')) return [mus24Row];
+        if (sql.includes('FROM mwnf3.objects')) return [{ name: 'Diwan of Hafiz' }];
+        return [];
+      });
+    });
+
+    it('leaves alt_text empty and keeps the description, on both the picture and its parent', async () => {
+      const importer = new ObjectPictureImporter(context);
+      const result = await importer.import();
+
+      expect(result.errors).toEqual([]);
+
+      // Image 1 of type '' is the object's first image, so it is written twice:
+      // once on the picture Item, once on the parent Item.
+      expect(writeItemImageMock).toHaveBeenCalledTimes(2);
+      for (const [image] of writeItemImageMock.mock.calls) {
+        expect(image).toMatchObject({ alt_text: null });
+      }
+
+      expect(writeItemTranslationMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: expect.stringContaining('richly decorated double page'),
+        })
+      );
+    });
+
+    it('matches the partner whatever case legacy stores the identifiers in', async () => {
+      queryMock.mockImplementation(async (sql: string) => {
+        if (sql.includes('FROM mwnf3.objects_pictures'))
+          return [{ ...mus24Row, project_id: 'EPM', museum_id: 'MUS24' }];
+        if (sql.includes('FROM mwnf3.objects')) return [{ name: 'Diwan of Hafiz' }];
+        return [];
+      });
+      const importer = new ObjectPictureImporter(context);
+      await importer.import();
+
+      for (const [image] of writeItemImageMock.mock.calls) {
+        expect(image).toMatchObject({ alt_text: null });
+      }
+    });
+
+    it('does not affect other partners, whose captions are genuine labels', async () => {
+      queryMock.mockImplementation(async (sql: string) => {
+        // epm/at/Mus21 — a different museum in the same project and country.
+        if (sql.includes('FROM mwnf3.objects_pictures'))
+          return [{ ...rowWithCaption, caption: 'Detail' }];
+        if (sql.includes('FROM mwnf3.objects')) return [{ name: 'Museum Object Title' }];
+        return [];
+      });
+      const importer = new ObjectPictureImporter(context);
+      await importer.import();
+
+      expect(writeItemImageMock).toHaveBeenCalledWith(
+        expect.objectContaining({ alt_text: 'Detail' })
+      );
+    });
+  });
 });

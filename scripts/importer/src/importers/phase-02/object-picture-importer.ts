@@ -27,6 +27,18 @@ import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
 import { TagHelper } from '../../helpers/tag-helper.js';
 import path from 'path';
 
+/**
+ * Legacy partners that wrote an art-historical description of the image into
+ * `objects_pictures.caption` instead of the short label the column normally
+ * holds. Their caption belongs solely in the picture translation's
+ * `description` — an unbounded, per-language column — and must never be reused
+ * as `alt_text`, which is a short alternative-text label.
+ *
+ * Keyed by project, country and museum: `museum_id` alone is ambiguous, the
+ * same id is reused by unrelated institutions in different countries.
+ */
+const PARTNERS_WHOSE_CAPTIONS_ARE_DESCRIPTIONS: ReadonlySet<string> = new Set(['epm:at:mus24']);
+
 interface PictureGroup {
   project_id: string;
   country: string;
@@ -203,6 +215,11 @@ export class ObjectPictureImporter extends BaseImporter {
     );
     const captionText = bestCaption ? convertHtmlToMarkdown(bestCaption) : null;
 
+    // Where the caption is really a description, leave `alt_text` empty rather
+    // than restating prose the translation's `description` already carries in
+    // every language.
+    const altText = this.captionIsDescription(group) ? null : captionText;
+
     // Determine if this is the first image
     const isFirstImage = group.type === '' && group.image_number === 1;
 
@@ -225,7 +242,7 @@ export class ObjectPictureImporter extends BaseImporter {
       original_name: originalName,
       mime_type: mimeType,
       size: 1, // Fake size as required
-      alt_text: captionText,
+      alt_text: altText,
       display_order: currentDisplayOrder,
     };
     await this.context.strategy.writeItemImage(itemImageData);
@@ -238,7 +255,7 @@ export class ObjectPictureImporter extends BaseImporter {
         original_name: originalName,
         mime_type: mimeType,
         size: 1,
-        alt_text: captionText,
+        alt_text: altText,
         display_order: currentDisplayOrder,
       };
       await this.context.strategy.writeItemImage(parentImageData);
@@ -477,6 +494,11 @@ export class ObjectPictureImporter extends BaseImporter {
       [projectId, country, museumId, number, lang]
     );
     return result.length > 0 ? result[0]!.name : null;
+  }
+
+  private captionIsDescription(group: PictureGroup): boolean {
+    const partner = `${group.project_id}:${group.country}:${group.museum_id}`.toLowerCase();
+    return PARTNERS_WHOSE_CAPTIONS_ARE_DESCRIPTIONS.has(partner);
   }
 
   private pickBestCaption(

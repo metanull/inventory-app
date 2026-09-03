@@ -28,6 +28,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 
@@ -219,7 +220,12 @@ export class ShExhibitionItemJustificationsImporter extends BaseImporter {
       return;
     }
 
-    const merged = { ...(existing || {}), ...fields };
+    // Sanitised before the comparison, because the sanitised value is what
+    // gets written. Comparing the raw legacy text against the stored text made
+    // this skip every row that needed *only* conversion — the legacy `<br/>`
+    // matched the stored `<br/>`, so "nothing would change" was true of the
+    // comparison and false of the write.
+    const merged = sanitizeJsonField({ ...(existing || {}), ...fields });
 
     // Idempotency: skip the write when nothing would change.
     if (JSON.stringify(existing || {}) === JSON.stringify(merged)) {
