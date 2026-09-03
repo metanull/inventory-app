@@ -285,4 +285,101 @@ describe('ExploreMonumentTranslationImporter', () => {
       expect(result.imported).toBe(0);
     });
   });
+
+  describe('resolvedCandidates (one legacy monumentId, several possible target items)', () => {
+    // monumentId 200 has no unambiguous target: a 'vm' reference and a
+    // 'travels' reference both resolve to a real (but different) item, so
+    // ExploreMonumentResolver reports mode 'resolvedCandidates' and every
+    // candidate gets its own write attempt.
+    beforeEach(() => {
+      tracker.set('mwnf3:monuments:BAR:at:Mon5:9', 'vm-candidate-item-uuid', 'item');
+      tracker.set(
+        'mwnf3_travels:monument:IAM:pt:2:I:1:c',
+        'travels-candidate-item-uuid',
+        'item'
+      );
+
+      queryMock.mockImplementation(async (sql: string) => {
+        if (sql.includes('FROM mwnf3_explore.exploremonumentext')) {
+          return [
+            {
+              monumentId: 200,
+              langId: 'en',
+              name: 'Ambiguous monument',
+              description: null,
+              related_bibliography: null,
+              date: null,
+              styles: null,
+              prepared_by: null,
+              how_to_reach: null,
+              info: null,
+              contact: null,
+              history: null,
+              note: null,
+              abstract: null,
+              further_reading: null,
+              url_prog_pdf: null,
+              pdf_text: null,
+              url_prog_doc: null,
+              institution: null,
+              address: null,
+              phone: null,
+              fax: null,
+              email: null,
+              website: null,
+            },
+          ];
+        }
+        if (sql.includes('FROM mwnf3_explore.exploremonument_vm')) {
+          return [
+            {
+              monumentId: 200,
+              REF_monuments_project_id: 'BAR',
+              REF_monuments_country: 'at',
+              REF_monuments_institution_id: 'Mon5',
+              REF_monuments_number: 9,
+            },
+          ];
+        }
+        if (sql.includes('FROM mwnf3_explore.exploremonument_tr')) {
+          return [
+            {
+              monumentId: 200,
+              REF_tr_monuments_project_id: 'IAM',
+              REF_tr_monuments_country: 'pt',
+              REF_tr_monuments_itinerary_id: 'I',
+              REF_tr_monuments_location_id: '1',
+              REF_tr_monuments_number: 'c',
+              REF_tr_monuments_trail_id: 2,
+            },
+          ];
+        }
+        return [];
+      });
+    });
+
+    it('skips a candidate whose target already has a translation for this language/context', async () => {
+      // Simulates: the 'vm' candidate item was already covered (by this run
+      // or an earlier one, via any source) — only the still-uncovered
+      // 'travels' candidate should be written.
+      existsForContextMock.mockImplementation(
+        async (itemId: string) => itemId === 'vm-candidate-item-uuid'
+      );
+
+      const importer = new ExploreMonumentTranslationImporter(context);
+      await importer.import();
+
+      expect(writeItemTranslationMock).toHaveBeenCalledTimes(1);
+      expect(writeItemTranslationMock).toHaveBeenCalledWith(
+        expect.objectContaining({ item_id: 'travels-candidate-item-uuid' })
+      );
+    });
+
+    it('writes every candidate when none is covered yet', async () => {
+      const importer = new ExploreMonumentTranslationImporter(context);
+      await importer.import();
+
+      expect(writeItemTranslationMock).toHaveBeenCalledTimes(2);
+    });
+  });
 });

@@ -156,6 +156,19 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             for (const candidate of monumentResolution.resolvedCandidates ?? []) {
               const candidateTranslationBC = `mwnf3_explore:monument:${text.monumentId}:translation:${languageId2}:${candidate.source}`;
               if (await this.entityExistsAsync(candidateTranslationBC, 'item_translation')) continue;
+              // Same reasoning as the single-target path above: the database's
+              // real uniqueness constraint is (item, language, context), not
+              // this candidate's own BC, and a candidate item can be shared
+              // with another monumentId's (or another candidate's) resolution.
+              if (
+                await this.context.strategy.itemTranslationExistsForContext(
+                  candidate.itemId,
+                  languageId2,
+                  this.exploreContextId
+                )
+              ) {
+                continue;
+              }
               if (!this.isDryRun && !this.isSampleOnlyMode) {
                 await this.context.strategy.writeItemTranslation({
                   item_id: candidate.itemId,
