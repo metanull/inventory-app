@@ -104,6 +104,23 @@ interface ItemThgGalleryRow {
   internal_name: string
 }
 
+/**
+ * Whether any of an item's translation rows — across every context it
+ * carries, not just its "own" one — is stamped
+ * legacy_display_status: 'N' by the importer's SH-specific step.
+ *
+ * The flag is a Sharing History concept and always lives on the item's SH
+ * context row specifically. An item's "own" context (used elsewhere for
+ * content fields) is resolved from its own `project_id`, which for an item
+ * also imported directly under a different project points at that other
+ * context instead — checking only the "own" row there misses the flag
+ * entirely and wrongly treats an HB/HCR-only item as fully public.
+ * Exported for unit tests.
+ */
+export function isHbHcrOnly(rows: Pick<ItemTranslationRow, 'extra'>[]): boolean {
+  return rows.some((r) => (parseJson(r.extra) as Record<string, unknown> | null)?.legacy_display_status === 'N')
+}
+
 export class ItemExporter extends BaseExporter {
   getName(): string {
     return 'Items'
@@ -329,7 +346,7 @@ export class ItemExporter extends BaseExporter {
       // translation output, letting dedicated columns win on collision, and
       // lift the legacy_display_status marker out into items.json instead.
       const extra = ownRow.extra ? (parseJson(ownRow.extra) as Record<string, unknown> | null) : null
-      if (extra?.legacy_display_status === 'N') hbHcrOnlyItems.add(itemId)
+      if (isHbHcrOnly(rows)) hbHcrOnlyItems.add(itemId)
 
       if (!translationMap.has(itemId)) translationMap.set(itemId, {})
       const fields: Record<string, unknown> = {
