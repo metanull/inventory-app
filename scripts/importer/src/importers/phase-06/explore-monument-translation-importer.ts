@@ -272,13 +272,23 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
               this.showProgress();
               continue;
             }
-            // Legacy is this importer's sole source for this item/language's
+            // Legacy is this importer's sole source for THIS context's
             // extra, so the freshly-built object fully replaces it — not a
             // merge — exactly like a first-time write would. Sanitised before
             // comparing, since that is the form it would be written in.
-            const existingExtra = await this.context.strategy.getItemTranslationExtra(
+            //
+            // Scoped by context: the resolved item can carry translations
+            // under other contexts too (a monument's own project context, or
+            // its EPM context) for the very same language — the unscoped
+            // getItemTranslationExtra/setItemTranslationExtra match ANY row
+            // for (item, language), so using them here silently overwrote a
+            // sibling context's extra with this importer's own (sometimes
+            // empty) value. Caught by re-verifying published output against
+            // staging before publishing, not by a passing test suite.
+            const existingExtra = await this.context.strategy.getItemTranslationExtraByContext(
               monumentResolution.itemId,
-              languageId
+              languageId,
+              this.exploreContextId
             );
             const merged = sanitizeJsonField(extra);
             if (JSON.stringify(existingExtra ?? {}) === JSON.stringify(merged)) {
@@ -286,9 +296,10 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
               this.showSkipped();
               continue;
             }
-            await this.context.strategy.setItemTranslationExtra(
+            await this.context.strategy.setItemTranslationExtraByContext(
               monumentResolution.itemId,
               languageId,
+              this.exploreContextId,
               JSON.stringify(merged)
             );
             result.imported++;
