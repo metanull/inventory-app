@@ -283,6 +283,27 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             continue;
           }
 
+          // A different legacy monumentId can legitimately resolve, via
+          // ExploreMonumentResolver's vm/travels/sharing-history
+          // cross-references, to the very same target item — so the
+          // (item, language, context) triple this row would occupy may
+          // already be taken even though this monumentId's own BC never
+          // existed. writeItemTranslation is a plain INSERT, so without this
+          // check that collides on the database's real uniqueness
+          // constraint instead of skipping cleanly. There is deliberately no
+          // attempt to prefer one monumentId's text over another's here —
+          // that is a content-authority decision, not a mechanical fix.
+          const targetAlreadyCovered = await this.context.strategy.itemTranslationExistsForContext(
+            monumentResolution.itemId,
+            languageId,
+            this.exploreContextId
+          );
+          if (targetAlreadyCovered) {
+            result.skipped++;
+            this.showSkipped();
+            continue;
+          }
+
           const authorName = parsedPreparedBy?.authorName ?? text.prepared_by?.trim() ?? null;
 
           // Resolve author roles

@@ -14,6 +14,7 @@ describe('ExploreMonumentTranslationImporter', () => {
   let writeItemTranslationMock: ReturnType<typeof vi.fn>;
   let getExtraMock: ReturnType<typeof vi.fn>;
   let setExtraMock: ReturnType<typeof vi.fn>;
+  let existsForContextMock: ReturnType<typeof vi.fn>;
 
   const logger: ILogger = {
     info: vi.fn(),
@@ -126,6 +127,7 @@ describe('ExploreMonumentTranslationImporter', () => {
     writeItemTranslationMock = vi.fn().mockResolvedValue(undefined);
     getExtraMock = vi.fn().mockResolvedValue(null);
     setExtraMock = vi.fn().mockResolvedValue(undefined);
+    existsForContextMock = vi.fn().mockResolvedValue(false);
 
     strategy = {
       exists: vi.fn().mockResolvedValue(false),
@@ -133,6 +135,7 @@ describe('ExploreMonumentTranslationImporter', () => {
       writeItemTranslation: writeItemTranslationMock,
       getItemTranslationExtra: getExtraMock,
       setItemTranslationExtra: setExtraMock,
+      itemTranslationExistsForContext: existsForContextMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -256,6 +259,30 @@ describe('ExploreMonumentTranslationImporter', () => {
       expect(writeItemTranslationMock).not.toHaveBeenCalled();
       expect(setExtraMock).not.toHaveBeenCalled();
       expect(result.imported).toBe(1);
+    });
+  });
+
+  describe('when a different monumentId already resolved to the same item/language/context', () => {
+    // ExploreMonumentResolver can legitimately map several distinct legacy
+    // monumentIds onto the same target item (vm/travels/sharing-history
+    // cross-references) — this monumentId's own BC never existed, but the
+    // database's real uniqueness constraint (item, language, context) is
+    // already taken by whichever monumentId got there first.
+    it('skips cleanly instead of colliding on the database constraint', async () => {
+      existsForContextMock.mockResolvedValue(true);
+
+      const importer = new ExploreMonumentTranslationImporter(context);
+      const result = await importer.import();
+
+      expect(existsForContextMock).toHaveBeenCalledWith(
+        'canonical-travel-item-uuid',
+        'eng',
+        'explore-context-uuid'
+      );
+      expect(writeItemTranslationMock).not.toHaveBeenCalled();
+      expect(result.success).toBe(true);
+      expect(result.skipped).toBe(1);
+      expect(result.imported).toBe(0);
     });
   });
 });

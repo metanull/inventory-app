@@ -604,6 +604,39 @@ export interface IWriteStrategy {
   setItemTranslationExtra(itemId: string, languageId: string, extra: string): Promise<void>;
 
   /**
+   * Read the extra JSON from an item_translations row, scoped to one
+   * context — unlike getItemTranslationExtra, safe when an item carries more
+   * than one context's translation of the same language.
+   */
+  getItemTranslationExtraByContext(
+    itemId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<Record<string, unknown> | null>;
+
+  /**
+   * Set the extra JSON on an item_translations row, scoped to one context —
+   * unlike setItemTranslationExtra, never touches a sibling context's row.
+   */
+  setItemTranslationExtraByContext(
+    itemId: string,
+    languageId: string,
+    contextId: string,
+    extra: string
+  ): Promise<void>;
+
+  /**
+   * Whether an item_translations row already exists for this exact
+   * (item, language, context) triple — the database's real uniqueness
+   * constraint, independent of any one source record's backward_compatibility.
+   */
+  itemTranslationExistsForContext(
+    itemId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<boolean>;
+
+  /**
    * Read the extra JSON from a collection_item pivot row.
    * Returns null if no matching row or if extra is null.
    */
