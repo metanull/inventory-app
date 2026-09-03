@@ -25,6 +25,7 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import { formatShBackwardCompatibility } from '../../domain/transformers/index.js';
 import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 import { jsonValuesEqual } from '../../utils/json-equal.js';
 
@@ -76,7 +77,7 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
       const itemBackwardCompat = `${SH_SCHEMA}:${table}:${legacy.project_id.toLowerCase()}:${legacy.country.toLowerCase()}:${legacy.number}`;
 
       try {
-        await this.stampItem(itemBackwardCompat, result);
+        await this.stampItem(itemBackwardCompat, legacy.project_id, result);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         result.errors.push(`${itemBackwardCompat}: ${message}`);
@@ -86,7 +87,11 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
     }
   }
 
-  private async stampItem(itemBackwardCompat: string, result: ImportResult): Promise<void> {
+  private async stampItem(
+    itemBackwardCompat: string,
+    projectId: string,
+    result: ImportResult
+  ): Promise<void> {
     const itemId = await this.getEntityUuidAsync(itemBackwardCompat, 'item');
     if (!itemId) {
       this.logWarning(`SH item not found (${itemBackwardCompat}), skipping`);
@@ -104,6 +109,22 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
       return;
     }
 
+    // Scoped to this SH project's own context — the same canonical item can
+    // also carry a translation under a different context (its own direct
+    // project, or Explore), and the unscoped getItemTranslationExtra/
+    // setItemTranslationExtra match ANY row for (item, language), which
+    // silently overwrote that sibling context's extra with this importer's
+    // own value. Confirmed live: an AWE monument that is also imported
+    // directly under its own project lost patrons/architects/notice this way.
+    const contextBackwardCompat = formatShBackwardCompatibility('sh_projects', projectId);
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    if (!contextId) {
+      this.logWarning(`SH project context not found (${contextBackwardCompat}), skipping`);
+      result.skipped++;
+      this.showSkipped();
+      return;
+    }
+
     const languageIds = await this.context.strategy.getItemTranslationLanguages(itemId);
     if (languageIds.length === 0) {
       this.logWarning(`No translations found for ${itemBackwardCompat}`);
@@ -114,14 +135,18 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
 
     let changed = false;
     for (const langId of languageIds) {
-      const existing = await this.context.strategy.getItemTranslationExtra(itemId, langId);
+      const existing = await this.context.strategy.getItemTranslationExtraByContext(
+        itemId,
+        langId,
+        contextId
+      );
 
       // The whole `extra` is written, so the whole `extra` decides. `raw` is
-      // what's actually sent to setItemTranslationExtra, which sanitises its
-      // own argument as every set*Extra* strategy method does; sanitising
-      // here too, before the call, would double-convert on every write —
-      // `merged` sanitises separately, only to know what the write will
-      // persist, so it can be compared against what's already there.
+      // what's actually sent to setItemTranslationExtraByContext, which
+      // sanitises its own argument as every set*Extra* strategy method does;
+      // sanitising here too, before the call, would double-convert on every
+      // write — `merged` sanitises separately, only to know what the write
+      // will persist, so it can be compared against what's already there.
       // Compared with a key-order-independent check: MySQL's JSON column
       // does not preserve insertion order, so `existing`'s keys rarely
       // match a freshly-built object's own order even when every value is
@@ -133,7 +158,12 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
       if (jsonValuesEqual(existing || {}, merged)) {
         continue;
       }
-      await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(raw));
+      await this.context.strategy.setItemTranslationExtraByContext(
+        itemId,
+        langId,
+        contextId,
+        JSON.stringify(raw)
+      );
       changed = true;
     }
 
