@@ -26,6 +26,7 @@
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
 import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
+import { jsonValuesEqual } from '../../utils/json-equal.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 
@@ -115,16 +116,24 @@ export class ShItemDisplayStatusImporter extends BaseImporter {
     for (const langId of languageIds) {
       const existing = await this.context.strategy.getItemTranslationExtra(itemId, langId);
 
-      // The whole `extra` is written, so the whole `extra` decides — and
-      // sanitised, because that is the form it will be written in. Testing the
-      // flag alone skipped rows whose other fields still held legacy HTML.
-      const merged = sanitizeJsonField({ ...(existing || {}), legacy_display_status: 'N' });
+      // The whole `extra` is written, so the whole `extra` decides. `raw` is
+      // what's actually sent to setItemTranslationExtra, which sanitises its
+      // own argument as every set*Extra* strategy method does; sanitising
+      // here too, before the call, would double-convert on every write —
+      // `merged` sanitises separately, only to know what the write will
+      // persist, so it can be compared against what's already there.
+      // Compared with a key-order-independent check: MySQL's JSON column
+      // does not preserve insertion order, so `existing`'s keys rarely
+      // match a freshly-built object's own order even when every value is
+      // identical — a plain JSON.stringify comparison never converges.
+      const raw = { ...(existing || {}), legacy_display_status: 'N' };
+      const merged = sanitizeJsonField(raw);
 
       // Idempotency: skip the write when nothing would change.
-      if (JSON.stringify(existing || {}) === JSON.stringify(merged)) {
+      if (jsonValuesEqual(existing || {}, merged)) {
         continue;
       }
-      await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(merged));
+      await this.context.strategy.setItemTranslationExtra(itemId, langId, JSON.stringify(raw));
       changed = true;
     }
 

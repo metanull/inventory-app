@@ -26,6 +26,7 @@ import type { ImportResult } from '../../core/types.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
 import { parseExplorePreparedBy } from '../../helpers/explore-prepared-by-parser.js';
 import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
+import { jsonValuesEqual } from '../../utils/json-equal.js';
 import { ExploreMonumentResolver } from './explore-monument-resolver.js';
 
 interface LegacyMonumentText {
@@ -274,8 +275,7 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             }
             // Legacy is this importer's sole source for THIS context's
             // extra, so the freshly-built object fully replaces it — not a
-            // merge — exactly like a first-time write would. Sanitised before
-            // comparing, since that is the form it would be written in.
+            // merge — exactly like a first-time write would.
             //
             // Scoped by context: the resolved item can carry translations
             // under other contexts too (a monument's own project context, or
@@ -285,13 +285,21 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
             // sibling context's extra with this importer's own (sometimes
             // empty) value. Caught by re-verifying published output against
             // staging before publishing, not by a passing test suite.
+            //
+            // setItemTranslationExtraByContext sanitises its own `extra`
+            // argument, like every set*Extra* strategy method — a safety net
+            // for callers that don't. `merged` sanitises too, but only to
+            // know what the write will actually persist so it can be
+            // compared against what's already there; the call itself is
+            // given the *unsanitised* JSON, or every write double-converts
+            // and mangles a little further each run instead of converging.
             const existingExtra = await this.context.strategy.getItemTranslationExtraByContext(
               monumentResolution.itemId,
               languageId,
               this.exploreContextId
             );
             const merged = sanitizeJsonField(extra);
-            if (JSON.stringify(existingExtra ?? {}) === JSON.stringify(merged)) {
+            if (jsonValuesEqual(existingExtra ?? {}, merged)) {
               result.skipped++;
               this.showSkipped();
               continue;
@@ -300,7 +308,7 @@ export class ExploreMonumentTranslationImporter extends BaseImporter {
               monumentResolution.itemId,
               languageId,
               this.exploreContextId,
-              JSON.stringify(merged)
+              JSON.stringify(extra)
             );
             result.imported++;
             this.showProgress();

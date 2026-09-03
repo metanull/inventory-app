@@ -228,11 +228,15 @@ describe('ExploreMonumentTranslationImporter', () => {
       const result = await importer.import();
 
       expect(writeItemTranslationMock).not.toHaveBeenCalled();
+      // setItemTranslationExtraByContext sanitises its own argument, so the
+      // importer passes the *raw* extra here, not a pre-sanitised copy —
+      // sanitising both here and inside the strategy method would convert
+      // twice on every write.
       expect(setExtraMock).toHaveBeenCalledWith(
         'canonical-travel-item-uuid',
         'eng',
         'explore-context-uuid',
-        JSON.stringify({ history: 'See more  \nhere' })
+        JSON.stringify({ history: 'See more<br/>here' })
       );
       expect(result.success).toBe(true);
       expect(result.imported).toBe(1);
