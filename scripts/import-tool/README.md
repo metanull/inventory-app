@@ -270,6 +270,41 @@ Set `DRY_RUN=1` to pass `--dry-run` through to `stage`'s `import` and
 `image-sync` steps — nothing is written anywhere. Not available for `ship`'s
 wipe/restore steps.
 
+### Re-running a single importer step
+
+`entrypoint.sh` reads its first argument as a mode (`stage`/`ship`/
+`backup-permissions`) only — it does not forward flags like `--only` to the
+importer CLI. To target one step, bypass the entrypoint and rebuild `stage`
+first if you changed the importer's source (its image `COPY`s `src/` at
+*build* time; the running container never reads the host working tree):
+
+```
+docker compose --profile import build stage
+docker compose --env-file scripts/import-tool/.env --profile import run --rm --entrypoint sh stage -c "cd /opt/import-tool/importer && npx tsx src/cli/import.ts import --only <key>"
+```
+
+**Dependency order matters even for a single targeted step**, and a full
+`stage` run gets it right automatically (via each importer's declared
+`dependencies`) in a way manual `--only` runs do not:
+
+- `sh-exhibition-item` writes `collection_item.extra` as a full replace
+  (`ON DUPLICATE KEY UPDATE extra = VALUES(extra)`) for both exhibition and
+  theme/subtheme pivots. Re-running it *after*
+  `sh-exhibition-item-justifications` wipes the justifications that step
+  just wrote — run `sh-exhibition-item` first, or not at all, when you only
+  meant to touch justifications.
+- `sh-monument`'s refresh (an already-imported monument's translations are
+  recomputed from legacy on every run) also fully replaces `extra`, and its
+  own transformer never sets `legacy_display_status` — that flag belongs to
+  `sh-item-display-status`. Re-running `sh-monument` *after*
+  `sh-item-display-status` silently erases the flag `sh-item-display-status`
+  just stamped. Run `sh-item-display-status` **last** whenever both need a
+  targeted re-run.
+
+Either mistake is silent — no error, no warning, just a value quietly
+missing from the next export. Confirmed only by diffing a fresh export
+against what is actually published, not by staging counts or import logs.
+
 ## Auth restore (`ship`)
 
 `ship` rebuilds the remote app's users/roles/permissions from scratch, then
