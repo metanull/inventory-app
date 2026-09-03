@@ -1743,6 +1743,53 @@ export class SqlWriteStrategy implements IWriteStrategy {
     );
   }
 
+  // item_id + language_id alone is ambiguous whenever an item carries more
+  // than one context's translation of the same language (e.g. a monument's
+  // own project context and its EPM context) — unlike
+  // setItemTranslationExtra, these two never touch a sibling context's row.
+  async getItemTranslationExtraByContext(
+    itemId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<Record<string, unknown> | null> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT extra FROM item_translations WHERE item_id = ? AND language_id = ? AND context_id = ? LIMIT 1`,
+      [itemId, languageId, contextId]
+    );
+    if (rows.length === 0 || !rows[0]?.extra) return null;
+    const raw = rows[0].extra;
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  }
+
+  async setItemTranslationExtraByContext(
+    itemId: string,
+    languageId: string,
+    contextId: string,
+    extra: string
+  ): Promise<void> {
+    await this.db.execute(
+      `UPDATE item_translations SET extra = ?, updated_at = ? WHERE item_id = ? AND language_id = ? AND context_id = ?`,
+      [sanitizeJsonField(extra), this.now, itemId, languageId, contextId]
+    );
+  }
+
+  // The database's actual uniqueness constraint — distinct from checking
+  // existence by backward_compatibility, which is per-source-record and
+  // says nothing when a different source record already claimed the same
+  // (item, language, context) triple (e.g. two legacy Explore monument ids
+  // that both resolve, via cross-reference, to the same canonical item).
+  async itemTranslationExistsForContext(
+    itemId: string,
+    languageId: string,
+    contextId: string
+  ): Promise<boolean> {
+    const [rows] = await this.db.execute<RowDataPacket[]>(
+      `SELECT 1 FROM item_translations WHERE item_id = ? AND language_id = ? AND context_id = ? LIMIT 1`,
+      [itemId, languageId, contextId]
+    );
+    return rows.length > 0;
+  }
+
   async getCollectionItemExtra(
     collectionId: string,
     itemId: string

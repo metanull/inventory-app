@@ -17,6 +17,7 @@ import {
 import type { LegacyMonument, MonumentGroup } from '../../domain/types/index.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
+import { sanitizeJsonField } from '../../utils/html-to-markdown.js';
 import { TagHelper } from '../../helpers/tag-helper.js';
 import { AuthorHelper } from '../../helpers/author-helper.js';
 
@@ -121,9 +122,25 @@ export class MonumentImporter extends BaseImporter {
       this.logWarning(transformed.warning);
     }
 
-    // Check if already imported
-    if (await this.entityExistsAsync(transformed.backwardCompatibility, 'item')) {
-      return false;
+    // Check if already imported. The item itself is never recreated — but its
+    // translations' extra is still refreshed below: writeItemTranslation is a
+    // plain INSERT with no upsert, so a re-run could never otherwise revisit
+    // a row already written, even one whose extra still held legacy HTML that
+    // the conversion pipeline has since learned to handle.
+    const existingItemId = await this.getEntityUuidAsync(
+      transformed.backwardCompatibility,
+      'item'
+    );
+    if (existingItemId) {
+      if (this.isDryRun || this.isSampleOnlyMode) {
+        return false;
+      }
+      return this.refreshExistingMonumentTranslations(
+        group,
+        hasEpmContext,
+        epmContextId,
+        existingItemId
+      );
     }
 
     // Collect sample
@@ -278,5 +295,71 @@ export class MonumentImporter extends BaseImporter {
     await this.context.strategy.attachPartnersToCollection(collectionId, [partnerId], 'project');
 
     return true;
+  }
+
+  /**
+   * An already-imported monument's translations, refreshed in place — the
+   * item, its tags and its collection/partner attachments are left alone.
+   * Only `extra` can change here: name/description/bibliography/etc. are
+   * columns transformMonumentTranslation already produces from the same
+   * `convertHtmlToMarkdown` pipeline used for a first-time write, so a
+   * second run has nothing new to say about them; `extra` is a single JSON
+   * blob assembled from several legacy fields and is exactly what an earlier
+   * version of this importer, or an earlier version of the sanitiser, could
+   * have gotten wrong.
+   *
+   * Scoped by context (own vs EPM), not just item + language: a monument
+   * can carry both in the same language, and the unscoped
+   * setItemTranslationExtra would silently overwrite one context's row with
+   * the other's content.
+   */
+  private async refreshExistingMonumentTranslations(
+    group: MonumentGroup,
+    hasEpmContext: boolean,
+    epmContextId: string | null,
+    itemId: string
+  ): Promise<boolean> {
+    const contextBackwardCompat = formatBackwardCompatibility({
+      schema: 'mwnf3',
+      table: 'projects',
+      pkValues: [group.project_id],
+    });
+    const contextId = await this.getEntityUuidAsync(contextBackwardCompat, 'context');
+    if (!contextId) {
+      return false;
+    }
+
+    let changed = false;
+    const translationPlans = planMonumentTranslations(group, hasEpmContext);
+    for (const plan of translationPlans) {
+      const translation = plan.translation as unknown as LegacyMonument;
+      const translationResult = transformMonumentTranslation(translation, plan.descriptionField);
+      if (!translationResult) continue;
+
+      const languageId = translationResult.data.language_id;
+      const translationContextId = plan.contextType === 'epm' ? epmContextId! : contextId;
+
+      const wouldBeExtra = translationResult.data.extra
+        ? sanitizeJsonField(JSON.parse(translationResult.data.extra) as Record<string, unknown>)
+        : {};
+      const existingExtra =
+        (await this.context.strategy.getItemTranslationExtraByContext(
+          itemId,
+          languageId,
+          translationContextId
+        )) ?? {};
+
+      if (JSON.stringify(existingExtra) === JSON.stringify(wouldBeExtra)) continue;
+
+      await this.context.strategy.setItemTranslationExtraByContext(
+        itemId,
+        languageId,
+        translationContextId,
+        JSON.stringify(wouldBeExtra)
+      );
+      changed = true;
+    }
+
+    return changed;
   }
 }
