@@ -57,8 +57,8 @@ describe('ShItemDisplayStatusImporter', () => {
       exists: vi.fn().mockResolvedValue(false),
       findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
       getItemTranslationLanguages: getLanguagesMock,
-      getItemTranslationExtra: getExtraMock,
-      setItemTranslationExtra: setExtraMock,
+      getItemTranslationExtraByContext: getExtraMock,
+      setItemTranslationExtraByContext: setExtraMock,
     } as unknown as IWriteStrategy;
 
     context = {
@@ -71,6 +71,7 @@ describe('ShItemDisplayStatusImporter', () => {
 
     tracker.set('mwnf3_sharing_history:sh_objects:awe:at:7', 'obj-uuid', 'item');
     tracker.set('mwnf3_sharing_history:sh_monuments:awe:tn:2', 'mon-uuid', 'item');
+    tracker.set('mwnf3_sharing_history:sh_projects:awe', 'awe-context-uuid', 'context');
   });
 
   it('queries only display_status=N rows and stamps every translation language', async () => {
@@ -85,14 +86,17 @@ describe('ShItemDisplayStatusImporter', () => {
 
     // 2 items × 2 languages
     expect(setExtraMock).toHaveBeenCalledTimes(4);
+    expect(getExtraMock).toHaveBeenCalledWith('obj-uuid', 'eng', 'awe-context-uuid');
     expect(setExtraMock).toHaveBeenCalledWith(
       'obj-uuid',
       'eng',
+      'awe-context-uuid',
       JSON.stringify({ legacy_display_status: 'N' })
     );
     expect(setExtraMock).toHaveBeenCalledWith(
       'mon-uuid',
       'fra',
+      'awe-context-uuid',
       JSON.stringify({ legacy_display_status: 'N' })
     );
     expect(result.imported).toBe(2);
@@ -104,9 +108,35 @@ describe('ShItemDisplayStatusImporter', () => {
     const importer = new ShItemDisplayStatusImporter(context);
     await importer.import();
 
-    const extra = JSON.parse(setExtraMock.mock.calls[0][2] as string) as Record<string, unknown>;
+    const extra = JSON.parse(setExtraMock.mock.calls[0][3] as string) as Record<string, unknown>;
     expect(extra.structured_bibliography).toEqual({ eng: 'bib' });
     expect(extra.legacy_display_status).toBe('N');
+  });
+
+  it('skips cleanly when the SH project context is missing', async () => {
+    tracker = new UnifiedTracker();
+    tracker.set('mwnf3_sharing_history:sh_objects:awe:at:7', 'obj-uuid', 'item');
+    tracker.set('mwnf3_sharing_history:sh_monuments:awe:tn:2', 'mon-uuid', 'item');
+    context = { ...context, tracker };
+
+    const importer = new ShItemDisplayStatusImporter(context);
+    const result = await importer.import();
+
+    expect(setExtraMock).not.toHaveBeenCalled();
+    expect(result.success).toBe(true);
+    expect(result.skipped).toBe(2);
+  });
+
+  it('reads and writes only the SH project context — the resolved item can carry a sibling context\'s row for the same language', async () => {
+    const importer = new ShItemDisplayStatusImporter(context);
+    await importer.import();
+
+    for (const call of getExtraMock.mock.calls) {
+      expect(call[2]).toBe('awe-context-uuid');
+    }
+    for (const call of setExtraMock.mock.calls) {
+      expect(call[2]).toBe('awe-context-uuid');
+    }
   });
 
   it('is a no-op on a second run (flag already present)', async () => {
