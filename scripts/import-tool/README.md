@@ -75,11 +75,13 @@ configuration has no route to a production database at all.
 
 ## The import, end to end
 
-The short version is `stage`, then `staging-glossary-sync`, then `ship`. The
-long version below exists because a full run from empty volumes surfaced four
-steps the short version leaves out, every one of which can silently produce a
-staged copy that looks finished and is not. A copy-paste walkthrough of the
-whole thing is at the [bottom of this file](#tldr--the-whole-import-copy-paste).
+The short version is `stage`, then `staging-glossary-sync`, then `ship`, then
+publish the seven data packages and pin them in the seven websites. The long
+version below exists because a full run from empty volumes surfaced four steps
+the short version leaves out, every one of which can silently produce a staged
+copy that looks finished and is not — and because `ship` updates the
+application only; the websites need steps 7 to 9. A copy-paste walkthrough of
+the whole thing is at the [bottom of this file](#tldr--the-whole-import-copy-paste).
 
 ### First: make sure nothing else is importing
 
@@ -201,6 +203,97 @@ Incremental updates are the same two steps: re-`stage`, then re-`ship`. There
 is no partial-push mode, on purpose — a `ship` always rebuilds the deployed
 dataset from the staged copy, so what is deployed is exactly what you reviewed
 locally.
+
+`ship` is where the *application* is up to date. The seven public websites are
+not: each one builds from a published npm package, and nothing above touches a
+package. Three more steps get the new data in front of a visitor.
+
+### 7. Publish the data packages
+
+Each website installs `@metanull/<dataset>-data` from GitHub Packages, and an
+exporter run with `--publish` both exports and publishes — there is no separate
+`npm publish`. The compose `exporter` service forces the staging database into
+its environment, so this reads the copy you just reviewed, whatever
+`scripts/exporters/<dataset>/.env` says.
+
+Two things the command needs that it cannot find on its own:
+
+- **The token.** npm reads a project `.npmrc` from the current directory only,
+  and the publish runs from `output/<dataset>/`, so the repo-root `.npmrc`
+  (gitignored; holds the GitHub Packages token) has to be named explicitly with
+  `NPM_CONFIG_USERCONFIG`. Without it the tarball builds and the publish dies
+  with `ENEEDAUTH`.
+- **The version.** Pass it explicitly with `--package-version`, every time.
+  The auto-increment asks the registry first, but when the registry does not
+  answer it falls back to `output/.version-<dataset>` without failing — a
+  gitignored counter that is per-worktree, is absent in any worktree that has
+  never exported, and is written *before* the publish so a failed run burns
+  the number. Every one of those has produced a "cannot publish over
+  previously published version" refusal at least once. Reading the registry
+  and naming the next patch yourself is deterministic and also repairs the
+  counter for whoever runs next.
+
+```bash
+# What is published now — the only reliable way to read it.
+docker compose --profile tools run --rm --no-deps -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc tools npm view @metanull/<dataset>-data version
+# Export from staging and publish the next patch of it.
+docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter <dataset> --force --publish --package-version <next>
+```
+
+The exporter prints `✓ Published: @metanull/<dataset>-data@<next>` on success;
+confirm by running the first command again. Seven datasets, seven runs;
+publishing only some of them leaves the other websites on the previous import
+with no error anywhere.
+
+If a dataset has never been published from this checkout, check that
+`scripts/exporters/<dataset>/.env` sets `PACKAGE_REPO_URL` before the first
+run: the package's `repository` field is what lets a GitHub Actions token
+install it, and a version published without one cannot be repaired — only
+superseded.
+
+### 8. Pin the new version in each website
+
+Publishing changes nothing that is live. Each website is its own repository
+(`github.com/metanull/<site>`) and pins its data package twice: a caret range
+in `package.json` and an exact version in `package-lock.json`. The deploy runs
+`npm ci` from the lockfile on every push to `main`, so **the lockfile is what
+visitors see**, and the new version reaches a site only when someone moves it.
+Nobody else will: Dependabot cannot authenticate to the `@metanull` scope on
+any site repository, and `main` is PR-only on all seven.
+
+In a checkout of the site, on `main`:
+
+```bash
+npm install @metanull/<site>-data@^<next>
+```
+
+That one command rewrites the range and the lockfile together (four lines:
+spec, version, resolved URL, integrity — nothing else). Then, in order: run
+the site's tests, look at the lockfile diff for anything that resembles a
+token (the resolved URLs are `npm.pkg.github.com` and carry none, but look
+rather than assume), commit both files, push a branch, open the pull request
+and let auto-merge take it when the checks pass. Merging is what deploys —
+the `Deploy` workflow runs on the push to `main`; confirm it with
+`gh run list --workflow deploy.yml` in that repository.
+
+A site whose `npm install` changes nothing did not get a new version: go back
+to step 7 for that dataset rather than assuming it published.
+
+### 9. Record the site commits in this repository
+
+`.new-architecture/` tracks every platform repository as a submodule, so this
+repository records which commit of each website goes with the data it shipped.
+The pointers do not move on their own — an upstream merge is invisible to
+`git status` until you refresh — so after the seven site pull requests merge:
+
+```bash
+git submodule update --remote .new-architecture
+git add .new-architecture
+```
+
+Commit the bump on its own branch and merge it through a pull request like
+anything else. Its diff is the review: seven gitlinks, each moving to the
+commit that pinned the new data.
 
 ## The staging volumes
 
@@ -348,6 +441,8 @@ Everything else is required.
 
 The VPN to the legacy network must be up for steps 2, 3 and 4, and stay up for
 the whole of step 3. Step 8 needs the SSH key instead, and nothing else does.
+Steps 9 to 11 need neither — only the GitHub Packages token in the repo-root
+`.npmrc` and `gh` logged in.
 
 ```powershell
 # ── 0. NOTHING ELSE MAY BE IMPORTING ─────────────────────────────────────────
@@ -435,60 +530,93 @@ docker compose --env-file scripts/import-tool/.env --profile import run --build 
 # ── 9. PUBLISH THE DATA PACKAGES ─────────────────────────────────────────────
 # Shipping updates the application; the websites read published npm packages
 # and step 8 does not touch them. `--publish` exports AND publishes, so these
-# replace step 7's export commands rather than following them.
+# replace step 7's export commands rather than following them. Seven datasets:
+# run the block below once per value of $dataset, in any order.
 #
 # NPM_CONFIG_USERCONFIG is not optional: npm reads a project .npmrc from the
 # current directory only, `npm publish` runs from output/<dataset>/, and
-# without this the tarball is built and the publish dies with ENEEDAUTH. The
+# without it the tarball is built and the publish dies with ENEEDAUTH. The
 # token lives in the gitignored repo-root .npmrc.
 #
-# The version is taken from the registry, so a stale local counter no longer
-# collides. If a publish is still refused with "cannot publish over the
-# previously published versions", read what the registry has:
-#
-#   docker compose --profile tools run --rm --no-deps -w /var/www/app \
-#       -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc \
-#       tools npm view @metanull/<dataset>-data version
-#
-# and pass the next one explicitly with `--package-version x.y.z`. That also
-# repairs the counter, so the runs after it increment on their own again.
-#
-# The counter is written BEFORE the publish, so a failed publish burns the
-# number: read `scripts/exporters/<dataset>/output/.version-<dataset>` before
-# re-running rather than assuming it is where you left it.
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter islamicart --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter baroqueart --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter sharinghistory --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter amulets --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter carpets --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter the-use-of-colours-in-art --force --publish
-docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter water-in-islam --force --publish
+# The version is passed explicitly, every time. The auto-increment falls back
+# to a gitignored per-worktree counter whenever the registry does not answer,
+# and that counter is written before the publish — so a failed run burns the
+# number and a fresh worktree restarts at 1.0.0. Naming the next patch
+# yourself is deterministic and repairs the counter as a side effect.
+$dataset = 'islamicart'     # then: baroqueart, sharinghistory, amulets, carpets, the-use-of-colours-in-art, water-in-islam
 
-# ── 10. LET THE WEBSITES PICK THE NEW DATA UP ────────────────────────────────
-# Publishing changes nothing that is live. Each website pins its data package,
-# Dependabot cannot see the @metanull scope, and a site deploys when its main
-# moves — so the version is bumped by hand, once per site, in
-# .new-architecture/<site>.
-#
-# `npm update` changes package-lock.json, NOT package.json: the pin is a ^range
-# that the new version already satisfies. An unchanged lockfile therefore means
-# npm found nothing newer — check that step 9 actually published, rather than
-# assuming it did. The exporter's counter is the tell: it is written before the
-# publish, so if it has not moved, the command never got that far.
-#
-# Through a pull request, because main is protected:
-#
-#   npm update @metanull/<site>-data
-#   git checkout -b chore/pick-up-rebuilt-data
-#   git commit -am "chore: pick up the data package rebuilt today"
-#   git push -u origin chore/pick-up-rebuilt-data
-#   gh pr create --fill && gh pr merge --squash --delete-branch
-#
-# Merging is what deploys. Confirm with `gh run watch` in that repository.
-#
-# All seven sites carry the `main-requires-pr` ruleset, with an empty bypass
-# list, so a direct push to main is refused for everyone including the owner.
-# Four of them accepted one until 2026-09-02 — the ruleset had simply never
-# been applied when those repositories were created, and GitHub does not copy
-# rulesets from a template.
+# What the registry holds now — the only reliable way to read it.
+$current = docker compose --profile tools run --rm --no-deps -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc tools npm view "@metanull/$dataset-data" version
+$current
+
+# The next patch of it.
+$parts = $current.Trim() -split '\.'; $parts[2] = [int]$parts[2] + 1; $next = $parts -join '.'
+$next
+
+# Export from staging and publish. Ends with: ✓ Published: @metanull/<dataset>-data@<next>
+docker compose run --rm -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc exporter $dataset --force --publish --package-version $next
+
+# Confirm before moving on. Must print $next; if it still prints $current,
+# the publish did not happen and the website will not see anything either.
+docker compose --profile tools run --rm --no-deps -e NPM_CONFIG_USERCONFIG=/var/www/app/.npmrc tools npm view "@metanull/$dataset-data" version
+
+# ── 10. PIN THE NEW VERSION IN EACH WEBSITE ──────────────────────────────────
+# Publishing changes nothing that is live. Each website is its own repository
+# and pins its data package in package.json (^range) AND package-lock.json
+# (exact); the deploy runs `npm ci`, so the lockfile is what visitors see.
+# Nobody moves it for you: Dependabot cannot authenticate to the @metanull
+# scope on any site repository, and main is PR-only on all seven. Run the
+# block below once per site, from a directory where you keep site clones.
+$site = 'islamicart'        # then: baroqueart, sharinghistory, amulets, carpets, the-use-of-colours-in-art, water-in-islam
+$next = '<the version step 9 published for this site>'
+
+# OPTIONAL — first time on this machine only.
+gh repo clone "metanull/$site"
+
+Set-Location $site
+git checkout main
+git pull --ff-only
+git checkout -B "chore/data-$next"
+
+# Rewrites the range and the lockfile together. If `git diff --stat` shows
+# nothing, no newer version exists: back to step 9 for this dataset.
+npm install "@metanull/$site-data@^$next"
+git diff --stat
+
+# The site's own checks, before CI repeats them.
+npm test -- --run
+
+# Belt and braces: resolved URLs carry no credential, but look.
+git diff package-lock.json | Select-String -Pattern '_authToken|ghp_|github_pat'
+
+git add package.json package-lock.json
+git commit -m "chore: data package $next"
+git push -u origin "chore/data-$next"
+gh pr create --fill
+gh pr merge --squash --delete-branch --auto
+
+# Merging is what deploys: the Deploy workflow runs on the push to main.
+# Wait for MERGED, then for the deploy to finish.
+gh pr view "chore/data-$next" --json state --jq .state
+gh run list --workflow deploy.yml --limit 1
+Set-Location ..
+
+# ── 11. RECORD THE SITE COMMITS HERE ─────────────────────────────────────────
+# .new-architecture/ tracks every platform repository as a submodule, so this
+# repository records which commit of each website goes with the data it
+# shipped. Upstream merges are invisible to `git status` until you refresh.
+# Back at the inventory-app repo root, after all seven site PRs have merged:
+git checkout main
+git pull --ff-only
+git checkout -B chore/new-architecture-pointers
+git submodule update --remote .new-architecture
+git add .new-architecture
+
+# Expect seven gitlinks moving (plus any platform package released meanwhile).
+git diff --cached --stat
+
+git commit -m "chore: bump .new-architecture pointers after the re-import"
+git push -u origin chore/new-architecture-pointers
+gh pr create --fill
+gh pr merge --squash --delete-branch --auto
 ```
