@@ -22,6 +22,11 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import {
+  loadGalleryAddresses,
+  localiseLegacyLinks,
+  type GalleryAddress,
+} from '../../utils/legacy-links.js';
 
 /**
  * Legacy theme_i18n structure
@@ -33,6 +38,15 @@ interface LegacyThemeI18n {
   title: string | null;
   quote: string | null;
   presentation: string | null;
+}
+
+function localiseTheme(row: LegacyThemeI18n, address: GalleryAddress | undefined): LegacyThemeI18n {
+  if (!address) return row;
+  return {
+    ...row,
+    quote: row.quote ? localiseLegacyLinks(row.quote, address) : row.quote,
+    presentation: row.presentation ? localiseLegacyLinks(row.presentation, address) : row.presentation,
+  };
 }
 
 export class ThgThemeTranslationImporter extends BaseImporter {
@@ -55,7 +69,13 @@ export class ThgThemeTranslationImporter extends BaseImporter {
 
       this.logInfo(`Found ${translations.length} theme translations to import`);
 
-      for (const legacy of translations) {
+      // The site's own address per gallery, so a link a curator wrote into a
+      // presentation by its legacy absolute address becomes the hash route
+      // the replacing website reaches the same page by.
+      const addresses = await loadGalleryAddresses(this.context.legacyDb);
+
+      for (const row of translations) {
+        const legacy = localiseTheme(row, addresses.get(row.gallery_id));
         try {
           // Get the language ID by its legacy 2-char code (backward_compatibility)
           // Returns the ISO-3 code (e.g., 'en' → 'eng')
