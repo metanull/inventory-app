@@ -32,6 +32,11 @@
 
 import { BaseImporter } from '../../core/base-importer.js';
 import type { ImportResult } from '../../core/types.js';
+import {
+  loadGalleryAddresses,
+  localiseLegacyLinks,
+  type GalleryAddress,
+} from '../../utils/legacy-links.js';
 import { bitToBoolean } from '../../utils/legacy-values.js';
 
 /**
@@ -79,6 +84,8 @@ const GALLERY_BIT_FIELDS = ['has_timeline', 'has_country_timeline'] as const;
 export class ThgGalleryTranslationImporter extends BaseImporter {
   /** gallery_id -> extra fields from thg_gallery */
   private galleryExtraMap: Map<number, LegacyThgGalleryExtra> = new Map();
+  /** gallery_id -> the site's own address, for the links a curator wrote into its texts */
+  private galleryAddresses: Map<number, GalleryAddress> = new Map();
 
   getName(): string {
     return 'ThgGalleryTranslationImporter';
@@ -92,6 +99,7 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
 
       // Load thg_gallery extra fields for preservation in translation.extra
       await this.loadGalleryExtras();
+      this.galleryAddresses = await loadGalleryAddresses(this.context.legacyDb);
 
       // Query translations from legacy database including extra fields
       const translations = await this.context.legacyDb.query<LegacyExhibitionI18n>(
@@ -103,7 +111,12 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
 
       this.logInfo(`Found ${translations.length} gallery translations to import`);
 
-      for (const legacy of translations) {
+      for (const row of translations) {
+        // A link a curator wrote into these texts points at the legacy site by
+        // its absolute address; the website that replaces it reaches the same
+        // page as a hash route. Rewritten here, before the HTML becomes
+        // Markdown, so the package's links work as they are.
+        const legacy = this.localiseLinks(row);
         try {
           // Get the language ID by its legacy 2-char code (backward_compatibility)
           // Returns the ISO-3 code (e.g., 'en' → 'eng')
@@ -219,6 +232,20 @@ export class ThgGalleryTranslationImporter extends BaseImporter {
     }
 
     return result;
+  }
+
+  private localiseLinks(row: LegacyExhibitionI18n): LegacyExhibitionI18n {
+    const address = this.galleryAddresses.get(row.gallery_id);
+    if (!address) return row;
+    const localise = (text: string | null) => (text ? localiseLegacyLinks(text, address) : text);
+    return {
+      ...row,
+      subtitle: localise(row.subtitle),
+      heading: localise(row.heading),
+      about: localise(row.about),
+      exh_img_caption: localise(row.exh_img_caption),
+      popup_logo: localise(row.popup_logo),
+    };
   }
 
   /**

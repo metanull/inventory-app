@@ -48,10 +48,25 @@ translations/
 
 ## manifest.json
 
-As in existing packages: `generatedAt`, `version`, `languages` (union of
-languages present in translation files), plus `site` = the package's site key
-and `kind: "gallery"`. The website derives its offered languages from the
-translation files actually present (baroqueart decision), not the manifest.
+As in existing packages: `generatedAt`, `version`, `languages` (every
+language the gallery collection carries a translation row for), `kind:
+"gallery"`, and `site` — the one thing a website reads before it mounts, now
+that every entity is loaded lazily:
+
+```jsonc
+"site": {
+  "key": "carpets",
+  "languages": [                      // thg_gallery_lang, switcher order, native labels
+    { "code": "ar", "label": "العربية" },
+    { "code": "en", "label": "English" }
+  ],
+  "names": { "en": "Carpets", "ar": "…" }   // the gallery's name per language
+}
+```
+
+The website offers `site.languages` where the item translation files actually
+carry the language (`offeredLanguages()` in viewer-core), and takes its name
+from `site.names`.
 
 ## gallery.json (new)
 

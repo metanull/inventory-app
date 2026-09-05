@@ -84,7 +84,7 @@ files, written to `output/sharinghistory/`:
 
 | File | Exporter | Contents |
 |---|---|---|
-| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) |
+| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) and `site` — the languages the items carry, in switcher order with native labels, and the project name per language: what the website reads before it mounts |
 | `languages.json` | `LanguageExporter` | Language reference data |
 | `countries.json` | `CountryExporter` | Country reference data + translations |
 | `timelines.json` / `timeline_events.json` | `TimelineExporter` | Per-(country × exhibition) SH timelines (+ Permanent Collection timelines with `collection_id: null`), events with images, item links and legacy captions |

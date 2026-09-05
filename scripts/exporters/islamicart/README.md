@@ -40,7 +40,7 @@ files, written to `output/islamicart/`:
 
 | File | Exporter | Contents |
 |---|---|---|
-| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) |
+| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) and `site` — the languages the items carry, in switcher order with native labels, and the project's name per language: what the website reads before it mounts |
 | `languages.json` | `LanguageExporter` | Language reference data |
 | `countries.json` | `CountryExporter` | Country reference data + translations |
 | `dynasties.json` | `DynastyExporter` | Dynasty reference data + translations |

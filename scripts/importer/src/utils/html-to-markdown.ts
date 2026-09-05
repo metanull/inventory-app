@@ -35,14 +35,47 @@ export function convertHtmlToMarkdown(html: string | null | undefined): string {
 
   try {
     // Use Turndown to convert HTML to Markdown
-    const markdown = turndownService.turndown(trimmed);
-    return markdown.trim();
+    const markdown = turndownService.turndown(trimmed).trim();
+    assertMarkdownOnly(markdown);
+    return markdown;
   } catch (error) {
     // Re-throw with more context instead of falling back to unsafe operations
     throw new Error(
       `Failed to convert HTML to Markdown: ${error instanceof Error ? error.message : String(error)}`,
       { cause: error }
     );
+  }
+}
+
+/**
+ * A data package holds Markdown, and every website renders it through one
+ * pipeline that escapes raw HTML on sight. A tag that survives the conversion
+ * would therefore reach a page as the characters it is, on every website at
+ * once — so a leak is a fault of this importer, and it fails the import here
+ * rather than being worked around downstream.
+ *
+ * Read with the Markdown parser the websites render with, not with a pattern:
+ * an autolink (`<https://…>`), an email autolink and a code span are ordinary
+ * Markdown that happen to contain angle brackets.
+ */
+export function containsHtml(text: string | null | undefined): boolean {
+  if (!text || !text.includes('<')) return false;
+  return tokensContainHtml(markdown.lexer(text));
+}
+
+function tokensContainHtml(tokens: Token[] | undefined): boolean {
+  for (const token of tokens ?? []) {
+    if (token.type === 'html') return true;
+    const children = (token as { tokens?: Token[] }).tokens;
+    const items = (token as { items?: Token[] }).items;
+    if (tokensContainHtml(children) || tokensContainHtml(items)) return true;
+  }
+  return false;
+}
+
+export function assertMarkdownOnly(markdown: string, field = 'a text'): void {
+  if (containsHtml(markdown)) {
+    throw new Error(`HTML survived the conversion of ${field} to Markdown: ${markdown.slice(0, 120)}`);
   }
 }
 

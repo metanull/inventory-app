@@ -27,6 +27,11 @@ import { TagHelper } from '../../helpers/tag-helper.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { mapCountryCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown } from '../../utils/html-to-markdown.js';
+import {
+  loadGalleryAddresses,
+  localiseConverted,
+  type GalleryAddress,
+} from '../../utils/legacy-links.js';
 
 interface LegacyExhibitionLogo {
   logo_id: number;
@@ -341,8 +346,18 @@ export function buildExhibitionLogoExtra(
 
 export class ThgGalleryContentImporter extends BaseImporter {
   private galleryCollectionTypes = new Map<number, 'gallery' | 'exhibition'>();
+  /** gallery_id -> the site's own address, for the links a curator wrote into its texts */
+  private galleryAddresses = new Map<number, GalleryAddress>();
   private defaultContextId: string | null = null;
   private tagHelper: TagHelper | null = null;
+
+  /**
+   * A text converted to Markdown with its same-site links turned into the
+   * hash routes the replacing website reaches the same pages by.
+   */
+  private markdownOf(text: string | null | undefined, galleryId: number): string {
+    return localiseConverted(convertHtmlToMarkdown, text, this.galleryAddresses.get(galleryId));
+  }
 
   private getTagHelper(): TagHelper {
     this.tagHelper ??= new TagHelper(
@@ -362,6 +377,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
 
     try {
       await this.loadGalleryCollectionTypes();
+      this.galleryAddresses = await loadGalleryAddresses(this.context.legacyDb);
 
       this.logInfo('Importing exhibition logos as collection images...');
       const logoResult = await this.importExhibitionLogos();
@@ -780,7 +796,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
     const texts: Record<string, string> = {};
     const baseText = trimToNull(content.further_reading);
     if (baseText) {
-      texts[await this.getDefaultLanguageIdAsync()] = convertHtmlToMarkdown(baseText);
+      texts[await this.getDefaultLanguageIdAsync()] = this.markdownOf(baseText, content.gallery_id);
     }
     for (const translation of translations) {
       const text = trimToNull(translation.further_reading);
@@ -794,7 +810,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         );
         continue;
       }
-      texts[languageId] = convertHtmlToMarkdown(text);
+      texts[languageId] = this.markdownOf(text, content.gallery_id);
     }
 
     if (Object.keys(texts).length === 0) {
@@ -1105,7 +1121,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         context_id: this.defaultContextId!,
         backward_compatibility: backwardCompatibility,
         name: convertHtmlToMarkdown(name),
-        description: description ? convertHtmlToMarkdown(description) : null,
+        description: description ? this.markdownOf(description, partner.gallery_id) : null,
         city_display: trimToNull(translation.entity_location),
         contact_website: trimToNull(translation.link),
         contact_phone: trimToNull(translation.contact_phone),
@@ -1182,6 +1198,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         sourceTable: 'exhibition_related_content',
         languageId: null,
         source: content,
+        galleryId: content.gallery_id,
         url: link,
         type: mapContentType(content.type_resource),
         typeRequired: true,
@@ -1200,6 +1217,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         sourceTable: 'exhibition_related_content',
         languageId: null,
         source: content,
+        galleryId: content.gallery_id,
         url: uploadedDocument,
         type: 'document',
         typeRequired: false,
@@ -1242,6 +1260,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         sourceTable: 'exhibition_related_content_i18n',
         languageId,
         source: translation,
+        galleryId: baseContent.gallery_id,
         url: link,
         type: mapContentType(translation.type_resource),
         typeRequired: true,
@@ -1260,6 +1279,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
         sourceTable: 'exhibition_related_content_i18n',
         languageId,
         source: translation,
+        galleryId: baseContent.gallery_id,
         url: uploadedDocument,
         type: 'document',
         typeRequired: false,
@@ -1281,6 +1301,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
     sourceTable: string;
     languageId: string | null;
     source: LegacyExhibitionRelatedContent | LegacyExhibitionRelatedContentI18n;
+    galleryId: number;
     url: string;
     type: 'audio' | 'video' | 'document' | null;
     typeRequired: boolean;
@@ -1324,7 +1345,7 @@ export class ThgGalleryContentImporter extends BaseImporter {
       language_id: parameters.languageId,
       type: resolvedType ?? 'document',
       title: convertHtmlToMarkdown(title),
-      description: description ? convertHtmlToMarkdown(description) : null,
+      description: description ? this.markdownOf(description, parameters.galleryId) : null,
       url: parameters.url,
       display_order: parameters.displayOrder,
       extra: buildExtra({

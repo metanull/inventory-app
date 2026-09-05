@@ -538,6 +538,17 @@ All legacy HTML content is converted to Markdown:
 - Converts lists, headings, and paragraphs
 - Strips unsupported HTML tags
 - Handles malformed HTML gracefully
+- Refuses a result that still holds a tag (`assertMarkdownOnly`): a data
+  package holds Markdown, and every website renders it through one pipeline
+  that escapes raw HTML, so a leak fails the import here rather than reaching
+  a page as the characters it is.
+
+A link a curator wrote into a gallery's or an exhibition's own texts by the
+legacy site's absolute address (`https://exhibitions.museumwnf.org/water_in_islam/en/themes`)
+is rewritten into the hash route the replacing website reaches the same page
+by (`#/themes`), by `localiseLegacyLinks` in `utils/legacy-links.ts`, before
+the conversion. Only a link into the same gallery is touched; the language
+segment is dropped, since the website keeps its language in the query.
 
 ## Extending with API Strategy
 
