@@ -232,6 +232,23 @@ even when they hold nothing (legacy MWNF-384, below). Additions:
 - **`item_count`**: member items held — the count the partners list prints,
   and the reason most partners appear at all. It is legitimately `0` for an
   MWNF-384 partner.
+- **`level` / `parent_id`**: the same curated `partner_group:…` hierarchy the
+  project-scoped exporters read (owner row `level: 'partner'`, member rows'
+  `parent_id` set to the owner), scoped to the gallery's own single native
+  project rather than a project list. `null` for an uncurated partner, and
+  for every partner on a gallery with no native project (43, 45) — there is
+  no project to curate the hierarchy under.
+- **`project_ids`**: the legacy project keys of the member items this
+  partner holds here, resolved the same way `item_count` is derived so the
+  two fields never disagree about which items back them. An MWNF-384
+  partner holds no member item and so has nothing to resolve from; it
+  reports the gallery's own project instead, since that branch means the
+  partner belongs to it regardless.
+
+One shape across every dataset (decision D4, metanull/inventory-app#1699):
+every `partners.json` row carries `level`, `parent_id`, `project_ids`,
+`item_count` and `featured`, so the derivation in viewer-core can read one
+shape regardless of which family exported the package.
 
 Legacy's list (`app/MWNF/SQL/mwnf3/Partners.blade.php`) is a three-branch union,
 and only the first two reduce to "holds a member item". The third (MWNF-384)

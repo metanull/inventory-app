@@ -45,7 +45,7 @@ files, written to `output/islamicart/`:
 | `countries.json` | `CountryExporter` | Country reference data + translations |
 | `dynasties.json` | `DynastyExporter` | Dynasty reference data + translations |
 | `timelines.json` | `TimelineExporter` | Timelines and their events |
-| `partners.json` | `PartnerExporter` | Museums/institutions + translations + images |
+| `partners.json` | `PartnerExporter` | Museums/institutions + translations + images. One shape across every dataset (metanull/inventory-app#1699): `level`/`parent_id`/`project_ids`, plus `item_count`/`featured` |
 | `items.json` | `ItemExporter` | Items (objects/monuments/details), with images, dynasty/tag links, related-item links |
 | `collections.json` | `CollectionExporter` | Collections (exhibitions/themes/galleries), with images and item membership |
 | `glossary.json` | `GlossaryExporter` | Glossary terms + translations |

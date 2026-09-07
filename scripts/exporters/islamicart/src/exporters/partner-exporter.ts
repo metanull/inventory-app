@@ -1,4 +1,11 @@
-import type { ExportResult } from '../core/types.js'
+import type {
+  ExportResult,
+  Partner,
+  PartnerContactPerson,
+  PartnerImage,
+  PartnerLogo,
+  PartnerUrl,
+} from '../core/types.js'
 import { BaseExporter } from './base-exporter.js'
 
 interface PartnerRow {
@@ -26,22 +33,17 @@ interface PartnerTranslationRow {
   extra: unknown
 }
 
-interface ContactPerson {
-  name?: string
-  title?: string
-  phone?: string
-  fax?: string
-  email?: string
-}
-
 // Shape written by the importer's museum/institution transformers into
-// partner_translations.extra. Contact persons and extra URLs are legacy
-// fields on the museum/institution row itself (not per-language), so the
-// same values are duplicated across every language row for a given partner.
+// partner_translations.extra. Contact persons, extra URLs and the portal flag
+// are legacy fields on the museum/institution row itself (not per-language),
+// so the same values are duplicated across every language row for a given
+// partner.
 interface PartnerExtraFields {
-  contact_person_1?: ContactPerson
-  contact_person_2?: ContactPerson
-  urls?: Array<{ url: string; title?: string }>
+  contact_person_1?: PartnerContactPerson
+  contact_person_2?: PartnerContactPerson
+  urls?: PartnerUrl[]
+  /** Legacy `museums.portal_display` / `institutions.portal_display` — 'y' drives the home page featured strip. */
+  portal_display?: string
 }
 
 interface PartnerImageRow {
@@ -70,6 +72,14 @@ interface GroupMembershipRow {
   collection_id: string
   partner_id: string
   level: string | null
+}
+
+// The exported item set this partner shape's item_count sums over mirrors
+// items.json's own scope (type IN ('object', 'monument')) — the count means
+// nothing if it disagrees with what the package actually ships as items.
+interface PartnerItemCountRow {
+  partner_id: string
+  item_count: number
 }
 
 // Legacy tiers, most to least prominent. A partner attached at multiple
@@ -133,7 +143,7 @@ export class PartnerExporter extends BaseExporter {
     const partnerPh = this.placeholders(partnerIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
-    const [translations, images, logos, levels] = await Promise.all([
+    const [translations, images, logos, levels, itemCounts] = await Promise.all([
       this.db.query<PartnerTranslationRow>(
         `SELECT partner_id, language_id, name, description, city_display, address_notes,
                 contact_website, contact_phone, contact_email_general, extra
@@ -170,6 +180,18 @@ export class PartnerExporter extends BaseExporter {
            AND cp.partner_id IN (${partnerPh})`,
         [...this.projectIds, ...partnerIds]
       ),
+      // Same item type/project scope as items.json (ItemExporter) — item_count
+      // is meant to answer "how many of the shipped items does this partner
+      // hold", so it has to agree with that file, not the raw items table.
+      this.db.query<PartnerItemCountRow>(
+        `SELECT partner_id, COUNT(*) AS item_count
+         FROM items
+         WHERE project_id IN (${ph})
+           AND type IN ('object', 'monument')
+           AND partner_id IN (${partnerPh})
+         GROUP BY partner_id`,
+        [...this.projectIds, ...partnerIds]
+      ),
     ])
 
     // project UUID -> legacy project key (e.g. 'ISL', 'EPM'), for project_ids below
@@ -197,10 +219,14 @@ export class PartnerExporter extends BaseExporter {
       [...this.projectIds, ...partnerIds]
     )
 
+    // partner_id -> item_count, defaulting to 0 for a partner holding none.
+    const itemCountMap = new Map(itemCounts.map(r => [r.partner_id, Number(r.item_count)]))
+
     // partner_id -> lang_code -> fields
     const translationMap = new Map<string, Record<string, Record<string, string | null>>>()
-    // partner_id -> contact persons / extra URLs (same across languages, take the first seen)
-    const contactMap = new Map<string, PartnerExtraFields>()
+    // partner_id -> extra JSON fields (contact persons, extra URLs, portal flag)
+    // — same across languages, so the first row seen wins.
+    const extraMap = new Map<string, PartnerExtraFields>()
     for (const t of translations) {
       if (!translationMap.has(t.partner_id)) translationMap.set(t.partner_id, {})
       const code = langCodeMap.get(t.language_id)
@@ -215,15 +241,9 @@ export class PartnerExporter extends BaseExporter {
           email: t.contact_email_general,
         }
       }
-      if (!contactMap.has(t.partner_id) && t.extra) {
+      if (!extraMap.has(t.partner_id) && t.extra) {
         const extra = parseJson<PartnerExtraFields>(t.extra)
-        if (extra && (extra.contact_person_1 || extra.contact_person_2 || extra.urls)) {
-          contactMap.set(t.partner_id, {
-            contact_person_1: extra.contact_person_1,
-            contact_person_2: extra.contact_person_2,
-            urls: extra.urls,
-          })
-        }
+        if (extra) extraMap.set(t.partner_id, extra)
       }
     }
 
@@ -238,16 +258,7 @@ export class PartnerExporter extends BaseExporter {
     await this.writeTranslationFiles('partners', byLang)
 
     // partner_id -> images[]
-    const imageMap = new Map<
-      string,
-      {
-        url: string
-        alt_text: string | null
-        display_order: number
-        photographer: string | null
-        copyright: string | null
-      }[]
-    >()
+    const imageMap = new Map<string, PartnerImage[]>()
     for (const img of images) {
       if (!imageMap.has(img.partner_id)) imageMap.set(img.partner_id, [])
       const extra = img.extra ? parseJson<{ photographer?: string; copyright?: string }>(img.extra) : null
@@ -261,10 +272,7 @@ export class PartnerExporter extends BaseExporter {
     }
 
     // partner_id -> logos[]
-    const logoMap = new Map<
-      string,
-      { url: string; logo_type: string; alt_text: string | null; display_order: number }[]
-    >()
+    const logoMap = new Map<string, PartnerLogo[]>()
     for (const logo of logos) {
       if (!logoMap.has(logo.partner_id)) logoMap.set(logo.partner_id, [])
       logoMap.get(logo.partner_id)!.push({
@@ -309,7 +317,7 @@ export class PartnerExporter extends BaseExporter {
       if (owner && owner !== row.partner_id) parentMap.set(row.partner_id, owner)
     }
 
-    const output = partners.map(p => ({
+    const output: Partner[] = partners.map(p => ({
       id: p.id,
       type: p.type,
       backward_compatibility: p.backward_compatibility,
@@ -319,17 +327,23 @@ export class PartnerExporter extends BaseExporter {
       map_zoom: p.map_zoom,
       monument_item_id: p.monument_item_id,
       level: levelMap.get(p.id) ?? null,
-      project_ids: [...(projectIdsMap.get(p.id) ?? [])],
       parent_id: parentMap.get(p.id) ?? null,
-      contact_person_1: contactMap.get(p.id)?.contact_person_1 ?? null,
-      contact_person_2: contactMap.get(p.id)?.contact_person_2 ?? null,
-      additional_urls: contactMap.get(p.id)?.urls ?? [],
+      project_ids: [...(projectIdsMap.get(p.id) ?? [])],
+      item_count: itemCountMap.get(p.id) ?? 0,
+      // Legacy `showOnPortal`. The home page shows a random subset of the
+      // featured partners, so the package ships the flag and the viewer picks.
+      featured: extraMap.get(p.id)?.portal_display?.toLowerCase() === 'y',
+      contact_person_1: extraMap.get(p.id)?.contact_person_1 ?? null,
+      contact_person_2: extraMap.get(p.id)?.contact_person_2 ?? null,
+      additional_urls: extraMap.get(p.id)?.urls ?? [],
       images: imageMap.get(p.id) ?? [],
       logos: logoMap.get(p.id) ?? [],
     }))
 
     await this.writeJson('partners.json', output)
-    this.logger.success(`partners.json (${output.length} partners)`)
+    this.logger.success(
+      `partners.json (${output.length} partners, ${output.filter(p => p.featured).length} featured)`
+    )
 
     return { file: 'partners.json', count: output.length }
   }
