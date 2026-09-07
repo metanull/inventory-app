@@ -1,4 +1,11 @@
-import type { ExportResult } from '../core/types.js'
+import type {
+  ExportResult,
+  Partner,
+  PartnerContactPerson,
+  PartnerImage,
+  PartnerLogo,
+  PartnerUrl,
+} from '../core/types.js'
 import { BaseExporter } from './base-exporter.js'
 
 interface PartnerRow {
@@ -27,18 +34,10 @@ interface PartnerTranslationRow {
   extra: unknown
 }
 
-interface ContactPerson {
-  name?: string
-  title?: string
-  phone?: string
-  fax?: string
-  email?: string
-}
-
 interface PartnerExtraFields {
-  contact_person_1?: ContactPerson
-  contact_person_2?: ContactPerson
-  urls?: Array<{ url: string; title?: string }>
+  contact_person_1?: PartnerContactPerson
+  contact_person_2?: PartnerContactPerson
+  urls?: PartnerUrl[]
   /** Legacy `museums.portal_display` — 'y' drives the home page featured strip. */
   portal_display?: string
   opening_hours?: string
@@ -59,6 +58,29 @@ interface PartnerLogoRow {
   logo_type: string
   alt_text: string | null
   display_order: number
+}
+
+// The curated legacy hierarchy (partner / associated_partner / minor_contributor,
+// same partner_group:… collections the standalone exporters read) scoped to the
+// exhibition's own single native project — an exhibition has at most one, unlike
+// the project-scoped exporters which can carry several (e.g. ISL + EPM).
+interface PartnerLevelRow {
+  partner_id: string
+  level: string | null
+}
+
+interface GroupMembershipRow {
+  collection_id: string
+  partner_id: string
+  level: string | null
+}
+
+// item_id -> partner_id, for the member items actually held here — used to
+// resolve project_ids via itemProjectKeys the same way item_count is derived,
+// so the two fields never disagree about which items back them.
+interface PartnerHeldItemRow {
+  partner_id: string
+  item_id: string
 }
 
 /**
@@ -168,7 +190,7 @@ export class PartnerExporter extends BaseExporter {
     const partnerPh = this.placeholders(partnerIds.length)
     const langCodeMap = await this.buildLangCodeMap()
 
-    const [translations, images, logos] = await Promise.all([
+    const [translations, images, logos, levels, groupMemberships, heldItems] = await Promise.all([
       this.db.query<PartnerTranslationRow>(
         `SELECT partner_id, language_id, name, description, city_display, address_notes,
                 contact_website, contact_phone, contact_email_general, extra
@@ -189,6 +211,44 @@ export class PartnerExporter extends BaseExporter {
          WHERE partner_id IN (${partnerPh})
          ORDER BY partner_id, display_order`,
         partnerIds
+      ),
+      // level/parent_id: the same curated partner_group:… hierarchy the
+      // standalone (project-scoped) exporters read, scoped to this
+      // exhibition's one native project. Skipped entirely when the
+      // exhibition has none — there is no project to curate the hierarchy under.
+      exhibitionProjectId
+        ? this.db.query<PartnerLevelRow>(
+            `SELECT cp.partner_id, cp.level
+             FROM collection_partner cp
+             JOIN collections c ON c.id = cp.collection_id
+             JOIN projects proj ON proj.context_id = c.context_id
+             WHERE cp.collection_type = 'project'
+               AND cp.visible = true
+               AND proj.id = ?
+               AND cp.partner_id IN (${partnerPh})`,
+            [exhibitionProjectId, ...partnerIds]
+          )
+        : Promise.resolve([] as PartnerLevelRow[]),
+      exhibitionProjectId
+        ? this.db.query<GroupMembershipRow>(
+            `SELECT cp.collection_id, cp.partner_id, cp.level
+             FROM collection_partner cp
+             JOIN collections c ON c.id = cp.collection_id
+             WHERE cp.collection_type = 'collection'
+               AND c.internal_name LIKE 'partner_group:%'
+               AND c.context_id = (SELECT p.context_id FROM projects p WHERE p.id = ?)
+               AND cp.partner_id IN (${partnerPh})`,
+            [exhibitionProjectId, ...partnerIds]
+          )
+        : Promise.resolve([] as GroupMembershipRow[]),
+      // The member items counted into item_count, by partner — resolved to
+      // project_ids via itemProjectKeys below.
+      this.db.query<PartnerHeldItemRow>(
+        `SELECT partner_id, id AS item_id
+         FROM items
+         WHERE partner_id IN (${partnerPh})
+           AND id IN (${itemPh})`,
+        [...partnerIds, ...this.memberItemIds]
       ),
     ])
 
@@ -230,7 +290,7 @@ export class PartnerExporter extends BaseExporter {
     }
     await this.writeTranslationFiles('partners', byLang)
 
-    const imageMap = new Map<string, unknown[]>()
+    const imageMap = new Map<string, PartnerImage[]>()
     for (const image of images) {
       const extra = parseJson<{ photographer?: string; copyright?: string }>(image.extra)
       const entry = {
@@ -245,7 +305,7 @@ export class PartnerExporter extends BaseExporter {
       else imageMap.set(image.partner_id, [entry])
     }
 
-    const logoMap = new Map<string, unknown[]>()
+    const logoMap = new Map<string, PartnerLogo[]>()
     for (const logo of logos) {
       const entry = {
         url: this.imageUrl(logo.path),
@@ -258,8 +318,51 @@ export class PartnerExporter extends BaseExporter {
       else logoMap.set(logo.partner_id, [entry])
     }
 
-    const output = partners.map(partner => {
+    // partner_id -> level (uncurated where the hierarchy has nothing to say)
+    const levelMap = new Map<string, string>()
+    for (const row of levels) {
+      if (row.level) levelMap.set(row.partner_id, row.level)
+    }
+
+    // collection_id -> owner partner_id (the member with level='partner')
+    const groupOwnerMap = new Map<string, string>()
+    for (const row of groupMemberships) {
+      if (row.level === 'partner') groupOwnerMap.set(row.collection_id, row.partner_id)
+    }
+    // partner_id -> parent partner_id (the owner of the group this partner
+    // belongs to, excluding a group it owns itself)
+    const parentMap = new Map<string, string>()
+    for (const row of groupMemberships) {
+      if (row.level === 'partner') continue
+      const owner = groupOwnerMap.get(row.collection_id)
+      if (owner && owner !== row.partner_id) parentMap.set(row.partner_id, owner)
+    }
+
+    // partner_id -> legacy project keys of the member items it holds here
+    // (itemProjectKeys already resolves each item to its OWN project — that's
+    // what "the projects this partner belongs to" means for a partner whose
+    // held items were borrowed from elsewhere, not just the exhibition's own).
+    const projectIdsMap = new Map<string, Set<string>>()
+    for (const row of heldItems) {
+      const key = this.context.itemProjectKeys.get(row.item_id)
+      if (!key) continue
+      if (!projectIdsMap.has(row.partner_id)) projectIdsMap.set(row.partner_id, new Set())
+      projectIdsMap.get(row.partner_id)!.add(key)
+    }
+
+    const output: Partner[] = partners.map(partner => {
       const extra = extraMap.get(partner.id)
+      const itemCount = Number(partner.item_count)
+      const heldProjectKeys = projectIdsMap.get(partner.id)
+      // A partner with no held item here only appears via the MWNF-384
+      // branch, which means it belongs to the exhibition's own project even
+      // though it contributes nothing to project_ids above.
+      const projectIds =
+        heldProjectKeys && heldProjectKeys.size > 0
+          ? [...heldProjectKeys]
+          : itemCount === 0 && this.exhibition.mwnf3ProjectId
+            ? [this.exhibition.mwnf3ProjectId]
+            : []
       return {
         id: partner.id,
         type: partner.type,
@@ -269,12 +372,15 @@ export class PartnerExporter extends BaseExporter {
         longitude: partner.longitude !== null ? parseFloat(partner.longitude) : null,
         map_zoom: partner.map_zoom,
         monument_item_id: partner.monument_item_id,
+        level: levelMap.get(partner.id) ?? null,
+        parent_id: parentMap.get(partner.id) ?? null,
+        project_ids: projectIds,
+        // Member items held here — the count the partners list prints, and the
+        // reason a partner appears at all.
+        item_count: itemCount,
         // Legacy `showOnPortal`. The home page shows a random subset of the
         // featured partners, so the package ships the flag and the viewer picks.
         featured: extra?.portal_display?.toLowerCase() === 'y',
-        // Member items held here — the count the partners list prints, and the
-        // reason a partner appears at all.
-        item_count: Number(partner.item_count),
         contact_person_1: extra?.contact_person_1 ?? null,
         contact_person_2: extra?.contact_person_2 ?? null,
         additional_urls: extra?.urls ?? [],
