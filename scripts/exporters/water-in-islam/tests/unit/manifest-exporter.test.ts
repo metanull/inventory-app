@@ -66,10 +66,37 @@ describe('ManifestExporter', () => {
 
     await exporter.export()
 
-    const manifest = written[0] as { site: { key: string; languages: unknown[]; names: unknown }; languages: string[] }
+    const manifest = written[0] as {
+      site: { key: string; languages: unknown[]; names: unknown }
+      languages: string[]
+      rights: { rights_holder: string; terms_url: string; attribution: string }
+    }
     expect(manifest.languages).toEqual(['de', 'en'])
     expect(manifest.site.key).toBe('water-in-islam')
     expect(manifest.site.languages).toEqual([{ code: 'en', label: 'English' }])
     expect(manifest.site.names).toEqual({ en: 'Water in Islam', de: 'Wasser im Islam' })
+  })
+
+  // Story #1690: the site's "Source: <origin><path>" credit is composed from
+  // this block, so the field names are a contract with viewer-core#79 — not
+  // free to rename.
+  it('carries the MWNF rights block', async () => {
+    const context = contextWith({ languages: [], translations: [], labels: [] })
+    const exporter = new ManifestExporter(context)
+    const written: unknown[] = []
+    vi.spyOn(exporter as unknown as { writeJson: (f: string, d: unknown) => Promise<void> }, 'writeJson').mockImplementation(
+      async (_file, data) => {
+        written.push(data)
+      }
+    )
+
+    await exporter.export()
+
+    const manifest = written[0] as { rights: { rights_holder: string; terms_url: string; attribution: string } }
+    expect(manifest.rights).toEqual({
+      rights_holder: 'Museum Ohne Grenzen e.V. (Museum With No Frontiers)',
+      terms_url: 'https://www.museumwnf.org/about/legal-notice',
+      attribution: 'Content © Museum With No Frontiers, used under the MWNF legal notice.',
+    })
   })
 })

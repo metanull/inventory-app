@@ -261,6 +261,9 @@ program
             )
             console.log(chalk.green('  ✓ Generated: README.md'))
 
+            publishManager.writeLicense()
+            console.log(chalk.green('  ✓ Generated: LICENSE.md'))
+
             console.log('')
             publishManager.publish()
             console.log(chalk.green(`  ✓ Published: ${PACKAGE_NAME}@${nextVersion}`))

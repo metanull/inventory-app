@@ -57,6 +57,13 @@ export class ManifestExporter extends BaseExporter {
     const manifest = {
       generatedAt: new Date().toISOString(),
       version: '1.0.0',
+      // Keep in sync with scripts/exporters/docs/LICENSE.md.template, the
+      // canonical text this quotes (viewer-core#79 reads manifest.rights).
+      rights: {
+        rights_holder: 'Museum Ohne Grenzen e.V. (Museum With No Frontiers)',
+        terms_url: 'https://www.museumwnf.org/about/legal-notice',
+        attribution: 'Content © Museum With No Frontiers, used under the MWNF legal notice.',
+      },
       site: {
         key: 'carpets',
         languages: await this.siteLanguages(languageIds, langCodeMap),
