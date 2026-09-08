@@ -182,3 +182,15 @@ the collection* above and `planTranslations` in
 
 [`tools/VALIDATION-2026-08-29.md`](tools/VALIDATION-2026-08-29.md) records the
 export checked metric by metric against the live legacy API.
+
+## Licence
+
+The published package is Content of the MWNF Website under the
+[MWNF legal notice](https://www.museumwnf.org/about/legal-notice) (story
+metanull/inventory-app#1690): `package.json`'s `license` defaults to
+`SEE LICENSE IN LICENSE.md` (override with `PACKAGE_LICENSE`), the notice
+text itself ships as `LICENSE.md` — a copy of the single shared
+`scripts/exporters/docs/LICENSE.md.template` all seven exporters copy from,
+so the terms cannot drift between packages — and `manifest.json` carries a
+`rights` block (`rights_holder`, `terms_url`, `attribution`) a consuming
+website reads to render a source credit.

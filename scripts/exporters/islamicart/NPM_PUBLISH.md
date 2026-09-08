@@ -48,6 +48,7 @@ The published package is the output directory itself:
 output/islamicart/
 ├── package.json          ← generated on every --publish run
 ├── README.md             ← generated consumer usage guide
+├── LICENSE.md            ← copy of docs/LICENSE.md.template (the MWNF legal notice)
 ├── manifest.json
 ├── items.json, collections.json, partners.json, …   (see README.md)
 └── translations/
@@ -57,6 +58,9 @@ output/islamicart/
 The `files` allow-list in the generated `package.json` restricts the publish
 to `*.json`, `translations/*.json` and `README.md` — the `.json.gz`
 companions written by the export stay local and are never published.
+
+npm includes `LICENSE.md` in the tarball automatically — it is not, and does
+not need to be, in the `files` allow-list.
 
 ## Package metadata
 
@@ -72,6 +76,9 @@ The generated `package.json` carries:
   `PACKAGE_REPO_URL` set: without a `repository` field, consumers
   authenticating with a GitHub Actions `GITHUB_TOKEN` cannot install the
   version, and already-published versions cannot be fixed retroactively.
+- **license default** — `SEE LICENSE IN LICENSE.md`, not `UNLICENSED`: the MWNF
+  legal notice permits non-commercial/educational use, which `UNLICENSED`
+  (all rights reserved) would contradict. `PACKAGE_LICENSE` still overrides it.
 
 ## GitHub Packages authentication
 

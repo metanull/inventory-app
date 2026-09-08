@@ -1,6 +1,14 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { spawnSync } from 'child_process'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
 import { Logger } from './logger.js'
+
+// Single source of truth for every exporter's LICENSE.md — kept once so the
+// seven packages (and the `rights` block each ManifestExporter writes) cannot
+// drift from each other. Path is relative to this file's own location, not
+// to outputDir, so it resolves the same way regardless of --output-dir.
+const LICENSE_TEMPLATE_PATH = resolve(dirname(fileURLToPath(import.meta.url)), '../../../docs/LICENSE.md.template')
 
 export interface PublishConfig {
   outputDir: string
@@ -139,7 +147,12 @@ export class PublishManager {
       type: 'module',
       private: false,
       description: `Static data export for ${this.config.projectKeys.join(', ')}`,
-      license: this.config.license ?? 'UNLICENSED',
+      // 'UNLICENSED' would mean "all rights reserved, no permission granted",
+      // which contradicts the MWNF legal notice (non-commercial/educational
+      // use is permitted). No SPDX identifier matches the notice's terms, so
+      // this is the registry-sanctioned encoding for custom terms — see
+      // LICENSE.md, copied into the package by writeLicense() below.
+      license: this.config.license ?? 'SEE LICENSE IN LICENSE.md',
       main: './manifest.json',
       exports: {
         '.': './manifest.json',
@@ -198,7 +211,26 @@ Each has a per-language translation file under \`translations/{entity}.{lang}.js
 legacy "Special Features") are embedded as \`details[]\` on their parent
 monument; a detail's texts live in \`translations/items.{lang}.json\` keyed by
 the detail's \`id\`, alongside the item texts.
+
+## Terms of use
+
+This data is Content of the MWNF Website under the
+[MWNF legal notice](https://www.museumwnf.org/about/legal-notice), which
+governs its use (non-commercial, personal, educational and scientific use is
+permitted, with attribution and mandatory reporting — see the notice for the
+full terms). The notice text also ships in this package as \`LICENSE.md\`.
 `
+  }
+
+  /**
+   * Copy the shared MWNF licence template into the package output as
+   * LICENSE.md. npm includes LICENSE.md in a published tarball automatically
+   * (it does not need to be added to the `files` allow-list above), so this
+   * only needs to land the file in outputDir before publish() runs.
+   */
+  writeLicense(): void {
+    const template = readFileSync(LICENSE_TEMPLATE_PATH, 'utf-8')
+    writeFileSync(resolve(this.config.outputDir, 'LICENSE.md'), template, 'utf-8')
   }
 
   /**

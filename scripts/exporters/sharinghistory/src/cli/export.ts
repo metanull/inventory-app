@@ -219,6 +219,9 @@ program
             writeFileSync(readmePath, readmeContent, 'utf-8')
             console.log(chalk.green(`  ✓ Generated: README.md`))
 
+            publishManager.writeLicense()
+            console.log(chalk.green(`  ✓ Generated: LICENSE.md`))
+
             console.log('')
             publishManager.publish()
             console.log(chalk.green(`  ✓ Published: ${packageName}@${nextVersion}`))

@@ -103,6 +103,21 @@ Exhibitions whose legacy `show` flag is `'n'` (preserved in
 `collection_translations.extra.legacy_exhibition.show`) are excluded from the
 package, as the legacy sites never listed them.
 
+## Licence (story #1690)
+
+Every published package carries the MWNF legal notice, not `UNLICENSED`: the
+notice permits non-commercial/educational use, which `UNLICENSED` (all rights
+reserved) would contradict, and no SPDX identifier matches its actual terms.
+[`docs/LICENSE.md.template`](docs/LICENSE.md.template) is the single source of
+that text — each exporter's `PublishManager.writeLicense()` copies it verbatim
+into the package as `LICENSE.md` on every `--publish` run, and
+`generatePackageJson()` defaults `license` to `SEE LICENSE IN LICENSE.md`
+(override with `PACKAGE_LICENSE`). `manifest.json` additionally carries a
+`rights` block (`rights_holder`, `terms_url`, `attribution`) that a website
+reads to render a source credit (viewer-core#79). A test per exporter checks
+the generated `LICENSE.md` against the template so the seven packages cannot
+drift apart.
+
 ## Running an export
 
 The supported way is the `exporter` service in the repo-root `compose.yml`,

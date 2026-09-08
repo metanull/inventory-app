@@ -47,6 +47,7 @@ The published package is the output directory itself:
 output/the-use-of-colours-in-art/
 ├── package.json          ← generated on every --publish run
 ├── README.md             ← generated consumer usage guide
+├── LICENSE.md            ← copy of docs/LICENSE.md.template (the MWNF legal notice)
 ├── manifest.json
 ├── exhibition.json, themes.json, items.json, tags.json, partners.json, …   (see README.md)
 └── translations/
@@ -56,6 +57,9 @@ output/the-use-of-colours-in-art/
 The `files` allow-list in the generated `package.json` restricts the publish to
 `*.json`, `translations/*.json` and `README.md` — the `.json.gz` companions
 written by the export stay local and are never published.
+
+npm includes `LICENSE.md` in the tarball automatically — it is not, and does
+not need to be, in the `files` allow-list.
 
 ## Package metadata
 
@@ -71,6 +75,9 @@ The generated `package.json` carries:
   `repository` field, consumers authenticating with a GitHub Actions
   `GITHUB_TOKEN` cannot install the version, and already-published versions
   cannot be fixed retroactively.
+- **license default** — `SEE LICENSE IN LICENSE.md`, not `UNLICENSED`: the MWNF
+  legal notice permits non-commercial/educational use, which `UNLICENSED`
+  (all rights reserved) would contradict. `PACKAGE_LICENSE` still overrides it.
 
 ## GitHub Packages authentication
 

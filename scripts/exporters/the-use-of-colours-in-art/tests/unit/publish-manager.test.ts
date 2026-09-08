@@ -1,6 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'child_process'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
@@ -111,5 +112,59 @@ describe('setting a version explicitly', () => {
 
   it('refuses something that is not a version', () => {
     expect(() => manager('1.0.0').publisher.setVersion('latest')).toThrow(/Invalid version/)
+  })
+})
+
+/**
+ * The MWNF legal notice permits non-commercial/educational use, which
+ * 'UNLICENSED' (all rights reserved) contradicts, see story #1690. No SPDX
+ * identifier matches the notice's actual terms, so 'SEE LICENSE IN
+ * LICENSE.md' is the encoding, and the file it points at must actually ship.
+ */
+describe('licence', () => {
+  const templatePath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../docs/LICENSE.md.template')
+
+  it('defaults package.json license to the custom-terms marker', () => {
+    const { publisher } = manager('1.0.0')
+    expect(publisher.generatePackageJson('1.0.1')['license']).toBe('SEE LICENSE IN LICENSE.md')
+  })
+
+  it('still honours an explicit PACKAGE_LICENSE override', () => {
+    const versionFile = join(mkdtempSync(join(tmpdir(), 'publish-')), '.version-the-use-of-colours-in-art')
+    const publisher = new PublishManager({
+      outputDir: '.',
+      versionFile,
+      packageName: '@metanull/the-use-of-colours-in-art-data',
+      projectKeys: ['the-use-of-colours-in-art'],
+      logger: new Logger('test'),
+      license: 'MIT',
+    })
+    expect(publisher.generatePackageJson('1.0.1')['license']).toBe('MIT')
+  })
+
+  it('generates a README with a Terms of use section linking the notice', () => {
+    const { publisher } = manager('1.0.0')
+    const readme = publisher.generateReadme('@metanull/the-use-of-colours-in-art-data')
+    expect(readme).toContain('## Terms of use')
+    expect(readme).toContain('https://www.museumwnf.org/about/legal-notice')
+  })
+
+  it('writes LICENSE.md as an exact copy of the shared template', () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'publish-output-'))
+    const versionFile = join(mkdtempSync(join(tmpdir(), 'publish-')), '.version-the-use-of-colours-in-art')
+    const publisher = new PublishManager({
+      outputDir,
+      versionFile,
+      packageName: '@metanull/the-use-of-colours-in-art-data',
+      projectKeys: ['the-use-of-colours-in-art'],
+      logger: new Logger('test'),
+    })
+
+    publisher.writeLicense()
+
+    const written = readFileSync(join(outputDir, 'LICENSE.md'), 'utf-8')
+    const template = readFileSync(templatePath, 'utf-8')
+    expect(written).toBe(template)
+    expect(written).toContain('https://www.museumwnf.org/about/legal-notice')
   })
 })
