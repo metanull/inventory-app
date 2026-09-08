@@ -635,6 +635,10 @@ describe('TimelineImporter BAR timeline import (Step 5)', () => {
     tracker.set('en', 'eng', 'language');
     tracker.set('pt', 'por', 'language');
     tracker.set('mwnf3:projects:BAR', 'bar-collection-uuid', 'collection');
+    // A BAR item is required for the country to enter Step 5's barCountries set
+    // at all — without one, this test would only ever exercise Step 1 (the
+    // plain mwnf3 timeline), never the BAR-specific path it claims to cover.
+    tracker.set('mwnf3:objects:BAR:pt:Mus11_A:13', 'item-uuid-obj', 'item');
 
     const hcrEventTranslation = {
       hcr_id: 101,
@@ -654,7 +658,9 @@ describe('TimelineImporter BAR timeline import (Step 5)', () => {
           return [hcrEventTranslation];
         }
         if (sql.includes('mwnf3_sharing_history')) return [];
-        if (sql.includes("project_id = 'BAR'") && sql.includes('museum_id')) return [];
+        if (sql.includes("project_id = 'BAR'") && sql.includes('museum_id')) {
+          return [BAR_OBJECT_ROW];
+        }
         if (sql.includes("project_id = 'BAR'") && sql.includes('institution_id')) return [];
         return [];
       }) as ILegacyDatabase['query'],
@@ -695,8 +701,165 @@ describe('TimelineImporter BAR timeline import (Step 5)', () => {
         timeline_event_id: 'bar-event-uuid',
         language_id: 'eng',
         name: 'Portugal Renaissance',
+        // The BAR translation must get its own backward_compatibility, namespaced
+        // separately from the mwnf3 event's translation for the same hcr_id/lang
+        // (mwnf3:hcr_events:101:en) — otherwise SqlStrategy derives the same id
+        // for both and the BAR insert is rejected as a duplicate primary key.
+        backward_compatibility: 'mwnf3:hcr_events:bar:101:en',
       })
     );
+  });
+
+  it('re-run: creates the missing translation for a BAR event that already exists', async () => {
+    const tracker = new UnifiedTracker();
+    tracker.setMetadata('default_language_id', 'eng');
+    tracker.set('en', 'eng', 'language');
+    tracker.set('mwnf3:projects:BAR', 'bar-collection-uuid', 'collection');
+    // Simulate a previous run: the BAR timeline and event already exist (created
+    // before this fix), but their translation never landed because of the id
+    // collision — it must not be skipped just because the event already exists.
+    tracker.set('mwnf3:hcr:bar:country:pt', 'existing-bar-timeline-uuid', 'timeline');
+    tracker.set('mwnf3:hcr:bar:101', 'existing-bar-event-uuid', 'timeline_event');
+
+    const hcrEventTranslation = {
+      hcr_id: 101,
+      lang_id: 'en',
+      name: 'Portugal Renaissance',
+      description: 'Baroque art period',
+      datedesc_ah: null,
+      datedesc_ad: '1500-1800',
+    };
+
+    const legacyDb: ILegacyDatabase = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes('FROM mwnf3.hcr ORDER BY') && !sql.includes('BAR')) {
+          return [HCR_PT_1500_1800];
+        }
+        if (sql.includes('FROM mwnf3.hcr_events')) {
+          return [hcrEventTranslation];
+        }
+        if (sql.includes('mwnf3_sharing_history')) return [];
+        // A BAR object is still needed so the country is processed
+        if (sql.includes("project_id = 'BAR'") && sql.includes('museum_id')) {
+          return [BAR_OBJECT_ROW];
+        }
+        if (sql.includes("project_id = 'BAR'") && sql.includes('institution_id')) return [];
+        return [];
+      }) as ILegacyDatabase['query'],
+      execute: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    };
+
+    const strategy = {
+      writeTimeline: vi.fn(),
+      writeTimelineEvent: vi.fn(),
+      writeTimelineEventTranslation: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventItem: vi.fn(),
+      writeTimelineEventImage: vi.fn().mockResolvedValue('img-uuid'),
+      updateTimelineExtra: vi.fn(),
+      // Nothing found in the DB either (the tracker already has the event/timeline);
+      // the translation itself does not exist yet, so `exists` must return false
+      // only for the translation lookup — the event/timeline checks are served by the tracker.
+      exists: vi.fn().mockResolvedValue(false),
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+    } as unknown as IWriteStrategy;
+
+    const logger: ILogger = {
+      info: vi.fn(),
+      warning: vi.fn(),
+      skip: vi.fn(),
+      error: vi.fn(),
+      exception: vi.fn(),
+      showProgress: vi.fn(),
+      showSkipped: vi.fn(),
+      showError: vi.fn(),
+      showSummary: vi.fn(),
+    };
+
+    const ctx: ImportContext = { legacyDb, strategy, tracker, logger, dryRun: false };
+    const importer = new TimelineImporter(ctx);
+    await importer.import();
+
+    // The event must NOT be re-created (it already exists)...
+    expect(strategy.writeTimelineEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ backward_compatibility: 'mwnf3:hcr:bar:101' })
+    );
+    // ...but the missing translation must be created against the existing event UUID.
+    expect(strategy.writeTimelineEventTranslation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        timeline_event_id: 'existing-bar-event-uuid',
+        backward_compatibility: 'mwnf3:hcr_events:bar:101:en',
+      })
+    );
+  });
+
+  it('re-run: does not recreate a BAR translation that already exists', async () => {
+    const tracker = new UnifiedTracker();
+    tracker.setMetadata('default_language_id', 'eng');
+    tracker.set('en', 'eng', 'language');
+    tracker.set('mwnf3:projects:BAR', 'bar-collection-uuid', 'collection');
+    tracker.set('mwnf3:hcr:bar:country:pt', 'existing-bar-timeline-uuid', 'timeline');
+    tracker.set('mwnf3:hcr:bar:101', 'existing-bar-event-uuid', 'timeline_event');
+
+    const hcrEventTranslation = {
+      hcr_id: 101,
+      lang_id: 'en',
+      name: 'Portugal Renaissance',
+      description: 'Baroque art period',
+      datedesc_ah: null,
+      datedesc_ad: '1500-1800',
+    };
+
+    const legacyDb: ILegacyDatabase = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes('FROM mwnf3.hcr ORDER BY') && !sql.includes('BAR')) {
+          return [HCR_PT_1500_1800];
+        }
+        if (sql.includes('FROM mwnf3.hcr_events')) {
+          return [hcrEventTranslation];
+        }
+        if (sql.includes('mwnf3_sharing_history')) return [];
+        if (sql.includes("project_id = 'BAR'") && sql.includes('museum_id')) {
+          return [BAR_OBJECT_ROW];
+        }
+        if (sql.includes("project_id = 'BAR'") && sql.includes('institution_id')) return [];
+        return [];
+      }) as ILegacyDatabase['query'],
+      execute: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    };
+
+    const strategy = {
+      writeTimeline: vi.fn(),
+      writeTimelineEvent: vi.fn(),
+      writeTimelineEventTranslation: vi.fn().mockResolvedValue(undefined),
+      writeTimelineEventItem: vi.fn(),
+      writeTimelineEventImage: vi.fn().mockResolvedValue('img-uuid'),
+      updateTimelineExtra: vi.fn(),
+      // The translation already exists (this time it landed fine on the prior run).
+      exists: vi.fn().mockResolvedValue(true),
+      findByBackwardCompatibility: vi.fn().mockResolvedValue(null),
+    } as unknown as IWriteStrategy;
+
+    const logger: ILogger = {
+      info: vi.fn(),
+      warning: vi.fn(),
+      skip: vi.fn(),
+      error: vi.fn(),
+      exception: vi.fn(),
+      showProgress: vi.fn(),
+      showSkipped: vi.fn(),
+      showError: vi.fn(),
+      showSummary: vi.fn(),
+    };
+
+    const ctx: ImportContext = { legacyDb, strategy, tracker, logger, dryRun: false };
+    const importer = new TimelineImporter(ctx);
+    await importer.import();
+
+    expect(strategy.writeTimelineEventTranslation).not.toHaveBeenCalled();
   });
 
   it('existing mwnf3 generic timelines (Step 1) are not affected by BAR import', async () => {

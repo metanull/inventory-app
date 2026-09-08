@@ -58,11 +58,21 @@ export function transformHcrEvent(legacy: LegacyHcr): TransformedTimelineEvent {
 /**
  * Transform a legacy mwnf3 hcr_events row into TimelineEventTranslation data.
  * The timeline_event_id and language_id (ISO-3) are resolved by the importer.
+ *
+ * `backwardCompatibilityPrefix` lets a caller that copies the parent `mwnf3.hcr`
+ * row under a second key (the Baroque Art timeline step copies it under
+ * `mwnf3:hcr:bar:<hcr_id>`) give the translation its own namespaced key too.
+ * SqlStrategy.writeTimelineEventTranslation derives the row's id deterministically
+ * from this key plus the language, so leaving it at the default `mwnf3:hcr_events`
+ * prefix for a second copy of the same hcr_id/lang would collide with the id
+ * already used by the original mwnf3 event's translation and be rejected as a
+ * duplicate primary key.
  */
 export function transformHcrEventTranslation(
-  legacy: LegacyHcrEvent
+  legacy: LegacyHcrEvent,
+  backwardCompatibilityPrefix = 'mwnf3:hcr_events'
 ): TransformedTimelineEventTranslation {
-  const backwardCompatibility = `mwnf3:hcr_events:${legacy.hcr_id}:${legacy.lang_id}`;
+  const backwardCompatibility = `${backwardCompatibilityPrefix}:${legacy.hcr_id}:${legacy.lang_id}`;
 
   return {
     data: {
