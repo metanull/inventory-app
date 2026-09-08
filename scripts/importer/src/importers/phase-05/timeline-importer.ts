@@ -942,48 +942,79 @@ export class TimelineImporter extends BaseImporter {
 
       try {
         const timelineBC = `mwnf3:hcr:bar:country:${legacyCountryCode}`;
+        const timelineAlreadyExists = await this.entityExistsAsync(timelineBC, 'timeline');
 
-        // Check if timeline already exists
-        if (await this.entityExistsAsync(timelineBC, 'timeline')) {
+        // A dry-run/sample only estimates counts, so an already-imported country is
+        // still just skipped outright here — the re-run path below (which resolves
+        // the existing timeline and walks its events looking for missing
+        // translations) only matters for a real, writing run.
+        if (timelineAlreadyExists && (this.isDryRun || this.isSampleOnlyMode)) {
           result.skipped += 1 + countryHcrRows.length;
           this.showSkipped();
           continue;
         }
 
-        // Resolve country code (2-char → ISO-3)
-        let countryId: string;
-        try {
-          countryId = mapCountryCode(legacyCountryCode);
-        } catch {
-          this.logWarning(
-            `BAR: Unknown country code '${legacyCountryCode}' for BAR HCR timeline, skipping`
-          );
-          result.skipped += 1 + countryHcrRows.length;
-          continue;
-        }
+        let timelineId: string;
 
-        const internalName = `${legacyCountryCode} — Baroque Art`;
+        if (timelineAlreadyExists) {
+          // Re-run safety: resolve the existing timeline instead of skipping the
+          // whole country outright, so a re-run can still reach the per-event
+          // check below and fill in translations a previous run left missing
+          // (this is what actually happened on staging: the timeline and its
+          // events were created, but the id-collision fixed in this change
+          // dropped every BAR translation).
+          const existingTimelineId = await this.getEntityUuidAsync(timelineBC, 'timeline');
+          if (!existingTimelineId) {
+            this.logWarning(
+              `BAR: Timeline exists but its UUID could not be resolved: ${timelineBC}`
+            );
+            result.skipped += 1 + countryHcrRows.length;
+            this.showSkipped();
+            continue;
+          }
+          timelineId = existingTimelineId;
+          result.skipped++;
+          this.showSkipped();
+        } else {
+          // Resolve country code (2-char → ISO-3)
+          let countryId: string;
+          try {
+            countryId = mapCountryCode(legacyCountryCode);
+          } catch {
+            this.logWarning(
+              `BAR: Unknown country code '${legacyCountryCode}' for BAR HCR timeline, skipping`
+            );
+            result.skipped += 1 + countryHcrRows.length;
+            continue;
+          }
 
-        if (this.isDryRun || this.isSampleOnlyMode) {
-          this.logInfo(
-            `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import BAR timeline: ${internalName} (${countryHcrRows.length} events, ${countryItems.length} items)`
-          );
-          this.registerEntity('sample-bar-timeline-' + legacyCountryCode, timelineBC, 'timeline');
-          result.imported += 1 + countryHcrRows.length;
+          const internalName = `${legacyCountryCode} — Baroque Art`;
+
+          if (this.isDryRun || this.isSampleOnlyMode) {
+            this.logInfo(
+              `[${this.isSampleOnlyMode ? 'SAMPLE' : 'DRY-RUN'}] Would import BAR timeline: ${internalName} (${countryHcrRows.length} events, ${countryItems.length} items)`
+            );
+            this.registerEntity(
+              'sample-bar-timeline-' + legacyCountryCode,
+              timelineBC,
+              'timeline'
+            );
+            result.imported += 1 + countryHcrRows.length;
+            this.showProgress();
+            continue;
+          }
+
+          // Create the BAR timeline bound to the Baroque Art collection
+          timelineId = await this.context.strategy.writeTimeline({
+            internal_name: internalName,
+            country_id: countryId,
+            collection_id: barCollectionId,
+            backward_compatibility: timelineBC,
+          });
+          this.registerEntity(timelineId, timelineBC, 'timeline');
+          result.imported++;
           this.showProgress();
-          continue;
         }
-
-        // Create the BAR timeline bound to the Baroque Art collection
-        const timelineId = await this.context.strategy.writeTimeline({
-          internal_name: internalName,
-          country_id: countryId,
-          collection_id: barCollectionId,
-          backward_compatibility: timelineBC,
-        });
-        this.registerEntity(timelineId, timelineBC, 'timeline');
-        result.imported++;
-        this.showProgress();
 
         let eventsImported = 0;
         let pivotCount = 0;
@@ -994,26 +1025,46 @@ export class TimelineImporter extends BaseImporter {
           try {
             const eventBC = `mwnf3:hcr:bar:${hcr.hcr_id}`;
 
-            // Check if event already exists
-            if (await this.entityExistsAsync(eventBC, 'timeline_event')) {
+            // Re-run safety: resolve rather than unconditionally skip an event that
+            // already exists, so a re-run can still fill in translations a previous
+            // run left missing (e.g. the id-collision this step used to hit before
+            // BAR translations got their own backward_compatibility namespace below).
+            const eventAlreadyExists = await this.entityExistsAsync(eventBC, 'timeline_event');
+            let eventId: string;
+
+            if (eventAlreadyExists) {
+              const existingEventId = await this.getEntityUuidAsync(eventBC, 'timeline_event');
+              if (!existingEventId) {
+                this.logWarning(
+                  `BAR: Timeline event exists but its UUID could not be resolved: ${eventBC}`
+                );
+                result.skipped++;
+                this.showSkipped();
+                continue;
+              }
+              eventId = existingEventId;
               result.skipped++;
               this.showSkipped();
-              continue;
+            } else {
+              const transformed = transformHcrEvent(hcr);
+
+              eventId = await this.context.strategy.writeTimelineEvent({
+                ...transformed.data,
+                backward_compatibility: eventBC,
+                timeline_id: timelineId,
+                display_order: displayOrder++,
+              });
+              this.registerEntity(eventId, eventBC, 'timeline_event');
+              result.imported++;
+              eventsImported++;
             }
 
-            const transformed = transformHcrEvent(hcr);
-
-            const eventId = await this.context.strategy.writeTimelineEvent({
-              ...transformed.data,
-              backward_compatibility: eventBC,
-              timeline_id: timelineId,
-              display_order: displayOrder++,
-            });
-            this.registerEntity(eventId, eventBC, 'timeline_event');
-            result.imported++;
-            eventsImported++;
-
-            // Create translations for this event
+            // Create translations for this event. The BAR translation is namespaced
+            // under its own backward_compatibility prefix (mwnf3:hcr_events:bar:...,
+            // next to the event's mwnf3:hcr:bar:<hcr_id>) — see transformHcrEventTranslation
+            // for why sharing the mwnf3 prefix would collide. Each translation's own
+            // existence is checked (not just the event's) so that re-running this step
+            // against an event created before this fix fills in only what is missing.
             const translations = eventsByHcrId.get(hcr.hcr_id) || [];
             for (const trans of translations) {
               try {
@@ -1025,7 +1076,16 @@ export class TimelineImporter extends BaseImporter {
                   continue;
                 }
 
-                const transData = transformHcrEventTranslation(trans);
+                const transData = transformHcrEventTranslation(trans, 'mwnf3:hcr_events:bar');
+                if (
+                  await this.entityExistsAsync(
+                    transData.data.backward_compatibility!,
+                    'timeline_event_translation'
+                  )
+                ) {
+                  continue;
+                }
+
                 await this.context.strategy.writeTimelineEventTranslation({
                   ...transData.data,
                   timeline_event_id: eventId,
@@ -1040,38 +1100,40 @@ export class TimelineImporter extends BaseImporter {
               }
             }
 
-            // Materialize item-to-event associations using the legacy BAR selection rule:
-            // item.start_date >= hcr.from_ad AND item.end_date <= hcr.to_ad (same country)
-            const matchingItems = countryItems.filter((item) =>
-              this.barItemMatchesHcrEvent(item, hcr)
-            );
+            if (!eventAlreadyExists) {
+              // Materialize item-to-event associations using the legacy BAR selection rule:
+              // item.start_date >= hcr.from_ad AND item.end_date <= hcr.to_ad (same country)
+              const matchingItems = countryItems.filter((item) =>
+                this.barItemMatchesHcrEvent(item, hcr)
+              );
 
-            let pivotOrder = 1;
-            for (const item of matchingItems) {
-              try {
-                const itemId = await this.getEntityUuidAsync(item.backwardCompatibility, 'item');
-                if (!itemId) {
+              let pivotOrder = 1;
+              for (const item of matchingItems) {
+                try {
+                  const itemId = await this.getEntityUuidAsync(item.backwardCompatibility, 'item');
+                  if (!itemId) {
+                    this.logWarning(
+                      `BAR [${legacyCountryCode}]: Item not found for HCR event ${hcr.hcr_id}, backward_compatibility: ${item.backwardCompatibility}`
+                    );
+                    continue;
+                  }
+
+                  await this.context.strategy.writeTimelineEventItem({
+                    timeline_event_id: eventId,
+                    item_id: itemId,
+                    display_order: pivotOrder++,
+                    backward_compatibility: null,
+                    extra: null,
+                  });
+
+                  pivotCount++;
+                  result.imported++;
+                } catch (error) {
+                  const message = error instanceof Error ? error.message : String(error);
                   this.logWarning(
-                    `BAR [${legacyCountryCode}]: Item not found for HCR event ${hcr.hcr_id}, backward_compatibility: ${item.backwardCompatibility}`
+                    `BAR: Failed to create item pivot for HCR event ${hcr.hcr_id}, item ${item.backwardCompatibility}: ${message}`
                   );
-                  continue;
                 }
-
-                await this.context.strategy.writeTimelineEventItem({
-                  timeline_event_id: eventId,
-                  item_id: itemId,
-                  display_order: pivotOrder++,
-                  backward_compatibility: null,
-                  extra: null,
-                });
-
-                pivotCount++;
-                result.imported++;
-              } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                this.logWarning(
-                  `BAR: Failed to create item pivot for HCR event ${hcr.hcr_id}, item ${item.backwardCompatibility}: ${message}`
-                );
               }
             }
 
