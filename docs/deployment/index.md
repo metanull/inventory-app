@@ -80,3 +80,4 @@ The Filament `/admin` panel is the primary production UI. The Vue.js SPA demo ex
 - [Command Line User Management](command-line-user-management) - Manage users via CLI
 - [CORS Configuration](cors-configuration) - Cross-origin request settings
 - [Testing Troubleshooting](testing-troubleshooting) - Common testing issues
+- [Release and Propagation](release-and-propagation) - How a change travels from this repository to the public websites
