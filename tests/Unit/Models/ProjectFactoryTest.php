@@ -6,6 +6,7 @@ use App\Models\Context;
 use App\Models\Language;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
@@ -14,6 +15,13 @@ use Tests\TestCase;
 class ProjectFactoryTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_projects_table_has_url_columns(): void
+    {
+        $this->assertTrue(Schema::hasColumn('projects', 'site_url'), 'projects must carry a `site_url` column');
+        $this->assertTrue(Schema::hasColumn('projects', 'related_database_url'), 'projects must carry a `related_database_url` column');
+        $this->assertTrue(Schema::hasColumn('projects', 'artistic_introduction_url'), 'projects must carry an `artistic_introduction_url` column');
+    }
 
     public function test_factory_creates_valid_project(): void
     {
@@ -24,6 +32,21 @@ class ProjectFactoryTest extends TestCase
         $this->assertNotEmpty($project->internal_name);
         $this->assertFalse($project->is_enabled);
         $this->assertFalse($project->is_launched);
+        $this->assertNull($project->site_url);
+        $this->assertNull($project->related_database_url);
+        $this->assertNull($project->artistic_introduction_url);
+    }
+
+    public function test_factory_with_urls_sets_url_fields(): void
+    {
+        $project = Project::factory()->withUrls()->create();
+
+        $this->assertNotNull($project->site_url);
+        $this->assertNotNull($project->related_database_url);
+        $this->assertNotNull($project->artistic_introduction_url);
+        $this->assertNotFalse(filter_var($project->site_url, FILTER_VALIDATE_URL));
+        $this->assertNotFalse(filter_var($project->related_database_url, FILTER_VALIDATE_URL));
+        $this->assertNotFalse(filter_var($project->artistic_introduction_url, FILTER_VALIDATE_URL));
     }
 
     public function test_factory_with_enabled_sets_enabled_flag(): void
