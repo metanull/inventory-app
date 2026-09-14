@@ -115,6 +115,12 @@ Projects have special handling - each legacy project creates THREE new entities:
 
 All three share the same `backward_compatibility` value (e.g., `mwnf3:projects:WAL`) to facilitate linking.
 
+Each project also gets its `site_url`, `related_database_url` and
+`artistic_introduction_url` columns populated from a small, hand-maintained
+map keyed on the legacy `project_id` — see
+[Project Site & Related-Database URLs](#project-site--related-database-urls)
+below.
+
 ### Directory Structure
 
 ```
@@ -521,6 +527,28 @@ Special handling for non-standard legacy country codes:
 - `fx` → country=null + extra: `{country: "Disputed"}`
 - `yu` → country=null + extra: `{country: "Former Yugoslavia"}`
 - `px` → country=pse (State of Palestine) + extra: `{country: "Palestinian Territories"}`
+
+### Project Site & Related-Database URLs
+
+`src/utils/project-urls.ts` holds `PROJECT_URL_MAP`, a small, versioned map
+from legacy `project_id` (e.g. `ISL`, `BAR`, `AWE`) to that project's public
+`site_url`, `related_database_url` (the legacy "search related database"
+page) and `artistic_introduction_url`. It is looked up (via
+`lookupProjectUrls`) by both `project-transformer.ts` and
+`sh-project-transformer.ts` and written onto `projects.site_url` /
+`related_database_url` / `artistic_introduction_url` by the importer, rather
+than being entered by hand in Filament — a re-import would otherwise wipe
+hand-entered data. This mirrors `code-mappings.ts`: legacy knowledge that
+used to live in the frontend (`viewer-core`'s `conventions.js`) is captured
+here instead (epic #1727).
+
+An unmapped legacy key resolves to all-null fields rather than throwing —
+most one-off legacy projects never had a dedicated public site, and that is
+an expected outcome, not an error.
+
+**Needs manual maintenance**: like `code-mappings.ts`, nothing derives this
+map automatically. Add an entry (or correct a placeholder null) whenever a
+new legacy project/site is confirmed.
 
 ### Artist & Tag Extraction
 
