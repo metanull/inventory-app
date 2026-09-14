@@ -53,6 +53,21 @@ class ProjectResourceTest extends TestCase
             ->assertSee('Temple catalogue');
     }
 
+    public function test_project_view_page_shows_url_fields(): void
+    {
+        $user = $this->createCrudUser();
+        $project = Project::factory()->withUrls()->create([
+            'internal_name' => 'Temple catalogue',
+        ]);
+
+        $this->actingAs($user)
+            ->get("/admin/projects/{$project->getKey()}")
+            ->assertOk()
+            ->assertSee($project->site_url)
+            ->assertSee($project->related_database_url)
+            ->assertSee($project->artistic_introduction_url);
+    }
+
     public function test_project_infolist_context_links_to_context_resource_with_manage_reference_data(): void
     {
         $user = $this->createViewAndReferenceDataUser();
