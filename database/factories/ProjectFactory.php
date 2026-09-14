@@ -34,6 +34,9 @@ class ProjectFactory extends Factory
             'launch_date' => null,
             'is_launched' => false,
             'is_enabled' => false,
+            'site_url' => null,
+            'related_database_url' => null,
+            'artistic_introduction_url' => null,
             'context_id' => null, // This should be set to a valid context ID if needed
             'language_id' => null, // This should be set to a valid language ID if needed
         ];
@@ -51,6 +54,15 @@ class ProjectFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'is_launched' => true,
             'launch_date' => $this->faker->date(),
+        ]);
+    }
+
+    public function withUrls(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'site_url' => $this->faker->url(),
+            'related_database_url' => $this->faker->url(),
+            'artistic_introduction_url' => $this->faker->url(),
         ]);
     }
 

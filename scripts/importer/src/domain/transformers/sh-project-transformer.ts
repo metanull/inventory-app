@@ -16,6 +16,7 @@ import type {
 } from '../../core/types.js';
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { convertHtmlToMarkdown, sanitizeDateValue } from '../../utils/html-to-markdown.js';
+import { lookupProjectUrls } from '../../utils/project-urls.js';
 
 const SH_SCHEMA = 'mwnf3_sharing_history';
 const SH_PROJECTS_TABLE = 'sh_projects';
@@ -100,13 +101,16 @@ export function transformShProject(
     language_id: defaultLanguageId,
   };
 
-  // Project
+  // Project - looked up before formatShBackwardCompatibility's lower-casing, so
+  // legacy.project_id is still the raw, uppercase key (e.g. 'AWE') here.
+  const projectUrls = lookupProjectUrls(legacy.project_id);
   const projectData: Omit<ProjectData, 'context_id'> = {
     internal_name: internalName,
     backward_compatibility: backwardCompat,
     language_id: defaultLanguageId,
     launch_date: sanitizeDateValue(legacy.addeddate),
     is_launched: legacy.show === 'Y',
+    ...projectUrls,
   };
 
   return {
