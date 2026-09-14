@@ -550,6 +550,51 @@ by (`#/themes`), by `localiseLegacyLinks` in `utils/legacy-links.ts`, before
 the conversion. Only a link into the same gallery is touched; the language
 segment is dropped, since the website keeps its language in the query.
 
+## Finding the collection id for an exporter
+
+Every exporter (`scripts/exporters/<dataset>`) is scoped by a hardcoded
+collection identifier — a project key (`PROJECT_KEYS`) or a
+`backward_compatibility` string (`GALLERY_BACKWARD_COMPATIBILITY`,
+`EXHIBITION_BACKWARD_COMPATIBILITY`). Standing up a new site means finding
+that identifier, and increasingly the collection's UUID, without querying the
+inventory-app database by hand. Two artisan commands (run against
+inventory-app, not this importer) do that lookup:
+
+```bash
+# Resolve a legacy numeric id, project KEY, or exact English title to a
+# collection's UUID, internal_name, type, parent and per-language titles.
+php artisan importer:find-collection gallery 9
+php artisan importer:find-collection gallery carpets
+php artisan importer:find-collection exhibition 47
+php artisan importer:find-collection project ISL
+php artisan importer:find-collection project "Discover Islamic Art"
+php artisan importer:find-collection gallery 9 --json
+
+# Browse every collection of a kind when the exact selector isn't known.
+php artisan importer:list-collections gallery
+php artisan importer:list-collections exhibition --json
+php artisan importer:list-collections project
+```
+
+`{kind}` is one of `project`, `gallery`, or `exhibition`. `{selector}` is
+either the legacy numeric id (galleries/exhibitions, matched against the
+`mwnf3_thematic_gallery:thg_gallery:{id}` / Sharing History
+`mwnf3_sharing_history:sh_exhibitions:{id}` `backward_compatibility`
+patterns these importers write — see `phase-10/thg-gallery-importer.ts` and
+`phase-03/sh-exhibition-importer.ts`), the legacy project KEY (matched
+against `mwnf3:projects:{KEY}` / `mwnf3_sharing_history:sh_projects:{key}`,
+written by `domain/transformers/project-transformer.ts` and
+`sh-project-transformer.ts`), or the exact, case-sensitive English title —
+in every case restricted to that kind. Zero or more than one match exits
+non-zero with a clear message (listing the candidates when there's more than
+one).
+
+Because collection UUIDs are deterministic (`uuidv5` of the collection's
+`backward_compatibility`, via `src/utils/deterministic-uuid.ts` — see that
+file's own CRITICAL warning about the frozen namespace), a UUID resolved this
+way survives a full re-import of the same legacy source, which is what lets
+an exporter be parameterised by UUID instead of pinning a legacy id.
+
 ## Extending with API Strategy
 
 To add API-based imports:
