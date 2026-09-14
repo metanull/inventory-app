@@ -29,6 +29,9 @@ class UpdateProjectRequest extends FormRequest
             'launch_date' => ['nullable', 'date'],
             'is_launched' => ['boolean'],
             'is_enabled' => ['boolean'],
+            'site_url' => ['nullable', 'url', 'max:255'],
+            'related_database_url' => ['nullable', 'url', 'max:255'],
+            'artistic_introduction_url' => ['nullable', 'url', 'max:255'],
             'context_id' => ['nullable', 'uuid'],
             'language_id' => ['nullable', 'string', 'size:3'],
         ];
