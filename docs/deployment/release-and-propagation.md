@@ -202,8 +202,17 @@ first with `--dry-run`.
 
 ```bash
 cd E:/inventory/viewer-workflows
-docker run --rm -it -v "$PWD:/w" -v "$HOME/.npmrc:/root/.npmrc:ro" -v "$HOME/.config/gh:/root/.config/gh:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
+export GH_TOKEN=$(gh auth token)
+docker run --rm -it -e GH_TOKEN -v "$PWD:/w" -v "$HOME/.npmrc:/root/.npmrc:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
 ```
+
+`GH_TOKEN` must be passed explicitly, as above — `gh auth login` on the host
+commonly stores the token in the OS keyring (e.g. Windows Credential
+Manager), which a container cannot reach, so mounting `~/.config/gh` alone
+carries no usable token in that case. `gh auth token` reads the real token
+regardless of where `gh` stores it. The tool itself runs `gh auth setup-git`
+on every invocation, so once `gh` is authenticated this way, `git push`
+inherits the same credentials.
 
 Then the same command without `--dry-run`.
 
