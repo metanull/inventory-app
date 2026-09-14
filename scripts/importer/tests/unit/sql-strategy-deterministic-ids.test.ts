@@ -143,6 +143,70 @@ describe('SqlWriteStrategy — deterministic IDs are stable across separate runs
     expect(new Set([contextId, collectionId, projectId]).size).toBe(3);
   });
 
+  it('writeProject: includes site_url, related_database_url and artistic_introduction_url in the SQL column list and bound parameters', async () => {
+    const mock = makeMockDb();
+    const strategy = new SqlWriteStrategy(
+      mock.db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+
+    const projectData: ProjectData = {
+      internal_name: 'ISL Project',
+      backward_compatibility: 'mwnf3:projects:ISL',
+      context_id: 'ctx-isl',
+      language_id: 'eng',
+      site_url: 'https://islamicart.museumwnf.org',
+      related_database_url: 'https://islamicart.museumwnf.org/database.php',
+      artistic_introduction_url: 'https://islamicart.museumwnf.org/gai/ISL/',
+    };
+
+    await strategy.writeProject(projectData);
+
+    expect(mock.calls).toHaveLength(1);
+    const { sql, values } = mock.calls[0];
+    expect(sql).toContain('site_url');
+    expect(sql).toContain('related_database_url');
+    expect(sql).toContain('artistic_introduction_url');
+    expect(values).toEqual(
+      expect.arrayContaining([
+        'https://islamicart.museumwnf.org',
+        'https://islamicart.museumwnf.org/database.php',
+        'https://islamicart.museumwnf.org/gai/ISL/',
+      ])
+    );
+  });
+
+  it('writeProject: falls back to null for site_url, related_database_url and artistic_introduction_url when omitted', async () => {
+    const mock = makeMockDb();
+    const strategy = new SqlWriteStrategy(
+      mock.db as unknown as ConstructorParameters<typeof SqlWriteStrategy>[0],
+      makeMockTracker()
+    );
+
+    const projectData: ProjectData = {
+      internal_name: 'DCA Project',
+      backward_compatibility: 'mwnf3:projects:DCA',
+      context_id: 'ctx-dca',
+      language_id: 'eng',
+      // Both project transformers always supply launch_date as string | null
+      // (via sanitizeDateValue); mirror that so the only omitted fields here
+      // are the three URL columns under test.
+      launch_date: null,
+    };
+
+    await strategy.writeProject(projectData);
+
+    const { values } = mock.calls[0];
+    // None of the bound parameters should be `undefined` - mysql2 rejects that.
+    expect(values).not.toContain(undefined);
+    // id(0) internal_name(1) context_id(2) language_id(3) launch_date(4)
+    // is_launched(5) is_enabled(6) site_url(7) related_database_url(8)
+    // artistic_introduction_url(9)
+    expect(values[7]).toBeNull();
+    expect(values[8]).toBeNull();
+    expect(values[9]).toBeNull();
+  });
+
   it('writeItemImage: same path attached to two different owning items yields distinct ids (first-image case)', async () => {
     const strategy = makeStrategy();
     const path = 'objects/wal/eg/museum01/34/1.jpg';
