@@ -1,7 +1,7 @@
 # NPM Package Publishing Guide
 
 How `--publish` turns an export into a released version of
-`@metanull/amulets-data` on GitHub Packages. What the package *contains* is
+`@museumwnf/amulets-data` on npmjs. What the package *contains* is
 documented in [`README.md`](README.md#package-contents); this guide covers the
 publishing mechanics only.
 
@@ -17,7 +17,7 @@ That single run does everything:
 2. Bumps the patch version persisted in `output/.version-amulets`
    (1.0.0 → 1.0.1, …)
 3. Generates `package.json` and a consumer `README.md` inside `output/amulets/`
-4. Runs `npm publish` from that directory against GitHub Packages
+4. Runs `npm publish` from that directory against npmjs
 
 There is **no separate manual `npm publish` step** — running one after
 `--publish` would fail as a duplicate version.
@@ -37,7 +37,7 @@ The version counter lives in `output/.version-amulets` — deliberately
 it is lost (fresh clone, deleted output directory), the next `--publish` would
 restart at 1.0.0 and collide with already-published versions — recover by
 passing `--package-version` with the next free version (check the published
-versions on GitHub Packages first).
+versions on npmjs first).
 
 ## Package structure
 
@@ -65,48 +65,51 @@ not need to be, in the `files` allow-list.
 
 The generated `package.json` carries:
 
-- **name** — `@metanull/amulets-data` (hardcoded in the exporter CLI)
+- **name** — `@museumwnf/amulets-data` (hardcoded in the exporter CLI)
 - **version** — from the version file (see above)
 - **description** — names the exported gallery slug
 - **exports** — `manifest.json` as the entry point, plus every top-level
   `*.json` and `translations/*`
 - **author / license / repository** — from `PACKAGE_AUTHOR`, `PACKAGE_LICENSE`
-  and `PACKAGE_REPO_URL` in `.env`. Keep `PACKAGE_REPO_URL` set: without a
-  `repository` field, consumers authenticating with a GitHub Actions
-  `GITHUB_TOKEN` cannot install the version, and already-published versions
-  cannot be fixed retroactively.
+  and `PACKAGE_REPO_URL` in `.env`. Keep `PACKAGE_REPO_URL` set: npmjs does
+  not need a `repository` field to install a version, but it is good package
+  metadata and already-published versions cannot be fixed retroactively.
 - **license default** — `SEE LICENSE IN LICENSE.md`, not `UNLICENSED`: the MWNF
   legal notice permits non-commercial/educational use, which `UNLICENSED`
   (all rights reserved) would contradict. `PACKAGE_LICENSE` still overrides it.
 
-## GitHub Packages authentication
+## npmjs authentication
 
-Publishing goes to `https://npm.pkg.github.com` (override with
-`--npm-registry` or the `NPM_REGISTRY` env var). Configure `~/.npmrc` with a
-personal access token that has the `write:packages` scope:
+Publishing goes to `https://registry.npmjs.org` (override with
+`--npm-registry` or the `NPM_REGISTRY` env var). This is a manual, local
+publish — not run from CI (the shared packages use npm trusted publishing
+in CI; data packages do not, see metanull/inventory-app#1720) — so it needs
+your own npmjs login with 2FA:
 
 ```bash
-echo "//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN" >> ~/.npmrc
-echo "@metanull:registry=https://npm.pkg.github.com" >> ~/.npmrc
+npm login
 ```
 
-See the [GitHub Packages npm documentation](https://docs.github.com/en/packages/working-with-a-npm-registry/working-with-the-npm-registry#authenticating-with-a-personal-access-token)
-for details. The package is private: consumers need a token with
-`read:packages` to install it.
+That stores a session token in `~/.npmrc`, scoped to your account, good
+until you log out. No `NPM_TOKEN` or CI secret is involved for data
+packages. The first `--publish` for a package under the `@museumwnf` scope
+additionally needs `--access public` (already passed by `PublishManager`)
+since npm defaults a scoped package to private — after that first publish,
+later versions inherit it automatically.
 
 ## Consumer usage
 
 ```bash
-npm install @metanull/amulets-data
+npm install @museumwnf/amulets-data
 ```
 
 ```javascript
-import manifest from '@metanull/amulets-data/manifest.json' assert { type: 'json' }
-import gallery from '@metanull/amulets-data/gallery.json' assert { type: 'json' }
-import items from '@metanull/amulets-data/items.json' assert { type: 'json' }
+import manifest from '@museumwnf/amulets-data/manifest.json' assert { type: 'json' }
+import gallery from '@museumwnf/amulets-data/gallery.json' assert { type: 'json' }
+import items from '@museumwnf/amulets-data/items.json' assert { type: 'json' }
 
 // Lazy-load translations for a language
-const { default: t } = await import(`@metanull/amulets-data/translations/items.${lang}.json`)
+const { default: t } = await import(`@museumwnf/amulets-data/translations/items.${lang}.json`)
 ```
 
 All data files sit at the package root (there is no `data/` directory);
@@ -114,8 +117,9 @@ per-language translation files live under `translations/`.
 
 ## Troubleshooting
 
-**`npm publish` fails with "not authorized"** — `~/.npmrc` is missing or the
-token lacks `write:packages`; see the authentication section above.
+**`npm publish` fails with "not authorized"** — not logged in, or the 2FA
+prompt was not completed; re-run `npm login`, see the authentication section
+above.
 
 **"cannot publish over previously published version"** — that version already
 exists on the registry (e.g. the version file was reset). Pass

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static JSON data exporter for the Discover Baroque Art website (@metanull/baroqueart-data)",
+  "description": "Static JSON data exporter for the Discover Baroque Art website (@museumwnf/baroqueart-data)",
   "scripts": {
     "build": "tsc",
     "export": "tsx src/cli/export.ts",

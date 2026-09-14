@@ -3,8 +3,8 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for the rebuilt **Amulets and Talismans** website — no API
 server, no auth, no runtime database dependency. Optionally packages and
-publishes that output as a private npm package (`@metanull/amulets-data`) on
-GitHub Packages.
+publishes that output as a public npm package (`@museumwnf/amulets-data`) on
+npmjs.
 
 This is the first of the DXA gallery exporters
 ([epic #1539](https://github.com/metanull/inventory-app/issues/1539),
@@ -144,7 +144,7 @@ docker compose --profile jobs run --rm exporter amulets --force
 ```
 
 Add `--publish` to bump the version, generate `package.json`/`README.md` and
-push to GitHub Packages — see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).
+push to npmjs — see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).
 
 The compose service points at the **staging** database
 (`staging-mysql`), which is where the exporter should be developed and
@@ -154,7 +154,7 @@ it before running anything that way.
 
 ## Naming
 
-The folder and package are `amulets` / `@metanull/amulets-data` — the site's
+The folder and package are `amulets` / `@museumwnf/amulets-data` — the site's
 public identity (`amulets.museumwnf.org`) and the name fixed by decision Q4.
 The legacy slug is `amulets_and_talismans`, and that is what `gallery.json`
 carries as `slug`: data values keep legacy identity verbatim, folder names do
