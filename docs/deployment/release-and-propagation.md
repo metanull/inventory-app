@@ -131,9 +131,17 @@ directory and gitignored. If it is lost, the next publish would restart at
 1.0.0 and collide. Recover with `--package-version <next-free-version>` after
 checking the registry.
 
+The `exporter` service reads `staging-mysql`, and `stage` only migrates that
+database on a full rebuild. After pulling a change that adds a migration, run
+`docker compose --profile jobs run --rm staging-migrate` (non-destructive)
+before exporting, or re-run `stage` fully — otherwise the export can fail
+with an `Unknown column` error, and columns the importer fills (e.g. a URL
+map) stay NULL until the next full `stage`.
+
 Each exporter's `NPM_PUBLISH.md` documents the mechanics, including the
 `PACKAGE_REPO_URL` setting that must be present in the exporter's `.env` so the
-generated package carries a `repository` field.
+generated package carries a `repository` field, and the host `~/.npmrc` mount
+the `exporter` service needs for `--publish` to authenticate against npmjs.
 
 ## 4. Reusable workflows (viewer-workflows)
 
