@@ -29,6 +29,12 @@ class ProjectResource extends BaseJsonResource
             'is_launched' => $this->resource->is_launched,
             // Indicates if the project is enabled (active)
             'is_enabled' => $this->resource->is_enabled,
+            // The public URL of the project's website, nullable
+            'site_url' => $this->resource->site_url,
+            // The URL of a related external database, nullable
+            'related_database_url' => $this->resource->related_database_url,
+            // The URL of the project's artistic introduction page, nullable
+            'artistic_introduction_url' => $this->resource->artistic_introduction_url,
             // The default context used within the project (ContextResource)
             'context' => new ContextResource($this->whenLoaded('context')),
             // The default language used within the project (LanguageResource)

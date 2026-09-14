@@ -18,6 +18,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $launch_date
  * @property bool $is_launched
  * @property bool $is_enabled
+ * @property string|null $site_url
+ * @property string|null $related_database_url
+ * @property string|null $artistic_introduction_url
  * @property string|null $context_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -38,6 +41,9 @@ class Project extends Model
         'launch_date',
         'is_launched',
         'is_enabled',
+        'site_url',
+        'related_database_url',
+        'artistic_introduction_url',
         'context_id',
         'language_id',
     ];

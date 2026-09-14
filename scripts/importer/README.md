@@ -115,6 +115,12 @@ Projects have special handling - each legacy project creates THREE new entities:
 
 All three share the same `backward_compatibility` value (e.g., `mwnf3:projects:WAL`) to facilitate linking.
 
+Each project also gets its `site_url`, `related_database_url` and
+`artistic_introduction_url` columns populated from a small, hand-maintained
+map keyed on the legacy `project_id` — see
+[Project Site & Related-Database URLs](#project-site--related-database-urls)
+below.
+
 ### Directory Structure
 
 ```
@@ -522,6 +528,28 @@ Special handling for non-standard legacy country codes:
 - `yu` → country=null + extra: `{country: "Former Yugoslavia"}`
 - `px` → country=pse (State of Palestine) + extra: `{country: "Palestinian Territories"}`
 
+### Project Site & Related-Database URLs
+
+`src/utils/project-urls.ts` holds `PROJECT_URL_MAP`, a small, versioned map
+from legacy `project_id` (e.g. `ISL`, `BAR`, `AWE`) to that project's public
+`site_url`, `related_database_url` (the legacy "search related database"
+page) and `artistic_introduction_url`. It is looked up (via
+`lookupProjectUrls`) by both `project-transformer.ts` and
+`sh-project-transformer.ts` and written onto `projects.site_url` /
+`related_database_url` / `artistic_introduction_url` by the importer, rather
+than being entered by hand in Filament — a re-import would otherwise wipe
+hand-entered data. This mirrors `code-mappings.ts`: legacy knowledge that
+used to live in the frontend (`viewer-core`'s `conventions.js`) is captured
+here instead (epic #1727).
+
+An unmapped legacy key resolves to all-null fields rather than throwing —
+most one-off legacy projects never had a dedicated public site, and that is
+an expected outcome, not an error.
+
+**Needs manual maintenance**: like `code-mappings.ts`, nothing derives this
+map automatically. Add an entry (or correct a placeholder null) whenever a
+new legacy project/site is confirmed.
+
 ### Artist & Tag Extraction
 
 Legacy data contains artists and tags in text fields:
@@ -549,6 +577,51 @@ is rewritten into the hash route the replacing website reaches the same page
 by (`#/themes`), by `localiseLegacyLinks` in `utils/legacy-links.ts`, before
 the conversion. Only a link into the same gallery is touched; the language
 segment is dropped, since the website keeps its language in the query.
+
+## Finding the collection id for an exporter
+
+Every exporter (`scripts/exporters/<dataset>`) is scoped by a hardcoded
+collection identifier — a project key (`PROJECT_KEYS`) or a
+`backward_compatibility` string (`GALLERY_BACKWARD_COMPATIBILITY`,
+`EXHIBITION_BACKWARD_COMPATIBILITY`). Standing up a new site means finding
+that identifier, and increasingly the collection's UUID, without querying the
+inventory-app database by hand. Two artisan commands (run against
+inventory-app, not this importer) do that lookup:
+
+```bash
+# Resolve a legacy numeric id, project KEY, or exact English title to a
+# collection's UUID, internal_name, type, parent and per-language titles.
+php artisan importer:find-collection gallery 9
+php artisan importer:find-collection gallery carpets
+php artisan importer:find-collection exhibition 47
+php artisan importer:find-collection project ISL
+php artisan importer:find-collection project "Discover Islamic Art"
+php artisan importer:find-collection gallery 9 --json
+
+# Browse every collection of a kind when the exact selector isn't known.
+php artisan importer:list-collections gallery
+php artisan importer:list-collections exhibition --json
+php artisan importer:list-collections project
+```
+
+`{kind}` is one of `project`, `gallery`, or `exhibition`. `{selector}` is
+either the legacy numeric id (galleries/exhibitions, matched against the
+`mwnf3_thematic_gallery:thg_gallery:{id}` / Sharing History
+`mwnf3_sharing_history:sh_exhibitions:{id}` `backward_compatibility`
+patterns these importers write — see `phase-10/thg-gallery-importer.ts` and
+`phase-03/sh-exhibition-importer.ts`), the legacy project KEY (matched
+against `mwnf3:projects:{KEY}` / `mwnf3_sharing_history:sh_projects:{key}`,
+written by `domain/transformers/project-transformer.ts` and
+`sh-project-transformer.ts`), or the exact, case-sensitive English title —
+in every case restricted to that kind. Zero or more than one match exits
+non-zero with a clear message (listing the candidates when there's more than
+one).
+
+Because collection UUIDs are deterministic (`uuidv5` of the collection's
+`backward_compatibility`, via `src/utils/deterministic-uuid.ts` — see that
+file's own CRITICAL warning about the frozen namespace), a UUID resolved this
+way survives a full re-import of the same legacy source, which is what lets
+an exporter be parameterised by UUID instead of pinning a legacy id.
 
 ## Extending with API Strategy
 
