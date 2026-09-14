@@ -3,8 +3,7 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for the rebuilt **Water in Islam** website — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package (`@metanull/water-in-islam-data`) on GitHub
-Packages.
+output as a public npm package (`@museumwnf/water-in-islam-data`) on npmjs.
 
 This is the second DXA **exhibition** exporter
 ([epic #1539](https://github.com/metanull/inventory-app/issues/1539),
@@ -127,7 +126,7 @@ docker compose --profile jobs run --rm exporter water-in-islam --force
 ```
 
 Add `--publish` to bump the version, generate `package.json`/`README.md` and
-push to GitHub Packages — see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).
+push to npmjs — see [`NPM_PUBLISH.md`](NPM_PUBLISH.md).
 
 The compose service points at the **staging** database (`staging-mysql`), which
 is where the exporter should be developed and verified.
@@ -138,7 +137,7 @@ running anything that way.
 ## Naming
 
 The folder and package are `water-in-islam` /
-`@metanull/water-in-islam-data` — the kebab-cased legacy slug fixed by decision
+`@museumwnf/water-in-islam-data` — the kebab-cased legacy slug fixed by decision
 Q4. The data keeps the underscore form (`water_in_islam`), because that is the
 legacy public URL path and therefore identity. Never derive one from the other.
 

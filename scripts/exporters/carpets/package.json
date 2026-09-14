@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static JSON data exporter for the Carpets gallery website (@metanull/carpets-data)",
+  "description": "Static JSON data exporter for the Carpets gallery website (@museumwnf/carpets-data)",
   "scripts": {
     "build": "tsc",
     "export": "tsx src/cli/export.ts",

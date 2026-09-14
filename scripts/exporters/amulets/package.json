@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static JSON data exporter for the Amulets and Talismans gallery website (@metanull/amulets-data)",
+  "description": "Static JSON data exporter for the Amulets and Talismans gallery website (@museumwnf/amulets-data)",
   "scripts": {
     "build": "tsc",
     "export": "tsx src/cli/export.ts",

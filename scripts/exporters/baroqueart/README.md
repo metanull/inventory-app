@@ -3,8 +3,7 @@
 Reads the `inventory-app` database directly and writes a set of denormalized,
 static JSON files for public-facing frontends to consume — no API server, no
 auth, no runtime database dependency. Optionally packages and publishes that
-output as a private npm package (`@metanull/baroqueart-data`) on GitHub
-Packages, for any consumer to install.
+output as a public npm package (`@museumwnf/baroqueart-data`) on npmjs, for any consumer to install.
 
 This exporter produces the Discover Baroque Art data-package (one exporter
 per dataset lives under `scripts/exporters/<dataset>`).
@@ -41,7 +40,7 @@ npm run export -- `
 
 The dataset scope is hardcoded — this exporter is single-purpose and takes
 no scope arguments: it always exports the `BAR` project to
-`output/baroqueart/` as `@metanull/baroqueart-data`. Image URLs in the
+`output/baroqueart/` as `@museumwnf/baroqueart-data`. Image URLs in the
 exported JSON are built from
 `BASE_URL` in `.env` (or `--base-url`). `--publish` does everything in one
 go: version bump, `package.json`/`README.md` generation, and the actual
@@ -120,10 +119,10 @@ npm run export -- --force --publish
 | `--base-url <url>`           | Base URL prepended to image paths (default: `BASE_URL` env var, then `./images`)                  |
 | `--publish`                  | Bump version, generate `package.json`/`README.md`, and `npm publish` the output as an npm package |
 | `--package-version <semver>` | Set an explicit version instead of auto-incrementing                                              |
-| `--npm-registry <url>`       | Override the publish registry (default: `NPM_REGISTRY` env var, then GitHub Packages)             |
+| `--npm-registry <url>`       | Override the publish registry (default: `NPM_REGISTRY` env var, then npmjs)             |
 
 See [`NPM_PUBLISH.md`](NPM_PUBLISH.md) for the full publishing workflow —
-version-file mechanics, package structure, GitHub Packages authentication,
+version-file mechanics, package structure, npmjs authentication,
 and the consumer-side install/import story.
 
 ## How this fits together
@@ -132,7 +131,7 @@ and the consumer-side install/import story.
 inventory-app DB
       │  (exporter reads directly — no API involved)
       ▼
-scripts/exporters/baroqueart  ──npm publish──▶  @metanull/baroqueart-data (GitHub Packages)
+scripts/exporters/baroqueart  ──npm publish──▶  @museumwnf/baroqueart-data (npmjs)
                                                        │  npm install
                                                        ▼
                                                  any consumer
@@ -160,8 +159,7 @@ final summary for which one failed and why.
 yet; run `npm run import -- --only project-exhibition-root-keying` from
 `scripts/importer` (after verifying the `.env` target) and re-export.
 
-**`npm publish` fails with "not authorized"** — GitHub Packages
-authentication isn't configured; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md#github-packages-authentication).
+**`npm publish` fails with "not authorized"** — not logged in to npmjs; see [`NPM_PUBLISH.md`](NPM_PUBLISH.md#npmjs-authentication).
 
 **Database connection fails** — same `DB_*` variables and troubleshooting as
 the [importer](../../importer/README.md#troubleshooting).

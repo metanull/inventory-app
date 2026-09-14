@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Static JSON data exporter for Water in Islam exhibition website (@metanull/water-in-islam-data)",
+  "description": "Static JSON data exporter for Water in Islam exhibition website (@museumwnf/water-in-islam-data)",
   "scripts": {
     "build": "tsc",
     "export": "tsx src/cli/export.ts",
