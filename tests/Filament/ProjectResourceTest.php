@@ -107,6 +107,9 @@ class ProjectResourceTest extends TestCase
                 'launch_date' => '2025-05-01',
                 'is_launched' => true,
                 'is_enabled' => true,
+                'site_url' => 'https://example.org/archive',
+                'related_database_url' => 'https://example.org/archive-db',
+                'artistic_introduction_url' => 'https://example.org/archive-intro',
                 'context_id' => $context->id,
                 'language_id' => $language->id,
             ])
@@ -119,6 +122,9 @@ class ProjectResourceTest extends TestCase
             'launch_date' => '2025-05-01',
             'is_launched' => true,
             'is_enabled' => true,
+            'site_url' => 'https://example.org/archive',
+            'related_database_url' => 'https://example.org/archive-db',
+            'artistic_introduction_url' => 'https://example.org/archive-intro',
             'context_id' => $context->id,
             'language_id' => $language->id,
         ]);
@@ -142,6 +148,9 @@ class ProjectResourceTest extends TestCase
                 'launch_date' => '2025-06-01',
                 'is_launched' => true,
                 'is_enabled' => true,
+                'site_url' => 'https://example.org/temple',
+                'related_database_url' => 'https://example.org/temple-db',
+                'artistic_introduction_url' => 'https://example.org/temple-intro',
                 'context_id' => $context->id,
                 'language_id' => $language->id,
             ])
@@ -155,6 +164,9 @@ class ProjectResourceTest extends TestCase
             'launch_date' => '2025-06-01',
             'is_launched' => true,
             'is_enabled' => true,
+            'site_url' => 'https://example.org/temple',
+            'related_database_url' => 'https://example.org/temple-db',
+            'artistic_introduction_url' => 'https://example.org/temple-intro',
         ]);
 
         Livewire::actingAs($user)

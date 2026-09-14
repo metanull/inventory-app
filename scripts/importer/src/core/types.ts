@@ -192,6 +192,9 @@ export interface ProjectData extends BaseEntityData {
   launch_date?: string | null;
   is_launched?: boolean;
   is_enabled?: boolean;
+  site_url?: string | null;
+  related_database_url?: string | null;
+  artistic_introduction_url?: string | null;
 }
 
 /**

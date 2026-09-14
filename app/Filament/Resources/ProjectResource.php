@@ -88,6 +88,18 @@ class ProjectResource extends Resource
                 Toggle::make('is_enabled')
                     ->label('Enabled')
                     ->default(true),
+                TextInput::make('site_url')
+                    ->label('Public site URL')
+                    ->url()
+                    ->maxLength(255),
+                TextInput::make('related_database_url')
+                    ->label('Related database URL')
+                    ->url()
+                    ->maxLength(255),
+                TextInput::make('artistic_introduction_url')
+                    ->label('Artistic introduction URL')
+                    ->url()
+                    ->maxLength(255),
                 Select::make('context_id')
                     ->label('Context')
                     ->relationship('context', 'internal_name')
@@ -120,6 +132,18 @@ class ProjectResource extends Resource
                     ->date()
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('site_url')
+                    ->label('Public site URL')
+                    ->url(fn (Project $record): ?string => $record->site_url, shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('related_database_url')
+                    ->label('Related database URL')
+                    ->url(fn (Project $record): ?string => $record->related_database_url, shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('artistic_introduction_url')
+                    ->label('Artistic introduction URL')
+                    ->url(fn (Project $record): ?string => $record->artistic_introduction_url, shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 static::uuidColumn(),
                 ...static::timestampsColumns(),
             ])
@@ -207,6 +231,25 @@ class ProjectResource extends Resource
                             ->url(fn (Project $record): ?string => $record->language
                                 ? (auth()->user()?->can('view', $record->language) ? LanguageResource::getUrl('view', ['record' => $record->language]) : null)
                                 : null),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('Links')
+                    ->schema([
+                        TextEntry::make('site_url')
+                            ->label('Public site URL')
+                            ->url(fn (Project $record): ?string => $record->site_url)
+                            ->openUrlInNewTab()
+                            ->placeholder('—'),
+                        TextEntry::make('related_database_url')
+                            ->label('Related database URL')
+                            ->url(fn (Project $record): ?string => $record->related_database_url)
+                            ->openUrlInNewTab()
+                            ->placeholder('—'),
+                        TextEntry::make('artistic_introduction_url')
+                            ->label('Artistic introduction URL')
+                            ->url(fn (Project $record): ?string => $record->artistic_introduction_url)
+                            ->openUrlInNewTab()
+                            ->placeholder('—'),
                     ])
                     ->columns(2),
                 InfolistSection::make('System Information')

@@ -18,6 +18,7 @@ import type {
 import { mapLanguageCode } from '../../utils/code-mappings.js';
 import { formatBackwardCompatibility } from '../../utils/backward-compatibility.js';
 import { convertHtmlToMarkdown, sanitizeDateValue } from '../../utils/html-to-markdown.js';
+import { lookupProjectUrls } from '../../utils/project-urls.js';
 
 /**
  * Transformed project bundle (context + collection + project)
@@ -88,12 +89,14 @@ export function transformProject(
 
   // Project - internal_name uses project name (unaltered) from default language
   const projectBackwardCompat = baseBackwardCompat;
+  const projectUrls = lookupProjectUrls(legacy.project_id);
   const projectData: Omit<ProjectData, 'context_id'> = {
     internal_name: projectName,
     backward_compatibility: projectBackwardCompat,
     language_id: defaultLanguageId,
     launch_date: sanitizeDateValue(legacy.launchdate),
     is_launched: legacy.active === 1 || legacy.active === true,
+    ...projectUrls,
   };
 
   return {
