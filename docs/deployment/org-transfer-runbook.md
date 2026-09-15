@@ -18,6 +18,36 @@ the personal account `metanull` to the org `museumwithnofrontiers`.
 1. TOC
 {:toc}
 
+## Status (2026-09-15)
+
+Twelve of the thirteen repositories — everything below except `inventory-app`
+itself — transferred to `museumwithnofrontiers` today. `inventory-app` has
+not moved. That makes Phases 0 through 3 below a record of what happened,
+corrected against reality where the plan and the outcome diverged, and Phase
+4 a still-pending step for whoever transfers this repository. The
+corrections are inline, in place, rather than collected separately, because
+this document is what governs Phase 4 and the rest of Phase 5.
+
+The single biggest correction: **Phase 2 and Phase 3 were not run as two
+sequential phases.** `package-ci.yml` discovers websites relative to
+`github.repository_owner`, and its `Downstream (all)` check treats zero
+discovered websites as a hard failure. Transferring the package repositories
+and `website-template` before the seven sites — or the reverse — would have
+turned every package pull request red the moment `github.repository_owner`
+resolved to the new org but the sites it was still looking for hadn't moved
+yet. All twelve repositories transferred together, in one batch, once the
+Phase 1 branches were staged. The phase numbering below is kept for
+reference, but read Phase 2 and Phase 3 as one execution, not two.
+
+The `.gitmodules` and prose-documentation items that Phase 4 originally
+listed as follow-ups to `inventory-app`'s *own* transfer — repointing the
+twelve `.new-architecture/` submodule URLs, and fixing this repository's
+docs where they name one of the twelve moved repositories — did not need to
+wait for that. They only depended on the sibling repositories having moved,
+not on this one moving, so they were pulled forward into a standalone
+`chore/*` PR on the same day. See the Phase 4 note below for exactly what
+that PR did and did not touch.
+
 ## Why the order matters
 
 A GitHub organization transfer is not one action across the whole estate — it
@@ -57,6 +87,27 @@ rather than a single checklist done in any order.
   activity are redirected. However, we don't redirect GitHub Pages
   associated with the repository."*
 
+  Confirmed against the real transfer: the Pages *configuration* survived
+  intact and needed no rebuild — all seven sites served `200` at
+  `museumwithnofrontiers.github.io/<repo>/` immediately, straight from
+  whatever was already built and deployed before the transfer. The old
+  `metanull.github.io/<repo>/` address returns `404`, exactly as GitHub's
+  docs say — Pages truly does not redirect, in either direction.
+- **GitHub does not redirect Actions `if:` conditions that hardcode an
+  owner/repo string, either — and a `uses:` search will not find them.**
+  This was not anticipated going in; it surfaced only after the transfer.
+  Two examples: `website-template`'s `ci`/`deploy`/`audit` workflows guard
+  some jobs with `if: github.repository == 'metanull/website-template'`,
+  which flipped from false to true the moment the repository moved and
+  started running work that guard existed to skip. And
+  `dependabot-automerge.yml` matches
+  `contains(dependency-names, 'metanull/viewer-workflows')` to auto-merge
+  workflow-pin bumps — a string no consumer's `package.json` still contains
+  once it depends on `museumwithnofrontiers/viewer-workflows`, so automerge
+  for that dependency went silently quiet instead of failing loudly. Audit
+  passes for a transfer like this one must grep `if:` conditions and
+  Dependabot config matchers, not only `uses:` lines.
+
 A third fact, found only after the scouting pass and specific to
 repositories with meaningful Actions usage, is documented in Phase 1 below,
 where it is most relevant.
@@ -70,6 +121,26 @@ own documentation does not promise.
 
 Nothing in this phase transfers a repository. Everything here can be undone
 or simply left in place if the transfer is postponed.
+
+### How a transfer is actually executed
+
+Every "Transfer `<repo>`" step in the phases below means this call, run once
+per repository:
+
+```bash
+gh api -X POST repos/metanull/<repo>/transfer -f new_owner=museumwithnofrontiers
+```
+
+There is no `gh repo transfer` subcommand — this REST call is the only way
+to do it from the CLI. In Git Bash on Windows, the path argument must carry
+**no leading slash** (`repos/metanull/<repo>/transfer`, not
+`/repos/metanull/<repo>/transfer`) — with a leading slash, Git Bash's
+POSIX-path mangling rewrites it into a filesystem path before `gh` ever sees
+it, and the call fails against something that looks nothing like a GitHub
+API error. The call returns HTTP `202` immediately, with the repository's
+*old* full name still in the response body, because the transfer is
+asynchronous — that is expected, not a failure, and it settles (new owner
+visible everywhere, redirects live) within seconds in practice.
 
 ### Org Actions policy
 
@@ -215,7 +286,10 @@ sequence designed to make the window from "the references stop resolving" to
    and Dependabot automerge (`merge-dependabot-pr.yml` in `inventory-app`,
    `automerge.yml` in every package and site repo) should not be allowed to
    merge anything mid-window either.
-3. Transfer `viewer-workflows` from `metanull` to `museumwithnofrontiers`.
+3. Transfer `viewer-workflows` from `metanull` to `museumwithnofrontiers`
+   (the actual call is `gh api -X POST repos/metanull/viewer-workflows/transfer
+   -f new_owner=museumwithnofrontiers` — see "How a transfer is actually
+   executed" in Phase 0).
 4. **Open the pull requests** from the branches pushed in step 1. This is
    the first time their checks run at all, so they resolve
    `museumwithnofrontiers/viewer-workflows/...@v1.7.0` and go green on the
@@ -223,6 +297,15 @@ sequence designed to make the window from "the references stop resolving" to
    the remaining ten — if something unexpected is wrong, this finds it on
    one repository instead of eleven.
 5. Merge them, then lift the freeze.
+
+This is confirmed to have worked exactly as planned: because every consumer
+workflow triggers on `pull_request` only, pushing the branches in step 1
+ahead of the transfer triggered nothing, each PR's checks ran exactly once
+after the transfer, and they went green on the first attempt. The one
+sharp edge confirmed in practice: a pull-request branch opened *before* its
+repoint branch — for unrelated work, say — still carries the old `uses:`
+line and fails at startup with "repository not found" until it is rebased
+onto (or merged after) the repoint commit.
 
 This ordering — branches pushed early, pull requests opened only after the
 transfer — is deliberate, not incidental: opening the PRs before the
@@ -312,22 +395,31 @@ possible moment.
 
 ## Phase 2 — `viewer-core`, `viewer-layout`, `viewer-i18n`, `website-template`
 
-None of these four repositories serve GitHub Pages, so the Pages concern from
-"Why the order matters" does not apply here — only the `uses:` concern does,
-and Phase 1 already prepared and merged the fix for their
-`ci.yml`/`release.yml` references. Transfer all four now.
+**Correction: this did not run as its own phase, separated from Phase 3 by
+any gap.** None of these four repositories serve GitHub Pages, so the Pages
+concern from "Why the order matters" does not apply to them — but
+`package-ci.yml`'s `Downstream (all)` check discovers websites relative to
+`github.repository_owner` and hard-fails on zero discovered sites, so
+transferring the packages and `website-template` while the seven sites were
+still at `metanull` would have turned every one of these four repos' checks
+red. All twelve repositories transferred as one batch. Phase 1 already
+prepared and merged the `uses:` fix for these four repos' `ci.yml`/`release.yml`
+references beforehand, exactly as it did for the seven sites in Phase 3.
 
-After each transfer, verify two things GitHub's own documentation does not
-confirm either way:
+After the transfer, two things GitHub's own documentation did not confirm
+either way turned out fine — both are now verified, not merely hoped for:
 
-- `website-template` still reports `is_template: true`.
+- `website-template` still reports `is_template: true`. **Confirmed.**
 - Each of the seven site repositories still reports a `template_repository`
   link back to `website-template`. This matters beyond curiosity: dynamic
   site discovery (`package-ci.yml`'s `dependents` job, and — once the Phase 0
   fix lands — `propagate.mjs`) depends on this field resolving correctly.
-  GitHub's docs describe `template_repository` at creation time only and are
-  silent on whether the link survives a transfer of either side of it, so
-  this has to be spot-checked rather than assumed:
+  **Confirmed, and better than merely "survives": `template_repository` is
+  stored by repository id, not by name, so it renders the new owner
+  automatically. Site discovery through this field needed no post-transfer
+  intervention at all** — unlike the `github.repository_owner` concern
+  above, which is a separate mechanism and is exactly why the batching
+  mattered. Spot-check with:
 
 ```bash
 gh api repos/museumwithnofrontiers/islamicart --jq .template_repository
@@ -337,11 +429,10 @@ gh api repos/museumwithnofrontiers/islamicart --jq .template_repository
 gh api repos/museumwithnofrontiers/islamicart --jq .template_repository
 ```
 
-Repeat for each of the seven site repositories (they have not transferred
-yet at this point in the sequence, so this specific check happens again,
-per-site, during Phase 3 — do it here only for whichever of the four Phase 2
-repos you can already confirm, i.e. re-run it against `website-template`
-itself to confirm `is_template` survived).
+Repeat for each of the seven site repositories. Since all twelve transferred
+together rather than in two sequential phases, this check and the Phase 3
+Pages check below were run in the same pass, not days apart as the original
+phase split implied.
 
 One more reference is deliberately **not** fixed in this phase:
 `viewer-workflows/.github/workflows/locale-validate.yml` hardcodes
@@ -361,13 +452,17 @@ instead of being raced against the rest of the transfer.
 `islamicart`, `baroqueart`, `sharinghistory`, `carpets`, `amulets`,
 `the-use-of-colours-in-art`, `water-in-islam`.
 
-Their `ci.yml`/`deploy.yml`/`audit.yml`/`automerge.yml` references were
-already repointed and merged in Phase 1. Transfer each of the seven now.
+**Correction: see the note at the top of Phase 2** — these seven transferred
+in the same batch as the four Phase 2 repositories, not afterwards. Their
+`ci.yml`/`deploy.yml`/`audit.yml`/`automerge.yml` references were already
+repointed and merged in Phase 1.
 
-After **each** transfer, verify Pages is both enabled and actually serving at
-the new URL — this project's standing rule from prior site work is that a
+After each transfer, Pages was confirmed both enabled and actually serving
+at the new URL — this project's standing rule from prior site work is that a
 green deploy run does not by itself prove Pages is live, and that rule
-applies here just as much as it did to a from-scratch site:
+applied here just as much as it did to a from-scratch site. All seven
+returned `200` immediately, from the build already in place before the
+transfer — no rebuild ran or was needed:
 
 ```bash
 gh api repos/museumwithnofrontiers/<site>/pages --jq '.html_url,.status'
@@ -408,14 +503,22 @@ gh api repos/museumwithnofrontiers/inventory-app/pages --jq '.html_url,.status'
 (Invoke-WebRequest -Uri "https://museumwithnofrontiers.github.io/inventory-app/" -Method Head -UseBasicParsing).StatusCode
 ```
 
-- Rewrite the twelve `.new-architecture/` submodule URLs in `.gitmodules`
-  from `https://github.com/metanull/<repo>` to
-  `https://github.com/museumwithnofrontiers/<repo>` (one entry each for
-  `viewer-core`, `viewer-layout`, `viewer-workflows`, `website-template`,
-  `islamicart`, `baroqueart`, `sharinghistory`, `carpets`, `water-in-islam`,
-  `amulets`, `the-use-of-colours-in-art`, `viewer-i18n`). Existing clones
-  then need to re-read `.gitmodules` into their local submodule remote
-  config before the next update:
+- ~~Rewrite the twelve `.new-architecture/` submodule URLs in `.gitmodules`~~
+  **Done ahead of this phase, in a separate `chore/*` PR on 2026-09-15, the
+  same day the twelve sibling repositories transferred.** That PR repointed
+  all twelve entries from `https://github.com/metanull/<repo>` to
+  `https://github.com/museumwithnofrontiers/<repo>` (`viewer-core`,
+  `viewer-layout`, `viewer-workflows`, `website-template`, `islamicart`,
+  `baroqueart`, `sharinghistory`, `carpets`, `water-in-islam`, `amulets`,
+  `the-use-of-colours-in-art`, `viewer-i18n`) and ran
+  `git submodule sync --recursive`, and it fixed this repository's `docs/`
+  prose that named those same twelve repositories — including this document.
+  It did not touch anything that names `inventory-app` itself
+  (`docs/_config.yml`, the nav links, `CODEOWNERS` below): those still say
+  `metanull` on purpose, because this repository has not transferred yet.
+  Existing clones need to re-read `.gitmodules` into their local submodule
+  remote config before their next update, same as any other `.gitmodules`
+  change:
 
 ```bash
 git submodule sync --recursive
@@ -449,8 +552,32 @@ Two things are confirmed to need **no** change:
 
 ## Phase 5 — the sweep
 
-What is left after Phases 1 through 4 is prose and cleanup, not anything that
-breaks CI or a live URL:
+What was left after Phases 1 through 3 turned out **not** to be entirely
+prose and cleanup — two items below actively change what CI does, and were
+found only after the transfer, not anticipated by the original scouting
+pass. They should not wait behind the merely cosmetic items on this list:
+
+- **`website-template`'s `ci`/`deploy`/`audit` workflow guards.** They gate
+  some jobs on `if: github.repository == 'metanull/website-template'`. That
+  condition flipped from false to true the moment the repository moved,
+  so those jobs now run when they were meant to be skipped. Fix the
+  hardcoded string to `museumwithnofrontiers/website-template` (or better,
+  stop comparing against a literal owner at all).
+- **`dependabot-automerge.yml`'s dependency match.** It auto-merges
+  workflow-pin bumps when `contains(dependency-names, 'metanull/viewer-workflows')`.
+  No consumer's manifest contains that string once it depends on
+  `museumwithnofrontiers/viewer-workflows`, so this condition now never
+  matches — automerge for that dependency stopped silently instead of
+  failing loudly, and would otherwise go unnoticed until someone asks why a
+  workflow-pin PR is sitting unmerged. Update the match string.
+
+Neither of these was findable by grepping `uses:` lines, which is what the
+rest of this runbook's search strategy was built around — both are `if:`
+conditions and a Dependabot config matcher. Any future audit of a transfer
+like this one should grep `if:` conditions and `.github/dependabot.yml`
+matchers alongside `uses:` lines, not instead of them.
+
+The rest is prose and cleanup, not anything that breaks CI or a live URL:
 
 - READMEs and prose documentation across all thirteen repositories.
 - `website-template`'s own README specifically — it documents the
@@ -505,19 +632,23 @@ way.
 
 | Thing | Survives a transfer? | Status |
 |---|---|---|
+| Repository id | Yes | Confirmed against the twelve completed transfers. Everything keyed by id rather than name/owner — `template_repository` below included — rode along for free. |
 | Actions secrets & variables | Yes | Documented — GitHub's transfer docs state secrets, webhooks, services, and deploy keys "remain associated" after a transfer. |
 | Webhooks | Yes | Documented, same statement. (Moot for this estate: none of the 13 repos currently has any webhook configured.) |
 | Deploy keys | Yes | Documented, same statement. Not individually re-checked against the live repos in this pass. |
-| Issues, pull requests, wiki, stars, watchers | Yes | Documented explicitly. |
+| Issues, pull requests, wiki, stars, watchers | Yes | Documented explicitly, and confirmed: open pull requests on all twelve transferred repos were still open and functional afterwards. |
 | Forks | Yes, remain associated | Documented explicitly. |
 | Git/web URL redirects (clone URLs, repo web pages) | Yes | Documented explicitly — this is the redirect that does **not** extend to Actions `uses:` resolution or npm registry trust decisions (see "Why the order matters" and Phase 0). |
-| GitHub Pages configuration (source branch, build type) | Yes | Documented explicitly. |
-| GitHub Pages URL | **No** — does not redirect | Documented explicitly ("we don't redirect GitHub Pages associated with the repository"). Every Pages-enabled repo needs the manual check in Phases 3 and 4. |
+| GitHub Pages configuration (source branch, build type) | Yes | Documented explicitly, and confirmed: all seven sites plus the docs site kept their configuration and served `200` immediately, no rebuild. |
+| GitHub Pages URL | **No** — does not redirect | Documented explicitly ("we don't redirect GitHub Pages associated with the repository"), and confirmed: `metanull.github.io/<repo>/` returns `404` for all twelve after their transfer. |
+| `allow_auto_merge` | Yes | Confirmed against the twelve completed transfers. Not documented by GitHub either way going in. |
+| `delete_branch_on_merge` | Yes | Confirmed against the twelve completed transfers. Not documented by GitHub either way going in. |
 | Dependabot secrets | Not stated either way | Verify — GitHub's docs only make the general "secrets... remain associated" statement; nothing Dependabot-specific was found. `inventory-app`'s `DEPENDABOT_GITHUB_PACKAGES_TOKEN` should be confirmed present post-transfer, not assumed. |
-| Branch protection rules / rulesets | Not stated either way | Verify — all 13 repos carry protection rules or rulesets today; re-check each one after its transfer rather than assuming it carried over unchanged. |
-| `is_template` flag (`website-template`) | Not stated either way | Verify — see the Phase 2 check. |
-| `template_repository` link (the 7 sites) | Not stated either way | Verify — see the Phase 2 check; this one matters functionally, not just cosmetically, because site discovery depends on it. |
-| npmjs trusted-publisher bindings | **No**, under the name-based assumption | Not GitHub's to document at all — this is npmjs.com state. See Phase 0; treated as broken by a transfer unless the two-connection approach is used first. |
+| Classic branch protection, **including required status-check contexts** | Yes | Confirmed against the twelve completed transfers — this was the one item on this table considered most likely to silently drop a required-check list, and it did not. |
+| Rulesets | Yes | Confirmed against the twelve completed transfers. |
+| `is_template` flag (`website-template`) | Yes | Confirmed — see the Phase 2 note. |
+| `template_repository` link (the 7 sites) | Yes | Confirmed, and better than a bare "survives": the link is stored by repository id, so it re-resolves to the new owner automatically. Site discovery through this field needed no post-transfer fix — see the Phase 2 note for the *other* discovery mechanism (`github.repository_owner`) that did need the batched-transfer workaround. |
+| npmjs trusted-publisher bindings | **No**, under the name-based assumption | Not GitHub's to document at all — this is npmjs.com state. See Phase 0; treated as broken by a transfer unless the two-connection approach is used first. Not re-verified as part of this correction pass — confirm separately before relying on it. |
 
 ## Standing rules
 
@@ -532,6 +663,19 @@ way.
 - **A green CI or deploy run never proves GitHub Pages is serving.** Check
   the URL itself, every time, for every one of the eight Pages-enabled
   repositories as it transfers.
-- **Where GitHub's documentation is silent — branch protection, rulesets,
-  `is_template`, `template_repository` continuity, Dependabot secrets —
-  treat it as "must verify post-transfer," never as "probably fine."**
+- **Where GitHub's documentation is silent, verify rather than assume** —
+  this is how branch protection (including required status-check contexts),
+  rulesets, `is_template`, and `template_repository` continuity went from
+  "not stated either way" to confirmed in the table above. Dependabot
+  secrets and the npmjs trusted-publisher bindings remain in that
+  not-yet-verified state; treat them the same way before relying on them.
+- **A repointing pass must grep `if:` conditions and `.github/dependabot.yml`
+  matchers, not only `uses:` lines.** A hardcoded
+  `if: github.repository == 'owner/repo'` fails silently in the *wrong*
+  direction — it starts running work instead of erroring — and a Dependabot
+  `dependency-names: contains(...)` match against an old owner string just
+  stops matching, with no error at all. Both are invisible to a `uses:`-only
+  audit; both happened here.
+- **A pull-request branch opened before its repoint branch carries the old
+  `uses:` line and fails at startup** with "repository not found" until it
+  is rebased onto, or merged after, the repoint commit.
