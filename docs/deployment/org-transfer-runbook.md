@@ -227,12 +227,15 @@ on through `uses:` references, so it moves first, and it moves inside a
 sequence designed to make the window from "the references stop resolving" to
 "the references resolve again" as short as the tooling allows:
 
-1. Pre-stage one pull request per consumer repository, repointing every
+1. Prepare and **push one branch per consumer repository**, repointing every
    `uses:` line from `metanull/viewer-workflows/...@v1.7.0` to
-   `museumwithnofrontiers/viewer-workflows/...@v1.7.0`. These PRs will show
-   **failing** checks before the transfer happens — that is expected and
-   correct, because the new path does not exist yet for their own CI to
-   resolve against.
+   `museumwithnofrontiers/viewer-workflows/...@v1.7.0`. **Do not open the
+   pull requests yet.** Every consumer workflow triggers on `pull_request`
+   only, with no `push:` trigger — confirmed by reading
+   `islamicart/.github/workflows/ci.yml` and
+   `viewer-core/.github/workflows/ci.yml` on their default branches — so
+   pushing the branch runs nothing. This step is free, reversible, and can
+   be done unhurried, well before the transfer.
 2. Freeze pushes to the estate. There is no single command for this — it is
    a coordination step: no PR gets merged and no branch gets pushed directly
    to `main` in any of the 13 repositories for the duration of the freeze,
@@ -240,10 +243,22 @@ sequence designed to make the window from "the references stop resolving" to
    `automerge.yml` in every package and site repo) should not be allowed to
    merge anything mid-window either.
 3. Transfer `viewer-workflows` from `metanull` to `museumwithnofrontiers`.
-4. Re-run the failed checks on the staged PRs from step 1. They now resolve
-   `museumwithnofrontiers/viewer-workflows/...@v1.7.0` successfully and go
-   green.
+4. **Open the pull requests** from the branches pushed in step 1. This is
+   the first time their checks run at all, so they resolve
+   `museumwithnofrontiers/viewer-workflows/...@v1.7.0` and go green on the
+   first attempt. Open one PR first and confirm it goes green before opening
+   the remaining ten — if something unexpected is wrong, this finds it on
+   one repository instead of eleven.
 5. Merge them, then lift the freeze.
+
+This ordering — branches pushed early, pull requests opened only after the
+transfer — is deliberate, not incidental: opening the PRs before the
+transfer would run their checks against a path that does not exist yet,
+producing failed runs that then have to be coaxed into re-running inside the
+window. Opening them afterwards means every check runs exactly once, against
+the correct path. The slow part — writing the edits themselves — is fully
+done in step 1 either way, so there is nothing to gain, and a failure mode
+to avoid, by opening the PRs early.
 
 The `@v1.7.0` tag itself needs no change — tags travel with the repository on
 transfer, so the same pinned version resolves correctly at the new path once
@@ -258,8 +273,8 @@ the pre-transfer audit:
 | `viewer-core`, `viewer-layout` | 2 | `ci.yml`, `release.yml` |
 | `viewer-i18n` | 4 | `automerge.yml`, `ci.yml` (2 lines), `release.yml` |
 
-That is 48 lines across 11 repositories. Every one of them needs its staged
-PR from step 1 before the transfer in step 3.
+That is 48 lines across 11 repositories. Every one of them needs its branch
+from step 1, pushed before the transfer in step 3.
 
 ### Repository name retirement
 
@@ -309,12 +324,25 @@ This cuts both ways:
   rejects the attempt with the retired-name error quoted above. Say this
   plainly so nobody spends time on it mid-window.
 
+### Keep the window branches to the owner swap only
+
+The branches from step 1 touch each consumer's `ci.yml`, among other files,
+and `viewer-core/.github/workflows/ci.yml` already carries a stale comment
+there: it justifies a `packages: read` permission grant by saying it
+installs "the private `@museumwnf/*-data` packages," which have been public
+on npmjs since M1. Do not fix that here. Keep every step-1 branch to a
+one-line change per `uses:` reference and nothing else — sweep the unused
+`packages:` grants and their inaccurate comments separately, afterwards
+(Phase 5). Mixing a cleanup into the change that has to land inside the
+freeze is how a simple merge turns into a debugging session at the worst
+possible moment.
+
 ## Phase 2 — `viewer-core`, `viewer-layout`, `viewer-i18n`, `website-template`
 
 None of these four repositories serve GitHub Pages, so the Pages concern from
 "Why the order matters" does not apply here — only the `uses:` concern does,
-and Phase 1 already staged and merged the fix for their `ci.yml`/`release.yml`
-references. Transfer all four now.
+and Phase 1 already prepared and merged the fix for their
+`ci.yml`/`release.yml` references. Transfer all four now.
 
 After each transfer, verify two things GitHub's own documentation does not
 confirm either way:
@@ -471,6 +499,11 @@ breaks CI or a live URL:
   This needs its own `viewer-workflows` release and a full propagation cycle
   to every site — it is a normal platform change at this point, not a
   transfer-day emergency.
+- The unused `packages: read` grant and its stale comment in
+  `viewer-core/.github/workflows/ci.yml`, deferred from Phase 1: the comment
+  justifies the grant by citing "the private `@museumwnf/*-data` packages,"
+  which have been public on npmjs since M1, so the grant is no longer doing
+  anything the workflow needs.
 
 Also worth recording explicitly: **`dependents.json` does not exist anywhere
 in the estate any more.** Site discovery is dynamic, via `template_repository`
