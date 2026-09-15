@@ -255,14 +255,3 @@ confirm, not one this story settled.**
 `--base=/amulets/` and deploys `dist/` to `/opt/amulets/` on the OVH VPS;
 Nginx serves it at https://inventory.metanull.eu/amulets/ via an alias block.
 See [`../README.md`](../README.md) for the shared deployment mechanics.
-
-**The workflow is not usable yet** — see *What must change once the package is
-published* above. The Nginx alias block still has to be added on the server:
-
-```nginx
-location /amulets {
-    alias /opt/amulets;
-    index index.html;
-    try_files $uri $uri/ /amulets/index.html;
-}
-```
