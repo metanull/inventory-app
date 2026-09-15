@@ -156,7 +156,7 @@ Audits the full dependency tree of every PHP and npm project in the repository o
 
 2. **enumerate-npm-projects** (*Enumerate npm Projects*) - Builds the `audit-npm` matrix from the checkout
    - Finds every `package.json` in the tree (excluding `node_modules`) and emits `projects`: a JSON array of `{name, directory, registry}` objects
-   - `registry` is set only for `/spa` and the viewers, the projects that install an `@metanull` package from GitHub Packages; everything else gets an empty value, which `setup-node` reads as the public default
+   - `registry` is set only for `/spa`, the one remaining project that installs an `@metanull` package from GitHub Packages; everything else — including the viewers, whose `@museumwnf/<dataset>-data` package is public on npmjs — gets an empty value, which `setup-node` reads as the public default
    - No project or directory is named in this workflow — a new tool under `scripts/`, or a forked exporter or viewer, is audited from the day it lands with no edit here. `.github/dependabot.yml` covers the same directories by glob, so the two agree by construction
 
    | Contributes | Registry |
@@ -166,7 +166,7 @@ Audits the full dependency tree of every PHP and npm project in the repository o
    | `Importer` (`scripts/importer`) | public npm |
    | `Site i18n` (`scripts/site-i18n`) | public npm |
    | `Exporter (<dataset>)`, per `package.json` under `scripts/exporters/*/` | public npm |
-   | `Viewer (<dataset>)`, per `package.json` under `scripts/viewers/*/` | npm.pkg.github.com |
+   | `Viewer (<dataset>)`, per `package.json` under `scripts/viewers/*/` | public npm |
    | any other `package.json` under `scripts/` | public npm |
 
    > **Both sides read the tree.** This matrix finds every `package.json`; [`.github/dependabot.yml`](#dependabot-configuration) covers the same directories with `directories:` globs. "Gets a weekly audit" and "gets dependency updates" are therefore the same set by construction — not because a check compares two hand-written lists, but because neither list is hand-written.
@@ -186,7 +186,7 @@ Audits the full dependency tree of every PHP and npm project in the repository o
 **Permissions**
 
 - `contents: read` - For reading repository contents
-- `packages: read` - For accessing GitHub Packages (SPA and viewer dependencies)
+- `packages: read` - For accessing GitHub Packages (`/spa`'s `@metanull/inventory-app-api-client` dependency)
 - `issues: write` - For opening or commenting on the tracking issue
 
 **Usage**
@@ -418,7 +418,7 @@ See also [/scripts/README.md](../../scripts/README.md#generating-the-api-client-
 
 ### Deploy Dataset Viewers to OVH
 
-One workflow per dataset viewer. Each builds its Vite viewer against the **latest published** `@metanull/<dataset>-data` package and copies the build output to the OVH VPS over SSH.
+One workflow per dataset viewer. Each builds its Vite viewer against the **latest published** `@museumwnf/<dataset>-data` package and copies the build output to the OVH VPS over SSH.
 
 **Workflows**
 
@@ -451,9 +451,9 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 **Job: build-and-deploy** (*Build and Deploy `<dataset>` Viewer*)
 
-1. Sets up Node.js `lts/Krypton` against GitHub Packages for the `@metanull` scope
+1. Sets up Node.js `lts/Krypton` (no registry scoping needed — the data package is public on npmjs)
 2. Installs viewer dependencies with `npm ci`
-3. Runs `npm install @metanull/<dataset>-data@latest` — the newest data package is always pulled, regardless of what `package-lock.json` pins, so the viewer reflects current data
+3. Runs `npm install @museumwnf/<dataset>-data@latest` — the newest data package is always pulled, regardless of what `package-lock.json` pins, so the viewer reflects current data
 4. Builds with `npm run build -- --base=/<dataset>/`
 5. Sets up SSH, checks VPS connectivity and verifies SSH authentication
 6. Copies `dist/` to the target directory on the VPS with `scp`
@@ -461,8 +461,7 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 
 **Permissions**
 
-- `contents: read` - For reading repository contents
-- `packages: read` - Required to pull `@metanull/<dataset>-data` from GitHub Packages
+- `contents: read` - For reading repository contents. `@museumwnf/<dataset>-data` is public on npmjs, so no `packages: read` permission is needed here.
 
 **Secrets**
 
@@ -490,12 +489,13 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 | `npm` | `/` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/*` | Weekly | registry.npmjs.org (public) |
 | `npm` | `/scripts/exporters/*` | Weekly | registry.npmjs.org (public) |
-| `npm` | `/spa`, `/scripts/viewers/*` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/spa` | Weekly | npm.pkg.github.com (GitHub) |
+| `npm` | `/scripts/viewers/*` | Weekly | registry.npmjs.org (public) |
 | `github-actions` | `/` | Weekly | github.com (public) |
 
 `/scripts/*` is one level deep on purpose: `scripts/exporters` and `scripts/viewers` hold no manifest of their own, and their children are matched by the two patterns below it.
 
-**The registry split is structural, not a rule to remember.** Only `/spa` (`@metanull/inventory-app-api-client`) and the viewers (`@metanull/<dataset>-data`) consume an `@metanull` package, so only their entry carries `registries: [npm-github]` — which is also what hands the PAT to the update job. Exporters and tools read from the public registry and sit in entries that carry no credential at all, so a new project inherits the right answer from where its directory lives rather than from a reviewer noticing.
+**The registry split is structural, not a rule to remember.** Only `/spa` (`@metanull/inventory-app-api-client`) still consumes an `@metanull` package, so only its entry carries `registries: [npm-github]` — which is also what hands the PAT to the update job. The viewers install `@museumwnf/<dataset>-data` from the public npm registry, so, like the exporters and tools, they sit in an entry that carries no credential at all — a new project inherits the right answer from where its directory lives rather than from a reviewer noticing.
 
 **One pull request per directory.** A glob does not couple the projects it matches: Dependabot's default for a multi-directory entry is a separate PR per directory, so a failing bump in one exporter does not block the others. Setting `group-by: dependency-name` on a group would collapse them into a single cross-directory PR — avoid that unless PR volume ever becomes the problem.
 
@@ -503,7 +503,7 @@ Dependabot is configured in `.github/dependabot.yml` to keep dependencies up to 
 
 **GitHub Packages registry access**
 
-The `npm` ecosystems that consume `@metanull` packages reference the GitHub Packages registry (`npm.pkg.github.com`), which requires authentication even for packages in the same organization. The registry token is configured as:
+The `npm` ecosystem entry that consumes an `@metanull` package (`/spa`) references the GitHub Packages registry (`npm.pkg.github.com`), which requires authentication even for packages in the same organization. The registry token is configured as:
 
 ```yaml
 registries:
@@ -606,7 +606,7 @@ Several workflows interact with scripts, composite actions and other workflows:
 | `deploy-ovh.yml` | `build.yml` artifact, `scripts/deploy.sh` | - |
 | `continuous-deployment_github-pages.yml` | [/scripts/README.md](../../scripts/README.md) scripts | - |
 | `publish-api-client.yml` | `detect-environment`, `generate-api-client`, `publish-npm-package`, `.github/templates/api-client/` | - |
-| `deploy-viewer-*-ovh.yml` | `@metanull/<dataset>-data` on GitHub Packages | - |
+| `deploy-viewer-*-ovh.yml` | `@museumwnf/<dataset>-data` on npmjs (public) | - |
 | `merge-dependabot-pr.yml` | - | - |
 
 **Scripts used by workflows:**
