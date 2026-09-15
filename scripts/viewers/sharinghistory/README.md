@@ -83,4 +83,5 @@ pre-bundle cache).
 `--base=/sharinghistory/` and deploys `dist/` to `/opt/sharinghistory/` on
 the OVH VPS; Nginx serves it at https://inventory.metanull.eu/sharinghistory/
 via an alias block. See [`../README.md`](../README.md) for the shared
-deployment mechanics and GitHub Packages access prerequisites.
+deployment mechanics — the data package is public on npmjs, so the workflow
+needs no registry credential.
