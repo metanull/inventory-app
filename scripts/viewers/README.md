@@ -155,5 +155,4 @@ development**; keep them bumped to the latest published version so a fresh
    placing the new viewer under `scripts/viewers/` is enough to pick it up on
    the next run — there is no per-viewer entry to forget. That entry carries
    no `registries:` key, since `@museumwnf/<dataset>-data` is public on
-   npmjs; only `/spa` (`@metanull/inventory-app-api-client`) still needs the
-   `npm-github` registry.
+   npmjs, like every other npm project in this repository.
