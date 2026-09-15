@@ -351,19 +351,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Three of the viewers pull @metanull/<site>-data from GitHub Packages, so
-      # the registry and token are supplied for every viewer rather than only
-      # the ones that need them today — a fork that gains a data package must
-      # not have to remember to edit this job.
+      # Every viewer's data package (@museumwnf/<site>-data) is public on
+      # npmjs, so this job needs no registry or token — the default public
+      # registry resolves it like any other dependency.
       - name: "Setup > Node Project (Viewer ${{ matrix.viewer }})"
         uses: ./.github/actions/setup-node-project
         with:
           working-directory: scripts/viewers/${{ matrix.viewer }}
-          registry-url: https://npm.pkg.github.com/
-          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Same base path the deploy workflow uses, so what CI builds is what OVH
-      # gets. A viewer whose @metanull/<site>-data package is not published
+      # gets. A viewer whose @museumwnf/<site>-data package is not published
       # fails here, and that is the point: without the package its
       # `@inventory-data` alias cannot resolve, so it cannot be deployed either.
       # A failing check is the honest signal — publish the package (see the
