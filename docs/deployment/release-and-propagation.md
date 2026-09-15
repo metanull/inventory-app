@@ -236,20 +236,35 @@ The websites are discovered, not listed: every repository created from
 `website-template` is a consumer. A site created by fork or transferred in is
 invisible to discovery; pass `--repo` for those.
 
-### 5.3 Transition to npmjs
+### 5.3 Transition to npmjs (complete)
 
-The packages are moving from GitHub Packages to npmjs under the `museumwnf`
-organisation (epics #1720 to #1723). Until that is complete, the registry is
-GitHub Packages and CI authenticates with the ephemeral `github.token`. Once a
-package is renamed to `@museumwnf/<name>`:
+The shared packages and the data packages both moved from GitHub Packages to
+npmjs under the `@museumwnf` scope. The consumer-facing part of that move
+(epics #1720 and #1722) closed 2026-09-15: the release workflow publishes to
+npmjs, every consumer — the websites, `website-template`, and inventory-app's
+OVH deploy workflows — installs from npmjs, and all 7 data packages publish
+only to npmjs (see stage 3 above). What that looked like, and what it left
+behind:
 
-- The first version of the new name must be published by hand from a session
-  with 2FA, because OIDC cannot create a package.
-- Then a trusted publisher is configured on npmjs.com for the package, naming
-  the caller workflow `release.yml`. From then on, step 5.1 publishes to npmjs
-  without any token.
-- Data packages keep being published by hand from the operator's machine, with
-  the operator's npm login.
+- For each shared package, the first version under the new name had to be
+  published by hand from a session with 2FA, because OIDC cannot create a
+  package. After that, a trusted publisher was configured on npmjs.com for
+  the package, naming the caller workflow `release.yml` — from then on, step
+  5.1 publishes to npmjs without any stored token.
+- Data packages are still published by hand from the operator's machine, with
+  the operator's own npm login — there never was a CI path for them, by
+  design (see `NPM_PUBLISH.md` in each exporter).
+- What the cutover did **not** yet remove: `viewer-workflows`' reusable
+  workflow still carries the old GitHub Packages publish path and the CI
+  wiring that fed it (`NODE_AUTH_TOKEN`, `registry-url:
+  https://npm.pkg.github.com`), and a few packages still have a stale
+  `publishConfig.registry` pointing at it. Stripping that leftover wiring —
+  and fixing any doc that still describes GitHub Packages as the current
+  publish target — is tracked separately in epic #1723 ("Retire GitHub
+  Packages publishing"), open as of this writing.
+- None of this touches `@metanull/inventory-app-api-client`: that package,
+  consumed only by `/spa`, was explicitly kept on GitHub Packages and is out
+  of scope for the whole transition.
 
 ## 6. Scaffold (website-template)
 
