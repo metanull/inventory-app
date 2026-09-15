@@ -153,50 +153,23 @@ confirming the new connection works** — a release cut in that window would
 fail the `npm publish --provenance` step with no existing binding to fall
 back to.
 
-### The `@metanull/inventory-app-api-client` decision
+### `@metanull/inventory-app-api-client` — no longer a Phase 4 gate
 
-This blocks Phase 4 only — it has no bearing on Phases 1 through 3.
+This package and the `/spa` app it served were removed from `inventory-app`
+(see the companion PR that deletes the SPA and API client code and the
+workflows that generated/published it). The rename decision this section
+used to describe — what the package's new npm scope should be once
+`inventory-app` moves to `museumwithnofrontiers` — no longer applies, because
+there is no package left to rename or publish. Phase 4 is not gated on it.
 
-GitHub Packages requires a scoped npm package's scope to equal the *owning
-account's login*. Once `inventory-app` is owned by `museumwithnofrontiers`,
-publishing a package still named `@metanull/inventory-app-api-client` from
-that repo is not something the registry will accept — the scope has to
-change to match the new owner. That forces a rename; it does not by itself
-decide what the new name is, when the rename happens relative to the
-transfer, or how the one external consumer adapts. Those are the maintainer's
-calls, not something this runbook should preempt.
-
-The scope is hardcoded in six places:
-
-- `.github/templates/api-client/package.json` (the template that generates
-  the committed copy)
-- `api-client/package.json` (the generated, committed copy)
-- `scripts/api-client-config.psd1`
-- `.github/actions/publish-npm-package/action.yml` (writes the scope into a
-  generated `.npmrc`)
-- `scripts/publish-api-client.ps1` (same hardcode, manual/local publish path)
-- `.github/dependabot.yml` (the `registries.npm-github.scope` entry that
-  feeds Dependabot's version updates for `/spa`)
-
-`metanull/inventory-management-ui` — a repository that is **not** part of
-this transfer — depends on this exact package via GitHub Packages,
-authenticating with its own `secrets.GITHUB_TOKEN` rather than a
-cross-repository PAT. That only works today because GitHub Packages grants a
-workflow's own `GITHUB_TOKEN` implicit read access to packages owned by the
-same account. Once `inventory-app` (and the package it publishes) belongs to
-a different owner, that implicit access no longer applies, regardless of
-what the package ends up named. `inventory-management-ui` will need either
-to be re-added to the package's "Manage Actions access" allowlist at its new
-home, or to switch to a PAT-based token scoped for the new org — and because
-that repository is not being transferred, nobody's automation will make that
-change for it; a person has to.
-
-Two secrets currently scoped for `@metanull` publishing —
-`GH_PACKAGE_TOKEN` (used by `publish-api-client.yml`) and
-`DEPENDABOT_GITHUB_PACKAGES_TOKEN` — will need to be reissued or reconfirmed
-valid for whatever scope is chosen, before the first post-transfer push that
-touches `app/**`, `routes/api.php`, or `config/scramble.php` triggers a
-publish.
+One consequence of the removal is outside this runbook's scope but worth
+flagging for whoever owns it: `metanull/inventory-management-ui` — a
+repository that is **not** part of this transfer — depended on
+`@metanull/inventory-app-api-client` via GitHub Packages. Deleting the
+package's source does not by itself unpublish already-published versions
+from GitHub Packages, but there will be no new versions after the removal.
+Confirm with that repository's maintainer whether it needs to pin to the
+last published version or migrate off the client.
 
 ### Merge the propagation-tool owner fix
 
@@ -420,9 +393,6 @@ name (e.g. `/carpets/`), never the owner. Nothing there references
 
 ## Phase 4 — `inventory-app`
 
-Gated on the api-client decision in Phase 0 — do not start this phase until
-that decision has been made and the relevant secrets are ready.
-
 Transfer `inventory-app`. After the transfer:
 
 - Verify the docs-site Pages deployment the same way as Phase 3 (Pages
@@ -463,8 +433,6 @@ git submodule update --init --recursive
   `resources/views/components/app-nav.blade.php` (the "Source Code" and
   "Project Docs" links, each appearing once in the desktop nav and once in
   the mobile nav).
-- Update `.github/dependabot.yml`'s registry scope, in step with whatever
-  scope the Phase 0 api-client decision settled on.
 - Update `.github/CODEOWNERS` so every path still resolves to an
   account or team with write access at the new location.
 
