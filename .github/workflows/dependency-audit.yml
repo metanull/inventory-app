@@ -59,12 +59,13 @@ jobs:
       # scripts/site-i18n matched none of those and silently received no audit
       # at all from the day it landed.
       #
-      # `registry` is set only for /spa, the one remaining project that
-      # installs an @metanull package from GitHub Packages
-      # (inventory-app-api-client). The viewers moved their data packages to
-      # the public npm registry as @museumwnf/<dataset>-data, so they, like
-      # everything else here, resolve from the public registry and get an
-      # empty value, which setup-node treats as "default".
+      # `registry` is set only for /spa, because spa/package.json depends on
+      # @metanull/inventory-app-api-client, which is deliberately still
+      # published to GitHub Packages (see publish-api-client.yml) rather than
+      # npmjs. The viewers moved their data packages to the public npm
+      # registry as @museumwnf/<dataset>-data, so they, like everything else
+      # here, resolve from the public registry and get an empty value, which
+      # setup-node treats as "default".
       - name: Enumerate npm projects
         id: enumerate
         run: |

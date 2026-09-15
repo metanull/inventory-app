@@ -2,7 +2,11 @@ name: Build
 
 permissions:
   contents: write  # To create releases
-  packages: read   # Need read permissions for GitHub Packages
+  # Lets the "Install SPA demo dependencies" step below (via NODE_AUTH_TOKEN)
+  # authenticate to GitHub Packages for the spa/ directory's
+  # @metanull/inventory-app-api-client dependency. The root npm ci needs no
+  # such permission.
+  packages: read
 
 on:
   push:
@@ -41,6 +45,14 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: "lts/Krypton"
+        # setup-node writes this as an "@metanull:registry=..." line in
+        # .npmrc, not a global "registry=" line: no `scope:` is given, so it
+        # defaults the scope to this repo's owner because the URL is
+        # npm.pkg.github.com. The root package.json has no @metanull-scoped
+        # dependency, so "Install backend dependencies" below still resolves
+        # from the public npm registry; only "Install SPA demo dependencies"
+        # (which needs @metanull/inventory-app-api-client) actually uses this,
+        # and separately sets NODE_AUTH_TOKEN to authenticate.
         registry-url: https://npm.pkg.github.com/
         cache: "npm"
     
