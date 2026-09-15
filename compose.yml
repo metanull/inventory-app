@@ -228,7 +228,7 @@ services:
     networks: [inventory]
 
   # ---------------------------------------------------------------------------
-  # tools — npm, vite, api-client generation. One-shot:
+  # tools — npm, vite. One-shot:
   #   docker compose run --rm tools npm ci
   # ---------------------------------------------------------------------------
   tools:
@@ -266,7 +266,6 @@ services:
     profiles: [docs]
     volumes:
       - ./docs:/workspace/docs
-      - ./api-client:/workspace/api-client:ro
       - ./scripts:/workspace/scripts:ro
       - ./.git:/workspace/.git:ro
       - docs-bundle:/usr/local/bundle

@@ -10,14 +10,9 @@
 # │ new tool directly under scripts/ is the exception — see the entry that   │
 # │ lists them, and why it cannot glob.                                      │
 # │                                                                          │
-# │ The registry/token split is structural, not a rule someone has to        │
-# │ remember. Only /spa (@metanull/inventory-app-api-client) still consumes  │
-# │ an @metanull package, so only its entry carries `registries:             │
-# │ [npm-github]` — which is also what hands the PAT to the update job. The  │
-# │ viewers now install @museumwnf/<dataset>-data from the public npm        │
-# │ registry, so, like the exporters and tools, they get their own entry     │
-# │ with no credential at all. A new project inherits the right answer from  │
-# │ where its directory sits.                                                │
+# │ No entry here carries a `registries:` key: every npm project resolves    │
+# │ from the public registry. The viewers install @museumwnf/<dataset>-data  │
+# │ from npmjs, and nothing else consumes a package from GitHub Packages.    │
 # │                                                                          │
 # │ Dependabot opens ONE PULL REQUEST PER DIRECTORY by default, so a glob    │
 # │ does not couple the projects it matches: a failing bump in one exporter  │
@@ -103,49 +98,6 @@ updates:
       exporter-prod-dependencies:
         dependency-type: "production"
 
-  # /spa — the only remaining project that installs an @metanull package from
-  # GitHub Packages, and therefore the only one that needs the registry and
-  # its PAT. The dataset viewers moved their data packages to the public npm
-  # registry as @museumwnf/<dataset>-data (see the entry below) and no longer
-  # need either.
-  #
-  # The PAT is required. Do not remove this key to rely on Dependabot's own
-  # GITHUB_TOKEN: that was tried here as a deliberate canary (#1612) and it
-  # does not work for these packages. With the key absent, Dependabot ran
-  # with credentials-metadata carrying `git_source` alone — no npm_registry
-  # credential of any kind — and the job died on
-  #
-  #   401 https://npm.pkg.github.com/@metanull%2Finventory-app-api-client
-  #   {"error":"authentication token not provided"}
-  #
-  # The 2026-06-23 "automatic Dependabot access to GitHub-hosted registries"
-  # change does not cover this case, even though the package does grant this
-  # repository read access — the deploy workflow installs it with the
-  # workflow GITHUB_TOKEN. The likeliest reason is that it is published
-  # under a personal account rather than an organization, but the log only
-  # shows that no token was sent, not why.
-  #
-  # Measured in the same trigger that produced the 401: on the PAT path, the
-  # update succeeded and opened a PR (#1611 bumped a private @metanull data
-  # package, back when the viewers were still on this entry too). The PAT is
-  # valid and the scope mapping from #1609 works. Revisit only with evidence,
-  # not with the changelog.
-  - package-ecosystem: "npm"
-    directories:
-      - "/spa"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "npm"
-      - "dependencies"
-    groups:
-      spa-dev-dependencies:
-        dependency-type: "development"
-      spa-prod-dependencies:
-        dependency-type: "production"
-    registries:
-      - npm-github
-
   # Dataset viewers. Public npm registry only: @museumwnf/<dataset>-data is a
   # public package on npmjs, not GitHub Packages, so — like the exporters
   # entry above — this carries no `registries:` key and hands the update job
@@ -208,35 +160,3 @@ updates:
       github-actions-dependencies:
         patterns:
           - ".*"
-
-# `scope` is not optional here, and leaving it out does not degrade gracefully:
-# Dependabot aborts the whole job during file fetching with
-#   "Private npm registries require either a .npmrc file in your repository,
-#    or explicit `scope`/`replaces-base` configuration in dependabot.yml."
-# so no update PR is ever opened for the project. Every entry carrying
-# `registries: [npm-github]` — /spa and, before the viewers moved their data
-# packages to npmjs, every viewer too — failed that way from the day the
-# registry was introduced until this was added.
-#
-# It has to be `scope` and not `replaces-base: true`, which is the other option
-# the error message offers. `replaces-base` makes npm.pkg.github.com the base
-# registry for the project, so vue, vite and every other public dependency
-# would be resolved there too and 404. `scope` maps the one scope we actually
-# host and leaves the default registry alone: Dependabot generates an .npmrc
-# from these credentials at update time.
-#
-# This scope covers the one remaining GitHub Packages consumer —
-# @metanull/inventory-app-api-client in /spa. The viewers' data packages
-# moved to the public @museumwnf scope on npmjs and no longer need it; a
-# second registry entry would only be needed if another @scope showed up on
-# GitHub Packages, since Dependabot does not accept a list here.
-#
-# The repository has no committed .npmrc to infer this from, and should not:
-# .npmrc is gitignored precisely because it holds the token, and only
-# .npmrc.example is tracked.
-registries:
-  npm-github:
-    type: npm-registry
-    url: https://npm.pkg.github.com
-    scope: "@metanull"                                      # must start with '@'; see the note above before removing
-    token: ${{secrets.DEPENDABOT_GITHUB_PACKAGES_TOKEN}}    # PAT with read:packages scope, stored as a Dependabot secret (Settings > Secrets and variables > Dependabot)

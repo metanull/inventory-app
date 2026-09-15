@@ -10,9 +10,7 @@ time — the public websites never talk to the database or the Laravel API.
 > These packages used to be private packages on GitHub Packages, under the
 > `@metanull` scope. They moved to npmjs as part of milestone M1 (epics
 > #1720–#1722, completed 2026-09-15) so that a public website can install
-> them with no credential at all. `@metanull/inventory-app-api-client`, a
-> different package consumed only by `/spa`, was explicitly kept on GitHub
-> Packages and is unaffected by any of this.
+> them with no credential at all.
 
 ```
 legacy DBs ──(importer, run once)──▶ inventory-app DB ──(exporter, per dataset)──▶ @museumwnf/<dataset>-data ──▶ viewer
@@ -291,7 +289,6 @@ a silently empty check rather than failing.
 
 Do **not** add `registries:` anywhere for an exporter. Exporters read the
 database and write JSON, so they consume no `@museumwnf` package; the exporter
-glob is deliberately an entry that carries no credential, which keeps the
-Dependabot PAT away from jobs that have no use for it. (That PAT exists for
-`@metanull/inventory-app-api-client`, still on GitHub Packages and consumed
-only by `/spa` — unaffected by the data packages' move to npmjs.)
+glob is deliberately an entry that carries no credential. No npm project in
+this repository consumes a package from GitHub Packages any more, so no
+Dependabot entry needs one either.
