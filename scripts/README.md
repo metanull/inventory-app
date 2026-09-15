@@ -1,6 +1,6 @@
 # Scripts
 
-The /scripts directory contains automation and helper scripts used for deployment and documentation.
+The /scripts directory contains automation and helper scripts used for documentation, deployment, and development, etc.
 
 ## Table of contents
 
