@@ -4,9 +4,9 @@ Date: 2026-08-27 · Applies to every DXA Gallery site (pilots: **amulets**
 gallery 4/AMU, **carpets** gallery 9/DCA; generalizes to the ~38 gallery
 instances). Requirements source: `dxa-legacy-analysis.md`.
 
-One package per gallery website: `@metanull/<site>-data` with `<site>` the
-kebab-cased legacy slug (`amulets`, `carpets` — decision Q4). Produced by a
-discrete exporter per site
+One package per gallery website, published to npmjs: `@museumwnf/<site>-data`
+with `<site>` the kebab-cased legacy slug (`amulets`, `carpets` — decision Q4).
+Produced by a discrete exporter per site
 (`scripts/exporters/<site>`), reading the production inventory DB. Exporters
 are read-only; media stays out of the package (absolute URLs to
 `https://inventory.metanull.eu/pub/…`).
