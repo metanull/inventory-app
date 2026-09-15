@@ -37,7 +37,12 @@ rather than a single checklist done in any order.
   very next push, in all 11 repos at once. This is unavoidable — there is no
   transfer setting that prevents it — so the whole point of the sequence
   below is to make that window as short as possible, and to make sure
-  nothing is running inside it.
+  nothing is running inside it. Confirmed against
+  [Reusing workflow configurations](https://docs.github.com/en/actions/reference/workflows-and-actions/reusing-workflow-configurations)
+  and GitHub's [renaming a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository)
+  guidance, which states plainly that GitHub will not redirect calls to an
+  action hosted by a renamed (or transferred) repository, and that such
+  workflow runs fail with a "repository not found" error.
 - **GitHub Pages does not redirect either.** A repository's Pages
   *configuration* (source branch, build type) survives a transfer intact, but
   `https://metanull.github.io/<repo>/` does not forward visitors to
@@ -45,10 +50,19 @@ rather than a single checklist done in any order.
   nothing at the old address afterwards. Eight repos serve Pages today (the
   seven public websites plus `inventory-app`'s docs site), and each one needs
   a manual post-transfer check that the new URL is actually live, not just
-  that Pages is "enabled."
+  that Pages is "enabled." GitHub's own
+  [transfer documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository)
+  says this directly: *"If the transferred repository contains a GitHub
+  Pages site, then links to the Git repository on the Web and through Git
+  activity are redirected. However, we don't redirect GitHub Pages
+  associated with the repository."*
+
+A third fact, found only after the scouting pass and specific to
+repositories with meaningful Actions usage, is documented in Phase 1 below,
+where it is most relevant.
 
 Everything else in this document follows from containing the blast radius of
-those two facts: move the pieces that other things depend on first, stage the
+those facts: move the pieces that other things depend on first, stage the
 fix before the breakage rather than after it, and verify the things GitHub's
 own documentation does not promise.
 
@@ -247,6 +261,54 @@ the pre-transfer audit:
 That is 48 lines across 11 repositories. Every one of them needs its staged
 PR from step 1 before the transfer in step 3.
 
+### Repository name retirement
+
+GitHub's transfer documentation describes a permanent side effect for
+repositories with meaningful Marketplace or Actions usage. This was not
+surfaced by the scouting pass, and it cuts both ways for this phase, so it
+is recorded here in full:
+
+> "If the transferred repository contains an action listed on GitHub
+> Marketplace, or had more than 100 clones or more than 100 uses of GitHub
+> Actions in the week prior to the transfer, GitHub permanently retires the
+> owner name and repository name combination (`OWNER/REPOSITORY-NAME`) when
+> you transfer the repository."
+>
+> "If you try to create a repository using a retired owner name and
+> repository name combination, you will see the error: 'The repository
+> `REPOSITORY_NAME` has been retired and cannot be reused.'"
+
+— [Transferring a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository)
+
+`viewer-workflows` is called by eleven other repositories across their
+`ci`/`deploy`/`audit`/`automerge`/`release` workflows, so this will almost
+certainly apply to it, and may apply to others in the estate — neither this
+runbook nor the scouting pass measured weekly clone or Actions-usage counts
+per repository, so this is not asserted as certain for any specific
+repository beyond `viewer-workflows`.
+
+This cuts both ways:
+
+- **It closes a security hole.** Once `metanull/viewer-workflows` is
+  retired, that exact owner/name combination can never be registered again
+  by anyone — nobody can stand up a repository at the old address to serve
+  a poisoned reusable workflow to a `uses:` line that was missed during the
+  move. It also resolves the concern raised during scouting about the
+  `.gitmodules` submodule URLs (Phase 4) relying on GitHub's ordinary
+  clone-URL redirect: that redirect was flagged as fragile specifically
+  because someone could, in principle, reclaim the old name later and break
+  it. A retired name cannot be reclaimed, so that particular risk does not
+  apply to `viewer-workflows` — or to any other repository in the estate
+  that crosses the same threshold.
+- **It forecloses one tempting mitigation.** Do not leave, or plan to leave,
+  a stub repository at `metanull/viewer-workflows` to keep old `uses:`
+  references resolving during the window. It would not have worked anyway —
+  Actions has no forwarding mechanism for `uses:` references, which is the
+  entire premise of the sequence above — and once the real transfer
+  completes, it will not even be possible to create that stub: GitHub
+  rejects the attempt with the retired-name error quoted above. Say this
+  plainly so nobody spends time on it mid-window.
+
 ## Phase 2 — `viewer-core`, `viewer-layout`, `viewer-i18n`, `website-template`
 
 None of these four repositories serve GitHub Pages, so the Pages concern from
@@ -424,6 +486,21 @@ GitHub's documentation explicitly promises survives a transfer, and what it
 simply does not mention — the second category is not a guarantee of safety,
 only an absence of a claim either way, and every row in it needs a
 post-transfer check rather than an assumption.
+
+GitHub's own [transfer documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/transferring-a-repository)
+states the two extremes directly, quoted here verbatim rather than
+paraphrased:
+
+> "If the transferred repository contains webhooks, services, secrets, or
+> deploy keys, they will remain associated after the transfer is complete."
+
+> "If the transferred repository contains a GitHub Pages site, then links to
+> the Git repository on the Web and through Git activity are redirected.
+> However, we don't redirect GitHub Pages associated with the repository."
+
+The table below expands this into every category encountered in this
+estate, including the ones GitHub's documentation does not address either
+way.
 
 | Thing | Survives a transfer? | Status |
 |---|---|---|
