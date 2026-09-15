@@ -208,11 +208,29 @@ the range and the lockfile. Run it from the `viewer-workflows` checkout, in
 Docker, with your own `gh` login and `~/.npmrc` mounted read-only. Preview
 first with `--dry-run`.
 
+Bash (Linux, macOS):
+
 ```bash
 cd E:/inventory/viewer-workflows
 export GH_TOKEN=$(gh auth token)
 docker run --rm -it -e GH_TOKEN -v "$PWD:/w" -v "$HOME/.npmrc:/root/.npmrc:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
 ```
+
+PowerShell (Windows), where the operator actually runs this — `export`,
+`$(...)` command substitution and `$PWD` are bash syntax and do not work as
+written in PowerShell:
+
+```powershell
+$env:GH_TOKEN = gh auth token
+$repo  = "E:/inventory/viewer-workflows"
+$npmrc = ($env:USERPROFILE -replace '\\','/') + "/.npmrc"
+docker run --rm -it -e GH_TOKEN -v "${repo}:/w" -v "${npmrc}:/root/.npmrc:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
+```
+
+The host paths need forward slashes for the Docker `-v` mount: `$env:USERPROFILE`
+returns backslashes, hence the `-replace`. `${repo}` and `${npmrc}` need the
+braces so PowerShell does not swallow the `:` that separates the host path
+from the container path.
 
 `GH_TOKEN` must be passed explicitly, as above — `gh auth login` on the host
 commonly stores the token in the OS keyring (e.g. Windows Credential
@@ -222,7 +240,7 @@ regardless of where `gh` stores it. The tool itself runs `gh auth setup-git`
 on every invocation, so once `gh` is authenticated this way, `git push`
 inherits the same credentials.
 
-Then the same command without `--dry-run`.
+Then the same command without `--dry-run`, in whichever shell you used above.
 
 `--expect <package>@X.Y.Z` is mandatory. Run before the publish workflow has
 finished, `latest` still resolves to the previous version and the tool bumps
