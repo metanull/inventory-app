@@ -205,15 +205,14 @@ to the new version. It is not automatic.
 
 `tools/propagate.mjs` in `viewer-workflows` opens one PR per website, bumping
 the range and the lockfile. Run it from the `viewer-workflows` checkout, in
-Docker, with your own `gh` login and `~/.npmrc` mounted read-only. Preview
-first with `--dry-run`.
+Docker, with your own `gh` login. Preview first with `--dry-run`.
 
 Bash (Linux, macOS):
 
 ```bash
 cd E:/inventory/viewer-workflows
 export GH_TOKEN=$(gh auth token)
-docker run --rm -it -e GH_TOKEN -v "$PWD:/w" -v "$HOME/.npmrc:/root/.npmrc:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
+docker run --rm -it -e GH_TOKEN -v "$PWD:/w" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
 ```
 
 PowerShell (Windows), where the operator actually runs this — `export`,
@@ -222,15 +221,12 @@ written in PowerShell:
 
 ```powershell
 $env:GH_TOKEN = gh auth token
-$repo  = "E:/inventory/viewer-workflows"
-$npmrc = ($env:USERPROFILE -replace '\\','/') + "/.npmrc"
-docker run --rm -it -e GH_TOKEN -v "${repo}:/w" -v "${npmrc}:/root/.npmrc:ro" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
+$repo = "E:/inventory/viewer-workflows"
+docker run --rm -it -e GH_TOKEN -v "${repo}:/w" -w /w node:lts-alpine sh -c "apk add --no-cache git github-cli >/dev/null && node tools/propagate.mjs --expect <package>@X.Y.Z --dry-run"
 ```
 
-The host paths need forward slashes for the Docker `-v` mount: `$env:USERPROFILE`
-returns backslashes, hence the `-replace`. `${repo}` and `${npmrc}` need the
-braces so PowerShell does not swallow the `:` that separates the host path
-from the container path.
+`${repo}` needs the braces so PowerShell does not swallow the `:` that
+separates the host path from the container path.
 
 `GH_TOKEN` must be passed explicitly, as above — `gh auth login` on the host
 commonly stores the token in the OS keyring (e.g. Windows Credential
