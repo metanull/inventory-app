@@ -68,15 +68,13 @@ Two hosting targets exist on purpose and both stay:
 
 ## 1. Application (inventory-app)
 
-Every merge to `main` deploys the application to the VPS. The docs site and the
-generated API client follow their own paths.
+Every merge to `main` deploys the application to the VPS. The docs site
+follows its own path.
 
 - `Build` runs on push to `main` and on tags `v*.*.*`, then `deploy-ovh` runs
   when `Build` completes and copies the artefact to the VPS over SSH. Both can
   be started by hand from the Actions tab (`workflow_dispatch`).
 - `continuous-deployment_github-pages` publishes `docs/` on every push to `main`.
-- `publish-api-client` regenerates and publishes the TypeScript client when
-  anything under `app/` changes.
 
 There is no command to run. The server side (directories, symlinks, rollback)
 is described in [Production Deployment](production-deployment).
@@ -276,9 +274,6 @@ behind:
   and fixing any doc that still describes GitHub Packages as the current
   publish target — is tracked separately in epic #1723 ("Retire GitHub
   Packages publishing"), open as of this writing.
-- None of this touches `@metanull/inventory-app-api-client`: that package,
-  consumed only by `/spa`, was explicitly kept on GitHub Packages and is out
-  of scope for the whole transition.
 
 ## 6. Scaffold (website-template)
 

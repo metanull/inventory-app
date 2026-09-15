@@ -25,8 +25,6 @@ Use this map to find the part of the repository that owns a task.
 | `.legacy-code/` | Legacy application sources kept for behavioural reference. |
 | `.new-architecture/` | The website platform repositories, checked out for reference. |
 | `docs/` | Jekyll documentation site. |
-| `api-client/` | Generated TypeScript management API client. Do not edit by hand. |
-| `spa/` | Vue sample application for API client integration. |
 | `tests/Filament/` | Filament `/admin` tests. |
 | `tests/Api/` | Management API tests. |
 | `tests/Unit/` | Model, request, service, and helper unit tests. |
