@@ -83,11 +83,11 @@ files, written to `output/sharinghistory/`:
 
 | File | Exporter | Contents |
 |---|---|---|
-| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) and `site` — the languages the items carry, in switcher order with native labels, and the project name per language: what the website reads before it mounts |
+| `manifest.json` | `ManifestExporter` | Metadata about the export itself (project keys, generated-at timestamp, available languages) and `site` — the languages the items carry, in switcher order with native labels, and the project name per language: what the website reads before it mounts. Also `projects`: one entry per referenced project UUID, with a per-language name and the three URL columns (epic #1727 phase 2, additive) |
 | `languages.json` | `LanguageExporter` | Language reference data |
 | `countries.json` | `CountryExporter` | Country reference data + translations |
 | `timelines.json` / `timeline_events.json` | `TimelineExporter` | Per-(country × exhibition) SH timelines (+ Permanent Collection timelines with `collection_id: null`), events with images, item links and legacy captions |
-| `partners.json` | `PartnerExporter` | SH partners (flat tiers via `level`: `partner` / `associated_partner`) + translations + logos + images. One shape across every dataset (metanull/inventory-app#1699): `level`/`parent_id`/`project_ids`, plus `item_count`/`featured` |
+| `partners.json` | `PartnerExporter` | SH partners (flat tiers via `level`: `partner` / `associated_partner`) + translations + logos + images. One shape across every dataset (metanull/inventory-app#1699): `level`/`parent_id`/`project_ids`, plus `item_count`/`featured`/`project_uuids` (epic #1727 phase 2, additive) |
 | `items.json` | `ItemExporter` | Items (objects/monuments), with `display_status`, images, media/documents, related-item links |
 | `collections.json` | `CollectionExporter` | Project, exhibitions root, exhibitions → themes → subthemes, Historical Background and National Context collections — with images, item membership, justifications |
 | `glossary.json` | `GlossaryExporter` | Glossary terms used by SH content + translations |

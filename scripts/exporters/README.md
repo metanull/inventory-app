@@ -69,7 +69,9 @@ change.
 
 ```
 output/<dataset>/
-├── manifest.json            # projectIds/projectKeys (parallel arrays), languages, export metadata
+├── manifest.json            # projectIds/projectKeys (parallel arrays), languages, export metadata,
+│                            #   and projects: name/site_url/related_database_url/
+│                            #   artistic_introduction_url per referenced project UUID (epic #1727 phase 2)
 ├── items.json               # objects, monuments, monument details
 ├── collections.json         # projects, exhibitions, themes, pages, galleries…
 ├── partners.json / countries.json / languages.json

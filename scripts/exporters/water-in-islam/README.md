@@ -91,13 +91,13 @@ package carries both fields rather than deriving one from the other.
 
 | File | Contents |
 |---|---|
-| `manifest.json` | Export metadata, the languages present, item and theme counts |
+| `manifest.json` | Export metadata, the languages present, item and theme counts. Also `projects`: one entry per referenced project UUID, with a per-language name and the three URL columns (epic #1727 phase 2, additive) |
 | `exhibition.json` | Site anchor: slug, legacy host, titles/subtitles/headlines, enabled languages, logos, partner strip, chrome flags, **hidden partner ids**, sibling sites |
 | `themes.json` | 6 themes + 22 sub-themes, 432 curated pictures with cover pictures and related-picture links |
 | `related_content.json` | The 5 "Further Reading" bibliographies, as `kind: "text"` entries |
 | `items.json` | The 495 member items — full sheets, facet tag ids, images, references |
 | `tags.json` | 245 THG facet tags with their category (artist 11, dynasty 29, material 99, subject 18, type 88) |
-| `partners.json` | The 128 museums and institutions; eleven of them flagged hidden by `exhibition.json`. One shape across every dataset (metanull/inventory-app#1699): `featured`, `item_count`, plus `level`/`parent_id`/`project_ids` from the curated hierarchy where the data has one |
+| `partners.json` | The 128 museums and institutions; eleven of them flagged hidden by `exhibition.json`. One shape across every dataset (metanull/inventory-app#1699): `featured`, `item_count`, plus `level`/`parent_id`/`project_ids`/`project_uuids` (epic #1727 phase 2, additive) from the curated hierarchy where the data has one |
 | `countries.json` | The 37 countries the members, their holders and the timeline reference |
 | `languages.json` | The 9 languages the site can display (en as `site_language`, plus 8 carried by borrowed records and partners) |
 | `dynasties.json` | The 38 dynasties member items reference |
