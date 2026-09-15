@@ -349,15 +349,6 @@ One workflow per dataset viewer. Each builds its Vite viewer against the **lates
 | `amulets` | `deploy-viewer-amulets-ovh.yml` | `scripts/viewers/amulets/**` | `/amulets/` | `/opt/amulets/` | https://inventory.metanull.eu/amulets/ |
 | `carpets` | `deploy-viewer-carpets-ovh.yml` | `scripts/viewers/carpets/**` | `/carpets/` | `/opt/carpets/` | https://inventory.metanull.eu/carpets/ |
 
-> **Neither `amulets` nor `carpets` is deployable yet.**
-> `@metanull/amulets-data` and `@metanull/carpets-data` have not been
-> published, so step 3 below carries `if: false` in both workflows and neither
-> Nginx alias block exists on the VPS. Do not dispatch them. Both are lifted
-> per dataset in the same change that publishes that package — see
-> [`scripts/viewers/amulets/README.md`](../../scripts/viewers/amulets/README.md#what-must-change-once-the-package-is-published)
-> and
-> [`scripts/viewers/carpets/README.md`](../../scripts/viewers/carpets/README.md#what-must-change-once-the-package-is-published).
-
 **Workflow properties** (identical apart from the dataset name)
 
 | Property | Value |
