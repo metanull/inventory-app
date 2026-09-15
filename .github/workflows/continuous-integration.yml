@@ -383,6 +383,10 @@ jobs:
         uses: ./.github/actions/setup-node-project
         with:
           working-directory: spa
+          # spa/package.json depends on @metanull/inventory-app-api-client,
+          # which is deliberately still published to GitHub Packages (see
+          # publish-api-client.yml), so this directory alone needs a
+          # registry override and a token to install it.
           registry-url: https://npm.pkg.github.com/
           node-auth-token: ${{ secrets.GITHUB_TOKEN }}
 
