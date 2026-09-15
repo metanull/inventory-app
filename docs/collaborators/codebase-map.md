@@ -42,7 +42,7 @@ repository. Clone them when you need them:
 git submodule update --init .legacy-database .legacy-code
 ```
 
-`.new-architecture/` holds the public [website platform](https://github.com/metanull/website-template)
+`.new-architecture/` holds the public [website platform](https://github.com/museumwithnofrontiers/website-template)
 repositories — `viewer-core`, `viewer-layout`, `viewer-i18n`,
 `viewer-workflows`, `website-template` and one repository per website — which
 are useful to read while working on the exporters and viewers under

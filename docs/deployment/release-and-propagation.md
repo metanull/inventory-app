@@ -157,7 +157,7 @@ git -C E:/inventory/viewer-workflows push origin vX.Y.Z
 Optionally, to keep the Releases page complete:
 
 ```bash
-gh release create vX.Y.Z -R metanull/viewer-workflows --target main --title vX.Y.Z --generate-notes
+gh release create vX.Y.Z -R museumwithnofrontiers/viewer-workflows --target main --title vX.Y.Z --generate-notes
 ```
 
 Consumers adopt the new tag through Dependabot's `github-actions` ecosystem:
@@ -184,13 +184,13 @@ ranges on them, so a release does not reach any site until it is propagated.
    with the version taken from the tag.
 
 ```bash
-gh release create vX.Y.Z -R metanull/<package> --target main --title vX.Y.Z --generate-notes
+gh release create vX.Y.Z -R museumwithnofrontiers/<package> --target main --title vX.Y.Z --generate-notes
 ```
 
 4. Confirm the publish run succeeded before propagating:
 
 ```bash
-gh run list -R metanull/<package> --workflow=release.yml --limit 3
+gh run list -R museumwithnofrontiers/<package> --workflow=release.yml --limit 3
 ```
 
 When several PRs on the same package each bump the version, merge them in
@@ -296,7 +296,7 @@ from a local change to the site itself. Nothing to run by hand. To check a
 deployment:
 
 ```bash
-gh run list -R metanull/<site> --workflow=deploy.yml --limit 1
+gh run list -R museumwithnofrontiers/<site> --workflow=deploy.yml --limit 1
 ```
 
 GitHub Pages must have been enabled once by hand on a new repository; a green
@@ -358,7 +358,7 @@ When the platform changes instead (a shared package), the sequence is stage
 | Application on the VPS | [Production Deployment](production-deployment) in this site |
 | Content import | `scripts/import-tool/README.md` (walkthrough and copy-paste TL;DR) |
 | Data package publishing | `scripts/exporters/<site>/NPM_PUBLISH.md` |
-| Reusable workflows | `README.md` and `MAINTENANCE.md` in metanull/viewer-workflows |
-| Shared package release and propagation | `MAINTENANCE.md` in metanull/viewer-layout ("The flow"); `tools/propagate.mjs` in viewer-workflows |
-| Creating a website | `README.md` in metanull/website-template ("Admin") |
+| Reusable workflows | `README.md` and `MAINTENANCE.md` in museumwithnofrontiers/viewer-workflows |
+| Shared package release and propagation | `MAINTENANCE.md` in museumwithnofrontiers/viewer-layout ("The flow"); `tools/propagate.mjs` in viewer-workflows |
+| Creating a website | `README.md` in museumwithnofrontiers/website-template ("Admin") |
 | npmjs transition | epics #1720, #1721, #1722, #1723 in this repository |
