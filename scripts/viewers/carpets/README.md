@@ -343,14 +343,3 @@ owner to confirm, not one this story settled.**
 `--base=/carpets/` and deploys `dist/` to `/opt/carpets/` on the OVH VPS;
 Nginx serves it at https://inventory.metanull.eu/carpets/ via an alias block.
 See [`../README.md`](../README.md) for the shared deployment mechanics.
-
-**The workflow is not usable yet** — see *What must change once the package is
-published* above. The Nginx alias block still has to be added on the server:
-
-```nginx
-location /carpets {
-    alias /opt/carpets;
-    index index.html;
-    try_files $uri $uri/ /carpets/index.html;
-}
-```
